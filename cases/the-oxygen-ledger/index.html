@@ -266,26 +266,48 @@ dialog::backdrop{background:rgba(10,5,3,.66)}
 .story-footer a{color:var(--rust)}
 @media (max-width:560px){body{font-size:17px}.band{padding:16px 16px 0;min-height:200px}.terrain{width:calc(100% + 32px);margin:12px -16px 0}.titles{max-width:100%}.sun,.phobos{display:none}.panelc{padding:10px 8px 8px}}
 @media (prefers-reduced-motion:reduce){.fade{animation:none}.band,.sun,.phobos{transition:none}}
+
+/* HUD header: the case opens on Juniper's own life-support console */
+.hud{position:relative;overflow:hidden;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px 18px}
+.hud::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(120,60,30,.035) 3px 4px)}
+.hud::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--rust),var(--teal))}
+.hud-top{position:relative;display:flex;justify-content:space-between;gap:6px 14px;flex-wrap:wrap;font:600 .7rem/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+.hud-top b{color:var(--ink);font-weight:600}
+.hud h1{position:relative;font-family:var(--display);font-weight:700;font-size:clamp(2.1rem,7.4vw,4rem);line-height:.98;margin:12px 0 6px;color:var(--rust);text-transform:uppercase;letter-spacing:.03em}
+.hud .sub{position:relative;margin:0 0 16px;color:var(--muted)}
+.tiles{position:relative;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:10px}
+@media (max-width:860px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.tiles{gap:8px}.tiles .tile:first-child,.tiles .tile:last-child{grid-column:1/-1}.tile{padding:8px 10px}.tile>b,#depBox b{font-size:1.1rem}.tile .ts{font-size:.68rem}}
+.tile{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--panel2);display:grid;gap:3px;align-content:start;min-width:0}
+.tile .tl{font:600 .6rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tile>b,#depBox b{font:600 1.35rem/1.15 var(--mono);color:var(--ink)}
+.tile .ts{font:500 .74rem/1.4 var(--mono);color:var(--muted)}
+.tile .ts b{font-weight:600;color:var(--ink)}
+.tile .ts.ok{color:var(--ok)}.tile .ts.bad{color:var(--rust);font-weight:600}
+.tile.alert{border-color:var(--rust);background:var(--rust-soft)}.tile.alert>b{color:var(--rust)}
+#depBox.urgent b{color:var(--rust)}
+#rollBox.gone b,#upBox.gone b{text-decoration:line-through;color:var(--muted)}
+#rollBox.urgent b{color:var(--rust)}
+#spark{width:100%;height:40px;display:block;margin-top:4px}
+#spark .gl{stroke:var(--grid);stroke-width:1}
+#spark .main{fill:none;stroke:var(--c1);stroke-width:1.6;vector-effect:non-scaling-stroke}
+#spark .clin{fill:none;stroke:var(--c2);stroke-width:1.6;vector-effect:non-scaling-stroke}
+#spark .frz{fill:var(--rust-soft)}
 </style>
 </head>
 <body>
 <header class="mast">
   <p class="tac-brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="/">DoorQuests</a> · Cluortals · Cluortal No. 3</span></p>
-  <div class="band" id="band">
-    <div class="sun" id="sun" aria-hidden="true"></div><div class="phobos" id="phobos" aria-hidden="true"></div>
-    <div class="titles">
-      <p class="pre">Cluortal No. 3 · Hellas Basin, Mars · 2142</p>
-      <h1>The Oxygen Ledger</h1>
-      <p class="sub">Twelve minutes of air are missing, and the system says nothing happened.</p>
+  <div class="hud" id="hud">
+    <div class="hud-top"><span>Juniper Habitat · Hellas Basin, Mars · Cluortal No. 3</span><span>Sol 1,412 · <b id="clock">05:30</b></span></div>
+    <h1>The Oxygen Ledger</h1>
+    <p class="sub">Twelve minutes of air are missing, and the system says nothing happened.</p>
+    <div class="tiles">
+      <div class="tile"><span class="tl">LS-1 · Habitat O₂, last night</span><b id="o2v">21.0 kPa</b><span class="ts ok" id="o2s">NOMINAL · no fault logged</span><svg id="spark" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+      <div class="tile alert"><span class="tl">Oxygen ledger</span><b>−12 min</b><span class="ts">of breathing air, unaccounted</span><span class="ts">Generator made it up by dawn</span></div>
+      <div class="tile"><span class="tl">Authority transport</span><span id="depBox"><b id="dep">12h 30m</b></span><span class="ts">Lifts 18:00 · your finding goes with it</span></div>
+      <div class="tile"><span class="tl">Data windows</span><span class="ts"><span id="rollBox">High-res logs <b id="roll">until 08:00</b></span></span><span class="ts"><span id="upBox">Earth uplink <b id="up">until 16:00</b></span></span><span class="ts">Intuition <span class="pips" id="intuit"></span></span></div>
     </div>
-    <svg class="terrain" id="terrain" viewBox="0 0 700 110" preserveAspectRatio="xMidYMax meet" aria-hidden="true"></svg>
-  </div>
-  <div class="strip" aria-label="Cluortal status">
-    <div>Sol 1,412<b id="clock">05:30</b></div>
-    <div id="depBox">Transport lifts in<b id="dep">12h 30m</b></div>
-    <div id="rollBox">High-res logs<b id="roll">until 08:00</b></div>
-    <div id="upBox">Earth uplink<b id="up">until 16:00</b></div>
-    <div>Intuition<span class="pips" id="intuit"></span></div>
   </div>
 </header>
 
@@ -914,10 +936,19 @@ function renderStatus(){
  $("roll").textContent=s.clock<ROLL?`until 08:00`:"averaged";$("rollBox").className=s.clock>=ROLL?"gone":s.clock>=ROLL-45?"urgent":"";
  $("up").textContent=s.clock<UPLINK_T?"until 16:00":"closed";$("upBox").className=s.clock>=UPLINK_T?"gone":"";
  $("intuit").innerHTML=[0,1].map(i=>`<i class="${i<s.tools.intuit?"on":""}"></i>`).join("");$("intuit").setAttribute("aria-label",`${s.tools.intuit} of 2 left`);
- const h=s.clock/60;$("band").className="band "+(h<7.5?"dawn":h>=16.5?"dusk":"");
- const p=clamp((h-5.5)/12.5,0,1);const sun=$("sun");sun.style.left=`calc(${50+p*44}% - 13px)`;sun.style.top=`${130-Math.sin(p*Math.PI)*90}px`;
- $("phobos").style.left=`${(10+h*6)%96}%`;
- const here=s.view==="interview"?WHERE[s.who]:s.loc;$("terrain").innerHTML=terrainSVG(here);
+ const o2s=$("o2s");
+ o2s.textContent=s.ev.flatline?"FROZEN 02:13–02:41":"NOMINAL · no fault logged";o2s.className="ts "+(s.ev.flatline?"bad":"ok");
+ $("o2v").textContent=s.ev.dip?"17.4 kPa":"21.0 kPa";
+ $("spark").innerHTML=sparkSVG(s);
+}
+function sparkSVG(s){
+ const X=m=>(m-W0)/(W1-W0)*200,Y=v=>38-(v-16.8)/(21.8-16.8)*36;
+ const line=a=>a.map(([m,v])=>`${X(m).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+ let g=`<line class="gl" x1="0" y1="${Y(21)}" x2="200" y2="${Y(21)}"/>`;
+ if(s.ev.flatline)g+=`<rect class="frz" x="${X(133)}" y="0" width="${X(161)-X(133)}" height="40"/>`;
+ g+=`<polyline class="main" points="${line(DATA.lo)}"/>`;
+ if(s.ev.dip)g+=`<polyline class="clin" points="${line(DATA.clinic)}"/>`;
+ return g;
 }
 function terrainSVG(here){
  const w=(id,x,y)=>`<rect class="w ${here===id?"here":""}" x="${x}" y="${y}" width="8" height="5" rx="2"/>`;
