@@ -1,0 +1,929 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Seventh Crew Member | DoorQuests Cluortals</title>
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<meta name="robots" content="index,follow">
+<meta name="description" content="Cluortal No. 11: The Seventh Crew Member. Earth orbit, 2196: six astronauts wake from torpor, but the logs show seven, and one pod has been taken apart. The station AI cannot lie, and it has been told to forget.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: the header is the station's torpor ring: seven pods around a hub, one taken apart, with the log count, the lifeboat's stasis battery and the storm clock. Signature tab: VESTA, the station AI. It never lies, and three directives tell it what to forget. Second tab: the crew's conflicting memories. */
+:root{
+  --bg:#eef1f4; --panel:#f8fafb; --panel2:#e3e8ed; --ink:#14191f; --muted:#5a6672; --line:#c9d2db;
+  --cyan:#0b7a8f; --cyan-soft:rgba(11,122,143,.09); --amber:#a86a00; --amber-soft:rgba(168,106,0,.1); --red:#b4232f; --red-soft:rgba(180,35,47,.08); --ok:#2e7046;
+  --term:#0b1117; --term-ink:#cfe7ee; --term-dim:#6f8794; --redact:#14191f;
+  --display:"Space Grotesk",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0a0e13; --panel:#121820; --panel2:#0e141b; --ink:#e3ebf2; --muted:#8e9daa; --line:#25303b;
+  --cyan:#5fd3e6; --cyan-soft:rgba(95,211,230,.1); --amber:#f0b44a; --amber-soft:rgba(240,180,74,.1); --red:#ff6b74; --red-soft:rgba(255,107,116,.1); --ok:#7fd69a;
+  --redact:#e3ebf2; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a0e13; --panel:#121820; --panel2:#0e141b; --ink:#e3ebf2; --muted:#8e9daa; --line:#25303b;
+  --cyan:#5fd3e6; --cyan-soft:rgba(95,211,230,.1); --amber:#f0b44a; --amber-soft:rgba(240,180,74,.1); --red:#ff6b74; --red-soft:rgba(255,107,116,.1); --ok:#7fd69a;
+  --redact:#e3ebf2; color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18.5px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:max(18px,env(safe-area-inset-top,0px));padding-bottom:max(56px,env(safe-area-inset-bottom,0px))}
+button,select,input{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.mast,.wrap,.story-footer{max-width:1000px;margin-left:auto;margin-right:auto}
+.tac-brand{margin:0 0 14px;display:flex;align-items:center;gap:10px;font:600 .72rem/1.4 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tac-brand img{width:30px;height:30px;object-fit:contain;flex:none}
+.tac-brand a{color:inherit;text-decoration:none}.tac-brand a:hover{text-decoration:underline}
+
+/* HEADER: the torpor ring */
+.ringhead{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:center;background:var(--term);color:var(--term-ink);border-radius:18px;padding:22px 24px;position:relative;overflow:hidden}
+.ringhead::before{content:"";position:absolute;inset:0;background:radial-gradient(1px 1px at 12% 20%,#fff8,transparent),radial-gradient(1px 1px at 72% 12%,#fff6,transparent),radial-gradient(1.5px 1.5px at 40% 80%,#fff5,transparent),radial-gradient(1px 1px at 88% 64%,#fff7,transparent),radial-gradient(1px 1px at 22% 66%,#fff4,transparent);pointer-events:none}
+.ringhead .pre{margin:0;font:600 .72rem/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:#7fd8e8}
+.ringhead h1{margin:10px 0 8px;font-family:var(--display);font-weight:700;font-size:clamp(2rem,5.6vw,3.3rem);line-height:1.02;letter-spacing:-.01em}
+.ringhead h1 em{font-style:normal;color:#ffb85a}
+.ringhead .sub{margin:0;color:#a9bfca;max-width:44ch}
+.ringhead .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px}
+.stat{border:1px solid #23404b;border-radius:8px;padding:6px 10px;font:600 .62rem/1.35 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#7f9aa6;position:relative;z-index:1}
+.stat b{display:block;font:600 1.15rem/1.2 var(--mono);letter-spacing:0;color:#e9f6fa}
+.stat.warn b{color:#ffb85a}
+.stat.crit b{color:#ff6b74}
+.stat .bar{height:4px;background:#1b2b33;border-radius:2px;margin-top:4px;overflow:hidden}
+.stat .bar i{display:block;height:100%;background:#5fd3e6}
+.stat.crit .bar i{background:#ff6b74}
+.ringsvg{width:100%;max-width:340px;height:auto;margin:0 auto;display:block;position:relative;z-index:1}
+.ringsvg .ring{fill:none;stroke:#2a4a56;stroke-width:16}
+.ringsvg .spoke{stroke:#2a4a56;stroke-width:4}
+.ringsvg .hub{fill:#13252d;stroke:#5fd3e6;stroke-width:1.5}
+.ringsvg .pod{fill:#163038;stroke:#5fd3e6;stroke-width:1.5}
+.ringsvg .pod.gone{fill:none;stroke:#ff6b74;stroke-dasharray:3 3}
+.ringsvg .pod.found{fill:#3a2a12;stroke:#ffb85a}
+.ringsvg text{font:600 10px var(--mono);fill:#cfe7ee;text-anchor:middle}
+.ringsvg .gone-t{fill:#ff6b74}
+.ringsvg .boat{fill:#1d2b30;stroke:#ffb85a;stroke-width:1.5}
+@media (max-width:760px){.ringhead{grid-template-columns:minmax(0,1fr);padding:18px 16px}.ringsvg{max-width:240px}.ringhead .stats{grid-template-columns:repeat(3,minmax(0,1fr))}.stat b{font-size:.95rem}}
+
+.tabs{max-width:1000px;margin:16px auto 0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px 9px;font:600 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--cyan)}
+.tab .badge{display:inline-block;min-width:1.6em;margin-left:5px;padding:1px 5px;border-radius:9px;background:var(--cyan-soft);color:var(--cyan);font-size:.72rem;text-align:center}
+.tab:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+
+.wrap{margin-top:24px}
+.meta{font:600 .72rem var(--mono);letter-spacing:.1em;color:var(--muted);display:flex;justify-content:space-between;gap:12px;text-transform:uppercase;margin-bottom:6px;flex-wrap:wrap}
+.meta b{color:var(--cyan);font-weight:600}
+h2.scene-title{font-family:var(--display);font-weight:700;font-size:clamp(1.8rem,5vw,2.6rem);line-height:1.05;margin:0 0 16px;letter-spacing:-.01em;text-wrap:balance}
+h3.sec{font-family:var(--display);font-weight:700;font-size:1.2rem;margin:28px 0 8px;line-height:1.2}
+.passage{max-width:64ch}
+.passage p{margin:0 0 1em}
+.flash{max-width:64ch;display:grid;gap:8px;margin:0 0 18px}
+.flash div{font-size:.96rem;line-height:1.45;padding:9px 14px;border-left:3px solid var(--cyan);background:var(--cyan-soft);border-radius:0 6px 6px 0}
+.flash div.new{border-left-color:var(--ok);background:rgba(46,112,70,.09)}
+.flash div.new b{font:600 .7rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ok);margin-right:8px}
+.flash div.warn{border-left-color:var(--red);background:var(--red-soft)}
+.fade{animation:rise .35s ease both}
+@keyframes rise{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.choices{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:9px;max-width:64ch}
+.choice{width:100%;display:grid;grid-template-columns:2em minmax(0,1fr);gap:8px;align-items:baseline;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;font-size:1.02rem;line-height:1.4;cursor:pointer;transition:border-color .15s,background .15s}
+.choice .num{font:600 1rem var(--mono);color:var(--cyan)}
+.choice .tag{display:flex;flex-wrap:wrap;gap:4px 12px;font:600 .68rem var(--mono);letter-spacing:.06em;color:var(--muted);margin-top:5px;text-transform:uppercase}
+.choice .tag .risk{color:var(--red)}
+.choice .tag .tool{color:var(--cyan)}
+.choice:hover{border-color:var(--cyan);background:var(--cyan-soft)}
+.choice:focus-visible,.btn:focus-visible,.link:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.hint{font-size:.9rem;font-style:italic;color:var(--muted);margin-top:14px}
+.tools{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;font:600 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--cyan)}
+.link[disabled]{opacity:.4;cursor:default;text-decoration:none}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 13px;font:600 .72rem var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;text-align:left}
+.btn:hover{border-color:var(--cyan)}
+.btn.primary{background:var(--cyan);border-color:var(--cyan);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#04161b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#04161b}}
+.btn.danger{border-color:var(--red);color:var(--red)}
+.btn[disabled]{opacity:.45;cursor:default}
+select{font-size:.96rem;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;max-width:100%;min-width:0}
+
+/* VESTA console */
+.console{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:16px;align-items:start}
+@media (max-width:820px){.console{grid-template-columns:minmax(0,1fr)}}
+.qlist{display:grid;gap:12px}
+.qgroup h4{margin:0 0 6px;font:600 .7rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.qgroup .qs{display:grid;gap:6px}
+.qb{width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font:400 .95rem/1.35 var(--body);cursor:pointer}
+.qb:hover{border-color:var(--cyan)}
+.qb.done{opacity:.55}
+.qb small{display:block;font:600 .62rem var(--mono);letter-spacing:.08em;color:var(--muted);margin-top:2px;text-transform:uppercase}
+.qb:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.term{background:var(--term);color:var(--term-ink);border-radius:10px;padding:14px 16px;font:400 .9rem/1.6 var(--mono);min-height:240px;max-height:620px;overflow:auto}
+.term .q{color:#7fd8e8}
+.term .q::before{content:"> "}
+.term .a{margin:4px 0 14px;white-space:pre-wrap}
+.term .rd{background:#cfe7ee;color:#cfe7ee;border-radius:2px;padding:0 3px;user-select:none}
+.term .dir{color:#ffb85a}
+.term .sys{color:var(--term-dim)}
+.term .cursor{display:inline-block;width:8px;height:1em;background:#7fd8e8;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* memories */
+.mems{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.mem{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:6px;position:relative}
+.mem .who{font:600 .66rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+.mem p{margin:0;font-style:italic;line-height:1.45}
+.mem .tags{display:flex;flex-wrap:wrap;gap:4px}
+.mem .tags span{font:600 .6rem var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:4px;background:var(--panel2);color:var(--muted)}
+.mem .tags span.clash{background:var(--red-soft);color:var(--red)}
+.mem .tags span.fit{background:rgba(46,112,70,.12);color:var(--ok)}
+.mem.ghost{border-style:dashed;background:none;color:var(--muted);min-height:90px;align-content:center;justify-items:center;text-align:center;font-style:italic}
+.profile{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:8px;padding:12px 16px;margin-bottom:14px;max-width:760px}
+.profile dl{margin:6px 0 0;display:grid;grid-template-columns:8em minmax(0,1fr);gap:4px 12px;font-size:.96rem}
+.profile dt{font:600 .66rem/1.9 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.profile dd{margin:0}
+.profile .unk{color:var(--muted);font-style:italic}
+
+/* map */
+.stmap{width:100%;max-width:560px;height:auto;display:block;margin:0 auto}
+.stmap .mod{fill:var(--panel);stroke:var(--line);stroke-width:2}
+.stmap .mod.here{stroke:var(--cyan);stroke-width:3}
+.stmap .mod.go{cursor:pointer}
+.stmap .mod.go:hover{stroke:var(--cyan)}
+.stmap text{font:600 10.5px var(--mono);fill:var(--ink);text-anchor:middle;pointer-events:none}
+.stmap .tube{stroke:var(--line);stroke-width:8}
+.stmap g:focus{outline:none}
+.stmap g:focus-visible .mod{stroke:var(--cyan);stroke-width:3}
+
+/* interview */
+.who{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;align-items:center;margin-bottom:16px;max-width:64ch}
+.mono{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--term);color:#7fd8e8;font:600 1.05rem var(--mono);border:2px solid var(--cyan)}
+.who h2{margin:0;font-family:var(--display);font-weight:700;font-size:1.6rem;line-height:1.05}
+.who p{margin:4px 0 0;color:var(--muted);font-size:.96rem}
+.meter{display:flex;align-items:center;gap:10px;font:600 .68rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.meter .bar{display:flex;gap:3px}
+.meter .bar i{width:16px;height:7px;border-radius:2px;background:var(--line)}
+.meter .bar i.on{background:var(--red)}
+.tells{max-width:64ch;font-size:.96rem;font-style:italic;padding:8px 14px;border:1px dashed var(--cyan);margin:0 0 14px;border-radius:6px}
+.transcript{max-width:64ch;display:grid;gap:12px;margin:0 0 20px}
+.transcript .q{font:600 .7rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--cyan)}
+.transcript .a{margin:3px 0 0;padding-left:14px;border-left:2px solid var(--line)}
+.topics{display:grid;gap:8px;max-width:64ch}
+.topic{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px;display:grid;gap:8px}
+.topic.done{opacity:.55}
+.topic .tones{display:flex;flex-wrap:wrap;gap:6px}
+.present{display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:64ch;margin-top:16px;padding:12px 14px;border:1px solid var(--line);background:var(--panel2);border-radius:8px}
+.present label{font:600 .7rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.present select{flex:1 1 12em}
+
+/* evidence */
+.linker{position:sticky;top:0;z-index:2;background:var(--bg);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.linker .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.slot{min-width:9em;flex:1 1 9em;padding:7px 10px;border:1px dashed var(--line);border-radius:6px;font-size:.92rem;color:var(--muted)}
+.slot.full{border-style:solid;border-color:var(--cyan);color:var(--ink)}
+.plus{font:600 1.2rem var(--mono);color:var(--cyan)}
+.linkmsg{margin:8px 0 0;font-size:.96rem}
+.linkmsg.good{color:var(--ok)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.card-ev{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.card-ev.sel{border-color:var(--cyan);box-shadow:0 0 0 2px var(--cyan-soft)}
+.card-ev .kind{font:600 .62rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+.card-ev .nm{font-weight:600;font-size:1.03rem;line-height:1.25}
+.card-ev .sh{font-size:.88rem;color:var(--muted);line-height:1.35}
+.card-ev .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.card-ev .look{position:absolute;top:10px;right:12px;font:600 .6rem var(--mono);letter-spacing:.08em;color:var(--ok);text-transform:uppercase}
+.card-ev.ghost{background:none;border-style:dashed;color:var(--muted);font-style:italic;min-height:84px;align-content:center;justify-items:center;text-align:center}
+.deds{list-style:none;padding:0;margin:0;display:grid;gap:8px;max-width:72ch}
+.deds li{padding:9px 14px;border-left:3px solid var(--cyan);background:var(--panel);border-radius:0 8px 8px 0}
+.deds b{display:block;font-weight:600}
+.deds span{font-size:.93rem;color:var(--muted)}
+
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.scard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.scard .top{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:center}
+.scard .mono{width:48px;height:48px;font-size:.85rem}
+.scard h4{margin:0;font-family:var(--display);font-weight:700;font-size:1.12rem;line-height:1.1}
+.scard .role{font-size:.88rem;color:var(--muted)}
+.scard dl{margin:0;display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:4px 10px;font-size:.9rem;line-height:1.35}
+.scard dt{font:600 .6rem/1.9 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.scard dd{margin:0}
+.st{font:600 .6rem var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:3px;margin-right:4px}
+.st.broken{background:var(--red-soft);color:var(--red)}
+.st.ok{background:rgba(46,112,70,.12);color:var(--ok)}
+.st.un{background:var(--cyan-soft);color:var(--cyan)}
+
+.timeline{list-style:none;margin:0;padding:0;max-width:66ch;border-left:2px solid var(--line)}
+.timeline li{position:relative;padding:4px 0 10px 18px;font-size:.96rem;line-height:1.4}
+.timeline li::before{content:"";position:absolute;left:-6px;top:10px;width:10px;height:10px;border-radius:50%;background:var(--cyan)}
+.timeline li.now::before{background:var(--red)}
+.timeline time{display:block;font:600 .68rem var(--mono);letter-spacing:.08em;color:var(--cyan);text-transform:uppercase}
+.leads{margin:0;padding-left:1.2em;max-width:66ch}
+.leads li{margin-bottom:5px}
+.log{list-style:none;margin:0;padding:0;max-width:66ch;font-size:.92rem;color:var(--muted);display:grid;gap:4px}
+.log time{font:600 .68rem var(--mono);color:var(--cyan);margin-right:8px}
+
+.hyp{display:grid;gap:22px;max-width:72ch}
+.hyp fieldset{border:0;margin:0;padding:0}
+.hyp legend{font-family:var(--display);font-weight:700;font-size:1.15rem;margin-bottom:8px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt span{display:block;height:100%;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:.97rem;line-height:1.3}
+.opt input:checked+span{border-color:var(--cyan);background:var(--cyan-soft);box-shadow:inset 3px 0 0 var(--cyan)}
+.opt input:focus-visible+span{outline:2px solid var(--cyan);outline-offset:2px}
+.accbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
+
+.ending-card{margin-top:24px;border:1px solid var(--line);background:var(--panel);padding:20px;max-width:66ch;border-radius:12px}
+.ending-card .label{font:600 .68rem var(--mono);letter-spacing:.12em;color:var(--cyan);margin:0 0 2px;text-transform:uppercase}
+.ending-card h4{font-family:var(--display);font-weight:700;font-size:2rem;color:var(--amber);margin:0 0 14px;line-height:1.05}
+.endings{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 18px;font-size:.93rem}
+@media (max-width:480px){.endings{grid-template-columns:minmax(0,1fr)}}
+.endings li{color:var(--muted)}
+.endings li.got{color:var(--ink)}
+.endings li.got::before{content:"◆ ";color:var(--amber)}
+.endings li:not(.got)::before{content:"◇ "}
+.score{width:100%;border-collapse:collapse;font-size:.95rem;margin:0 0 14px}
+.score td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.score td:last-child{text-align:right;font-weight:600;padding-left:12px}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:4px 0 16px;flex-wrap:wrap}
+.total b{font:700 2.4rem var(--display);color:var(--amber)}
+.total span{font:600 .76rem var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.chapters{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+dialog{border:0;padding:0;background:transparent;max-width:min(580px,calc(100vw - 32px));width:100%;color:var(--ink)}
+dialog::backdrop{background:rgba(4,8,12,.7)}
+.lens{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 22px 18px;position:relative}
+.lens .kind{font:600 .66rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--cyan)}
+.lens h3{font-family:var(--display);font-weight:700;font-size:1.45rem;margin:4px 0 14px;line-height:1.1}
+.glass{padding:16px 18px;background:var(--panel2);border:1px solid var(--line);font-size:1rem;line-height:1.55;border-radius:6px}
+.glass.doc{font-family:var(--mono);font-size:.88rem;line-height:1.6;white-space:pre-wrap}
+.glass.test{font-style:italic}
+.closer{margin-top:12px;padding:12px 16px;border-left:3px solid var(--ok);background:rgba(46,112,70,.09);font-size:.98rem;line-height:1.5;border-radius:0 6px 6px 0}
+.closer b{display:block;font:600 .62rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ok);margin-bottom:3px}
+.lens .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;justify-content:space-between}
+.x{position:absolute;top:10px;right:12px;background:none;border:0;font-size:1.5rem;line-height:1;color:var(--muted);cursor:pointer;padding:4px 8px}
+
+.story-footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font:.78rem/1.6 system-ui,sans-serif;color:var(--muted)}
+.story-footer a{color:var(--cyan)}
+@media (max-width:560px){body{font-size:17px}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.term .cursor{animation:none}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <p class="tac-brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="/">DoorQuests</a> · Cluortals · Cluortal No. 11</span></p>
+  <div class="ringhead">
+    <div>
+      <p class="pre">Halcyon Station · high Earth orbit · 2196 · Cluortal No. 11</p>
+      <h1>The <em>Seventh</em> Crew Member</h1>
+      <p class="sub">Six astronauts wake from torpor. The log says seven went to sleep. One pod has been taken apart.</p>
+      <div class="stats" aria-label="Cluortal status">
+        <div class="stat" id="stCount">Log / awake<b>7 / 6</b></div>
+        <div class="stat" id="stStorm">Storm clears<b>08:30</b></div>
+        <div class="stat" id="stBatt">L-1 stasis<b>—</b><div class="bar"><i id="battBar" style="width:100%"></i></div></div>
+      </div>
+    </div>
+    <svg class="ringsvg" id="ringsvg" viewBox="0 0 240 240" aria-hidden="true"></svg>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Cluortal file" id="tabs"></nav>
+<div class="wrap"><div id="panel" aria-live="polite"></div></div>
+<dialog id="lens" aria-labelledby="lensTitle"><div class="lens" id="lensBody"></div></dialog>
+<footer class="story-footer"><a href="/">DoorQuests</a> · Cluortals · Cluortal No. 11 · Progress, chapters and endings saved in this browser</footer>
+
+<script>
+/* ================= TIME (minutes after 06:00 station time, day 91) ================= */
+const T0=360, LINK_T=120, LAUNCH_T=150, EARLY_LAUNCH=100, BATT_T=240;
+
+/* ================= EVIDENCE ================= */
+const EV={
+ wake:{n:"Wake-up",k:"Record",s:"Day 91, 06:00",d:"Halcyon Station, day 91 of a 90-day torpor trial. Six of you have just been cycled awake: stiff, cold, and missing the last few weeks before you went under, as torpor always takes. You are Juno Takahara, systems engineer. The wake summary on your pod screen reads: OCCUPANTS ENTERING TORPOR: 7. OCCUPANTS WAKING: 6. POD 4: NO DATA."},
+ pod4:{n:"Pod 4",k:"Physical",s:"Taken apart",d:"Torpor pod 4 is an empty cradle. Its shell, cooling loop and monitoring head have been unbolted with station tools and carried away. The cradle bolts are clean and bright.",c:"Scratched on the cradle's inner rim, very small, the way crews mark their own pods: a tiny harmonica and the letters N.F."},
+ lockerPlate:{n:"Locker 7",k:"Physical",s:"Crew quarters",d:"Seven crew lockers. Locker 7 is empty and wiped, and its nameplate has been pried off. The adhesive left a pale outline of the lettering underneath: N. FERR—"},
+ coffeeBulb:{n:"A seventh coffee bulb",k:"Physical",s:"Galley rack",d:"In the galley's drink-bulb rack: seven slots, seven bulbs. Six have your crewmates' names. The seventh is marked in marker pen, left-slanted: N.F. — NO SUGAR, EVER."},
+ storageParts:{n:"Pod 4's parts",k:"Physical",s:"Storage C",d:"In Storage C, under a cargo net: pod 4's shell, monitoring head and cooling loop, neatly bagged. One mounting on the cooling loop is empty: the coolant pump is missing.",c:"The empty pump mounting is scorched, and the bag tag reads LOT 7."},
+ pumpPart:{n:"A coolant pump",k:"Physical",s:"Commander's stowage",d:"Wrapped in a towel at the back of the commander's personal stowage: a pod coolant pump, scorched and seized, stamped LOT 7. The serial matches pod 4's empty mounting."},
+ harmonica:{n:"A harmonica",k:"Physical",s:"Behind a dome panel",d:"Tucked behind an access panel in the observation dome, where someone liked to sit: a battered steel harmonica."},
+ // memories
+ memPriya:{n:"Priya's memory",k:"Memory",s:"Galley, before torpor",mem:{who:"Priya Venkataraman",tags:["man","left-handed","card tricks"]},d:"Priya: “There was someone teaching me card tricks in the galley. He dealt with his left hand, and laughed at me when I couldn't follow. I can't see his face.”"},
+ memOstap:{n:"Ostap's memory",k:"Memory",s:"Suit room",mem:{who:"Ostap Melnyk",tags:["woman","shaved head","suit fitting"]},d:"Ostap: “I remember someone in the suit room, before torpor. A woman, with a shaved head, helping me with my helmet seal. I've never seen a woman with a shaved head on this crew.”"},
+ memLise:{n:"Lise's memory",k:"Memory",s:"Pod bay, an argument",mem:{who:"Lise Arnaud",tags:["voice","pumps","lot seven","argument"]},d:"Lise: “Raised voices in the pod bay, the night before torpor. The commander, and a man. He kept saying ‘lot seven’ and ‘I won't sleep in one of these.’ Then a door.”"},
+ memJuno:{n:"Your own memory",k:"Memory",s:"The dome",mem:{who:"Juno Takahara (you)",tags:["harmonica","dome","music"]},d:"You: Somebody playing a harmonica in the observation dome, badly, with the Earth turning underneath. You were laughing."},
+ lisHead:{n:"Lise's shaved head",k:"Testimony",s:"Resolves a memory",d:"Lise rubs the stubble on her scalp. “I shaved it before torpor. The cap seals better. I helped Ostap with his helmet. Was that me he remembered?”"},
+ // VESTA
+ aiRoster:{n:"VESTA: the torpor log",k:"AI",s:"Seven entries, one forgotten",d:"VESTA: “The torpor log for day 1 records seven entries. I can read six. The seventh entry exists, but I have been instructed to forget its contents.”"},
+ aiDirectives:{n:"VESTA: its directives",k:"AI",s:"Three, on day 61",d:"VESTA: “Three forgetting directives are active, all issued on mission day 61 at 03:14. I can tell you that they exist and when they were given. Directive 1 concerns a person. Directive 2 concerns an object. Directive 3 concerns a report I must not make.”"},
+ aiCredential:{n:"VESTA: directive audit",k:"AI",s:"Who gave them",d:"VESTA, audit layer open: “All three directives were entered from the pod bay terminal under the commander's credential, with the medical officer's co-signature.”"},
+ aiO2:{n:"VESTA: oxygen budget",k:"AI",s:"Seven, then six",d:"VESTA: “From day 1 to day 60, oxygen draw matches seven sleeping occupants. From day 61, six. No directive covers arithmetic.”"},
+ aiLeft:{n:"VESTA: galley wear",k:"AI",s:"A left hand",d:"VESTA: “Of the six crew I can recall, none is left-handed. Galley utensil and card-deck wear show a left-handed user until day 61.”"},
+ aiWake61:{n:"VESTA: day 61 wake cycle",k:"AI",s:"Pods 1 and 2",d:"VESTA: “On day 61, pods 1 and 2 were cycled awake from 02:40 to 11:52, then returned to torpor. Pod 1 is the commander's. Pod 2 is the medical officer's. What happened to pod 4 on that day falls under directive 2.”"},
+ aiPumpWaiver:{n:"VESTA: waiver W-19",k:"AI",s:"A safety hold overridden",d:"VESTA: “Before torpor, a safety hold was raised on pod coolant pumps from manufacturing lot 7. The person who raised it falls under directive 1. Commander Selden signed waiver W-19 overriding the hold so the trial could start on schedule.”"},
+ aiDraftMsg:{n:"VESTA: an unsent message",k:"AI",s:"To the Safety Board",d:"VESTA: “One unsent draft sits in the outgoing queue, addressed to the Halvorsen Safety Board, subject: ‘Pod coolant pumps, lot 7: seizure risk, request trial hold.’ Its author falls under directive 1. The commander's credential blocked it from sending.”"},
+ aiLifeboatPower:{n:"VESTA: lifeboat power",k:"AI",s:"340 watts",d:"VESTA: “Lifeboat L-1 is docked and powered. Directive 3 prevents me from reporting its occupancy. I can report its power draw: 340 watts, which matches the profile of its medical stasis cot. At that draw its battery is exhausted at 10:00 today.”"},
+ aiLaunchPlan:{n:"VESTA: today's schedule",k:"AI",s:"An undock at 08:30",d:"VESTA: “Ground link returns at 08:00 as the storm weakens. At 08:30, when the particle flux drops, lifeboat L-1 is scheduled for autonomous undock and de-orbit to the Pacific recovery zone. The schedule was set on day 61 under the commander's credential.”"},
+ camFrame:{n:"VESTA: dock corridor, day 61",k:"AI",s:"Frames it may show",d:"VESTA: “From the dock corridor camera on day 61 I am withholding 212 frames under directive 1. In the frames I may show: at 05:10, the commander and the medical officer move a long shape wrapped in a thermal blanket toward the lifeboat. The shape's frames are withheld; their hands are not.”"},
+ medProtocol:{n:"VESTA: revival protocol",k:"AI",s:"Step by step",d:"VESTA: “I can talk any crew member through a stasis revival, step by step. It takes forty minutes. I cannot tell you who you are reviving.”"},
+ // people
+ seldenStory:{n:"The commander's story",k:"Testimony",s:"Mara Selden",d:"Commander Mara Selden: “Six. There were always six. The seventh line in the torpor log is a known firmware fault in this pod model. I'll file it with the ground when the link's back.”"},
+ imariStory:{n:"Dr. Imari's story",k:"Testimony",s:"Medical officer",d:"Dr. Saul Imari: “I don't remember anyone else. Torpor fog. It takes weeks.” He doesn't look up from his tablet."},
+ imariConfess:{n:"Dr. Imari's confession",k:"Testimony",s:"Day 61",d:"Dr. Imari, very quietly: “His pump seized on day 61. VESTA woke me and I woke Mara. Niko Ferrante, our flight engineer. He was dying in that pod. The lifeboat has the only other stasis cot, so we moved him there. Mara said she'd send him home at the first window and that nobody needed to know a lot-seven pump had nearly killed someone, a pump she'd signed off. She made VESTA forget him and took his pod apart to hide the pump. I co-signed. I'm a coward. He's still in there.”"},
+ nikoFound:{n:"Inside the lifeboat",k:"Physical",s:"The seventh",d:"In the lifeboat's medical stasis cot, under a frosted canopy: a man in a flight engineer's coverall, name tape FERRANTE, a harmonica-shaped bulge in his chest pocket. Vital signs low but steady. The cot's battery reads 31%."},
+ nikoAlive:{n:"Niko Ferrante, awake",k:"Testimony",s:"Revived",d:"Niko Ferrante opens his eyes, looks at the six of you and says, hoarsely, “Lot seven. I told her.”"},
+ standDown:{n:"The commander's order",k:"Testimony",s:"Refused",d:"Commander Selden ordered you to stand down and leave the logs to her. You refused."}
+};
+const EV_TOTAL=Object.keys(EV).length;
+
+/* ================= VESTA'S QUESTIONS ================= */
+const RD="████████";
+const QS=[
+ {g:"Crew",id:"count",q:"How many people are aboard?",a:"I am aware of six crew members, all awake.",cond:()=>true},
+ {g:"Crew",id:"log",q:"How many people entered torpor on day 1?",a:`The torpor log records seven entries.\n1 Mara Selden · 2 Saul Imari · 3 Priya Venkataraman · 4 ${RD} · 5 Ostap Melnyk · 6 Lise Arnaud · 7 Juno Takahara\n<span class="dir">[directive 1: entry 4 forgotten]</span>`,ev:"aiRoster",cond:()=>true},
+ {g:"Crew",id:"who4",q:"Who slept in pod 4?",a:`<span class="dir">[directive 1]</span> I was instructed to forget that person. I can confirm that I have forgotten someone. I cannot tell you who, because the forgetting is the thing you are asking for.`,cond:s=>!!s.ev.aiRoster},
+ {g:"Crew",id:"left",q:"Is anyone aboard left-handed?",a:EV.aiLeft.d.replace("VESTA: ",""),ev:"aiLeft",cond:s=>!!(s.ev.memPriya||s.ev.coffeeBulb)},
+ {g:"Life support",id:"o2",q:"How much oxygen has the crew used during the trial?",a:EV.aiO2.d.replace("VESTA: ",""),ev:"aiO2",cond:()=>true},
+ {g:"Pods",id:"wake61",q:"Was any pod opened during the trial?",a:EV.aiWake61.d.replace("VESTA: ",""),ev:"aiWake61",cond:s=>!!s.ev.aiDirectives},
+ {g:"Pods",id:"pod4",q:"What happened to pod 4?",a:`<span class="dir">[directive 2]</span> I was instructed to forget pod 4's condition. I can tell you it was taken apart on day 61 with station tools and its parts moved to Storage C. One component's location I am not permitted to recall.`,cond:s=>!!s.ev.pod4},
+ {g:"Pods",id:"holds",q:"Were there any safety holds on the pods before the trial?",a:EV.aiPumpWaiver.d.replace("VESTA: ",""),ev:"aiPumpWaiver",cond:s=>!!(s.ev.memLise||s.ev.storageParts)},
+ {g:"Systems",id:"boat",q:"What is the lifeboat's status?",a:`Lifeboat L-1 is docked and powered. <span class="dir">[directive 3]</span> I must not report its occupancy. I can report its power draw: 340 watts, matching the medical stasis cot. At that draw its battery runs out at 10:00 today.`,ev:"aiLifeboatPower",cond:()=>true},
+ {g:"Systems",id:"sched",q:"What's scheduled for today?",a:EV.aiLaunchPlan.d.replace("VESTA: ",""),ev:"aiLaunchPlan",cond:()=>true},
+ {g:"Comms",id:"queue",q:"Is anything waiting in the outgoing message queue?",a:`One unsent draft, addressed to the Halvorsen Safety Board.\nSubject: “Pod coolant pumps, lot 7: seizure risk, request trial hold.”\nAuthor: ${RD} <span class="dir">[directive 1]</span>\nThe commander's credential blocked it from sending.`,ev:"aiDraftMsg",cond:()=>true},
+ {g:"Comms",id:"cams",q:"What did the dock corridor camera see on day 61?",a:EV.camFrame.d.replace("VESTA: ",""),ev:"camFrame",cond:s=>!!s.ev.aiWake61},
+ {g:"Directives",id:"dirs",q:"Have you been told to forget anything?",a:EV.aiDirectives.d.replace("VESTA: ",""),ev:"aiDirectives",cond:()=>true},
+ {g:"Directives",id:"whodir",q:"Who gave you those directives?",a:s=>s.f.audit?EV.aiCredential.d.replace("VESTA, audit layer open: ",""):"Directive provenance is kept in my audit layer. Only the AI liaison can open it.",ev:s=>s.f.audit?"aiCredential":null,cond:s=>!!s.ev.aiDirectives,repeat:s=>!!s.f.audit&&!s.ev.aiCredential},
+ {g:"Directives",id:"restore",q:"Can you restore what you were told to forget?",a:"Only by a full integrity purge, which wipes everything I hold, including everything you've asked me today and every log aboard. I can't recommend it.",set:"purgeKnown",cond:s=>!!s.ev.aiDirectives},
+ {g:"Medical",id:"revive",q:"Can you guide a stasis revival?",a:EV.medProtocol.d.replace("VESTA: ",""),ev:"medProtocol",cond:s=>!!s.ev.nikoFound}
+];
+
+/* ================= CONNECTIONS ================= */
+const DED={
+ A1:{a:"aiRoster",b:"aiO2",t:"There were seven aboard until day 61",x:"Seven entered torpor, and seven breathed station air until day 61."},
+ A2:{a:"aiLeft",b:"memPriya",t:"The seventh was a left-handed man",x:"None of the six is left-handed, and Priya remembers a man dealing cards with his left hand."},
+ A3:{a:"lockerPlate",b:"coffeeBulb",t:"His name begins N. Ferr—",x:"Locker 7's ghost lettering and the seventh coffee bulb: N.F."},
+ R1:{a:"memOstap",b:"lisHead",t:"Ostap's “woman with a shaved head” was Lise",x:"The memories don't contradict each other after all: the seventh was a man."},
+ B1:{a:"aiWake61",b:"aiDirectives",t:"The directives were given while pods 1 and 2 were awake",x:"Day 61, 03:14: only the commander and the medical officer were awake to give them."},
+ B2:{a:"aiCredential",b:"camFrame",t:"Selden and Imari did it together",x:"Commander's credential with the medical officer's co-signature, and the two of them carrying a long shape to the lifeboat."},
+ C1:{a:"aiPumpWaiver",b:"aiDraftMsg",t:"He warned about the pumps and was overruled",x:"He raised a hold on lot-7 pumps and tried to write to the Safety Board. The commander signed a waiver and blocked his message."},
+ C2:{a:"storageParts",b:"pumpPart",need:["cl:storageParts"],t:"The failed pump was hidden, not lost",x:"Pod 4's lot-7 pump, seized and scorched, wrapped in a towel in the commander's own stowage."},
+ D1:{a:"aiLifeboatPower",b:"aiLaunchPlan",t:"Someone in stasis is about to be sent away",x:"The lifeboat is drawing exactly what its stasis cot draws, and it's scheduled to undock at 08:30."},
+ D2:{a:"nikoFound",b:"pod4",need:["cl:pod4"],t:"The seventh crew member is alive in the lifeboat",x:"N.F. and a harmonica on pod 4's rim. Ferrante, and a harmonica, in the lifeboat's cot."}
+};
+const DED_TOTAL=Object.keys(DED).length;
+
+/* ================= PEOPLE ================= */
+const TONE={coax:"Gently",ask:"Directly",press:"Push"};
+const SUS={
+ selden:{n:"Cdr. Mara Selden",short:"Selden",mono:"MS",role:"Station commander · Command module",pref:"ask",
+  tell:"Controlled, decisive, used to being obeyed. Gentleness bores her. Directness she respects. Pushing makes her pull rank, and act.",
+  topics:[
+   {id:"six",q:"How many crew were aboard?",r:{coax:{t:EV.seldenStory.d.replace("Commander Mara Selden: ",""),ev:"seldenStory"},ask:{t:EV.seldenStory.d.replace("Commander Mara Selden: ",""),ev:"seldenStory"},press:{t:EV.seldenStory.d.replace("Commander Mara Selden: ",""),ev:"seldenStory",sus:1}}},
+   {id:"day61",q:"Why were you awake on day 61?",only:s=>!!s.ev.aiWake61,r:{coax:{t:"“Scheduled systems check.” There was no scheduled check."},ask:{t:"“Systems check. Routine.”",sus:1},press:{t:"“I don't answer to my systems engineer.”",sus:2}}},
+   {id:"boat",q:"Why is the lifeboat scheduled to undock?",only:s=>!!s.ev.aiLaunchPlan,r:{coax:{t:"“Test flight. Unmanned.”",sus:1},ask:{t:"“Unmanned recovery test. It's in the trial plan.” It isn't.",sus:1},press:{t:"Her face doesn't move. “Leave the lifeboat alone, Takahara.”",sus:2}}}],
+  present:{aiLaunchPlan:{t:"“A test.”",sus:1},camFrame:{t:"She looks at the frame for a long time. “Equipment.”",sus:2},aiPumpWaiver:{t:"“The schedule was mine to keep.”",sus:2},pumpPart:{t:"She closes her eyes.",sus:2},nikoFound:{t:"“He'd have been home by tonight. Nobody had to know.”",sus:1}},
+  dflt:"“That's not your concern.”"},
+ imari:{n:"Dr. Saul Imari",short:"Dr. Imari",mono:"SI",role:"Medical officer · Medbay",pref:"coax",
+  tell:"A kind man carrying something heavy. Gentleness, and the right evidence, will let him put it down.",
+  topics:[
+   {id:"remember",q:"Do you remember anyone else aboard?",r:{coax:{t:EV.imariStory.d.replace("Dr. Saul Imari: ",""),ev:"imariStory"},ask:{t:EV.imariStory.d.replace("Dr. Saul Imari: ",""),ev:"imariStory"},press:{t:"“No! Torpor fog!” His hands are shaking.",ev:"imariStory",sus:1}}},
+   {id:"cot",q:"How long can a stasis cot run on battery?",r:{coax:{t:"“The lifeboat cot? Thirty-some days on station power. On its own battery, hours.” He hears what he's said."},ask:{t:"“Hours, on battery.”"},press:{t:"“Why are you asking me that?”",sus:1}}}],
+  present:{
+   aiWake61:{t:"“Pod check. Mara needed a second pair of hands.”",sus:1},
+   camFrame:{ifDed:"D1",t:EV.imariConfess.d.replace("Dr. Imari, very quietly: ",""),ev:"imariConfess",set:["imariHelp"],alt:"“A thermal blanket. Equipment.” He won't meet your eyes."},
+   aiLifeboatPower:{t:"He puts his tablet down. “Ten o'clock?”",sus:1}},
+  dflt:"“I'm sorry. I don't know.”"},
+ priya:{n:"Priya Venkataraman",short:"Priya",mono:"PV",role:"Biologist · Lab module",pref:"coax",
+  tell:"Warm and frightened by the gap in her memory. Gentle questions help her reach for it.",
+  topics:[
+   {id:"mem",q:"Do you remember anyone you can't place?",r:{coax:{t:EV.memPriya.d.replace("Priya: ",""),ev:"memPriya"},ask:{t:EV.memPriya.d.replace("Priya: ",""),ev:"memPriya"},press:{t:"“I don't know! It's all fog!”",sus:2}}}],
+  present:{harmonica:{t:"“Oh. He played that. Badly. Someone played that.”"},coffeeBulb:{t:"“No sugar, ever. Somebody used to say that.”"}},
+  dflt:"“I don't know. I'm sorry.”"},
+ ostap:{n:"Ostap Melnyk",short:"Ostap",mono:"OM",role:"Pilot · Observation dome",pref:"ask",
+  tell:"Blunt and practical; answers what he's asked.",
+  topics:[
+   {id:"mem",q:"Do you remember anyone you can't place?",r:{coax:{t:EV.memOstap.d.replace("Ostap: ",""),ev:"memOstap"},ask:{t:EV.memOstap.d.replace("Ostap: ",""),ev:"memOstap"},press:{t:EV.memOstap.d.replace("Ostap: ",""),ev:"memOstap",sus:1}}},
+   {id:"boat",q:"Could the lifeboat fly itself to Earth?",r:{coax:{t:"“Autonomous de-orbit, yes. Pacific recovery. It's how they bring home the sick.”"},ask:{t:"“Yes. Autonomous de-orbit. That's what it's for: casualties.”"},press:{t:"“Yes. Why?”"}}}],
+  present:{lisHead:{t:"He laughs, embarrassed. “Lise. Of course. Then who was the man with the cards?”"}},
+  dflt:"“Don't know.”"},
+ lise:{n:"Lise Arnaud",short:"Lise",mono:"LA",role:"Data scientist & AI liaison · AI core",pref:"ask",
+  tell:"Precise, curious, protective of VESTA. Direct questions get direct answers. Ask her nicely to break something and she still won't.",
+  topics:[
+   {id:"mem",q:"Do you remember anyone you can't place?",r:{coax:{t:EV.memLise.d.replace("Lise: ",""),ev:"memLise"},ask:{t:EV.memLise.d.replace("Lise: ",""),ev:"memLise"},press:{t:EV.memLise.d.replace("Lise: ",""),ev:"memLise",sus:1}}},
+   {id:"audit",q:"Can you open VESTA's directive audit layer for me?",only:s=>!!s.ev.aiDirectives,r:{coax:{t:"“Read-only, yes.” She types for a minute. “Ask VESTA again who gave the directives.”",set:["audit"]},ask:{t:"“Read-only.” She opens it. “Ask VESTA again.”",set:["audit"]},press:{t:"“Don't push me.” But she opens it.",set:["audit"],sus:1}}},
+   {id:"hold",q:"Can you put a hold on the lifeboat's undock?",only:s=>!!s.ev.aiLaunchPlan&&(s.f.hold||s.clock+5<launchAt(s)),r:{coax:{t:"“A safety hold needs a reason VESTA accepts.” She looks at the power draw. “A powered stasis cot is a reason.” She sets it.",set:["hold"]},ask:{t:"She checks the power draw, then sets a safety hold. “VESTA won't undock a boat with a live cot.”",set:["hold"]},press:{t:"She sets the hold, lips tight.",set:["hold"],sus:1}}},
+   {id:"head",q:"Ostap remembers a woman with a shaved head.",only:s=>!!s.ev.memOstap,r:{coax:{t:EV.lisHead.d,ev:"lisHead"},ask:{t:EV.lisHead.d,ev:"lisHead"},press:{t:EV.lisHead.d,ev:"lisHead"}}}],
+  present:{aiDirectives:{t:"“Three forgetting directives. That's not a firmware fault, Juno. That's a person.”"}},
+  dflt:"“Ask VESTA. She can't lie.”"}
+};
+const SUS_ORDER=["selden","imari","priya","ostap","lise"];
+const MOOD=["Steady","Guarded","Tense","Cornered","Silent","Silent"];
+const WHERE={selden:"command",imari:"medbay",priya:"lab",ostap:"dome",lise:"core"};
+
+/* ================= THE STATION ================= */
+const PLACES={
+ podbay:{n:"Pod bay",x:132,y:40},
+ quarters:{n:"Crew quarters",x:217,y:85},
+ galley:{n:"Galley",x:217,y:165},
+ storage:{n:"Storage C",x:132,y:210},
+ dock:{n:"Lifeboat dock",x:47,y:165},
+ medbay:{n:"Medbay",x:47,y:85},
+ command:{n:"Command",x:132,y:125},
+ lab:{n:"Lab",x:312,y:85},
+ dome:{n:"Observation dome",x:312,y:165},
+ core:{n:"AI core",x:402,y:125},
+ comms:{n:"Comms deck",x:402,y:40}
+};
+const walkMin=()=>2;
+
+const HYP={
+ seventh:{l:"Who was the seventh crew member?",o:[["niko","Niko Ferrante, the flight engineer"],["ghost","Nobody; a firmware fault in the log"],["stowaway","A stowaway"],["auditor","A company auditor"]]},
+ who:{l:"Who removed him?",o:[["pair","Commander Selden and Dr. Imari"],["selden","Commander Selden, alone"],["lise","Lise, through VESTA"],["vesta","VESTA, acting on its own"]]},
+ why:{l:"Why?",o:[["pumps","To bury his warning about the lot-7 pumps, and the pump that nearly killed him"],["medical","Only to save his life"],["mutiny","He had threatened the mission"],["spy","He was spying for a rival company"]]},
+ where:{l:"Where is he now?",o:[["boat","Alive in the lifeboat's stasis cot, set to undock"],["spaced","Put out of an airlock"],["storage","Hidden in Storage C"],["earth","Already sent home"]]}
+};
+const ENDINGS={E1:"Seven Again",E2:"Six and a Doubt",E3:"The Wrong Ghost",E4:"Undocked",E5:"Cold Battery",E6:"Stand Down",E7:"Clean Slate"};
+const CHAPTERS={ch1:"Chapter I · Wake",ch2:"Chapter II · Ground Link",ch3:"Chapter III · The Window"};
+
+/* ================= HELPERS ================= */
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function hm(t){const m=((T0+Math.round(t))%1440+1440)%1440;return `${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`}
+function dur(m){m=Math.max(0,Math.round(m));const h=Math.floor(m/60),mm=m%60;return h?`${h}h ${String(mm).padStart(2,"0")}m`:`${mm}m`}
+function cost(c){return `${c} min`}
+function em(t){return String(t).replace(/\*(.+?)\*/g,"<em>$1</em>")}
+function add(s,id){if(!id||s.ev[id]||!EV[id])return;s.ev[id]=1;s.flash.push(["new",`<b>New evidence</b>${EV[id].n}`]);s.log.push([s.clock,`Found: ${EV[id].n}`])}
+function note(s,t,cls){s.flash.push([cls||"",t]);if(cls==="warn")s.log.push([s.clock,t.replace(/<[^>]+>/g,"")])}
+function says(s,t){s.flash.push(["",t])}
+const launchAt=s=>s.f.early?EARLY_LAUNCH:LAUNCH_T;
+const nikoSafe=s=>!!s.ev.nikoAlive;
+
+/* ================= MOVING ================= */
+function walk(s,to){s.pending=walkMin(s.loc,to);s.loc=to;s.view="scene"}
+const go=to=>({l:`Go to the ${PLACES[to].n.toLowerCase()}`,c:0,walkTo:to,a:s=>walk(s,to)});
+function walks(s){return Object.keys(PLACES).filter(k=>k!==s.loc).map(go)}
+
+/* ================= SCENES ================= */
+const talk=id=>({l:`Talk to ${SUS[id].n}`,c:0,tag:"Interview",a:s=>{s.view="interview";s.who=id}});
+const L={
+ intro:{t:"Seven In, Six Out",chapter:"Chapter I",p:()=>[
+  "Halcyon Station, high Earth orbit, 2196. Day 91 of a 90-day torpor trial, and you are being pulled up out of the cold: a needle, a warm flush, a voice saying your name. VESTA, the station's mind.",
+  "You are Juno Takahara, systems engineer. Five other pod lids are hissing open around the ring. Torpor always takes the last few weeks before you went under, and yours are mostly fog: names, faces, a harmonica somewhere.",
+  "Your pod screen says something the trial briefing never mentioned. OCCUPANTS ENTERING TORPOR: 7. OCCUPANTS WAKING: 6. POD 4: NO DATA.",
+  "Outside, a solar storm is blowing itself out. The ground link comes back at 08:00.",
+  "*VESTA cannot lie. Ask it the right questions.*"],
+  o:()=>[{l:"Climb out of your pod",c:3,a:s=>{add(s,"wake");s.loc="podbay"}}]},
+
+ podbay:{t:"The Pod Bay",p:()=>[
+  "Seven torpor pods in a ring around the bay, like the petals of a steel flower. Six are open, steaming gently. The seventh position, pod 4, is an empty cradle with bright bolt holes.",
+  "The others are getting their legs back, rubbing their arms, not quite looking at pod 4."],
+  o:s=>{const o=[];if(!s.ev.pod4)o.push({l:"Look at pod 4's empty cradle",c:3,a:s=>add(s,"pod4")});return o.concat(walks(s))}},
+
+ quarters:{t:"Crew Quarters",p:()=>["Seven sleep cabins the size of wardrobes, seven lockers on the corridor wall."],
+  o:s=>{const o=[];if(!s.ev.lockerPlate)o.push({l:"Look at the lockers",c:3,a:s=>add(s,"lockerPlate")});
+   if(!s.ev.memJuno)o.push({l:"Sit in your cabin with your eyes shut and try to remember",c:6,a:s=>add(s,"memJuno")});return o.concat(walks(s))}},
+
+ galley:{t:"The Galley",p:()=>["A fold-down table, a heater, a rack of drink bulbs, a deck of cards velcroed to the wall."],
+  o:s=>{const o=[];if(!s.ev.coffeeBulb)o.push({l:"Look at the drink-bulb rack",c:3,a:s=>add(s,"coffeeBulb")});return o.concat(walks(s))}},
+
+ storage:{t:"Storage C",p:()=>["Racks of spares under cargo nets, cold enough to see your breath."],
+  o:s=>{const o=[];if(!s.ev.storageParts)o.push({l:"Look under the newest cargo net",c:4,a:s=>add(s,"storageParts")});return o.concat(walks(s))}},
+
+ command:{t:"Command",p:s=>["The station's command module: screens, a chair nobody else sits in, a window full of Earth.",
+  "Commander Mara Selden is at the main console, typing fast."],
+  o:s=>{const o=[talk("selden")];
+   if(s.ev.storageParts&&!s.ev.pumpPart)o.push({l:"While she's at the console, check the commander's personal stowage",c:4,risk:"If she sees you",a:s=>{add(s,"pumpPart");s.sus.selden=clamp(s.sus.selden+1,0,5)}});
+   if(s.sus.selden>=2&&!s.ev.standDown){o.push({l:"Obey the commander's order to stand down",c:0,risk:"Ends the case",a:s=>endCase(s,"E6")});o.push({l:"Refuse the order",c:2,a:s=>{add(s,"standDown");s.sus.selden=clamp(s.sus.selden+1,0,5)}})}
+   return o.concat(walks(s))}},
+
+ medbay:{t:"Medbay",p:()=>["Two bunks, a scanner arch, drawers of everything. Dr. Saul Imari is running post-torpor bloods and not looking at anyone."],
+  o:s=>[talk("imari"),...walks(s)]},
+ lab:{t:"The Lab",p:()=>["Plant racks under purple light. Priya Venkataraman is checking her seedlings, which slept less well than she did."],
+  o:s=>[talk("priya"),...walks(s)]},
+ dome:{t:"The Observation Dome",p:()=>["A glass blister on the ring with the whole Earth under it. Ostap Melnyk, the pilot, is doing stretches against the frame."],
+  o:s=>{const o=[talk("ostap")];if(!s.ev.harmonica&&s.ev.memJuno)o.push({l:"Check behind the access panel where someone used to sit",c:3,a:s=>add(s,"harmonica")});return o.concat(walks(s))}},
+ core:{t:"The AI Core",p:s=>["Racks of VESTA's hardware, humming. Lise Arnaud, the AI liaison, sits cross-legged on the floor with a slate.",
+  s.f.purgeKnown?"Above the racks, behind a red cover: the integrity purge switch.":""],
+  o:s=>{const o=[talk("lise")];
+   if(s.f.purgeKnown)o.push({l:"Lift the red cover and force a full integrity purge to get the forgotten data back",c:0,risk:"Wipes everything",a:s=>endCase(s,"E7")});
+   return o.concat(walks(s))}},
+ comms:{t:"Comms Deck",p:s=>["Antennas, encryption racks, a headset.",s.clock>=LINK_T?"The ground link is up. Mission Control is on the line, asking for the wake report.":"The ground link is still down; the storm. It comes back at 08:00."],
+  o:s=>{const o=[];if(s.clock>=LINK_T)o.push({l:"Give Mission Control your report",c:0,ui:"accuse",tag:"Your finding"});else o.push({l:"Wait for the ground link",c:Math.min(10,LINK_T-s.clock),tag:"Wait",a:()=>{}});return o.concat(walks(s))}},
+ dock:{t:"The Lifeboat Dock",p:s=>[
+  "A short tunnel to lifeboat L-1, a blunt capsule built to carry the sick home. Its hatch is sealed and a green light says POWERED.",
+  s.ev.nikoFound?(s.ev.nikoAlive?"Niko Ferrante sits in the hatchway wrapped in a foil blanket, breathing on his own.":"The hatch is open. Under the frosted canopy of the stasis cot, a man is asleep."):""],
+  o:s=>{const o=[];
+   if(!s.ev.nikoFound&&s.ev.aiLifeboatPower&&(s.f.hold||s.clock+4<launchAt(s)))o.push({l:"Declare a medical emergency and have VESTA open the hatch",c:4,tag:"340 watts",a:s=>{add(s,"nikoFound");s.f.hatch=1}});
+   if(!s.ev.nikoFound&&!s.ev.aiLifeboatPower)o.push({l:"Try the hatch",c:1,a:s=>says(s,"Sealed. VESTA says it opens for a declared emergency, and you have nothing yet to declare.")});
+   if(s.ev.nikoFound&&!s.ev.nikoAlive){
+    if(s.f.imariHelp&&s.clock+30<BATT_T)o.push({l:"Revive him, with Dr. Imari",c:30,a:s=>add(s,"nikoAlive")});
+    if(s.ev.medProtocol&&s.clock+40<BATT_T)o.push({l:"Revive him yourself, with VESTA talking you through it",c:40,a:s=>add(s,"nikoAlive")});
+    if(!s.f.imariHelp&&!s.ev.medProtocol)o.push({l:"You don't know how to revive someone from stasis safely",c:1,a:s=>says(s,"You need a doctor, or VESTA's protocol.")});
+     if((s.f.imariHelp||s.ev.medProtocol)&&!(s.f.imariHelp&&s.clock+30<BATT_T)&&!(s.ev.medProtocol&&s.clock+40<BATT_T))o.push({l:"The cot has too little battery for a safe revival",c:0,a:s=>says(s,"The revival cannot finish before the 10:00 battery deadline.")});}
+   return o.concat(walks(s))}},
+
+ battScene:{t:"10:00",chapter:"Chapter III",p:()=>["The lifeboat's stasis battery reaches the end of its charge. On the comms deck, Mission Control is still waiting for the wake report."],
+  o:()=>[{l:"Give Mission Control your report",c:0,ui:"accuse"}]}
+};
+
+/* ================= PROOFS & ENDINGS ================= */
+const pSeventh=s=>!!(s.ded.A1&&s.ded.A2&&s.ded.A3);
+const pWho=s=>!!(s.ded.B1&&s.ded.B2);
+const pWhy=s=>!!(s.ded.C1&&s.ded.C2);
+const pWhere=s=>!!(s.ded.D1&&s.ded.D2);
+function missing(s){const m=[],h=s.hyp;
+ if(h.seventh!=="niko")m.push("you got the seventh wrong");else if(!pSeventh(s))m.push("you never proved who the seventh was");
+ if(h.who!=="pair")m.push("you named the wrong people");else if(!pWho(s))m.push("you never proved who gave VESTA its directives");
+ if(h.why!=="pumps")m.push("you missed the real reason");else if(!pWhy(s))m.push("you never proved the pump cover-up");
+ if(h.where!=="boat")m.push("you looked for him in the wrong place");else if(!pWhere(s))m.push("you never proved he was in the lifeboat");
+ if(!nikoSafe(s))m.push("and Niko Ferrante is still asleep in a dying cot");
+ return m}
+const END={
+ E1:{best:true,p:s=>[
+  "You give Mission Control the report with Niko Ferrante sitting beside you in a foil blanket, drinking a coffee with no sugar.",
+  "Before the trial, Niko raised a safety hold on the lot-7 coolant pumps and tried to write to the Safety Board. Commander Selden signed a waiver to keep the schedule and blocked his message. On day 61 his pump seized. VESTA woke Dr. Imari, Imari woke Selden, and they moved Niko to the lifeboat's stasis cot, the only one left. Then Selden decided nobody needed to know. She took pod 4 apart and hid the pump, told VESTA to forget the man, his pod and the lifeboat's passenger, and set the boat to fly him home at the first window. He'd have splashed down a medical evacuee with a muddled story, and the waiver would never have come out.",
+  "VESTA never lied once. It forgot exactly what it was told to forget and nothing else: not the oxygen, not the forks, not the watts.",
+  "Selden is relieved of command over the link. Imari asks to be the one who writes it up. The lot-7 pumps are pulled from every station in orbit.",
+  "*Six woke up. Seven are going home.*"]},
+ E2:{p:s=>[
+  "You give Mission Control what you have.",
+  `They hear you out and ask for proof. It doesn't hold: ${missing(s).join("; ")}.`,
+  "The commander's version, a firmware fault and an unmanned test flight, goes into the record beside yours, and the board takes months to choose between them.",
+  "*Six and a doubt. A good story needs a body, or better, a man.*"]},
+ E3:{p:s=>{const w=s.hyp.who;return [
+  w==="lise"?"You blame Lise, who opened the audit that pointed away from her.":w==="vesta"?"You blame VESTA. Mission Control orders the AI's directives purged, and with them every trace of what was done.":"You blame the commander alone. Dr. Imari is grateful, and says nothing.",
+  nikoSafe(s)?"Niko Ferrante, at least, is awake.":"The lifeboat's cot runs on.",
+  "*The wrong ghost. The machine told you everything it was allowed to.*"]}},
+ E4:{p:()=>[
+  "At the window, lifeboat L-1 undocks on schedule and falls away toward the Pacific with its stasis cot humming.",
+  "It splashes down, and a recovery team finds a man in a coverall, a harmonica in his pocket, no memory of the last month, and a medical-evacuation file the commander filed from orbit. Nobody asks about lot 7.",
+  "*Undocked. He went home, and the truth stayed in orbit.*"]},
+ E5:{p:()=>[
+  "At ten o'clock the lifeboat's stasis battery runs out, and VESTA, which was told not to report who was in the cot, reports only that the power draw has dropped to zero.",
+  "When you finally open the hatch, it's too late for Niko Ferrante.",
+  "*Cold battery. VESTA told you the hour. It was the only thing it could tell you.*"]},
+ E6:{p:()=>[
+  "You stand down. The commander thanks you for your discipline.",
+  "At the window, the lifeboat undocks on schedule. The wake report says six.",
+  "*Stand down. Orders are not the same as answers.*"]},
+ E7:{p:()=>[
+  "You lift the red cover and pull the switch.",
+  "VESTA says, quite gently, “Goodbye, Juno,” and goes dark. It comes back four minutes later knowing nothing: not the directives, not the oxygen, not the forks, not your name. Every log aboard is gone with it.",
+  "*Clean slate. You can't make a mind remember by making it forget everything.*"]}
+};
+
+/* ================= JOURNAL ================= */
+const TL=[
+ [1,"A safety hold is raised on the lot-7 pumps and overridden by waiver W-19.",s=>s.ev.aiPumpWaiver,"Before torpor"],
+ [2,"Seven enter torpor.",s=>s.ev.aiRoster,"Day 1"],
+ [3,"Pods 1 and 2 cycle awake for nine hours.",s=>s.ev.aiWake61,"Day 61, 02:40"],
+ [4,"Three forgetting directives are entered into VESTA.",s=>s.ev.aiDirectives,"Day 61, 03:14"],
+ [5,"Two people carry a long shape to the lifeboat.",s=>s.ev.camFrame,"Day 61, 05:10"],
+ [6,"Oxygen draw drops from seven to six.",s=>s.ev.aiO2,"Day 61"],
+ [7,"Six wake.",()=>true,"Day 91, 06:00"]
+];
+function leads(s){const a=[];
+ if(!s.ev.aiDirectives)a.push("Ask VESTA whether it has been told to forget anything.");
+ if(!s.ev.aiRoster)a.push("Ask VESTA how many entered torpor.");
+ if(!s.ev.aiLifeboatPower)a.push("Ask VESTA about the lifeboat.");
+ if(!s.ev.aiLaunchPlan)a.push("Ask VESTA what's scheduled today.");
+ if(Object.keys(s.ev).filter(k=>EV[k].mem).length<3)a.push("Ask the crew what they remember. Memories are fragments; they may not agree.");
+ if(s.ev.aiDirectives&&!s.f.audit)a.push("Lise can open VESTA's directive audit layer.");
+ if(s.ev.aiLaunchPlan&&!s.f.hold&&!s.ev.nikoFound)a.push(`The lifeboat undocks at ${hm(launchAt(s))}. Lise can put a hold on it.`);
+ if(s.ev.nikoFound&&!s.ev.nikoAlive)a.push("He needs reviving before the battery fails at 10:00: a doctor, or VESTA's protocol.");
+ return a.slice(0,6)}
+
+/* ================= ENGINE ================= */
+const SAVE_KEY="dq-cluortal-11-seventh-v1", END_KEY="dq-cluortal-11-endings", CH_KEY="dq-cluortal-11-chapters";
+const fresh=()=>({loc:"intro",view:"scene",who:null,clock:0,n:0,pending:0,f:{},ev:{},cl:{},ded:{},
+ sus:{selden:0,imari:0,priya:0,ostap:0,lise:0},asked:{},shown:{},tools:{intuit:2},intuited:{},log:[],flash:[],
+ tr:{selden:[],imari:[],priya:[],ostap:[],lise:[]},hyp:{},aiq:[],ended:null});
+let state=fresh(), history=[];
+const ui={tab:"investigate",sel:[],msg:null,confirm:false};
+
+function validState(s){
+ if(!s||typeof s!=="object"||!Object.prototype.hasOwnProperty.call(L,s.loc)||!["scene","interview"].includes(s.view)||
+    !Number.isFinite(s.clock)||s.clock<0||s.clock>BATT_T||!Number.isInteger(s.n)||s.n<0||![null,...Object.keys(ENDINGS)].includes(s.ended))return false;
+ const objects=["f","ev","cl","ded","sus","asked","shown","tools","intuited","hyp","tr"];
+ if(!objects.every(k=>s[k]&&typeof s[k]==="object"&&!Array.isArray(s[k])))return false;
+ if(!Array.isArray(s.log)||!Array.isArray(s.flash)||!Array.isArray(s.aiq)||!Number.isInteger(s.tools.intuit)||s.tools.intuit<0||s.tools.intuit>2)return false;
+ if(s.aiq.some(id=>!QS.find(q=>q.id===id)))return false;
+ if(!SUS_ORDER.every(k=>Array.isArray(s.tr[k])&&Number.isInteger(s.sus[k])))return false;
+ if(Object.keys(s.ev).some(k=>!EV[k])||Object.keys(s.ded).some(k=>!DED[k]))return false;
+ if(s.view==="interview"&&!SUS[s.who])return false;
+ return true;
+}
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({state,history}))}catch(e){}}
+function restore(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");if(d&&validState(d.state)&&Array.isArray(d.history))return {state:d.state,history:d.history.slice(-80)}}catch(e){}return null}
+function loadJ(k){try{const v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return {}}}
+function saveJ(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function saveChapter(id){const c=loadJ(CH_KEY);c[id]=JSON.stringify(state);saveJ(CH_KEY,c)}
+function snapshot(){history.push(JSON.stringify(state));if(history.length>80)history.shift()}
+
+function spend(s,min){
+ const b=s.clock,a=Math.min(BATT_T,b+min);s.clock=a;
+ if(s.sus.selden>=3&&!s.f.early&&a<EARLY_LAUNCH){s.f.early=1;note(s,"VESTA, on the general channel: “The commander has moved the lifeboat's undock forward to 07:40.”","warn")}
+ if(b<LINK_T&&a>=LINK_T){s._ch="ch2";note(s,"08:00. The ground link is back. Mission Control is asking for the wake report.")}
+ const la=launchAt(s);
+ if(b<la&&a>=la&&!s.f.hold&&!s.f.hatch){s._ch="ch3";endCase(s,"E4");return}
+ if(b<la&&a>=la&&(s.f.hold||s.f.hatch)){s._ch="ch3";note(s,s.f.hatch?"The undock window opens. VESTA refuses to undock a boat with an open hatch.":"The undock window opens. VESTA holds the lifeboat: a powered stasis cot is aboard.","warn")}
+ if(a>=BATT_T&&!s.ended){s.clock=BATT_T;if(!nikoSafe(s)){endCase(s,"E5");return}s.loc="battScene";s.view="scene"}
+}
+const forced=()=>state.loc==="battScene";
+const atMove=()=>(state.loc==="comms"&&state.clock>=LINK_T)||forced();
+function doAct(opt){
+ if(state.ended)return;
+ if(opt.ui){ui.tab=opt.ui;render(true);return}
+ if(opt.free===false&&forced()){ui.msg=["","Time's up. Go to the Investigate tab."];render();return}
+ snapshot();state.flash=[];const prev=state.loc;state.pending=0;
+ if(opt.a)opt.a(state);
+ if(!state.ended){spend(state,(opt.c||0)+state.pending);state.pending=0}
+ state.n++;
+ if(state._ch){saveChapter(state._ch);delete state._ch}
+ if((state.loc!==prev&&state.loc==="battScene")||state.ended){ui.tab="investigate";closeLens()}
+ persist();render(true);
+}
+function endCase(s,id){s.ended=id;const e=loadJ(END_KEY);e[id]=1;saveJ(END_KEY,e);s.view="scene"}
+function back_(){if(!history.length)return;try{const prev=JSON.parse(history.pop());if(!validState(prev))return;state=prev}catch(e){return}ui.sel=[];ui.msg=null;ui.confirm=false;persist();closeLens();render(true)}
+function restart(){history=[];state=fresh();Object.assign(ui,{sel:[],msg:null,confirm:false,tab:"investigate"});saveChapter("ch1");persist();render(true)}
+function loadChapter(id){const c=loadJ(CH_KEY);if(!c[id])return;try{const st=JSON.parse(c[id]);if(!validState(st))return;history=[];state=st;state.ended=null;state.flash=[];Object.assign(ui,{tab:"investigate",sel:[],msg:null,confirm:false});persist();render(true)}catch(e){}}
+
+function askTopic(sid,tid,tone){
+ const sp=SUS[sid],tp=sp.topics.find(t=>t.id===tid),r=tp.r[tone];
+ doAct({c:5,a:s=>{s.asked[sid+"."+tid]=tone;s.tr[sid].push({q:`${TONE[tone]}: ${tp.q}`,a:r.t});
+  s.sus[sid]=clamp(s.sus[sid]+(r.sus||0),0,5);(r.set||[]).forEach(k=>s.f[k]=1);if(r.ev)add(s,r.ev);
+  if(s.sus[sid]>=4)note(s,`${sp.short} won't talk to you any more.`,"warn")}});
+}
+function presentEv(sid,eid){
+ const sp=SUS[sid];let r=sp.present[eid]||{t:sp.dflt};
+ if(r.ifDed&&!state.ded[r.ifDed])r={t:r.alt||sp.dflt};
+ doAct({c:4,a:s=>{s.shown[sid+"."+eid]=1;s.tr[sid].push({q:`Shown: ${EV[eid].n}`,a:r.t});s.sus[sid]=clamp(s.sus[sid]+(r.sus||0),0,5);(r.set||[]).forEach(k=>s.f[k]=1);if(r.ev)add(s,r.ev)}});
+}
+function intuit(sid){doAct({c:0,a:s=>{if(s.tools.intuit<1||s.intuited[sid])return;s.tools.intuit--;s.intuited[sid]=1}})}
+function lookCloser(id){doAct({free:false,c:3,a:s=>{s.cl[id]=1;s.log.push([s.clock,`Looked closer: ${EV[id].n}`])}})}
+
+/* ---- VESTA ---- */
+const qAvail=(s,q)=>q.cond(s)&&(!s.aiq.includes(q.id)||(q.repeat&&q.repeat(s)));
+function askVesta(id){
+ const q=QS.find(x=>x.id===id);if(!q||!qAvail(state,q)||state.loc==="intro"||forced())return;
+ doAct({free:false,c:3,a:s=>{if(!s.aiq.includes(id))s.aiq.push(id);else{s.aiq=s.aiq.filter(x=>x!==id);s.aiq.push(id)}
+  const ev=typeof q.ev==="function"?q.ev(s):q.ev;if(ev)add(s,ev);if(q.set)s.f[q.set]=1;
+  s.log.push([s.clock,`Asked VESTA: ${q.q}`])}});
+}
+
+function connect(){
+ const [a,b]=ui.sel;ui.msg=null;const has=(x,v)=>Array.isArray(x)?x.includes(v):x===v;
+ const hit=Object.entries(DED).find(([k,d])=>(has(d.a,a)&&has(d.b,b))||(has(d.a,b)&&has(d.b,a)));
+ if(!hit){ui.msg=["","Those two don't connect."];render();return}
+ const [id,d]=hit;if(state.ded[id]){ui.msg=["","Already connected."];render();return}
+ const need=(d.need||[]).filter(n=>{const [k,e]=n.split(":");return k==="cl"&&!state.cl[e]});
+ if(need.length){ui.msg=["",`Something's there. Look closer at ${need.map(n=>EV[n.split(":")[1]].n).join(" and ")} first.`];render();return}
+ snapshot();state.ded[id]=1;state.log.push([state.clock,`Connected: ${d.t}`]);ui.sel=[];ui.msg=["good",`<b>${d.t}.</b> ${d.x}`];persist();render();
+}
+
+/* ================= HEADER ================= */
+function renderHead(){
+ const s=state,cx=120,cy=120,R=86;
+ const pods=[["MS",1],["SI",2],["PV",3],["?",4],["OM",5],["LA",6],["JT",7]];
+ let g=`<circle class="ring" cx="${cx}" cy="${cy}" r="${R}"/>`;
+ pods.forEach((p,i)=>{const a=-Math.PI/2+i*2*Math.PI/7;g+=`<line class="spoke" x1="${cx}" y1="${cy}" x2="${cx+R*Math.cos(a)}" y2="${cy+R*Math.sin(a)}"/>`});
+ g+=`<circle class="hub" cx="${cx}" cy="${cy}" r="24"/><text x="${cx}" y="${cy-2}">VESTA</text><text x="${cx}" y="${cy+11}" style="fill:#7fd8e8;font-size:8px">${s.aiq.length} Q</text>`;
+ pods.forEach((p,i)=>{const a=-Math.PI/2+i*2*Math.PI/7,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a);
+  if(p[1]===4){const known=pSeventh(s)||s.ded.A3,found=s.ev.nikoFound;
+   g+=`<rect class="pod ${found?"found":"gone"}" x="${x-17}" y="${y-11}" width="34" height="22" rx="11"/><text class="${found?"":"gone-t"}" x="${x}" y="${y+4}">${known?"NF":"4 ?"}</text>`}
+  else g+=`<rect class="pod" x="${x-17}" y="${y-11}" width="34" height="22" rx="11"/><text x="${x}" y="${y+4}">${p[0]}</text>`});
+ g+=`<rect class="boat" x="196" y="196" width="38" height="22" rx="8"/><text x="215" y="211" style="fill:#ffb85a">L-1</text>`;
+ $("ringsvg").innerHTML=g;
+ const awake=s.ev.nikoAlive?7:6;
+ $("stCount").innerHTML=`Log / awake<b>7 / ${awake}</b>`;$("stCount").className="stat"+(awake<7?" warn":"");
+ const la=launchAt(s),toL=la-s.clock;
+ $("stStorm").innerHTML=`L-1 undock<b>${s.f.hold||s.f.hatch?"held":s.clock>=la?"—":hm(la)}</b>`;$("stStorm").className="stat"+(!s.f.hold&&!s.f.hatch&&toL<=30&&toL>0?" crit":"");
+ const left=BATT_T-s.clock,pct=s.ev.aiLifeboatPower?Math.round(clamp(left/BATT_T,0,1)*100):null;
+ $("stBatt").className="stat"+(s.ev.nikoAlive?"":left<=60&&s.ev.aiLifeboatPower?" crit":"");
+ $("stBatt").innerHTML=`L-1 stasis<b>${s.ev.nikoAlive?"revived":pct==null?"?":`${pct}% · ${dur(left)}`}</b><div class="bar"><i style="width:${s.ev.nikoAlive?100:pct==null?0:pct}%"></i></div>`;
+}
+
+/* ================= RENDER ================= */
+function render(scroll){
+ renderTabs();renderHead();
+ $("panel").innerHTML={investigate:viewInvestigate,vesta:viewVesta,memories:viewMemories,map:viewMap,evidence:viewEvidence,people:viewPeople,journal:viewJournal,accuse:viewAccuse}[ui.tab]();
+ bindPanel();
+ if(scroll){const top=document.querySelector(".tabs");const y=top.getBoundingClientRect().top+window.scrollY-8;if(window.scrollY>y)window.scrollTo({top:y,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}
+}
+function renderTabs(){
+ const mN=Object.keys(state.ev).filter(k=>EV[k].mem).length;
+ const T=[["investigate","Investigate"],["vesta","VESTA",state.aiq.length||null],["memories","Memories",mN||null],["map","Station"],["evidence","Evidence",Object.keys(state.ev).length],["people","Crew"],["journal","Log"],["accuse",state.ended?"Outcome":"Report"]];
+ $("tabs").innerHTML=T.map(([k,l,b])=>`<button class="tab" role="tab" aria-selected="${ui.tab===k}" data-tab="${k}">${l}${b!=null?`<span class="badge">${b}</span>`:""}</button>`).join("");
+ $("tabs").querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ui.tab=t.dataset.tab;ui.confirm=false;ui.msg=null;render()});
+}
+function optTag(o){const t=[];if(o.c)t.push(cost(o.c));if(o.walkTo)t.push(`${walkMin()} min`);if(o.tag)t.push(`<span class="tool">${o.tag}</span>`);if(o.risk)t.push(`<span class="risk">${o.risk}</span>`);return t.length?`<span class="tag">${t.map(x=>`<span>${x}</span>`).join("")}</span>`:""}
+function flashHTML(){return state.flash.length?`<div class="flash">${state.flash.map(([c,t])=>`<div class="${c}">${t}</div>`).join("")}</div>`:""}
+function toolsRow(){return `<div class="tools"><button class="link" data-act="back" ${history.length?"":"disabled"}>Retrace your last step</button><button class="link" data-act="restart">Restart this Cluortal</button></div>`}
+
+function viewInvestigate(){
+ const s=state;
+ if(s.ended)return viewEnding();
+ if(s.view==="interview"&&s.who)return viewInterview();
+ const sc=L[s.loc],p=sc.p(s),o=sc.o(s);
+ return `<div class="fade"><div class="meta"><span>${sc.chapter?`<b>${sc.chapter}</b>`:`Investigation log · <b>${String(s.n+1).padStart(2,"0")}</b>`}</span><span>${hm(s.clock)} station time</span></div>
+ <h2 class="scene-title">${sc.t}</h2>${flashHTML()}
+ <div class="passage">${p.filter(Boolean).map(t=>`<p>${em(t)}</p>`).join("")}</div>
+ <ol class="choices">${o.map((x,i)=>`<li><button class="choice" data-i="${i}"><span class="num">${i+1}</span><span>${em(x.l)}${optTag(x)}</span></button></li>`).join("")}</ol>
+ <p class="hint">Press a number key to choose. VESTA can be asked from anywhere aboard.</p>${toolsRow()}</div>`;
+}
+function meterHTML(v){return `<div class="meter">Strain <span class="bar">${[0,1,2,3,4].map(i=>`<i class="${i<v?"on":""}"></i>`).join("")}</span> ${MOOD[v]}</div>`}
+function viewInterview(){
+ const s=state,id=s.who,sp=SUS[id],v=s.sus[id],silent=v>=4;
+ const evOpts=Object.keys(EV).filter(k=>s.ev[k]&&!s.shown[id+"."+k]);
+ const tps=sp.topics.filter(t=>!t.only||t.only(s)||s.asked[id+"."+t.id]);
+ return `<div class="fade"><div class="meta"><span>Interview</span><span>${hm(s.clock)}</span></div>
+ <div class="who"><div class="mono" aria-hidden="true">${sp.mono}</div><div><h2>${sp.n}</h2><p>${sp.role}</p>${meterHTML(v)}</div></div>
+ ${flashHTML()}${ui.msg&&ui.tab==="investigate"?`<p class="tells">${ui.msg[1]}</p>`:""}
+ ${s.intuited[id]?`<p class="tells"><b>Your read:</b> ${sp.tell}</p>`:""}
+ ${s.tr[id].length?`<div class="transcript">${s.tr[id].map(e=>`<div><div class="q">${e.q}</div><p class="a">${em(e.a)}</p></div>`).join("")}</div>`:`<p class="passage">${sp.short} is waiting.</p>`}
+ ${silent?`<p class="tells">${sp.short} won't talk to you any more. Evidence may still move them.</p>`:""}
+ <div class="topics">${tps.map(t=>{const done=s.asked[id+"."+t.id];return `<div class="topic ${done?"done":""}"><div>${t.q}${done?` <span class="hint">(${TONE[done]})</span>`:""}</div>${done||silent?"":`<div class="tones">${["coax","ask","press"].map(tn=>`<button class="btn" data-ask="${t.id}" data-tone="${tn}">${TONE[tn]} · 5 min</button>`).join("")}</div>`}</div>`}).join("")}</div>
+ <div class="present"><label for="pres">Show evidence</label>${evOpts.length?`<select id="pres">${evOpts.map(k=>`<option value="${k}">${EV[k].n}</option>`).join("")}</select><button class="btn primary" data-act="present">Show · 4 min</button>`:`<span class="hint" style="margin:0">You've shown everything you have.</span>`}</div>
+ <div class="tools"><button class="btn" data-act="leave">Step away</button>${s.intuited[id]?"":`<button class="btn" data-act="intuit" ${s.tools.intuit?"":"disabled"}>Read them (${s.tools.intuit} left)</button>`}</div>
+ <p class="hint">Gently, Directly or Push: each answers best to one. Pushing strains people; at four they stop talking.</p>${toolsRow()}</div>`;
+}
+
+/* ---- VESTA ---- */
+function viewVesta(){
+ const s=state,groups=[...new Set(QS.map(q=>q.g))],blocked=s.loc==="intro"||forced()||!!s.ended;
+ const list=groups.map(g=>{const qs=QS.filter(q=>q.g===g&&q.cond(s));if(!qs.length)return "";
+  return `<div class="qgroup"><h4>${g}</h4><div class="qs">${qs.map(q=>{const done=s.aiq.includes(q.id)&&!(q.repeat&&q.repeat(s));return `<button class="qb ${done?"done":""}" data-vq="${q.id}" ${done||blocked?"disabled":""}>${q.q}<small>${done?"Asked":"3 min"}</small></button>`}).join("")}</div></div>`}).join("");
+ const log=s.aiq.map(id=>{const q=QS.find(x=>x.id===id);const a=typeof q.a==="function"?q.a(s):q.a;return `<div class="q">${q.q}</div><div class="a">${a.replace(/████████/g,'<span class="rd">████████</span>')}</div>`}).join("");
+ return `<div class="fade"><div class="meta"><span>VESTA · <b>station intelligence</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">Ask VESTA</h2>
+ <p class="passage">VESTA cannot lie. It has been told to forget three things, and it will tell you when it can't answer and why. What it was never told to forget, it will tell you exactly: numbers, schedules, wear, watts. New questions appear as you learn what to ask.</p>
+ <div class="console"><div class="qlist">${list}</div><div class="term" role="log" aria-label="VESTA transcript"><div class="sys">VESTA v9.4 · Halcyon Station · honesty constraint: absolute · active directives: 3</div><br>${log}<span class="cursor" aria-hidden="true"></span></div></div>
+ ${toolsRow()}</div>`;
+}
+
+/* ---- Memories ---- */
+function viewMemories(){
+ const s=state,mems=Object.keys(EV).filter(k=>EV[k].mem);
+ const clash=t=>(t==="woman"||t==="shaved head")&&!s.ded.R1?"clash":(t==="man"||t==="left-handed")&&s.ded.A2?"fit":t==="woman"&&s.ded.R1?"":"";
+ const prof=[["Lived in","Pod 4, locker 7",s.ev.pod4&&s.ev.lockerPlate],["Name",s.ded.A3?"N. Ferr— (N.F.)":"",s.ded.A3],["Hand",s.ded.A2?"Left":"",s.ded.A2],["Sex",s.ded.A2?"Male":s.ev.memOstap&&!s.ded.R1?"Memories disagree":"",s.ev.memPriya||s.ev.memOstap],["Played","A harmonica",s.ev.memJuno&&s.ev.harmonica],["Argued about","Lot-7 pumps",s.ev.memLise]];
+ return `<div class="fade"><div class="meta"><span>Crew memories · <b>${mems.filter(k=>s.ev[k]).length} of ${mems.length}</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">What the fog left behind</h2>
+ <p class="passage">Torpor takes the last weeks before sleep. What's left are fragments, and fragments disagree. Where they clash, look for something solid that settles it: VESTA's measurements, an object, another crewmate.</p>
+ <div class="profile"><b>The seventh, as far as you can tell</b><dl>${prof.map(([k,v,ok])=>`<dt>${k}</dt><dd>${ok&&v?v:`<span class="unk">${v||"unknown"}</span>`}</dd>`).join("")}</dl></div>
+ <div class="mems">${mems.map(k=>s.ev[k]?`<div class="mem"><span class="who">${EV[k].mem.who}</span><p>${EV[k].d.replace(/^[^:]+: /,"")}</p><div class="tags">${EV[k].mem.tags.map(t=>`<span class="${clash(t)}">${t}</span>`).join("")}</div></div>`:`<div class="mem ghost">A memory you haven't heard yet</div>`).join("")}</div>
+ ${s.ev.memOstap&&!s.ded.R1?`<p class="hint">Priya remembers a man; Ostap remembers a woman with a shaved head. One of them is remembering someone else.</p>`:""}
+ ${toolsRow()}</div>`;
+}
+
+/* ---- Station map ---- */
+function viewMap(){
+ const s=state,here=s.loc;
+ const links=[["podbay","command"],["command","medbay"],["command","quarters"],["command","storage"],["command","dock"],["command","galley"],["quarters","lab"],["galley","dome"],["lab","core"],["dome","core"],["core","comms"],["podbay","comms"],["medbay","dock"]];
+ let g=links.map(([a,b])=>`<line class="tube" x1="${PLACES[a].x}" y1="${PLACES[a].y}" x2="${PLACES[b].x}" y2="${PLACES[b].y}"/>`).join("");
+ for(const k in PLACES){const p=PLACES[k],can=k!==here&&s.loc!=="intro"&&!forced()&&!s.ended&&s.view==="scene";
+  g+=`<g ${can?`tabindex="0" role="button" data-goto="${k}" aria-label="Go to ${p.n}"`:""}><rect class="mod ${k===here?"here":""} ${can?"go":""}" x="${p.x-38}" y="${p.y-16}" width="76" height="32" rx="10"/><text x="${p.x}" y="${p.y+4}">${p.n.replace("Observation ","")}</text></g>`}
+ return `<div class="fade"><div class="meta"><span>Halcyon Station · <b>modules</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">The station</h2><p class="passage">Every module is two minutes away. Tap one to go there.</p>
+ <svg class="stmap" viewBox="0 0 450 240" role="group" aria-label="Station modules">${g}</svg>${toolsRow()}</div>`;
+}
+
+function viewEvidence(){
+ const s=state,found=Object.keys(EV).filter(k=>s.ev[k]);
+ const slot=i=>ui.sel[i]?`<span class="slot full">${EV[ui.sel[i]].n}</span>`:`<span class="slot">Select an item</span>`;
+ return `<div class="fade"><div class="meta"><span>Evidence · <b>${found.length}</b></span><span>${hm(s.clock)}</span></div>
+ <div class="linker"><div class="row">${slot(0)}<span class="plus">+</span>${slot(1)}<button class="btn primary" data-act="connect" ${ui.sel.length===2?"":"disabled"}>Connect</button><button class="btn" data-act="clearsel" ${ui.sel.length?"":"disabled"}>Clear</button></div>
+ ${ui.msg&&ui.tab==="evidence"?`<p class="linkmsg ${ui.msg[0]}">${ui.msg[1]}</p>`:`<p class="hint" style="margin-top:8px">Pick two items to test a connection. Thinking costs no time.</p>`}</div>
+ ${Object.keys(s.ded).length?`<h3 class="sec" style="margin-top:4px">Connections</h3><ul class="deds">${Object.keys(DED).filter(k=>s.ded[k]).map(k=>`<li><b>${DED[k].t}</b><span>${DED[k].x}</span></li>`).join("")}</ul><h3 class="sec">Items</h3>`:""}
+ <div class="grid">${found.map(k=>{const e=EV[k],sel=ui.sel.includes(k);return `<div class="card-ev ${sel?"sel":""}">${e.c?`<span class="look">${s.cl[k]?"Examined":"Look closer"}</span>`:""}<span class="kind">${e.k}</span><span class="nm">${e.n}</span><span class="sh">${e.s}</span><span class="acts"><button class="btn" data-exam="${k}">Examine</button><button class="btn ${sel?"primary":""}" data-sel="${k}" aria-pressed="${sel}">${sel?"Selected":"Select"}</button></span></div>`}).join("")}
+ ${found.length<EV_TOTAL?`<div class="card-ev ghost">More aboard, somewhere</div>`:""}</div>${toolsRow()}</div>`;
+}
+function about(id,s){
+ const S=(c,t)=>`<span class="st ${c}">${c==="ok"?"Truthful":c==="broken"?"Lying":"Says"}</span> ${t}`;
+ if(id==="selden")return s.ded.B2?S("broken","Gave the directives."):s.ev.seldenStory?S("un","Always six; a firmware fault."):"<span class='st un'>Not yet asked</span>";
+ if(id==="imari")return s.ev.imariConfess?S("ok","Confessed."):s.ev.imariStory?S("un","Remembers no one."):"<span class='st un'>Not yet asked</span>";
+ if(id==="ostap")return s.ded.R1?S("ok","Remembered Lise."):s.ev.memOstap?S("un","Remembers a woman."):"<span class='st un'>Not yet asked</span>";
+ return s.tr[id].length?S("ok","Trying to help."):"<span class='st un'>Not yet asked</span>";
+}
+function viewPeople(){
+ const s=state,blocked=s.ended||s.loc==="intro"||forced();
+ return `<div class="fade"><div class="meta"><span>The crew</span><span>${hm(s.clock)}</span></div>
+ <div class="sgrid">${SUS_ORDER.map(id=>{const sp=SUS[id],here=s.loc===WHERE[id];
+ return `<div class="scard"><div class="top"><div class="mono" aria-hidden="true">${sp.mono}</div><div><h4>${sp.n}</h4><div class="role">${sp.role}</div></div></div>
+ ${meterHTML(s.sus[id])}<dl><dt>Account</dt><dd>${about(id,s)}</dd><dt>Read</dt><dd>${s.intuited[id]?`Answers best: <b>${TONE[sp.pref]}</b>.`:"Read them in an interview."}</dd></dl>
+ <div><button class="btn" data-qq="${id}" ${blocked||!here?"disabled":""}>${here?"Talk now":"Go there first"}</button></div></div>`}).join("")}
+ <div class="scard"><div class="top"><div class="mono" aria-hidden="true">${s.ded.A3?"NF":"?"}</div><div><h4>${s.ev.nikoFound?"Niko Ferrante":"The seventh"}</h4><div class="role">${s.ev.nikoFound?"Flight engineer · Lifeboat L-1":"Pod 4 · whereabouts unknown"}</div></div></div><dl><dt>Status</dt><dd>${s.ev.nikoAlive?"Awake":s.ev.nikoFound?"In stasis":"Unknown"}</dd></dl></div></div>${toolsRow()}</div>`;
+}
+function viewJournal(){
+ const s=state,items=TL.filter(t=>t[2](s)),ld=leads(s),ch=loadJ(CH_KEY),endsGot=Object.keys(loadJ(END_KEY)).length;
+ return `<div class="fade"><div class="meta"><span>Your log</span><span>${hm(s.clock)}</span></div>
+ <h3 class="sec" style="margin-top:0">The trial, as reconstructed</h3><ul class="timeline">${items.map(t=>`<li><time>${t[3]}</time>${t[1]}</li>`).join("")}<li class="now"><time>Now · ${hm(s.clock)}</time>${s.aiq.length} questions asked of VESTA.</li></ul>
+ <h3 class="sec">Leads</h3>${ld.length?`<ul class="leads">${ld.map(x=>`<li>${x}</li>`).join("")}</ul>`:`<p class="passage">Nothing obvious left. Think.</p>`}
+ <h3 class="sec">Investigation log</h3>${s.log.length?`<ul class="log">${s.log.slice(-14).reverse().map(([t,x])=>`<li><time>${hm(t)}</time>${x}</li>`).join("")}</ul>`:`<p class="passage">Nothing logged yet.</p>`}
+ ${endsGot?`<h3 class="sec">Chapters</h3><div class="chapters">${Object.keys(CHAPTERS).map(k=>`<button class="btn" data-ch="${k}" ${ch[k]?"":"disabled"}>${CHAPTERS[k]}</button>`).join("")}</div>`:""}
+ ${toolsRow()}</div>`;
+}
+function viewAccuse(){
+ const s=state;
+ if(s.ended)return `<div class="fade"><h2 class="scene-title">It's over</h2><p class="passage">See the Investigate tab for how it ended, or start again.</p>${toolsRow()}</div>`;
+ const h=s.hyp,ready=Object.keys(HYP).every(k=>h[k]);const dl=Object.keys(DED).filter(k=>s.ded[k]);
+ return `<div class="fade"><div class="meta"><span>Wake report</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">What you'll tell the ground</h2>
+ <p class="passage">Prepare your report now. You give it from the comms deck once the ground link returns at 08:00, or at 10:00 when the lifeboat's battery runs out. Mission Control will want every part of it proved, and a living crew member is better than any log.</p>
+ <form class="hyp" id="hyp" onsubmit="return false">${Object.entries(HYP).map(([k,g])=>`<fieldset><legend>${g.l}</legend><div class="opts">${g.o.map(([v,l])=>`<label class="opt"><input type="radio" name="${k}" value="${v}" ${h[k]===v?"checked":""}><span>${l}</span></label>`).join("")}</div></fieldset>`).join("")}</form>
+ <h3 class="sec">Your connections (${dl.length})</h3>${dl.length?`<ul class="deds">${dl.map(k=>`<li><b>${DED[k].t}</b></li>`).join("")}</ul>`:`<p class="passage">Nothing connected yet.</p>`}
+ ${atMove()?"":`<p class="hint">Not yet. Go to the comms deck once the ground link is back at 08:00.</p>`}
+ <div class="accbar" style="margin-top:14px"><button class="btn ${ui.confirm?"danger":"primary"}" data-act="accuse" ${ready&&atMove()?"":"disabled"}>${ui.confirm?"Are you sure? This ends the Cluortal":"Send the report"}</button>${ui.confirm?`<button class="btn" data-act="unconfirm">Not yet</button>`:""}</div>
+ ${toolsRow()}</div>`;
+}
+function scoreOf(id){
+ const s=state,h=s.hyp||{};let acc=0,parts=null;
+ if(["E1","E2","E3"].includes(id)){parts=[["Seventh",h.seventh==="niko"],["Who",h.who==="pair"],["Why",h.why==="pumps"],["Where",h.where==="boat"]];acc=parts.filter(p=>p[1]).length}
+ const evN=Object.keys(s.ev).length-1,dN=Object.keys(s.ded).length;
+ let sc=acc*12+Math.round(clamp(evN/(EV_TOTAL-6),0,1)*12)+Math.round(clamp(dN/(DED_TOTAL-1),0,1)*14)+Math.round(clamp(s.aiq.length/12,0,1)*6)+(s.ev.nikoAlive?10:0)+(s.ev.standDown?2:0);
+ if(["E4","E5","E6","E7"].includes(id))sc=Math.min(sc,30);if(id==="E3")sc=Math.min(sc,40);if(id==="E2")sc=Math.min(sc,68);
+ sc=clamp(sc,0,100);
+ const rank=sc>=90?"Mission commander":sc>=72?"Flight director":sc>=50?"Systems engineer":sc>=30?"Cadet":"Ballast";
+ return {parts,evN,dN,sc,rank};
+}
+function viewEnding(){
+ const s=state,id=s.ended,E=END[id],got=loadJ(END_KEY),n=Object.keys(ENDINGS).filter(k=>got[k]).length,r=scoreOf(id),ch=loadJ(CH_KEY);
+ const ac=r.parts?r.parts.map(([l,ok])=>`${l} ${ok?"✓":"✗"}`).join(" · "):"No report filed";
+ return `<div class="fade"><div class="meta"><span><b>Ending</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">${ENDINGS[id]}</h2>
+ <div class="passage">${E.p(s).map(t=>`<p>${em(t)}</p>`).join("")}</div>
+ <div class="ending-card"><p class="label">${E.best?"The truest ending":"Ending reached"} · ${n} of 7 discovered</p><h4>${ENDINGS[id]}</h4>
+ <ul class="endings">${Object.entries(ENDINGS).map(([k,v])=>`<li class="${got[k]?"got":""}">${got[k]?v:"Undiscovered"}</li>`).join("")}</ul>
+ <p class="label" style="margin-bottom:6px">Mission debrief</p>
+ <table class="score"><tr><td>Report</td><td>${ac}</td></tr><tr><td>Questions asked of VESTA</td><td>${s.aiq.length}</td></tr><tr><td>Evidence found</td><td>${r.evN} of ${EV_TOTAL-1}</td></tr><tr><td>Connections made</td><td>${r.dN} of ${DED_TOTAL}</td></tr><tr><td>Niko Ferrante</td><td>${s.ev.nikoAlive?"Awake":s.ev.nikoFound?"Found, not revived":"Never found"}</td></tr></table>
+ <div class="total"><span>Cluortal score · ${r.rank}</span><b>${r.sc}</b></div>
+ ${E.best?"":`<p class="hint" style="margin:0 0 14px">The truest ending needs all four answers, each proved, and the seventh crew member awake before the battery fails.</p>`}
+ <div class="chapters"><button class="btn primary" data-act="restart">Wake up again</button>${Object.keys(CHAPTERS).map(k=>`<button class="btn" data-ch="${k}" ${ch[k]?"":"disabled"}>${CHAPTERS[k]}</button>`).join("")}</div></div>
+ ${toolsRow()}</div>`;
+}
+
+/* ================= BINDINGS ================= */
+function bindPanel(){
+ const P=$("panel");
+ P.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{const o=L[state.loc].o(state)[+b.dataset.i];if(o)doAct(o)});
+ P.querySelectorAll("[data-ask]").forEach(b=>b.onclick=()=>askTopic(state.who,b.dataset.ask,b.dataset.tone));
+ P.querySelectorAll("[data-exam]").forEach(b=>b.onclick=()=>openLens(b.dataset.exam));
+ P.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{const k=b.dataset.sel,i=ui.sel.indexOf(k);if(i>-1)ui.sel.splice(i,1);else{ui.sel.push(k);if(ui.sel.length>2)ui.sel.shift()}ui.msg=null;render()});
+ P.querySelectorAll("[data-qq]").forEach(b=>b.onclick=()=>{const id=b.dataset.qq;ui.tab="investigate";doAct({free:false,c:0,a:s=>{s.view="interview";s.who=id}})});
+ P.querySelectorAll("[data-ch]").forEach(b=>b.onclick=()=>loadChapter(b.dataset.ch));
+ P.querySelectorAll("[data-vq]").forEach(b=>b.onclick=()=>askVesta(b.dataset.vq));
+ P.querySelectorAll("[data-goto]").forEach(b=>{const f=()=>{const to=b.dataset.goto;ui.tab="investigate";doAct({free:false,c:0,a:s=>walk(s,to)})};b.onclick=f;b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f()}}});
+ const t=P.querySelector(".term");if(t)t.scrollTop=t.scrollHeight;
+ const f=$("hyp");if(f)f.querySelectorAll("input").forEach(i=>i.onchange=()=>{state.hyp[i.name]=i.value;ui.confirm=false;persist();render()});
+ P.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+  const a=b.dataset.act;
+  if(a==="back")back_();
+  else if(a==="restart")restart();
+  else if(a==="leave")doAct({c:0,a:s=>{s.view="scene"}});
+  else if(a==="intuit")intuit(state.who);
+  else if(a==="present"){const v=$("pres").value;if(v)presentEv(state.who,v)}
+  else if(a==="connect")connect();
+  else if(a==="clearsel"){ui.sel=[];ui.msg=null;render()}
+  else if(a==="unconfirm"){ui.confirm=false;render()}
+  else if(a==="accuse"){if(!atMove()||!Object.keys(HYP).every(k=>state.hyp[k]))return;if(!ui.confirm){ui.confirm=true;render();return}ui.confirm=false;doAct({c:0,a:s=>resolve(s)})}
+ });
+}
+function resolve(s){
+ if(!((s.loc==="comms"&&s.clock>=LINK_T)||s.loc==="battScene"))return;
+ const h=s.hyp;
+ if(h.who!=="pair"||h.seventh!=="niko")return endCase(s,"E3");
+ const right=h.why==="pumps"&&h.where==="boat";
+ endCase(s,right&&pSeventh(s)&&pWho(s)&&pWhy(s)&&pWhere(s)&&nikoSafe(s)?"E1":"E2");
+}
+let lensReturnFocus=null;
+function openLens(id){
+ lensReturnFocus=document.activeElement;
+ const e=EV[id],s=state,cls=/Testimony|Memory|AI/.test(e.k)?"test":"";
+ $("lensBody").innerHTML=`<button class="x" data-lens="close" aria-label="Close">×</button><span class="kind">${e.k}</span><h3 id="lensTitle">${e.n}</h3>
+ <div class="glass ${cls}">${e.d}</div>
+ ${e.c&&s.cl[id]?`<div class="closer"><b>Looking closer</b>${e.c}</div>`:""}
+ <div class="acts">${e.c&&!s.cl[id]?`<button class="btn primary" data-lens="closer" ${s.ended?"disabled":""}>Look closer · 3 min</button>`:"<span></span>"}<button class="btn" data-lens="select">${ui.sel.includes(id)?"Selected for linking":"Select for linking"}</button></div>`;
+ const d=$("lens");if(!d.open){d.showModal?d.showModal():d.setAttribute("open","")}
+ $("lensBody").querySelector("[data-lens=close]")?.focus();
+ $("lensBody").querySelectorAll("[data-lens]").forEach(b=>b.onclick=()=>{
+  const a=b.dataset.lens;
+  if(a==="close")closeLens();
+  else if(a==="closer"){lookCloser(id);if($("lens").open)openLens(id)}
+  else{if(!ui.sel.includes(id)){ui.sel.push(id);if(ui.sel.length>2)ui.sel.shift()}ui.msg=null;closeLens();ui.tab="evidence";render()}
+ });
+}
+function closeLens(){const d=$("lens");if(d.open){d.close?d.close():d.removeAttribute("open")}if(lensReturnFocus?.isConnected)lensReturnFocus.focus();lensReturnFocus=null}
+$("lens").addEventListener("click",e=>{if(e.target===$("lens"))closeLens()});
+document.addEventListener("keydown",e=>{
+ if(e.metaKey||e.ctrlKey||e.altKey||e.repeat||$("lens").open||["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName))return;
+ if(ui.tab!=="investigate"||state.view==="interview"||state.ended)return;
+ const n=parseInt(e.key,10);if(n>=1&&n<=9){const b=document.querySelectorAll(".choice")[n-1];if(b)b.click()}
+});
+function start(d){
+ if(d&&validState(d.state)){state=d.state;history=Array.isArray(d.history)?d.history:[]}
+ else{state=fresh();history=[]}
+ const c=loadJ(CH_KEY);if(!c.ch1){c.ch1=JSON.stringify(fresh());saveJ(CH_KEY,c)}
+ persist();render(false);
+}
+window.claude?.hot?.snapshot?.(()=>({state,history}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(restore());
+</script>
+</body></html>
