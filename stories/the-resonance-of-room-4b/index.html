@@ -1,0 +1,461 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Resonance of Room 4B</title>
+<meta name="description" content="An old piano remembers four voices at four pitches. Daily Door #26 from The Axiom Continuum.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="https://theaxiomcontinuum.com/assets/tac-emblem.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: the tuning bench (A4 readout, cents needle, strain, sound toggle, playable two-octave keyboard) under the title; the room's passage and the voice cards; the Score (phrases recovered, staff notation, play button) and Voices heard alongside. */
+:root{
+  --bg:#f1ece3; --card:#faf7f1; --ink:#221d19; --muted:#6b6259; --line:#d8cfc2;
+  --wood:#5a3a26; --wood2:#7a5236; --ivory:#fbf8f0; --ebony:#1c1714; --brass:#b88a3a; --brass-soft:rgba(184,138,58,.12);
+  --y1938:#b0832c; --y1958:#b8546b; --y1971:#3d6fa8; --y1994:#3f8a5b; --y2026:#c4402c;
+  --display:"Bodoni Moda","Didot",Georgia,serif; --body:"Source Serif 4","Iowan Old Style",Georgia,serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#16110e; --card:#201914; --ink:#efe7dc; --muted:#a99b8c; --line:#3a2f27;
+  --wood:#2a1b12; --wood2:#3c271a; --brass:#e0b45e; --brass-soft:rgba(224,180,94,.12);
+  --y1938:#e0b45e; --y1958:#f08aa1; --y1971:#86b2ea; --y1994:#7fcc9a; --y2026:#ff7a63; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#16110e; --card:#201914; --ink:#efe7dc; --muted:#a99b8c; --line:#3a2f27;
+  --wood:#2a1b12; --wood2:#3c271a; --brass:#e0b45e; --brass-soft:rgba(224,180,94,.12);
+  --y1938:#e0b45e; --y1958:#f08aa1; --y1971:#86b2ea; --y1994:#7fcc9a; --y2026:#ff7a63; color-scheme:dark}
+
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.64;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:26px 56px}
+
+.mast{max-width:1060px;margin:0 auto 26px}
+.mast .pre{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0;text-align:center}
+.mast h1{font-family:var(--display);font-weight:400;font-size:clamp(2.3rem,8vw,4.6rem);line-height:1;margin:6px 0 18px;text-align:center;letter-spacing:-.01em}
+.mast h1 i{color:var(--brass)}
+.bench{background:linear-gradient(180deg,var(--wood2),var(--wood));border-radius:10px;padding:14px 16px 16px;color:#f1e6d6;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 12px 26px -18px rgba(0,0,0,.6)}
+.readout{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;margin-bottom:12px}
+.hz{font-family:var(--mono);line-height:1}
+.hz small{display:block;font-size:.7rem;letter-spacing:.12em;opacity:.7;margin-bottom:4px}
+.hz b{font-size:clamp(1.5rem,5vw,2.2rem);font-weight:600;color:#ffd78a}
+.hz span{font-size:.8rem;opacity:.75;display:block;margin-top:4px}
+.gauge svg{display:block;width:100%;height:56px}
+.ctrl{display:grid;gap:6px;justify-items:end;font-family:var(--mono);font-size:.72rem}
+.snd{font:inherit;font-family:var(--mono);font-size:.78rem;background:transparent;color:#f1e6d6;border:1px solid rgba(241,230,214,.45);border-radius:999px;padding:5px 12px;cursor:pointer}
+.snd[aria-pressed="true"]{background:#ffd78a;color:#2a1b12;border-color:#ffd78a}
+.snd:focus-visible{outline:2px solid #ffd78a;outline-offset:2px}
+.strain{display:flex;gap:3px;align-items:center}
+.strain i{width:10px;height:10px;border-radius:2px;border:1px solid rgba(241,230,214,.4)}
+.strain i.on{background:#ffb37a;border-color:#ffb37a}
+.strain i.on.hot{background:#ff6a4d;border-color:#ff6a4d}
+@media (max-width:560px){.readout{grid-template-columns:1fr 1fr}.gauge{grid-column:1/-1;grid-row:2}}
+.keys{position:relative;height:96px;user-select:none;-webkit-user-select:none}
+.keys button{position:absolute;top:0;border:0;padding:0;cursor:pointer;font:inherit}
+.keys .w{background:var(--ivory);height:96px;border:1px solid #c9bfae;border-radius:0 0 5px 5px;z-index:1}
+.keys .b{background:var(--ebony);height:58px;border-radius:0 0 4px 4px;z-index:2}
+.keys .w.lit{background:#ffe7a8;box-shadow:inset 0 -10px 0 #ffd78a}
+.keys .b.lit{background:#7a5a1e}
+.keys .w.a{box-shadow:inset 0 -5px 0 var(--brass)}
+.keys button:focus-visible{outline:2px solid #ffd78a;outline-offset:-2px}
+.keys .w.down,.keys .b.down{filter:brightness(.85)}
+.keylbl{font-family:var(--mono);font-size:.7rem;opacity:.7;margin-top:8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+.wrap{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:48px;align-items:start}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:34px}}
+main{min-width:0}
+.meta{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
+.meta b{color:var(--brass);font-weight:600}
+h2.scene-title{font-family:var(--display);font-weight:400;font-size:clamp(2rem,5.6vw,2.9rem);line-height:1.04;margin:0 0 16px;text-wrap:balance}
+.passage{max-width:62ch}
+.passage p{margin:0 0 1em}
+.voice{display:block;margin:0 0 1.2em;padding:14px 18px 14px 20px;border-left:3px solid var(--vc,var(--brass));background:var(--card);max-width:56ch;position:relative}
+.voice .h{display:flex;justify-content:space-between;gap:10px;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--vc,var(--brass));margin-bottom:6px}
+.voice .t{font-style:italic;line-height:1.55}
+.voice .wave{display:block;height:18px;margin-top:8px;background:repeating-linear-gradient(90deg,var(--vc) 0 2px,transparent 2px 6px);opacity:.25;mask:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent);-webkit-mask:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}
+.pencil{display:block;margin:0 0 1.2em;padding:12px 16px;background:var(--brass-soft);font-family:var(--mono);font-size:.86rem;line-height:1.6;max-width:56ch;border:1px dashed var(--brass)}
+.pencil .h{display:block;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin-bottom:4px}
+.phrase{display:inline-flex;gap:8px;align-items:center;font-family:var(--mono);font-size:.78rem;color:var(--vc);border:1px solid var(--vc);padding:3px 10px;margin:0 0 1em;border-radius:999px}
+.fade{animation:res .55s ease both}
+@keyframes res{from{opacity:.2;letter-spacing:.01em}to{opacity:1}}
+
+.choices{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:10px;max-width:62ch}
+.choice{width:100%;display:grid;grid-template-columns:2em minmax(0,1fr);gap:12px;align-items:baseline;text-align:left;
+  background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:12px 16px;
+  font:inherit;font-size:1.02rem;line-height:1.42;cursor:pointer;transition:border-color .15s,background .15s}
+.choice .num{font-family:var(--display);font-size:1.35rem;color:var(--brass)}
+.choice .tag{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+.choice .tag.hz{color:var(--brass)}
+.choice:hover{border-color:var(--brass);background:var(--brass-soft)}
+.choice:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.hint{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:14px}
+.tools{display:flex;gap:18px;margin-top:20px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;font-family:var(--mono);font-size:.76rem;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--brass)}
+.link:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.link[disabled]{opacity:.4;cursor:default;text-decoration:none}
+
+aside{min-width:0;display:grid;gap:28px}
+aside h3{font-family:var(--display);font-weight:400;font-size:1.75rem;margin:0;line-height:1}
+aside .sub{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 12px}
+.score{background:var(--ivory);border:1px solid var(--line);padding:10px 10px 6px;color:#221d19}
+.score svg{display:block;width:100%;height:auto}
+.playscore{margin-top:10px;font-family:var(--mono);font-size:.76rem;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.playscore:disabled{opacity:.45;cursor:default}
+.playscore:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.voices{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.voices li{display:grid;grid-template-columns:54px minmax(0,1fr);gap:10px;align-items:baseline;border-bottom:1px dotted var(--line);padding-bottom:6px;font-size:.92rem;line-height:1.35}
+.voices li b{font-family:var(--mono);font-size:.76rem;color:var(--vc)}
+.voices li .n{display:block}
+.voices li .hz2{font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+.voices li.no{opacity:.45}
+.clues{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:.9rem;line-height:1.4}
+.clues li{border-left:2px solid var(--brass);padding-left:10px}
+.clues li.none{border-color:var(--line);color:var(--muted);font-style:italic}
+
+.ending-card{margin-top:28px;border:1px solid var(--brass);background:var(--card);padding:22px;max-width:62ch}
+.ending-card .label{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);margin:0 0 4px}
+.ending-card h4{font-family:var(--display);font-weight:400;font-style:italic;font-size:2.5rem;margin:0 0 12px;line-height:1}
+.endings{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px;font-size:.94rem}
+@media (max-width:480px){.endings{grid-template-columns:minmax(0,1fr)}}
+.endings li{color:var(--muted)}
+.endings li.got{color:var(--ink)}
+.endings li.got::before{content:"♪ ";color:var(--brass)}
+.endings li:not(.got)::before{content:"· "}
+.endnote{font-family:var(--mono);font-size:.74rem;color:var(--muted);margin:0 0 16px;line-height:1.6}
+.begin{font-family:var(--mono);font-size:.84rem;letter-spacing:.06em;text-transform:uppercase;background:var(--wood);color:#f1e6d6;border:0;border-radius:3px;padding:10px 18px;cursor:pointer}
+.begin:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}}
+
+/* Publisher identity and responsive reference panels */
+.tac-brand{max-width:1060px;margin:0 auto 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;font:12px/1.4 var(--mono);color:var(--muted);border-bottom:1px solid var(--line);padding:0 0 12px}
+.tac-brand a{display:inline-flex;align-items:center;gap:9px;color:var(--ink);text-decoration:none}
+.tac-brand img{width:28px;height:28px}
+.ref-fold summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px}
+.ref-fold summary::-webkit-details-marker{display:none}
+.ref-fold summary::after{content:"▾";margin-left:auto;font:16px var(--mono);color:var(--brass)}
+.ref-fold:not([open]) summary::after{content:"▸"}
+.ref-fold[open] summary{margin-bottom:5px}
+.ref-fold summary:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+@media(min-width:901px){.ref-fold summary{cursor:default}.ref-fold summary::after{display:none}.ref-fold:not([open])> :not(summary){display:block}}
+@media(max-width:900px){aside{gap:14px}.ref-fold{padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--card)}.ref-fold:not([open])> :not(summary){display:none}}
+@media(max-width:480px){.tac-brand{font-size:10px;gap:8px}.tac-brand img{width:23px;height:23px}.bench{padding:12px 10px}.readout{gap:9px}.keys{height:80px}.keys .w{height:80px}.keys .b{height:49px}.keylbl{font-size:.64rem}}
+</style>
+</head><body>
+<div class="tac-brand"><a href="https://theaxiomcontinuum.com/"><img src="https://theaxiomcontinuum.com/assets/tac-emblem.svg" width="28" height="28" alt=""><span>The Axiom Continuum</span></a><span>· Daily Door #26</span></div>
+<header class="mast">
+  <p class="pre">Hallam Conservatory · Room 4B · Daily Door No. 26</p>
+  <h1>The Resonance of <i>Room 4B</i></h1>
+  <div class="bench" id="bench">
+    <div class="readout">
+      <div class="hz" id="hz"></div>
+      <div class="gauge" id="gauge"></div>
+      <div class="ctrl"><button class="snd" id="snd" aria-pressed="false">♪ Sound: off</button><div class="strain" id="strain" aria-label="String strain"></div></div>
+    </div>
+    <div class="keys" id="keys" aria-label="Piano keyboard, C4 to B5"></div>
+    <div class="keylbl"><span>Bechstein upright · 1911 · tap the keys to hear the piano at its current pitch</span><span id="keyhint"></span></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <main id="main" aria-live="polite"></main>
+  <aside>
+    <details class="ref-fold" open><summary><h3>The Score</h3></summary><p class="sub" id="scoreSub"></p><div class="score" id="score"></div><button class="playscore" id="playscore">▶ Play the recovered score</button></details>
+    <details class="ref-fold" open><summary><h3>Voices in the Wood</h3></summary><p class="sub">Who you've heard, and at what pitch</p><ul class="voices" id="voices"></ul></details>
+    <details class="ref-fold" open><summary><h3>Pencil Marks</h3></summary><p class="sub">Clues inside the piano</p><ul class="clues" id="clues"></ul></details>
+  </aside>
+</div>
+
+<script>
+/* ---------- sound ---------- */
+let AC=null, soundOn=false;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){AC=null}}return AC}
+function tone(f,t0,dur,vol){const c=ac();if(!c)return;const t=c.currentTime+(t0||0);
+  const g=c.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||.22,t+.012);g.gain.exponentialRampToValueAtTime(0.0008,t+(dur||1.6));g.connect(c.destination);
+  [[1,1],[2,.42],[3,.18],[4,.08]].forEach(([h,a])=>{const o=c.createOscillator();o.type=h===1?"triangle":"sine";o.frequency.value=f*h*(1+(h-1)*.0008);const og=c.createGain();og.gain.value=a;o.connect(og);og.connect(g);o.start(t);o.stop(t+(dur||1.6)+.05)});}
+function playSeq(notes,A,step){if(!soundOn)return;notes.forEach((n,i)=>tone(A*Math.pow(2,n/12),i*(step||.42),1.5,.2))}
+
+/* ---------- eras ---------- */
+const ERA={
+ 1938:{hz:435,who:"Hanna Weiss",col:"var(--y1938)",phrase:[0,-2,-4,-5],scene:"v435",note:"Diapason normal, the old continental standard"},
+ 1958:{hz:440,who:"Ruth Adair",col:"var(--y1958)",phrase:[-5,-4,0,3],scene:"v440",note:"Concert pitch, the 1939 London standard"},
+ 1971:{hz:444,who:"Desmond Hale",col:"var(--y1971)",phrase:[3,1,0,-3],scene:"v444",note:"Club-bright, the way Desmond liked it"},
+ 1994:{hz:432,who:"Priya Mehta",col:"var(--y1994)",phrase:[0,3,7,12],scene:"v432",note:"The pitch a magazine told Priya's mum was healing"}
+};
+const MINE=[[12,7,3,0],[0,4,7,12],[7,5,3,0]];
+const ENDINGS={E1:"The Fifth Phrase",E2:"Concert Pitch",E3:"The Crane Nocturne",E4:"A Rumour of Voices",E5:"The Broken String",E6:"An Incomplete Score"};
+const voice=(yr,t)=>`<span class="voice" style="--vc:${ERA[yr].col}"><span class="h"><span>${ERA[yr].who}</span><span>${yr} · A = ${ERA[yr].hz} Hz</span></span><span class="t">${t}</span><span class="wave"></span></span>`;
+const pencil=(h,t)=>`<span class="pencil"><span class="h">${h}</span>${t}</span>`;
+const phraseTag=(yr)=>`<span class="phrase" style="--vc:${ERA[yr].col}">♪ Phrase recovered · ${ERA[yr].who}, ${yr}</span>`;
+const heard=s=>Object.keys(ERA).filter(y=>s.seen[ERA[y].scene]);
+
+const S={
+start:{t:`Room 4B`,p:[
+ `The Hallam Conservatory closes on Friday after a hundred and eleven years. The building's been sold to a developer, the students moved to the new campus, and everything that can be carried out is going to auction on Saturday morning.`,
+ `You're the piano technician. Your job is the old Bechstein upright in Room 4B, fourth floor, end of the corridor: a 1911 instrument, walnut case, ivories the colour of tea. The Crane Foundation has bid on it already, to display in its museum as *the piano on which Edmund Crane composed the Crane Nocturne*.`,
+ `You lift the lid and strike the A above middle C. It's flat, of course. And under the note, very faintly, as the string dies away, you could swear there's somebody humming.`],
+ o:[[`Open the piano bench`,`bench`],[`Take off the front panel and look at the action`,`panel`],[`Start work: set the A to concert pitch, 440 Hz`,`v440`,{hz:440},`Tuning`]]},
+
+bench:{t:`The Piano Bench`,set:["bench"],p:[
+ `Inside the bench: sixty years of sheet music, a pencil stub, a sweet wrapper from 1994, and three things worth noticing.`,
+ pencil(`In the bench`,`1. A steel tuning fork, worn smooth, stamped <b>a¹ = 435 · WIEN</b>.<br>2. A jazz fake book. Inside the cover, pencil: <b>"444 or nothing!! — D.H."</b><br>3. A child's sticker on the lid: <b>"432 Hz is the HEALING frequency ♥ — Mum"</b>.`),
+ `Three different people, three different ideas of where an A should be.`],
+ o:[[`Take off the front panel and look at the action`,`panel`],[`Pick up the tuning lever`,`tune`],[`Try the Vienna fork: set the A to 435 Hz`,`v435`,{hz:435},`Tuning`]]},
+
+panel:{t:`The Action`,set:["panel"],p:[
+ `You lift off the front panel. Felt hammers, eighty-eight of them, in a long wooden row. Technicians often sign their work in pencil on the hammer rail. So, it seems, do other people.`,
+ pencil(`Pencilled on the hammer rail, treble end`,`H.W. 1938 · R.A. 1958 · D.H. 1971 · P.M. 1994`),
+ `And down at the bottom of the case, the bottom board under the treble strings is held on with modern brass screws, not the original steel ones. Somebody's had it off since 1911.`],
+ o:[[`Open the piano bench`,`bench`],[`Pick up the tuning lever`,`tune`],[`Start work: set the A to concert pitch, 440 Hz`,`v440`,{hz:440},`Tuning`]]},
+
+tune:{t:`The Tuning Lever`,p:s=>{const h=heard(s).length;return [
+ `You fit the lever on the A's tuning pin and feel the old string under your hand, a hundred and fifteen years of tension in it. Every turn costs it something. ${s.strain>=3?"It's starting to sing a little too high and thin under the lever. You don't have many more turns in it.":""}`,
+ h?`You've heard ${["","one voice","two voices","three voices","all four voices"][h]} so far. Each came through at a different pitch, as if the piano remembers every way it's ever been tuned.`:`The note you're aiming for is a choice. Concert pitch now is 440. It hasn't always been.`];},
+ o:s=>hubOpts(s)},
+
+v435:{t:`1938: Hanna Weiss`,year:1938,p:[
+ `You ease the A down to 435 and let it ring. The note settles, and in the decay, in a room exactly like this one, a woman with a Viennese accent is talking to someone:`,
+ voice(1938,`So. You are my first student in England. Good. In Vienna, in my teacher's room, we had a custom. Every one who learns in the room adds one phrase to a piece that is never finished. Four bars, no more. That is the rent. Here is mine.`),
+ `Four notes, falling, in a minor key. She plays them twice.`,
+ phraseTag(1938)],
+ o:[[`Keep listening`,`v435b`],[`Play her phrase back on the keys, softly`,`v435b`,{play:1938}],[`Ease off the string and go back to the lever`,`tune`]]},
+v435b:{t:`The Rent`,year:1938,set:["weissRule"],p:[
+ voice(1938,`And when it is finished, it belongs to every one who wrote it. No one may put only one name on it. This is the only rule. Promise me.`),
+ `The voice fades into the long tail of the string. You find you've said "I promise" out loud, to an empty room.`],
+ o:[[`Back to the tuning lever`,`tune`],[`Write her rule on the inside of the lid`,`tune`],[`Sit in the quiet a moment, then go on`,`tune`]]},
+
+v440:{t:`1958: Ruth Adair`,year:1958,p:[
+ `At 440 the string comes up bright and true, and the room is full of somebody playing: a girl, nineteen perhaps, playing four falling notes in a minor key, and then four of her own that climb up out of them like someone getting up off the floor.`,
+ voice(1958,`There. That's mine. That's my bar. Madame Weiss would've liked that, I think.`),
+ phraseTag(1958),
+ `Then footsteps in the corridor, and a man's voice, older, very pleased with itself.`],
+ o:[[`Keep listening`,`v440b`],[`Play her phrase back on the keys`,`v440b`,{play:1958}],[`Ease off the string and go back to the lever`,`tune`]]},
+v440b:{t:`Mr. Crane`,year:1958,set:["craneHeard"],p:[
+ voice(1958,`<b>CRANE:</b> Miss Adair. The Hallam Prize piece. I'll take that manuscript, thank you. A piece like this needs a name people will remember. A Director's name.<br><b>RUTH:</b> It's not mine to give, Mr. Crane. It's not yours to take. It's the room's.<br><b>CRANE:</b> Then you'll say nothing, or you'll not get a reference anywhere in England.`),
+ `A door closes. A long time later, very quietly, the girl again, right up against the wood: *"Hold on to it for me."*`],
+ o:[[`Back to the tuning lever`,`tune`],[`Say "I will" out loud`,`tune`],[`Go out into the corridor, to breathe, then go on`,`tune`]]},
+
+v444:{t:`1971: Desmond Hale`,year:1971,p:[
+ `You bring the A up to 444, bright and a little brash, and the room fills with a different kind of playing entirely: loose, swinging, a cigarette somewhere in it. A young man laughing as he plays.`,
+ voice(1971,`Listen, man, the old ladies' tune, right, Weiss and Ruth. And then, here's mine. Little blue note in the middle. That's the rent paid.`),
+ phraseTag(1971),
+ `He stops playing. When he speaks again it's lower.`],
+ o:[[`Keep listening`,`v444b`],[`Play his phrase back on the keys`,`v444b`,{play:1971}],[`Ease off the string and go back to the lever`,`tune`]]},
+v444b:{t:`The Bottom Board`,year:1971,set:["hiding"],p:[
+ voice(1971,`Old Crane's retiring. He's clearing the archive. He's going to burn Ruth's copy, the real one, with all our hands on it. So I've put it where only a piano tuner would ever look. Bottom board, under the treble. Whoever finds it, add a bar. Pay the rent.`),
+ `You look down at the modern brass screws on the bottom board.`],
+ o:[[`Back to the tuning lever`,`tune`],[`Find a screwdriver`,`tune`],[`Laugh, despite yourself, then go on`,`tune`]]},
+
+v432:{t:`1994: Priya Mehta`,year:1994,p:[
+ `You let the A down to 432, soft and a little dull. A child, ten maybe, very serious, playing four notes that climb an A minor chord all the way up to the top, then stopping triumphantly.`,
+ voice(1994,`<b>PRIYA:</b> Is that all right, Mr. Hale? Is that a proper phrase?<br><b>DESMOND</b> <i>(older now, gentler)</i>: That's your phrase, Priya. Best one yet.`),
+ phraseTag(1994)],
+ o:[[`Keep listening`,`v432b`],[`Play her phrase back on the keys`,`v432b`,{play:1994}],[`Ease off the string and go back to the lever`,`tune`]]},
+v432b:{t:`"When You're Grown"`,year:1994,set:["priya"],p:[
+ voice(1994,`<b>PRIYA:</b> Do I write it in the book?<br><b>DESMOND:</b> One day. The book's somewhere safe. When you're grown, you'll know where.`),
+ `Priya Mehta. *P.M. 1994.* You know that name. It's on the letter that hired you: *Dr. Priya Mehta, Dean, Hallam Conservatory.*`],
+ o:[[`Back to the tuning lever`,`tune`],[`Ring the Dean's office`,`tune`],[`Sit with that a moment, then go on`,`tune`]]},
+
+v452:{t:`Too High`,p:s=>[
+ `You haul the A all the way up to 452, the old Philharmonic pitch, far too high for a string this age. The wire shrieks under the lever.`,
+ `Every voice comes at once: Viennese, a girl, a man laughing, a child, all tangled into a roar of overtones, like a whole building's worth of music played through a keyhole.`,
+ `The string won't stand this for long.`],
+ o:[[`Let it down, fast`,`tune`],[`Call Dean Mehta up to hear it`,`E4`],[`Hold it there and listen harder`,`E5`,{snap:1},`The string`]]},
+
+action:{t:`Under the Treble`,set:["manuscript"],p:[
+ `Four brass screws. The bottom board comes away in your hands, and there, flat against the case, wrapped in oilcloth and tied with a bootlace, is a sheaf of manuscript paper.`,
+ pencil(`Nocturne for Room 4B`,`<b>bars 1–4</b> · Hanna Weiss, Wien / London, 1938<br><b>bars 5–8</b> · Ruth Adair, 1958<br><b>bars 9–12</b> · Desmond Hale, 1971<br><b>bars 13–16</b> · (in a child's careful pencil) Priya M., age 10, 1994<br><b>bars 17–</b> · <i>empty staves, and at the bottom, in Desmond's hand: "for the next one."</i>`),
+ `It's the Crane Nocturne. Every pianist in the country knows it. Every recital programme says *Edmund Crane (1958)*. It's not his. It never was.`],
+ o:[[`Go down to the farewell recital in the hall`,`recital`],[`Read the names again, then go down`,`recital`],[`Back to the tuning lever first`,`tune`]]},
+
+recital:{t:`The Farewell Recital`,p:s=>[
+ `The Hallam's last evening. Folding chairs, warm wine, a hundred and eleven years of alumni. The Bechstein has been wheeled down to the stage for one last performance before the auction.`,
+ `Dean Priya Mehta, forty-two, in a grey suit, is giving the speech. In the front row sits Mr. Oliver Crane of the Crane Foundation, the Director's grandson, who has made it clear his bid for the piano will be generous.`,
+ s.f.manuscript?`The manuscript is inside your jacket.`:`You don't know where the book is. Desmond knew.`,
+ `The Dean finishes, and looks at you. "And our technician, who has been with the old Bechstein all week. Would you like to say a word?"`],
+ o:s=>recitalOpts(s)},
+
+fifth:{t:`For the Next One`,year:2026,p:[
+ `You play it. All of it. Hanna Weiss's falling bars. Ruth's that climb out of them. Desmond's blue note. Priya's arpeggio, all the way to the top, and Priya Mehta at the side of the stage with both hands over her mouth.`,
+ `Then you reach the empty staves, and the hall is silent, and you understand that the piece isn't over. It never is. That's the rent.`],
+ o:[[`Add four bars that fall home to the A`,`E1`,{mine:0}],[`Add four bars that climb a major chord`,`E1`,{mine:1}],[`Add four bars that step down, slowly`,`E1`,{mine:2}]]},
+
+E1:{end:true,best:true,t:`The Fifth Phrase`,p:s=>[
+ `You play your four bars, and the last A rings out over the hall at exactly ${s.hz} Hz, and nobody moves.`,
+ `Then you stand up and read the names off the manuscript, one by one: Hanna Weiss. Ruth Adair. Desmond Hale. Priya Mehta. And your own, for bars seventeen to twenty, because that's the rule. No one may put only one name on it.`,
+ `Oliver Crane withdraws his bid the next morning, rather quickly. The Bechstein isn't auctioned. Dean Mehta has it moved, in a van with two very careful men, to a practice room at the new campus, which she labels, by hand, *4B*.`,
+ `The recital programmes take a few years to change. They do change. *Nocturne for Room 4B (1938–). Weiss, Adair, Hale, Mehta, and others.* There's always room for others.`,
+ `When you tune it at the new campus, you set the A to 440, and in the decay, very faintly, someone says thank you, in four different voices.`]},
+
+E2:{end:true,t:`Concert Pitch`,p:s=>[
+ `You finish the job. All eighty-eight notes, A at 440, as standard. You sign the invoice, pack your tools and drive home.`,
+ `On Saturday morning the Bechstein goes to the Crane Foundation for a very generous sum, and is displayed in a glass room under a brass plaque: *The piano on which Edmund Crane composed the Crane Nocturne, 1958.*`,
+ `${s.f.manuscript?"You still have the manuscript, in a drawer at home. You keep meaning to do something about it.":"Nobody unscrews the bottom board. Why would they?"} The piano is never tuned again. In a glass room nobody can hear it humming.`,
+ `*A clean tuning job, and a truth left unplayed. The truest ending hears every voice, finds the book and pays the rent.*`]},
+
+E3:{end:true,t:`The Crane Nocturne`,p:[
+ `After the recital, in the car park, you show Oliver Crane the manuscript. He goes very pale, then very calm, then writes you a cheque with a great many zeroes on it.`,
+ `The manuscript goes into the Crane Foundation's archive, which is to say, into a shredder. The piano goes into the Crane Museum. The Crane Nocturne remains the Crane Nocturne.`,
+ `You never tune a piano again without hearing, in the decay of the A, a girl's voice: *"Hold on to it for me."*`,
+ `*You sold the rent. The truest ending gives every name back.*`]},
+
+E4:{end:true,t:`A Rumour of Voices`,p:s=>[
+ `You tell Dean Mehta the piano is full of voices. She comes up to Room 4B, listens politely to ${s.scene==="E4"&&s.hz>=452?"a string shrieking at 452":"an ordinary, slightly flat A"}, and looks at you with great kindness.`,
+ `By the afternoon another technician has been sent for. The Bechstein goes to auction on schedule.`,
+ `Years later you hear that the Dean, of all people, once stood in front of the piano in the Crane Museum and wept, and couldn't say why.`,
+ `*Some things can't be told; they have to be played. The truest ending finds the proof inside the piano and puts it in her hands.*`]},
+
+E5:{end:true,t:`The Broken String`,p:s=>[
+ `The A string goes with a crack like a pistol shot and whips back against the frame. Then there's silence. A proper silence, the kind you only get in old buildings at night.`,
+ `You replace the string, of course: new steel, bright and true. The piano sounds lovely. It sounds like a piano. Whatever was in the old wire, a hundred and fifteen years of every A it had ever been tuned to, is gone.`,
+ `*Every turn of the lever strains the old string. Count your turns, and don't haul it to 452.*`]},
+
+E6:{end:true,t:`An Incomplete Score`,p:s=>[
+ `You play what you have, and tell the hall the truth as far as you know it: that the nocturne was written in this room, by more than one hand, and isn't Edmund Crane's.`,
+ `It's something. Oliver Crane looks thunderous. Dean Mehta looks at you strangely. But ${["Hanna Weiss","Ruth Adair","Desmond Hale","Priya Mehta"].filter((_,i)=>!s.seen[["v435","v440","v444","v432"][i]]).join(" and ")||"some of them"} ${heard(s).length===3?"is":"are"} missing from your account, and without them the story has holes Mr. Crane's lawyers drive straight through.`,
+ `The piano is sold. The programmes still say *Crane*. But somebody in the audience, a music student, writes a thesis.`,
+ `*Close. The truest ending hears all four voices before it plays.*`]}
+};
+function hubOpts(s){
+  const c=[];
+  if(s.f.manuscript) c.push([`Go down to the farewell recital`,`recital`]);
+  else if((s.f.hiding||s.f.panel&&heard(s).length>=3)&&heard(s).length>=2) c.push([`Unscrew the bottom board under the treble`,`action`,null,"The brass screws"]);
+  Object.keys(ERA).forEach(y=>{if(!s.seen[ERA[y].scene]) c.push([`Set the A to ${ERA[y].hz} Hz`,ERA[y].scene,{hz:ERA[y].hz},`${ERA[y].hz} Hz${s.f.bench||s.f.panel?" · "+hintFor(y,s):""}`])});
+  if(!s.seen.v452) c.push([`Haul it up to 452 Hz, the old Philharmonic pitch`,`v452`,{hz:452,big:1},`Far too high`]);
+  if(!s.f.manuscript) c.push([`Go down to the farewell recital as you are`,`recital`]);
+  [[`Check the other eighty-seven strings`,`tune`],[`Rest your hands a minute`,`tune`]].forEach(f=>{if(c.length<3)c.push(f)});
+  return c.slice(0,3);
+}
+function hintFor(y,s){return {1938:s.f.bench?"the Vienna fork":"H.W. 1938",1958:"concert pitch",1971:s.f.bench?"\"444 or nothing\"":"D.H. 1971",1994:s.f.bench?"the sticker":"P.M. 1994"}[y]}
+function recitalOpts(s){
+  const o=[];
+  if(s.f.manuscript) o.push(heard(s).length===4?[`Play the nocturne as it was written: every phrase, every name`,`fifth`]:[`Play the nocturne from the manuscript, and tell them what you know`,`E6`]);
+  else o.push([`Tell the Dean what you heard in Room 4B`,`E4`]);
+  o.push(s.f.manuscript?[`Say a few polite words. Sell the manuscript to Mr. Crane afterwards.`,`E3`]:[`Say a few polite words about the piano`,`E2`]);
+  o.push([`Decline, finish the tuning at 440 tomorrow, and go`,`E2`,{hz:440}]);
+  return o;
+}
+
+/* ---------- engine ---------- */
+const SAVE_KEY="tac-room4b-daily-door-v1";
+let state,history=[];
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({state,history}))}catch(e){}}
+function restore(){try{const saved=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");return saved&&saved.state&&S[saved.state.scene]&&Array.isArray(saved.history)?saved:null}catch(e){return null}}
+const fresh=()=>({scene:"start",f:{},seen:{start:1},n:0,hz:427,strain:0,mine:null});
+const val=(x,s)=>typeof x==="function"?x(s):x;
+function loadE(){try{return JSON.parse(localStorage.getItem("room4b-endings")||"{}")}catch(e){return {}}}
+function saveE(id){const e=loadE();e[id]=1;try{localStorage.setItem("room4b-endings",JSON.stringify(e))}catch(err){}}
+function smart(html){
+  return html.split(/(<[^>]+>)/).map(p=>p.startsWith("<")?p:
+    p.replace(/(^|[\s(\[—])"/g,"$1“").replace(/"/g,"”")
+     .replace(/(^|[\s(\[—])'/g,"$1‘").replace(/'/g,"’")
+     .replace(/\*(.+?)\*/g,"<em>$1</em>")).join("");
+}
+function go(opt){
+  history.push(JSON.stringify(state)); if(history.length>60) history.shift();
+  let [,to,e]=opt; e=e||{};
+  if(e.hz&&e.hz!==state.hz){state.hz=e.hz;state.strain+=e.big?3:1;if(soundOn)tone(state.hz,0,2.4,.25)}
+  if(e.mine!=null) state.mine=e.mine;
+  if(state.strain>=6&&!S[to].end) to="E5";
+  const sc=S[to];
+  state.scene=to; state.n++; state.seen[to]=1;
+  (sc.set||[]).forEach(k=>state.f[k]=1);
+  if(sc.end) saveE(to);
+  if(e.play) setTimeout(()=>playSeq(ERA[e.play].phrase,ERA[e.play].hz),soundOn&&e.hz?2200:0);
+  else if(sc.year&&ERA[sc.year]&&!/b$/.test(to)) setTimeout(()=>playSeq(ERA[sc.year].phrase,ERA[sc.year].hz),1800);
+  if(to==="E1") setTimeout(()=>playScore(),400);
+  render(true);
+}
+function back(){if(!history.length)return;state=JSON.parse(history.pop());persist();render(true)}
+function restart(){history=[];state=fresh();persist();render(true)}
+
+function render(scroll){
+  const sc=S[state.scene], main=document.getElementById("main");
+  const paras=val(sc.p,state).map(t=>/^<span class="(voice|pencil|phrase)/.test(t)?smart(t):`<p>${smart(t)}</p>`).join("");
+  let html=`<div class="fade"><div class="meta"><span><b>${sc.end?"After the last note":sc.year?"In the decay of the A":"Room 4B, 2026"}</b></span><span>A = ${state.hz} Hz</span></div>
+   <h2 class="scene-title">${smart(sc.t)}</h2><div class="passage">${paras}</div>`;
+  if(sc.end){
+    const got=loadE(), n=Object.keys(ENDINGS).filter(k=>got[k]).length;
+    html+=`<div class="ending-card"><p class="label">${sc.best?"The truest ending":"An ending"} · ${n} of 6 discovered</p><h4>${smart(sc.t)}</h4>
+     <ul class="endings">${Object.entries(ENDINGS).map(([k,v])=>`<li class="${got[k]?"got":""}">${got[k]?smart(v):"Undiscovered"}</li>`).join("")}</ul>
+     <p class="endnote">${heard(state).length} of 4 voices heard · ${state.f.manuscript?"manuscript found":"manuscript not found"} · string strain ${Math.min(state.strain,6)} of 6.${sc.best?"":"<br>The truest ending: hear all four voices, find the book Desmond hid, and pay the rent: play every phrase, read every name, add your own."}</p>
+     <button class="begin" id="again">Lift the lid again</button></div>`;
+  } else {
+    const opts=val(sc.o,state);
+    html+=`<ol class="choices">${opts.map((o,i)=>`<li><button class="choice" data-i="${i}"><span class="num">${i+1}</span><span>${smart(o[0])}${o[3]?`<span class="tag${/Hz|Tuning|high/.test(o[3])?" hz":""}">${smart(o[3])}</span>`:""}</span></button></li>`).join("")}</ol>
+     <p class="hint">Press 1, 2 or 3 to choose · switch Sound on to hear each pitch and voice</p>`;
+  }
+  html+=`<div class="tools"><button class="link" id="back" ${history.length?"":"disabled"}>Retrace your last step</button><button class="link" id="restart">Start over</button></div></div>`;
+  main.innerHTML=html;
+  if(!sc.end){const opts=val(sc.o,state);main.querySelectorAll(".choice").forEach(b=>b.onclick=()=>go(opts[+b.dataset.i]));}
+  else document.getElementById("again").onclick=restart;
+  document.getElementById("back").onclick=back;
+  document.getElementById("restart").onclick=restart;
+  side();
+  if(scroll){const top=document.querySelector(".wrap");if(window.scrollY>top.offsetTop)window.scrollTo({top:top.offsetTop-10,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
+}
+const KEYS=[];(function(){const names=["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"];for(let o=4;o<=5;o++)for(let i=0;i<12;i++)KEYS.push({n:names[i]+o,semi:(o-4)*12+i-9,black:names[i].includes("♯")})})();
+function buildKeys(){
+  const el=document.getElementById("keys");const whites=KEYS.filter(k=>!k.black).length;let wi=0,h="";
+  KEYS.forEach(k=>{if(!k.black){h+=`<button class="w${k.n==="A4"?" a":""}" data-s="${k.semi}" aria-label="${k.n}" style="left:${wi/whites*100}%;width:${100/whites}%"></button>`;wi++}
+    else h+=`<button class="b" data-s="${k.semi}" aria-label="${k.n}" style="left:calc(${wi/whites*100}% - ${100/whites*0.3}%);width:${100/whites*0.6}%"></button>`});
+  el.innerHTML=h;
+  el.querySelectorAll("button").forEach(b=>{b.onpointerdown=()=>{b.classList.add("down");if(soundOn)tone(state.hz*Math.pow(2,(+b.dataset.s)/12),0,1.6,.22)};
+    b.onpointerup=b.onpointerleave=()=>b.classList.remove("down");
+    b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();if(soundOn)tone(state.hz*Math.pow(2,(+b.dataset.s)/12),0,1.6,.22)}}});
+}
+function side(){
+  const s=state, H=heard(s);
+  const cents=Math.round(1200*Math.log2(s.hz/440));
+  document.getElementById("hz").innerHTML=`<small>A4 · TUNED TO</small><b>${s.hz.toFixed(1)}</b><span>Hz · ${cents===0?"concert pitch":(cents>0?"+":"")+cents+" cents"}</span>`;
+  const ang=Math.max(-60,Math.min(60,cents*1.5));
+  const marks=[[432,"432"],[435,"435"],[440,"440"],[444,"444"],[452,"452"]].map(([f,l])=>{const a=Math.max(-60,Math.min(60,1200*Math.log2(f/440)*1.5))*Math.PI/180;return `<line x1="${150+Math.sin(a)*40}" y1="${60-Math.cos(a)*40}" x2="${150+Math.sin(a)*48}" y2="${60-Math.cos(a)*48}" stroke="#f1e6d6" stroke-width="1.4" opacity=".6"/><text x="${150+Math.sin(a)*58}" y="${62-Math.cos(a)*58}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="8" fill="#f1e6d6" opacity=".7">${l}</text>`}).join("");
+  document.getElementById("gauge").innerHTML=`<svg viewBox="70 0 160 62" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d="M${150-48*Math.sin(Math.PI/3)} ${60-48*Math.cos(Math.PI/3)} A48 48 0 0 1 ${150+48*Math.sin(Math.PI/3)} ${60-48*Math.cos(Math.PI/3)}" stroke="#f1e6d6" stroke-width="1" fill="none" opacity=".35"/>${marks}<line x1="150" y1="60" x2="${150+Math.sin(ang*Math.PI/180)*44}" y2="${60-Math.cos(ang*Math.PI/180)*44}" stroke="#ffd78a" stroke-width="2.4" stroke-linecap="round"/><circle cx="150" cy="60" r="3.5" fill="#ffd78a"/></svg>`;
+  document.getElementById("strain").innerHTML=`<span style="margin-right:4px;opacity:.75">STRAIN</span>`+[0,1,2,3,4,5].map(i=>`<i class="${i<s.strain?"on":""}${i<s.strain&&s.strain>=4?" hot":""}"></i>`).join("");
+  document.getElementById("keyhint").textContent=soundOn?`Every key is tuned relative to A = ${s.hz} Hz`:"Sound is off";
+  // lit keys = notes in recovered phrases
+  const lit=new Set();H.forEach(y=>ERA[y].phrase.forEach(n=>lit.add(((n%24)+24)%24-9)));
+  document.querySelectorAll("#keys button").forEach(b=>{const sm=+b.dataset.s;b.classList.toggle("lit",H.some(y=>ERA[y].phrase.some(n=>n===sm)))});
+  // score
+  const yrs=["1938","1958","1971","1994"];const W=300,line=y=>`<line x1="4" y1="${y}" x2="${W-4}" y2="${y}" stroke="#7a6e62" stroke-width=".7"/>`;
+  let g="";[20,26,32,38,44].forEach(y=>g+=line(y));
+  g+=`<text x="6" y="44" font-size="30" font-family="serif" fill="#3a3028">𝄞</text>`;
+  const segW=(W-40)/5;
+  const ys=n=>44-((n+9)*1.5);
+  [...yrs,"2026"].forEach((yr,i)=>{const x0=34+i*segW;g+=`<line x1="${x0+segW}" y1="20" x2="${x0+segW}" y2="44" stroke="#7a6e62" stroke-width=".7"/>`;
+    const got=yr==="2026"?s.mine!=null:H.includes(yr);
+    const notes=yr==="2026"?(s.mine!=null?MINE[s.mine]:null):ERA[yr].phrase;
+    const col=yr==="2026"?"var(--y2026)":ERA[yr].col;
+    if(got){notes.forEach((n,j)=>{const x=x0+8+j*(segW-12)/4,y=ys(n);g+=`<ellipse cx="${x}" cy="${y}" rx="3.6" ry="2.7" transform="rotate(-20 ${x} ${y})" fill="${col}"/><line x1="${x+3.3}" y1="${y}" x2="${x+3.3}" y2="${y-14}" stroke="${col}" stroke-width="1"/>`;
+      if(y>44){for(let ly=50;ly<=y+1;ly+=6)g+=`<line x1="${x-6}" y1="${ly}" x2="${x+6}" y2="${ly}" stroke="#7a6e62" stroke-width=".7"/>`}});
+      g+=`<text x="${x0+segW/2}" y="70" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="8" fill="${col}">${yr==="2026"?"you":yr}</text>`;}
+    else g+=`<text x="${x0+segW/2}" y="36" text-anchor="middle" font-family="serif" font-size="14" fill="#b3a898">?</text><text x="${x0+segW/2}" y="70" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="8" fill="#b3a898">${yr==="2026"?"next":yr}</text>`;
+  });
+  document.getElementById("score").innerHTML=`<svg viewBox="0 0 ${W} 76" role="img" aria-label="Nocturne for Room 4B: ${H.length} of 4 phrases recovered">${g}</svg>`;
+  document.getElementById("scoreSub").textContent=`Nocturne for Room 4B · ${H.length} of 4 phrases${s.mine!=null?" + yours":""}`;
+  document.getElementById("playscore").disabled=!H.length;
+  document.getElementById("voices").innerHTML=yrs.map(y=>{const on=H.includes(y);return `<li class="${on?"":"no"}" style="--vc:${ERA[y].col}"><b>${y}</b><span><span class="n">${on?ERA[y].who:"Unheard"}</span><span class="hz2">${on?"A = "+ERA[y].hz+" Hz · "+ERA[y].note:"Some other pitch"}</span></span></li>`}).join("");
+  const C=[];
+  if(s.f.bench) C.push("Bench: a Vienna fork (435), \"444 or nothing\", a 432 sticker.");
+  if(s.f.panel) C.push("Hammer rail: H.W. 1938 · R.A. 1958 · D.H. 1971 · P.M. 1994. Bottom board re-screwed.");
+  if(s.f.weissRule) C.push("Weiss: every student adds four bars. No one may put only one name on it.");
+  if(s.f.craneHeard) C.push("1958: Crane took Ruth's manuscript for his own.");
+  if(s.f.hiding) C.push("Desmond hid the real copy under the treble.");
+  if(s.f.priya) C.push("P.M. 1994 is Dr. Priya Mehta, the Dean.");
+  if(s.f.manuscript) C.push("Found: Nocturne for Room 4B, four hands, empty staves \"for the next one.\"");
+  document.getElementById("clues").innerHTML=C.length?C.map(t=>`<li>${smart(t)}</li>`).join(""):`<li class="none">Nothing yet.</li>`;
+}
+function playScore(){if(!soundOn)return;const H=heard(state);let t=0;
+  [...H.map(y=>[ERA[y].phrase,ERA[y].hz]),...(state.mine!=null?[[MINE[state.mine],state.hz]]:[])].forEach(([p,A])=>{p.forEach((n,i)=>tone(A*Math.pow(2,n/12),t+i*.42,1.5,.2));t+=p.length*.42+.25});}
+document.getElementById("snd").onclick=()=>{soundOn=!soundOn;const b=document.getElementById("snd");b.setAttribute("aria-pressed",soundOn);b.textContent=soundOn?"♪ Sound: on":"♪ Sound: off";
+  if(soundOn){const c=ac();if(c&&c.state==="suspended")c.resume();tone(state.hz,0,2,.22)}side();};
+document.getElementById("playscore").onclick=()=>{if(!soundOn){document.getElementById("snd").click()}playScore()};
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(e.target&&e.target.closest&&e.target.closest("#keys,input,textarea,select,[contenteditable]"))return;
+  const i=["1","2","3"].indexOf(e.key); if(i>-1){const b=document.querySelectorAll(".choice")[i]; if(b)b.click();}
+});
+function start(d){const saved=d&&d.state&&S[d.state.scene]&&Array.isArray(d.history)?d:restore();state=saved?saved.state:fresh();history=saved?saved.history:[];buildKeys();render(false);persist();if(matchMedia("(max-width:900px)").matches)document.querySelectorAll(".ref-fold").forEach(x=>x.open=false)}
+window.claude?.hot?.snapshot?.(()=>({state,history}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+</script>
+
+</body></html>
