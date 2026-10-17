@@ -293,19 +293,41 @@ dialog::backdrop{background:rgba(10,7,4,.66)}
 .story-footer a{color:var(--rubric)}
 @media (max-width:560px){.orb{display:none}body{font-size:18px}.band{padding:16px 16px 0;min-height:200px}.abbey{width:calc(100% + 32px);margin:12px -16px 0}.titles{max-width:100%}.page{padding:18px 16px 16px 22px;font-size:1.06rem}}
 @media (prefers-reduced-motion:reduce){.fade{animation:none}.orb,.band{transition:none}}
+
+/* FOLIO header: the case opens like a page of the Book itself */
+.folio{position:relative;text-align:center;padding:30px 24px 22px;background:var(--panel);border:1px solid var(--line);border-radius:2px;
+  box-shadow:inset 0 0 0 7px var(--panel),inset 0 0 0 8px var(--rubric),inset 0 0 0 11px var(--panel),inset 0 0 0 12px var(--gold);
+  background-image:repeating-linear-gradient(to bottom,transparent 0 31px,var(--rubric-soft) 31px 32px)}
+.folio .rub{margin:0;font:600 .72rem/1.5 var(--label);letter-spacing:.2em;text-transform:uppercase;color:var(--rubric)}
+.folio h1{font-family:var(--display);font-weight:400;font-size:clamp(2rem,6.6vw,3.7rem);line-height:1.08;margin:14px auto 8px;color:var(--ink);max-width:16ch;text-wrap:balance}
+.folio .ini{display:inline-block;color:#fbf0d8;background:#9b2416;border:3px double var(--gold);padding:.02em .16em .06em;margin-right:.06em;font-size:1.18em;line-height:1;vertical-align:-.06em;box-shadow:2px 2px 0 var(--lapis)}
+.folio .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.folio .sub{margin:0 auto;max-width:56ch;text-wrap:balance;font-style:italic;color:var(--muted)}
+.orn{display:flex;align-items:center;justify-content:center;gap:12px;margin:16px auto 12px;max-width:340px;color:var(--rubric);font-size:1rem}
+.orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.hours{display:inline-grid;grid-template-columns:auto repeat(7,30px);gap:7px 6px;align-items:center;justify-items:center;padding:10px 14px;background:var(--panel2);border:1px solid var(--line)}
+.hours .dl{font:600 .64rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);justify-self:end;padding-right:6px}
+.hours .dl.on{color:var(--rubric)}
+.hours .bl{font:600 .58rem var(--label);letter-spacing:.04em;color:var(--muted)}
+.hours i{width:11px;height:11px;transform:rotate(45deg);border:1.5px solid var(--gold);display:block}
+.hours i.past{background:var(--gold);opacity:.4}
+.hours i.now{background:var(--rubric);border-color:var(--rubric);box-shadow:0 0 0 3px var(--rubric-soft);animation:toll 2.4s ease-in-out infinite}
+.hours .feast{font-size:.95rem;line-height:1;color:var(--rubric)}
+.hours .feast.past{opacity:.4}
+@keyframes toll{50%{box-shadow:0 0 0 6px var(--rubric-soft)}}
+@media (max-width:560px){.folio{padding:24px 14px 18px}.hours{grid-template-columns:auto repeat(7,24px);padding:8px 10px;gap:6px 4px}.hours .bl{font-size:.5rem}}
+@media (prefers-reduced-motion:reduce){.hours i.now{animation:none}}
 </style>
 </head>
 <body>
 <header class="mast">
   <p class="tac-brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="/">DoorQuests</a> · Cluortals · Cluortal No. 2</span></p>
-  <div class="band" id="band">
-    <div class="orb" id="orb" aria-hidden="true"></div>
-    <div class="titles">
-      <p class="pre">Cluortal No. 2 · Medieval France · 1187</p>
-      <h1>The Saint Who Never Existed</h1>
-      <p class="sub">A stolen book, a royal charter, and three days until the feast.</p>
-    </div>
-    <svg class="abbey" id="abbey" viewBox="0 0 700 120" preserveAspectRatio="xMidYMax meet" aria-hidden="true"></svg>
+  <div class="folio">
+    <p class="rub">Cluortal No. II · The Abbey of Corvaise · Anno Domini MCLXXXVII</p>
+    <h1><span class="ini" aria-hidden="true">T</span><span class="sr">T</span>he Saint Who Never Existed</h1>
+    <p class="sub">A stolen book, a royal charter, and three days until the feast.</p>
+    <div class="orn" aria-hidden="true"><i></i><span>✠</span><i></i></div>
+    <div class="hours" id="hours" role="img" aria-label="The bells of the next three days"></div>
   </div>
   <div class="strip" aria-label="Cluortal status">
     <div>Day and bell<b id="bell">Day 1 · Terce</b></div>
@@ -1009,12 +1031,21 @@ function renderStatus(){
  $("lightBox").className=left<=90&&!s.ended?"urgent":"";
  $("candles").innerHTML=[0,1,2].map(i=>`<i class="${i<s.tools.candle?"on":""}"></i>`).join("");$("candles").setAttribute("aria-label",`${s.tools.candle} candles`);
  $("intuit").innerHTML=[0,1].map(i=>`<i class="${i<s.tools.intuit?"on":""}"></i>`).join("");$("intuit").setAttribute("aria-label",`${s.tools.intuit} of 2 left`);
- const h=tod(s.clock)/60, band=$("band");
- band.className="band "+(s.candle||h>=21||h<6?"night":h<9?"dawn":h>=17?"dusk":"");
- const orb=$("orb"),p=s.candle?clamp((h-21)/3,0,1):clamp((h-6)/15,0,1);
- orb.style.left=`calc(${54+p*40}% - 20px)`;orb.style.top=`${150-Math.sin(p*Math.PI)*70}px`;
- const here=s.view==="interview"?WHERE[s.who]:s.loc;
- $("abbey").innerHTML=abbeySVG(here);
+ $("hours").innerHTML=hoursHTML(s);
+}
+function hoursHTML(s){
+ const BELLS=[["M","Matins"],["P","Prime"],["T","Terce"],["S","Sext"],["N","None"],["V","Vespers"],["C","Compline"]];
+ const d=dayOf(s.clock),h=tod(s.clock)/60,b=h<6?0:h<9?1:h<12?2:h<15?3:h<18?4:h<21?5:6;
+ let g=`<span></span>${BELLS.map(([k,n])=>`<span class="bl" title="${n}">${k}</span>`).join("")}`;
+ for(let day=1;day<=3;day++){
+  g+=`<span class="dl ${day===d?"on":""}">Day ${["I","II","III"][day-1]}</span>`;
+  for(let i=0;i<7;i++){
+   const past=day<d||(day===d&&i<b),now=day===d&&i===b&&!s.ended;
+   if(day===3&&i===5)g+=`<span class="feast ${past?"past":""}" title="The Feast of Saint Mérence">✠</span>`;
+   else g+=`<i class="${past?"past":now?"now":""}" title="Day ${day}, ${BELLS[i][1]}"></i>`;
+  }
+ }
+ return g;
 }
 function abbeySVG(here){
  const w=(id,x,y,ww,hh)=>`<rect class="w ${here===id?"here":""}" x="${x}" y="${y}" width="${ww}" height="${hh}" rx="${ww/2}"/>`;
