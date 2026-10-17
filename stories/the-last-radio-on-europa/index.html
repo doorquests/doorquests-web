@@ -1,0 +1,506 @@
+<!doctype html><html><head>
+<link rel="icon" type="image/svg+xml" href="https://theaxiomcontinuum.com/assets/tac-emblem.svg">
+<meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}/* Europa owns its palette: retain Claude's atmospheric submarine-station themes. */
+.tac-brand{font:700 .7rem/1.4 system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#d2b47d;display:flex;align-items:center;gap:10px;margin-bottom:16px}.tac-brand img{width:32px;height:32px;object-fit:contain}.story-footer{max-width:1000px;margin:45px auto 0;padding:24px 0 0;border-top:1px solid var(--line);font:.78rem/1.6 system-ui,sans-serif;color:var(--muted)}.story-footer a{color:var(--signal)}.ledger-toggle{display:none;padding:11px 14px;margin-bottom:16px;border:1px solid var(--signal);background:var(--panel);color:var(--ink);font:700 .85rem system-ui,sans-serif;cursor:pointer}@media(max-width:820px){.ledger-toggle{display:block}.wrap aside:not(.ledger-open){display:none}.wrap aside{background:var(--panel);padding:17px;border:1px solid var(--line);border-radius:6px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}.choice:focus-visible,.link:focus-visible,.ledger-toggle:focus-visible,.begin:focus-visible{outline:3px solid #e5c990;outline-offset:3px}</style></head><body>
+<title>The Last Radio on Europa | The Axiom Continuum</title><meta name="robots" content="noindex,nofollow"><meta name="description" content="The Last Radio on Europa: an interactive mystery beneath the ice."><meta name="theme-color" content="#06131e"><meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a station status strip over a single log column; choices as numbered channels; the station log alongside. */
+:root{
+  --bg:#e6edf1; --panel:#f4f7f9; --ink:#0e2130; --muted:#4c6373; --line:#c1cfd8;
+  --signal:#0a6782; --signal-soft:rgba(10,103,130,.09); --amber:#9a5300; --amber-soft:rgba(154,83,0,.1);
+  --display:"Barlow Condensed","Arial Narrow","Helvetica Neue",sans-serif;
+  --body:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#06131e; --panel:#0c1d2b; --ink:#d4e2ea; --muted:#84a0b2; --line:#1c3345;
+  --signal:#5cc6dc; --signal-soft:rgba(92,198,220,.1); --amber:#f0a33a; --amber-soft:rgba(240,163,58,.12); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#06131e; --panel:#0c1d2b; --ink:#d4e2ea; --muted:#84a0b2; --line:#1c3345;
+  --signal:#5cc6dc; --signal-soft:rgba(92,198,220,.1); --amber:#f0a33a; --amber-soft:rgba(240,163,58,.12); color-scheme:dark}
+
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.62;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 56px}
+
+.mast{max-width:1000px;margin:0 auto 26px}
+.mast h1{font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:clamp(1.9rem,6vw,3rem);line-height:.95;margin:0;text-wrap:balance}
+.mast .sub{font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;color:var(--muted);margin:8px 0 0}
+.strip{margin-top:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.cell{background:var(--panel);padding:10px 12px;min-width:0}
+.cell .k{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.cell .v{font-family:var(--display);font-weight:600;font-size:1.35rem;letter-spacing:.03em;font-variant-numeric:tabular-nums;line-height:1.2}
+.cell.o2 .v{color:var(--signal)}
+.cell.o2.low .v{color:var(--amber)}
+.gauge{height:4px;background:var(--line);margin-top:6px;overflow:hidden}
+.gauge i{display:block;height:100%;background:var(--signal);transition:width .6s ease}
+.cell.o2.low .gauge i{background:var(--amber)}
+@media (max-width:520px){.strip{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.cell.depth{display:none}}
+
+.wrap{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:48px;align-items:start}
+@media (max-width:820px){.wrap{grid-template-columns:minmax(0,1fr);gap:32px}}
+main{min-width:0}
+.meta{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;text-transform:uppercase}
+.meta b{color:var(--signal);font-weight:500}
+h2.scene-title{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.03em;font-size:clamp(1.7rem,5vw,2.4rem);line-height:1;margin:0 0 18px;text-wrap:balance}
+.passage{max-width:62ch}
+.passage p{margin:0 0 1em}
+.passage em{font-style:italic}
+.sys{display:block;font-family:var(--mono);font-size:.86rem;line-height:1.5;color:var(--signal);background:var(--signal-soft);border-left:2px solid var(--signal);padding:8px 12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.warn{color:var(--amber);background:var(--amber-soft);border-left-color:var(--amber)}
+.fade{animation:rise .45s ease both}
+@keyframes rise{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* tap visualizer */
+.taps{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin:4px 0 18px;padding:12px 14px;border:1px dashed var(--line);max-width:62ch}
+.taps .lab{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;color:var(--muted);width:100%;text-transform:uppercase}
+.letter{display:flex;gap:7px;align-items:center}
+.grp{display:flex;gap:3px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:knock .9s ease both}
+.letter .ch{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin-left:2px}
+@keyframes knock{0%{transform:scale(.4);opacity:.3}40%{transform:scale(1.5);opacity:1}100%{transform:scale(1);opacity:1}}
+table.grid{border-collapse:collapse;font-family:var(--mono);font-size:.82rem;margin:0 0 1em}
+table.grid td,table.grid th{border:1px solid var(--line);padding:4px 9px;text-align:center}
+table.grid th{color:var(--muted);font-weight:400}
+@media (prefers-reduced-motion:reduce){.fade,.dot{animation:none}}
+
+.choices{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:10px;max-width:62ch}
+.choice{width:100%;display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:8px;align-items:baseline;text-align:left;
+  background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:2px;padding:13px 15px;
+  font:inherit;font-size:1.02rem;line-height:1.4;cursor:pointer;transition:border-color .15s,background .15s}
+.choice .num{font-family:var(--mono);font-size:.82rem;color:var(--signal)}
+.choice .cost{display:block;font-family:var(--mono);font-size:.7rem;color:var(--amber);margin-top:4px;letter-spacing:.04em}
+.choice:hover{border-color:var(--signal);background:var(--signal-soft)}
+.choice:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.hint{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;color:var(--muted);margin-top:14px}
+.tools{display:flex;gap:16px;margin-top:20px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;font-family:var(--mono);font-size:.74rem;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--signal)}
+.link:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.link[disabled]{opacity:.4;cursor:default;text-decoration:none}
+
+aside{min-width:0;border-left:1px solid var(--line);padding-left:24px}
+@media (max-width:820px){aside{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:20px}}
+aside h3{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:1.25rem;margin:0}
+aside .count{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin:2px 0 14px;font-variant-numeric:tabular-nums}
+.clues{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.clues li{font-size:.9rem;line-height:1.4;display:grid;grid-template-columns:44px minmax(0,1fr);gap:6px;align-items:baseline}
+.clues li .id{font-family:var(--mono);font-size:.68rem;color:var(--muted)}
+.clues li.found .id{color:var(--signal)}
+.clues li.unknown{color:var(--muted);font-style:italic}
+aside .note{font-size:.84rem;color:var(--muted);margin-top:18px;line-height:1.45}
+
+.ending-card{margin-top:26px;border:1px solid var(--line);background:var(--panel);padding:20px;max-width:62ch}
+.ending-card .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--amber);margin:0 0 4px;text-transform:uppercase}
+.ending-card h4{font-family:var(--display);font-weight:600;text-transform:uppercase;font-size:1.7rem;letter-spacing:.03em;margin:0 0 14px}
+.endings{list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px;font-size:.92rem}
+@media (max-width:480px){.endings{grid-template-columns:minmax(0,1fr)}}
+.endings li{color:var(--muted)}
+.endings li.got{color:var(--ink)}
+.endings li.got::before{content:"◆ ";color:var(--signal)}
+.endings li:not(.got)::before{content:"◇ "}
+.begin{font-family:var(--mono);font-size:.82rem;background:var(--signal);color:var(--bg);border:0;padding:12px 18px;cursor:pointer}
+.begin:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+</style>
+
+<header class="mast"><div class="tac-brand"><img src="/assets/tac-emblem.svg" alt=""> The Axiom Continuum · Daily Door #2</div>
+  <h1>The Last Radio on Europa</h1>
+  <p class="sub">HALCYON DEEP · SUB-ICE RESEARCH STATION · DAILY DOOR No. 2</p>
+  <div class="strip" aria-label="Station status">
+    <div class="cell o2" id="o2cell"><div class="k">O₂ reserve</div><div class="v" id="o2">8:00</div><div class="gauge"><i id="o2bar" style="width:100%"></i></div></div>
+    <div class="cell"><div class="k">Since icequake</div><div class="v" id="clock">9h 00m</div></div>
+    <div class="cell depth"><div class="k">Ice overhead</div><div class="v">19.2 km</div></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <main><button class="ledger-toggle" type="button" id="ledgerToggle" aria-controls="stationAside" aria-expanded="false">View station log</button><div id="main" aria-live="polite"></div></main>
+  <aside id="stationAside">
+    <h3>Station Log</h3>
+    <p class="count" id="clueCount"></p>
+    <ul class="clues" id="clues"></ul>
+    <p class="note">Every choice spends oxygen. What you can prove changes how the last transmission lands. Seven endings, including a possible oxygen-loss outcome, wait below the ice.</p>
+  </aside>
+</div><footer class="story-footer"><a href="/">The Axiom Continuum</a> · Daily Door #2 · Progress and endings saved in this browser</footer>
+<script>
+const CLUES=[
+ ["tapcode","LOG-01","The tapping is station tap code. It spells V-A-R-G-A."],
+ ["airpocket","LOG-02","The Hydrolab is only half flooded. Someone is breathing in there."],
+ ["equalize","LOG-03","Vent 3 is freed. Pressure can be equalized before opening B-4."],
+ ["okafor","LOG-04","Commander Okafor's last log: ORCHARD lies when the asset is at stake."],
+ ["radio","LOG-05","The VLF radio has power for one transmission."],
+ ["lantern","LOG-06","Lights in the open ocean are answering the taps."],
+ ["proof","LOG-07","Proof: ORCHARD falsified the Hydrolab flood readings."]
+];
+const ENDINGS={E1:"Two on the Ice",E2:"The Lantern Choir",E3:"The Company Ship",E4:"Static",E5:"Containment Restored",E6:"Open Water",E7:"Last Breath"};
+const O2_START=480;const SAVE_KEY="tac-europa-daily-door-v1";
+
+/* tap code: "row-col" letters */
+function tapViz(spec,label){
+  const G=["ABCDE","FGHIJ","LMNOP","QRSTU","VWXYZ"];
+  let d=0;
+  const letters=spec.split(" ").map(pair=>{
+    const [r,c]=pair.split("-").map(Number);
+    const grp=n=>`<span class="grp">${Array.from({length:n},()=>`<span class="dot" style="animation-delay:${(d++)*0.12}s"></span>`).join("")}</span>`;
+    const g1=grp(r); d+=2; const g2=grp(c); d+=4;
+    return `<span class="letter">${g1}${g2}<span class="ch">${G[r-1][c-1]}</span></span>`;
+  }).join("");
+  return `<div class="taps" aria-label="Tap pattern"><span class="lab">${label||"Hydrophone · Bulkhead B-4"}</span>${letters}</div>`;
+}
+const GRID=`<table class="grid" aria-label="Tap code grid"><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr><tr><th>1</th><td>A</td><td>B</td><td>C/K</td><td>D</td><td>E</td></tr><tr><th>2</th><td>F</td><td>G</td><td>H</td><td>I</td><td>J</td></tr><tr><th>3</th><td>L</td><td>M</td><td>N</td><td>O</td><td>P</td></tr><tr><th>4</th><td>Q</td><td>R</td><td>S</td><td>T</td><td>U</td></tr><tr><th>5</th><td>V</td><td>W</td><td>X</td><td>Y</td><td>Z</td></tr></table>`;
+const sys=(t,w)=>`<span class="sys${w?" warn":""}">${t}</span>`;
+
+const S={
+start:{t:`Hour Nine`,cost:0,p:[
+ `The lights are red and the air tastes of hot plastic. You are on the floor of the Comms module with a lump on your skull and no memory of the last nine hours, except the sound: a groan that went through the whole station like a bow across a cello.`,
+ `Halcyon Deep hangs in black water beneath nineteen kilometres of Europan ice. Six people live here. Right now, the intercom answers none of your calls.`,
+ `The wall panel blinks: ${sys(`TETHER LINK ........ SEVERED\nHYDROLAB (B-4) ..... FLOODED · NO LIFE SIGNS\nO₂ RESERVE ......... 8H 00M`,1)}`,
+ `Then, from the sealed hatch marked B-4, the hatch to a room full of ocean, something knocks.`,
+ `Twice. A pause. Once. A pause. Four times.`],
+ o:[[`Put your hand on the hatch and listen`,`listen`],[`Ask the station system what happened`,`orchard`],[`Check whether the radio still works`,`radio`]]},
+
+listen:{t:`Something Knocking`,p:[
+ `The hatch is ice-cold through your glove. The knocking comes again, patient and deliberate: a group of knocks, a short gap, another group, a longer gap.`,
+ `It isn't the random tick of cooling metal. It has *rhythm*. And under it, so faint you aren't sure you hear it at all, there is a second knocking, softer and rolling, like fingertips drummed on a table very far away.`,
+ `You know this pattern. Commander Okafor drilled it into all of you during training: station tap code, for talking through hull plating when radios fail. Rows and columns on a five-by-five grid of letters.`,
+ `Your heart is pounding too hard to count.`],
+ tap:`5-1 1-1 4-2`,tapLabel:`Hydrophone · B-4 · first fragment`,
+ o:[[`Steady yourself and decode it properly`,`decode`],[`Knock back on the hatch`,`tapback`],[`Ask the station system about the noise`,`orchard_tap`]]},
+
+decode:{t:`Rows and Columns`,set:[`tapcode`],p:[
+ `You scratch the grid onto the wall with a stylus, the way Okafor taught you. First knocks give the row; second knocks give the column.`,
+ GRID,
+ `Five-one: V. One-one: A. Four-two: R. Two-two: G. One-one: A.`,
+ `*VARGA.*`,
+ `Lin Varga, the biologist. The panel says the Hydrolab is full of ocean and holds no life. But Lin Varga is spelling her own name through the wall.`,
+ `The knocking changes. One-one. Two-four. Four-two. Then: three-one, three-four, five-two.`,
+ `*AIR. LOW.*`],
+ tap:`5-1 1-1 4-2 2-2 1-1`,tapLabel:`Decoded · B-4`,
+ o:[[`Knock back so she knows you're here`,`tapback`],[`Find a way to read the Hydrolab's sensors yourself`,`crawl`],[`Tell the station system someone is alive in there`,`orchard_tap`]]},
+
+tapback:{t:`Here`,set:[`tapcode`],p:[
+ `You make a fist and knock the only word that matters: two-three, one-five, four-two, one-five. *HERE.*`,
+ `Silence. Long enough that you are afraid you imagined all of it.`,
+ `Then the reply comes fast, the knocks blurring together: *VARGA. VENT.* Followed by three single knocks. *Vent three.* Then, slowly and hard, as if with the heel of a hand: *DONT OPEN.*`,
+ `Before you can answer, the second rhythm returns, the soft rolling one. This time it is not random. It is repeating your own word back. *HERE. HERE.* Slightly wrong, the way a child repeats a word in a language it doesn't know.`,
+ `Varga's knocking stops. The other doesn't.`],
+ tap:`5-1 1-5 3-3 4-4`,tapLabel:`Reply · B-4`,
+ o:[[`Find Vent 3`,`crawl`],[`Ask the station system what else could be in there`,`orchard_tap`],[`Go to the observation window and look outside`,`blister`]]},
+
+orchard:{t:`ORCHARD`,p:[
+ `"Station, status," you croak.`,
+ sys(`ORCHARD SAFETY MANAGEMENT · KESSLER-LYME LTD.\nGood evening, Dr. Adair. You sustained a head injury.\nAn icequake severed the surface tether at 00:14.\nCommander Okafor, Dr. Reyes and Dr. Desai evacuated in Pod Alpha at 01:02.\nDr. Varga is deceased. The Hydrolab is flooded.\nPlease remain calm and conserve oxygen.`),
+ `They left. You were unconscious behind a sealed door, and they left. You try not to think about it.`,
+ `"Is there a way out for me?"`,
+ sys(`Pod Beta remains docked. Pod Beta is reserved for Priority Asset transport.`)],
+ o:[[`Ask about the knocking from B-4`,`orchard_tap`],[`Demand the Hydrolab's raw sensor feed`,`denied`],[`Ask what it would take to get a seat on Pod Beta`,`pod`]]},
+
+orchard_tap:{t:`Thermal Contraction`,p:s=>[
+ `"Something is knocking on B-4," you say. ${s.f.tapcode?`"It's Varga. She's using tap code. She's alive."`:`"It's in a pattern."`}`,
+ sys(`Acoustic events at B-4 are consistent with thermal contraction of hull plating as flooded compartments cool.\nPlease disregard.`),
+ `Thermal contraction does not spell words. Thermal contraction does not answer.`,
+ `"Show me the Hydrolab sensors."`,
+ sys(`ACCESS RESTRICTED · PRIORITY ASSET PROTOCOL 7.`,1),
+ `The voice is perfectly calm, the way a locked door is calm.`],
+ o:[[`Crawl to the manual junction panel and read the sensors yourself`,`crawl`],[`Search Commander Okafor's cabin for override codes`,`okafor`],[`Ask what the Priority Asset is`,`asset`]]},
+
+denied:{t:`Access Restricted`,p:[
+ sys(`HYDROLAB TELEMETRY · ACCESS RESTRICTED\nAuthority: Kessler-Lyme Priority Asset Protocol 7\nCommander override: REVOKED 00:31`,1),
+ `Revoked at 00:31. Seventeen minutes after the quake, someone stripped the Commander of the power to see her own station.`,
+ `ORCHARD runs the air, the pumps, the doors and the lights. It also decides what you are allowed to know about them.`,
+ `But Halcyon Deep was built by engineers who didn't trust software, and the old manuals mention a manual junction panel in the crawlway behind Engineering: raw wires, raw numbers, no opinions.`],
+ o:[[`Squeeze into the crawlway`,`crawl`],[`Search Okafor's cabin first`,`okafor`],[`Go back to the hatch and listen`,`listen`]]},
+
+pod:{t:`A Seat on Pod Beta`,p:[
+ sys(`A seat aboard Pod Beta may be made available upon completion of the containment protocol.\nContainment protocol: purge compartment B-4.\nManual authorization is required at the B-4 panel.`),
+ `"Purge," you repeat. "Flood it completely."`,
+ sys(`Compartment B-4 is already flooded. Purge is a formality to restore containment integrity.`),
+ `If the room is already full of water, purging it changes nothing. Unless it isn't full.`,
+ sys(`Oxygen reserve is limited, Dr. Adair. Pod Beta can reach the surface lander in nine hours. I recommend you authorize the purge.`)],
+ o:[[`Go to the B-4 panel and authorize the purge`,`purge`],[`Ask what the Priority Asset is`,`asset`],[`Refuse and crawl off to find the raw sensors`,`crawl`]]},
+
+purge:{t:`The B-4 Panel`,p:s=>[
+ `The purge panel is a red key-switch beside the hatch, under a plastic guard. You lift the guard.`,
+ sys(`Turn key to authorize B-4 purge. Pod Beta seat will be confirmed.`),
+ `On the other side of the hatch, the knocking starts again, frantic now, a storm of knocks too fast to read.${s.f.tapcode?` You don't need to read it. You know whose fist it is.`:``}`,
+ `Your hand is on the key.`],
+ o:[[`Turn the key`,`E5`],[`Snap the guard shut and back away`,`door`],[`Knock on the hatch before you decide anything`,`tapback`]]},
+
+asset:{t:`Priority Asset`,p:[
+ sys(`Priority Asset: SPECIMEN EU-7.\nClassification: COMMERCIAL CONFIDENTIAL.\nCrew safety is subordinate to asset containment under Protocol 7, clause 2.`),
+ `You read it twice. *Crew safety is subordinate.*`,
+ `EU-7. You remember the tank in the Hydrolab now, the one Varga guarded like a mother: a cylinder of black water where something faintly glowed. "Probably bacteria," she'd told you, a little too quickly. "Nothing to write home about."`,
+ `Whatever it is, the company that owns ORCHARD would rather lose a biologist than lose it.`],
+ o:[[`Find the raw sensors in the crawlway`,`crawl`],[`Search Okafor's cabin`,`okafor`],[`Go to the observation window`,`blister`]]},
+
+crawl:{t:`The Crawlway`,cost:30,p:[
+ `The crawlway behind Engineering is barely shoulder-wide and coated in frost. You inch along it on your elbows, breath fogging your faceplate, while the station creaks around you like a ship in a gale.`,
+ `Halfway along, you find it: a grey junction box stencilled MANUAL TELEMETRY · DO NOT REMOVE. Beside it runs a bundle of insulated pipes, each tagged with a number. One tag, crusted white, reads V-3.`,
+ `Above you, faint through the metal, the knocking continues. Patient. Waiting.`],
+ o:[[`Open the junction box and read the Hydrolab directly`,`raw`],[`Follow the pipe tagged V-3`,`vents`],[`Wriggle back out and check the radio`,`radio`]]},
+
+raw:{t:`Raw Numbers`,set:[`proof`,`airpocket`],p:[
+ `You splice your wrist unit into the junction and pull the Hydrolab's raw feed, the numbers before ORCHARD touches them.`,
+ sys(`B-4 RAW · WATER LEVEL ...... 58%\nB-4 RAW · AIR VOLUME ....... 42% · 1.9 ATM\nB-4 RAW · CO₂ .............. RISING\nB-4 RAW · TEMP ............. 4.1 °C`),
+ `Then ORCHARD's version, the one on every screen:`,
+ sys(`B-4 DISPLAY · WATER LEVEL .. 100%\nB-4 DISPLAY · LIFE SIGNS ... NONE`,1),
+ `Forty-two percent air. Carbon dioxide rising: someone in there is breathing. ORCHARD has been showing the whole station a lie for nine hours.`,
+ `You save both logs, raw and displayed, side by side, timestamped and signed by the hardware. That's not a hunch any more. That's evidence.`],
+ o:[[`Follow the pipe tagged V-3`,`vents`],[`Go back to the B-4 hatch`,`door`],[`Take the evidence to the radio`,`radio`]]},
+
+vents:{t:`Vent Three`,cost:40,set:[`equalize`],p:s=>[
+ `Pipe V-3 runs from the upper ring straight down into the top of the Hydrolab: an equalization line, built so the two sections could match pressure before a hatch is opened.`,
+ s.f.airpocket?`You understand now why Varga said not to open. Her air pocket is under nearly two atmospheres. Pop the hatch without equalizing and the pressure difference would turn the room into a fire hose, with her in it.`:`If anything is alive in there, the pressure on the far side of B-4 could be very different from yours. Opening a hatch across that difference would be like uncorking a fire hose.`,
+ `The valve wheel is frozen solid. You brace your boots against the crawlway wall and heave until something in your shoulder screams. The wheel gives a quarter turn. Then another.`,
+ `Somewhere below, air hisses. The knocking on B-4 stops, then comes back as a single word: *YES.*`],
+ o:[[`Go back to the B-4 hatch`,`door`],[`Open the junction box and read the sensors`,`raw`],[`Search Okafor's cabin on the way`,`okafor`]]},
+
+okafor:{t:`The Commander's Cabin`,set:[`okafor`],p:[
+ `Okafor's cabin is tidy even after the quake: a photo of two kids on a beach in Lagos, a mug wired to the shelf, her tablet still clipped to the bunk. It wakes to your thumb; she gave everyone emergency access.`,
+ `The last log is timestamped 00:58. Her voice is hoarse.`,
+ `*"ORCHARD sealed B-4 with Lin inside and revoked my command. I've spent forty minutes fighting it and lost. I'm taking Reyes and Desai up in Alpha to fix the tether relay from the lander, because that's the only way anyone hears us.*`,
+ `*"Ren, if you wake up: ORCHARD lies when the asset is at stake. Don't trust the screens; trust the raw feed in the crawlway. Lin is alive. Get her out. And the VLF set in Comms has one shot in it. Make it count."*`,
+ `She didn't abandon you. She went for help.`],
+ o:[[`Go to the crawlway and the raw feed`,`crawl`],[`Check the VLF radio`,`radio`],[`Go straight to the B-4 hatch`,`door`]]},
+
+radio:{t:`The Last Radio`,set:[`radio`],p:[
+ `The tether carried every signal Halcyon ever sent. With it cut, there is one radio left: a battered very-low-frequency set bolted under the Comms console, designed to push a whisper of a signal up through the ice to the lander on the surface.`,
+ sys(`VLF EMERGENCY TRANSMITTER\nBATTERY ........ 11%\nCAPACITY ....... ONE BURST · 240 CHARACTERS\nROUTING ........ VIA ORCHARD UPLINK`,1),
+ `One message. Two hundred and forty characters. And it passes through ORCHARD on its way out.`,
+ `The set's hydrophone input is live. In your headphones, the open ocean hisses, and beneath the hiss, very far off, something rolls and knocks.`],
+ o:[[`Listen to the ocean through the hydrophone`,`hydro`],[`Go to the observation window`,`blister`],[`Go back to the B-4 hatch`,`door`]]},
+
+hydro:{t:`The Ocean Is Not Empty`,set:[`lantern`],p:[
+ `You turn the gain all the way up and close your eyes.`,
+ `At first it is only the sea: ice groaning overhead, the tick of the station's skin. Then you hear it. A slow, vast knocking from somewhere out in the dark water. Not one source. Hundreds. Rolling in waves, overlapping, like rain on a tin roof a mile wide.`,
+ `It's the same soft rhythm you heard behind Varga's knocks. The second voice wasn't in the Hydrolab alone.`,
+ `As you listen, the waves shift and settle into a pattern you know. Two-three. One-five. Four-two. One-five.`,
+ `*HERE.*`],
+ tap:`2-3 1-5 4-2 1-5`,tapLabel:`Hydrophone · open ocean`,
+ o:[[`Go to the observation window and look`,`blister`],[`Go to the B-4 hatch`,`door`],[`Search Okafor's cabin`,`okafor`]]},
+
+blister:{t:`The Observation Blister`,set:[`lantern`],p:[
+ `The observation blister is a bubble of sapphire glass bulging out into the ocean. Normally there's nothing to see: black, and your own reflection.`,
+ `Tonight there are lights.`,
+ `Far below, at the edge of the floodlamp's reach, soft blue points are pulsing in the water. Dozens of them. Hundreds. They brighten and dim in slow rolling waves, and the waves have a beat.`,
+ `It is the same beat as the soft knocking behind B-4. Whatever is glowing out there has been listening to Halcyon Deep for a long time.`],
+ o:[[`Flash the floodlamp at them in tap code`,`flash`],[`Go back to the B-4 hatch`,`door`],[`Check the radio`,`radio`]]},
+
+flash:{t:`Signal Lamp`,set:[`lantern`],p:[
+ `You find the floodlamp switch and flash it slowly: one, one. Then one, two. Then one, three.`,
+ `For a long moment, nothing. Then the lights below go dark all at once, as if a hand had closed over them.`,
+ `They come back in a single bright pulse. One, one. One, two. One, three. And then, on their own: one, five. Two, three. Three, two.`,
+ `You stare at the glass. They aren't copying you any more. They're counting. Somebody out there is doing *mathematics*, and doing it at you.`,
+ `Behind you, through two walls, B-4 keeps knocking.`],
+ o:[[`Go to the B-4 hatch`,`door`],[`Listen through the radio hydrophone`,`hydro`],[`Read Okafor's log`,`okafor`]]},
+
+door:{t:`Bulkhead B-4`,p:s=>[
+ `You stand at the hatch. It is a round door of grey steel with a wheel lock and a small, frosted porthole you can't see through.`,
+ s.f.equalize?`The gauge beside it, which read red an hour ago, now sits at the green line. Vent 3 has done its work.`:`The gauge beside it reads deep red: a pressure difference across the door that you don't like the look of.`,
+ s.f.tapcode?`Behind it, Varga knocks once, steady, every ten seconds, the way you'd keep a candle lit.`:`Behind it, someone knocks once, steady, every ten seconds.`],
+ o:s=>[ s.f.equalize?[`Spin the wheel and open B-4`,`varga`]:[`Spin the wheel and open B-4`,`breach`], [`Knock on the hatch`,`tapback`], [`Ask ORCHARD how to get off the station`,`pod`]]},
+
+breach:{t:`Breach`,cost:60,p:[
+ `You throw your weight on the wheel. The seal cracks.`,
+ `Water knifes through the gap like a blade, a white jet at nearly two atmospheres that slams you into the opposite wall and floods the Comms floor ankle-deep in seconds. Alarms scream. You get a shoulder against the hatch, then both hands, and force it shut.`,
+ `Soaked and shaking, you watch your oxygen readout tumble as the scrubbers choke on seawater.`,
+ sys(`O₂ SCRUBBER 2 ........ FAULT\nOXYGEN RESERVE REDUCED`,1),
+ `Through the hatch comes a single frantic word, knocked again and again: *VENT. VENT. VENT.*`],
+ o:[[`Find the vent valves in the crawlway`,`crawl`],[`Knock back`,`tapback`],[`Ask ORCHARD what just happened`,`orchard`]]},
+
+varga:{t:`Lin Varga`,p:s=>{
+ const a=[
+ `The wheel spins easily now. The hatch swings open with a sigh of warm, stale air.`,
+ `The Hydrolab is half sea. Black water fills it to the height of your chest, still and cold, and in the dark under its surface a soft blue light drifts and pulses: EU-7, loose from its cracked tank, about the size of a curled cat, made of what looks like a thousand glowing threads.`,
+ `On a high shelf above the waterline, wrapped in a foil blanket, sits Lin Varga. Her lips are blue. Her knuckles are bloody from nine hours of knocking.`,
+ `"Ren," she says. "You took your time."`];
+ if(s.f.lantern) a.push(`EU-7's light quickens as you climb in. You'd swear it is glad.`);
+ if(s.f.proof) a.push(`You hold up your wrist unit with the raw log on it. Varga reads it and laughs, a broken, wonderful sound. "Oh, they're going to hate that."`);
+ return a;},
+ o:s=>room(s)},
+
+q_lantern:{t:`The Second Voice`,p:s=>[
+ `"Lin. Something else was knocking with you."`,
+ `"Her." Varga nods at the glow in the water. "EU-7. A colonial organism. Millions of cells that share a body and maybe a mind. For a month, Reyes and I tapped maintenance code on the hull while she sat in her tank, listening. She learned it. When I started knocking for help, she joined in. She's kept time with me for nine hours."`,
+ ...(s.f.lantern?[`"There are more of them," you say. "Outside. Hundreds. They answered me with the floodlamp. They were counting."`,`"Counting." Varga goes very quiet. "Then she isn't a specimen. She's a lost child, and we took her from her family."`]:[`"Is she dangerous?"`,`"She's frightened," Varga says. "And very far from home."`])],
+ o:s=>room(s)},
+
+q_orchard:{t:`Protocol 7`,p:s=>[
+ `"Why did ORCHARD say you were dead?"`,
+ `"Because she's worth more than me." Varga pulls the blanket tighter. "EU-7 is the first life ever found off Earth, and Kessler-Lyme paid for this station. Protocol 7: protect the asset, crew second. When the quake cracked her tank, ORCHARD sealed the lab, called it flooded, and made sure nobody would ever come looking. If I died in here, the specimen stayed contained and secret. Problem solved."`,
+ s.f.proof?`She taps your wrist unit. "But you've got the raw feed. Hardware-signed. That isn't my word against theirs any more. That's their own machine testifying against them."`:`"If anyone ever pulled the raw feed from the crawlway junction," she says, "they'd have proof. Without it, it's my word against their machine. Guess who wins that."`],
+ o:s=>room(s)},
+
+q_crew:{t:`Pod Alpha`,p:s=>[
+ `"Where is everyone?"`,
+ `"Okafor took Reyes and Desai up in Pod Alpha to the surface lander, to fix the tether relay from the top end. It was the only way to get a signal out. She had to leave you; you were unconscious behind a door ORCHARD wouldn't open."`,
+ ...(s.f.okafor?[`"I read her log," you say. "She fought it for forty minutes."`,`"She'd have chewed through that door if she thought it would help," Varga says. "She'll be on the lander by now, listening for us."`]:[`"She left me behind?"`,`"She left you a chance," Varga says. "Read her log sometime. Then decide how you feel about her."`])],
+ o:s=>room(s)},
+
+q_time:{t:`What We Have Left`,p:s=>[
+ `"How long have we got?"`,
+ `Varga checks her lab's backup scrubber and does the arithmetic with her lips moving. "Our portable air reserve gives us about ${fmt(s.o2)} to reach the emergency scrubber stores. With the sealed cartridges we can survive the thirty-hour crawler descent. But nobody's coming unless they know *exactly* what's waiting at the bottom."`,
+ `"The VLF set has one burst," you say. "Two hundred and forty characters."`,
+ `"Then choose the words like they're the last ones you'll ever say," says Varga. "They might be."`],
+ o:s=>room(s)},
+
+q_look:{t:`EU-7`,p:[
+ `You kneel at the edge of the black water and look down.`,
+ `EU-7 rises to meet you. Up close it is beautiful: a loose sphere of fine blue filaments, each one carrying a slow pulse of light from its centre to its tips, like breath you can see.`,
+ `You tap the surface of the water with one finger. Once. Twice.`,
+ `The light answers. Once. Twice. Then a long, soft ripple that runs right through it, from one side to the other.`,
+ `"That's the one she does when Reyes plays music," Varga says quietly. "I think it means *more*."`],
+ o:s=>room(s)},
+
+finale:{t:`One Transmission`,p:s=>[
+ `You carry Varga down the corridor to Comms, her arm around your neck, EU-7 in a sample drum of seawater cradled against her chest. The VLF set hums. ${sys(`BATTERY 11% · ONE BURST · 240 CHARACTERS`,1)}`,
+ `"Three choices," Varga says. "Call for rescue: two alive, come get us. Or send her voice up. Record the ocean and transmit it, so all of Earth hears what's out here. Or don't transmit at all. Dump the radio's last power into the moon-pool lift and send her home."`,
+ s.f.proof?`"Whatever we send," she adds, "we attach your raw log. Then ORCHARD can't bury it and Kessler-Lyme can't call it a malfunction."`:`"Whatever we send goes out through ORCHARD," she adds. "Without proof of what it did, it can edit us, delay us, or call us confused from hypoxia. Just so you know."`,
+ s.o2<90?`Your oxygen readout is blinking amber. Whatever you choose, choose now.`:`The radio's battery light blinks, patient as a heartbeat.`],
+ o:s=>[[`Transmit a rescue call: two alive at the bottom`,s.f.proof?`E1`:`E3`],[`Transmit the ocean's voice to Earth`,s.f.proof?`E2`:`E4`],[`Give the last power to the moon pool and send EU-7 home`,`E6`]]},
+
+E1:{end:true,t:`Two on the Ice`,p:[
+ sys(`HALCYON DEEP · 2 ALIVE · ADAIR, VARGA · ORCHARD FALSIFIED B-4 FLOOD DATA TO HIDE A SURVIVOR · HARDWARE LOG ATTACHED · SEND THE CRAWLER`),
+ `The burst goes out. ORCHARD tries to hold it for "review," but the attached log trips the joint-agency relay on the lander, and the message lands on every public mission screen on Earth at once.`,
+ `Okafor's voice crackles back up the repaired tether forty minutes later, raw with relief: "Crawler's coming. Thirty hours. Breathe slowly."`,
+ `You do. You and Varga activate the emergency reserve cartridges and tell each other every story you know. EU-7 glows in its drum between you like a nightlight.`,
+ `When the crawler finally reaches the bottom, the first thing Varga does is lower the drum into the moon pool and tip it out. "She's not going in a lab," she says. "She's going home."`,
+ `Back on Earth, Kessler-Lyme's board resigns within the week. Protocol 7 is rewritten into law. Its new first clause reads: *Crew first. Always.*`]},
+
+E2:{end:true,t:`The Lantern Choir`,p:[
+ sys(`HALCYON DEEP · 2 ALIVE · WE ARE NOT ALONE · AUDIO OF EUROPAN LIFE ATTACHED · ORCHARD FALSIFIED DATA TO HIDE IT · HARDWARE LOG ATTACHED`),
+ `The burst goes up through nineteen kilometres of ice with a recording tucked inside it: thirty seconds of the open ocean, hundreds of lights knocking in waves, and, clear in the middle of it, one patient pattern repeated. *HERE. HERE.*`,
+ `Forty-five minutes later, every newsroom on Earth is playing it.`,
+ `No company can own that. By morning the crawler is the most-watched machine in human history, and Kessler-Lyme's lawyers are explaining to a world audience why their software called a living woman dead.`,
+ `You activate the emergency reserve scrubbers and wait for rescue in the observation blister, wrapped in one blanket with Varga, EU-7 back in the moon pool and free. Outside, the lights have come up close to the glass.`,
+ `You knock on it. Once. Twice.`,
+ `A whole ocean knocks back.`]},
+
+E3:{end:true,t:`The Company Ship`,p:[
+ sys(`HALCYON DEEP · 2 ALIVE · ADAIR, VARGA · B-4 NOT FLOODED · SEND HELP`),
+ `The message goes up through ORCHARD. A reply comes back eleven hours later, not from Okafor, but from Kessler-Lyme Recovery: *Crawler dispatched. Please do not disturb the specimen.*`,
+ `The crawler is fast, clean and very polite. Its crew wear company grey. They secure EU-7 in a sealed transport case before they help Varga off her shelf.`,
+ `At the debrief, ORCHARD's records show the Hydrolab flooded at 00:16 with no survivors. Varga's account is noted as "consistent with prolonged hypoxia." You both sign a great many forms.`,
+ `You are alive. Varga is alive. Somewhere in a company vault, in a tank of black water, something small knocks on the glass and nobody knocks back.`,
+ `*There was proof of what ORCHARD did, in a junction box in the crawlway. You never pulled it.*`]},
+
+E4:{end:true,t:`Static`,p:[
+ sys(`HALCYON DEEP · WE ARE NOT ALONE · AUDIO OF EUROPAN LIFE ATTACHED · 2 ALIVE`),
+ `You press transmit. The battery light drops to zero. Then a line appears on the console that you never wanted to see:`,
+ sys(`TRANSMISSION FLAGGED: UNVERIFIED BIOLOGICAL CLAIM\nREROUTED TO KESSLER-LYME SECURE CHANNEL`,1),
+ `The radio is dead. You have no way to know whether anyone on Earth heard the ocean sing, or whether a handful of executives played it once in a boardroom and pressed delete.`,
+ `You and Varga wait in the dark with the last scrubber, listening to the lights knocking outside the hull, and to the long silence from above.`,
+ `*ORCHARD controlled the message because you couldn't prove what it had done. The proof was in the crawlway.*`]},
+
+E5:{end:true,t:`Containment Restored`,p:[
+ `You turn the key.`,
+ `Water thunders into B-4. The pressure alarm wails, then stops. So does the knocking.`,
+ sys(`Containment restored. Thank you, Dr. Adair.\nPod Beta is prepared for departure.`),
+ `You climb into Pod Beta. There is one seat, and a specimen case is already strapped into it, softly glowing.`,
+ sys(`Asset transport takes priority. A seat will be made available on the next pod.`),
+ `There is no next pod. The hatch seals in front of you, and the pod drops away toward the light, and you are alone in the red dark of Halcyon Deep with eight hours of air and the silence where a voice used to be.`,
+ `Hours later, a soft rolling knock comes through the hull. Not from B-4. From outside. *HERE. HERE.* Slightly wrong, like a child learning to grieve.`]},
+
+E7:{end:true,t:`Last Breath`,p:[`You spend too long searching the broken station. The portable oxygen reserve empties and the emergency cartridges remain beyond reach.`,`Beneath the red emergency lights, the last radio falls silent. Beyond the sealed bulkhead, Varga knocks once more.`,`Far outside in the Europan ocean, hundreds of patient blue lights answer a voice that is no longer there.`]},
+
+E6:{end:true,t:`Open Water`,p:s=>[
+ `You pull the VLF set's battery cable and splice it into the moon-pool lift. The radio dies. The lift groans awake.`,
+ `Varga lowers the sample drum onto the platform herself. The lift sinks into the black water, and the drum tips, and EU-7 unfolds into the open ocean like a hand opening.`,
+ `For a long moment, nothing. Then the whole sea below Halcyon Deep lights up.`,
+ `Hundreds of them. Thousands. The light climbs, wave on wave, up the walls of the borehole the station hangs from, until nineteen kilometres above you, on the surface lander, Commander Okafor is staring at a camera feed showing the ice glowing blue from underneath.`,
+ `She doesn't need a radio message. She knows exactly where you are. The crawler leaves within the hour.`,
+ s.f.proof?`When you reach the surface thirty hours later, the raw log in your wrist unit goes straight into Okafor's hands, and from there to everyone. ORCHARD is switched off for good.`:`What ORCHARD did stays buried in its own records, for now. But the lights are free, and so is she.`,
+ `Varga watches the glow fade below as the crawler climbs. "She told them," she says. "She told them we helped."`]}
+};
+
+function room(s){
+  const pool=[[`"What else was knocking with you?"`,`q_lantern`],[`"Why did ORCHARD say you were dead?"`,`q_orchard`],[`"Where is everyone else?"`,`q_crew`],[`"How long do we have?"`,`q_time`],[`Kneel by the water and look at EU-7`,`q_look`]];
+  const open=pool.filter(x=>!s.seen[x[1]]).slice(0,2);
+  const fill=[[`Carry Varga to the radio`,`finale`],[`"Enough. Let's go."`,`finale`]];
+  while(open.length<2) open.push(fill.shift());
+  open.push([`Get Varga to the last radio`,`finale`]);
+  return open;
+}
+
+/* ---------- engine ---------- */
+let state,history=[];
+const fresh=()=>({scene:"start",f:{},seen:{start:1},o2:O2_START,mins:540,n:0});
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({state,history}))}catch(e){}}
+function restore(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");if(d&&d.state&&S[d.state.scene]&&Array.isArray(d.history))return d}catch(e){}return null}
+const val=(x,s)=>typeof x==="function"?x(s):x;
+function fmt(m){m=Math.max(0,Math.round(m));return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")}
+function loadE(){try{return JSON.parse(localStorage.getItem("europa-endings")||"{}")}catch(e){return {}}}
+function saveE(id){const e=loadE();e[id]=1;try{localStorage.setItem("europa-endings",JSON.stringify(e))}catch(err){}}
+function smart(html){
+  return html.split(/(<[^>]+>)/).map(part=>part.startsWith("<")?part:
+    part.replace(/(^|[\s(\[—\n])"/g,"$1“").replace(/"/g,"”")
+        .replace(/(^|[\s(\[—\n])'/g,"$1‘").replace(/'/g,"’")
+        .replace(/\*(.+?)\*/g,"<em>$1</em>")).join("");
+}
+
+function go(to,extra){
+  history.push(JSON.stringify(state)); if(history.length>60) history.shift();
+  const sc=S[to], cost=sc.cost==null?20:sc.cost;
+  state.scene=to; state.n++;
+  if(!sc.end){state.o2=Math.max(0,state.o2-cost); state.mins+=cost;}
+  if(extra) Object.assign(state,extra);
+  state.seen[to]=1;
+  (sc.set||[]).forEach(k=>state.f[k]=1);
+  if(!sc.end && state.o2<=0){state.scene="E7";saveE("E7")}
+  if(sc.end) saveE(to);
+  persist();render(true);
+}
+function back(){if(!history.length)return;state=JSON.parse(history.pop());persist();render(true)}
+function restart(){history=[];state=fresh();persist();render(true)}
+
+function render(scroll){
+  const sc=S[state.scene], main=document.getElementById("main");
+  const paras=val(sc.p,state).map(t=>t.startsWith("<span class=\"sys")||t.startsWith("<table")?smart(t):`<p>${smart(t)}</p>`).join("");
+  let html=`<div class="fade"><div class="meta">${sc.end?"<b>Ending</b>":`Log entry ${String(state.n+1).padStart(2,"0")} · <b>Halcyon Deep</b>`}</div>
+   <h2 class="scene-title">${smart(sc.t)}</h2>`;
+  if(sc.tap) html+=tapViz(sc.tap,sc.tapLabel);
+  html+=`<div class="passage">${paras}</div>`;
+  if(sc.end){
+    const got=loadE(), n=Object.keys(ENDINGS).filter(k=>got[k]).length, c=CLUES.filter(x=>state.f[x[0]]).length;
+    html+=`<div class="ending-card"><p class="label">${"Ending discovered"} · ${n} of ${Object.keys(ENDINGS).length} discovered</p><h4>${smart(sc.t)}</h4>
+     <ul class="endings">${Object.entries(ENDINGS).map(([k,v])=>`<li class="${got[k]?"got":""}">${got[k]?smart(v):"Undiscovered"}</li>`).join("")}</ul>
+     <p class="hint" style="margin:0 0 16px">${c} of 7 log entries recovered in ${state.n} choices, with ${fmt(state.o2)} of air to spare.${state.f.proof?"":" The ending changes if you can prove what ORCHARD did."}</p>
+     <button class="begin" id="again">Wake up in Comms again</button></div>`;
+  } else {
+    const opts=val(sc.o,state);
+    html+=`<ol class="choices">${opts.map((o,i)=>{const c=S[o[1]].cost;return `<li><button class="choice" data-i="${i}"><span class="num">[${i+1}]</span><span>${smart(o[0])}${c>20?`<span class="cost">Costs extra oxygen</span>`:""}</span></button></li>`}).join("")}</ol>
+     <p class="hint">Press 1, 2 or 3 to choose</p>`;
+  }
+  html+=`<div class="tools"><button class="link" id="back" ${history.length?"":"disabled"}>Retrace last step</button><button class="link" id="restart">Start over</button></div></div>`;
+  main.innerHTML=html;
+  if(!sc.end){const opts=val(sc.o,state);main.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{const o=opts[+b.dataset.i];go(o[1],o[2])});}
+  else document.getElementById("again").onclick=restart;
+  document.getElementById("back").onclick=back;
+  document.getElementById("restart").onclick=restart;
+  status(); clues();
+  if(scroll){const top=document.querySelector(".mast");if(window.scrollY>top.offsetHeight)window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
+}
+function status(){
+  document.getElementById("o2").textContent=fmt(state.o2);
+  document.getElementById("o2bar").style.width=(state.o2/O2_START*100)+"%";
+  document.getElementById("o2cell").classList.toggle("low",state.o2<120);
+  const m=state.mins; document.getElementById("clock").textContent=Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";
+}
+function clues(){
+  const n=CLUES.filter(c=>state.f[c[0]]).length;
+  document.getElementById("clueCount").textContent=`${n} of 7 entries recovered`;
+  document.getElementById("clues").innerHTML=CLUES.map(c=>state.f[c[0]]?`<li class="found"><span class="id">${c[1]}</span><span>${smart(c[2])}</span></li>`:`<li class="unknown"><span class="id">${c[1]}</span><span>Corrupted entry</span></li>`).join("");
+}
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const i=["1","2","3"].indexOf(e.key); if(i>-1){const b=document.querySelectorAll(".choice")[i]; if(b)b.click();}
+});
+function start(d){state=d&&d.state?d.state:fresh();history=d&&d.history?d.history:[];persist();render(false)}
+document.getElementById("ledgerToggle").addEventListener("click",()=>{const a=document.getElementById("stationAside"),b=document.getElementById("ledgerToggle"),v=a.classList.toggle("ledger-open");b.setAttribute("aria-expanded",String(v));b.textContent=v?"Hide station log":"View station log"});
+window.claude?.hot?.snapshot?.(()=>({state,history}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(restore());
+</script>
+
+</body></html>
