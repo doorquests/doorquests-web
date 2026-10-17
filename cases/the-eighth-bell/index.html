@@ -1,0 +1,1091 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Eighth Bell | DoorQuests Cluortals</title>
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<meta name="robots" content="index,follow">
+<meta name="description" content="Cluortal No. 8: The Eighth Bell. Riverside London, 1889: seven witnesses heard eight bells from a tower that has only seven that ring. Minutes later the caretaker was found dead. Reconstruct the round by ear and place every listener on the map.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=IM+Fell+English+SC&display=swap">
+<style>
+/* Layout: a riverside broadsheet "EXTRA" masthead with a woodcut tower, its clock showing the hour, and the ring of eight bells beneath it — the cracked sixth and what really rang in its place. Signature tab: the Ringing Board, where you replay each witness's round by ear (or by eye) and find the stranger in it. Second tab: the street map of where every listener stood. */
+:root{
+  --bg:#efe9dc; --panel:#f8f4ea; --panel2:#e7dfcd; --ink:#1d1a16; --muted:#665d50; --line:#cdc2ac;
+  --accent:#8c1c13; --accent-soft:rgba(140,28,19,.08); --brass:#9a6a12; --brass-soft:rgba(154,106,18,.1); --blue:#2b4c6f; --blue-soft:rgba(43,76,111,.09); --ok:#35643a;
+  --fog:rgba(120,120,110,.18); --map-bg:#e6dfcf; --street:#fbf8f0; --bldg:#cfc4ae; --river:#9db4bf;
+  --display:"Playfair Display",Didot,Georgia,serif;
+  --body:"Old Standard TT",Georgia,serif;
+  --label:"IM Fell English SC",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131210; --panel:#1c1a17; --panel2:#171512; --ink:#ece5d6; --muted:#a39a8a; --line:#36312a;
+  --accent:#e0675a; --accent-soft:rgba(224,103,90,.1); --brass:#ddb05a; --brass-soft:rgba(221,176,90,.1); --blue:#8fb2d8; --blue-soft:rgba(143,178,216,.1); --ok:#8ccc8f;
+  --fog:rgba(200,200,190,.07); --map-bg:#1b1916; --street:#2c2924; --bldg:#24211c; --river:#22394a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131210; --panel:#1c1a17; --panel2:#171512; --ink:#ece5d6; --muted:#a39a8a; --line:#36312a;
+  --accent:#e0675a; --accent-soft:rgba(224,103,90,.1); --brass:#ddb05a; --brass-soft:rgba(221,176,90,.1); --blue:#8fb2d8; --blue-soft:rgba(143,178,216,.1); --ok:#8ccc8f;
+  --fog:rgba(200,200,190,.07); --map-bg:#1b1916; --street:#2c2924; --bldg:#24211c; --river:#22394a; color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18.5px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:max(18px,env(safe-area-inset-top,0px));padding-bottom:max(56px,env(safe-area-inset-bottom,0px))}
+button,select,input{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.mast,.wrap,.story-footer{max-width:1000px;margin-left:auto;margin-right:auto}
+.tac-brand{margin:0 0 14px;display:flex;align-items:center;gap:10px;font:600 .72rem/1.4 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tac-brand img{width:30px;height:30px;object-fit:contain;flex:none}
+.tac-brand a{color:inherit;text-decoration:none}.tac-brand a:hover{text-decoration:underline}
+
+/* HEADER: a broadsheet EXTRA */
+.sheet{position:relative;border-top:5px double var(--ink);border-bottom:5px double var(--ink);padding:10px 0 14px;background:linear-gradient(180deg,var(--fog),transparent 70%)}
+.sheet .rule{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font:400 .82rem/1.3 var(--label);letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--ink);padding-bottom:6px}
+.sheet .extra{color:var(--accent);letter-spacing:.3em}
+.sheet .grid{display:grid;grid-template-columns:minmax(0,1fr) 168px;gap:18px;align-items:center;margin-top:12px}
+.sheet h1{margin:0;font-family:var(--display);font-weight:900;font-size:clamp(2.6rem,9vw,5.6rem);line-height:.92;letter-spacing:-.01em;text-transform:uppercase}
+.sheet h1 span{display:block;font-size:.38em;font-style:italic;font-weight:700;text-transform:none;letter-spacing:.01em;color:var(--accent);margin-bottom:4px}
+.sheet .dek{margin:10px 0 0;max-width:46ch;font-style:italic;color:var(--muted);line-height:1.45}
+.tower{width:100%;height:auto;display:block}
+.tower .stone{fill:var(--panel2);stroke:var(--ink);stroke-width:1.6}
+.tower .ln{stroke:var(--ink);stroke-width:1;fill:none;opacity:.55}
+.tower .face{fill:var(--panel);stroke:var(--ink);stroke-width:1.6}
+.tower .hand{stroke:var(--ink);stroke-linecap:round}
+.tower .min{stroke:var(--accent);stroke-linecap:round}
+.ring{display:flex;align-items:flex-end;gap:6px;margin-top:14px;flex-wrap:wrap}
+.ring .lab{font:400 .8rem var(--label);letter-spacing:.08em;color:var(--muted);margin-right:6px;align-self:center}
+.rb{display:grid;justify-items:center;gap:1px;width:40px}
+.rb svg{width:28px;height:30px;display:block}
+.rb .b{fill:var(--brass);stroke:var(--ink);stroke-width:1.2}
+.rb .crk{stroke:var(--ink);stroke-width:1.4;fill:none}
+.rb.cracked .b{fill:var(--panel2)}
+.rb.hand .b{fill:var(--accent)}
+.rb small{font:400 .7rem var(--label);color:var(--muted);line-height:1}
+.rb.hand small,.rb.cracked small{color:var(--accent)}
+.sheet .bar2{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;font:400 .86rem var(--label);letter-spacing:.06em;color:var(--muted)}
+.sheet .bar2 b{color:var(--ink);font-weight:400}
+.sheet .bar2 .urgent b{color:var(--accent)}
+.sound{font-family:var(--label);font-size:.85rem;letter-spacing:.06em;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:3px;padding:7px 12px;cursor:pointer}
+.sound[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.sound:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:640px){.sheet .grid{grid-template-columns:minmax(0,1fr) 92px;gap:10px}.rb{width:34px}.ring .lab{width:100%}}
+
+.tabs{max-width:1000px;margin:16px auto 0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px 9px;font:400 .95rem var(--label);letter-spacing:.06em;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .badge{display:inline-block;min-width:1.6em;margin-left:5px;padding:0 5px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:.78rem;text-align:center}
+.tab:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+
+.wrap{margin-top:24px}
+.meta{font:400 .84rem var(--label);letter-spacing:.08em;color:var(--muted);display:flex;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+.meta b{color:var(--accent);font-weight:400}
+h2.scene-title{font-family:var(--display);font-weight:700;font-size:clamp(1.8rem,5vw,2.6rem);line-height:1.08;margin:0 0 16px;text-wrap:balance}
+h3.sec{font-family:var(--display);font-weight:700;font-size:1.3rem;margin:28px 0 8px;line-height:1.15}
+.passage{max-width:64ch}
+.passage p{margin:0 0 1em}
+.flash{max-width:64ch;display:grid;gap:8px;margin:0 0 18px}
+.flash div{font-size:.96rem;line-height:1.45;padding:9px 14px;border-left:3px solid var(--blue);background:var(--blue-soft)}
+.flash div.new{border-left-color:var(--ok);background:rgba(53,100,58,.09)}
+.flash div.new b{font:400 .82rem var(--label);letter-spacing:.06em;color:var(--ok);margin-right:8px}
+.flash div.warn{border-left-color:var(--accent);background:var(--accent-soft)}
+.fade{animation:rise .35s ease both}
+@keyframes rise{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.choices{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:9px;max-width:64ch}
+.choice{width:100%;display:grid;grid-template-columns:2em minmax(0,1fr);gap:8px;align-items:baseline;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:12px 16px;font-size:1.02rem;line-height:1.4;cursor:pointer;transition:border-color .15s,background .15s}
+.choice .num{font:700 1.15rem var(--display);color:var(--accent)}
+.choice .tag{display:flex;flex-wrap:wrap;gap:4px 12px;font:400 .8rem var(--label);letter-spacing:.06em;color:var(--muted);margin-top:5px}
+.choice .tag .risk{color:var(--accent)}
+.choice .tag .tool{color:var(--blue)}
+.choice .tag .walk{color:var(--brass)}
+.choice:hover{border-color:var(--accent);background:var(--accent-soft)}
+.choice:focus-visible,.btn:focus-visible,.link:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.hint{font-size:.88rem;font-style:italic;color:var(--muted);margin-top:14px}
+.tools{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;font:400 .88rem var(--label);letter-spacing:.06em;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--accent)}
+.link[disabled]{opacity:.4;cursor:default;text-decoration:none}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:7px 13px;font:400 .88rem var(--label);letter-spacing:.05em;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#1a0d0b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#1a0d0b}}
+.btn.danger{border-color:var(--accent);color:var(--accent)}
+.btn[disabled]{opacity:.45;cursor:default}
+select{font-size:.96rem;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:2px;padding:6px 8px;max-width:100%;min-width:0}
+
+/* RINGING BOARD */
+.board{display:grid;gap:12px;max-width:820px}
+.acct{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:12px 14px;display:grid;gap:8px}
+.acct .hd{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.acct .hd b{font:700 1.05rem var(--display)}
+.acct .hd span{font-size:.86rem;color:var(--muted);font-style:italic}
+.acct.ref{background:var(--panel2)}
+.trace{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:2px}
+.trace .stair{stroke:var(--muted);stroke-dasharray:3 4;fill:none;opacity:.6}
+.trace .bn{fill:var(--brass);stroke:var(--ink);stroke-width:1}
+.trace .bn.h{fill:var(--accent)}
+.trace .bn.c{fill:var(--muted)}
+.trace .dec{stroke:var(--brass);stroke-width:3;stroke-linecap:round;opacity:.55}
+.trace .dec.h{stroke:var(--accent)}
+.trace .dec.c{stroke:var(--muted);stroke-dasharray:2 3}
+.trace .num{fill:var(--muted);font:400 11px var(--label)}
+.trace .gap{fill:none;stroke:var(--muted);stroke-dasharray:3 3}
+.trace .now{fill:var(--accent-soft)}
+.acct .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.quote{font-style:italic;font-size:.96rem;margin:0}
+.qbox{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:3px;padding:12px 16px;display:grid;gap:10px}
+.qbox h4{margin:0;font:700 1.08rem var(--display)}
+.qbox .opts2{display:flex;flex-wrap:wrap;gap:6px}
+.qbox .done{color:var(--ok)}
+.qmsg{margin:0;font-size:.95rem}
+.qmsg.good{color:var(--ok)}
+
+/* MAP */
+.mapwrap{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.mapwrap{grid-template-columns:minmax(0,1fr)}}
+.mapscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.map{width:100%;height:auto;display:block;background:var(--map-bg);border:1px solid var(--line);border-radius:3px}
+@media (max-width:620px){.map{min-width:560px}}
+.map .river{fill:var(--river)}
+.map .st{stroke:var(--street);stroke-width:14;stroke-linecap:round;fill:none}
+.map .stn{fill:var(--muted);font:400 10px var(--label);letter-spacing:.08em}
+.map .bl{fill:var(--bldg);stroke:var(--line)}
+.map .church{fill:var(--panel2);stroke:var(--ink);stroke-width:1.4}
+.map .twr{fill:var(--ink)}
+.map .area{fill:var(--muted);font:italic 12px var(--body)}
+.map .w circle{fill:var(--panel);stroke:var(--ink);stroke-width:1.6}
+.map .w text{fill:var(--ink);font:400 11px var(--label);paint-order:stroke;stroke:var(--map-bg);stroke-width:3px}
+.map .w .lv{fill:var(--accent)}
+.map .w .lv0{fill:var(--line)}
+.map .w.unk circle{stroke-dasharray:2 2;fill:none}
+.map .src{cursor:pointer}
+.map .src rect{fill:var(--panel);stroke:var(--brass);stroke-width:2}
+.map .src.sel rect{fill:var(--brass)}
+.map .src text{fill:var(--brass);font:400 11px var(--label);paint-order:stroke;stroke:var(--map-bg);stroke-width:3px}
+.map .src:focus{outline:none}
+.map .src:focus-visible rect{stroke:var(--blue);stroke-width:3}
+.map .pl{cursor:pointer}
+.map .pl circle{fill:var(--accent)}
+.map .pl text{fill:var(--accent);font:400 11px var(--label);paint-order:stroke;stroke:var(--map-bg);stroke-width:3px}
+.map .pl:focus{outline:none}
+.map .pl:focus-visible circle{stroke:var(--blue);stroke-width:3}
+.map .you{fill:var(--accent)}
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:14px 16px}
+.card2 h4{margin:0 0 4px;font:700 1.1rem var(--display)}
+.card2 .sub{margin:0 0 10px;color:var(--muted);font-size:.94rem}
+.card2 dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0 0 12px;font-size:.94rem}
+.card2 dt{font:400 .8rem/1.8 var(--label);letter-spacing:.06em;color:var(--muted)}
+.card2 dd{margin:0}
+.legend2{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.82rem;color:var(--muted);margin-top:8px}
+
+/* interview */
+.who{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;align-items:center;margin-bottom:16px;max-width:64ch}
+.mono{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--panel2);color:var(--ink);font:700 1.25rem var(--display);border:2px solid var(--ink);box-shadow:inset 0 0 0 4px var(--panel)}
+.who h2{margin:0;font-family:var(--display);font-weight:700;font-size:1.7rem;line-height:1.05}
+.who p{margin:4px 0 0;color:var(--muted);font-size:.96rem}
+.meter{display:flex;align-items:center;gap:10px;font:400 .8rem var(--label);letter-spacing:.06em;color:var(--muted);margin-top:6px}
+.meter .bar{display:flex;gap:3px}
+.meter .bar i{width:16px;height:7px;border-radius:2px;background:var(--line)}
+.meter .bar i.on{background:var(--accent)}
+.tells{max-width:64ch;font-size:.96rem;font-style:italic;padding:8px 14px;border:1px dashed var(--blue);margin:0 0 14px}
+.transcript{max-width:64ch;display:grid;gap:12px;margin:0 0 20px}
+.transcript .q{font:400 .84rem var(--label);letter-spacing:.06em;color:var(--blue)}
+.transcript .a{margin:3px 0 0;padding-left:14px;border-left:2px solid var(--line)}
+.topics{display:grid;gap:8px;max-width:64ch}
+.topic{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:10px 14px;display:grid;gap:8px}
+.topic.done{opacity:.55}
+.topic .tones{display:flex;flex-wrap:wrap;gap:6px}
+.present{display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:64ch;margin-top:16px;padding:12px 14px;border:1px solid var(--line);background:var(--panel2);border-radius:2px}
+.present label{font:400 .84rem var(--label);letter-spacing:.06em;color:var(--muted)}
+.present select{flex:1 1 12em}
+
+/* evidence */
+.linker{position:sticky;top:0;z-index:2;background:var(--bg);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.linker .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.slot{min-width:9em;flex:1 1 9em;padding:7px 10px;border:1px dashed var(--line);border-radius:2px;font-size:.92rem;color:var(--muted)}
+.slot.full{border-style:solid;border-color:var(--accent);color:var(--ink)}
+.plus{font:700 1.3rem var(--display);color:var(--accent)}
+.linkmsg{margin:8px 0 0;font-size:.96rem}
+.linkmsg.good{color:var(--ok)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.card-ev{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.card-ev.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.card-ev .kind{font:400 .74rem var(--label);letter-spacing:.08em;color:var(--blue)}
+.card-ev .nm{font-weight:700;font-size:1.02rem;line-height:1.25}
+.card-ev .sh{font-size:.88rem;color:var(--muted);line-height:1.35}
+.card-ev .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.card-ev .look{position:absolute;top:10px;right:12px;font:400 .72rem var(--label);color:var(--ok)}
+.card-ev.ghost{background:none;border-style:dashed;color:var(--muted);font-style:italic;min-height:84px;align-content:center;justify-items:center;text-align:center}
+.deds{list-style:none;padding:0;margin:0;display:grid;gap:8px;max-width:72ch}
+.deds li{padding:9px 14px;border-left:3px solid var(--accent);background:var(--panel)}
+.deds b{display:block;font-weight:700}
+.deds span{font-size:.93rem;color:var(--muted)}
+
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.scard{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.scard .top{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:center}
+.scard .mono{width:48px;height:48px;font-size:1rem}
+.scard h4{margin:0;font-family:var(--display);font-weight:700;font-size:1.12rem;line-height:1.1}
+.scard .role{font-size:.88rem;color:var(--muted)}
+.scard dl{margin:0;display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:4px 10px;font-size:.9rem;line-height:1.35}
+.scard dt{font:400 .74rem/1.8 var(--label);letter-spacing:.06em;color:var(--muted)}
+.scard dd{margin:0}
+.stt{font:400 .72rem var(--label);letter-spacing:.06em;padding:1px 6px;border-radius:2px;margin-right:4px}
+.stt.broken{background:var(--accent-soft);color:var(--accent)}
+.stt.ok{background:rgba(53,100,58,.12);color:var(--ok)}
+.stt.un{background:var(--blue-soft);color:var(--blue)}
+
+.timeline{list-style:none;margin:0;padding:0;max-width:66ch;border-left:2px solid var(--line)}
+.timeline li{position:relative;padding:4px 0 10px 18px;font-size:.96rem;line-height:1.4}
+.timeline li::before{content:"";position:absolute;left:-6px;top:10px;width:10px;height:10px;border-radius:50%;background:var(--blue)}
+.timeline li.now::before{background:var(--accent)}
+.timeline time{display:block;font:400 .8rem var(--label);letter-spacing:.06em;color:var(--blue)}
+.leads{margin:0;padding-left:1.2em;max-width:66ch}
+.leads li{margin-bottom:5px}
+.log{list-style:none;margin:0;padding:0;max-width:66ch;font-size:.92rem;color:var(--muted);display:grid;gap:4px}
+.log time{font:400 .8rem var(--label);color:var(--blue);margin-right:8px}
+
+.hyp{display:grid;gap:22px;max-width:72ch}
+.hyp fieldset{border:0;margin:0;padding:0}
+.hyp legend{font-family:var(--display);font-weight:700;font-size:1.18rem;margin-bottom:8px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt span{display:block;height:100%;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:2px;cursor:pointer;font-size:.97rem;line-height:1.3}
+.opt input:checked+span{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.opt input:focus-visible+span{outline:2px solid var(--blue);outline-offset:2px}
+.accbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
+
+.ending-card{margin-top:24px;border:1px solid var(--line);background:var(--panel);padding:20px;max-width:66ch}
+.ending-card .label{font:400 .82rem var(--label);letter-spacing:.06em;color:var(--blue);margin:0 0 2px}
+.ending-card h4{font-family:var(--display);font-weight:900;font-size:2rem;color:var(--accent);margin:0 0 14px;line-height:1.05}
+.endings{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 18px;font-size:.93rem}
+@media (max-width:480px){.endings{grid-template-columns:minmax(0,1fr)}}
+.endings li{color:var(--muted)}
+.endings li.got{color:var(--ink)}
+.endings li.got::before{content:"◆ ";color:var(--accent)}
+.endings li:not(.got)::before{content:"◇ "}
+.score{width:100%;border-collapse:collapse;font-size:.95rem;margin:0 0 14px}
+.score td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.score td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;padding-left:12px}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:4px 0 16px;flex-wrap:wrap}
+.total b{font:900 2.4rem var(--display);color:var(--accent)}
+.total span{font:400 .9rem var(--label);letter-spacing:.06em}
+.chapters{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+dialog{border:0;padding:0;background:transparent;max-width:min(560px,calc(100vw - 32px));width:100%;color:var(--ink)}
+dialog::backdrop{background:rgba(15,13,10,.66)}
+.lens{background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:22px 22px 18px;position:relative}
+.lens .kind{font:400 .8rem var(--label);letter-spacing:.06em;color:var(--blue)}
+.lens h3{font-family:var(--display);font-weight:700;font-size:1.5rem;margin:4px 0 14px;line-height:1.1}
+.glass{padding:16px 18px;background:var(--panel2);border:1px solid var(--line);font-size:1rem;line-height:1.55}
+.glass.test{font-style:italic}
+.closer{margin-top:12px;padding:12px 16px;border-left:3px solid var(--ok);background:rgba(53,100,58,.09);font-size:.98rem;line-height:1.5}
+.closer b{display:block;font:400 .8rem var(--label);letter-spacing:.06em;color:var(--ok);margin-bottom:3px}
+.lens .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;justify-content:space-between}
+.x{position:absolute;top:10px;right:12px;background:none;border:0;font-size:1.5rem;line-height:1;color:var(--muted);cursor:pointer;padding:4px 8px}
+
+.story-footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font:.78rem/1.6 system-ui,sans-serif;color:var(--muted)}
+.story-footer a{color:var(--accent)}
+@media (max-width:560px){body{font-size:17px}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <p class="tac-brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="/">DoorQuests</a> · Cluortals · Cluortal No. 8</span></p>
+  <div class="sheet">
+    <div class="rule"><span>The Riverside Echo</span><span class="extra">EXTRA</span><span>London · Friday, 22 November 1889 · Cluortal No. 8</span></div>
+    <div class="grid">
+      <div>
+        <h1><span>A death at St. Aldric's</span>The Eighth Bell</h1>
+        <p class="dek">Seven witnesses heard eight bells from a tower with only seven that ring. Minutes later the caretaker was found dead at the foot of the stair.</p>
+      </div>
+      <svg class="tower" id="tower" viewBox="0 0 160 220" aria-hidden="true"></svg>
+    </div>
+    <div class="ring" id="ring" aria-label="Cluortal status: the ring of eight"></div>
+    <div class="bar2"><span id="clockLine">Hour: <b>11:15 pm</b></span><span id="inspLine">Inspector Crane: <b>2:30 am</b></span><button class="sound" id="sound" aria-pressed="false">Bell sound: off</button></div>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Cluortal file" id="tabs"></nav>
+<div class="wrap"><div id="panel" aria-live="polite"></div></div>
+<dialog id="lens" aria-labelledby="lensTitle"><div class="lens" id="lensBody"></div></dialog>
+<footer class="story-footer"><a href="/">DoorQuests</a> · Cluortals · Cluortal No. 8 · Bell voice adapted from <a href="/">The Bell-Ringer of Hollow Vane</a> · Progress, chapters and endings saved in this browser</footer>
+
+<script>
+/* ================= TIME (minutes after 11:15 pm) ================= */
+const T0=1395, GARROW_T=40, MIDNIGHT_T=45, CRANE_T=195, SEND_DELAY=35;
+
+/* ================= THE RING & THE SOUND ================= */
+/* toll() is the bell voice from The Bell-Ringer of Hollow Vane, given a pitch and a kind. */
+const RING=[587.33,554.37,493.88,440,392,369.99,329.63,293.66]; /* treble (1) to tenor (8), D major descending */
+const BELLNAMES=["Treble","2","3","4","5","6","7","Tenor"];
+let soundOn=false, actx=null;
+function ensureAudio(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume();return true}catch(e){return false}}
+function toll(t,vol,base,kind){
+ const P=kind==="hand"?[[1,1],[2.76,.32],[5.4,.14],[8.93,.06]]:kind==="crack"?[[1,1],[1.03,.8],[2.0,.5],[2.07,.45],[2.4,.4],[3.0,.25],[.5,.3]]:[[1,1],[2.0,.55],[2.4,.4],[3.0,.25],[4.2,.18],[.5,.35]];
+ const long=kind==="hand"?1.1:kind==="crack"?.9:3.6, short=kind==="hand"?.6:kind==="crack"?.5:1.8;
+ const out=actx.createGain();out.gain.value=.2*vol;out.connect(actx.destination);
+ P.forEach(([r,a])=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=base*r;o.type="sine";
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(a,t+.008);g.gain.exponentialRampToValueAtTime(.0008,t+(r<1.5?long:short));
+  o.connect(g);g.connect(out);o.start(t);o.stop(t+long+.2)});
+}
+const STEP=.62;
+function playRound(spec){
+ if(!soundOn){soundOn=true;syncSound()}
+ if(!ensureAudio())return;
+ let t=actx.currentTime+.12;
+ spec.forEach((n,i)=>{if(n&&n.g>0)toll(t+i*STEP+(n.dt||0),n.g,RING[i]*(n.df||1),n.kind||"tower")});
+}
+function syncSound(){const b=$("sound");if(!b)return;b.setAttribute("aria-pressed",soundOn);b.textContent="Bell sound: "+(soundOn?"on":"off")}
+
+/* ================= WITNESS ACCOUNTS (what each ear received at 11:00) ================= */
+/* positions in yards from the tower; east is toward the river. gT: loudness of the tower bells; g6: loudness of the stranger note */
+const ACC={
+ accLacey:{who:"Miss Ada Lacey",at:"Her window, Church Row",x:-20,y:-80,gT:.7,g6:.35,said:"“Eight. But the sixth was not the sixth. It was sharp, by nearly a quarter-tone, and thin; it died at once. That is not how a great bell speaks.”"},
+ accDobbs:{who:"PC Henry Dobbs",at:"On his beat, Wharf Lane",x:70,y:15,gT:.85,g6:.95,said:"“Eight, sir, plain as anything. The sixth fair rang in my ear: loud, and short, like.”"},
+ accFlynn:{who:"Mrs. Bridget Flynn",at:"Her coffee stall, Aldric Stairs",x:110,y:-35,gT:.7,g6:.8,said:"“Eight, love. Loud. The sixth was the loudest of the lot, from the clock side.”"},
+ accCutts:{who:"Joe Cutts",at:"His lighter, at the moorings",x:160,y:5,gT:.55,g6:.65,said:"“Eight. And no, there's no ship's bell rung on this reach tonight. I'd have heard it closer than the church.”"},
+ accVane:{who:"The Rev. Arthur Vane",at:"The vestry",x:-45,y:45,gT:.8,g6:.18,said:"“Eight, though the sixth was faint, as if it came from round a corner. I thought at once of Amos.”"},
+ accNed:{who:"Ned Wren",at:"West end of Church Row",x:-95,y:-70,gT:.5,g6:.12,said:"“Seven... no, eight. Everyone says eight. The sixth was so faint I'd not swear to it.”"},
+ accGarrow:{who:"Silas Garrow",at:"The Ship & Lantern",x:-150,y:10,gT:.4,g6:.08,said:"“Eight bells, clear as day. I said to the lads, ‘That's old Amos at it, striking the cracked sixth by hand.’”"},
+ accTom:{who:"Tom Pell",at:"The Ship & Lantern",x:-150,y:14,gT:.4,g6:.08,said:"“Honest? Seven. I've rung that round a thousand times and I know the hole in it. But Silas said ‘that's eight’ before it was even done, and we all said eight.”"}
+};
+const ACC_ORDER=["accDobbs","accFlynn","accCutts","accLacey","accVane","accNed","accGarrow","accTom"];
+function accSpec(id){const a=ACC[id];return RING.map((_,i)=>i===5?{g:a.g6,kind:"hand",df:1.028}:{g:a.gT,kind:"tower"})}
+const REF={
+ full:{n:"The round as it was cast",d:"All eight bells, treble to tenor, before the sixth cracked.",spec:RING.map(()=>({g:.8}))},
+ gap:{n:"The round since the crack",d:"Since Michaelmas the sixth's clock hammer has been hooked back, so the round plays with a hole in it.",spec:RING.map((_,i)=>i===5?null:{g:.8})},
+ crack:{n:"How a cracked bell sounds",d:"What the sixth would sound like, struck as it is: a jangle that dies in a buzz.",spec:RING.map((_,i)=>i===5?{g:.9,kind:"crack"}:null)}
+};
+
+/* ================= THE STREET (yards; north up) ================= */
+const PLACES={
+ tower:{n:"St. Aldric's tower",a:"The body lies at the foot of the stair",x:0,y:0},
+ vestry:{n:"The vestry",a:"South side of the church",x:-45,y:45},
+ row:{n:"Church Row",a:"Miss Lacey's lodging; Ned Wren on a doorstep",x:-50,y:-78},
+ pub:{n:"The Ship & Lantern",a:"Where the ringers drink",x:-150,y:12},
+ stairs:{n:"Aldric Stairs",a:"River stairs, a coffee stall, a lighter",x:110,y:-35}
+};
+const INSIDE={towerFoot:0,ringing:1,clockRoom:2,belfry:3};
+const placeOf=loc=>loc in INSIDE?"tower":loc;
+const yards=(a,b)=>Math.round(Math.hypot(PLACES[a].x-PLACES[b].x,PLACES[a].y-PLACES[b].y));
+const walkMin=(a,b)=>Math.max(2,Math.round(yards(a,b)/60)+1);
+const SOURCES={
+ belfry:{n:"The belfry louvres",x:0,y:-6,why:"Sound from the belfry spreads to every side alike. But the west heard the sixth faintly and the east heard it loudly."},
+ clock:{n:"The clock-room window",x:10,y:4,why:""},
+ vestry:{n:"The vestry",x:-45,y:52,why:"The curate, who was in the vestry, heard it faintest of all."},
+ lighter:{n:"A ship's bell on the river",x:160,y:-2,why:"Joe Cutts, at the moorings, would have heard it closest, and he swears no bell was rung on the water."},
+ mary:{n:"St. Mary's, across the river",x:172,y:-84,why:"An echo from across the river would follow the whole round, not one note of it."}
+};
+
+/* ================= EVIDENCE ================= */
+const EV={
+ summons:{n:"The summons",k:"Record",s:"From Wapping police station",
+  d:"Telegram, 11:09 pm: “Caretaker St Aldric's found dead foot of tower stair. Divisional inspector Crane expects to call it accident. Will attend 2.30 am. Thames Div. to look in meanwhile.” You are Detective Sergeant Daniel Ashby of the Thames Division, and the river police station is only a few minutes away."},
+ body:{n:"Amos Wren",k:"Physical",s:"Caretaker, at the stair foot",
+  d:"Amos Wren, sixty-one, caretaker and sexton of St. Aldric's, lies on the flags at the foot of the tower's spiral stair, his lantern smashed beside him. A wound on the left temple. His tower keys are still on his belt.",
+  c:"The wound on his temple is round-edged, about three inches across: a curved rim, not the sharp edge of a stone step. And the dust on the stair above him is scuffed at the top, not all the way down, as a man's would be if he fell from high up."},
+ surgeon:{n:"Dr. Pryce on the time of death",k:"Testimony",s:"The police surgeon",
+  d:"Dr. Owen Pryce: “His hands were cold when I saw him at a quarter past eleven, and the jaw was beginning to stiffen. I'd put death nearer twenty to eleven than eleven. But everyone tells me the bell proves he was alive at eleven, so what do I know?”"},
+ crackedBell:{n:"The cracked sixth",k:"Physical",s:"In the belfry",
+  d:"The sixth bell hangs in its frame with a crack running up from the lip a hand's length. Its clock hammer, which the chiming barrel should lift, has been hooked back off the bell with a loop of wire, as the parish was told it would be until the bell is recast.",
+  c:"The dust on the sixth's hooked-back hammer and on the wire loop lies smooth and grey. Nobody has touched it in weeks. If anyone had struck this bell tonight it would have jangled, not rung, and the hammer would show it."},
+ handbellGone:{n:"A gap in the handbells",k:"Physical",s:"The ringing chamber cupboard",
+  d:"The ringers' handbells, a set tuned to the tower's eight for practising changes, live in a baize-lined box in the ringing chamber. Seven are in their places. The space marked “6” is empty."},
+ clockRig:{n:"A handbell in the clock room",k:"Physical",s:"Lashed to the sixth's chiming wire",
+  d:"In the clock room, by the east window, the brass handbell No. 6 hangs from the chiming barrel's sixth lever, lashed on with a length of green worsted. When the barrel turned at eleven, the lever that should have lifted the cracked bell's hammer swung this handbell instead, right beside the open window.",
+  c:"The lashing is green knitted worsted, cut from something longer. And the handbell's bronze lip is dented, with a short grey hair caught in the dent."},
+ rigMarks:{n:"Marks on the sixth lever",k:"Physical",s:"In the clock room",
+  d:"In the clock room, the chiming barrel's sixth lever by the east window has fresh bright scratches on it, as if something was lashed there and pulled off in a hurry.",
+  c:"A few strands of green knitted worsted are still caught under the lever's pin."},
+ worsted:{n:"Green worsted",k:"Physical",s:"From the lashing",d:"Green knitted wool yarn, cut from something longer, used to lash a handbell to the clock's sixth lever."},
+ handbellDent:{n:"The dented handbell",k:"Physical",s:"A curved lip, three inches across",d:"Handbell No. 6: the lip is dented and a short grey hair is caught in the dent. Amos Wren's hair is grey."},
+ muffler:{n:"Garrow's muffler",k:"Physical",s:"On a hook in the Ship & Lantern",
+  d:"A green knitted muffler hangs on the hook under Silas Garrow's hat. One end is short and raggedly cut, as if a length had been taken off it with a knife."},
+ foundryLetter:{n:"A letter in Amos's pocket",k:"Document",s:"From the bell foundry",
+  d:"Whitechapel, 19 November 1889. “Dear Sir, In reply to yours: we have no order on our books for the recasting of a bell from St. Aldric's, and have received no deposit. We should be glad to quote.” Amos had underlined “no deposit” twice."},
+ subscription:{n:"The recasting fund book",k:"Document",s:"In the vestry",
+  d:"The St. Aldric's Bell Fund subscription book: £64 4s. raised from the parish since Michaelmas to recast the cracked sixth. Treasurer: S. Garrow, Captain of the Tower. A note in Garrow's hand, September: “Full sum forwarded to the foundry.”"},
+ tomPell:{n:"Tom Pell on Garrow",k:"Testimony",s:"A ringer, quietly",
+  d:"Tom Pell: “Silas stepped out about half past ten, ‘to see a man about a dog.’ Back at ten to eleven, coat wet to the knees, dust on his trouser knees like he'd been kneeling on a stair. Then he stood us all a round, and at eleven he says, ‘That's old Amos at it.’”"},
+ tomLeft:{n:"Tom on five to twelve",k:"Testimony",s:"Garrow went out again",
+  d:"Tom Pell: “And he went out again, just now, at five to twelve. Said he'd left his gloves in the ringing chamber.”"},
+ caught:{n:"Garrow in the clock room",k:"Observation",s:"You stopped him",
+  d:"At five to twelve Silas Garrow came up the tower stair in the dark with a knife and went straight to the clock room's sixth lever. PC Dobbs had him by the collar before he reached it."},
+ caughtWatch:{n:"Garrow in the clock room",k:"Observation",s:"You watched him",
+  d:"At five to twelve, from the dark of the stair, you watched Silas Garrow come up with a knife, cut the green lashing, take the handbell under his coat and go down again."},
+ midnight8:{n:"The midnight round",k:"Observation",s:"Eight again",
+  d:"At midnight the clock played the round again: eight notes, the sixth thin and sharp. Amos Wren was lying under a sheet at the foot of the stair, and nobody was in the tower."},
+ midnight7:{n:"The midnight round",k:"Observation",s:"Only seven",
+  d:"At midnight the clock played the round again, and this time there were only seven notes, with the old hole where the sixth should be. Someone had silenced the eighth bell since eleven."},
+ earNote:{n:"The stranger in the round",k:"Reading",s:"The sixth place",d:"Every account agrees on the order of the notes. Seven are the tower's own. The stranger is the sixth note, in the place of the cracked bell."},
+ earVoice:{n:"The stranger's voice",k:"Reading",s:"A handbell",d:"The stranger was thin, slightly sharp, and died away quickly: the voice of a handbell, not a great bell, and not the jangle of a cracked one."},
+ earSide:{n:"Where the eighth bell rang",k:"Reading",s:"The east face of the tower",
+  d:"Loud on Wharf Lane and at the river stairs, fainter in Church Row, barely there at the vestry and the Ship & Lantern. The stranger sounded from low on the tower's east face: the clock-room window, not the belfry."},
+ amosThreat:{n:"The curate on Amos",k:"Testimony",s:"Why he ran to the tower",
+  d:"The Rev. Arthur Vane: “Amos had threatened, more than once, to climb up and strike the cracked bell by hand at eleven to shame the ringers into sending it for recasting. When I heard the eighth bell I thought, he's done it at last. I went to the tower and found him at the foot of the stair.”"},
+ nedStory:{n:"Ned Wren's story",k:"Testimony",s:"The nephew",
+  d:"Ned Wren: “I came to ask Uncle for a loan. Three pounds. I lost my nerve and walked up and down Church Row from half past ten, working up to it. Then the bells, and then the shouting.”"},
+ laceyNed:{n:"Miss Lacey on Ned",k:"Testimony",s:"Under her window",
+  d:"Miss Lacey: “That young man walked up and down beneath my window from half past ten until the curate shouted. I timed him by my clock, out of irritation. He never went near the church.”"}
+};
+const EV_TOTAL=Object.keys(EV).length+Object.keys(ACC).length;
+Object.entries(ACC).forEach(([k,a])=>{EV[k]={n:`${a.who}'s account`,k:"Account",s:a.at,d:a.said,acc:1}});
+
+/* ================= CONNECTIONS ================= */
+const DED={
+ B1:{a:"earNote",b:"crackedBell",need:["cl:crackedBell"],t:"The eighth bell was not the cracked sixth",x:"The stranger rang in the sixth's place, but the sixth's hammer hasn't moved in weeks. Whatever rang, it wasn't that bell."},
+ B2:{a:"earVoice",b:"handbellGone",t:"It was the missing No. 6 handbell",x:"A thin, sharp, quickly dying note, and the sixth handbell missing from its box."},
+ B3:{a:"earSide",b:["clockRig","rigMarks"],t:"It rang from the clock room, on the clock's own beat",x:"The sound came from the clock-room window on the east face, where something was lashed to the sixth lever."},
+ B4:{a:"surgeon",b:["accGarrow","amosThreat"],t:"The eighth bell was staged to make Amos alive at eleven",x:"Dr. Pryce puts death near twenty to eleven. The eighth bell was the only thing saying otherwise, and it said exactly what the parish expected Amos to do."},
+ B5:{a:"tomPell",b:"surgeon",t:"Garrow was out of the pub when Amos died",x:"He left at half past ten and came back at ten to eleven with dust on his knees."},
+ B6:{a:"worsted",b:"muffler",t:"The lashing came from Garrow's muffler",x:"The green worsted on the clock lever is the length missing from Garrow's muffler."},
+ B7:{a:["caught","caughtWatch"],b:["clockRig","rigMarks"],t:"Garrow went back for the handbell",x:"At five to twelve he climbed the tower to cut the lashing before the midnight round could ring it again."},
+ B8:{a:"foundryLetter",b:"subscription",t:"The bell fund never reached the foundry",x:"Garrow wrote “full sum forwarded.” The foundry never received a penny. Amos found out this week."},
+ B9:{a:"midnight7",b:"tomLeft",t:"Garrow silenced the eighth bell",x:"Someone took the handbell off between eleven and midnight, and Garrow left the pub at five to twelve."},
+ B10:{a:"handbellDent",b:"body",need:["cl:body"],t:"The handbell was the weapon",x:"A round three-inch wound, and a dented three-inch bronze lip with a grey hair in it."},
+ R1:{a:"nedStory",b:"laceyNed",t:"Ned Wren never went near the church",x:"Miss Lacey timed him pacing under her window from half past ten."}
+};
+const DED_TOTAL=Object.keys(DED).length;
+
+/* ================= PEOPLE ================= */
+const TONE={coax:"Civilly",ask:"Plainly",press:"Sternly"};
+const SUS={
+ pryce:{n:"Dr. Owen Pryce",short:"Dr. Pryce",mono:"OP",role:"Divisional police surgeon · The tower foot",pref:"ask",
+  tell:"A tired, clever doctor annoyed at being overruled by a church bell. He likes plain questions and plain answers.",
+  topics:[
+   {id:"when",q:"How long has he been dead?",r:{coax:{t:"“Longer than the bell says, Sergeant.” He explains: cold hands, stiffening jaw. Nearer twenty to eleven than eleven.",ev:"surgeon"},ask:{t:"“Hands cold at a quarter past eleven, the jaw starting to set. Nearer twenty to eleven than eleven. But the bell, the bell, everyone says the bell.”",ev:"surgeon"},press:{t:"“I'm not a clock, Sergeant.”",sus:1}}},
+   {id:"wound",q:"Could the stair have done that?",r:{coax:{t:"“Look for yourself. Round-edged. The stairs here are square.”"},ask:{t:"“The stair edge is square and that wound is round. Draw your own conclusions; Crane won't.”"},press:{t:"“Ask the stair.”",sus:1}}}],
+  present:{handbellDent:{t:"He measures the lip against his fingers. “Three inches. That would do it.”"},midnight8:{t:"“So the bell rings with nobody to ring it. I'll put that in my notes.”"}},
+  dflt:"“Not my department.”"},
+ dobbs:{n:"PC Henry Dobbs",short:"Dobbs",mono:"HD",role:"Constable on the riverside beat · Guarding the tower",pref:"ask",
+  tell:"A good constable, honest and slow. He'll answer anything put plainly and do anything asked of him by a sergeant.",
+  topics:[
+   {id:"heard",q:"What did you hear at eleven?",r:{coax:{t:ACC.accDobbs.said,ev:"accDobbs"},ask:{t:ACC.accDobbs.said,ev:"accDobbs"},press:{t:ACC.accDobbs.said,ev:"accDobbs"}}},
+   {id:"pockets",q:"Has anyone been through his pockets?",r:{coax:{t:"“No, sir. Waiting for you.” Between you, you turn out a clasp knife, a twist of tobacco, the tower keys and a folded letter.",ev:"foundryLetter"},ask:{t:"“No, sir.” You go through them together: knife, tobacco, keys, and a letter.",ev:"foundryLetter"},press:{t:"“No, sir!” Together you go through them: knife, tobacco, keys, a letter.",ev:"foundryLetter"}}}],
+  present:{},dflt:"“Couldn't say, sir.”"},
+ lacey:{n:"Miss Ada Lacey",short:"Miss Lacey",mono:"AL",role:"Teacher of the pianoforte · Church Row",pref:"coax",
+  tell:"A music teacher with perfect pitch and no patience. Courtesy will get you everything; sternness will get you the door.",
+  topics:[
+   {id:"heard",q:"What did you hear at eleven?",r:{coax:{t:ACC.accLacey.said,ev:"accLacey"},ask:{t:ACC.accLacey.said,ev:"accLacey"},press:{t:"“I heard a policeman shouting at a lady on her own doorstep.”",sus:2}}},
+   {id:"street",q:"Did you see anyone in the street tonight?",r:{coax:{t:ACC.accLacey&&EV.laceyNed.d.replace("Miss Lacey: ",""),ev:"laceyNed"},ask:{t:EV.laceyNed.d.replace("Miss Lacey: ",""),ev:"laceyNed"},press:{t:"“No.”",sus:1}}}],
+  present:{earVoice:{t:"“A handbell. Yes. That's exactly it.”"},crackedBell:{t:"“A cracked bell jangles. What I heard did not jangle.”"}},
+  dflt:"“I really couldn't say.”"},
+ ned:{n:"Ned Wren",short:"Ned",mono:"NW",role:"The caretaker's nephew · A doorstep in Church Row",pref:"ask",
+  tell:"Young, broke, frightened and guilty about all the wrong things. Plain questions keep him talking; sternness makes him bolt.",
+  topics:[
+   {id:"heard",q:"What did you hear at eleven?",r:{coax:{t:ACC.accNed.said,ev:"accNed"},ask:{t:ACC.accNed.said,ev:"accNed"},press:{t:"“Bells! I heard bells!”",ev:"accNed",sus:1}}},
+   {id:"why",q:"Why were you here tonight?",r:{coax:{t:EV.nedStory.d.replace("Ned Wren: ",""),ev:"nedStory"},ask:{t:EV.nedStory.d.replace("Ned Wren: ",""),ev:"nedStory"},press:{t:"“I didn't hurt him! I didn't!” But it comes out: a loan, his nerve failing, pacing Church Row.",ev:"nedStory",sus:2}}}],
+  present:{foundryLetter:{t:"“Uncle said something was wrong with the bell money. He was going to have it out with someone.”"}},
+  dflt:"“I don't know.”"},
+ vane:{n:"The Rev. Arthur Vane",short:"Mr. Vane",mono:"AV",role:"Curate of St. Aldric's · The vestry",pref:"coax",
+  tell:"A young curate, kind, shaken, and inclined to blame himself. Gentleness helps him.",
+  topics:[
+   {id:"heard",q:"What did you hear at eleven?",r:{coax:{t:ACC.accVane.said,ev:"accVane"},ask:{t:ACC.accVane.said,ev:"accVane"},press:{t:ACC.accVane.said,ev:"accVane",sus:1}}},
+   {id:"why",q:"Why did you go to the tower?",r:{coax:{t:EV.amosThreat.d.replace("The Rev. Arthur Vane: ",""),ev:"amosThreat"},ask:{t:EV.amosThreat.d.replace("The Rev. Arthur Vane: ",""),ev:"amosThreat"},press:{t:"“Because it was my duty!” Then, more quietly, he explains.",ev:"amosThreat",sus:1}}},
+   {id:"fund",q:"Who keeps the bell fund?",r:{coax:{t:"“Mr. Garrow, the Captain of the Tower. The book is here in the vestry.” He brings it to you.",ev:"subscription"},ask:{t:"“Silas Garrow. The book's in the vestry chest.”",ev:"subscription"},press:{t:"“The book is in the chest.”",ev:"subscription",sus:1}}}],
+  present:{foundryLetter:{t:"He reads it twice. “No deposit? But Mr. Garrow said... Oh, Lord.”"}},
+  dflt:"“I'm afraid I don't know.”"},
+ garrow:{n:"Silas Garrow",short:"Garrow",mono:"SG",role:"Captain of the Tower · The Ship & Lantern",pref:"coax",
+  tell:"Genial, red-faced, everybody's friend: he loves to be agreed with. Agree with him and he talks freely. Push him and he goes very still.",
+  topics:[
+   {id:"heard",q:"What did you hear at eleven?",r:{coax:{t:ACC.accGarrow.said,ev:"accGarrow"},ask:{t:ACC.accGarrow.said,ev:"accGarrow"},press:{t:ACC.accGarrow.said,ev:"accGarrow",sus:1}}},
+   {id:"evening",q:"Were you here all evening?",r:{coax:{t:"“All evening, Sergeant, with the lads. Ask anyone.”"},ask:{t:"“From eight o'clock. Ask the lads.”"},press:{t:"“Are you calling me a liar in front of my own band?”",sus:1}}},
+   {id:"fund",q:"Where is the bell fund?",r:{coax:{t:"“Safe with the foundry since September. The sixth will be back by Easter, God willing.”"},ask:{t:"“With the foundry. Paid in September.”"},press:{t:"“That's a church matter.”",sus:1}}}],
+  present:{foundryLetter:{t:"The colour leaves his face. “A clerk's mistake. I'll write tomorrow.”",sus:2},clockRig:{t:"He laughs, too loud. “Somebody's having a joke on us.”",sus:2},muffler:{t:"“Moths, Sergeant.”",sus:1},surgeon:{t:"“Doctors.”",sus:1},earVoice:{t:"“Handbell? Nonsense. I've rung forty years. That was a tower bell.”",sus:1},caught:{t:"He says nothing at all."},caughtWatch:{t:"He says nothing at all.",sus:2}},
+  dflt:"“Couldn't say, Sergeant. Another?”"},
+ tom:{n:"Tom Pell",short:"Tom",mono:"TP",role:"Ringer of the fifth · The Ship & Lantern",pref:"coax",
+  tell:"A young ringer who looks up to his captain and is beginning to wonder why. Speak to him kindly and away from the others.",
+  topics:[
+   {id:"heard",q:"What did you hear at eleven?",r:{coax:{t:ACC.accTom.said,ev:"accTom"},ask:{t:"“Eight, like Silas said.” He doesn't look at you."},press:{t:"“Eight! Same as everyone!”",sus:1}}},
+   {id:"silas",q:"Was your captain here all evening?",r:{coax:{t:EV.tomPell.d.replace("Tom Pell: ",""),ev:"tomPell"},ask:{t:"“Mostly.” Then, very low: he went out at half past ten, came back at ten to eleven, dust on his knees.",ev:"tomPell"},press:{t:"“Ask him yourself.”",sus:1}}},
+   {id:"since",q:"Has anyone left since eleven?",only:s=>s.clock>=GARROW_T&&s.f.rigGone&&!s.f.garrowHeld,r:{coax:{t:EV.tomLeft.d.replace("Tom Pell: ",""),ev:"tomLeft"},ask:{t:EV.tomLeft.d.replace("Tom Pell: ",""),ev:"tomLeft"},press:{t:"“Silas went out. Gloves, he said.”",ev:"tomLeft",sus:1}}}],
+  present:{earVoice:{t:"“A handbell. That's it. It was thin. Like our practice bells.”"}},
+  dflt:"“I just ring the fifth, sir.”"},
+ flynn:{n:"Mrs. Bridget Flynn",short:"Mrs. Flynn",mono:"BF",role:"Coffee-stall keeper · Aldric Stairs",pref:"ask",
+  tell:"Sharp-eyed, warm, sees everything on the stairs. Plain talk and a penny for a cup of coffee.",
+  topics:[
+   {id:"heard",q:"What did you hear at eleven?",r:{coax:{t:ACC.accFlynn.said,ev:"accFlynn"},ask:{t:ACC.accFlynn.said,ev:"accFlynn"},press:{t:ACC.accFlynn.said,ev:"accFlynn",sus:1}}},
+   {id:"window",q:"Could you see the tower from here?",r:{coax:{t:"“Just the clock face, and the little window under it with a light in it. There's always a light in the clock room.”"},ask:{t:"“The clock and the little window under it. Lit, it was, like always.”"},press:{t:"“I've got eyes, haven't I?”",sus:1}}}],
+  present:{},dflt:"“Couldn't tell you, love.”"}
+};
+const SUS_ORDER=["pryce","dobbs","lacey","ned","vane","garrow","tom","flynn"];
+const MOOD=["Easy","Wary","Uneasy","Closed","Silent","Silent"];
+const WHERE={pryce:"towerFoot",dobbs:"towerFoot",lacey:"row",ned:"row",vane:"vestry",garrow:"pub",tom:"pub",flynn:"stairs"};
+const canTalk=(s,id)=>!(id==="garrow"&&s.f.garrowHeld);
+
+const HYP={
+ how:{l:"What was the eighth bell?",o:[["rig","Handbell No. 6, lashed to the clock's sixth lever"],["amos","Amos striking the cracked sixth by hand"],["echo","An echo from St. Mary's across the river"],["ghost","Something no one can explain"]]},
+ when:{l:"When did Amos Wren die?",o:[["before","Before eleven, around twenty to"],["after","Just after eleven, falling from the belfry"]]},
+ who:{l:"Who killed him?",o:[["garrow","Silas Garrow, Captain of the Tower"],["ned","Ned Wren, his nephew"],["vane","The Rev. Arthur Vane"],["none","Nobody; he fell"]]},
+ why:{l:"Why?",o:[["fund","He had found out the bell fund was never sent"],["money","For his savings"],["quarrel","A quarrel about drink"],["none","There was no why"]]}
+};
+const ENDINGS={E1:"The True Round",E2:"Seven Bells and a Doubt",E3:"The Wrong Ringer",E4:"Accidental Death",E5:"The Long Drop",E6:"Gone on the Tide",E7:"The Penny Dreadful"};
+const CHAPTERS={ch1:"Chapter I · The Tower Foot",ch2:"Chapter II · Five to Twelve",ch3:"Chapter III · The Midnight Round"};
+
+/* ================= HELPERS ================= */
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function hm(t){const m=((T0+Math.round(t))%1440+1440)%1440;let h=Math.floor(m/60),mm=String(m%60).padStart(2,"0");const ap=h>=12?"pm":"am";h=h%12||12;return `${h}:${mm} ${ap}`}
+function dur(m){m=Math.max(0,Math.round(m));const h=Math.floor(m/60),mm=m%60;return h?`${h}h ${String(mm).padStart(2,"0")}m`:`${mm}m`}
+function cost(c){return c>=60?`${Math.floor(c/60)} hr ${c%60?c%60+" min":""}`.trim():`${c} min`}
+function em(t){return String(t).replace(/\*(.+?)\*/g,"<em>$1</em>")}
+function add(s,id){if(s.ev[id]||!EV[id])return;s.ev[id]=1;s.flash.push(["new",`<b>New evidence</b>${EV[id].n}`]);s.log.push([s.clock,`Found: ${EV[id].n}`])}
+function note(s,t,cls){s.flash.push([cls||"",t]);if(cls==="warn")s.log.push([s.clock,t.replace(/<[^>]+>/g,"")])}
+function says(s,t){s.flash.push(["",t])}
+const accCount=s=>ACC_ORDER.filter(k=>s.ev[k]).length;
+const crane=s=>s.f.sent?Math.min(CRANE_T,s.f.sent+SEND_DELAY):CRANE_T;
+const craneHere=s=>s.clock>=crane(s);
+const rigInPlace=s=>!s.f.rigTaken&&!s.f.rigGone;
+
+/* ================= MOVING ================= */
+function walkOpt(s,to){return {l:`Walk to ${PLACES[to].n}`,sub:`${yards(placeOf(s.loc),to)} yards`,c:0,walkTo:to,a:s=>walk(s,to)}}
+function walk(s,to){s.pending=walkMin(placeOf(s.loc),to);s.log.push([s.clock,`Walked to ${PLACES[to].n}`]);s.loc=to==="tower"?"towerFoot":to;s.view="scene"}
+function walks(s){return Object.keys(PLACES).filter(k=>k!==placeOf(s.loc)).map(k=>walkOpt(s,k))}
+const climb=(to,l)=>({l,c:2,a:s=>{s.loc=to}});
+
+/* ================= SCENES ================= */
+const talk=id=>({l:`Speak with ${SUS[id].n}`,c:0,tag:"Interview",a:s=>{s.view="interview";s.who=id}});
+const L={
+ intro:{t:"A Round With a Hole in It",chapter:"Chapter I",p:()=>[
+  "Friday, the twenty-second of November, 1889. Fog off the river, thick enough to chew. You are Detective Sergeant Daniel Ashby of the Thames Division, and you have been sent up from the river station to St. Aldric's, a sooty old church whose square tower stands with its feet almost in the Thames.",
+  "St. Aldric's has a ring of eight bells. Every hour its clock plays them once in rounds, treble down to tenor, before striking. But the sixth bell cracked at Michaelmas, and since then the clock has played a round with a hole in it. The whole parish knows the sound: seven notes and a silence.",
+  "Tonight at eleven, seven people heard eight. At six minutes past, the curate found Amos Wren, the caretaker, dead at the foot of the tower stair.",
+  "The divisional inspector, Crane, has telegraphed that he will come at half past two in the morning to call it an accident. That gives you until half past two.",
+  "*Seven bells, and the parish heard eight. Listen carefully.*"],
+  o:()=>[{l:"Go in at the tower door",c:3,a:s=>{add(s,"summons");s.loc="towerFoot"}}]},
+
+ towerFoot:{t:"The Foot of the Tower Stair",p:s=>[
+  "A stone room at the bottom of the tower, smelling of damp and lamp oil. The spiral stair goes up into the dark. On the flags at its foot, under a sheet now, lies Amos Wren.",
+  "PC Dobbs stands guard at the door with his lantern. Dr. Pryce, the police surgeon, is wiping his hands and looking at his watch as if it had personally insulted him."+(s.f.garrowHeld?" Silas Garrow sits on the bottom step in handcuffs.":"")],
+  o:s=>{const o=[talk("dobbs"),talk("pryce")];
+   if(!s.ev.body)o.push({l:"Lift the sheet and look at Amos Wren",c:4,a:s=>add(s,"body")});
+   if(!s.f.sent)o.push({l:"Send PC Dobbs to fetch Inspector Crane now",c:2,tag:`Crane here by ${hm(Math.min(CRANE_T,s.clock+2+SEND_DELAY))}`,a:s=>{s.f.sent=s.clock+2;says(s,"Dobbs goes off into the fog at a lumbering run. He'll bring Crane back to the vestry.")}});
+   o.push(climb("ringing","Climb to the ringing chamber"));
+   return o.concat(walks(s))}},
+
+ ringing:{t:"The Ringing Chamber",p:s=>[
+  "A whitewashed room with eight ropes hanging through holes in the ceiling, their woollen grips looped up out of the way. Painted boards on the walls record great peals rung here in 1821 and 1866. A long box of handbells sits on the bench."],
+  o:s=>{const o=[];
+   if(!s.ev.handbellGone)o.push({l:"Open the handbell box",c:3,a:s=>add(s,"handbellGone")});
+   if(s.clock<GARROW_T&&rigInPlace(s)&&s.ev.clockRig)o.push({l:"Put out your lantern and wait in the dark on the stair",c:0,tag:"Watch",a:s=>{s.pending=GARROW_T-s.clock}});
+   o.push(climb("clockRoom","Climb to the clock room"),climb("towerFoot","Go down to the tower foot"));return o}},
+
+ clockRoom:{t:"The Clock Room",p:s=>[
+  "A cramped room full of iron: the great clock in its frame, its pendulum swinging slow in a long box, and beside it the chiming barrel, a drum studded with pins that lift eight levers in turn, one for each bell's hammer above. A small window in the east wall looks out over the river, its glass long gone.",
+  rigInPlace(s)?(s.ev.clockRig?"The handbell still hangs from the sixth lever.":"Something small catches your lantern light by the east window."):s.f.rigTaken?"The sixth lever is bare now; the handbell is in your coat.":"By the east window, the sixth lever is bare."],
+  o:s=>{const o=[];
+   if(rigInPlace(s)&&!s.ev.clockRig)o.push({l:"Look at the chiming barrel by the east window",c:4,a:s=>add(s,"clockRig")});
+   if(rigInPlace(s)&&s.ev.clockRig)o.push({l:"Cut the handbell down and take it",c:2,a:s=>{s.f.rigTaken=1;says(s,"You cut the worsted and wrap the handbell in your handkerchief.")}});
+   if(s.f.rigGone&&!s.ev.rigMarks)o.push({l:"Look at the chiming barrel by the east window",c:4,a:s=>add(s,"rigMarks")});
+   if(s.clock<GARROW_T&&rigInPlace(s)&&s.ev.clockRig)o.push({l:"Put out your lantern and wait in the dark",c:0,tag:"Watch",a:s=>{s.pending=GARROW_T-s.clock}});
+   o.push(climb("belfry","Climb to the belfry"),climb("ringing","Go down to the ringing chamber"));return o}},
+
+ belfry:{t:"The Belfry",p:()=>[
+  "Cold air through the louvred openings on all four sides, and the bells hanging mouth-down in their great oak frame, eight of them, the treble no bigger than a coal scuttle and the tenor as big as a cart. Pigeons shift in the dark above."],
+  o:s=>{const o=[];if(!s.ev.crackedBell)o.push({l:"Look at the sixth bell",c:4,a:s=>add(s,"crackedBell")});
+   o.push(climb("clockRoom","Go down to the clock room"));return o}},
+
+ vestry:{t:"The Vestry",p:s=>[
+  "A small panelled room with a fire, a robing cupboard, a chest for the registers and parish books. The Rev. Arthur Vane, the curate, sits by the fire with his hands between his knees.",
+  s.f.sent?(craneHere(s)?"Inspector Crane stands with his back to the fire, hat still on, waiting to hear why he shouldn't write “accident.”":`PC Dobbs has gone for Inspector Crane, who will be here by ${hm(crane(s))}.`):""],
+  o:s=>{const o=[talk("vane")];
+   if(s.f.sent&&craneHere(s))o.push({l:"Give Inspector Crane your finding",c:0,ui:"accuse",tag:"Your finding"});
+   if(s.f.sent&&!craneHere(s))o.push({l:"Wait by the fire for Inspector Crane",c:Math.min(15,crane(s)-s.clock),tag:"Wait",a:()=>{}});
+   return o.concat(walks(s))}},
+
+ row:{t:"Church Row",p:()=>[
+  "A terrace of narrow houses facing the churchyard railings. In a lit first-floor window a woman in a dressing gown is watching the street. On a doorstep at the west end a young man sits in the fog with his head in his hands."],
+  o:s=>[talk("lacey"),talk("ned"),...walks(s)]},
+
+ pub:{t:"The Ship & Lantern",p:s=>[
+  "A low, hot, smoky public house. The ringers of St. Aldric's have their own corner under a painting of a three-master, and their coats and hats hang in a row on hooks by the door.",
+  s.f.garrowHeld?"Garrow's place is empty.":s.clock>=GARROW_T&&s.clock<GARROW_T+12&&s.f.rigGone?"Garrow's place is empty; his hat is gone from its hook.":"Silas Garrow, the Captain of the Tower, a big red-faced man, is holding forth. Young Tom Pell, who rings the fifth, sits at the end of the bench saying nothing."],
+  o:s=>{const o=[];if(canTalk(s,"garrow")&&!(s.clock>=GARROW_T&&s.clock<GARROW_T+12&&s.f.rigGone))o.push(talk("garrow"));o.push(talk("tom"));
+   if(!s.ev.muffler)o.push({l:"Look over the coats on the hooks",c:3,a:s=>add(s,"muffler")});
+   if(canTalk(s,"garrow")&&s.sus.garrow>=3)o.push({l:"Denounce Garrow here and now, in front of his band",c:0,risk:"He's near the door",a:s=>endCase(s,"E6")});
+   return o.concat(walks(s))}},
+
+ stairs:{t:"Aldric Stairs",p:()=>[
+  "Slimy stone steps going down into the black river. At the top, a coffee stall with a brazier and a tin roof, run by Mrs. Bridget Flynn. At the bottom, a lighter rides at its moorings with a lantern on its stern, and a man in it smoking a pipe. From here the tower's east face rises out of the fog: the clock, and a small dark window under it."],
+  o:s=>{const o=[talk("flynn")];
+   if(!s.ev.accCutts)o.push({l:"Call down to the lighterman, Joe Cutts",c:4,a:s=>add(s,"accCutts")});
+   return o.concat(walks(s))}},
+
+ garrowScene:{t:"Five to Twelve",chapter:"Chapter II",p:()=>[
+  "Boots on the spiral stair, coming up slowly, no lantern. A big man's breathing. He passes within a yard of you in the dark and goes straight to the clock room, and you hear him whisper something to himself and open a clasp knife."],
+  o:s=>[
+   {l:"Stay still in the dark and watch",c:3,a:s=>{s.f.rigGone=1;add(s,"caughtWatch");s.loc="clockRoom";says(s,"He cuts the lashing, tucks the handbell under his coat and goes down the stair. It's Silas Garrow.")}},
+   {l:"Shout for PC Dobbs and block the stair",c:5,risk:s.f.sent?"Dobbs is away fetching Crane":"",a:s=>{if(s.f.sent){endCase(s,"E5");return}s.f.rigTaken=1;s.f.garrowHeld=1;add(s,"clockRig");add(s,"caught");s.loc="clockRoom";says(s,"Dobbs comes up the stair three at a time. Between you, you have Silas Garrow against the wall, with his knife on the floor and the handbell still swinging from the lever.")}},
+   {l:"Grab him yourself",c:0,risk:"He's bigger than you",a:s=>endCase(s,"E5")}]},
+
+ dawnScene:{t:"Half Past Two",chapter:"Chapter III",p:()=>[
+  "The tower clock plays its round and strikes the half hour after two. Inspector Crane comes in out of the fog to the vestry, shaking his umbrella, and asks you whether there is any reason he shouldn't write “accidental death” and go home to bed."],
+  o:()=>[{l:"Give him your finding",c:0,ui:"accuse"},{l:"Tell him there's no reason",c:0,a:s=>endCase(s,"E4")}]}
+};
+
+/* ================= PROOFS & ENDINGS ================= */
+const pHow=s=>!!(s.ded.B1&&s.ded.B2&&s.ded.B3);
+const pWhen=s=>!!(s.ded.B4&&(s.ded.B10||s.ded.B5));
+const pWho=s=>!!(s.ded.B5&&(s.ded.B6||s.ded.B7||s.ded.B9));
+const pWhy=s=>!!s.ded.B8;
+function missing(s){const m=[],h=s.hyp;
+ if(h.how!=="rig")m.push("you got the eighth bell wrong");else if(!pHow(s))m.push("you never proved by ear, by bell and by place what the eighth bell was");
+ if(h.when!=="before")m.push("you got the time of death wrong");else if(!pWhen(s))m.push("you never proved Amos was dead before the bell");
+ if(h.who!=="garrow")m.push("you named the wrong man");else if(!pWho(s))m.push("you never put Garrow's hands on the tower");
+ if(h.why!=="fund")m.push("you got the motive wrong");else if(!pWhy(s))m.push("you never showed why");
+ return m}
+const END={
+ E1:{best:true,p:s=>[
+  s.f.rigTaken?"You put the recovered handbell on the vestry table and tell Inspector Crane how the round was played tonight.":"You set out the evidence before Inspector Crane and tell him how the round was played tonight.",
+  "Amos Wren had written to the Whitechapel foundry and learned that not a penny of the £64 the parish had given to recast its cracked bell had ever arrived. At half past ten he met Silas Garrow in the tower to have it out. Garrow struck him with the nearest heavy thing, a handbell from the practice box, and left him at the foot of the stair.",
+  "Then Garrow did what only a Captain of the Tower would think of. He went up to the clock room, lashed that same handbell to the chiming barrel's sixth lever with a length cut from his own muffler, and went back to the Ship & Lantern. At eleven the clock played its round and for once there was no hole in it. “That's old Amos at it,” said Garrow, and the whole bench agreed, and a dead man was alive at eleven o'clock.",
+  "But a handbell is not a great bell. Miss Lacey heard it sharp and thin. The river side heard it loud and the pub side barely heard it at all. And the cracked sixth, for all its dust, never moved.",
+  "Crane takes his hat off. Garrow is charged at Wapping before dawn. In the spring, the parish raises the money again, and the sixth comes back from Whitechapel whole.",
+  "*Seven witnesses heard eight bells. You listened to all of them.*"]},
+ E2:{p:s=>[
+  s.loc==="dawnScene"?"You give your finding at half past two, as Crane yawns.":"You give your finding to Inspector Crane in the vestry.",
+  `He hears you out and shakes his head. “Clever, Ashby. Too clever for a coroner's jury.” It doesn't hold: ${missing(s).join("; ")}.`,
+  "The inquest finds that Amos Wren died by misadventure, having climbed the tower in the dark to strike a cracked bell. Garrow sends a wreath.",
+  "*Seven bells and a doubt. Doubt doesn't hang anyone.*"]},
+ E3:{p:s=>{const w=s.hyp.who;return [
+  w==="ned"?"You name Ned Wren, the nephew who wanted a loan. Miss Lacey, who timed him under her window all evening, writes a very sharp letter to the Commissioner.":
+  w==="vane"?"You name the curate. The parish never forgives you, and nor does Crane.":
+  "You find that nobody killed him at all, and the parish agrees with you gratefully.",
+  "Silas Garrow rings the round at the funeral.",
+  "*The wrong ringer. The right one stood the bench a round at ten to eleven.*"]}},
+ E4:{p:()=>[
+  "Crane writes “accidental death” in a clear round hand and goes home to bed.",
+  "The parish believes for the rest of its days that old Amos climbed the tower at eleven to strike the cracked bell, and fell. On foggy nights people swear they hear the sixth.",
+  "*Accidental death. The bell said so.*"]},
+ E5:{p:()=>[
+  "Silas Garrow has been ringing heavy bells for forty years and he is very strong. In the dark of the clock room he gets his arms round you, and then there is the stair.",
+  "You wake up in the vestry with the curate holding a cold cloth to your head and Dr. Pryce telling you that you are a lucky young fool. Garrow is gone, and so is the handbell.",
+  "*The long drop. The tower stair has had enough for one night.*"]},
+ E6:{p:()=>[
+  "You stand up in the Ship & Lantern and accuse Silas Garrow of murder in front of his whole band.",
+  "He is out of the door before anyone moves. By the time you reach Aldric Stairs, Joe Cutts's lighter is drifting out into the fog on the ebb with its mooring rope cut and a big man crouching in it. It is found at Greenwich in the morning, empty.",
+  "*Gone on the tide. Evidence first, speeches after.*"]},
+ E7:{p:()=>[
+  "You tell Inspector Crane that the eighth bell has no explanation.",
+  "By Monday the Illustrated Police News has a drawing of a ghostly sexton ringing a cracked bell over the words “THE PHANTOM OF ST. ALDRIC'S.” Crowds come from Bermondsey to stand in the fog at eleven o'clock and listen.",
+  "*The penny dreadful. Every bell has a reason.*"]}
+};
+
+/* ================= JOURNAL ================= */
+const TL=[
+ [1,"The sixth bell cracks. Its clock hammer is hooked back; the parish raises a fund to recast it.",s=>s.ev.crackedBell||s.ev.subscription,"Michaelmas"],
+ [2,"Garrow writes in the fund book: “Full sum forwarded to the foundry.”",s=>s.ev.subscription,"September"],
+ [3,"The foundry writes to Amos: no order, no deposit.",s=>s.ev.foundryLetter,"19 November"],
+ [4,"Garrow leaves the Ship & Lantern “to see a man about a dog.”",s=>s.ev.tomPell,"10:30 pm"],
+ [5,"Amos Wren dies, if Dr. Pryce is right.",s=>s.ev.surgeon,"About 10:40 pm"],
+ [6,"Garrow comes back with dust on his knees.",s=>s.ev.tomPell,"10:50 pm"],
+ [7,"The clock plays its round. Seven witnesses hear eight bells.",()=>true,"11:00 pm"],
+ [8,"The curate finds Amos at the foot of the tower stair.",()=>true,"11:06 pm"],
+ [9,"You arrive.",()=>true,"11:15 pm"]
+];
+function leads(s){const a=[];
+ if(!s.ev.body)a.push("Look at the body.");
+ if(!s.ev.surgeon)a.push("Ask Dr. Pryce how long Amos has been dead.");
+ if(accCount(s)<3)a.push("Collect what each witness heard at eleven: Dobbs, Miss Lacey, Mrs. Flynn, the ringers.");
+ if(accCount(s)>=2&&!s.ev.earNote)a.push("On the Ringing Board, find the stranger in the round.");
+ if(!s.ev.crackedBell)a.push("Climb to the belfry and look at the cracked sixth.");
+ if(!s.ev.handbellGone)a.push("The ringers keep practice handbells in the ringing chamber.");
+ if(!s.ev.clockRig&&!s.ev.rigMarks)a.push("The clock plays the bells. Look at the clock room.");
+ if(accCount(s)>=4&&!s.ev.earSide)a.push("On the street map, mark where the stranger rang from.");
+ if(!s.ev.foundryLetter)a.push("Has anyone been through Amos's pockets?");
+ if(s.ev.foundryLetter&&!s.ev.subscription)a.push("Who keeps the bell fund? Ask the curate.");
+ if(s.clock<GARROW_T&&s.ev.clockRig&&rigInPlace(s))a.push("Whoever rigged the clock must take it down before the midnight round rings it again.");
+ if(!s.f.sent)a.push("Send Dobbs for Inspector Crane when your case is ready, or he comes at half past two anyway.");
+ return a.slice(0,6)}
+
+/* ================= ENGINE ================= */
+const SAVE_KEY="dq-cluortal-08-eighth-bell-v1", END_KEY="dq-cluortal-08-endings", CH_KEY="dq-cluortal-08-chapters";
+const fresh=()=>({loc:"intro",view:"scene",who:null,clock:0,n:0,pending:0,f:{},ev:{},cl:{},ded:{},
+ sus:{pryce:0,dobbs:0,lacey:0,ned:0,vane:0,garrow:0,tom:0,flynn:0},asked:{},shown:{},tools:{intuit:2},intuited:{},log:[],flash:[],
+ tr:{pryce:[],dobbs:[],lacey:[],ned:[],vane:[],garrow:[],tom:[],flynn:[]},hyp:{},board:{},ended:null});
+let state=fresh(), history=[];
+const ui={tab:"investigate",sel:[],msg:null,bmsg:null,confirm:false,src:null};
+
+function validState(s){
+ if(!s||typeof s!=="object"||!Object.prototype.hasOwnProperty.call(L,s.loc)||!["scene","interview"].includes(s.view)||
+    !Number.isFinite(s.clock)||s.clock<0||s.clock>CRANE_T||!Number.isInteger(s.n)||s.n<0||![null,...Object.keys(ENDINGS)].includes(s.ended))return false;
+ const objects=["f","ev","cl","ded","sus","asked","shown","tools","intuited","hyp","tr","board"];
+ if(!objects.every(k=>s[k]&&typeof s[k]==="object"&&!Array.isArray(s[k])))return false;
+ if(!Array.isArray(s.log)||!Array.isArray(s.flash)||!Number.isInteger(s.tools.intuit)||s.tools.intuit<0||s.tools.intuit>2)return false;
+ if(!SUS_ORDER.every(k=>Array.isArray(s.tr[k])&&Number.isInteger(s.sus[k])))return false;
+ if(Object.keys(s.ev).some(k=>!EV[k])||Object.keys(s.ded).some(k=>!DED[k]))return false;
+ if(s.view==="interview"&&!SUS[s.who])return false;
+ return true;
+}
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({state,history}))}catch(e){}}
+function restore(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");if(d&&validState(d.state)&&Array.isArray(d.history))return {state:d.state,history:d.history.slice(-80)}}catch(e){}return null}
+function loadJ(k){try{const v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return {}}}
+function saveJ(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function saveChapter(id){const c=loadJ(CH_KEY);c[id]=JSON.stringify(state);saveJ(CH_KEY,c)}
+function snapshot(){history.push(JSON.stringify(state));if(history.length>80)history.shift()}
+
+function garrowMoves(s){
+ if(s.f.garrowMoved||s.f.garrowHeld)return;s.f.garrowMoved=1;
+ if(!rigInPlace(s)){s.sus.garrow=clamp(s.sus.garrow+1,0,5);if(s.loc==="pub")note(s,"Garrow takes his hat and goes out into the fog. He's back five minutes later, very quiet.","warn");return}
+ if(s.loc in INSIDE&&s.loc!=="towerFoot"){s.loc="garrowScene";s.view="scene";return}
+ if(s.loc==="pub"&&s.view==="interview"&&s.who==="garrow"){note(s,"Garrow keeps glancing at the clock over the bar, but you are in the middle of a question and he can't very well walk out on a police sergeant.","warn");return}
+ s.f.rigGone=1;if(s.loc==="pub")note(s,"Garrow takes his hat from the hook and goes out into the fog. “Left my gloves in the tower,” he says.","warn");
+}
+function spend(s,min){
+ const b=s.clock,a=Math.min(CRANE_T,b+min);s.clock=a;
+ if(s.sus.garrow>=3&&!s.f.garrowMoved&&a<GARROW_T)garrowMoves(s);
+ if(b<GARROW_T&&a>=GARROW_T){s._ch="ch2";garrowMoves(s)}
+ if(b<MIDNIGHT_T&&a>=MIDNIGHT_T){s._ch="ch3";
+  if(rigInPlace(s)){add(s,"midnight8");s._sfx="mid8";note(s,"Midnight. The tower clock plays its round, and the sixth rings again, thin and sharp, with Amos Wren lying under a sheet and nobody in the tower."+(s.loc==="pub"?" Beside you, Silas Garrow puts down his glass very carefully.":""),"warn")}
+  else if(s.f.rigGone){add(s,"midnight7");s._sfx="mid7";note(s,"Midnight. The tower clock plays its round, and this time there are only seven notes and the old hole where the sixth should be.","warn")}
+  else{s._sfx="mid7";note(s,"Midnight. Seven notes and the hole where the sixth should be, as you knew there would be.")}}
+ if(a>=CRANE_T&&!s.ended){s.clock=CRANE_T;s.loc="dawnScene";s.view="scene"}
+}
+const forced=()=>state.loc==="dawnScene";
+const atMove=()=>(state.loc==="vestry"&&state.f.sent&&craneHere(state))||forced();
+function doAct(opt){
+ if(state.ended)return;
+ if(opt.ui){ui.tab=opt.ui;render(true);return}
+ if(opt.free===false&&(forced()||state.loc==="garrowScene")){ui.msg=["","Not now. Go to the Investigate tab."];render();return}
+ snapshot();state.flash=[];const prev=state.loc;state.pending=0;
+ if(opt.a)opt.a(state);
+ if(!state.ended){spend(state,(opt.c||0)+state.pending);state.pending=0}
+ state.n++;
+ if(state._ch){saveChapter(state._ch);delete state._ch}
+ const sfx=state._sfx;delete state._sfx;
+ if((state.loc!==prev&&(state.loc==="dawnScene"||state.loc==="garrowScene"))||state.ended){ui.tab="investigate";closeLens()}
+ persist();render(true);
+ if(sfx&&soundOn)playRound(sfx==="mid8"?RING.map((_,i)=>i===5?{g:.6,kind:"hand",df:1.028}:{g:.6}):REF.gap.spec.map(n=>n&&{g:.6}));
+}
+function endCase(s,id){s.ended=id;const e=loadJ(END_KEY);e[id]=1;saveJ(END_KEY,e);s.view="scene"}
+function back_(){if(!history.length)return;try{const prev=JSON.parse(history.pop());if(!validState(prev))return;state=prev}catch(e){return}ui.sel=[];ui.msg=null;ui.bmsg=null;ui.confirm=false;persist();closeLens();render(true)}
+function restart(){history=[];state=fresh();Object.assign(ui,{sel:[],msg:null,bmsg:null,confirm:false,tab:"investigate",src:null});saveChapter("ch1");persist();render(true)}
+function loadChapter(id){const c=loadJ(CH_KEY);if(!c[id])return;try{const st=JSON.parse(c[id]);if(!validState(st))return;history=[];state=st;state.ended=null;state.flash=[];Object.assign(ui,{tab:"investigate",sel:[],msg:null,bmsg:null,confirm:false});persist();render(true)}catch(e){}}
+
+function askTopic(sid,tid,tone){
+ const sp=SUS[sid],tp=sp.topics.find(t=>t.id===tid),r=tp.r[tone];
+ doAct({c:5,a:s=>{s.asked[sid+"."+tid]=tone;s.tr[sid].push({q:`${TONE[tone]}: ${tp.q}`,a:r.t});
+  s.sus[sid]=clamp(s.sus[sid]+(r.sus||0),0,5);if(r.ev)add(s,r.ev);
+  if(s.sus[sid]>=4)note(s,`${sp.short} won't say another word to you.`,"warn")}});
+}
+function presentEv(sid,eid){
+ const sp=SUS[sid];let r=sp.present[eid]||{t:sp.dflt};
+ doAct({c:4,a:s=>{s.shown[sid+"."+eid]=1;s.tr[sid].push({q:`Shown: ${EV[eid].n}`,a:r.t});s.sus[sid]=clamp(s.sus[sid]+(r.sus||0),0,5)}});
+}
+function intuit(sid){doAct({c:0,a:s=>{if(s.tools.intuit<1||s.intuited[sid])return;s.tools.intuit--;s.intuited[sid]=1}})}
+function lookCloser(id){if(id==="clockRig"&&state.f.rigGone&&!state.cl.clockRig)return;doAct({free:false,c:3,a:s=>{s.cl[id]=1;s.log.push([s.clock,`Looked closer: ${EV[id].n}`]);if(id==="clockRig"){add(s,"worsted");add(s,"handbellDent")}if(id==="rigMarks")add(s,"worsted")}})}
+
+/* ---- the Ringing Board ---- */
+const QS={
+ note:{q:"Which place in the round belonged to the stranger?",need:2,ev:"earNote",ans:"6",opts:["1","2","3","4","5","6","7","8"],lab:o=>o==="1"?"Treble":o==="8"?"Tenor":o,ok:"Yes. The sixth place, where the cracked bell's silence should be.",no:"Listen again: which note is different from the others in every account, in loudness and in length?"},
+ voice:{q:"What kind of voice did the stranger have?",need:3,ev:"earVoice",ans:"hand",opts:["tower","crack","hand","ship"],lab:o=>({tower:"A tower bell",crack:"A cracked bell",hand:"A handbell",ship:"A ship's bell"})[o],ok:"Yes: thin, a shade sharp, dying fast. A handbell.",no:"Compare the stranger with the cracked-bell sample and with the tower bells. How long does it ring? Is it in tune?"}
+};
+function answerBoard(qid,val){
+ const q=QS[qid];if(!q||state.ev[q.ev]||accCount(state)<q.need||forced())return;
+ const ok=val===q.ans;
+ doAct({free:false,c:5,a:s=>{if(ok){add(s,q.ev);ui.bmsg=[qid,"good",q.ok]}else{s.board[qid]=(s.board[qid]||0)+1;ui.bmsg=[qid,"",q.no]}}});
+}
+function markSource(id){
+ if(state.ev.earSide||accCount(state)<5||forced()||!SOURCES[id])return;
+ const ok=id==="clock";
+ doAct({free:false,c:5,a:s=>{if(ok){add(s,"earSide");ui.msg=["good","Yes. Loud to the east, faint to the west and south: the clock-room window on the tower's east face."]}else{s.board.src=(s.board.src||0)+1;ui.msg=["",`That doesn't fit what they heard. ${SOURCES[id].why}`]}}});
+}
+
+function connect(){
+ const [a,b]=ui.sel;ui.msg=null;const has=(x,v)=>Array.isArray(x)?x.includes(v):x===v;
+ const hit=Object.entries(DED).find(([k,d])=>(has(d.a,a)&&has(d.b,b))||(has(d.a,b)&&has(d.b,a)));
+ if(!hit){ui.msg=["","Those two don't ring together."];render();return}
+ const [id,d]=hit;if(state.ded[id]){ui.msg=["","You've already connected those."];render();return}
+ const need=(d.need||[]).filter(n=>{const [k,e]=n.split(":");return k==="cl"&&!state.cl[e]});
+ if(need.length){ui.msg=["",`There's something there. Look closer at ${need.map(n=>EV[n.split(":")[1]].n).join(" and ")} first.`];render();return}
+ snapshot();state.ded[id]=1;state.log.push([state.clock,`Connected: ${d.t}`]);ui.sel=[];ui.msg=["good",`<b>${d.t}.</b> ${d.x}`];persist();render();
+}
+
+/* ================= HEADER ================= */
+function bellPath(){return `<path class="b" d="M14 3 C8 3 7 9 7 14 C7 19 5 21 3 24 L25 24 C23 21 21 19 21 14 C21 9 20 3 14 3 Z"/><circle cx="14" cy="26.5" r="2" class="b"/>`}
+function handPath(){return `<path class="b" d="M12 2 h4 v6 h-4 Z"/><path class="b" d="M14 8 C9 8 8 13 8 17 C8 20 6 22 5 24 L23 24 C22 22 20 20 20 17 C20 13 19 8 14 8 Z"/><circle cx="14" cy="26.5" r="2" class="b"/>`}
+function renderHead(){
+ const s=state;
+ $("ring").innerHTML=`<span class="lab">The ring at St. Aldric's:</span>`+RING.map((_,i)=>{
+  if(i!==5)return `<span class="rb"><svg viewBox="0 0 28 30">${bellPath()}</svg><small>${BELLNAMES[i]}</small></span>`;
+  if(s.ev.earVoice)return `<span class="rb hand" title="Handbell No. 6"><svg viewBox="0 0 28 30">${handPath()}</svg><small>${s.ev.earSide?"clock rm":"handbell"}</small></span>`;
+  return `<span class="rb cracked" title="Cracked"><svg viewBox="0 0 28 30">${bellPath()}<path class="crk" d="M10 24 L12 19 L10 16 L13 12"/></svg><small>6 · ${s.ev.earNote?"?":"cracked"}</small></span>`}).join("");
+ const m=((T0+s.clock)%1440),hA=((m/60)%12)/12*Math.PI*2-Math.PI/2,mA=(m%60)/60*Math.PI*2-Math.PI/2;
+ let t=`<path class="stone" d="M44 214 L44 92 L36 92 L36 70 L124 70 L124 92 L116 92 L116 214 Z"/>
+  <path class="stone" d="M52 70 L52 26 L108 26 L108 70 Z"/><path class="stone" d="M48 26 L80 6 L112 26 Z"/>
+  ${[0,1,2].map(i=>`<rect x="${58+i*16}" y="34" width="10" height="26" class="ln" style="opacity:.8"/>`).join("")}
+  ${[36,44,52].map(y=>`<line class="ln" x1="58" x2="100" y1="${y}" y2="${y}"/>`).join("")}
+  <circle class="face" cx="80" cy="118" r="22"/>${[...Array(12)].map((_,i)=>{const a=i/12*Math.PI*2;return `<line class="ln" style="opacity:.9" x1="${80+17*Math.cos(a)}" y1="${118+17*Math.sin(a)}" x2="${80+20*Math.cos(a)}" y2="${118+20*Math.sin(a)}"/>`}).join("")}
+  <line class="hand" stroke-width="3" x1="80" y1="118" x2="${80+11*Math.cos(hA)}" y2="${118+11*Math.sin(hA)}"/><line class="min" stroke-width="2" x1="80" y1="118" x2="${80+17*Math.cos(mA)}" y2="${118+17*Math.sin(mA)}"/><circle cx="80" cy="118" r="2" fill="var(--ink)"/>
+  <rect x="72" y="150" width="16" height="12" class="${s.ev.earSide?"min":"ln"}" style="fill:${s.ev.earSide?"var(--accent)":"var(--ink)"};opacity:${s.ev.earSide?1:.6}"/>
+  ${[176,190,204].map(y=>`<line class="ln" x1="44" x2="116" y1="${y}" y2="${y}"/>`).join("")}<path class="stone" d="M70 214 L70 192 Q80 182 90 192 L90 214 Z"/>`;
+ $("tower").innerHTML=t;
+ $("clockLine").innerHTML=`Hour: <b>${hm(s.clock)}</b>`;
+ const left=crane(s)-s.clock;$("inspLine").className=left<=30&&!s.ended?"urgent":"";
+ $("inspLine").innerHTML=s.ended?"Inspector Crane: <b>has his answer</b>":`Inspector Crane: <b>${hm(crane(s))}</b> · in ${dur(left)}`;
+ syncSound();
+}
+
+/* ================= RENDER ================= */
+function render(scroll){
+ renderTabs();renderHead();
+ $("panel").innerHTML={investigate:viewInvestigate,board:viewBoard,map:viewMap,evidence:viewEvidence,people:viewPeople,journal:viewJournal,accuse:viewAccuse}[ui.tab]();
+ bindPanel();
+ if(scroll){const top=document.querySelector(".tabs");const y=top.getBoundingClientRect().top+window.scrollY-8;if(window.scrollY>y)window.scrollTo({top:y,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}
+}
+function renderTabs(){
+ const T=[["investigate","Investigate"],["board","Ringing board",accCount(state)||null],["map","Street map"],["evidence","Evidence",Object.keys(state.ev).length],["people","Persons"],["journal","Notebook"],["accuse",state.ended?"Verdict":"Finding"]];
+ $("tabs").innerHTML=T.map(([k,l,b])=>`<button class="tab" role="tab" aria-selected="${ui.tab===k}" data-tab="${k}">${l}${b!=null?`<span class="badge">${b}</span>`:""}</button>`).join("");
+ $("tabs").querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ui.tab=t.dataset.tab;ui.confirm=false;ui.msg=null;render()});
+}
+function optTag(o){const t=[];if(o.c)t.push(cost(o.c));if(o.walkTo)t.push(`<span class="walk">${cost(walkMin(placeOf(state.loc),o.walkTo))} on foot</span>`);if(o.sub)t.push(o.sub);if(o.tag)t.push(`<span class="tool">${o.tag}</span>`);if(o.risk)t.push(`<span class="risk">${o.risk}</span>`);return t.length?`<span class="tag">${t.map(x=>`<span>${x}</span>`).join("")}</span>`:""}
+function flashHTML(){return state.flash.length?`<div class="flash">${state.flash.map(([c,t])=>`<div class="${c}">${t}</div>`).join("")}</div>`:""}
+function toolsRow(){return `<div class="tools"><button class="link" data-act="back" ${history.length?"":"disabled"}>Retrace your last step</button><button class="link" data-act="restart">Restart this Cluortal</button></div>`}
+
+function viewInvestigate(){
+ const s=state;
+ if(s.ended)return viewEnding();
+ if(s.view==="interview"&&s.who)return viewInterview();
+ const sc=L[s.loc],p=sc.p(s),o=sc.o(s);
+ return `<div class="fade"><div class="meta"><span>${sc.chapter?`<b>${sc.chapter}</b>`:`Investigation log · <b>${String(s.n+1).padStart(2,"0")}</b>`}</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">${sc.t}</h2>${flashHTML()}
+ <div class="passage">${p.filter(Boolean).map(t=>`<p>${em(t)}</p>`).join("")}</div>
+ <ol class="choices">${o.map((x,i)=>`<li><button class="choice" data-i="${i}"><span class="num">${i+1}</span><span>${em(x.l)}${optTag(x)}</span></button></li>`).join("")}</ol>
+ <p class="hint">Press a number key to choose. Each witness's account can be replayed on the Ringing Board.</p>${toolsRow()}</div>`;
+}
+function meterHTML(v){return `<div class="meter">Unease <span class="bar">${[0,1,2,3,4].map(i=>`<i class="${i<v?"on":""}"></i>`).join("")}</span> ${MOOD[v]}</div>`}
+function viewInterview(){
+ const s=state,id=s.who,sp=SUS[id],v=s.sus[id],silent=v>=4;
+ const evOpts=Object.keys(EV).filter(k=>s.ev[k]&&!s.shown[id+"."+k]);
+ const tps=sp.topics.filter(t=>!t.only||t.only(s));
+ return `<div class="fade"><div class="meta"><span>Interview</span><span>${hm(s.clock)}</span></div>
+ <div class="who"><div class="mono" aria-hidden="true">${sp.mono}</div><div><h2>${sp.n}</h2><p>${sp.role}</p>${meterHTML(v)}</div></div>
+ ${flashHTML()}${ui.msg&&ui.tab==="investigate"?`<p class="tells">${ui.msg[1]}</p>`:""}
+ ${s.intuited[id]?`<p class="tells"><b>Your read on them:</b> ${sp.tell}</p>`:""}
+ ${s.tr[id].length?`<div class="transcript">${s.tr[id].map(e=>`<div><div class="q">${e.q}</div><p class="a">${em(e.a)}</p></div>`).join("")}</div>`:`<p class="passage">${sp.short} waits for your question.</p>`}
+ ${silent?`<p class="tells">${sp.short} won't say another word to you. Evidence may still move them.</p>`:""}
+ <div class="topics">${tps.map(t=>{const done=s.asked[id+"."+t.id];return `<div class="topic ${done?"done":""}"><div>${t.q}${done?` <span class="hint">(${TONE[done]})</span>`:""}</div>${done||silent?"":`<div class="tones">${["coax","ask","press"].map(tn=>`<button class="btn" data-ask="${t.id}" data-tone="${tn}">${TONE[tn]} · 5 min</button>`).join("")}</div>`}</div>`}).join("")}</div>
+ <div class="present"><label for="pres">Show evidence</label>${evOpts.length?`<select id="pres">${evOpts.map(k=>`<option value="${k}">${EV[k].n}</option>`).join("")}</select><button class="btn primary" data-act="present">Show · 4 min</button>`:`<span class="hint" style="margin:0">You've shown everything you have.</span>`}</div>
+ <div class="tools"><button class="btn" data-act="leave">Step away</button>${s.intuited[id]?"":`<button class="btn" data-act="intuit" ${s.tools.intuit?"":"disabled"}>Size them up (${s.tools.intuit} left)</button>`}</div>
+ <p class="hint">Civilly, Plainly or Sternly: each person answers best to one. Sternness makes people uneasy; at four they stop talking.</p>${toolsRow()}</div>`;
+}
+
+/* ---- Ringing Board ---- */
+function traceSVG(spec,mark){
+ const W=520,H=120,x0=34,dx=(W-60)/7,top=18,bot=92;
+ let g=`<polyline class="stair" points="${RING.map((_,i)=>`${x0+i*dx},${top+i*(bot-top)/7}`).join(" ")}"/>`;
+ spec.forEach((n,i)=>{const x=x0+i*dx,yb=top+i*(bot-top)/7;
+  if(!n){g+=`<circle class="gap" cx="${x}" cy="${yb}" r="7"/>`;}
+  else{const kind=n.kind||"tower",cls=kind==="hand"?"h":kind==="crack"?"c":"",y=yb-(n.df&&n.df>1?7:0),r=4+n.g*7,len=kind==="tower"?dx*.85:kind==="hand"?dx*.28:dx*.22;
+   if(mark&&i===5)g+=`<rect class="now" x="${x-dx/2}" y="4" width="${dx}" height="${H-20}" rx="4"/>`;
+   g+=`<line class="dec ${cls}" x1="${x+r}" y1="${y}" x2="${x+r+len*(.4+n.g*.6)}" y2="${y}"/><circle class="bn ${cls}" cx="${x}" cy="${y}" r="${r}"/>`}
+  g+=`<text class="num" x="${x}" y="${H-6}" text-anchor="middle">${i===0?"T":i===7?"Ten":i+1}</text>`});
+ return `<svg class="trace" viewBox="0 0 ${W} ${H}" aria-hidden="true">${g}</svg>`;
+}
+function viewBoard(){
+ const s=state,n=accCount(s);
+ const refs=Object.entries(REF).map(([k,r])=>`<div class="acct ref"><div class="hd"><b>${r.n}</b><span>${r.d}</span></div>${traceSVG(r.spec)}<div class="row"><button class="btn" data-play="ref:${k}">▶ Play</button></div></div>`).join("");
+ const accs=ACC_ORDER.filter(k=>s.ev[k]).map(k=>{const a=ACC[k];return `<div class="acct"><div class="hd"><b>${a.who}</b><span>${a.at}</span></div>${traceSVG(accSpec(k),!!s.ev.earNote)}<p class="quote">${a.said}</p><div class="row"><button class="btn" data-play="acc:${k}">▶ Hear it as they did</button></div></div>`}).join("");
+ const qhtml=Object.entries(QS).map(([qid,q])=>{const done=s.ev[q.ev];const locked=n<q.need;
+  return `<div class="qbox"><h4>${q.q}</h4>${done?`<p class="qmsg good">${EV[q.ev].d}</p>`:locked?`<p class="hint" style="margin:0">Collect at least ${q.need} witness accounts first (you have ${n}).</p>`:`<div class="opts2">${q.opts.map(o=>`<button class="btn" data-q="${qid}" data-v="${o}" ${forced()?"disabled":""}>${q.lab(o)}</button>`).join("")}</div><p class="hint" style="margin:0">Each answer costs 5 minutes of thought.</p>`}
+  ${ui.bmsg&&ui.bmsg[0]===qid&&!done?`<p class="qmsg ${ui.bmsg[1]}">${ui.bmsg[2]}</p>`:""}</div>`}).join("");
+ return `<div class="fade"><div class="meta"><span>The Ringing Board · <b>${n} of ${ACC_ORDER.length} accounts</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">The round, as each ear heard it</h2>
+ <p class="passage">Play each round with the bell sound on, or read it by eye: each bell is a disc, larger for louder; its tail is how long it rang; the dashed staircase is the true pitch of the ring, so a note above the line is sharp. An empty ring is a silence. Listening and reading cost nothing; only deciding takes time.</p>
+ <div class="board">${qhtml}<h3 class="sec" style="margin:8px 0 0">For comparison</h3>${refs}<h3 class="sec" style="margin:8px 0 0">What the witnesses heard at eleven</h3>${accs||`<p class="passage">No accounts yet. Ask the witnesses what they heard at eleven.</p>`}</div>${toolsRow()}</div>`;
+}
+
+/* ---- Street map ---- */
+const MX=x=>(x+175)/360*640, MY=y=>(y+105)/215*420;
+function mapSVG(){
+ const s=state;
+ let g=`<rect class="river" x="${MX(128)}" y="0" width="${640-MX(128)}" height="420"/><text class="area" x="${MX(150)}" y="${MY(85)}" transform="rotate(-90 ${MX(150)} ${MY(85)})">River Thames</text>
+ <text class="area" x="${MX(166)}" y="${MY(-92)}" text-anchor="end">to St. Mary's</text>
+ <path class="st" d="M${MX(-175)} ${MY(-55)} L${MX(128)} ${MY(-55)}"/><text class="stn" x="${MX(-170)}" y="${MY(-63)}">CHURCH ROW</text>
+ <path class="st" d="M${MX(-175)} ${MY(28)} L${MX(-95)} ${MY(28)} L${MX(-95)} ${MY(70)} L${MX(128)} ${MY(70)}"/><text class="stn" x="${MX(-60)}" y="${MY(62)}">VESTRY LANE</text>
+ <path class="st" d="M${MX(42)} ${MY(-105)} L${MX(42)} ${MY(110)}"/><text class="stn" x="${MX(38)}" y="${MY(52)}" transform="rotate(-90 ${MX(38)} ${MY(52)})">WHARF LANE</text>
+ <path class="st" d="M${MX(-95)} ${MY(-105)} L${MX(-95)} ${MY(28)}"/>
+ <path class="st" style="stroke-width:8" d="M${MX(42)} ${MY(-35)} L${MX(128)} ${MY(-35)}"/><text class="stn" x="${MX(70)}" y="${MY(-42)}">ALDRIC STAIRS</text>
+ ${[[-170,-100,60,32],[-170,-36,60,50],[-80,-100,110,32],[54,-100,70,32],[54,-24,70,80],[-170,82,250,22],[-90,82,0,0]].map(([x,y,w,h])=>w?`<rect class="bl" x="${MX(x)}" y="${MY(y)}" width="${w/360*640}" height="${h/215*420}"/>`:"").join("")}
+ <rect class="bl" x="${MX(-180)}" y="${MY(0)}" width="${70/360*640}" height="${26/215*420}"/><text class="area" x="${MX(-170)}" y="${MY(17)}">Ship &amp; Lantern</text>
+ <path class="church" d="M${MX(-80)} ${MY(-28)} L${MX(-8)} ${MY(-28)} L${MX(-8)} ${MY(30)} L${MX(-80)} ${MY(30)} Z"/>
+ <rect class="twr" x="${MX(-8)}" y="${MY(-12)}" width="${20/360*640}" height="${22/215*420}"/>
+ <text class="area" x="${MX(-72)}" y="${MY(4)}">St. Aldric's</text>`;
+ if(s.ev.earSide||ui.tab==="map")Object.entries(SOURCES).forEach(([k,p])=>{const sel=ui.src===k||(s.ev.earSide&&k==="clock");
+  g+=`<g class="src ${sel?"sel":""}" tabindex="0" role="button" data-src="${k}" aria-label="Possible source: ${p.n}"><rect x="${MX(p.x)-6}" y="${MY(p.y)-6}" width="12" height="12" transform="rotate(45 ${MX(p.x)} ${MY(p.y)})"/></g>`});
+ ACC_ORDER.forEach(k=>{const a=ACC[k],got=s.ev[k];if(k==="accTom")return;
+  const lv=Math.round(a.g6*5);
+  g+=`<g class="w ${got?"":"unk"}"><circle cx="${MX(a.x)}" cy="${MY(a.y)}" r="6"/>${got?`<text x="${MX(a.x)+9}" y="${MY(a.y)-6}">${a.who.replace("The Rev. ","").replace("Mrs. ","").replace("Miss ","").replace("PC ","")}${k==="accGarrow"?" & ringers":""}</text>`+[0,1,2,3,4].map(i=>`<rect class="${i<lv?"lv":"lv0"}" x="${MX(a.x)+9+i*6}" y="${MY(a.y)}" width="4" height="${4+i*1.6}" transform="translate(0 ${-i*1.6+2})"/>`).join(""):""}</g>`});
+ for(const k in PLACES){const p=PLACES[k];g+=`<g class="pl" tabindex="0" role="button" data-goto="${k}" aria-label="Walk to ${p.n}"><circle cx="${MX(p.x)}" cy="${MY(p.y)+(k==="tower"?14:0)}" r="4"/></g>`}
+ const here=PLACES[placeOf(s.loc)];if(here)g+=`<path class="you" d="M${MX(here.x)-7} ${MY(here.y)-14} h14 l-7 8 z"/>`;
+ return `<svg class="map" viewBox="0 0 640 420" role="group" aria-label="Street map around St. Aldric's">${g}</svg>`;
+}
+function viewMap(){
+ const s=state,n=accCount(s),sel=ui.src&&SOURCES[ui.src]?ui.src:null;
+ const ok=s.ev.earSide;
+ let card=`<div class="card2"><h4>Where did the stranger ring from?</h4><p class="sub">Each witness who has given an account appears on the map where they stood at eleven. The red bars show how loud the stranger was to them. The gold diamonds are the places it might have come from.</p>`;
+ if(ok)card+=`<p class="qmsg good">${EV.earSide.d}</p>`;
+ else if(n<5)card+=`<p class="hint" style="margin:0">Collect at least five accounts, from different sides of the tower, before you decide (you have ${n}).</p>`;
+ else if(sel)card+=`<dl><dt>Possible source</dt><dd>${SOURCES[sel].n}</dd></dl><button class="btn primary" data-act="mark" ${forced()?"disabled":""}>Mark this as the source · 5 min</button>`;
+ else card+=`<p class="hint" style="margin:0">Tap a gold diamond to consider it.</p>`;
+ if(ui.msg&&ui.tab==="map"&&!ok)card+=`<p class="qmsg ${ui.msg[0]}" style="margin-top:10px">${ui.msg[1]}</p>`;
+ card+=`</div>`;
+ const pl=placeOf(s.loc),inside=s.loc in INSIDE&&s.loc!=="towerFoot";
+ card+=`<div class="card2" style="margin-top:12px"><h4>Walking</h4><p class="sub">${inside?"You're up in the tower. Climb down first.":PLACES[pl]?`You're at ${PLACES[pl].n}. Tap a red dot to walk there.`:"Finish what's in front of you first."}</p></div>`;
+ return `<div class="fade"><div class="meta"><span>The street map · <b>St. Aldric's parish</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">Where everyone stood at eleven</h2>
+ <div class="mapwrap"><div><div class="mapscroll">${mapSVG()}</div><div class="legend2"><span>○ A witness (dashed: not yet asked)</span><span>▮ How loud the stranger was</span><span>◆ A possible source</span><span>● A place you can walk to</span></div></div><div>${card}</div></div>
+ ${toolsRow()}</div>`;
+}
+
+function viewEvidence(){
+ const s=state,found=Object.keys(EV).filter(k=>s.ev[k]);
+ const slot=i=>ui.sel[i]?`<span class="slot full">${EV[ui.sel[i]].n}</span>`:`<span class="slot">Select an item</span>`;
+ return `<div class="fade"><div class="meta"><span>Evidence · <b>${found.length}</b></span><span>${hm(s.clock)}</span></div>
+ <div class="linker"><div class="row">${slot(0)}<span class="plus">+</span>${slot(1)}<button class="btn primary" data-act="connect" ${ui.sel.length===2?"":"disabled"}>Connect</button><button class="btn" data-act="clearsel" ${ui.sel.length?"":"disabled"}>Clear</button></div>
+ ${ui.msg&&ui.tab==="evidence"?`<p class="linkmsg ${ui.msg[0]}">${ui.msg[1]}</p>`:`<p class="hint" style="margin-top:8px">Pick two items to test a connection. Thinking costs no time.</p>`}</div>
+ ${Object.keys(s.ded).length?`<h3 class="sec" style="margin-top:4px">Connections</h3><ul class="deds">${Object.keys(DED).filter(k=>s.ded[k]).map(k=>`<li><b>${DED[k].t}</b><span>${DED[k].x}</span></li>`).join("")}</ul><h3 class="sec">Items</h3>`:""}
+ <div class="grid">${found.map(k=>{const e=EV[k],sel=ui.sel.includes(k);return `<div class="card-ev ${sel?"sel":""}">${e.c?`<span class="look">${s.cl[k]?"Examined":"Look closer"}</span>`:""}<span class="kind">${e.k}</span><span class="nm">${e.n}</span><span class="sh">${e.s}</span><span class="acts"><button class="btn" data-exam="${k}">Examine</button><button class="btn ${sel?"primary":""}" data-sel="${k}" aria-pressed="${sel}">${sel?"Selected":"Select"}</button></span></div>`}).join("")}
+ ${found.length<EV_TOTAL?`<div class="card-ev ghost">More out there in the fog</div>`:""}</div>${toolsRow()}</div>`;
+}
+function about(id,s){
+ const S=(c,t)=>`<span class="stt ${c}">${c==="ok"?"Truthful":c==="broken"?"Lying":"Says"}</span> ${t}`;
+ if(id==="garrow")return s.ded.B5?S("broken","He was not in the pub all evening."):s.tr.garrow.length?S("un","In the pub all evening."):"<span class='stt un'>Not yet asked</span>";
+ if(id==="ned")return s.ded.R1?S("ok","Under Miss Lacey's window all evening."):s.ev.nedStory?S("un","Lost his nerve, paced Church Row."):"<span class='stt un'>Not yet asked</span>";
+ if(id==="tom")return s.ev.accTom?S("ok","He heard seven."):s.tr.tom.length?S("un","Eight, like Silas said."):"<span class='stt un'>Not yet asked</span>";
+ return s.tr[id].length?S("ok","A witness."):"<span class='stt un'>Not yet asked</span>";
+}
+function viewPeople(){
+ const s=state,blocked=s.ended||s.loc==="intro"||forced()||s.loc==="garrowScene";
+ return `<div class="fade"><div class="meta"><span>Persons concerned</span><span>${hm(s.clock)}</span></div>
+ <div class="sgrid">${SUS_ORDER.map(id=>{const sp=SUS[id],here=s.loc===WHERE[id]||(WHERE[id]==="towerFoot"&&s.loc==="towerFoot"),ok=canTalk(s,id);
+ return `<div class="scard"><div class="top"><div class="mono" aria-hidden="true">${sp.mono}</div><div><h4>${sp.n}</h4><div class="role">${sp.role}</div></div></div>
+ ${meterHTML(s.sus[id])}<dl><dt>Account</dt><dd>${about(id,s)}</dd><dt>Manner</dt><dd>${s.intuited[id]?`Answers best <b>${TONE[sp.pref].toLowerCase()}</b>.`:"Size them up in an interview."}</dd></dl>
+ <div><button class="btn" data-qq="${id}" ${blocked||!here||!ok?"disabled":""}>${!ok?"In custody":here?"Speak now":"Go there first"}</button></div></div>`}).join("")}</div>${toolsRow()}</div>`;
+}
+function viewJournal(){
+ const s=state,items=TL.filter(t=>t[2](s)),ld=leads(s),ch=loadJ(CH_KEY),endsGot=Object.keys(loadJ(END_KEY)).length;
+ return `<div class="fade"><div class="meta"><span>Sergeant Ashby's notebook</span><span>${hm(s.clock)}</span></div>
+ <h3 class="sec" style="margin-top:0">The night, as you have it</h3><ul class="timeline">${items.map(t=>`<li><time>${t[3]}</time>${t[1]}</li>`).join("")}<li class="now"><time>Now · ${hm(s.clock)}</time>${accCount(s)} accounts taken.</li></ul>
+ <h3 class="sec">Leads</h3>${ld.length?`<ul class="leads">${ld.map(x=>`<li>${x}</li>`).join("")}</ul>`:`<p class="passage">Nothing obvious left. Think.</p>`}
+ <h3 class="sec">Investigation log</h3>${s.log.length?`<ul class="log">${s.log.slice(-14).reverse().map(([t,x])=>`<li><time>${hm(t)}</time>${x}</li>`).join("")}</ul>`:`<p class="passage">Nothing logged yet.</p>`}
+ ${endsGot?`<h3 class="sec">Chapters</h3><div class="chapters">${Object.keys(CHAPTERS).map(k=>`<button class="btn" data-ch="${k}" ${ch[k]?"":"disabled"}>${CHAPTERS[k]}</button>`).join("")}</div>`:""}
+ ${toolsRow()}</div>`;
+}
+function viewAccuse(){
+ const s=state;
+ if(s.ended)return `<div class="fade"><h2 class="scene-title">It's over</h2><p class="passage">See the Investigate tab for how it ended, or start again.</p>${toolsRow()}</div>`;
+ const h=s.hyp,ready=Object.keys(HYP).every(k=>h[k]);const dl=Object.keys(DED).filter(k=>s.ded[k]);
+ return `<div class="fade"><div class="meta"><span>Your finding</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">What you will tell Inspector Crane</h2>
+ <p class="passage">Prepare your finding now. You give it to Inspector Crane in the vestry, once PC Dobbs has fetched him, or at half past two when he comes anyway. A coroner's jury will want every part of it proved.</p>
+ <form class="hyp" id="hyp" onsubmit="return false">${Object.entries(HYP).map(([k,g])=>`<fieldset><legend>${g.l}</legend><div class="opts">${g.o.map(([v,l])=>`<label class="opt"><input type="radio" name="${k}" value="${v}" ${h[k]===v?"checked":""}><span>${l}</span></label>`).join("")}</div></fieldset>`).join("")}</form>
+ <h3 class="sec">Your connections (${dl.length})</h3>${dl.length?`<ul class="deds">${dl.map(k=>`<li><b>${DED[k].t}</b></li>`).join("")}</ul>`:`<p class="passage">Nothing connected yet.</p>`}
+ ${atMove()?"":`<p class="hint">Not yet. Send PC Dobbs for Inspector Crane from the tower foot and meet him in the vestry, or wait for half past two.</p>`}
+ <div class="accbar" style="margin-top:14px"><button class="btn ${ui.confirm?"danger":"primary"}" data-act="accuse" ${ready&&atMove()?"":"disabled"}>${ui.confirm?"Are you sure? This ends the Cluortal":"Give your finding"}</button>${ui.confirm?`<button class="btn" data-act="unconfirm">Not yet</button>`:""}</div>
+ ${toolsRow()}</div>`;
+}
+function scoreOf(id){
+ const s=state,h=s.hyp||{};let acc=0,parts=null;
+ if(["E1","E2","E3","E7"].includes(id)){parts=[["Bell",h.how==="rig"],["Time",h.when==="before"],["Who",h.who==="garrow"],["Why",h.why==="fund"]];acc=parts.filter(p=>p[1]).length}
+ const evN=Object.keys(s.ev).length-1,dN=Object.keys(s.ded).length,aN=accCount(s);
+ let sc=acc*14+Math.round(clamp(evN/(EV_TOTAL-8),0,1)*12)+Math.round(clamp(dN/(DED_TOTAL-2),0,1)*14)+Math.round(aN/ACC_ORDER.length*8)+(s.ev.caught?6:s.ev.caughtWatch||s.ev.midnight8?3:0)+(s.ev.handbellDent?4:0);
+ if(["E4","E5","E6"].includes(id))sc=Math.min(sc,30);if(id==="E3"||id==="E7")sc=Math.min(sc,40);if(id==="E2")sc=Math.min(sc,68);
+ sc=clamp(sc,0,100);
+ const rank=sc>=90?"Inspector material":sc>=72?"Sharp-eared sergeant":sc>=50?"Steady constable":sc>=30?"Raw recruit":"Tone-deaf";
+ return {parts,evN,dN,aN,sc,rank};
+}
+function viewEnding(){
+ const s=state,id=s.ended,E=END[id],got=loadJ(END_KEY),n=Object.keys(ENDINGS).filter(k=>got[k]).length,r=scoreOf(id),ch=loadJ(CH_KEY);
+ const ac=r.parts?r.parts.map(([l,ok])=>`${l} ${ok?"✓":"✗"}`).join(" · "):"No finding given";
+ return `<div class="fade"><div class="meta"><span><b>Ending</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">${ENDINGS[id]}</h2>
+ <div class="passage">${E.p(s).map(t=>`<p>${em(t)}</p>`).join("")}</div>
+ <div class="ending-card"><p class="label">${E.best?"The truest ending":"Ending reached"} · ${n} of 7 discovered</p><h4>${ENDINGS[id]}</h4>
+ <ul class="endings">${Object.entries(ENDINGS).map(([k,v])=>`<li class="${got[k]?"got":""}">${got[k]?v:"Undiscovered"}</li>`).join("")}</ul>
+ <p class="label" style="margin-bottom:6px">The night, rung down</p>
+ <table class="score"><tr><td>Finding</td><td>${ac}</td></tr><tr><td>Accounts heard</td><td>${r.aN} of ${ACC_ORDER.length}</td></tr><tr><td>Evidence found</td><td>${r.evN} of ${EV_TOTAL-1}</td></tr><tr><td>Connections made</td><td>${r.dN} of ${DED_TOTAL}</td></tr><tr><td>The handbell</td><td>${s.f.rigTaken?"In your keeping":s.f.rigGone?"Taken away by Garrow":s.ev.clockRig?"Located in the clock room":"Not yet located"}</td></tr></table>
+ <div class="total"><span>Cluortal score · ${r.rank}</span><b>${r.sc}</b></div>
+ ${E.best?"":`<p class="hint" style="margin:0 0 14px">The truest ending needs all four answers, each proved by a complete chain: the stranger's place, voice and source; the time of death; Garrow's hands on the tower; and the bell fund.</p>`}
+ <div class="chapters"><button class="btn primary" data-act="restart">Hear it again from the start</button>${Object.keys(CHAPTERS).map(k=>`<button class="btn" data-ch="${k}" ${ch[k]?"":"disabled"}>${CHAPTERS[k]}</button>`).join("")}</div></div>
+ ${toolsRow()}</div>`;
+}
+
+/* ================= BINDINGS ================= */
+function bindPanel(){
+ const P=$("panel");
+ P.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{const o=L[state.loc].o(state)[+b.dataset.i];if(o)doAct(o)});
+ P.querySelectorAll("[data-ask]").forEach(b=>b.onclick=()=>askTopic(state.who,b.dataset.ask,b.dataset.tone));
+ P.querySelectorAll("[data-exam]").forEach(b=>b.onclick=()=>openLens(b.dataset.exam));
+ P.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{const k=b.dataset.sel,i=ui.sel.indexOf(k);if(i>-1)ui.sel.splice(i,1);else{ui.sel.push(k);if(ui.sel.length>2)ui.sel.shift()}ui.msg=null;render()});
+ P.querySelectorAll("[data-qq]").forEach(b=>b.onclick=()=>{const id=b.dataset.qq;ui.tab="investigate";doAct({free:false,c:0,a:s=>{s.view="interview";s.who=id}})});
+ P.querySelectorAll("[data-ch]").forEach(b=>b.onclick=()=>loadChapter(b.dataset.ch));
+ P.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.play.split(":");playRound(k==="ref"?REF[id].spec:accSpec(id))});
+ P.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>answerBoard(b.dataset.q,b.dataset.v));
+ const key=(b,f)=>{b.onclick=f;b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f()}}};
+ P.querySelectorAll("[data-src]").forEach(b=>key(b,()=>{ui.src=b.dataset.src;ui.msg=null;render()}));
+ P.querySelectorAll("[data-goto]").forEach(b=>key(b,()=>{const to=b.dataset.goto,pl=placeOf(state.loc);if(!PLACES[pl]||(state.loc in INSIDE&&state.loc!=="towerFoot")||pl===to||forced()||state.ended)return;ui.tab="investigate";doAct({free:false,c:0,a:s=>walk(s,to)})}));
+ const f=$("hyp");if(f)f.querySelectorAll("input").forEach(i=>i.onchange=()=>{state.hyp[i.name]=i.value;ui.confirm=false;persist();render()});
+ P.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+  const a=b.dataset.act;
+  if(a==="back")back_();
+  else if(a==="restart")restart();
+  else if(a==="leave")doAct({c:0,a:s=>{s.view="scene"}});
+  else if(a==="intuit")intuit(state.who);
+  else if(a==="present"){const v=$("pres").value;if(v)presentEv(state.who,v)}
+  else if(a==="connect")connect();
+  else if(a==="clearsel"){ui.sel=[];ui.msg=null;render()}
+  else if(a==="unconfirm"){ui.confirm=false;render()}
+  else if(a==="mark"){if(ui.src)markSource(ui.src)}
+  else if(a==="accuse"){if(!atMove()||!Object.keys(HYP).every(k=>state.hyp[k]))return;if(!ui.confirm){ui.confirm=true;render();return}ui.confirm=false;doAct({c:0,a:s=>resolve(s)})}
+ });
+}
+function resolve(s){
+ if(!((s.loc==="vestry"&&s.f.sent&&craneHere(s))||s.loc==="dawnScene"))return;
+ const h=s.hyp;
+ if(h.how==="ghost")return endCase(s,"E7");
+ if(h.who==="none"||h.how==="amos")return endCase(s,"E4");
+ if(h.who!=="garrow")return endCase(s,"E3");
+ const right=h.how==="rig"&&h.when==="before"&&h.why==="fund";
+ endCase(s,right&&pHow(s)&&pWhen(s)&&pWho(s)&&pWhy(s)?"E1":"E2");
+}
+let lensReturnFocus=null;
+function openLens(id){
+ lensReturnFocus=document.activeElement;
+ const e=EV[id],s=state,cls=/Testimony|Account/.test(e.k)?"test":"",gone=id==="clockRig"&&s.f.rigGone&&!s.cl.clockRig;
+ $("lensBody").innerHTML=`<button class="x" data-lens="close" aria-label="Close">×</button><span class="kind">${e.k}</span><h3 id="lensTitle">${e.n}</h3>
+ <div class="glass ${cls}">${e.d}</div>
+ ${e.c&&s.cl[id]?`<div class="closer"><b>Looking closer</b>${e.c}</div>`:""}
+ ${gone?`<p class="hint">The handbell is gone now; you can't examine it any closer.</p>`:""}<div class="acts">${e.c&&!s.cl[id]&&!gone?`<button class="btn primary" data-lens="closer" ${s.ended?"disabled":""}>Look closer · 3 min</button>`:e.acc?`<button class="btn primary" data-lens="play">▶ Hear it as they did</button>`:"<span></span>"}<button class="btn" data-lens="select">${ui.sel.includes(id)?"Selected for linking":"Select for linking"}</button></div>`;
+ const d=$("lens");if(!d.open){d.showModal?d.showModal():d.setAttribute("open","")}
+ $("lensBody").querySelector("[data-lens=close]")?.focus();
+ $("lensBody").querySelectorAll("[data-lens]").forEach(b=>b.onclick=()=>{
+  const a=b.dataset.lens;
+  if(a==="close")closeLens();
+  else if(a==="play")playRound(accSpec(id));
+  else if(a==="closer"){lookCloser(id);if($("lens").open)openLens(id)}
+  else{if(!ui.sel.includes(id)){ui.sel.push(id);if(ui.sel.length>2)ui.sel.shift()}ui.msg=null;closeLens();ui.tab="evidence";render()}
+ });
+}
+function closeLens(){const d=$("lens");if(d.open){d.close?d.close():d.removeAttribute("open")}if(lensReturnFocus?.isConnected)lensReturnFocus.focus();lensReturnFocus=null}
+$("lens").addEventListener("click",e=>{if(e.target===$("lens"))closeLens()});
+$("sound").onclick=()=>{soundOn=!soundOn;syncSound();if(soundOn&&ensureAudio())toll(actx.currentTime+.05,.8,RING[7],"tower")};
+document.addEventListener("keydown",e=>{
+ if(e.metaKey||e.ctrlKey||e.altKey||e.repeat||$("lens").open||["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName))return;
+ if(ui.tab!=="investigate"||state.view==="interview"||state.ended)return;
+ const n=parseInt(e.key,10);if(n>=1&&n<=9){const b=document.querySelectorAll(".choice")[n-1];if(b)b.click()}
+});
+function start(d){
+ if(d&&validState(d.state)){state=d.state;history=Array.isArray(d.history)?d.history:[]}
+ else{state=fresh();history=[]}
+ const c=loadJ(CH_KEY);if(!c.ch1){c.ch1=JSON.stringify(fresh());saveJ(CH_KEY,c)}
+ persist();render(false);
+}
+window.claude?.hot?.snapshot?.(()=>({state,history}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(restore());
+</script>
+</body></html>
