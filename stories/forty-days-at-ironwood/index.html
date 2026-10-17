@@ -1,0 +1,448 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Forty Days at Ironwood | Daily Door #22 | The Axiom Continuum</title>
+<meta name="description" content="Forty Days at Ironwood: an interactive siege story. Keep the granary stocked, the walls standing, and the people together for forty days.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="https://theaxiomcontinuum.com/assets/tac-emblem.svg">
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Alegreya:ital,wght@0,400;0,700;1,400&family=Alegreya+SC:wght@400;700&display=swap">
+<style>
+/* Layout: the castle under siege with the 40-notch tally stick; the watch's event and orders below; the Steward's Table (ration lever, granary, morale, walls, rumour) and the day-book alongside. */
+:root{
+  --bg:#e9e6dc; --card:#f5f3ec; --ink:#1f2420; --muted:#5c6259; --line:#c9c6b8;
+  --green:#2f5a3f; --green-soft:rgba(47,90,63,.1); --blood:#8e2b22; --blood-soft:rgba(142,43,34,.09); --gold:#a07a1d; --stone:#8a8c84; --sky:#d7dcd6;
+  --display:"Pirata One","Old English Text MT",Georgia,serif; --sc:"Alegreya SC","Palatino Linotype",Georgia,serif; --body:"Alegreya","Iowan Old Style",Georgia,serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121512; --card:#1b1f1b; --ink:#e7e6dc; --muted:#a1a59a; --line:#343a33;
+  --green:#7fbf93; --green-soft:rgba(127,191,147,.1); --blood:#ff7a68; --blood-soft:rgba(255,122,104,.1); --gold:#e2bb5a; --stone:#5d6159; --sky:#1e2420; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121512; --card:#1b1f1b; --ink:#e7e6dc; --muted:#a1a59a; --line:#343a33;
+  --green:#7fbf93; --green-soft:rgba(127,191,147,.1); --blood:#ff7a68; --blood-soft:rgba(255,122,104,.1); --gold:#e2bb5a; --stone:#5d6159; --sky:#1e2420; color-scheme:dark}
+
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.62;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 56px}
+
+.mast{max-width:1040px;margin:0 auto 26px}
+.mast .pre{font-family:var(--sc);font-size:.86rem;letter-spacing:.1em;color:var(--muted);margin:0;text-align:center}
+.mast h1{font-family:var(--display);font-weight:400;font-size:clamp(2.6rem,9vw,5rem);line-height:.95;margin:4px 0 14px;text-align:center;color:var(--green)}
+.scene-art{border:1px solid var(--line);background:var(--sky);overflow:hidden}
+.scene-art svg{display:block;width:100%;height:clamp(140px,24vw,230px)}
+.tally{margin-top:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tally .lbl{font-family:var(--sc);font-size:.86rem;color:var(--muted)}
+.tally .lbl b{color:var(--blood);font-weight:700}
+.tally svg{flex:1 1 320px;min-width:0;height:34px}
+
+.wrap{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:46px;align-items:start}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:32px}}
+main{min-width:0}
+.meta{font-family:var(--sc);font-size:.88rem;letter-spacing:.04em;color:var(--muted);display:flex;justify-content:space-between;gap:12px;margin-bottom:2px}
+.meta b{color:var(--blood);font-weight:700}
+h2.scene-title{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,6vw,3.1rem);line-height:1;margin:0 0 16px;color:var(--ink)}
+.passage{max-width:62ch}
+.passage p{margin:0 0 1em}
+.report{display:block;margin:0 0 1.2em;padding:10px 14px;border:1px solid var(--line);border-left:4px solid var(--green);background:var(--card);font-size:.95rem;line-height:1.5;max-width:56ch}
+.report .h{display:block;font-family:var(--sc);font-size:.8rem;letter-spacing:.06em;color:var(--green);margin-bottom:2px}
+.report.bad{border-left-color:var(--blood)} .report.bad .h{color:var(--blood)}
+.letter{display:block;margin:0 0 1.2em;padding:14px 18px;background:var(--card);border:1px solid var(--line);font-style:italic;max-width:54ch}
+.letter .h{display:block;font-family:var(--sc);font-style:normal;font-size:.8rem;letter-spacing:.06em;color:var(--gold);margin-bottom:4px}
+.fade{animation:rise .4s ease both}
+@keyframes rise{from{opacity:.3;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.choices{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:10px;max-width:62ch}
+.choice{width:100%;display:grid;grid-template-columns:2.4em minmax(0,1fr);gap:12px;align-items:start;text-align:left;
+  background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:2px;padding:12px 16px;
+  font:inherit;font-size:1.02rem;line-height:1.4;cursor:pointer;transition:border-color .15s,background .15s}
+.choice .num{font-family:var(--display);font-size:1.6rem;line-height:1;color:var(--blood);text-align:center;padding-top:2px}
+.choice .fx{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:6px}
+.choice .fx span{font-family:var(--sc);font-size:.76rem;letter-spacing:.02em;border-radius:2px;padding:0 6px;border:1px solid var(--line);color:var(--muted)}
+.choice .fx .up{color:var(--green);border-color:var(--green);background:var(--green-soft)}
+.choice .fx .dn{color:var(--blood);border-color:var(--blood);background:var(--blood-soft)}
+.choice .fx .nt{color:var(--gold);border-color:var(--gold)}
+.choice:hover{border-color:var(--green);background:var(--green-soft)}
+.choice:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.hint{font-family:var(--sc);font-size:.8rem;color:var(--muted);margin-top:14px}
+.tools{display:flex;gap:16px;margin-top:20px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;font-family:var(--sc);font-size:.86rem;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--blood)}
+.link:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.link[disabled]{opacity:.4;cursor:default;text-decoration:none}
+
+aside{min-width:0;display:grid;gap:24px}
+aside h3{font-family:var(--display);font-weight:400;font-size:1.9rem;margin:0;line-height:1;color:var(--green)}
+aside .sub{font-family:var(--sc);font-size:.8rem;color:var(--muted);margin:2px 0 12px}
+.table{border:1px solid var(--line);background:var(--card);padding:14px;display:grid;gap:14px}
+.lever{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--ink);border-radius:2px;overflow:hidden}
+.lever button{font-family:var(--sc);font-size:.9rem;background:transparent;color:var(--ink);border:0;border-right:1px solid var(--ink);padding:7px 4px;cursor:pointer;line-height:1.15}
+.lever button:last-child{border-right:0}
+.lever button small{display:block;font-size:.7rem;color:var(--muted)}
+.lever button[aria-pressed="true"]{background:var(--green);color:var(--card)}
+.lever button[aria-pressed="true"] small{color:var(--card);opacity:.85}
+.lever button:focus-visible{outline:2px solid var(--blood);outline-offset:-3px}
+.lever button:disabled{cursor:default}
+.stat .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.stat .k{font-family:var(--sc);font-size:.88rem}
+.stat .v{font-family:var(--sc);font-size:.88rem;color:var(--muted)}
+.stat .v b{color:var(--ink)}
+.sacks{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:3px;margin-top:6px}
+.sacks i{aspect-ratio:3/4;border-radius:40% 40% 20% 20%;background:var(--gold);opacity:.85}
+.sacks i.e{background:transparent;border:1px solid var(--line);opacity:1}
+.forecast{font-size:.86rem;line-height:1.35;margin-top:6px;color:var(--muted)}
+.forecast b{color:var(--green)}
+.forecast.warn b{color:var(--blood)}
+.pips{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;margin-top:5px}
+.pips i{height:10px;border:1px solid var(--line);background:transparent}
+.pips.m i.on{background:var(--green);border-color:var(--green)}
+.pips.w i.on{background:var(--stone);border-color:var(--stone)}
+.pips.r i.on{background:var(--blood);border-color:var(--blood)}
+.pips.low i.on{background:var(--blood);border-color:var(--blood)}
+.book{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:.9rem;line-height:1.4}
+.book li{border-left:2px solid var(--line);padding-left:10px}
+.book li b{font-family:var(--sc);font-weight:700;color:var(--green);font-size:.82rem}
+.book li.none{color:var(--muted);font-style:italic}
+
+.ending-card{margin-top:26px;border:2px solid var(--green);background:var(--card);padding:20px;max-width:62ch}
+.ending-card .label{font-family:var(--sc);font-size:.84rem;letter-spacing:.06em;color:var(--gold);margin:0 0 2px}
+.ending-card h4{font-family:var(--display);font-weight:400;font-size:2.6rem;color:var(--blood);margin:0 0 12px;line-height:1}
+.endings{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px;font-size:.94rem}
+@media (max-width:480px){.endings{grid-template-columns:minmax(0,1fr)}}
+.endings li{color:var(--muted)}
+.endings li.got{color:var(--ink)}
+.endings li.got::before{content:"⚑ ";color:var(--green)}
+.endings li:not(.got)::before{content:"· "}
+.tally-final{font-family:var(--sc);font-size:.86rem;color:var(--muted);margin:0 0 16px;line-height:1.5}
+.begin{font-family:var(--sc);font-size:1rem;background:var(--green);color:var(--card);border:0;border-radius:2px;padding:10px 20px;cursor:pointer}
+.begin:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}}
+
+/* TAC identity, optional narrow-screen reference drawers */
+.tac-publisher{max-width:1040px;margin:0 auto 12px;display:flex;align-items:center;gap:9px;font-family:var(--sc);font-size:.85rem;color:var(--muted)}
+.tac-publisher img{width:26px;height:26px;object-fit:contain}
+.tac-publisher a{color:inherit;text-decoration:none}
+.tac-publisher a:hover{text-decoration:underline}
+.ledger-toggle{display:none}
+@media(max-width:900px){
+ .ledger-toggle{display:block;width:100%;text-align:left;border:1px solid var(--green);background:var(--card);color:var(--ink);font-family:var(--sc);font-size:1rem;padding:9px 12px;cursor:pointer;margin-bottom:12px}
+ .wrap aside[data-collapsed="true"] #ledger-sections{display:none}
+}
+@media(max-width:520px){.tally svg{flex-basis:220px}.tally{gap:6px}.lever button{font-size:.78rem}.scene-art svg{height:165px}}
+</style>
+</head><body>
+<div class="tac-publisher"><a href="https://theaxiomcontinuum.com/"><img src="https://theaxiomcontinuum.com/assets/tac-emblem.svg" alt="The Axiom Continuum emblem"></a><a href="https://theaxiomcontinuum.com/">The Axiom Continuum</a><span>· Daily Door #22</span></div>
+<header class="mast">
+  <p class="pre">The Siege of Ironwood · Daily Door No. 22</p>
+  <h1>Forty Days at Ironwood</h1>
+  <div class="scene-art" id="art"></div>
+  <div class="tally"><span class="lbl" id="tallyLbl"></span><svg id="tally" viewBox="0 0 420 34" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+</header>
+
+<div class="wrap">
+  <main id="main" aria-live="polite"></main>
+  <aside id="ledger" data-collapsed="false"><button class="ledger-toggle" id="ledger-toggle" type="button" aria-expanded="true" aria-controls="ledger-sections">Steward's Table and Day-Book · Hide reference panels</button><div id="ledger-sections">
+    <section><h3>The Steward's Table</h3><p class="sub">Set the ration for the coming watch</p><div class="table" id="table"></div></section>
+    <section><h3>The Day-Book</h3><p class="sub">What you ordered, watch by watch</p><ul class="book" id="book"></ul></section></div>
+  </aside>
+</div>
+
+<script>
+const RATION=[{n:"Full",d:"bread & ale",f:1,m:1},{n:"Half",d:"bread",f:.6,m:0},{n:"Short",d:"thin pottage",f:.35,m:-1}];
+const ENDINGS={E1:"The Fortieth Morning",E2:"The Banner Holds",E3:"The Hungry Gate",E4:"The Postern",E5:"The Breach",E6:"Terms Accepted"};
+const rep=(h,t,bad)=>`<span class="report${bad?" bad":""}"><span class="h">${h}</span>${t}</span>`;
+const letter=(h,t)=>`<span class="letter"><span class="h">${h}</span>${t}</span>`;
+const vill=s=>s.f.allIn||s.f.split;
+const WATCH=s=>`Watch ${Math.min(s.watch,8)} · days ${(Math.min(s.watch,8)-1)*5+1}–${Math.min(s.watch,8)*5}`;
+
+const S={
+start:{t:`Day One`,p:[
+ `Ironwood is a square keep of grey stone on a hill above the river Ess, with a curtain wall, a well, a granary, and a lord who isn't here. Lord Edmund rode south to the King's court in spring and left the castle in your keeping. You are his steward. You count things for a living.`,
+ `This morning a boy came up the hill at a dead run: the Duke of Corvane is over the ridge with two thousand men and six vassals' banners, and he's coming for Ironwood.`,
+ `You have a hundred and twenty soldiers, eighty servants, a hundred and fifty sacks of grain, and a ration lever on your table that is going to decide more than any sword. A sack is a day's bread for a hundred mouths.`,
+ rep(`The steward's sum`,`Hold for forty days, and the siege must break. How it breaks is up to you.`)],
+ o:[[`Go down to the gate`,`w1`],[`Walk the granary first`,`granary`],[`Climb the keep and count the enemy`,`keep`]]},
+
+granary:{t:`The Granary`,p:[
+ `The granary is cool and smells of dust and mice. A hundred and fifty sacks, stacked to the beams. You've counted them twice this week already, so you count them again.`,
+ `At full rations, bread and ale, the castle eats two sacks a day. If the village comes inside the walls, it'll be five. On half rations, three. On short rations, thin pottage, less than two, and the garrison will hate you for it.`,
+ rep(`The Steward's Table`,`Set the ration lever before each watch ends. Each watch is five days: the granary is drawn down, and the ration moves morale up or down.`)],
+ o:[[`Go down to the gate`,`w1`],[`Climb the keep and count the enemy`,`keep`],[`Seal the bins and go down to the gate`,`w1`]]},
+
+keep:{t:`Six Banners`,set:["forty"],p:[
+ `From the top of the keep you can see the Duke's column coming over the ridge: the red boar of Corvane, and behind it six smaller banners, a hawk, a wheel, two fish, a tower, a hand.`,
+ `Old Father Ambrose, the chaplain, has puffed up the stairs after you. "Vassals," he says. "Those six lords owe the Duke forty days' service in the field a year. Not a day more. On the forty-first morning, by law, they can take their men and go home."`,
+ rep(`Remember`,`Forty days. Hold that long, and two-thirds of the Duke's army walks away.`)],
+ o:[[`Go down to the gate`,`w1`],[`Walk the granary first`,`granary`],[`Go down to the gate, counting`,`w1`]]},
+
+w1:{t:`The Village at the Gate`,watch:1,p:[
+ `At the foot of the hill, the whole of Ironwood village is at the gate: three hundred people, carts, goats, grandmothers, a cradle. The Duke's outriders are a mile behind them.`,
+ `Captain Orrin, who commands the garrison, is at your elbow. "Three hundred more mouths, steward. That's three more sacks a day. Your arithmetic, not mine."`],
+ o:[[`Open the gates to all of them`,`w2`,{mouths:300,m:1,f:["allIn"],adv:1}],
+   [`Take in the strong ones: masons, smiths, the young`,`w2`,{mouths:120,w:1,r:1,f:["split"],adv:1},`They'll work the walls`],
+   [`Keep the gates shut`,`w2`,{m:-2,r:1,f:["shut"],adv:1}]]},
+
+w2:{t:`The Duke's Herald`,watch:2,p:s=>[
+ `${s.f.shut?"The villagers have scattered into the woods. Some of them, you see from the wall, have gone to the Duke's camp. ":s.f.split?"The ones you left outside camp in the woods, and every night you can see their fires. ":"The bailey is full of people sleeping under carts. "}On the sixth day a herald rides up under a white flag: Sir Ivo, the Duke's man, very correct, very tired.`,
+ `"His Grace's terms," he says. "Yield Ironwood, and every soul inside walks out free with what they can carry. Refuse, and His Grace will take it anyway."`],
+ o:[[`Send him back with a defiance`,`w3`,{m:1,adv:1}],[`Ask him what the Duke actually wants`,`grievance`],[`Accept his terms`,`E6`,{},`Ends the siege`]]},
+
+grievance:{t:`The River Ess`,watch:2,set:["grievance"],p:[
+ `Sir Ivo looks surprised to be asked. "The river, steward. Two summers ago your lord dammed the Ess to fill his fishponds. Downstream, in His Grace's valley, the mills stopped and the fields dried. Half a harvest lost. His Grace petitioned the King three times. No answer."`,
+ `That isn't the story Lord Edmund told. Lord Edmund said the Duke was a bandit who wanted his land.`],
+ o:[[`Search your lord's papers tonight`,`w3`,{r:1,f:["letters"],adv:1},`The servants will talk`],[`Call it a lie and send him away`,`w3`,{m:1,adv:1}],[`Accept his terms`,`E6`,{},`Ends the siege`]]},
+
+w3:{t:`Rot in the Granary`,watch:3,p:s=>{const a=[];
+ if(s.f.letters) a.push(letter(`From Lord Edmund's strongroom`,`…the Duke has written to the King again about the river. Let him. The King owes me money and will not hear it. Keep the dam shut, and if Corvane comes, tell the people he is a robber. They will believe their own lord.`),`So it's true. You fold the letter into your coat.`);
+ a.push(`On the eleventh day, the granary-keeper comes to you grey-faced. The bottom tier of sacks has gone wet and black. Rot, and rats in it. Twenty sacks, perhaps more.`);
+ return a;},
+ o:s=>[[`Burn the spoiled grain openly and reseal the bins`,`w4`,{g:-20,r:-1,adv:1}],
+   [`Grind it into the bread and say nothing`,`w4`,{g:-4,f:["sick"],adv:1},`Risks sickness`],
+   vill(s)?[`Ask old Hesk, the village miller, to save what he can`,`w4`,{g:-8,m:1,r:-1,adv:1},`Only with villagers inside`]:[`Hang the granary-keeper as an example`,`w4`,{g:-20,m:-2,r:-2,adv:1}]]},
+
+w4:{t:`Sappers Under the East Tower`,watch:4,enter:s=>s.f.sick?{m:-2,w:-1}:null,p:s=>{const a=[];
+ if(s.f.sick) a.push(rep(`Fever`,`The bread made from the rotten grain has put half the garrison on their backs. Morale −2, walls −1: there aren't enough men to repair them.`,1));
+ a.push(`On the sixteenth day, a soldier on the east tower puts his ear to the stones and hears digging. The Duke's sappers are tunnelling under the tower, to prop it on timbers and then burn the timbers.`);
+ return a;},
+ o:s=>[[`Dig a countermine and fight them underground`,`w5`,{m:-1,w:-1,adv:1}],
+   [`Flood their tunnel from the cistern`,`w5`,{g:-10,adv:1},`The bakery's water`],
+   vill(s)?[`Let it come, and have the villagers build a second wall behind`,`w5`,{w:-1,adv:1},`Villagers' labour`]:[`Let it come, and build a second wall behind`,`w5`,{w:-4,adv:1}]]},
+
+w5:{t:`Whispers`,watch:5,p:s=>[
+ `By the twenty-first day there is a story going round the bailey. It says the steward eats white bread in the tower. It says Lord Edmund sold Ironwood to the Duke and is never coming back. ${s.r>=6?"People stop talking when you walk past. Someone has scratched a boar on the chapel door.":"So far it's just a story."}`],
+ o:[[`Open the granary books to everyone`,`w6`,{r:-3,m:-1,adv:1},`They'll see how little there is`],
+   [`Find out who's spreading it`,`brask`,{}],
+   [`Eat at the common table, on the same ration as everyone`,`w6`,s=>({m:s.ration===0?1:2,r:-2,adv:1})]]},
+
+brask:{t:`Sergeant Brask`,watch:5,set:["brask"],p:[
+ `It takes two nights. The story starts in the gatehouse, with Sergeant Brask, who has been showing a lantern from the postern tower after midnight. In his chest, Corvane silver.`,
+ `He was going to open the postern on the night of a hard assault. Now he won't.`],
+ o:[[`Hang him from the gatehouse`,`w6`,{r:-3,m:-1,w:1,adv:1}],[`Lock him in the cellar and say why`,`w6`,{r:-2,w:1,adv:1}],[`Send him to the Duke with a message`,`w6`,{r:-2,w:1,adv:1},`Tell the Duke you know`]]},
+
+w6:{t:`A Pigeon from the South`,watch:6,p:s=>[
+ `On the twenty-sixth day a pigeon comes in to the dovecote with a scrap of parchment on its leg, from Lord Edmund at court.`,
+ letter(`From Lord Edmund`,`The King's host cannot march before Michaelmas. Hold Ironwood. Do not treat with Corvane. Fifty days at the least.`),
+ `Fifty days. You have enough grain, at this ration, until day ${forecastDay(s)}.${s.f.forty?" But you remember Father Ambrose on the stairs: forty days, and the vassals go home.":""}`],
+ o:[[`Tell everyone the truth`,`w7`,{m:-2,r:-2,f:["truth"],adv:1}],
+   [`Tell them relief comes on the fortieth day`,`w7`,{m:1,f:["lie"],adv:1},`A lie`],
+   [`Tell only the captains`,`w7`,{r:1,adv:1}]]},
+
+w7:{t:`Useless Mouths`,watch:7,p:s=>[
+ `On the thirty-first day Captain Orrin comes to your table with the granary book open. "Steward. There's a word for people in a siege who don't fight. *Useless mouths.* Every castle in the histories sends them out in the end."`,
+ vill(s)?`He means the villagers inside the walls. ${s.f.allIn?"Three hundred were admitted":"One hundred and twenty were admitted"}; they are sleeping in the bailey.`:`There are no villagers. He means the household: the cooks, the grooms, the laundresses.`,
+ `There's another way: the Duke's supply wagons come up the river road every night, poorly guarded. A raid could bring in twenty sacks, if the men have the stomach for it.`],
+ o:s=>[vill(s)?[`Send the villagers out through the postern`,`w8`,{mouths:s.f.allIn?-300:-120,m:-1,f:["expelled"],adv:1}]:[`Send the household out through the postern`,`w8`,{mouths:-60,m:-2,f:["expelled"],adv:1}],
+   [`Refuse. Cut every ration to the bone this watch instead`,`w8`,{g:8,m:-1,adv:1},`Saves about 8 sacks`],
+   s.m>=5?[`Lead a night raid on the Duke's wagons`,`w8`,{g:20,w:-1,m:1,adv:1},`Morale is high enough`]:[`Lead a night raid on the Duke's wagons`,`w8`,{w:-1,m:-2,adv:1},`Morale under 5: the raid will fail`]]},
+
+w8:{t:`The Last Watch`,watch:8,enter:s=>s.f.lie?{r:3}:null,p:s=>{const a=[];
+ if(s.f.lie) a.push(rep(`The lie`,`Everyone is counting down to the fortieth day and the relief army you promised. The captains know there isn't one. Rumour +3.`,1));
+ a.push(`Day thirty-six. Below the walls the Duke's army is building scaling ladders, forty of them, in rows. He means to take Ironwood before his forty days run out.`);
+ a.push(s.f.forty?`And in his camp, you can see from the keep, the six vassals' banners have started packing their wagons.`:`In his camp there's a great deal of shouting between the Duke's tent and his vassals'.`);
+ if(s.f.letters) a.push(`Lord Edmund's letter is still in your coat.`);
+ return a;},
+ o:s=>[[`Man the walls and hold to the fortieth day`,`E2`,{w:-3,adv:1},`The assault will cost the walls`],
+   s.f.letters?[`Ride out under a white flag with your lord's letter`,(s.f.expelled||s.f.shut||s.f.split)?`treatyNo`:`E1`,{adv:1},`Diplomacy`]:[`Ride out under a white flag`,`parley`,{}],
+   [`Send for the herald, and accept his terms`,`E6`,{},`Ends the siege`]]},
+
+parley:{t:`The Duke's Tent`,watch:8,p:[
+ `The Duke of Corvane is a heavy, grey, angry man in a tent full of maps. He listens to you for exactly as long as it takes you to say "parley".`,
+ `"Do you even know why I'm here, steward?" he says. "No? Then go back up your hill. Come back when you do."`],
+ o:[[`Go back and man the walls`,`E2`,{w:-3,adv:1},`The assault will cost the walls`],[`Accept his terms`,`E6`],[`Go back up the hill, and hold`,`E2`,{w:-3,adv:1},`The assault will cost the walls`]]},
+
+treatyNo:{t:`The Duke's Tent`,watch:8,p:s=>[
+ `The Duke reads Lord Edmund's letter twice. For a moment you think you have him.`,
+ `Then he looks up. "And you ${s.f.shut?"shut your gates on your own village and left them to my outriders":s.f.expelled?"threw your own people out through the postern to starve in my camp":"took in the strong and left the old and the children outside your gate"}. I fed them, steward. I won't sign a peace with the man who did that." He hands the letter back.`],
+ o:[[`Go back and man the walls`,`E2`,{w:-3,adv:1},`The assault will cost the walls`],[`Accept his terms`,`E6`],[`Go back up the hill, and hold`,`E2`,{w:-3,adv:1},`The assault will cost the walls`]]},
+
+E1:{end:true,best:true,t:`The Fortieth Morning`,p:s=>[
+ `You ride down the hill under a white flag with Lord Edmund's letter in your hand, and the Duke reads it twice, and puts it down very carefully on his map table.`,
+ `"Your own lord," he says. "In his own hand."`,
+ `You sign on a drumhead in front of his tent. The dam on the Ess will be opened. The Duke's claims go to the King with the letter attached, where nobody can pretend not to hear them. In return the siege is lifted, and nobody who sheltered at Ironwood is touched.`,
+ `On the fortieth morning the gates open. Three hundred villagers, a hundred and twenty soldiers and eighty servants walk out into the sun. That afternoon, men from both sides break the dam with picks, and the Ess runs brown and fast down into the Duke's valley.`,
+ `Lord Edmund comes home at Michaelmas to a treaty he never wanted and a steward he can't dismiss: the King has read the letter too.`]},
+
+E2:{end:true,t:`The Banner Holds`,p:s=>{const a=[
+ `The assault comes on the thirty-eighth day: forty ladders, all at once. It's the worst night of your life. By dawn the walls are ${s.w<=3?"broken in two places, patched with carts and doors,":"scarred but standing,"} and the ladders are firewood.`,
+ `On the forty-first morning, exactly as Father Ambrose said, six vassal lords strike their tents and take their men home. The Duke watches them go from his horse. By noon he's gone too.`,
+ `Ironwood held.`];
+ const c=[];
+ if(s.f.expelled) c.push(`the people you sent out through the postern, whom the Duke fed and you didn't`);
+ if(s.f.shut) c.push(`the village you shut out on the first day`);
+ if(s.f.split&&!s.f.expelled) c.push(`the old and the children you left outside the gate`);
+ if(s.f.lie) c.push(`the relief army you promised that never came`);
+ if(!s.f.letters) c.push(`a war whose cause you never learned`);
+ if(c.length) a.push(`But people remember: ${c.join("; ")}.`);
+ a.push(`*The dam is still shut. The Duke will be back next summer.${s.f.letters?" You had the letter. A peace needed clean hands to carry it.":" The truest ending needs to know why he came."}*`);
+ return a;}},
+
+E3:{end:true,t:`The Hungry Gate`,p:s=>[
+ `On the ${ord(s.day)} day the granary-keeper sweeps the last of the floor into a sack and brings it to you. It isn't a sack's worth.`,
+ `You go down to the gate yourself and open it. The Duke's men come up the hill expecting a fight and find a castle of people too hungry to stand. To his credit, the Duke feeds them before he does anything else.`,
+ `*The granary ran dry before the fortieth day. Watch the forecast on the Steward's Table, and the ration lever.*`]},
+
+E4:{end:true,t:`The Postern`,p:s=>[
+ `It happens on the ${ord(s.day)} night. ${s.f.brask?"Not Brask: you dealt with him. Just a hungry, frightened man, with a family in the bailey and no reason left to believe you.":"Sergeant Brask, with Corvane silver in his chest and the whole garrison's grumbling behind him."} The little postern gate in the north wall is unbarred at the change of the watch, and the Duke's men come in quietly in their stockinged feet.`,
+ `By morning the boar of Corvane is flying from the keep. Nobody fought very hard. ${s.m<=0?"Nobody had any heart left to.":"Nobody believed in the steward anymore."}`,
+ `*Rumour reached ten or morale reached nothing. A castle is held by what the people inside believe.*`]},
+
+E5:{end:true,t:`The Breach`,p:s=>[
+ `The east tower goes first, on the ${ord(s.day)} day, with a noise like the end of the world, and the Duke's men come over the rubble before the dust has settled.`,
+ `You fight in the bailey with a borrowed sword, which you are very bad at, until Captain Orrin knocks you down and sits on you to keep you alive.`,
+ `*The walls reached nothing. Sappers, fever and the last assault all wear the stone away.*`]},
+
+E6:{end:true,t:`Terms Accepted`,p:s=>[
+ `You send for Sir Ivo and accept the Duke's terms.`,
+ `On the ${ord(Math.max(s.day,2))} day, every soul in Ironwood walks out of the gate with what they can carry, past two thousand men who don't touch them. The boar of Corvane goes up over the keep.`,
+ `Lord Edmund comes home at Michaelmas to find his castle gone and his steward in the village, counting sacks for the Duke's bailiff. "Coward," he says. You've been called worse, by people who'd be dead if you hadn't.`,
+ `*Everyone lived. Ironwood was lost. Forty days would have broken the siege${s.f.grievance?", and you already knew why the Duke had come":""}.*`]}
+};
+
+function ord(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
+function perDay(s){return s.mouths/100*RATION[s.ration].f}
+function forecastDay(s){return Math.max(s.day,Math.floor(s.day+s.g/perDay(s)))}
+const clamp=(v)=>Math.max(0,Math.min(10,v));
+
+/* ---------- engine ---------- */
+let state,history=[];
+const fresh=()=>({scene:"start",f:{},seen:{start:1},n:0,day:1,watch:1,g:150,mouths:200,m:6,w:8,r:2,ration:0,log:[]});
+const val=(x,s)=>typeof x==="function"?x(s):x;
+function loadE(){try{return JSON.parse(localStorage.getItem("ironwood-endings")||"{}")}catch(e){return {}}}
+function saveE(id){const e=loadE();e[id]=1;try{localStorage.setItem("ironwood-endings",JSON.stringify(e))}catch(err){}}
+function smart(html){
+  return html.split(/(<[^>]+>)/).map(p=>p.startsWith("<")?p:
+    p.replace(/(^|[\s(\[—])"/g,"$1“").replace(/"/g,"”")
+     .replace(/(^|[\s(\[—])'/g,"$1‘").replace(/'/g,"’")
+     .replace(/\*(.+?)\*/g,"<em>$1</em>")).join("");
+}
+function applyFx(s,e){if(!e)return;
+  if(e.g)s.g=Math.max(0,s.g+e.g); if(e.mouths)s.mouths=Math.max(0,s.mouths+e.mouths);
+  if(e.m)s.m=clamp(s.m+e.m); if(e.w)s.w=clamp(s.w+e.w); if(e.r)s.r=clamp(s.r+e.r);
+  (e.f||[]).forEach(k=>s.f[k]=1);}
+function fxTags(s,e){if(!e)return [];const t=[],sg=(n)=>n>0?"+"+n:"−"+Math.abs(n);
+  if(e.g)t.push([`${sg(e.g)} grain`,e.g>0?"up":"dn"]);
+  if(e.mouths)t.push([`${sg(e.mouths)} mouths`,e.mouths>0?"dn":"up"]);
+  if(e.m)t.push([`${sg(e.m)} morale`,e.m>0?"up":"dn"]);
+  if(e.w)t.push([`${sg(e.w)} walls`,e.w>0?"up":"dn"]);
+  if(e.r)t.push([`${sg(e.r)} rumour`,e.r>0?"dn":"up"]);
+  if(e.adv)t.push([`Ends the watch: 5 days`,"nt"]);
+  return t;}
+function endWatch(s,label){
+  const used=Math.round(perDay(s)*5*10)/10;
+  const R=RATION[s.ration];
+  const starved=s.g<used, before=s.g;
+  s.g=Math.max(0,Math.round((s.g-used)*10)/10);
+  s.m=clamp(s.m+R.m); if(s.m<=3) s.r=clamp(s.r+1);
+  s.log.push({w:s.watch,t:label,ra:R.n,used});
+  if(starved){s.day+=Math.floor(before/perDay(s));return "E3"}
+  s.day+=5; s.watch++;
+  if(s.r>=10||s.m<=0) return "E4";
+  if(s.w<=0) return "E5";
+  return null;
+}
+function go(opt){
+  history.push(JSON.stringify(state)); if(history.length>60) history.shift();
+  let [label,to,e]=opt; e=val(e,state)||{};
+  applyFx(state,e);
+  if(e.adv){const end=endWatch(state,label); if(end) to=end;}
+  else if(to==="E6") state.log.push({w:state.watch,t:label,ra:RATION[state.ration].n,used:0});
+  const sc=S[to], first=!state.seen[to];
+  state.scene=to; state.n++; state.seen[to]=1;
+  (sc.set||[]).forEach(k=>state.f[k]=1);
+  if(first&&sc.enter){const x=sc.enter(state); if(x){applyFx(state,x); if(state.r>=10||state.m<=0){state.scene="E4";state.seen.E4=1} else if(state.w<=0){state.scene="E5";state.seen.E5=1}}}
+  if(S[state.scene].end) saveE(state.scene);
+  render(true);
+}
+function back(){if(!history.length)return;state=JSON.parse(history.pop());render(true)}
+function restart(){history=[];state=fresh();render(true)}
+const SAVE_KEY="tac-ironwood-daily-door-v1";
+function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({state,history}))}catch(e){}}
+function restoreProgress(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");return d&&d.state&&S[d.state.scene]?d:null}catch(e){return null}}
+function setRation(i){if(S[state.scene].end)return;state.ration=i;side();saveProgress()}
+
+function render(scroll){
+  const sc=S[state.scene], main=document.getElementById("main");
+  const paras=val(sc.p,state).map(t=>/^<span class="(report|letter)/.test(t)?smart(t):`<p>${smart(t)}</p>`).join("");
+  let html=`<div class="fade"><div class="meta"><span><b>${sc.end?"The siege is over":sc.watch?WATCH(state):"Before the siege"}</b></span><span>Day ${Math.min(state.day,41)}</span></div>
+   <h2 class="scene-title">${smart(sc.t)}</h2><div class="passage">${paras}</div>`;
+  if(sc.end){
+    const got=loadE(), n=Object.keys(ENDINGS).filter(k=>got[k]).length;
+    html+=`<div class="ending-card"><p class="label">${sc.best?"The truest ending":"Ending reached"} · ${n} of 6 discovered</p><h4>${smart(sc.t)}</h4>
+     <ul class="endings">${Object.entries(ENDINGS).map(([k,v])=>`<li class="${got[k]?"got":""}">${got[k]?smart(v):"Undiscovered"}</li>`).join("")}</ul>
+     <p class="tally-final">Day ${Math.min(state.day,41)} · ${Math.round(state.g)} sacks left · ${state.mouths} mouths · morale ${state.m} · walls ${state.w} · rumour ${state.r}.${sc.best?"":"<br>The truest ending: hold to the end without turning anyone away, learn why the Duke came, and bring him the proof."}</p>
+     <button class="begin" id="again">Begin the siege again</button></div>`;
+  } else {
+    const opts=val(sc.o,state);
+    html+=`<ol class="choices">${opts.map((o,i)=>{const e=val(o[2],state);const tags=fxTags(state,e);if(o[3])tags.push([o[3],"nt"]);
+      return `<li><button class="choice" data-i="${i}"><span class="num">${["I","II","III"][i]}</span><span>${smart(o[0])}${tags.length?`<span class="fx">${tags.map(([t,c])=>`<span class="${c}">${smart(t)}</span>`).join("")}</span>`:""}</span></button></li>`}).join("")}</ol>
+     <p class="hint">Press 1, 2 or 3 to choose · Ration: <b>${RATION[state.ration].n}</b>, bread until day ${forecastDay(state)} · change it on the Steward's Table before you end a watch</p>`;
+  }
+  html+=`<div class="tools"><button class="link" id="back" ${history.length?"":"disabled"}>Retrace your last step</button><button class="link" id="restart">Start over</button></div></div>`;
+  main.innerHTML=html;
+  if(!sc.end){const opts=val(sc.o,state);main.querySelectorAll(".choice").forEach(b=>b.onclick=()=>go(opts[+b.dataset.i]));}
+  else document.getElementById("again").onclick=restart;
+  document.getElementById("back").onclick=back;
+  document.getElementById("restart").onclick=restart;
+  side();
+  if(scroll){const top=document.querySelector(".wrap");if(window.scrollY>top.offsetTop)window.scrollTo({top:top.offsetTop-10,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
+}
+function pips(v,cls){return `<div class="pips ${cls}${v<=3&&cls!=="r"?" low":""}">${[...Array(10)].map((_,i)=>`<i class="${i<v?"on":""}"></i>`).join("")}</div>`}
+function side(){
+  const s=state, ended=S[s.scene].end, fd=forecastDay(s);
+  const full=Math.round(s.g/5);
+  document.getElementById("table").innerHTML=`
+   <div><div class="stat"><div class="row"><span class="k">Ration</span><span class="v">${s.mouths} mouths</span></div></div>
+    <div class="lever" role="group" aria-label="Ration">${RATION.map((r,i)=>`<button data-r="${i}" aria-pressed="${s.ration===i}" ${ended?"disabled":""}>${r.n}<small>${r.d}</small></button>`).join("")}</div></div>
+   <div class="stat"><div class="row"><span class="k">Granary</span><span class="v"><b>${Math.round(s.g)}</b> of 150 sacks</span></div>
+    <div class="sacks" aria-hidden="true">${[...Array(30)].map((_,i)=>`<i class="${i<full?"":"e"}"></i>`).join("")}</div>
+    <p class="forecast${fd<40?" warn":""}">${s.mouths?`${perDay(s).toFixed(1)} sacks a day. At this ration, bread lasts until <b>day ${fd}</b>.`:""}</p></div>
+   <div class="stat"><div class="row"><span class="k">Morale</span><span class="v"><b>${s.m}</b> / 10 · ${RATION[s.ration].m>0?"+1":RATION[s.ration].m<0?"−1":"±0"} a watch</span></div>${pips(s.m,"m")}</div>
+   <div class="stat"><div class="row"><span class="k">Walls</span><span class="v"><b>${s.w}</b> / 10</span></div>${pips(s.w,"w")}</div>
+   <div class="stat"><div class="row"><span class="k">Rumour</span><span class="v"><b>${s.r}</b> / 10${s.m<=3?" · rising":""}</span></div>${pips(s.r,"r")}</div>`;
+  document.querySelectorAll(".lever button").forEach(b=>b.onclick=()=>setRation(+b.dataset.r));
+  document.getElementById("book").innerHTML=s.log.length?s.log.map(l=>`<li><b>Watch ${l.w} · ${l.ra} ration${l.used?` · ${l.used} sacks`:""}</b><br>${smart(l.t)}</li>`).join(""):`<li class="none">The siege hasn't begun.</li>`;
+  const d=Math.min(s.day,41);
+  document.getElementById("tallyLbl").innerHTML=S[s.scene].end?`Day <b>${d}</b> · siege over`:`Day <b>${d}</b> of 40`;
+  let t="";for(let i=0;i<40;i++){const x=6+i*10.2,cut=i+1<d;
+    t+=`<line x1="${x}" y1="6" x2="${x}" y2="28" stroke="${cut?"var(--ink)":"var(--line)"}" stroke-width="${cut?2:1.4}"/>`;
+    if((i+1)%5===0){const x0=6+(i-4)*10.2;t+=`<line x1="${x0-3}" y1="25" x2="${x+3}" y2="9" stroke="${i+1<d?"var(--blood)":"var(--line)"}" stroke-width="${i+1<d?2:1}"/>`}}
+  t+=`<line x1="0" y1="31" x2="420" y2="31" stroke="var(--line)"/>`;
+  document.getElementById("tally").innerHTML=t;
+  drawArt();
+}
+function drawArt(){
+  const s=state, sc=s.scene, won=sc==="E1"||sc==="E2", lost=["E3","E4","E5","E6"].includes(sc);
+  const w=s.w, tents=won?(sc==="E1"?4:0):Math.max(6,22-(s.day>=36&&s.f.forty?8:0));
+  const flag=lost?"var(--blood)":"var(--green)";
+  let g=`<rect width="600" height="180" fill="var(--sky)"/>
+   <path d="M0 150 Q150 120 300 96 Q450 120 600 150 L600 180 L0 180 Z" fill="var(--line)"/>
+   <path d="M0 168 Q200 158 600 172 L600 180 L0 180 Z" fill="var(--stone)" opacity=".35"/>`;
+  const cx=300,base=100;
+  g+=`<rect x="${cx-90}" y="${base-26}" width="180" height="30" fill="var(--stone)"/>`;
+  for(let i=0;i<12;i++){const x=cx-90+i*15;if(i<Math.round(w*1.2))g+=`<rect x="${x}" y="${base-34}" width="9" height="8" fill="var(--stone)"/>`}
+  if(w<=5) g+=`<path d="M${cx+50} ${base-26} l8 12 l-6 6 l9 12" stroke="var(--bg)" stroke-width="2" fill="none"/>`;
+  if(w<=2) g+=`<path d="M${cx-60} ${base-26} l-6 14 l8 6 l-5 10" stroke="var(--bg)" stroke-width="2" fill="none"/>`;
+  g+=`<rect x="${cx-30}" y="${base-70}" width="60" height="50" fill="var(--ink)" opacity=".78"/>`;
+  for(let i=0;i<4;i++)g+=`<rect x="${cx-30+i*16}" y="${base-78}" width="10" height="8" fill="var(--ink)" opacity=".78"/>`;
+  g+=`<rect x="${cx-4}" y="${base-14}" width="8" height="18" fill="var(--bg)" opacity=".6"/><line x1="${cx}" y1="${base-78}" x2="${cx}" y2="${base-104}" stroke="var(--ink)" stroke-width="1.5"/>
+   <path d="M${cx} ${base-104} l22 6 l-22 6 z" fill="${flag}"/>`;
+  const spots=[60,95,130,165,200,400,435,470,505,540,80,115,150,450,485,520,560,40,185,415,250,350];
+  for(let i=0;i<tents;i++){const x=spots[i%spots.length],y=150+(i%3)*8;g+=`<path d="M${x-9} ${y} L${x} ${y-14} L${x+9} ${y} Z" fill="var(--blood)" opacity="${.5+((i*7)%4)/10}"/>`}
+  if(!lost&&!won&&s.f.allIn) for(let i=0;i<8;i++) g+=`<circle cx="${cx-70+i*20}" cy="${base-2}" r="1.6" fill="var(--gold)"/>`;
+  if(sc==="E1") g+=`<path d="M380 150 Q480 132 600 140" stroke="#5f8fb5" stroke-width="4" fill="none" opacity=".8"/>`;
+  document.getElementById("art").innerHTML=`<svg viewBox="0 0 600 180" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Ironwood castle under siege: walls ${w} of 10, ${tents} tents in the Duke's camp">${g}</svg>`;
+}
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(e.target&&e.target.closest&&e.target.closest(".lever"))return;
+  const i=["1","2","3"].indexOf(e.key); if(i>-1){const b=document.querySelectorAll(".choice")[i]; if(b)b.click();}
+});
+function start(d){const v=d&&d.state?d:restoreProgress();state=v&&v.state&&S[v.state.scene]?v.state:fresh();history=v&&Array.isArray(v.history)?v.history:[];render(false)}
+const ledger=document.getElementById("ledger"),ledgerToggle=document.getElementById("ledger-toggle");
+ledgerToggle.onclick=()=>{const collapsed=ledger.dataset.collapsed!=="true";ledger.dataset.collapsed=String(collapsed);ledgerToggle.setAttribute("aria-expanded",String(!collapsed));ledgerToggle.textContent=`Steward's Table and Day-Book · ${collapsed?"Show":"Hide"} reference panels`;};
+window.claude?.hot?.snapshot?.(()=>({state,history}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??restoreProgress());
+</script>
+
+</body></html>
