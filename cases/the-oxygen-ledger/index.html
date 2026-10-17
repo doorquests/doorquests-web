@@ -1,0 +1,1190 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Oxygen Ledger | DoorQuests Cases</title>
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<meta name="robots" content="index,follow">
+<meta name="description" content="Case No. 3: The Oxygen Ledger — a Mars colony mystery from DoorQuests. Read the habitat's telemetry, find where the graphs disagree, and decide whether twelve missing minutes of oxygen were sabotage or a rescue someone had to hide.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a Martian sky band over Juniper Habitat (sky and sun follow the sol clock); a status strip; tabs for the case file; one wide working column. The Data Wall tab is the signature: stacked telemetry panels on one shared timeline, with a selectable time window you flag. */
+:root{
+  --bg:#f3ebe3; --panel:#fbf6f0; --panel2:#efe4d9; --ink:#221a17; --muted:#6b5c52; --line:#dccbbd;
+  --rust:#b5482a; --rust-soft:rgba(181,72,42,.09); --teal:#1f6f78; --teal-soft:rgba(31,111,120,.09); --ok:#2f7a4f; --amber:#a7741a;
+  --c1:#2a6f97; --c2:#d1632a; --c3:#7a4fb0; --c4:#2f8a57; --c5:#b03a5b; --c6:#8a6d1d; --c7:#3d7f8f; --grid:rgba(60,40,30,.12);
+  --display:"Chakra Petch","Eurostile",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#120d0c; --panel:#1c1513; --panel2:#171110; --ink:#f0e2d6; --muted:#ab9a8d; --line:#382a25;
+  --rust:#f08a5d; --rust-soft:rgba(240,138,93,.11); --teal:#6cc3c9; --teal-soft:rgba(108,195,201,.1); --ok:#7cd0a0; --amber:#e3b25a;
+  --c1:#6fb3dd; --c2:#f39a62; --c3:#b896ee; --c4:#6fd09a; --c5:#ef7fa0; --c6:#d8bb60; --c7:#7cc8d6; --grid:rgba(255,230,210,.1); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#120d0c; --panel:#1c1513; --panel2:#171110; --ink:#f0e2d6; --muted:#ab9a8d; --line:#382a25;
+  --rust:#f08a5d; --rust-soft:rgba(240,138,93,.11); --teal:#6cc3c9; --teal-soft:rgba(108,195,201,.1); --ok:#7cd0a0; --amber:#e3b25a;
+  --c1:#6fb3dd; --c2:#f39a62; --c3:#b896ee; --c4:#6fd09a; --c5:#ef7fa0; --c6:#d8bb60; --c7:#7cc8d6; --grid:rgba(255,230,210,.1); color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:max(18px,env(safe-area-inset-top,0px));padding-bottom:max(56px,env(safe-area-inset-bottom,0px))}
+button,select{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.mast,.wrap,.story-footer{max-width:1000px;margin-left:auto;margin-right:auto}
+.tac-brand{margin:0 0 14px;display:flex;align-items:center;gap:10px;font:600 .72rem/1.4 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tac-brand img{width:30px;height:30px;object-fit:contain;flex:none}
+.tac-brand a{color:inherit;text-decoration:none}.tac-brand a:hover{text-decoration:underline}
+
+.band{position:relative;overflow:hidden;border-radius:4px;background:linear-gradient(180deg,var(--s1) 0%,var(--s2) 55%,var(--s3) 100%);padding:22px 22px 0;min-height:236px;display:flex;flex-direction:column;justify-content:space-between;--s1:#8b5a43;--s2:#c98c62;--s3:#e8c39b;transition:background 1.2s}
+.band.dawn{--s1:#3b3a4f;--s2:#9a6c63;--s3:#d9a585}
+.band.dusk{--s1:#4a3a3c;--s2:#8a6a63;--s3:#7fa3c4}
+.sun{position:absolute;width:26px;height:26px;border-radius:50%;background:#fff3d6;box-shadow:0 0 28px 6px rgba(255,240,210,.55);transition:left 1s,top 1s}
+.band.dusk .sun{box-shadow:0 0 34px 12px rgba(150,190,240,.55)}
+.phobos{position:absolute;width:7px;height:5px;border-radius:50%;background:#efe1cf;opacity:.8;top:30px;transition:left 1s}
+.titles{position:relative;z-index:1;max-width:78%}
+.titles .pre{font:600 .72rem/1.3 var(--display);letter-spacing:.22em;text-transform:uppercase;color:#fff1e2;margin:0;opacity:.9}
+.titles h1{font-family:var(--display);font-weight:700;font-size:clamp(2rem,6.6vw,3.6rem);line-height:1;margin:8px 0 6px;color:#fff6ec;text-wrap:balance;letter-spacing:.01em}
+.titles .sub{margin:0;color:#fff6ec;opacity:.86;font-size:1rem}
+.terrain{position:relative;display:block;width:calc(100% + 44px);margin:14px -22px 0;height:auto}
+.terrain .g{fill:#3a1f17}.terrain .g2{fill:#5a2f22}.terrain .h{fill:#241512}
+.terrain .gl{fill:#7fd49a;opacity:.85}
+.terrain .w{fill:#2a1a15;transition:fill .6s}
+.terrain .w.here{fill:#ffd58a;filter:drop-shadow(0 0 4px #ffd58a)}
+
+.strip{margin-top:12px;display:flex;flex-wrap:wrap;gap:10px 26px;align-items:end;border-bottom:1px solid var(--line);padding-bottom:10px}
+.strip>div{font:600 .66rem/1.3 var(--display);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.strip b{display:block;font:600 1.12rem/1.25 var(--mono);letter-spacing:0;text-transform:none;color:var(--ink)}
+.strip .urgent b{color:var(--rust)}
+.strip .gone b{color:var(--muted);text-decoration:line-through}
+.pips{display:flex;gap:4px;margin-top:5px}
+.pips i{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--teal)}
+.pips i.on{background:var(--teal)}
+
+.tabs{max-width:1000px;margin:16px auto 0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px 9px;font:600 .78rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--rust)}
+.tab .badge{display:inline-block;min-width:1.6em;margin-left:5px;padding:1px 5px;border-radius:9px;background:var(--rust-soft);color:var(--rust);font-size:.7rem;text-align:center}
+.tab:focus-visible{outline:2px solid var(--teal);outline-offset:-2px}
+
+.wrap{margin-top:24px}
+.meta{font:600 .7rem var(--display);letter-spacing:.14em;color:var(--muted);display:flex;justify-content:space-between;gap:12px;text-transform:uppercase;margin-bottom:6px}
+.meta b{color:var(--rust)}
+h2.scene-title{font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.05;margin:0 0 16px;text-wrap:balance}
+h3.sec{font-family:var(--display);font-weight:600;font-size:1.3rem;margin:28px 0 8px;line-height:1.15}
+.passage{max-width:66ch}
+.passage p{margin:0 0 1em}
+.flash{max-width:66ch;display:grid;gap:8px;margin:0 0 18px}
+.flash div{font-size:.95rem;line-height:1.45;padding:9px 14px;border-left:3px solid var(--teal);background:var(--teal-soft)}
+.flash div.new{border-left-color:var(--ok)}
+.flash div.new b{font:700 .68rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--ok);margin-right:8px}
+.flash div.warn{border-left-color:var(--rust);background:var(--rust-soft)}
+.fade{animation:rise .35s ease both}
+@keyframes rise{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.choices{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:9px;max-width:66ch}
+.choice{width:100%;display:grid;grid-template-columns:2em minmax(0,1fr);gap:8px;align-items:baseline;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 16px;font-size:1rem;line-height:1.4;cursor:pointer;transition:border-color .15s,background .15s}
+.choice .num{font:700 1.05rem var(--display);color:var(--rust)}
+.choice .tag{display:flex;flex-wrap:wrap;gap:4px 12px;font:600 .66rem var(--display);letter-spacing:.1em;color:var(--muted);margin-top:5px;text-transform:uppercase}
+.choice .tag .risk{color:var(--rust)}
+.choice .tag .tool{color:var(--teal)}
+.choice:hover{border-color:var(--rust);background:var(--rust-soft)}
+.choice:focus-visible,.btn:focus-visible,.link:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.hint{font-size:.82rem;color:var(--muted);margin-top:14px}
+.tools{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;font:600 .72rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--rust)}
+.link[disabled]{opacity:.4;cursor:default;text-decoration:none}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 13px;font:600 .72rem var(--display);letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.btn:hover{border-color:var(--rust)}
+.btn.primary{background:var(--rust);border-color:var(--rust);color:#fff7f0}
+.btn.danger{border-color:var(--rust);color:var(--rust)}
+.btn[disabled]{opacity:.45;cursor:default}
+select{font-size:.92rem;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:6px 8px;max-width:100%;min-width:0}
+
+/* hab map */
+.plan{max-width:540px;margin:4px 0 20px}
+.plan svg{width:100%;height:auto;display:block}
+.plan .spoke{stroke:var(--line);stroke-width:6}
+.plan .room rect,.plan .room circle{fill:var(--panel);stroke:var(--line);stroke-width:1.5;transition:fill .15s}
+.plan .room text{fill:var(--ink);font:600 9.5px var(--display);letter-spacing:.06em}
+.plan .room .who{fill:var(--teal);font:italic 9px var(--body);letter-spacing:0}
+.plan .room{cursor:pointer}
+.plan .room:hover rect,.plan .room:hover circle,.plan .room:focus-visible rect,.plan .room:focus-visible circle{fill:var(--rust-soft);stroke:var(--rust)}
+.plan .room:focus{outline:none}
+.plan .room.here rect,.plan .room.here circle{fill:var(--rust-soft);stroke:var(--rust);stroke-width:2.4}
+.plan .room.here text{fill:var(--rust)}
+
+/* interview */
+.who{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;align-items:center;margin-bottom:16px;max-width:66ch}
+.mono{width:64px;height:64px;border-radius:12px;display:grid;place-items:center;background:var(--teal);color:#f4fbfb;font:700 1.3rem var(--display)}
+.who h2{margin:0;font-family:var(--display);font-weight:700;font-size:1.7rem;line-height:1}
+.who p{margin:4px 0 0;color:var(--muted);font-size:.95rem}
+.meter{display:flex;align-items:center;gap:10px;font:600 .68rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.meter .bar{display:flex;gap:3px}
+.meter .bar i{width:16px;height:7px;border-radius:2px;background:var(--line)}
+.meter .bar i.on{background:var(--rust)}
+.tells{max-width:66ch;font-size:.94rem;font-style:italic;padding:8px 14px;border:1px dashed var(--teal);margin:0 0 14px}
+.transcript{max-width:66ch;display:grid;gap:12px;margin:0 0 20px}
+.transcript .q{font:600 .7rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
+.transcript .a{margin:3px 0 0;padding-left:14px;border-left:2px solid var(--line)}
+.topics{display:grid;gap:8px;max-width:66ch}
+.topic{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;display:grid;gap:8px}
+.topic.done{opacity:.55}
+.topic .tones{display:flex;flex-wrap:wrap;gap:6px}
+.present{display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:66ch;margin-top:16px;padding:12px 14px;border:1px solid var(--line);background:var(--panel2);border-radius:4px}
+.present label{font:600 .7rem var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.present select{flex:1 1 12em}
+
+/* DATA WALL */
+.winbar{position:sticky;top:0;z-index:3;background:var(--bg);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.winbar label{font:600 .68rem var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.winbar .win{font:600 .95rem var(--mono);color:var(--rust)}
+.wmsg{max-width:72ch;margin:0 0 14px;font-size:.95rem;padding:9px 14px;border-left:3px solid var(--line);background:var(--panel)}
+.wmsg.good{border-left-color:var(--ok)}
+.wmsg.bad{border-left-color:var(--rust)}
+.wmsg.info{border-left-color:var(--teal)}
+.panelc{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 12px 10px;margin:0 0 14px}
+.panelc h4{margin:0 0 2px;font:700 .9rem var(--display);letter-spacing:.06em}
+.panelc .src{font:500 .72rem var(--mono);color:var(--muted)}
+.panelc .src.lo{color:var(--amber)}
+.chart{width:100%;height:auto;display:block;margin-top:6px;cursor:crosshair;touch-action:manipulation}
+.chart .gridl{stroke:var(--grid);stroke-width:1}
+.chart .axis{fill:var(--muted);font:500 10px var(--mono)}
+.chart .lbl{fill:var(--ink);font:600 10.5px var(--body)}
+.chart .lane{stroke:var(--line);stroke-width:1}
+.chart .winr{fill:var(--rust-soft);stroke:none}
+.chart .mk{stroke:var(--rust);stroke-width:1.5;stroke-dasharray:3 3}
+.chart .ev{stroke:var(--panel);stroke-width:1.5}
+.chart .evt{fill:var(--muted);font:500 9px var(--mono)}
+.chart .flagged{fill:none;stroke:var(--ok);stroke-width:2;stroke-dasharray:2 3}
+.chart .gap{fill:var(--muted);font:italic 9.5px var(--body)}
+.chartwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media (max-width:640px){.chart{min-width:600px}}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.8rem;color:var(--muted);margin-top:4px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.flagrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.flagrow select{flex:1 1 14em}
+.empty{border:1px dashed var(--line);border-radius:6px;padding:16px;color:var(--muted);font-style:italic;margin-bottom:14px}
+.sources{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.sources span{font:500 .74rem var(--mono);padding:3px 9px;border-radius:12px;border:1px solid var(--line);color:var(--muted)}
+.sources span.on{border-color:var(--teal);color:var(--teal)}
+.sources span.lo{border-color:var(--amber);color:var(--amber)}
+
+/* evidence */
+.linker{position:sticky;top:0;z-index:2;background:var(--bg);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.linker .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.slot{min-width:9em;flex:1 1 9em;padding:7px 10px;border:1px dashed var(--line);border-radius:4px;font-size:.9rem;color:var(--muted)}
+.slot.full{border-style:solid;border-color:var(--rust);color:var(--ink)}
+.plus{font:700 1.2rem var(--display);color:var(--rust)}
+.linkmsg{margin:8px 0 0;font-size:.95rem}
+.linkmsg.good{color:var(--ok)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.card-ev{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.card-ev.sel{border-color:var(--rust);box-shadow:0 0 0 2px var(--rust-soft)}
+.card-ev .kind{font:700 .62rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.card-ev .nm{font-weight:600;font-size:1rem;line-height:1.25}
+.card-ev .sh{font-size:.86rem;color:var(--muted);line-height:1.35}
+.card-ev .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.card-ev.ghost{background:none;border-style:dashed;color:var(--muted);font-style:italic;min-height:84px;align-content:center;justify-items:center;text-align:center}
+.card-ev.lost{background:var(--rust-soft);border-color:var(--rust)}
+.deds{list-style:none;padding:0;margin:0;display:grid;gap:8px;max-width:72ch}
+.deds li{padding:9px 14px;border-left:3px solid var(--rust);background:var(--panel)}
+.deds b{display:block;font-weight:600}
+.deds span{font-size:.92rem;color:var(--muted)}
+
+/* crew */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.scard{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.scard .top{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:center}
+.scard .mono{width:48px;height:48px;font-size:1rem;border-radius:10px}
+.scard h4{margin:0;font-family:var(--display);font-weight:700;font-size:1.15rem;line-height:1.05}
+.scard .role{font-size:.86rem;color:var(--muted)}
+.scard dl{margin:0;display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:4px 10px;font-size:.88rem;line-height:1.35}
+.scard dt{font:700 .6rem/1.9 var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.scard dd{margin:0}
+.st{font:700 .6rem var(--display);letter-spacing:.1em;text-transform:uppercase;padding:1px 6px;border-radius:2px;margin-right:4px}
+.st.broken{background:var(--rust-soft);color:var(--rust)}
+.st.ok{background:rgba(47,122,79,.12);color:var(--ok)}
+.st.un{background:var(--teal-soft);color:var(--teal)}
+
+/* journal */
+.timeline{list-style:none;margin:0;padding:0;max-width:66ch;border-left:2px solid var(--line)}
+.timeline li{position:relative;padding:4px 0 10px 18px;font-size:.95rem;line-height:1.4}
+.timeline li::before{content:"";position:absolute;left:-6px;top:10px;width:10px;height:10px;border-radius:50%;background:var(--teal)}
+.timeline li.now::before{background:var(--rust)}
+.timeline time{display:block;font:600 .74rem var(--mono);color:var(--teal)}
+.leads{margin:0;padding-left:1.2em;max-width:66ch}
+.leads li{margin-bottom:5px}
+.log{list-style:none;margin:0;padding:0;max-width:66ch;font-size:.9rem;color:var(--muted);display:grid;gap:4px}
+.log time{font:600 .74rem var(--mono);color:var(--teal);margin-right:8px}
+
+/* finding */
+.hyp{display:grid;gap:22px;max-width:72ch}
+.hyp fieldset{border:0;margin:0;padding:0}
+.hyp legend{font-family:var(--display);font-weight:600;font-size:1.15rem;margin-bottom:8px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt span{display:block;height:100%;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:4px;cursor:pointer;font-size:.94rem;line-height:1.3}
+.opt input:checked+span{border-color:var(--rust);background:var(--rust-soft);box-shadow:inset 3px 0 0 var(--rust)}
+.opt input:focus-visible+span{outline:2px solid var(--teal);outline-offset:2px}
+.accbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
+
+/* ending */
+.ending-card{margin-top:24px;border:1px solid var(--line);background:var(--panel);padding:20px;max-width:66ch;border-radius:6px}
+.ending-card .label{font:700 .68rem var(--display);letter-spacing:.14em;color:var(--teal);margin:0 0 2px;text-transform:uppercase}
+.ending-card h4{font-family:var(--display);font-weight:700;font-size:1.9rem;color:var(--rust);margin:0 0 14px;line-height:1.05}
+.endings{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 18px;font-size:.9rem}
+@media (max-width:480px){.endings{grid-template-columns:minmax(0,1fr)}}
+.endings li{color:var(--muted)}
+.endings li.got{color:var(--ink)}
+.endings li.got::before{content:"◆ ";color:var(--rust)}
+.endings li:not(.got)::before{content:"◇ "}
+.score{width:100%;border-collapse:collapse;font-size:.93rem;margin:0 0 14px}
+.score td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.score td:last-child{text-align:right;font-family:var(--mono);font-weight:600;padding-left:12px}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:4px 0 16px;flex-wrap:wrap}
+.total b{font:700 2.2rem var(--display);color:var(--rust)}
+.total span{font:700 .76rem var(--display);letter-spacing:.14em;text-transform:uppercase}
+.chapters{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+dialog{border:0;padding:0;background:transparent;max-width:min(560px,calc(100vw - 32px));width:100%;color:var(--ink)}
+dialog::backdrop{background:rgba(10,5,3,.66)}
+.lens{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:22px 22px 18px;position:relative}
+.lens .kind{font:700 .64rem var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.lens h3{font-family:var(--display);font-weight:700;font-size:1.5rem;margin:4px 0 14px;line-height:1.1}
+.glass{padding:16px 18px;background:var(--panel2);border:1px solid var(--line);border-radius:4px;font-size:1rem;line-height:1.55}
+.glass.log{font-family:var(--mono);font-size:.86rem;white-space:pre-wrap;line-height:1.6}
+.glass.test{font-style:italic}
+.lens .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;justify-content:flex-end}
+.x{position:absolute;top:10px;right:12px;background:none;border:0;font-size:1.5rem;line-height:1;color:var(--muted);cursor:pointer;padding:4px 8px}
+
+.story-footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font:.78rem/1.6 system-ui,sans-serif;color:var(--muted)}
+.story-footer a{color:var(--rust)}
+@media (max-width:560px){body{font-size:17px}.band{padding:16px 16px 0;min-height:200px}.terrain{width:calc(100% + 32px);margin:12px -16px 0}.titles{max-width:100%}.sun,.phobos{display:none}.panelc{padding:10px 8px 8px}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.band,.sun,.phobos{transition:none}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <p class="tac-brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="/">DoorQuests</a> · Cases · Case No. 3</span></p>
+  <div class="band" id="band">
+    <div class="sun" id="sun" aria-hidden="true"></div><div class="phobos" id="phobos" aria-hidden="true"></div>
+    <div class="titles">
+      <p class="pre">Case File No. 3 · Hellas Basin, Mars · 2142</p>
+      <h1>The Oxygen Ledger</h1>
+      <p class="sub">Twelve minutes of air are missing, and the system says nothing happened.</p>
+    </div>
+    <svg class="terrain" id="terrain" viewBox="0 0 700 110" preserveAspectRatio="xMidYMax meet" aria-hidden="true"></svg>
+  </div>
+  <div class="strip" aria-label="Case status">
+    <div>Sol 1,412<b id="clock">05:30</b></div>
+    <div id="depBox">Transport lifts in<b id="dep">12h 30m</b></div>
+    <div id="rollBox">High-res logs<b id="roll">until 08:00</b></div>
+    <div id="upBox">Earth uplink<b id="up">until 16:00</b></div>
+    <div>Intuition<span class="pips" id="intuit"></span></div>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Case file" id="tabs"></nav>
+<div class="wrap"><div id="panel" aria-live="polite"></div></div>
+<dialog id="lens" aria-labelledby="lensTitle"><div class="lens" id="lensBody"></div></dialog>
+<footer class="story-footer"><a href="/">DoorQuests</a> · Cases · Case No. 3 · Progress, chapters and endings saved in this browser</footer>
+
+<script>
+/* ================= TIME (minutes after midnight, sol 1,412) ================= */
+const T0=330, ROLL=480, WIPE_T=660, UPLINK_T=960, DEAD=1080;
+const W0=90, W1=165;   // data window: 01:30 to 02:45
+
+/* ================= TELEMETRY (deterministic) ================= */
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=rng(1412),J=a=>(R()*2-1)*a;
+const o2true=m=>m<134?21:m<146?21-(m-134)/12*3.6:m<161?17.4+(m-146)/15*3.6:21;
+const DATA=(()=>{
+ const hi=[],lo=[],clinic=[],co2=[],pw=[];
+ for(let m=W0;m<=W1;m+=.25){hi.push([m,m>=133&&m<161?21.03:o2true(m)+J(.07)])}
+ for(let m=W0;m<=W1;m++){const s=hi.filter(p=>p[0]>=m&&p[0]<m+1);lo.push([m,s.reduce((a,p)=>a+p[1],0)/s.length])}
+ for(let m=W0;m<=W1;m++){clinic.push([m,o2true(m-1)+J(.05)])}
+ for(let m=W0;m<=W1;m+=.5){let v=m<118?2400+J(60):m<132?2400+(m-118)/14*39600:m<135?42000+J(400):m<140?42000-(m-135)/5*34000:m<151?8000-(m-140)/11*5000:m<160?3000-(m-151)/9*600:2400+J(60);co2.push([m,Math.max(0,v)])}
+ for(let m=W0;m<=W1;m+=.5){pw.push([m,m>=146&&m<161?9.8+J(.2):4.2+J(.12)])}
+ const hr={};
+ const mk=(f)=>{const a=[];for(let m=W0;m<=W1;m++){a.push([m,f(m)])}return a};
+ hr.sasha=mk(m=>m<124?72+J(3):m<129?72+(m-124)/5*53:m<131?125-(m-129)/2*77:m<139?46+J(2):m<141?55:78+J(3));
+ hr.tomas=mk(m=>m<132?66+J(3):m<142?135+J(6):m<150?105+J(3):84+J(3));
+ hr.ilya=mk(m=>52+J(2));
+ hr.jonah=mk(m=>m<100?74+J(3):m<115?null:m<118?92:72+J(3));
+ hr.abara=mk(m=>m<138?56+J(2):m<144?92+J(4):76+J(2));
+ return {hi,lo,clinic,co2,pw,hr};
+})();
+const VALVES={x2:[[134,146]],gv1:[[135,145]],v7:[[118,151]]};
+const BADGE={
+ sasha:[[91,"GH-2 in"]],tomas:[[133,"LS-1 panel"],[138,"GH-2 override"],[141,"Med bay"]],mei:[[140,"Med bay"]],
+ noor:[[118,"Data office"],[126,"Data office out"]],ilya:[[107,"RB-2 terminal"]],jonah:[[104,"Rover bay"],[112,"Rover bay out"]],abara:[[139,"Quarters"],[143,"Quarters"]]};
+const NAMES={sasha:"Sasha Brandt",tomas:"Tomás Velde",mei:"Mei Lindqvist",noor:"Noor Haddad",ilya:"Ilya Marchetti",jonah:"Jonah Pike",abara:"Ruth Abara"};
+
+const PANELS=[
+ {id:"o2",t:"Habitat oxygen, partial pressure (kPa)",kind:"line",y:[16.8,21.8],ticks:[17,18,19,20,21],fmt:v=>v.toFixed(0),
+  series:[{id:"main",l:"Main sensor LS-1",src:"core",c:"--c1"},{id:"clinic",l:"Clinic air monitor (med bay)",src:"med",c:"--c2"}]},
+ {id:"valves",t:"Valve positions (open = raised)",kind:"steps",
+  series:[{id:"x2",l:"X-2 crossflow",src:"core",c:"--c3"},{id:"gv1",l:"GV-1 vent",src:"core",c:"--c7"},{id:"v7",l:"V-7 CO₂ injector",src:"core",c:"--c5"}]},
+ {id:"co2",t:"Greenhouse G2 carbon dioxide (ppm)",kind:"line",y:[0,45000],ticks:[0,10000,20000,30000,40000],fmt:v=>v?(v/1000)+"k":"0",
+  series:[{id:"co2",l:"Greenhouse CO₂",src:"gh",c:"--c5"}]},
+ {id:"hr",t:"Crew heart rate (bpm), from biomonitor bands",kind:"lanes",y:[40,140],
+  series:["sasha","tomas","ilya","jonah","abara"].map((k,i)=>({id:k,l:NAMES[k].split(" ")[0],src:"med",c:["--c4","--c3","--c1","--c2","--c6"][i]}))},
+ {id:"badge",t:"Badge and credential events",kind:"events",
+  series:["sasha","tomas","mei","noor","ilya","jonah","abara"].map((k,i)=>({id:k,l:NAMES[k].split(" ")[0],src:"sec",c:["--c4","--c3","--c7","--c6","--c1","--c2","--c5"][i]}))},
+ {id:"power",t:"Oxygen generator power draw (kW)",kind:"line",y:[0,11],ticks:[0,2,4,6,8,10],fmt:v=>v,
+  series:[{id:"pw",l:"Electrolysis stack",src:"power",c:"--c6"}]}
+];
+const SRC={core:"Life-support core",med:"Med bay biomonitors",gh:"Greenhouse controller",sec:"Security badge log",power:"Power plant"};
+
+/* anomalies on the wall: flag the right line over the right window */
+const ANOM=[
+ {p:"o2",s:"main",f:133,t:161,ev:"flatline",hi:1},
+ {p:"o2",s:"clinic",f:134,t:161,ev:"dip"},
+ {p:"valves",s:"x2",f:134,t:146,ev:"crossflow"},
+ {p:"valves",s:"gv1",f:135,t:145,ev:"crossflow"},
+ {p:"valves",s:"v7",f:118,t:151,ev:"v7open"},
+ {p:"co2",s:"co2",f:118,t:135,ev:"co2spike"},
+ {p:"hr",s:"sasha",f:129,t:139,ev:"collapse"},
+ {p:"hr",s:"tomas",f:132,t:142,ev:"tomasRun"},
+ {p:"hr",s:"ilya",f:107,t:107,pt:1,ev:"ilyaAsleep"},
+ {p:"hr",s:"jonah",f:100,t:115,ev:"bandGap"},
+ {p:"hr",s:"abara",f:138,t:144,ev:"abaraAwake"},
+ {p:"badge",s:"jonah",f:104,t:112,ev:"jonahDoor"},
+ {p:"badge",s:"ilya",f:107,t:107,pt:1,ev:"rbBadge"},
+ {p:"badge",s:"tomas",f:133,t:141,ev:"tomasRun"},
+ {p:"badge",s:"abara",f:139,t:143,ev:"abaraAwake"},
+ {p:"badge",s:"noor",f:118,t:126,x:"Noor in the data office from 01:58 to 02:06: the scheduled software patch window. Nothing odd about the timing."},
+ {p:"badge",s:"sasha",f:91,t:91,pt:1,x:"Sasha into greenhouse G2 at 01:31. An odd hour for gardening, but it's her greenhouse and her badge."},
+ {p:"badge",s:"mei",f:140,t:140,pt:1,x:"Mei into the med bay at 02:20, a minute before Tomás. Someone called her there."},
+ {p:"power",s:"pw",f:146,t:161,ev:"makeup"}
+];
+
+/* ================= EVIDENCE ================= */
+const EV={
+ ledger:{n:"The oxygen ledger",k:"Record",s:"Twelve minutes short",
+  d:"Juniper's running mass balance of oxygen: made, stored, breathed. Overnight it came up short by exactly the oxygen the habitat breathes in twelve minutes. The generator made up the loss before dawn. The fault register for the night is empty."},
+ overrideLog:{n:"Life-support override log",k:"Log",s:"Manual commands overnight",log:1,
+  d:"01:47  V-7  MAINT HOLD (remote)\n02:13  LS-1 MAINTENANCE MODE  badge T.VELDE\n02:14  X-2  OPEN (manual)\n02:15  GV-1 OPEN (manual)\n02:25  GV-1 CLOSE (manual)\n02:26  X-2  CLOSE (manual)\n02:26  OGS OUTPUT 100% (manual)\n02:31  V-7  CLOSE (local, by hand)\n02:41  LS-1 MAINTENANCE MODE END"},
+ v7:{n:"Valve V-7's controller",k:"Physical",s:"In greenhouse G2",
+  d:"The bulk CO₂ injector's little display still shows its last command: ‘HOLD (remote) set 01:47. Closed locally 02:31.’ A remote hold keeps a valve in whatever position its next cycle leaves it. At 01:58 its next cycle was ‘open’."},
+ crop:{n:"The J-9 wheat trays",k:"Physical",s:"Labelled in Sasha's hand",
+  d:"Three trays of wheat, greener than anything else in the greenhouse. Taped to the rack: ‘J-9 · night CO₂ 2× (2,400 ppm) · DO NOT LOG’."},
+ lockerBadge:{n:"Ilya's locker",k:"Physical",s:"The latch doesn't lock",
+  d:"Ilya Marchetti's locker in the rover bay. The latch is broken and swings open at a touch. His credential badge hangs inside on its lanyard. The locker beside it is labelled J. PIKE."},
+ snapshot:{n:"Terminal RB-2 snapshot",k:"Image",s:"Face camera at 01:47",
+  d:"Rover-bay terminal RB-2 takes a face snapshot whenever a credential logs in. At 01:47, logged in as I.MARCHETTI, it caught a figure turned away from the lens, wearing an orange work jacket with a white chevron on the shoulder."},
+ jacket:{n:"Jonah's work jacket",k:"Physical",s:"Hanging in the geology lab",
+  d:"An orange Valles Ore work jacket with a white chevron on the shoulder, on a hook behind Jonah Pike's bench. No one else in Juniper owns one."},
+ lease:{n:"Valles Ore lease, clause 14",k:"Record",s:"From the Earth uplink",
+  d:"Mars Authority registry: Valles Ore's mining lease at Hellas includes clause 14. If Juniper's colony charter lapses, the habitat site and its ice rights convert to Valles Ore. Personnel note: J. Pike, Valles Ore Contract Services, seconded to Juniper."},
+ patchlog:{n:"The 02:00 patch log",k:"Log",s:"Noor's software update",log:1,
+  d:"02:00  COMMS STACK FIRMWARE 7.4.2  BEGIN\n02:04  APPLY COMPLETE\n02:05  ALARM SELF-TEST  PASS (LS-1, LS-2, GH-2)\n02:06  SESSION CLOSED  N.HADDAD"},
+ flatline:{n:"The frozen line",k:"Data",s:"LS-1 reads 21.03 kPa, perfectly",
+  d:"From 02:13 to 02:41 the main oxygen sensor reads exactly 21.03 kPa at every sample. Before and after, it wobbles like any real sensor."},
+ dip:{n:"The dip LS-1 never saw",k:"Data",s:"Clinic monitor: down to 17.4 kPa",
+  d:"The med bay's separate air monitor shows habitat oxygen falling from 21 to 17.4 kPa between 02:14 and 02:26, then climbing back by 02:40."},
+ makeup:{n:"The generator catches up",k:"Data",s:"Full power, 02:26 to 02:41",
+  d:"The electrolysis stack jumps from 4.2 to 9.8 kW at 02:26 and runs flat out until 02:41, making exactly the oxygen the ledger says went missing."},
+ crossflow:{n:"Crossflow X-2 opens",k:"Data",s:"Hab and greenhouse joined",
+  d:"Valve X-2 opens at 02:14 and closes at 02:26, joining the habitat's air to the greenhouse. The greenhouse vent GV-1 is open alongside it from 02:15 to 02:25."},
+ v7open:{n:"V-7 stuck open",k:"Data",s:"01:58 to 02:31",
+  d:"The greenhouse's bulk CO₂ injector V-7 opens at 01:58 and stays open until 02:31, eleven minutes after its remote hold was set."},
+ co2spike:{n:"The CO₂ spike",k:"Data",s:"2,400 to 42,000 ppm",
+  d:"Greenhouse CO₂ climbs from 2,400 ppm at 01:58 to 42,000 ppm by 02:12, more than four percent. It falls only after 02:15."},
+ collapse:{n:"Sasha's collapse",k:"Data",s:"Heart rate: 125, then 46",
+  d:"Sasha Brandt's biomonitor shows her heart racing to 125 at 02:09, then dropping to 46 by 02:11 and staying there until 02:19: unconscious."},
+ tomasRun:{n:"Tomás's run",k:"Data",s:"LS-1, greenhouse, med bay",
+  d:"Tomás Velde: heart rate jumps to 135 at 02:12. His badge hits the LS-1 panel at 02:13, the greenhouse door override at 02:18 and the med bay at 02:21."},
+ ilyaAsleep:{n:"Ilya asleep at 01:47",k:"Data",s:"52 bpm, deep sleep",
+  d:"Ilya Marchetti's biomonitor reads a steady 52 bpm all night, including 01:47. He was asleep in his quarters."},
+ bandGap:{n:"Jonah's band goes dark",k:"Data",s:"Off-wrist 01:40 to 01:55",
+  d:"Jonah Pike's biomonitor records ‘off-wrist’ from 01:40 to 01:55. When it comes back on his heart rate is 92."},
+ jonahDoor:{n:"Jonah in the rover bay",k:"Data",s:"01:44 in, 01:52 out",
+  d:"Jonah Pike's badge opens the rover bay at 01:44 and again on the way out at 01:52."},
+ rbBadge:{n:"Ilya's credential at RB-2",k:"Data",s:"01:47, rover-bay terminal",
+  d:"At 01:47 the I.MARCHETTI credential logs in to rover-bay terminal RB-2, the terminal that sent V-7 its remote hold."},
+ abaraAwake:{n:"The commander wakes",k:"Data",s:"02:18, heart rate 92",
+  d:"Commander Abara's heart rate jumps at 02:18 and her quarters door opens at 02:19, then again at 02:23."},
+ noorCal:{n:"Noor on calibration hold",k:"Testimony",s:"How a sensor stops looking",
+  d:"Noor Haddad: “Calibration hold freezes a sensor's output at its last value while you service it, so the alarms don't trip. You get a frozen line, perfectly flat. Real sensors are never perfectly flat.”"},
+ tomasConfess:{n:"Tomás's confession",k:"Testimony",s:"Why he opened X-2",
+  d:"Tomás Velde: “V-7 stuck open and Sasha was in there at four percent. The greenhouse door won't open above two; it protects the hab. So I flushed the greenhouse with our air through X-2 and froze LS-1 so it wouldn't send the automatic report. One report like that in review week and Juniper is finished.”"},
+ meiAccount:{n:"Mei's account",k:"Testimony",s:"CO₂ narcosis, not migraine",
+  d:"Dr. Mei Lindqvist: “Carbon dioxide narcosis. Five more minutes and I'd be writing a death certificate. Tomás carried her in at 02:21. I kept her breathing and wrote ‘migraine’.”"},
+ sashaAcct:{n:"Sasha's account",k:"Testimony",s:"The secret wheat",
+  d:"Sasha Brandt: “The J-9 wheat was dying at the approved CO₂ level. I've been doubling it at night and fixing the logs. 2,400 ppm, never more. I never touch V-7; it's the bulk injector. Fully open, it kills.”"},
+ abaraSaw:{n:"What the commander saw",k:"Testimony",s:"And chose not to report",
+  d:"Commander Abara: “I heard running at 02:19. I saw Tomás carrying Sasha and Mei holding the med bay door. I closed my door again. If I didn't see it, I didn't have to report it.”"}
+};
+const EV_TOTAL=Object.keys(EV).length; // Includes the initially supplied oxygen ledger.
+
+/* ================= CONNECTIONS ================= */
+const DED={
+ C1:{a:"flatline",b:"noorCal",t:"LS-1 was in calibration hold",x:"No real sensor reads 21.03 for twenty-eight minutes. Someone froze LS-1 so it couldn't see, or report, what happened."},
+ C2:{a:"flatline",b:"dip",t:"A real drop the main sensor never saw",x:"While LS-1 sat frozen at 21.03, the clinic monitor watched oxygen fall to 17.4 kPa. The fault was real; the sensor was blind."},
+ C3:{a:"dip",b:"makeup",t:"The oxygen really left",x:"The generator ran flat out from 02:26 to 02:41 to replace oxygen that the main sensor says was never lost."},
+ L1:{a:"ledger",b:"makeup",t:"The ledger's missing twelve minutes",x:"The generator's catch-up output matches the ledger's shortfall to the gram. The air went somewhere."},
+ C4:{a:"crossflow",b:"dip",t:"The crossflow drained the hab",x:"Oxygen falls from the moment X-2 opens at 02:14 to the moment it closes at 02:26. The habitat's air was poured into the greenhouse."},
+ C5:{a:"co2spike",b:"collapse",t:"Sasha collapsed from CO₂",x:"Greenhouse CO₂ passes four percent at 02:09. Sasha's heart races, then falls to 46. She was unconscious in there."},
+ C6:{a:"tomasRun",b:"collapse",t:"Tomás ran to save her",x:"One minute after Sasha's heart rate collapses, Tomás is running: LS-1, the greenhouse door, the med bay."},
+ C7:{a:"v7open",b:"co2spike",t:"V-7 caused the spike",x:"The CO₂ starts climbing the minute V-7 opens at 01:58, and doesn't fall until the greenhouse is flushed."},
+ C8:{a:"crop",b:"co2spike",t:"Far beyond Sasha's experiment",x:"Sasha's secret runs at 2,400 ppm. The spike reached 42,000. Her wheat didn't do this."},
+ C9:{a:"rbBadge",b:"ilyaAsleep",t:"Ilya's credential, not Ilya",x:"Ilya's credential logged in at RB-2 at 01:47 while his heart beat a sleeping 52 in his quarters."},
+ C10:{a:"jonahDoor",b:"rbBadge",t:"Jonah was at RB-2",x:"Jonah Pike was in the rover bay from 01:44 to 01:52. The hold was sent from its terminal at 01:47."},
+ C11:{a:"bandGap",b:"jonahDoor",t:"Jonah took off his band to go",x:"Jonah's biomonitor goes off-wrist at 01:40 and back on at 01:55, neatly around his trip to the rover bay."},
+ C12:{a:"lease",b:"v7",t:"Sabotage aimed at the charter",x:"A remote hold on V-7, in review week, by a man whose employer takes Juniper if the charter lapses."},
+ C13:{a:"overrideLog",b:"tomasRun",t:"Tomás froze LS-1, then ran",x:"LS-1 into maintenance mode under Tomás's badge at 02:13, the crossflow at 02:14, then the greenhouse door at 02:18."},
+ C14:{a:"snapshot",b:"jacket",t:"Valles Ore orange at RB-2",x:"The figure at RB-2 at 01:47 wore an orange jacket with a white chevron. Only one in Juniper: Jonah Pike's."},
+ R1:{a:"patchlog",b:"flatline",t:"The patch didn't do it",x:"Noor's patch finished at 02:04 and the alarm self-test passed at 02:05. LS-1 froze at 02:13."},
+ R2:{a:"lockerBadge",b:"rbBadge",t:"Anyone could take Ilya's badge",x:"Ilya's badge hangs in a locker that doesn't lock, beside Jonah Pike's."},
+ R3:{a:"abaraAwake",b:"crossflow",t:"The commander woke too late",x:"X-2 opened at 02:14. Commander Abara woke at 02:18. She didn't open it."}
+};
+const DED_TOTAL=Object.keys(DED).length;
+
+/* ================= CREW ================= */
+const TONE={coax:"Coax",ask:"Ask",press:"Press"};
+const RESCUE=["C4","C6","C13","C2"];
+const rescueInterviewReady=s=>!!(s.ded.C4&&(s.ded.C6||s.ded.C13||s.ded.C2));
+const SUS={
+ abara:{n:"Commander Ruth Abara",short:"Abara",mono:"RA",role:"Habitat commander, 52 · Command office",pref:"ask",
+  tell:"Fourteen years of Juniper on her shoulders. She respects plain questions; coaxing reads as manipulation, and pressing makes her pull rank.",
+  topics:[
+   {id:"night",q:"Where were you last night?",r:{
+    coax:{t:"“Asleep. I sleep like a stone.”"},
+    ask:{t:"“In my quarters, asleep, until the ledger alarm at five.”"},
+    press:{t:"“In bed, Inspector. Where were you?”",sus:1}}},
+   {id:"med",q:"Will you authorize release of the crew's biomonitor data?",r:{
+    coax:{t:"“Mei will hate me for it.” A long breath. “Yes. Authorized.”",set:["medAuth"]},
+    ask:{t:"“It's within your remit. Authorized. Tell Mei I said so.”",set:["medAuth"]},
+    press:{t:"“Not on that tone. Get Mei's consent yourself.”",sus:1}}},
+   {id:"charter",q:"What happens if Juniper fails this review?",r:{
+    coax:{t:"“We lose it. All of it.”"},
+    ask:{t:"“The charter lapses. Valles Ore's mining lease converts and the site is theirs: the habitat, the ice, fourteen years of our lives. Clause fourteen. Everyone here can recite it.”",set:["clause"]},
+    press:{t:"“Then you'll have done Valles Ore's work for them.”",sus:1}}}],
+  present:{
+   abaraAwake:{t:"She is quiet a long time. “I heard running at 02:19. I saw Tomás carrying Sasha and Mei holding the med bay door. I closed my door again. If I didn't see it, I didn't have to report it.”",ev:"abaraSaw"},
+   tomasRun:{t:"“Tomás.” She closes her eyes. “I heard running at 02:19. I looked out. I saw him carrying Sasha, and Mei holding the door. I went back to bed. If I didn't see it, I didn't have to report it.”",ev:"abaraSaw"},
+   lease:{t:"“Clause fourteen. And their geologist sleeps in my habitat.”"},
+   flatline:{t:"“Frozen? Then someone didn't want the system to see.”"},
+   ledger:{t:"“Twelve minutes of air nobody can account for. In review week.”"},
+   jacket:{t:"“Valles Ore issue. Pike wears it everywhere, like a flag.”"}},
+  dflt:"“I don't see how that helps.”"},
+ tomas:{n:"Tomás Velde",short:"Tomás",mono:"TV",role:"Life-support engineer, 44 · Life-support bay",pref:"coax",
+  tell:"A good engineer carrying something heavy. Gentleness will let him put it down. Pressure makes him dig in to protect someone.",
+  topics:[
+   {id:"night",q:"Where were you last night?",r:{
+    coax:{t:"“I don't sleep much. I was reading in my cabin.” He doesn't meet your eyes."},
+    ask:{t:"“In my cabin.”"},
+    press:{t:"“Asleep.”",sus:1}}},
+   {id:"system",q:"Could LS-1 miss a real oxygen drop?",r:{
+    coax:{t:"“Not unless someone told it not to look.” He hears himself say it, and goes still."},
+    ask:{t:"“No. LS-1 is triple-redundant. It doesn't miss things.”"},
+    press:{t:"“Are you asking if I broke my own sensors?”",sus:1}}}],
+  present:{
+   flatline:{t:"“Sensors drift.”",ifDed:RESCUE,alt:{t:"He sits down on an equipment crate. “Sasha was dying in there. V-7 had stuck open and the greenhouse was at four percent CO₂ and climbing. The door won't open above two; it protects the hab. So I opened the crossflow and flushed the greenhouse with our own air, and I froze LS-1 so it wouldn't send the automatic report to the Authority. One report like that in review week and Juniper is finished.” He looks up. “I'd do it again.”",ev:"tomasConfess",sus:-1}},
+   dip:{t:"“The clinic monitor is cheap.”",ifDed:RESCUE,alt:{t:"He sits down heavily. “All right. Sasha was in the greenhouse and V-7 had stuck open. Four percent CO₂. The door won't open above two. I flushed it with our air through X-2 and froze LS-1 so the system wouldn't report us to the Authority. I'd do it again.”",ev:"tomasConfess",sus:-1}},
+   crossflow:{t:"“X-2 cycles for maintenance.”",ifDed:RESCUE,alt:{t:"“She was dying, Inspector.” He tells you all of it: V-7 stuck open, four percent CO₂, a door that wouldn't open, twelve minutes of the habitat's air poured into the greenhouse, LS-1 frozen so the system wouldn't report Juniper. “I'd do it again.”",ev:"tomasConfess",sus:-1}},
+   tomasRun:{t:"He looks at his own heartbeat on the screen for a long time. “Sasha was in the greenhouse. V-7 had stuck open. Four percent. I froze LS-1, I opened X-2 and flushed it with our air, and I carried her out. If the system had seen it, the Authority would have Juniper's charter by breakfast. I'd do it again.”",ev:"tomasConfess",sus:-1},
+   overrideLog:{t:"“Maintenance mode. I do maintenance.”"},
+   v7:{t:"“Remote hold? V-7 has never stuck in two years. Somebody held it.” His jaw tightens."},
+   patchlog:{t:"“Noor's patches never touch life support.”"}},
+  dflt:"“I don't know what you want me to say.”"},
+ mei:{n:"Dr. Mei Lindqvist",short:"Mei",mono:"ML",role:"Physician, 39 · Med bay",pref:"ask",
+  tell:"Professional to her bones and protective of her patient. Plain questions get plain answers; coaxing she sees through, pressure makes her close the file.",
+  topics:[
+   {id:"sasha",q:"What's wrong with Sasha?",r:{
+    coax:{t:"“A migraine. She needs rest.”"},
+    ask:{t:"“That's confidential, Inspector, unless the commander says otherwise.”"},
+    press:{t:"“She's my patient, not your suspect.”",sus:1}}},
+   {id:"data",q:"Will you release the biomonitor data?",r:{
+    coax:{t:"“With the commander's authorization, yes.”"},
+    ask:{t:"She considers you. “If it helps end this today, yes. I'll log it as your request.”",set:["medAuth"]},
+    press:{t:"“No.”",sus:1}}}],
+  present:{
+   collapse:{t:"She looks at the trace and puts her pen down. “Carbon dioxide narcosis. Five more minutes and I'd be writing a death certificate. Tomás carried her in at 02:21. I kept her breathing and I wrote ‘migraine’.”",ev:"meiAccount"},
+   co2spike:{t:"“Forty-two thousand.” She closes her eyes. “Carbon dioxide narcosis. That's what was wrong with her. Tomás carried her in at 02:21; I wrote ‘migraine’.”",ev:"meiAccount"},
+   dip:{t:"“Yes. My monitor saw it. I saw it in my patients this morning too: headaches all round.”"}},
+  dflt:"“That's not a medical question.”"},
+ sasha:{n:"Sasha Brandt",short:"Sasha",mono:"SB",role:"Botanist, 31 · Recovering in the med bay",pref:"coax",
+  tell:"Frightened, ashamed and still dizzy. Be kind and she'll tell you everything. Press her and she'll just cry.",
+  topics:[
+   {id:"night",q:"What were you doing in the greenhouse at two in the morning?",r:{
+    coax:{t:"Her eyes fill. “The J-9 wheat was dying at the approved CO₂. I've been doubling it at night and fixing the logs. 2,400 ppm, never more. If the Authority saw a failed crop in review week…” She trails off. “I'm sorry.”",ev:"sashaAcct"},
+    ask:{t:"“Checking the irrigation.”"},
+    press:{t:"She starts to cry and doesn't stop.",sus:2}}},
+   {id:"valve",q:"Did you touch valve V-7?",r:{
+    coax:{t:"“Never. I raise CO₂ through the dosing schedule. V-7 is the bulk injector. Fully open, it kills anyone in there in minutes.”"},
+    ask:{t:"“No. V-7 is the bulk injector. I don't touch it.”"},
+    press:{t:"“No!”",sus:1}}}],
+  present:{
+   crop:{t:"“You found them.” She tells you about the J-9 wheat, the doubled CO₂, the edited logs. “2,400 ppm. Never more. I never touched V-7.”",ev:"sashaAcct"},
+   v7:{t:"“A remote hold? I was inside. Why would I…” She stops, and goes white."},
+   co2spike:{t:"“Forty-two thousand?” She grips the bed rail. “That isn't my experiment. That's V-7, wide open.”"}},
+  dflt:"“I don't know anything about that.”"},
+ noor:{n:"Noor Haddad",short:"Noor",mono:"NH",role:"Systems and data officer, 35 · Data office",pref:"ask",
+  tell:"Precise and proud of it. Ask exact questions and she gives exact answers. Coaxing bores her; pressing insults her.",
+  topics:[
+   {id:"patch",q:"What did the 02:00 software patch do?",r:{
+    coax:{t:"“Routine. Nothing to do with life support.”"},
+    ask:{t:"“Comms firmware. Applied 02:00 to 02:04, alarm self-test passed at 02:05. Here's the log.”",ev:"patchlog"},
+    press:{t:"“You think my patch did this? Read the log.” She sends it to you with a sharp tap.",ev:"patchlog",sus:1}}},
+   {id:"cal",q:"How could LS-1 report no fault during a real drop?",r:{
+    coax:{t:"“It couldn't. Unless it wasn't looking.”"},
+    ask:{t:"“Calibration hold. It freezes a sensor's output at its last value while you service it, so the alarms don't trip. You get a frozen line, perfectly flat. Real sensors are never perfectly flat.”",ev:"noorCal"},
+    press:{t:"“Read the manual, Inspector.”",sus:1}}}],
+  present:{
+   flatline:{t:"“That's a calibration hold. Look at it: not a wobble for twenty-eight minutes. Real sensors are never that flat.”",ev:"noorCal"},
+   rbBadge:{t:"“RB-2. That's the only rover-bay terminal with greenhouse write access. Lazy permissions; I flagged it last year.”"},
+   snapshot:{t:"“Face camera. It's cheap and people forget it's there.”"}},
+  dflt:"“That's outside my systems.”"},
+ ilya:{n:"Ilya Marchetti",short:"Ilya",mono:"IM",role:"Rover technician, 47 · Rover bay",pref:"press",
+  tell:"Gruff and impatient. Soft questions waste his time. Push him and he'll respect you enough to answer.",
+  topics:[
+   {id:"night",q:"Where were you last night?",r:{
+    coax:{t:"“Sleeping.”"},
+    ask:{t:"“Asleep.”"},
+    press:{t:"“Asleep, like a sane man. Check my band if you don't believe me.”"}}},
+   {id:"badge",q:"Where do you keep your credential badge?",r:{
+    coax:{t:"“Around.”"},
+    ask:{t:"“In my locker, usually.”"},
+    press:{t:"“In my locker. The latch has been broken a month; I've asked for a new one twice. Jonah's locker is right next to it.”",set:["ilyaLocker"]}}}],
+  present:{
+   rbBadge:{t:"“01:47? I was asleep. Somebody had my badge.”"},
+   ilyaAsleep:{t:"“There. Fifty-two. Told you.”"},
+   lockerBadge:{t:"“Broken a month. Anyone could open it.”"},
+   jacket:{t:"“Pike's. Wears it to breakfast.”"}},
+  dflt:"“Don't know. Don't care.”"},
+ jonah:{n:"Jonah Pike",short:"Jonah",mono:"JP",role:"Contract geologist, 36 · Geology lab",pref:"ask",
+  tell:"Friendly, quick, and very careful. Plain questions keep him relaxed; pressing makes him watchful, and watchful men act.",
+  topics:[
+   {id:"night",q:"Where were you last night?",r:{
+    coax:{t:"“Fast asleep. My band was on the charger, so I'm afraid I can't prove it.”"},
+    ask:{t:"“Asleep. My band was charging, so no alibi, sorry.” He smiles."},
+    press:{t:"“Asleep. Is this how the Authority treats guests?”",sus:1}}},
+   {id:"company",q:"Who do you work for?",r:{
+    coax:{t:"“Juniper, effectively. I survey the ice.”"},
+    ask:{t:"“Valles Ore Contract Services. They lend me to Juniper for the ice survey.”",set:["jonahVO"]},
+    press:{t:"“The same people who'll keep your lights on when this colony folds.”",sus:1,set:["jonahVO"]}}}],
+  present:{
+   bandGap:{t:"“So I took it off. It itches.”",sus:1},
+   jonahDoor:{t:"“I went to the rover bay for a sample case. Is that a crime?”",sus:1},
+   snapshot:{t:"He looks at it for a long moment and says nothing at all.",sus:2},
+   jacket:{t:"“Company issue. There are thousands of them.”",sus:1},
+   lease:{t:"“Clause fourteen isn't my doing.”",sus:1},
+   rbBadge:{t:"“Ilya's badge? Ask Ilya.”",sus:1},
+   v7:{t:"“I don't go near the greenhouse.”",sus:1},
+   lockerBadge:{t:"“I don't keep track of other people's lockers.”",sus:1}},
+  dflt:"“No idea, I'm afraid.”"}
+};
+const SUS_ORDER=["abara","tomas","mei","sasha","noor","ilya","jonah"];
+const MOOD=["Calm","Wary","Guarded","Rattled","Silent","Silent"];
+const WHERE={abara:"command",tomas:"ls",mei:"med",sasha:"med",noor:"data",ilya:"rover",jonah:"geology"};
+
+const HYP={
+ cause:{l:"What drained the oxygen?",o:[["crossflow","Habitat air cross-flowed into the greenhouse"],["leak","A slow hull leak"],["generator","An oxygen generator failure"],["patch","The 02:00 software patch"]]},
+ opener:{l:"Who opened the crossflow, and why?",o:[["tomas_rescue","Tomás Velde, to save someone in the greenhouse"],["tomas_sab","Tomás Velde, to sabotage the habitat"],["abara","Commander Abara, to stage an emergency"],["nobody","No one. The valves never moved"]]},
+ mask:{l:"Why did the system report no fault?",o:[["cal","LS-1 was frozen in calibration hold"],["patch","The patch disabled the alarms"],["edit","The logs were edited afterwards"],["none","There was no fault to report"]]},
+ saboteur:{l:"Who put valve V-7 on remote hold?",o:[...SUS_ORDER.map(k=>[k,NAMES[k==="abara"?"abara":k]]),["none","No one. V-7 failed by itself"]]}
+};
+const ENDINGS={E1:"Clean Air",E2:"Half a Breath",E3:"The Hero in the Dock",E4:"Borrowed Badge",E5:"Charter Lapsed",E6:"No Fault Found",E7:"Thin Air"};
+const CHAPTERS={ch1:"Chapter I · The Short Ledger",ch2:"Chapter II · Averaged Out",ch3:"Chapter III · The Last Window"};
+
+/* ================= HELPERS ================= */
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function hm(m){m=Math.round(m);return String(Math.floor(m/60)%24).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
+function dur(m){m=Math.max(0,Math.round(m));const h=Math.floor(m/60),mm=m%60;return h?`${h}h ${String(mm).padStart(2,"0")}m`:`${mm}m`}
+function cost(c){return c>=60?(c%60?`${Math.floor(c/60)} hr ${c%60} min`:`${c/60} hr`):`${c} min`}
+function em(t){return String(t).replace(/\*(.+?)\*/g,"<em>$1</em>")}
+function add(s,id){if(s.ev[id]||!EV[id])return;s.ev[id]=1;s.flash.push(["new",`<b>New evidence</b>${EV[id].n}`]);s.log.push([s.clock,`Found: ${EV[id].n}`])}
+function note(s,t,cls){s.flash.push([cls||"",t]);if(cls==="warn")s.log.push([s.clock,t.replace(/<[^>]+>/g,"")])}
+function says(s,t){s.flash.push(["",t])}
+function pull(s,key){if(s.src[key])return;const q=(key==="core"||key==="gh")&&s.clock>=ROLL?"lo":"hi";s.src[key]=q;
+ s.flash.push(["new",`<b>Data pulled</b>${SRC[key]}${q==="lo"?" · one-minute averages only":""} · now on the Data Wall`]);s.log.push([s.clock,`Pulled: ${SRC[key]}${q==="lo"?" (averaged)":""}`]);
+ if(q==="lo")note(s,"The high-resolution buffer rolled over at 08:00. What's left is one-minute averages: smooth, tidy, and much less honest.","warn")}
+
+/* ================= LOCATIONS ================= */
+const move=(to,label,sub)=>({l:label,sub,c:5,a:s=>{s.loc=to;s.view="scene"}});
+const back={l:"Back to the commons",c:3,a:s=>{s.loc="commons";s.view="scene"}};
+const talk=id=>({l:`Talk to ${SUS[id].n}`,c:0,tag:"Interview",a:s=>{s.view="interview";s.who=id}});
+const ROOMS=[["ls","Life support"],["greenhouse","Greenhouse G2"],["med","Med bay"],["data","Data office"],["rover","Rover bay"],["power","Power plant"],["geology","Geology lab"],["command","Command office"]];
+
+const L={
+ intro:{t:"The Short Ledger",chapter:"Chapter I",p:()=>[
+  "Sol 1,412, 05:30. Juniper Habitat sits on the rim of Hellas Basin under a butterscotch sky: eight modules around a domed commons, a greenhouse glowing green through its panels, an antenna mast, two rovers asleep in the dust.",
+  "You are Inspector Ana Ferreira of the Mars Authority's Life-Support Safety Board, here for Juniper's charter review. At five o'clock Commander Ruth Abara knocked on your door with her tablet in her hand.",
+  "Juniper's oxygen ledger, the running balance of every gram of oxygen made, stored and breathed, came up twelve minutes short overnight. The generator made up the loss before dawn. Half the crew woke with headaches. And the system logged no fault, no alarm, nothing at all.",
+  "Seven people in Juniper hold life-support clearance. The Authority transport lifts off at 18:00, and your finding goes with it.",
+  "“One more thing,” Abara says. “The life-support core and the greenhouse controller only keep high-resolution logs for six hours. At 08:00, last night gets averaged down to one-minute readings.” *Every graph tells the truth about something. Find the one that doesn't.*"],
+  o:()=>[
+   {l:"Go straight to the life-support bay and pull the core logs",c:8,a:s=>{s.loc="ls"}},
+   {l:"Ask the commander a few questions first",c:5,a:s=>{s.loc="command"}},
+   {l:"Look around the commons",c:3,a:s=>{s.loc="commons"}}]},
+
+ commons:{t:"The Commons",map:true,p:s=>{
+  const a=["A round room under a dome of thick amber glass. A long table, a coffee machine nobody trusts, a wall screen showing the ledger's one red line. Through the glass, the plain runs flat and rust-coloured to the basin's far rim."];
+  if(s.clock>=ROLL&&!(s.src.core==="hi")) a.push("The high-resolution buffer rolled over at 08:00.");
+  if(s.f.jonahAlarm) a.push("The greenhouse status light on the wall screen is amber.");
+  a.push("Where now?");return a},
+  o:s=>ROOMS.map(([k,l])=>{const who=Object.keys(WHERE).filter(p=>WHERE[p]===k).map(p=>SUS[p].short);return move(k,l,who.join(", "))})},
+
+ ls:{t:"Life-Support Bay",p:()=>[
+  "Pumps, scrubbers, the hiss of the electrolysis stack next door. Panel LS-1 glows green: ALL SYSTEMS NOMINAL.",
+  "Tomás Velde, the life-support engineer, is wiping down a panel that is already clean. He has the look of a man who hasn't slept."],
+  o:s=>{const o=[];
+   if(!s.src.core) o.push({l:"Pull the life-support core logs",c:25,tag:s.clock<ROLL?"High-res until 08:00":"Averaged",a:s=>{pull(s,"core");add(s,"overrideLog")}});
+   if(s.f.jonahAlarm&&!s.f.v7locked) o.push({l:"Have Tomás lock out valve V-7 at the source",c:15,a:s=>{s.f.v7locked=1;says(s,"Tomás doesn't ask why. He pulls V-7's breaker and tags it out. “Somebody's been playing with it again,” he says. “Remote hold. Twenty minutes ago.”")}});
+   o.push(talk("tomas"));o.push(back);return o}},
+
+ greenhouse:{t:"Greenhouse G2",p:s=>[
+  "Through the airlock glass: racks of lettuce, beans, potatoes, and wheat under pink grow-lights. The air smells of wet soil and, faintly, of something sharp.",
+  "On the wall, the greenhouse controller and the stubby grey body of V-7, the bulk CO₂ injector."],
+  o:s=>{const o=[];
+   if(!s.src.gh) o.push({l:"Pull the greenhouse controller logs",c:20,a:s=>pull(s,"gh")});
+   if(!s.ev.v7) o.push({l:"Read valve V-7's controller display",c:10,a:s=>add(s,"v7")});
+   if(!s.ev.crop) o.push({l:"Go inside and look at the wheat racks",c:15,risk:s.f.jonahAlarm&&!s.f.v7locked?"The status light is amber":"",a:s=>{
+    if(s.f.jonahAlarm&&!s.f.v7locked){endCase(s,"E7");return}
+    add(s,"crop")}});
+   o.push(back);return o}},
+
+ med:{t:"Med Bay",p:()=>[
+  "Two beds, a drug safe, a clinic air monitor ticking quietly on the wall. Sasha Brandt lies in the far bed, grey-faced, an oxygen cannula in her nose.",
+  "Dr. Mei Lindqvist stands between you and her patient without seeming to."],
+  o:s=>{const o=[];
+   if(!s.src.med) o.push({l:s.f.medAuth?"Pull the biomonitor and clinic air data":"Ask to pull the biomonitor and clinic air data",c:s.f.medAuth?20:3,a:s=>{
+    if(!s.f.medAuth){says(s,"Mei folds her arms. “Medical data? Not without the commander's authorization, or mine.”");return}
+    pull(s,"med")}});
+   o.push(talk("mei"));o.push(talk("sasha"));o.push(back);return o}},
+
+ data:{t:"Data Office",p:()=>[
+  "A cupboard with three screens and a fan that sounds like a dying bird. Noor Haddad, systems and data, has every log in Juniper one keystroke away."],
+  o:s=>{const o=[];
+   if(!s.src.sec) o.push({l:"Pull the security badge log",c:20,a:s=>pull(s,"sec")});
+   o.push(talk("noor"));o.push(back);return o}},
+
+ rover:{t:"Rover Bay",p:s=>[
+  "Two pressurized rovers, a wall of tools, a row of crew lockers, and terminal RB-2, its screen asleep.",
+  "Ilya Marchetti is under the nearer rover with only his boots showing."],
+  o:s=>{const o=[];
+   if(!s.ev.lockerBadge) o.push({l:"Look at the crew lockers",c:10,a:s=>add(s,"lockerBadge")});
+   if(!s.f.rbChecked) o.push({l:"Check terminal RB-2's login history",c:15,a:s=>{s.f.rbChecked=1;
+    if(s.lost.snapshot) says(s,"The login history has been cleared. ‘Local cache purged, 1 entry’, timestamped this morning. Someone has been here before you.");
+    else{says(s,"Every login since yesterday, each with a little face-camera thumbnail. One at 01:47 makes you stop.");add(s,"snapshot")}}});
+   o.push(talk("ilya"));o.push(back);return o}},
+
+ power:{t:"Power Plant",p:()=>[
+  "The reactor's control cabinet, battery banks, and the electrolysis stack that turns ice-water into oxygen. It hums."],
+  o:s=>{const o=[];
+   if(!s.src.power) o.push({l:"Pull the generator and power logs",c:15,a:s=>pull(s,"power")});
+   o.push(back);return o}},
+
+ geology:{t:"Geology Lab",p:()=>[
+  "Core samples in labelled tubes, a microscope, a coffee mug that says DIG DEEPER. Jonah Pike, the contract geologist, looks up from a sample and smiles as if he's been expecting you."],
+  o:s=>{const o=[];
+   if(!s.ev.jacket) o.push({l:"Look around the lab",c:10,a:s=>add(s,"jacket")});
+   o.push(talk("jonah"));o.push(back);return o}},
+
+ command:{t:"Command Office",p:s=>[
+  "A desk, a map of Hellas Basin, a framed photograph of eleven people in pressure suits on the day Juniper opened. Commander Abara is reading the ledger again, as if it might change.",
+  s.clock<UPLINK_T?"The Earth uplink terminal is in the corner. The window closes at 16:00 as Mars turns away.":"The Earth uplink is dark until tomorrow."],
+  o:s=>{const o=[];
+   if(!s.ev.lease&&s.clock<UPLINK_T) o.push({l:"Use the uplink to request Valles Ore's lease records",c:40,tag:"Closes at 16:00",a:s=>add(s,"lease")});
+   o.push(talk("abara"));o.push(back);return o}},
+
+ departure:{t:"18:00",chapter:"Chapter III",p:()=>[
+  "The transport's engines are spooling on the pad outside. The whole crew has gathered in the commons, and nobody is sitting down.",
+  "The pilot leans in from the airlock. “Inspector. Your finding, or I file it as unexplained.”"],
+  o:()=>[
+   {l:"Give your finding",c:0,ui:"accuse"},
+   {l:"Sign off: no fault found",c:0,a:s=>endCase(s,"E6")},
+   {l:"Let the pilot file it as unexplained",c:0,a:s=>endCase(s,"E5")}]}
+};
+
+/* ================= ENDINGS ================= */
+const pCause=s=>s.ded.C4&&(s.ded.C2||s.ded.C3||s.ded.L1);
+const pRescue=s=>s.ded.C5&&(s.ded.C6||s.ded.C13||s.ev.tomasConfess);
+const pMask=s=>s.ded.C1||(s.ev.flatline&&s.ev.tomasConfess)||(s.ded.C13&&s.ev.flatline);
+const pSab=s=>!!(s.ded.C9&&s.ded.C10&&s.ded.C12&&(s.ded.C14||(s.ded.C11&&s.ded.R2))); // Identity + credential misuse + employer motive + direct/indirect identification.
+function missing(s){const m=[],h=s.hyp;
+ if(h.cause!=="crossflow")m.push("you named the wrong cause for the drop");else if(!pCause(s))m.push("you never proved where the air went");
+  if(h.opener!=="tomas_rescue")m.push("you misidentified who opened the crossflow or why");else if(!pRescue(s))m.push("you never showed why the crossflow was opened");
+ if(h.mask!=="cal")m.push("you got wrong why the system stayed silent");else if(!pMask(s))m.push("you never proved LS-1 was frozen");
+  if(h.saboteur!=="jonah")m.push("you did not correctly identify Jonah Pike as the saboteur");else if(!pSab(s))m.push("you did not establish Jonah’s use of the borrowed credential and his employer’s motive");
+ return m}
+const END={
+ E1:{best:true,p:s=>[
+  "At 18:00, with the transport waiting, you file your finding in the commons before the gathered crew and put the Data Wall on the big screen so everyone can see the lines.",
+  "The oxygen didn't leak and the generator didn't fail. At 01:47, at rover-bay terminal RB-2, someone used Ilya Marchetti's badge from his broken locker while Ilya slept, and put greenhouse valve V-7 on remote hold. At 01:58 it opened wide. Sasha Brandt, alone in the greenhouse nursing a crop she shouldn't have been nursing, collapsed around 02:10.",
+  "Tomás Velde saw it. The greenhouse door wouldn't open into four percent CO₂, so he froze LS-1, poured twelve minutes of the habitat's own air into the greenhouse, and carried her out at 02:21. Everyone woke with a headache. Nobody died.",
+  s.ev.snapshot?"The person at RB-2 at 01:47 wore an orange Valles Ore jacket with a white chevron.":"The person at RB-2 at 01:47 took off his biomonitor to go there.",
+  "Jonah Pike's employer takes Juniper if its charter lapses. He boards the transport under escort, still smiling, until the door closes.",
+  "Tomás loses his life-support certification for a year. You recommend it, and you recommend nothing more. Sasha's J-9 wheat goes into the Authority's records as a successful high-CO₂ trial, with a reprimand attached. Juniper keeps its charter, on conditions, and Commander Abara reads every one of them aloud at dinner.",
+  "*Every line on the wall told the truth once you knew which one was lying.*"]},
+ E2:{p:s=>[
+  "At the transport’s departure, you submit your finding. Some of it holds.",
+  `But the Authority's review board reads it in orbit and finds gaps: ${missing(s).join("; ")}.`,
+  "Juniper keeps its charter on twelve months' probation. Tomás is suspended pending inquiry. Jonah Pike flies home on the same transport as you, in the next seat, and offers you a mint.",
+  "Three months later V-7 sticks open again, at three in the morning. This time the greenhouse is empty. *Half the air. The hand on the valve went home free.*"]},
+ E3:{p:s=>[
+  s.hyp.opener==="abara"?"You file that Commander Abara cross-flowed the habitat to stage an emergency. She is relieved of command on the spot. The crew stare at you as if you'd opened the airlock.":"You file that Tomás Velde deliberately drained the habitat's oxygen. He is taken aboard the transport in restraints. Sasha tries to tell them why. The Authority calls her an accomplice.",
+  "An act of sabotage during a charter review: the board suspends Juniper's charter within the week, and Valles Ore files under clause fourteen the same afternoon.",
+  "Jonah Pike stays on to help with the handover. *You read the rescue as the crime.*"]},
+ E4:{p:s=>{const w=s.hyp.saboteur;return [
+  w==="ilya"?"Ilya Marchetti's credential is on the V-7 command; that's enough for the review board. He's flown out to stand inquiry. His biomonitor showed him asleep at 01:47, but nobody thought to look.":
+  `You name ${NAMES[w]} for the hold on V-7. The board accepts it, for a while. The credential on the command was Ilya's, and ${NAMES[w]} has an alibi you never checked.`,
+  "Juniper is fined and kept on probation. Jonah Pike helps carry the accused's bags to the transport ramp.",
+  "*The badge was borrowed. So was the blame.*"]}},
+ E5:{p:()=>[
+  "18:00. The transport lifts without a finding, and the pilot files Juniper's night as an unexplained life-support event during a charter review.",
+  "That is all the Authority needs. The charter lapses at the end of the month. Clause fourteen does the rest: Valles Ore takes the habitat, the ice and fourteen years of work.",
+  "The crew of Juniper are flown to Tharsis in two loads. Jonah Pike stays on as site manager.",
+  "*The data was all there. The clock wasn't.*"]},
+ E6:{p:()=>[
+  "You sign off: no fault found. Juniper passes its review, and Commander Abara shakes your hand at the ramp a little too hard.",
+  "Jonah Pike waves you off from the commons glass.",
+  "Six weeks later V-7 opens again in the night. This time nobody is in the greenhouse, LS-1 isn't frozen, and the automatic report goes to the Authority within the minute. Juniper's charter is suspended before breakfast, and the board wants to know who signed off on the last one.",
+  "*The system said no fault. So did you.*"]},
+ E7:{p:()=>[
+  "The inner door hisses shut behind you. The wheat is green and still under the pink lights. Then your ears begin to sing, and the racks tilt slowly sideways.",
+  "The amber light on the wall was V-7, on remote hold again, wide open.",
+  "You wake in the med bay at 19:20 with Mei holding a mask to your face and Tomás swearing in three languages. The transport has gone. Its pilot filed Juniper as a second unexplained life-support event in one day, with a Mars Authority inspector as the casualty.",
+  "*Someone was watching the greenhouse panel, and you'd given him reason to.*"]}
+};
+
+/* ================= JOURNAL ================= */
+const TL=[
+ [91,"Sasha goes into greenhouse G2.",s=>s.src.sec||s.ev.sashaAcct],
+ [100,"Jonah Pike's biomonitor goes off-wrist.",s=>s.ev.bandGap],
+ [104,"Jonah's badge opens the rover bay.",s=>s.ev.jonahDoor],
+ [107,"V-7 put on remote hold from RB-2, as I.MARCHETTI.",s=>s.ev.overrideLog||s.ev.v7],
+ [118,"V-7 opens. Greenhouse CO₂ starts to climb.",s=>s.ev.v7open||s.ev.co2spike],
+ [120,"Noor's patch runs; alarm self-test passes at 02:05.",s=>s.ev.patchlog],
+ [130,"Sasha collapses in the greenhouse.",s=>s.ev.collapse||s.ev.meiAccount],
+ [133,"LS-1 into maintenance mode under Tomás's badge.",s=>s.ev.overrideLog],
+ [134,"X-2 crossflow opens. Habitat oxygen starts to fall.",s=>s.ev.crossflow||s.ev.overrideLog],
+ [139,"Commander Abara wakes and sees the rescue.",s=>s.ev.abaraAwake||s.ev.abaraSaw],
+ [141,"Tomás carries Sasha into the med bay.",s=>s.ev.tomasRun||s.ev.meiAccount],
+ [146,"X-2 closes; generator to full power.",s=>s.ev.overrideLog||s.ev.makeup],
+ [151,"V-7 closed by hand.",s=>s.ev.overrideLog||s.ev.v7],
+ [161,"LS-1 back from maintenance mode.",s=>s.ev.overrideLog],
+ [300,"The oxygen ledger shows twelve minutes missing.",()=>true]
+];
+function leads(s){const a=[];
+ if(!s.src.core) a.push(s.clock<ROLL?"Pull the life-support core logs before 08:00.":"Pull the life-support core logs, even averaged.");
+ if(!s.src.med&&!s.f.medAuth) a.push("Medical data needs the commander's or the doctor's authorization.");
+ if(!s.src.med&&s.f.medAuth) a.push("Pull the biomonitor data in the med bay.");
+ if(s.src.core&&!s.ev.flatline&&s.src.core==="hi") a.push("Look hard at LS-1's line between 02:00 and 02:45.");
+ if(s.ev.flatline&&!s.ev.noorCal) a.push("What makes a sensor go perfectly flat? Ask the data officer.");
+ if(!s.src.gh) a.push("What was happening inside the greenhouse? Pull its controller.");
+ if(!s.src.sec) a.push("Who badged where last night? The security log is in the data office.");
+ if(!s.src.power) a.push("The generator made up the loss. When exactly?");
+ if(s.ev.rbBadge&&!s.ev.lockerBadge) a.push("Where does Ilya keep his badge?");
+ if(s.ev.overrideLog&&!s.f.rbChecked) a.push("The V-7 hold came from a terminal. Which one, and who stood at it?");
+ if(!s.ev.lease&&s.clock<UPLINK_T) a.push("What does Valles Ore gain if Juniper fails? The uplink closes at 16:00.");
+ return a.slice(0,6)}
+
+/* ================= ENGINE ================= */
+const SAVE_KEY="dq-case-03-oxygen-v2", END_KEY="dq-case-03-endings", CH_KEY="dq-case-03-chapters";
+const fresh=()=>({loc:"intro",view:"scene",who:null,clock:T0,n:0,f:{},ev:{ledger:1},ded:{},lost:{},src:{},flags:{},falseFlags:0,
+ sus:{abara:0,tomas:0,mei:0,sasha:0,noor:0,ilya:0,jonah:0},asked:{},shown:{},tools:{intuit:2},intuited:{},log:[],flash:[],
+ tr:{abara:[],tomas:[],mei:[],sasha:[],noor:[],ilya:[],jonah:[]},hyp:{},ended:null});
+let state=fresh(), history=[];
+const ui={tab:"investigate",sel:[],msg:null,confirm:false,wa:null,wb:null,wmsg:null,pick:{}};
+
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({state,history}))}catch(e){}}
+function validState(s){
+  if(!s||typeof s!=="object"||!Object.prototype.hasOwnProperty.call(L,s.loc)||
+     !["scene","interview"].includes(s.view)||!Number.isFinite(s.clock)||s.clock<T0||s.clock>DEAD||
+     !Number.isInteger(s.n)||s.n<0||!Number.isInteger(s.falseFlags)||s.falseFlags<0||
+     ![null,...Object.keys(ENDINGS)].includes(s.ended))return false;
+  const objects=["f","ev","ded","lost","src","flags","sus","asked","shown","tools","intuited","hyp","tr"];
+  if(!objects.every(k=>s[k]&&typeof s[k]==="object"&&!Array.isArray(s[k])))return false;
+  if(!Array.isArray(s.log)||!Array.isArray(s.flash)||!Number.isInteger(s.tools.intuit)||
+     s.tools.intuit<0||s.tools.intuit>2||!SUS_ORDER.every(k=>Array.isArray(s.tr[k])&&Number.isInteger(s.sus[k])))return false;
+  if(Object.keys(s.ev).some(k=>!EV[k])||Object.keys(s.ded).some(k=>!DED[k])||
+     Object.keys(s.src).some(k=>!SRC[k]))return false;
+  if(s.view==="interview"&&!SUS[s.who])return false;
+  return true;
+}
+function restore(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");if(d&&validState(d.state)&&Array.isArray(d.history))return {state:d.state,history:d.history.slice(-80)}}catch(e){}return null}
+function loadJ(k){try{const d=JSON.parse(localStorage.getItem(k)||"{}");return d&&typeof d==="object"&&!Array.isArray(d)?d:{}}catch(e){return {}}}
+function saveJ(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function saveChapter(id){const c=loadJ(CH_KEY);c[id]=JSON.stringify(state);saveJ(CH_KEY,c)}
+function snapshot(){history.push(JSON.stringify(state));if(history.length>80)history.shift()}
+
+function spend(s,min){
+ const b=s.clock;let a=Math.min(DEAD,b+min);s.clock=a;
+ if(b<ROLL&&a>=ROLL){note(s,"08:00. The high-resolution buffers in the life-support core and the greenhouse controller roll over."+(s.src.core==="hi"?" You pulled the core in time.":" Last night is now one-minute averages."),"warn");s._ch="ch2"}
+ if(b<WIPE_T&&a>=WIPE_T&&s.sus.jonah>=2&&!s.ev.snapshot&&!s.lost.snapshot){s.lost.snapshot=1}
+ if(b<UPLINK_T&&a>=UPLINK_T&&!s.ev.lease){note(s,"16:00. Mars turns away from Earth and the uplink closes until tomorrow.","warn");s.lost.lease=1}
+ if(b<DEAD-60&&a>=DEAD-60){note(s,"17:00. One hour until the transport lifts.","warn");s._ch=s._ch||"ch3"}
+ if(a>=DEAD&&!s.ended){s.loc="departure";s.view="scene"}
+}
+function afterAction(s){
+ if(s.sus.jonah>=3&&!s.f.jonahAlarm){s.f.jonahAlarm=1;if(!s.ev.snapshot)s.lost.snapshot=1;
+  note(s,"Through the commons glass you see Jonah Pike walk quickly toward the rover bay. A few minutes later the greenhouse status light on the wall screen turns amber.","warn")}
+}
+const forced=()=>state.loc==="departure";
+function doAct(opt){
+ if(state.ended)return;
+ if(opt.ui){ui.tab=opt.ui;render(true);return}
+ if(opt.free===false&&forced()){ui.wmsg=["bad","The transport is waiting. Go to the Investigate tab."];render();return}
+ snapshot();state.flash=[];
+ const prev=state.loc;
+ if(opt.a)opt.a(state);
+ if(!state.ended){spend(state,opt.c||0);afterAction(state)}
+ state.n++;
+ if(state._ch){saveChapter(state._ch);delete state._ch}
+ if((state.loc!==prev&&state.loc==="departure")||state.ended){ui.tab="investigate";closeLens()}
+ persist();render(true);
+}
+function endCase(s,id){s.ended=id;const e=loadJ(END_KEY);e[id]=1;saveJ(END_KEY,e);s.view="scene"}
+function back_(){if(!history.length)return;const prev=JSON.parse(history.pop());if(!validState(prev))return;state=prev;ui.sel=[];ui.msg=null;ui.wmsg=null;ui.confirm=false;persist();closeLens();render(true)}
+function restart(){history=[];state=fresh();Object.assign(ui,{sel:[],msg:null,confirm:false,tab:"investigate",wa:null,wb:null,wmsg:null,pick:{}});saveChapter("ch1");persist();render(true)}
+function loadChapter(id){const c=loadJ(CH_KEY);if(!c[id])return;try{const st=JSON.parse(c[id]);if(!validState(st))return;history=[];state=st;state.ended=null;state.flash=[];ui.tab="investigate";ui.sel=[];ui.msg=null;persist();render(true)}catch(e){}}
+
+/* interviews */
+function askTopic(sid,tid,tone){
+ const sp=SUS[sid],tp=sp.topics.find(t=>t.id===tid),r=tp.r[tone];
+ doAct({c:10,a:s=>{
+  s.asked[sid+"."+tid]=tone;s.tr[sid].push({q:`${TONE[tone]}: ${tp.q}`,a:r.t});
+  s.sus[sid]=clamp(s.sus[sid]+(r.sus||0),0,5);(r.set||[]).forEach(k=>s.f[k]=1);if(r.ev)add(s,r.ev);
+  if(s.sus[sid]>=4)note(s,`${sp.short} has stopped answering questions.`,"warn");
+ }});
+}
+function presentEv(sid,eid){
+ const sp=SUS[sid];let r=sp.present[eid]||{t:sp.dflt};
+ if(r.ifDed&&rescueInterviewReady(state))r=r.alt;
+ doAct({c:10,a:s=>{
+  s.shown[sid+"."+eid]=1;s.tr[sid].push({q:`Shown: ${EV[eid].n}`,a:r.t});
+  s.sus[sid]=clamp(s.sus[sid]+(r.sus||0),0,5);(r.set||[]).forEach(k=>s.f[k]=1);if(r.ev)add(s,r.ev);
+ }});
+}
+function intuit(sid){doAct({c:0,a:s=>{if(s.tools.intuit<1||s.intuited[sid])return;s.tools.intuit--;s.intuited[sid]=1}})}
+
+/* the Data Wall: flag a window on a line */
+function flag(pid,sid){
+ if(ui.wa==null||ui.wb==null){ui.wmsg=["bad","Choose a time window first: tap a chart twice, or set From and To above."];render();return}
+ const a=Math.min(ui.wa,ui.wb),b=Math.max(ui.wa,ui.wb);
+ const cands=ANOM.filter(x=>x.p===pid&&x.s===sid);
+ const hit=cands.find(x=>{const len=x.t-x.f;if(x.pt)return a<=x.f&&b>=x.t&&b-a<=20;const ov=Math.max(0,Math.min(b,x.t)-Math.max(a,x.f));return ov>=Math.min(len*.5,6)&&b-a<=len+15});
+ const panel=PANELS.find(p=>p.id===pid),ser=panel.series.find(x=>x.id===sid);
+ doAct({free:false,c:5,a:s=>{
+  // The chosen window is checked against source-specific anomalies.
+  if(!hit){s.falseFlags++;ui.wmsg=["bad",`${ser.l}, ${hm(a)} to ${hm(b)}: nothing here you could defend in a report.`];s.log.push([s.clock,`False flag: ${ser.l} ${hm(a)}–${hm(b)}`]);return}
+  if(hit.hi&&s.src.core!=="hi"){ui.wmsg=["info","These are one-minute averages. Too smooth to tell whether the line was frozen or just steady."];return}
+  if(hit.x){ui.wmsg=["info",hit.x];return}
+  s.flags[hit.ev]=[a,b,pid];
+  if(s.ev[hit.ev]){ui.wmsg=["info",`Already flagged: ${EV[hit.ev].n}.`];return}
+  add(s,hit.ev);ui.wmsg=["good",`<b>${EV[hit.ev].n}.</b> ${EV[hit.ev].d}`];
+ }});
+}
+
+/* cross-referencing */
+function connect(){
+ const [a,b]=ui.sel;ui.msg=null;
+ const hit=Object.entries(DED).find(([k,d])=>(d.a===a&&d.b===b)||(d.a===b&&d.b===a));
+ if(!hit){ui.msg=["","These two don't connect. Not in a way the review board would accept."];render();return}
+ const [id,d]=hit;
+ if(state.ded[id]){ui.msg=["","You've already made that connection."];render();return}
+ snapshot();state.ded[id]=1;state.log.push([state.clock,`Connected: ${d.t}`]);
+ ui.sel=[];ui.msg=["good",`<b>${d.t}.</b> ${d.x}`];persist();render();
+}
+
+/* ================= RENDER ================= */
+function render(scroll){
+ renderTabs();renderStatus();
+ $("panel").innerHTML={investigate:viewInvestigate,wall:viewWall,evidence:viewEvidence,crew:viewCrew,journal:viewJournal,accuse:viewAccuse}[ui.tab]();
+ bindPanel();
+ if(scroll){const top=document.querySelector(".tabs");const y=top.getBoundingClientRect().top+window.scrollY-8;if(window.scrollY>y)window.scrollTo({top:y,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}
+}
+function renderTabs(){
+ const T=[["investigate","Investigate"],["wall","Data wall",Object.keys(state.src).length],["evidence","Evidence",Object.keys(state.ev).length],["crew","Crew"],["journal","Journal"],["accuse",state.ended?"Verdict":"Finding"]];
+ $("tabs").innerHTML=T.map(([k,l,b])=>`<button class="tab" role="tab" aria-selected="${ui.tab===k}" data-tab="${k}">${l}${b!=null?`<span class="badge">${b}</span>`:""}</button>`).join("");
+ $("tabs").querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ui.tab=t.dataset.tab;ui.confirm=false;ui.msg=null;render()});
+}
+function renderStatus(){
+ const s=state;$("clock").textContent=hm(s.clock);
+ const left=DEAD-s.clock;$("dep").textContent=s.ended?"—":left<=0?"Now":dur(left);$("depBox").className=left<=60&&!s.ended?"urgent":"";
+ $("roll").textContent=s.clock<ROLL?`until 08:00`:"averaged";$("rollBox").className=s.clock>=ROLL?"gone":s.clock>=ROLL-45?"urgent":"";
+ $("up").textContent=s.clock<UPLINK_T?"until 16:00":"closed";$("upBox").className=s.clock>=UPLINK_T?"gone":"";
+ $("intuit").innerHTML=[0,1].map(i=>`<i class="${i<s.tools.intuit?"on":""}"></i>`).join("");$("intuit").setAttribute("aria-label",`${s.tools.intuit} of 2 left`);
+ const h=s.clock/60;$("band").className="band "+(h<7.5?"dawn":h>=16.5?"dusk":"");
+ const p=clamp((h-5.5)/12.5,0,1);const sun=$("sun");sun.style.left=`calc(${50+p*44}% - 13px)`;sun.style.top=`${130-Math.sin(p*Math.PI)*90}px`;
+ $("phobos").style.left=`${(10+h*6)%96}%`;
+ const here=s.view==="interview"?WHERE[s.who]:s.loc;$("terrain").innerHTML=terrainSVG(here);
+}
+function terrainSVG(here){
+ const w=(id,x,y)=>`<rect class="w ${here===id?"here":""}" x="${x}" y="${y}" width="8" height="5" rx="2"/>`;
+ return `<path class="g2" d="M0 110 V70 Q80 54 170 66 T360 58 T540 64 T700 52 V110 Z"/>
+ <path class="g" d="M0 110 V88 Q120 76 260 86 T520 82 T700 78 V110 Z"/>
+ <rect class="h" x="260" y="62" width="70" height="22" rx="4"/><path class="h" d="M266 64 Q295 30 324 64 Z"/>
+ <rect class="h" x="200" y="68" width="56" height="16" rx="3"/><rect class="h" x="334" y="68" width="56" height="16" rx="3"/>
+ <rect class="h" x="394" y="70" width="70" height="14" rx="3"/><path class="gl" d="M398 72 h62 v8 h-62 Z"/><path class="h" d="M398 72 h62 v1 h-62Z M412 72 v8 M428 72 v8 M444 72 v8"/>
+ <rect class="h" x="150" y="72" width="46" height="12" rx="3"/><rect class="h" x="468" y="72" width="40" height="12" rx="3"/>
+ <path class="h" d="M232 68 V22 M226 30 h12 M228 38 h8" stroke="#241512" stroke-width="2"/><circle class="h" cx="232" cy="20" r="4"/>
+ <rect class="h" x="560" y="78" width="36" height="10" rx="3"/><circle class="h" cx="566" cy="90" r="3"/><circle class="h" cx="590" cy="90" r="3"/>
+ ${w("ls",214,74)}${w("command",232,74)}${w("commons",290,70)}${w("med",344,74)}${w("data",362,74)}${w("greenhouse",420,75)}${w("power",160,76)}${w("geology",176,76)}${w("rover",480,76)}`;
+}
+function optTag(o){const t=[];if(o.c)t.push(cost(o.c));if(o.sub)t.push(o.sub);if(o.tag)t.push(`<span class="tool">${o.tag}</span>`);if(o.risk)t.push(`<span class="risk">${o.risk}</span>`);return t.length?`<span class="tag">${t.map(x=>`<span>${x}</span>`).join("")}</span>`:""}
+function flashHTML(){return state.flash.length?`<div class="flash">${state.flash.map(([c,t])=>`<div class="${c}">${t}</div>`).join("")}</div>`:""}
+function toolsRow(){return `<div class="tools"><button class="link" data-act="back" ${history.length?"":"disabled"}>Retrace your last step</button><button class="link" data-act="restart">Start the case over</button></div>`}
+
+function planSVG(){
+ const s=state,cx=210,cy=150;
+ const POS={ls:[210,34],greenhouse:[350,66],med:[372,150],data:[350,234],rover:[210,266],power:[70,234],geology:[48,150],command:[70,66]};
+ let g="";
+ for(const k in POS)g+=`<line class="spoke" x1="${cx}" y1="${cy}" x2="${POS[k][0]}" y2="${POS[k][1]}"/>`;
+ for(const [k,l] of ROOMS){const [x,y]=POS[k],who=Object.keys(WHERE).filter(p=>WHERE[p]===k).map(p=>SUS[p].short).join(", ");
+  g+=`<g class="room ${s.loc===k?"here":""}" tabindex="0" role="button" data-go="${k}" aria-label="${l}${who?", "+who:""}"><rect x="${x-48}" y="${y-20}" width="96" height="40" rx="6"/><text x="${x}" y="${y+(who?-2:3)}" text-anchor="middle">${l.toUpperCase()}</text>${who?`<text class="who" x="${x}" y="${y+11}" text-anchor="middle">${who}</text>`:""}</g>`}
+ g+=`<circle cx="${cx}" cy="${cy}" r="46" style="fill:var(--bg)"/><g class="room ${s.loc==="commons"?"here":""}" tabindex="0" role="button" data-go="commons" aria-label="Commons"><circle cx="${cx}" cy="${cy}" r="46"/><text x="${cx}" y="${cy+3}" text-anchor="middle">COMMONS</text></g>`;
+ return `<svg viewBox="0 0 420 300" role="group" aria-label="Plan of Juniper Habitat">${g}</svg>`;
+}
+function viewInvestigate(){
+ const s=state;
+ if(s.ended)return viewEnding();
+ if(s.view==="interview"&&s.who)return viewInterview();
+ const sc=L[s.loc],p=sc.p(s),o=sc.o(s);
+ return `<div class="fade"><div class="meta"><span>${sc.chapter?`<b>${sc.chapter}</b>`:`Case log · <b>${String(s.n+1).padStart(2,"0")}</b>`}</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">${sc.t}</h2>${flashHTML()}
+ <div class="passage">${p.map(t=>`<p>${em(t)}</p>`).join("")}</div>
+ ${sc.map?`<div class="plan">${planSVG()}</div>`:""}
+ <ol class="choices">${o.map((x,i)=>`<li><button class="choice" data-i="${i}"><span class="num">${i+1}</span><span>${em(x.l)}${optTag(x)}</span></button></li>`).join("")}</ol>
+ <p class="hint">Press a number key to choose. Data you pull goes on the Data Wall, where you can line the graphs up and flag what doesn't fit.</p>${toolsRow()}</div>`;
+}
+function meterHTML(v){return `<div class="meter">Suspicion <span class="bar">${[0,1,2,3,4].map(i=>`<i class="${i<v?"on":""}"></i>`).join("")}</span> ${MOOD[v]}</div>`}
+function viewInterview(){
+ const s=state,id=s.who,sp=SUS[id],v=s.sus[id],silent=v>=4;
+ const evOpts=Object.keys(EV).filter(k=>s.ev[k]&&!s.shown[id+"."+k]);
+ return `<div class="fade"><div class="meta"><span>Interview</span><span>${hm(s.clock)}</span></div>
+ <div class="who"><div class="mono" aria-hidden="true">${sp.mono}</div><div><h2>${sp.n}</h2><p>${sp.role}</p>${meterHTML(v)}</div></div>
+ ${flashHTML()}
+ ${s.intuited[id]?`<p class="tells"><b>Your read:</b> ${sp.tell}</p>`:""}
+ ${s.tr[id].length?`<div class="transcript">${s.tr[id].map(e=>`<div><div class="q">${e.q}</div><p class="a">${em(e.a)}</p></div>`).join("")}</div>`:`<p class="passage">${sp.short} looks up.</p>`}
+ ${silent?`<p class="tells">${sp.short} has stopped answering questions. Evidence may still move them.</p>`:""}
+ <div class="topics">${sp.topics.map(t=>{const done=s.asked[id+"."+t.id];return `<div class="topic ${done?"done":""}"><div>${t.q}${done?` <span class="hint">(asked: ${TONE[done]})</span>`:""}</div>${done||silent?"":`<div class="tones">${["coax","ask","press"].map(tn=>`<button class="btn" data-ask="${t.id}" data-tone="${tn}">${TONE[tn]} · 10 min</button>`).join("")}</div>`}</div>`}).join("")}</div>
+ <div class="present"><label for="pres">Show evidence</label>${evOpts.length?`<select id="pres">${evOpts.map(k=>`<option value="${k}">${EV[k].n}</option>`).join("")}</select><button class="btn primary" data-act="present">Show · 10 min</button>`:`<span class="hint" style="margin:0">You've shown everything you have.</span>`}</div>
+ <div class="tools"><button class="btn" data-act="leave">End the conversation</button>${s.intuited[id]?"":`<button class="btn" data-act="intuit" ${s.tools.intuit?"":"disabled"}>Use intuition (${s.tools.intuit} left)</button>`}</div>
+ <p class="hint">Coax is gentle, Ask is plain, Press is hard. Each person answers best to one. Pressing raises suspicion; at four they stop talking.</p>${toolsRow()}</div>`;
+}
+
+/* ---- Data Wall charts ---- */
+const X0=118,X1=712,xm=m=>X0+(m-W0)/(W1-W0)*(X1-X0);
+function cssv(v){return `var(${v})`}
+function axisX(h){let g="";for(let m=W0;m<=W1;m+=15){const x=xm(m);g+=`<line class="gridl" x1="${x}" y1="6" x2="${x}" y2="${h-18}"/><text class="axis" x="${x}" y="${h-5}" text-anchor="${m===W1?"end":"middle"}">${hm(m)}</text>`}return g}
+function winRect(h){if(ui.wa==null)return "";const a=ui.wb==null?ui.wa:Math.min(ui.wa,ui.wb),b=ui.wb==null?ui.wa:Math.max(ui.wa,ui.wb);
+ return `<rect class="winr" x="${xm(a)}" y="4" width="${Math.max(1,xm(b)-xm(a))}" height="${h-24}"/><line class="mk" x1="${xm(a)}" y1="4" x2="${xm(a)}" y2="${h-20}"/>${ui.wb!=null?`<line class="mk" x1="${xm(b)}" y1="4" x2="${xm(b)}" y2="${h-20}"/>`:""}`}
+function flagMarks(pid,h){let g="";for(const k in state.flags){const [a,b,p]=state.flags[k];if(p===pid)g+=`<rect class="flagged" x="${xm(a)}" y="6" width="${Math.max(2,xm(b)-xm(a))}" height="${h-28}" rx="3"/>`}return g}
+function pts(arr,y0,y1,top,bot){const out=[];let seg=[];for(const [m,v] of arr){if(v==null){if(seg.length)out.push(seg);seg=[];continue}seg.push(`${xm(m).toFixed(1)},${(bot-(v-y0)/(y1-y0)*(bot-top)).toFixed(1)}`)}if(seg.length)out.push(seg);return out}
+function chartSVG(p){
+ const s=state,ser=p.series.filter(x=>s.src[x.src]);let h,g="";
+ if(p.kind==="line"){h=170;const top=10,bot=h-26;
+  for(const t of p.ticks){const y=bot-(t-p.y[0])/(p.y[1]-p.y[0])*(bot-top);g+=`<line class="gridl" x1="${X0}" y1="${y}" x2="${X1}" y2="${y}"/><text class="axis" x="${X0-8}" y="${y+3}" text-anchor="end">${p.fmt(t)}</text>`}
+  for(const x of ser){let arr=x.id==="main"?(s.src.core==="hi"?DATA.hi:DATA.lo):x.id==="clinic"?DATA.clinic:x.id==="co2"?DATA.co2:DATA.pw;
+   pts(arr,p.y[0],p.y[1],top,bot).forEach(seg=>{g+=`<polyline fill="none" stroke="${cssv(x.c)}" stroke-width="${x.id==="main"?1.6:2}" points="${seg.join(" ")}"/>`})}
+ } else if(p.kind==="steps"){const lh=30;h=ser.length*lh+30;
+  ser.forEach((x,i)=>{const yb=10+i*lh+lh-6,yt=10+i*lh+6;g+=`<text class="lbl" x="${X0-8}" y="${yb-4}" text-anchor="end">${x.l}</text><line class="lane" x1="${X0}" y1="${yb}" x2="${X1}" y2="${yb}"/>`;
+   for(const [f,t] of VALVES[x.id])g+=`<rect x="${xm(f)}" y="${yt}" width="${xm(t)-xm(f)}" height="${yb-yt}" fill="${cssv(x.c)}" opacity=".85" rx="2"/>`});
+ } else if(p.kind==="lanes"){const lh=34;h=ser.length*lh+30;
+  ser.forEach((x,i)=>{const top=8+i*lh,bot=top+lh-6;g+=`<text class="lbl" x="${X0-8}" y="${top+lh/2}" text-anchor="end">${x.l}</text><line class="lane" x1="${X0}" y1="${bot}" x2="${X1}" y2="${bot}"/>`;
+   pts(DATA.hr[x.id],p.y[0],p.y[1],top,bot).forEach(seg=>{g+=`<polyline fill="none" stroke="${cssv(x.c)}" stroke-width="1.8" points="${seg.join(" ")}"/>`});
+   if(x.id==="jonah")g+=`<text class="gap" x="${(xm(100)+xm(115))/2}" y="${top+lh/2+3}" text-anchor="middle">off-wrist</text>`});
+ } else {const lh=24;h=ser.length*lh+30;
+  ser.forEach((x,i)=>{const y=10+i*lh+lh/2;g+=`<text class="lbl" x="${X0-8}" y="${y+4}" text-anchor="end">${x.l}</text><line class="lane" x1="${X0}" y1="${y}" x2="${X1}" y2="${y}"/>`;
+   BADGE[x.id].forEach(([m,l],j)=>{g+=`<circle class="ev" cx="${xm(m)}" cy="${y}" r="5" fill="${cssv(x.c)}"><title>${hm(m)} ${l}</title></circle><text class="evt" x="${xm(m)+7}" y="${y-6+(j%2)*16}">${l}</text>`})});
+ }
+ return `<svg class="chart" data-chart="${p.id}" viewBox="0 0 720 ${h}" role="img" aria-label="${p.t}">${axisX(h)}${winRect(h)}${g}${flagMarks(p.id,h)}</svg>`;
+}
+function timeOpts(sel){let o=`<option value="">—</option>`;for(let m=W0;m<=W1;m++)o+=`<option value="${m}" ${sel===m?"selected":""}>${hm(m)}</option>`;return o}
+function viewWall(){
+ const s=state,panels=PANELS.filter(p=>p.series.some(x=>s.src[x.src]));
+ const srcs=Object.keys(SRC).map(k=>`<span class="${s.src[k]==="lo"?"lo":s.src[k]?"on":""}">${SRC[k]}: ${s.src[k]==="hi"?"high-res":s.src[k]==="lo"?"averaged":s.src[k]?"pulled":"not pulled"}</span>`).join("");
+ const a=ui.wa,b=ui.wb;
+ return `<div class="fade"><div class="meta"><span>The Data Wall · <b>01:30 to 02:45</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">The Data Wall</h2>
+ <p class="passage" style="font-size:.95rem">Every system in Juniper keeps its own record of last night, on one shared clock. Most of them tell the truth. Choose a time window, then flag the one line that misbehaves inside it. A wrong flag costs time and goes on your record. On a small screen, swipe a chart sideways to see all of it.</p>
+ <div class="sources">${srcs}</div>
+ <div class="winbar"><label for="wFrom">Window</label><select id="wFrom" aria-label="From">${timeOpts(a)}</select><span>to</span><select id="wTo" aria-label="To">${timeOpts(b)}</select>
+  <span class="win">${a!=null&&b!=null?`${hm(Math.min(a,b))}–${hm(Math.max(a,b))} · ${Math.abs(b-a)} min`:"Tap a chart twice to set it"}</span>
+  <button class="btn" data-act="clearwin" ${a==null?"disabled":""}>Clear</button></div>
+ ${ui.wmsg?`<p class="wmsg ${ui.wmsg[0]}">${ui.wmsg[1]}</p>`:""}
+ ${panels.length?panels.map(p=>{const ser=p.series.filter(x=>s.src[x.src]);const pick=ui.pick[p.id]&&ser.some(x=>x.id===ui.pick[p.id])?ui.pick[p.id]:ser[0].id;
+  const qual=p.id==="o2"&&s.src.core?(s.src.core==="hi"?"LS-1 at 4 samples a minute":"LS-1 as one-minute averages"):"";
+  return `<section class="panelc"><h4>${p.t}</h4>${qual?`<span class="src ${s.src.core==="lo"?"lo":""}">${qual}</span>`:""}
+  ${p.kind==="line"&&ser.length>1?`<div class="legend">${ser.map(x=>`<span><i style="background:${cssv(x.c)}"></i>${x.l}</span>`).join("")}</div>`:""}
+  <div class="chartwrap">${chartSVG(p)}</div>
+  <div class="flagrow"><select data-pick="${p.id}" aria-label="Which line">${ser.map(x=>`<option value="${x.id}" ${x.id===pick?"selected":""}>${x.l}</option>`).join("")}</select>
+  <button class="btn primary" data-flag="${p.id}" ${a==null||b==null||s.ended||forced()?"disabled":""}>Flag this line in the window · 5 min</button></div></section>`}).join(""):`<div class="empty">Nothing on the wall yet. Pull logs from the life-support bay, the greenhouse, the med bay, the data office and the power plant.</div>`}
+ <p class="hint">Flags so far: ${Object.keys(s.flags).length} sound, ${s.falseFlags} false.</p>
+ ${toolsRow()}</div>`;
+}
+
+function viewEvidence(){
+ const s=state,found=Object.keys(EV).filter(k=>s.ev[k]),lost=Object.keys(s.lost).filter(k=>!s.ev[k]);
+ const slot=i=>ui.sel[i]?`<span class="slot full">${EV[ui.sel[i]].n}</span>`:`<span class="slot">Select an item</span>`;
+ return `<div class="fade"><div class="meta"><span>Evidence · <b>${found.length}</b></span><span>${hm(s.clock)}</span></div>
+ <div class="linker"><div class="row">${slot(0)}<span class="plus">+</span>${slot(1)}<button class="btn primary" data-act="connect" ${ui.sel.length===2?"":"disabled"}>Connect</button><button class="btn" data-act="clearsel" ${ui.sel.length?"":"disabled"}>Clear</button></div>
+ ${ui.msg?`<p class="linkmsg ${ui.msg[0]}">${ui.msg[1]}</p>`:`<p class="hint" style="margin-top:8px">Pick two items to test a connection. Thinking costs no time.</p>`}</div>
+ ${Object.keys(s.ded).length?`<h3 class="sec" style="margin-top:4px">Connections</h3><ul class="deds">${Object.keys(DED).filter(k=>s.ded[k]).map(k=>`<li><b>${DED[k].t}</b><span>${DED[k].x}</span></li>`).join("")}</ul><h3 class="sec">Items</h3>`:""}
+ <div class="grid">${found.map(k=>{const e=EV[k],sel=ui.sel.includes(k);return `<div class="card-ev ${sel?"sel":""}"><span class="kind">${e.k}</span><span class="nm">${e.n}</span><span class="sh">${e.s}</span><span class="acts"><button class="btn" data-exam="${k}">Examine</button><button class="btn ${sel?"primary":""}" data-sel="${k}" aria-pressed="${sel}">${sel?"Selected":"Select"}</button></span></div>`}).join("")}
+ ${lost.map(k=>`<div class="card-ev lost"><span class="kind" style="color:var(--rust)">Lost</span><span class="nm">${EV[k].n}</span><span class="sh">Gone before you could secure it.</span></div>`).join("")}
+ ${found.length+lost.length<EV_TOTAL?`<div class="card-ev ghost">More to find in Juniper, and on the wall</div>`:""}</div>${toolsRow()}</div>`;
+}
+function status(id,s){
+ const S=(c,t)=>`<span class="st ${c}">${c==="ok"?"Clear":c==="broken"?"Broken":"Says"}</span> ${t}`;
+ if(id==="abara")return s.ev.abaraSaw?S("broken","Awake at 02:19; saw the rescue and stayed quiet."):s.tr.abara.length?S("un","Asleep until five."):"<span class='st un'>Unknown</span>";
+ if(id==="tomas")return s.ev.tomasConfess?S("broken","Opened X-2 and froze LS-1 to save Sasha."):s.tr.tomas.length?S("un","Reading in his cabin."):"<span class='st un'>Unknown</span>";
+ if(id==="mei")return s.ev.meiAccount?S("ok","Treated Sasha at 02:21."):"<span class='st un'>Unknown</span>";
+ if(id==="sasha")return s.ev.sashaAcct?S("ok","In the greenhouse with her secret wheat."):"<span class='st un'>Unknown</span>";
+ if(id==="noor")return s.ded.R1?S("ok","Patch finished before anything happened."):s.ev.patchlog?S("un","Ran the 02:00 patch."):"<span class='st un'>Unknown</span>";
+ if(id==="ilya")return s.ded.C9?S("ok","Asleep while his credential was used."):s.tr.ilya.length?S("un","Asleep."):"<span class='st un'>Unknown</span>";
+ if(id==="jonah")return s.ded.C10||s.ded.C11?S("broken","In the rover bay at 01:47, band off."):s.tr.jonah.length?S("un","Asleep, band charging."):"<span class='st un'>Unknown</span>";
+}
+function viewCrew(){
+ const s=state,blocked=s.ended||s.loc==="intro"||forced();
+ return `<div class="fade"><div class="meta"><span>Seven with clearance</span><span>${hm(s.clock)}</span></div>
+ <div class="sgrid">${SUS_ORDER.map(id=>{const sp=SUS[id],v=s.sus[id],here=s.loc===WHERE[id];
+ return `<div class="scard"><div class="top"><div class="mono" aria-hidden="true">${sp.mono}</div><div><h4>${sp.n}</h4><div class="role">${sp.role}</div></div></div>
+ ${meterHTML(v)}
+ <dl><dt>Last night</dt><dd>${status(id,s)}</dd><dt>Read</dt><dd>${s.intuited[id]?`Answers best to <b>${TONE[sp.pref]}</b>.`:"Use intuition in an interview."}</dd></dl>
+ <div><button class="btn" data-q="${id}" ${blocked?"disabled":""}>${here?"Talk now":"Talk · 5 min"}</button></div></div>`}).join("")}</div>
+ <p class="hint">Push someone too hard and they stop talking. Push the wrong someone and they may act.</p>${toolsRow()}</div>`;
+}
+function viewJournal(){
+ const s=state,items=TL.filter(t=>t[2](s)).sort((a,b)=>a[0]-b[0]),ld=leads(s),ch=loadJ(CH_KEY),endsGot=Object.keys(loadJ(END_KEY)).length;
+ return `<div class="fade"><div class="meta"><span>Inspector's journal</span><span>${hm(s.clock)}</span></div>
+ <h3 class="sec" style="margin-top:0">Last night, as you've rebuilt it</h3><ul class="timeline">${items.map(t=>`<li><time>${hm(t[0])}</time>${t[1]}</li>`).join("")}<li class="now"><time>${hm(s.clock)}</time>Now.</li></ul>
+ <h3 class="sec">Open leads</h3>${ld.length?`<ul class="leads">${ld.map(x=>`<li>${x}</li>`).join("")}</ul>`:`<p class="passage">Nothing obvious left to chase. Time to think.</p>`}
+ <h3 class="sec">Case log</h3>${s.log.length?`<ul class="log">${s.log.slice(-14).reverse().map(([t,x])=>`<li><time>${hm(t)}</time>${x}</li>`).join("")}</ul>`:`<p class="passage">Nothing logged yet.</p>`}
+ ${endsGot?`<h3 class="sec">Chapters</h3><div class="chapters">${Object.keys(CHAPTERS).map(k=>`<button class="btn" data-ch="${k}" ${ch[k]?"":"disabled"}>${CHAPTERS[k]}</button>`).join("")}</div>`:""}
+ ${toolsRow()}</div>`;
+}
+function viewAccuse(){
+ const s=state;
+ if(s.ended)return `<div class="fade"><h2 class="scene-title">Finding filed</h2><p class="passage">See the Investigate tab for how it ended, or start again.</p>${toolsRow()}</div>`;
+ const h=s.hyp,ready=Object.keys(HYP).every(k=>h[k]);const dl=Object.keys(DED).filter(k=>s.ded[k]);
+ return `<div class="fade"><div class="meta"><span>Inspector's finding</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">Your finding</h2>
+  <p class="passage">Build your four-part finding now; the formal report can only be filed when the 18:00 transport is ready. The review board will want each part backed by evidence.</p>
+ <form class="hyp" id="hyp" onsubmit="return false">${Object.entries(HYP).map(([k,g])=>`<fieldset><legend>${g.l}</legend><div class="opts">${g.o.map(([v,l])=>`<label class="opt"><input type="radio" name="${k}" value="${v}" ${h[k]===v?"checked":""}><span>${l}</span></label>`).join("")}</div></fieldset>`).join("")}</form>
+ <h3 class="sec">Your connections (${dl.length})</h3>${dl.length?`<ul class="deds">${dl.map(k=>`<li><b>${DED[k].t}</b></li>`).join("")}</ul>`:`<p class="passage">No connections yet. Try the Evidence tab.</p>`}
+ <div class="accbar" style="margin-top:22px"><button class="btn ${ui.confirm?"danger":"primary"}" data-act="accuse" ${ready&&forced()?"":"disabled"}>${ui.confirm?"Are you sure? This ends the case":"File the finding"}</button>${ui.confirm?`<button class="btn" data-act="unconfirm">Not yet</button>`:""}</div>
+ <div class="accbar" style="margin-top:12px"><button class="btn" data-act="signoff" ${forced()?"":"disabled"}>Sign off: no fault found</button></div>
+ ${toolsRow()}</div>`;
+}
+function scoreOf(id){
+ const s=state,h=s.hyp||{};let acc=0,parts=null;
+ if(["E1","E2","E3","E4"].includes(id)){parts=[["Cause",h.cause==="crossflow"],["Rescue",h.opener==="tomas_rescue"],["Mask",h.mask==="cal"],["Saboteur",h.saboteur==="jonah"]];acc=parts.filter(p=>p[1]).length}
+ const evN=Object.keys(s.ev).length-1,dN=Object.keys(s.ded).length,ff=s.falseFlags;
+ const alien=SUS_ORDER.filter(k=>k!=="jonah"&&s.sus[k]>=4).map(k=>SUS[k].n);
+ const lost=Object.keys(s.lost).filter(k=>!s.ev[k]).map(k=>EV[k].n);
+ let sc=acc*14+Math.round(clamp(evN/(EV_TOTAL-1),0,1)*14)+Math.round(dN/DED_TOTAL*16)+(s.src.core==="hi"?6:0)-Math.min(10,ff*2)-alien.length*4-lost.length*3;
+ if(["E5","E6","E7"].includes(id))sc=Math.min(sc,30);
+ if(id==="E3"||id==="E4")sc=Math.min(sc,45);
+ if(id==="E2")sc=Math.min(sc,72);
+ sc=clamp(sc,0,100);
+ const rank=sc>=90?"Chief Inspector":sc>=72?"Senior Inspector":sc>=50?"Inspector":sc>=30?"Auditor":"Trainee";
+ return {parts,evN,dN,ff,alien,lost,sc,rank};
+}
+function viewEnding(){
+ const s=state,id=s.ended,E=END[id],got=loadJ(END_KEY),n=Object.keys(ENDINGS).filter(k=>got[k]).length,r=scoreOf(id),ch=loadJ(CH_KEY);
+ const ac=r.parts?r.parts.map(([l,ok])=>`${l} ${ok?"✓":"✗"}`).join(" · "):"No finding filed";
+ return `<div class="fade"><div class="meta"><span><b>Ending</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">${ENDINGS[id]}</h2>
+ <div class="passage">${E.p(s).map(t=>`<p>${em(t)}</p>`).join("")}</div>
+ <div class="ending-card"><p class="label">${E.best?"The truest ending":"Ending reached"} · ${n} of 7 discovered</p><h4>${ENDINGS[id]}</h4>
+ <ul class="endings">${Object.entries(ENDINGS).map(([k,v])=>`<li class="${got[k]?"got":""}">${got[k]?v:"Undiscovered"}</li>`).join("")}</ul>
+ <p class="label" style="margin-bottom:6px">Review board summary</p>
+ <table class="score"><tr><td>Finding</td><td>${ac}</td></tr><tr><td>Evidence found beyond the initial ledger</td><td>${r.evN} of ${EV_TOTAL-1}</td></tr><tr><td>Connections made</td><td>${r.dN} of ${DED_TOTAL}</td></tr><tr><td>Core logs pulled at high resolution</td><td>${s.src.core==="hi"?"Yes":"No"}</td></tr><tr><td>False flags on the wall</td><td>${r.ff}</td></tr><tr><td>Innocent crew alienated</td><td>${r.alien.length?r.alien.join(", "):"None"}</td></tr><tr><td>Evidence lost</td><td>${r.lost.length?r.lost.join(", "):"None"}</td></tr></table>
+ <div class="total"><span>Case score · ${r.rank}</span><b>${r.sc}</b></div>
+ ${E.best?"":`<p class="hint" style="margin:0 0 14px">The truest ending names the cause, the rescue, the mask and the saboteur, each backed by connected evidence.</p>`}
+ <div class="chapters"><button class="btn primary" data-act="restart">Wake up on Sol 1,412 again</button>${Object.keys(CHAPTERS).map(k=>`<button class="btn" data-ch="${k}" ${ch[k]?"":"disabled"}>${CHAPTERS[k]}</button>`).join("")}</div></div>
+ ${toolsRow()}</div>`;
+}
+
+/* ================= BINDINGS ================= */
+function goRoom(id){if(state.loc===id||state.ended||forced())return;doAct({c:5,a:s=>{s.loc=id;s.view="scene"}})}
+function chartClick(e,svg){
+ const r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal,px=(e.clientX-r.left)/r.width*vb.width;
+ if(px<X0-4||px>X1+4)return;
+ const m=clamp(Math.round(W0+(px-X0)/(X1-X0)*(W1-W0)),W0,W1);
+ if(ui.wa==null||ui.wb!=null){ui.wa=m;ui.wb=null}else ui.wb=m;
+ ui.wmsg=null;render();
+}
+function bindPanel(){
+ const P=$("panel");
+ P.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{const o=L[state.loc].o(state)[+b.dataset.i];if(o)doAct(o)});
+ P.querySelectorAll("[data-go]").forEach(b=>{b.onclick=()=>goRoom(b.dataset.go);b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();goRoom(b.dataset.go)}}});
+ P.querySelectorAll("[data-ask]").forEach(b=>b.onclick=()=>askTopic(state.who,b.dataset.ask,b.dataset.tone));
+ P.querySelectorAll("[data-exam]").forEach(b=>b.onclick=()=>openLens(b.dataset.exam));
+ P.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{const k=b.dataset.sel,i=ui.sel.indexOf(k);if(i>-1)ui.sel.splice(i,1);else{ui.sel.push(k);if(ui.sel.length>2)ui.sel.shift()}ui.msg=null;render()});
+ P.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{const id=b.dataset.q,where=WHERE[id];ui.tab="investigate";doAct({free:false,c:state.loc===where?0:5,a:s=>{s.loc=where;s.view="interview";s.who=id}})});
+ P.querySelectorAll("[data-ch]").forEach(b=>b.onclick=()=>loadChapter(b.dataset.ch));
+ P.querySelectorAll("svg[data-chart]").forEach(svg=>svg.addEventListener("click",e=>chartClick(e,svg)));
+ P.querySelectorAll("[data-pick]").forEach(sel=>sel.onchange=()=>{ui.pick[sel.dataset.pick]=sel.value});
+ P.querySelectorAll("[data-flag]").forEach(b=>b.onclick=()=>{const pid=b.dataset.flag,sel=P.querySelector(`[data-pick="${pid}"]`);flag(pid,sel.value)});
+ const wf=$("wFrom"),wt=$("wTo");
+ if(wf)wf.onchange=()=>{ui.wa=wf.value===""?null:+wf.value;ui.wmsg=null;render()};
+ if(wt)wt.onchange=()=>{ui.wb=wt.value===""?null:+wt.value;if(ui.wa==null&&ui.wb!=null){ui.wa=ui.wb;ui.wb=null}ui.wmsg=null;render()};
+ const f=$("hyp");if(f)f.querySelectorAll("input").forEach(i=>i.onchange=()=>{state.hyp[i.name]=i.value;ui.confirm=false;persist();render()});
+ P.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+  const a=b.dataset.act;
+  if(a==="back")back_();
+  else if(a==="restart")restart();
+  else if(a==="leave")doAct({c:0,a:s=>{s.view="scene"}});
+  else if(a==="intuit")intuit(state.who);
+  else if(a==="present"){const v=$("pres").value;if(v)presentEv(state.who,v)}
+  else if(a==="connect")connect();
+  else if(a==="clearsel"){ui.sel=[];ui.msg=null;render()}
+  else if(a==="clearwin"){ui.wa=ui.wb=null;ui.wmsg=null;render()}
+  else if(a==="unconfirm"){ui.confirm=false;render()}
+  else if(a==="accuse"&&forced()){if(!ui.confirm){ui.confirm=true;render();return}ui.confirm=false;doAct({c:0,a:s=>resolve(s)})}
+  else if(a==="signoff"&&forced())doAct({c:0,a:s=>{s.hyp={};endCase(s,"E6")}});
+ });
+}
+function resolve(s){
+ const h=s.hyp;
+  if(s.loc!=="departure"||s.clock<DEAD)return;
+  if(h.opener==="tomas_sab"||h.opener==="abara")return endCase(s,"E3");
+ if(h.saboteur!=="jonah"&&h.saboteur!=="none")return endCase(s,"E4");
+ const right=h.cause==="crossflow"&&h.opener==="tomas_rescue"&&h.mask==="cal"&&h.saboteur==="jonah";
+ endCase(s,right&&pCause(s)&&pRescue(s)&&pMask(s)&&pSab(s)?"E1":"E2");
+}
+
+let lensReturnFocus=null;
+function openLens(id){
+  lensReturnFocus=document.activeElement;
+  const e=EV[id],cls=e.log?"log":e.k==="Testimony"?"test":"";
+ $("lensBody").innerHTML=`<button class="x" data-lens="close" aria-label="Close">×</button><span class="kind">${e.k}</span><h3 id="lensTitle">${e.n}</h3>
+ <div class="glass ${cls}">${e.d}</div>
+ <div class="acts"><button class="btn" data-lens="select">${ui.sel.includes(id)?"Selected for linking":"Select for linking"}</button></div>`;
+  const d=$("lens");if(!d.open){d.showModal?d.showModal():d.setAttribute("open","")}
+  $("lensBody").querySelector("[data-lens=close]")?.focus();
+ $("lensBody").querySelectorAll("[data-lens]").forEach(b=>b.onclick=()=>{
+  if(b.dataset.lens==="close")closeLens();
+  else{if(!ui.sel.includes(id)){ui.sel.push(id);if(ui.sel.length>2)ui.sel.shift()}ui.msg=null;closeLens();ui.tab="evidence";render()}
+ });
+}
+function closeLens(){const d=$("lens");if(d.open){d.close?d.close():d.removeAttribute("open")}if(lensReturnFocus?.isConnected)lensReturnFocus.focus();lensReturnFocus=null}
+$("lens").addEventListener("click",e=>{if(e.target===$("lens"))closeLens()});
+
+document.addEventListener("keydown",e=>{
+ if(e.metaKey||e.ctrlKey||e.altKey||e.repeat||$("lens").open||["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName))return;
+ if(ui.tab!=="investigate"||state.view==="interview"||state.ended)return;
+ const n=parseInt(e.key,10);if(n>=1&&n<=9){const b=document.querySelectorAll(".choice")[n-1];if(b)b.click()}
+});
+function start(d){
+ if(d&&validState(d.state)){state=d.state;history=Array.isArray(d.history)?d.history:[]}
+ else{state=fresh();history=[]}
+ const c=loadJ(CH_KEY);if(!c.ch1){c.ch1=JSON.stringify(fresh());saveJ(CH_KEY,c)}
+ persist();render(false);
+}
+window.claude?.hot?.snapshot?.(()=>({state,history}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(restore());
+</script>
+</body></html>
