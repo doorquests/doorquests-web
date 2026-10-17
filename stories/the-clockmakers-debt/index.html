@@ -1,0 +1,442 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Clockmaker's Debt | The Axiom Continuum</title>
+<meta name="description" content="The Clockmaker's Debt — an interactive fantasy of borrowed time, justice and tomorrow. The Axiom Continuum, Daily Door #13.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="https://theaxiomcontinuum.com/assets/tac-emblem.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Spectral+SC:wght@500;600&display=swap">
+
+<style>
+/* Layout: the astronomical clock of Halderstadt beside the title, its hand creeping toward the Reckoning; the evening's account below; the Book of Hours as a live double-entry ledger alongside. */
+:root{
+  --bg:#eceee6; --paper:#f8f8f3; --ink:#1d1f1a; --muted:#5c6056; --line:#cfd2c6; --rule:#b9c4d6;
+  --gilt:#9b7516; --gilt-soft:rgba(155,117,22,.1); --verd:#2f7a6b; --verd-soft:rgba(47,122,107,.09); --red:#a1281f; --dial:#1e2a33; --dial-ink:#e9dfc4;
+  --display:"Old Standard TT","Didot",Georgia,serif;
+  --body:"Libre Caslon Text","Iowan Old Style",Georgia,serif;
+  --sc:"Spectral SC","Palatino Linotype",Georgia,serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131511; --paper:#1a1d18; --ink:#e7e4d8; --muted:#a09f92; --line:#2d3129; --rule:#2c3646;
+  --gilt:#e1b94f; --gilt-soft:rgba(225,185,79,.1); --verd:#69c3ae; --verd-soft:rgba(105,195,174,.1); --red:#f07a6c; --dial:#0c1216; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131511; --paper:#1a1d18; --ink:#e7e4d8; --muted:#a09f92; --line:#2d3129; --rule:#2c3646;
+  --gilt:#e1b94f; --gilt-soft:rgba(225,185,79,.1); --verd:#69c3ae; --verd-soft:rgba(105,195,174,.1); --red:#f07a6c; --dial:#0c1216; color-scheme:dark}
+
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17.5px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:22px 60px}
+
+.mast{max-width:1000px;margin:0 auto 26px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:28px;align-items:center;border-bottom:3px double var(--ink);padding-bottom:18px}
+@media (max-width:620px){.mast{grid-template-columns:120px minmax(0,1fr);gap:16px}}
+.clock svg{width:100%;height:auto;display:block}
+.clock .hand{transition:transform 1.2s cubic-bezier(.4,1.6,.5,1);transform-origin:100px 100px}
+.mast .pre{font-family:var(--sc);font-size:.82rem;letter-spacing:.14em;color:var(--muted);margin:0}
+.mast h1{font-family:var(--display);font-weight:400;font-style:italic;font-size:clamp(2.2rem,7vw,4rem);line-height:.98;margin:6px 0 10px;text-wrap:balance}
+.mast h1 b{font-style:normal;font-weight:700}
+.strip{display:flex;flex-wrap:wrap;gap:8px 28px}
+.strip div{font-family:var(--sc);font-size:.78rem;letter-spacing:.08em;color:var(--muted)}
+.strip b{display:block;font-family:var(--display);font-weight:700;font-size:1.45rem;letter-spacing:0;color:var(--ink);font-variant-numeric:tabular-nums lining-nums;line-height:1.2}
+.strip .loss b{color:var(--red)}
+
+.wrap{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:48px;align-items:start}
+@media (max-width:880px){.wrap{grid-template-columns:minmax(0,1fr);gap:32px}}
+main{min-width:0}
+.meta{font-family:var(--sc);font-size:.8rem;letter-spacing:.1em;color:var(--muted);display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
+.meta b{color:var(--gilt);font-weight:600}
+h2.scene-title{font-family:var(--display);font-weight:400;font-style:italic;font-size:clamp(2rem,5.6vw,2.8rem);line-height:1.05;margin:0 0 18px;text-wrap:balance}
+.passage{max-width:62ch}
+.passage p{margin:0 0 1em}
+.passage em{font-style:italic}
+.charter{display:block;margin:0 0 1.1em;padding:14px 18px;background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--gilt);font-style:italic;max-width:56ch}
+.charter .h{display:block;font-family:var(--sc);font-style:normal;font-size:.74rem;letter-spacing:.12em;color:var(--gilt);margin-bottom:4px}
+.speech{display:block;margin:0 0 1.1em;padding:12px 18px;background:var(--verd-soft);border-radius:30px 30px 30px 4px;color:var(--ink);max-width:54ch;font-family:var(--display);font-size:1.12rem;line-height:1.5}
+.speech .h{display:block;font-family:var(--sc);font-size:.72rem;letter-spacing:.14em;color:var(--verd);margin-bottom:2px}
+.entry{display:block;margin:0 0 1.1em;background:var(--paper);border:1px solid var(--line);max-width:56ch;overflow-x:auto;
+  background-image:repeating-linear-gradient(0deg,transparent 0 27px,var(--rule) 27px 28px)}
+.entry table{border-collapse:collapse;width:100%;font-size:.88rem;line-height:28px;min-width:340px}
+.entry td{padding:0 10px;vertical-align:bottom}
+.entry td.n{text-align:right;font-family:var(--display);font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
+.entry tr.struck td{text-decoration:line-through;color:var(--muted)}
+.entry tr.red td.n{color:var(--red)}
+.entry tr.new td{color:var(--verd);font-style:italic}
+.fade{animation:rise .45s ease both}
+@keyframes rise{from{opacity:.3}to{opacity:1}}
+
+.choices{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:10px;max-width:62ch}
+.choice{width:100%;display:grid;grid-template-columns:2.2em minmax(0,1fr);gap:10px;align-items:baseline;text-align:left;
+  background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:2px;padding:13px 16px;
+  font:inherit;font-size:1rem;line-height:1.45;cursor:pointer;transition:border-color .15s,background .15s}
+.choice .num{font-family:var(--display);font-style:italic;font-weight:700;color:var(--gilt);font-size:1.15rem}
+.choice .tag{display:block;font-family:var(--sc);font-size:.74rem;letter-spacing:.08em;color:var(--red);margin-top:3px}
+.choice .tag.g{color:var(--verd)}
+.choice:hover{border-color:var(--gilt);background:var(--gilt-soft)}
+.choice:focus-visible{outline:2px solid var(--gilt);outline-offset:2px}
+.hint{font-family:var(--sc);font-size:.76rem;letter-spacing:.06em;color:var(--muted);margin-top:14px}
+.tools{display:flex;gap:16px;margin-top:20px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;font-family:var(--sc);font-size:.82rem;letter-spacing:.04em;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--gilt)}
+.link:focus-visible{outline:2px solid var(--gilt);outline-offset:2px}
+.link[disabled]{opacity:.4;cursor:default;text-decoration:none}
+
+aside{min-width:0;display:grid;gap:26px}
+aside h3{font-family:var(--display);font-style:italic;font-weight:400;font-size:1.55rem;margin:0;line-height:1.1}
+aside .count{font-family:var(--sc);font-size:.74rem;letter-spacing:.06em;color:var(--muted);margin:2px 0 10px}
+.book{background:var(--paper);border:1px solid var(--line);padding:10px 12px;background-image:repeating-linear-gradient(0deg,transparent 0 27px,var(--rule) 27px 28px)}
+.book table{border-collapse:collapse;width:100%;font-size:.8rem;line-height:28px}
+.book td{vertical-align:bottom}
+.book td.n{text-align:right;font-family:var(--display);font-variant-numeric:tabular-nums lining-nums;white-space:nowrap;padding-left:8px}
+.book tr.tot td{border-top:2px double var(--ink);font-weight:700}
+.book tr.tot td.n{color:var(--red)}
+.book tr.gift td.n{color:var(--verd)}
+.book .who{font-size:.72rem;color:var(--muted);display:block;line-height:1.2;padding-bottom:4px}
+.notes{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.notes li{font-size:.86rem;line-height:1.45;padding-left:14px;position:relative}
+.notes li::before{content:"§";position:absolute;left:0;color:var(--gilt);font-family:var(--display)}
+.notes li.unk{color:var(--muted);font-style:italic}
+
+.ending-card{margin-top:26px;border-top:3px double var(--ink);padding-top:18px;max-width:62ch}
+.ending-card .label{font-family:var(--sc);font-size:.8rem;letter-spacing:.1em;color:var(--gilt);margin:0 0 2px}
+.ending-card h4{font-family:var(--display);font-style:italic;font-weight:400;font-size:2.3rem;margin:0 0 12px;line-height:1.05}
+.endings{list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px;font-size:.9rem}
+@media (max-width:480px){.endings{grid-template-columns:minmax(0,1fr)}}
+.endings li{color:var(--muted)}
+.endings li.got{color:var(--ink)}
+.endings li.got::before{content:"✧ ";color:var(--gilt)}
+.endings li:not(.got)::before{content:"· "}
+.begin{font-family:var(--sc);font-size:.92rem;letter-spacing:.08em;background:var(--ink);color:var(--bg);border:0;border-radius:2px;padding:11px 20px;cursor:pointer}
+.begin:focus-visible{outline:2px solid var(--gilt);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.clock .hand{transition:none}}
+/* TAC attribution stays outside the unique clockwork masthead. */
+.tac-brand{max-width:1000px;margin:0 auto 14px;display:flex;align-items:center;gap:10px;font:600 .83rem/1.4 var(--sc);letter-spacing:.02em;color:var(--muted)}
+.tac-brand img{width:30px;height:30px;display:block;object-fit:contain;flex:none}
+.tac-brand a{color:inherit;text-decoration:none}
+.tac-brand a:hover{text-decoration:underline}
+.tac-brand span{min-width:0}
+.dossier-toggle{display:none;background:var(--paper);color:var(--ink);border:1px solid var(--line);padding:10px 12px;font:600 .88rem var(--sc);cursor:pointer;text-align:left;width:100%}
+@media(max-width:880px){.dossier-toggle{display:block}.account-notes[data-collapsed="true"]{display:none}}
+@media(max-width:480px){.tac-brand{font-size:.73rem}.tac-brand img{width:27px;height:27px}}
+</style>
+</head><body>
+<div class="tac-brand"><a href="/" aria-label="The Axiom Continuum home"><img src="/assets/tac-emblem.svg" alt=""></a><span><a href="/">The Axiom Continuum</a> · Daily Door #13</span></div>
+<header class="mast">
+  <div class="clock" id="clock" aria-hidden="true"></div>
+  <div>
+    <p class="pre">Halderstadt · the 31st of October, 1789 · Daily Door No. 13</p>
+    <h1>The <b>Clockmaker’s</b> Debt</h1>
+    <div class="strip" aria-label="Status">
+      <div>The hour<b id="time">six o'clock</b></div>
+      <div>The Reckoning<b id="left">in 6 hours</b></div>
+      <div class="loss">Each citizen will lose<b id="loss">1,000 hours</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <main id="main" aria-live="polite"></main>
+  <aside><button class="dossier-toggle" id="dossierToggle" type="button" aria-controls="accountNotes" aria-expanded="false">Show the Book of Hours and Auditor’s notes</button>
+    <div class="account-notes" id="accountNotes">
+    <section><h3>The Book of Hours</h3><p class="count">As the Clock will read it at midnight</p><div class="book" id="book"></div></section>
+    <section><h3>The Auditor's notes</h3><p class="count" id="nCount"></p><ul class="notes" id="notes"></ul></section>
+    </div>
+  </aside>
+</div>
+
+<script>
+const POP=24000, GUILD=300, TOTAL=24000000, FORGED=18000000, PLEDGE=3000000;
+const NOTES=[
+ ["ledger","The city owes 24,000,000 hours. Split equally, that is 1,000 hours from every citizen."],
+ ["forged","18,000,000 of those hours were drawn by the Merchants' Guild, then scraped into the Common Account in 1786."],
+ ["clause","The Charter: 'Hours shall be repaid by those who spent them. Hours freely given count twice.'"],
+ ["ink","Only the clockmaker's ink writes in the Book in a way the Clock can read."],
+ ["morgen","The Reckoner is a brass child called Morgen. It is Tomorrow, and it does not want to collect."],
+ ["wish","Morgen asks for one thing: stop borrowing, and let it be a morning again."],
+ ["gift","The poor quarter has pledged 3,000,000 hours, freely given."]
+];
+const ENDINGS={E1:"Equal Shares",E2:"Paid in Full",E3:"The Guild's Account",E4:"Borrowed Again",E5:"The Stopped City",E6:"The New Reckoner"};
+const charter=(h,t)=>`<span class="charter"><span class="h">${h}</span>${t}</span>`;
+const say=(who,t)=>`<span class="speech"><span class="h">${who}</span>${t}</span>`;
+const fmt=n=>n.toLocaleString("en-GB");
+function entry(rows){return `<span class="entry"><table>${rows.map(r=>`<tr class="${r[2]||""}"><td>${r[0]}</td><td class="n">${r[1]}</td></tr>`).join("")}</table></span>`}
+
+const S={
+start:{t:`Six o'Clock`,cost:0,p:[
+ `For forty years, the city of Halderstadt has lived longer days than anyone else in the Empire.`,
+ `In 1749 the clockmaker Jonas Holler finished the Great Clock in the Rathaus tower: an astronomical clock of brass and enamel that could *lend hours*. A baker could borrow three more hours to finish his loaves. A mill could run all night. The Guild could hold feasts that lasted till the next day's dinner. All you had to do was sign the Book of Hours. The hours came from the future. Nobody worried much about the future.`,
+ `This morning, every clock face in the city turned red, and a notice in brass letters appeared on the Rathaus door: *THE RECKONING. MIDNIGHT. ALL ACCOUNTS WILL BE SETTLED.*`,
+ `You are Elsbeth Ruhm, Auditor of Hours, the most junior clerk in the Exchequer. At six o'clock the Burgomaster called you in, put the Book of Hours on your desk, and said, "Make it balance, girl." Then he went home to dinner.`],
+ o:[[`Open the Book of Hours`,`ledger`],[`Climb the Rathaus tower to the Great Clock`,`tower`],[`Visit the clockmaker's widow, Margit Holler`,`widow`]]},
+
+ledger:{t:`The Book of Hours`,set:[`ledger`],p:[
+ `The Book of Hours is the size of a church door and smells of brass oil. Each page is ruled in red and black, column after column of borrowed hours in forty years of different handwriting.`,
+ `You turn to the last page, where it's all totalled.`,
+ entry([[`Hours borrowed, 1749–1789`,fmt(TOTAL)],[`Held in the Common Account`,fmt(TOTAL),"red"],[`Citizens of Halderstadt`,fmt(POP)],[`To be collected from each, at midnight`,`1,000 hours`,"red"]]),
+ `A thousand hours is forty-one days. For a young apprentice, that's nothing much. For old Frau Becker on your street, who coughs all winter, it's the rest of her life.`,
+ `Odd, though. Almost everything is in the Common Account: the debt everyone shares. Hardly anything is under anyone's name.`],
+ o:[[`Look closer at the older pages`,`archive`],[`Take the totals to the Burgomaster`,`burgo`],[`Climb to the Great Clock`,`tower`]]},
+
+archive:{t:`The Erasures`,set:[`forged`],p:[
+ `You hold the Book's older pages up to the lamp. In the pages for 1786, the light shows what your eyes missed: the vellum has been scraped and written over.`,
+ `Under the scraping, faint as breath, you can still read the old entries. *Merchants' Guild, feast of St. Martin, 40,000 hours. Burgomaster Grieve, mill extension, 600,000 hours.* Page after page of them.`,
+ entry([[`Guild & Burgomaster (as first written)`,fmt(FORGED),"struck"],[`Moved to the Common Account, 1786`,`+ `+fmt(FORGED),"red"],[`Countersigned`,`Seal of O. Grieve`]]),
+ `Three hundred guild members borrowed eighteen million hours. Then the Burgomaster moved their debt into the account that all twenty-four thousand citizens share.`],
+ o:[[`Confront the Burgomaster`,`burgo`],[`Find out whether the Book can be corrected`,`widow`],[`Take this to the Great Clock`,`tower`]]},
+
+burgo:{t:`Burgomaster Grieve`,p:s=>[
+ `Burgomaster Ottokar Grieve is at dinner: a goose, three wines, a fire, two hours borrowed from the Clock to make the evening last. He waves you to a chair without stopping eating.`,
+ s.f.forged?`You put the scraped page in front of him. He wipes his mouth slowly. "Ancient history, Fräulein. 1786. Everybody's debt, everybody's city. And I have a much better idea."`:`"Balanced it yet? No? Never mind. I have a much better idea."`,
+ `He leans forward, eyes shining. "We *refinance*. The Clock lends to anyone who signs. So we sign for twenty-four million hours more, from further ahead. 1830, say. Pay off tonight's debt with tomorrow's. Nobody loses anything tonight." He spreads his hands. "The children of 1830 won't miss a few weeks each. They'll never know."`],
+ o:s=>[[`Agree to the refinancing`,`E4`],[s.f.forged?`"Your guild borrowed most of it. You should pay it."`:`Ask to see the Guild's own accounts`,s.f.forged?`burgo2`:`archive`],[`Leave, and climb to the Great Clock`,`tower`]]},
+
+burgo2:{t:`A Better Offer`,p:[
+ `Grieve's smile thins. "Careful, Auditor. That book belongs to the Exchequer, and the Exchequer belongs to me."`,
+ `He takes a small brass token from his waistcoat and slides it across the table: a personal grant, stamped by the Clock. *Ten thousand hours.* "A gift. A whole extra year of life, for a sensible girl who balances books sensibly."`,
+ `The token is warm. It ticks.`],
+ o:[[`Leave the token on the table and walk out`,`tower`],[`Ask the clockmaker's widow how to fix the Book`,`widow`],[`Go to the market square and tell everyone`,`market`]]},
+
+widow:{t:`Margit Holler`,set:[`clause`,`ink`],p:[
+ `Margit Holler, eighty-one, widow of the man who built the Clock, lives above his old workshop on Glockengasse. She lets you in with a candle. She's wearing her best dress. "If it's my last night," she says, "I thought I'd look nice."`,
+ `She takes down a framed document from the wall: the Charter of the Clock, signed by Jonas Holler in 1749.`,
+ charter(`Charter of the Lending Clock, Article 3`,`Hours shall be repaid by those who spent them. Hours freely given count twice. The Reckoner reads only what is written in the Clockmaker's ink.`),
+ `From a drawer she takes a little stoppered bottle, dark as the inside of a bell. "Jonas made this. Lamp-black and oil from the Clock's own escapement. If you write in the Book with this, the Clock will believe it. If you write with anything else, it won't."`,
+ `She presses it into your hand. "He always worried someone would cheat the Book. He'd be glad it's you."`],
+ o:s=>[ s.f.forged?[`Go to the Exchequer and correct the Book`,`amend`]:[`Go back and study the Book's older pages`,`archive`],[`Go to the market square`,`market`],[`Climb to the Great Clock`,`tower`]]},
+
+tower:{t:`The Great Clock`,set:[`morgen`],p:[
+ `The Rathaus tower is all gears: wheels the size of cartwheels, the slow tock of the escapement, brass planets turning on brass arms. In a niche beneath the dial, where the automata come out to strike the hours, a small brass figure is sitting with its knees drawn up.`,
+ `It's a child. Brass, with enamel eyes. Its fingers are working: counting.`,
+ say(`The Reckoner`,`You are the Auditor. I am called Morgen. I am Tomorrow. Every hour this city borrowed, it borrowed from me.`),
+ `Its voice is like a music box running down.`,
+ say(`Morgen`,`At midnight I must walk out and collect what the Book says. I do not want to. But I can only read the Book. Who will pay?`)],
+ o:[[`Ask Morgen what it wants`,`wish`],[`Ask what would happen if someone stopped the Clock`,`smashq`],[`Go back down into the city`,`hub`]]},
+
+wish:{t:`A Morning Again`,set:[`wish`],p:[
+ say(`Morgen`,`What do I want?`),
+ `The brass child tilts its head. Nobody has asked it before. Behind it, a planet creaks round on its arm.`,
+ say(`Morgen`,`I want you to stop. Stop borrowing. Every year the city takes more of me, and I get smaller. I used to be a whole morning. Now I am mostly debt.`),
+ say(`Morgen`,`Settle the Book fairly, and close the lending window. Then I can go back to being what I was: the next day. Just the next day. Arriving on time.`)],
+ o:[[`Promise to try`,`hub`],[`Ask what "fairly" means`,`smashq`],[`Go to the market square`,`market`]]},
+
+smashq:{t:`The Escapement`,p:[
+ `"If someone stopped the Clock," you ask. "Smashed the escapement. What then?"`,
+ say(`Morgen`,`Then I could not walk out at midnight. And no hour would ever pass in Halderstadt again. Not lent, not borrowed, not lived.`),
+ `It says this very simply, as if explaining the weather.`,
+ say(`Morgen`,`The Charter tells you how to make the Book fair. The widow knows. And hours freely given count twice. That is the part everybody forgets.`)],
+ o:[[`Go to the clockmaker's widow`,`widow`],[`Go to the market square`,`market`],[`Go back down`,`hub`]]},
+
+market:{t:`The Market Square`,p:s=>{
+ const a=[`The market square is full. Nobody has gone home. Under the red clock face, thousands of people stand in their coats, clutching each other: weavers, washerwomen, porters, children, old men with sticks.`];
+ if(s.f.clause){a.push(`You climb onto the fountain's rim and read Article 3 aloud. *Hours freely given count twice.* Then you tell them what's in the Book. ${s.f.forged?"Who borrowed. Who moved it.":""}`,`For a long moment, nobody says anything. Then an old washerwoman at the front says, "I'll give an hour. For Frau Becker." A porter says, "I'll give ten." Then a hundred voices. Then a thousand.`,`By half past ten, the poor quarter of Halderstadt has pledged three million hours, freely, for each other. Freely given, they count as six.`);}
+ else a.push(`They turn to you, the clerk from the Exchequer, as if you might have an answer. You don't, yet. "There must be something in the Charter," someone says. "Old Holler always said there was."`);
+ return a;},
+ setIf:s=>s.f.clause?[`gift`]:[],
+ o:s=>[ s.f.forged&&s.f.ink&&!s.f.amended?[`Go to the Exchequer and correct the Book`,`amend`]:s.f.clause?[`Climb to the Great Clock`,`tower`]:[`Visit the clockmaker's widow`,`widow`],[`Go back to the Exchequer`,`hub`],[`Climb to the Great Clock`,`tower`]]},
+
+amend:{t:`In the Clockmaker's Ink`,set:[`amended`],cost:40,p:[
+ `In the empty Exchequer, by a single candle, you open the Book to its last page, uncork Margit Holler's bottle, and dip your pen.`,
+ `You write slowly, the way you were taught: every scraped entry restored to the name that first signed it. Merchants' Guild. Burgomaster Grieve. Three hundred names. The ink goes down black and then, as it dries, glows faintly gold, like a coal.`,
+ entry([[`Common Account (as forged)`,fmt(TOTAL),"struck"],[`Restored to the Guild & Burgomaster`,fmt(FORGED),"new"],[`Common Account (corrected)`,fmt(TOTAL-FORGED),"red"]]),
+ `Somewhere above you, in the tower, the escapement skips one tock. The Clock has noticed.`],
+ o:[[`Go to the market square`,`market`],[`Climb to the Great Clock`,`tower`],[`Wait for midnight`,`finale`]]},
+
+hub:{t:`Half Past Eleven`,p:s=>{
+ const a=[`The city is very quiet. Lamps in every window. Families sitting up together, the way people sit up with the dying.`];
+ a.push(`According to the Book as it stands, each citizen will lose ${fmt(perHead(s))} hours at midnight.`);
+ if(s.f.amended) a.push(`The gold ink on the last page has dried. It still glows a little in the dark.`);
+ return a;},
+ o:s=>hubOpts(s)},
+
+finale:{t:`Midnight`,cost:0,clockTo:1440,p:s=>{
+ const a=[`The Great Clock strikes twelve. On the last stroke, the doors beneath the dial open, and Morgen walks out onto the little balcony above the square, the Book of Hours open in its brass hands.`,
+ `The whole city is looking up. Burgomaster Grieve is on the Rathaus steps in his fur collar. ${s.f.gift?"In the square, the poor quarter stands shoulder to shoulder, the people who gave.":"In the square, people are holding each other's hands."}`,
+ entry(bookRows(s)),
+ `Morgen looks down at you. It's waiting.`];
+ return a;},
+ o:s=>[[`Let the Reckoner read the Book as it stands`,s.f.amended?(s.f.gift?`E2`:`E3`):`E1`],[s.f.ink?`Sign your own name across the Common Account`:`Try to sign your own name without the Clockmaker's ink`,s.f.ink?`E6`:`inkfail`],[`Climb to the escapement and smash it`,`E5`]]},
+
+inkfail:{t:`Ordinary Ink`,p:[
+ `You take up a pen and write your name across the Common Account. The ink lies on the paper, dull and ordinary. The Great Clock gives no sign that it has seen you.`,
+ `Morgen looks down at the Book, then at you. "This ink is not my father's," it says. "I can read only the ink of the Clockmaker." The bell is already ringing.`],
+ o:[[`Let Morgen read the Book as it stands`,`E1`],[`Stop the Clock before it collects`,`E5`],[`Ask Morgen to try reading your name again`,`E1`]]},
+
+E1:{end:true,t:`Equal Shares`,p:s=>[
+ `Morgen reads the Book aloud in its music-box voice, and the hours go out of Halderstadt like a tide. ${fmt(perHead(s))} from every citizen, rich and poor alike.`,
+ `For the young it's a few weeks; nobody even feels it. For the old, it's everything. Frau Becker. Old Pohl the cobbler. Margit Holler, in her best dress, by her window, with a candle.`,
+ `Burgomaster Grieve feels nothing in particular. He goes home and finishes his wine.`,
+ `In the morning, every clock face in Halderstadt is white again. The lending window opens at nine. There's already a queue.`,
+ `*The Book said everyone owed the same. It wasn't true. Under the scraping, it never had been.*`]},
+
+E2:{end:true,best:true,t:`Paid in Full`,p:s=>[
+ `Morgen reads the Book. Three hundred names, in gold ink. Then the Common Account, and beside it, the poor quarter's gift, counting double.`,
+ `The Common Account comes to nothing. Nothing at all.`,
+ `On the Rathaus steps, Burgomaster Grieve ages seven years in a single stroke of the bell. So does every member of the Merchants' Guild. They look at each other in the lamplight: grey, startled, alive. It's exactly what they spent. Not an hour more.`,
+ `Nobody else loses a minute. Margit Holler, at her window in her best dress, laughs out loud.`,
+ s.f.wish?`Then Morgen does something nobody expects. It closes the Book, walks back through the doors beneath the dial, and with its small brass hands, reaches up and locks the lending window from the inside. The red clock faces turn white. Then, one by one, they turn the pale colour of an ordinary dawn.`:`Morgen closes the Book and goes back inside. In the morning the lending window opens again, and you make a note to deal with that next.`,
+ `The next morning comes exactly on time. It's only twenty-four hours long. It's the best day anyone in Halderstadt can remember.`,
+ `Margit gives you Jonas's bottle of ink. "Keep it," she says. "Somebody will try again. They always do."`]},
+
+E3:{end:true,t:`The Guild's Account`,p:s=>[
+ `Morgen reads the Book. Three hundred names in gold ink: the Guild's debt, every hour of it, returned to the people who spent it. On the Rathaus steps, Burgomaster Grieve ages seven years in a single stroke of the bell.`,
+ `Then the Common Account. Six million hours, shared by all. ${fmt(perHead(s))} from each citizen. Ten days and a little more.`,
+ `For most, it's nothing. For the very oldest, it's enough. Margit Holler dies peacefully that night in her best dress. She'd have said it was fair. It was fairer.`,
+ `*The Book was honest. But the Charter had another clause: hours freely given count twice. The market square was waiting to be asked.*`]},
+
+E4:{end:true,t:`Borrowed Again`,p:[
+ `You sign. The Burgomaster signs. Twenty-four million hours, drawn from 1830.`,
+ `At midnight Morgen walks out, reads the Book, finds it balanced, and goes back in without collecting anything. The square cheers. Grieve opens a barrel of wine on the Rathaus steps.`,
+ `Morgen is a little smaller afterwards. Nobody notices.`,
+ `In 1830, the children of 1789, now grown, find every clock face in Halderstadt turned red, and a notice on the Rathaus door. The debt has doubled, with interest. There is already a clerk in the Exchequer with your name on a list of people to blame.`,
+ `*Borrowing from tomorrow to pay for today is still borrowing.*`]},
+
+E5:{end:true,t:`The Stopped City`,p:[
+ `You climb into the gears with a fire iron and jam it into the escapement just as the first stroke of midnight begins.`,
+ `The bell never finishes. The brass planets stop on their arms. Morgen freezes in the doorway, half out, one foot raised.`,
+ `And every hour in Halderstadt stops with it. The candle flames stand still. The people in the square are caught mid-breath, holding hands, looking up. The goose in Grieve's dining room is still warm, and will be forever.`,
+ `Nobody pays the debt. Nobody lives another second, either.`,
+ `Travellers who pass Halderstadt now say you can see it from the road: a city frozen at midnight, every lamp lit, and up on the tower, a small brass child in a doorway, waiting for somebody to let it finish its step.`]},
+
+E6:{end:true,t:`The New Reckoner`,p:s=>[
+ `You take Margit's pen, dip it, and write your own name across the Common Account in gold: *Elsbeth Ruhm. All of it.*`,
+ `Morgen looks at you for a long time with its enamel eyes. Then it nods.`,
+ `It takes every hour you have left, and the hours you'd have had after that, and it's still not enough, not nearly. But the Book says the account is yours now. And whoever holds the Book's last account, the Charter says, holds the Clock.`,
+ `When the people of Halderstadt look up at the balcony, there are two brass figures there. One is a small child. The other looks a great deal like a junior clerk from the Exchequer.`,
+ `You count the hours now. Every borrowed one. It's slow work, and it will take a long time, and it is very quiet in the tower.`,
+ `*You paid. One person can't pay a city's debt, though. The Charter had a fairer way.*`]}
+};
+
+function perHead(s){
+  let common=TOTAL-(s.f.amended?FORGED:0);
+  if(s.f.gift) common=Math.max(0,common-PLEDGE*2);
+  return Math.round(common/POP);
+}
+function bookRows(s){
+  const common=TOTAL-(s.f.amended?FORGED:0);
+  const r=[[`Common Account (${fmt(POP)} citizens)`,fmt(common),"red"]];
+  if(s.f.amended) r.push([`Merchants' Guild & Burgomaster (${GUILD})`,fmt(FORGED),"new"]);
+  if(s.f.gift) r.push([`Freely given, counted twice`,`− `+fmt(PLEDGE*2),"new"]);
+  r.push([`From each citizen`,`${fmt(perHead(s))} hours`,"red"]);
+  return r;
+}
+function hubOpts(s){
+  if(s.clock>=1420) return [[`The Clock is striking`,`finale`],[`Run to the square`,`finale`],[`Look up`,`finale`]];
+  const pool=[];
+  if(!s.f.forged) pool.push([`Study the older pages of the Book`,`archive`]);
+  if(!s.f.clause) pool.push([`Visit the clockmaker's widow`,`widow`]);
+  if(s.f.forged&&s.f.ink&&!s.f.amended) pool.push([`Correct the Book in the clockmaker's ink`,`amend`]);
+  if(!s.f.morgen) pool.push([`Climb to the Great Clock`,`tower`]);
+  if(s.f.morgen&&!s.f.wish) pool.push([`Ask Morgen what it wants`,`wish`]);
+  if(!s.f.gift) pool.push([`Go to the market square`,`market`]);
+  if(!s.seen.burgo) pool.push([`Call on the Burgomaster`,`burgo`]);
+  const o=pool.slice(0,2);
+  while(o.length<2) o.push([`Sit with the Book and wait`,`finale`]);
+  o.push([`Go to the square for midnight`,`finale`]);
+  return o;
+}
+
+/* ---------- engine ---------- */
+let state,history=[];
+const SAVE_KEY="tac-clockmaker-debt-daily-door-v1";
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({state,history}))}catch(e){}}
+function restore(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");if(x&&x.state&&S[x.state.scene]&&Array.isArray(x.history))return x}catch(e){}return null}
+const fresh=()=>({scene:"start",f:{},seen:{start:1},n:0,clock:1080});
+const val=(x,s)=>typeof x==="function"?x(s):x;
+const WORDS=["twelve","one","two","three","four","five","six","seven","eight","nine","ten","eleven"];
+function hourWords(m){m=Math.round(m);const h=Math.floor(m/60)%12,mm=m%60;
+  if(m>=1440) return "midnight";
+  if(mm<8) return WORDS[h]+" o'clock"; if(mm<23) return "quarter past "+WORDS[h]; if(mm<38) return "half past "+WORDS[h]; if(mm<53) return "quarter to "+WORDS[(h+1)%12]; return WORDS[(h+1)%12]+" o'clock"}
+function loadE(){try{return JSON.parse(localStorage.getItem("clockdebt-endings")||"{}")}catch(e){return {}}}
+function saveE(id){const e=loadE();e[id]=1;try{localStorage.setItem("clockdebt-endings",JSON.stringify(e))}catch(err){}}
+function smart(html){
+  return html.split(/(<[^>]+>)/).map(p=>p.startsWith("<")?p:
+    p.replace(/(^|[\s(\[—])"/g,"$1“").replace(/"/g,"”")
+     .replace(/(^|[\s(\[—])'/g,"$1‘").replace(/'/g,"’")
+     .replace(/\*(.+?)\*/g,"<em>$1</em>")).join("");
+}
+function go(to){
+  history.push(JSON.stringify(state)); if(history.length>60) history.shift();
+  const sc=S[to];
+  if(sc.clockTo) state.clock=Math.max(state.clock,sc.clockTo);
+  else if(!sc.end) state.clock=Math.min(1425,state.clock+(sc.cost==null?25:sc.cost));
+  else state.clock=1440;
+  state.scene=to; state.n++;
+  state.seen[to]=1;
+  (sc.set||[]).forEach(k=>state.f[k]=1);
+  if(sc.setIf) sc.setIf(state).forEach(k=>state.f[k]=1);
+  if(sc.end) saveE(to);
+  render(true);persist();
+}
+function back(){if(!history.length)return;state=JSON.parse(history.pop());render(true);persist()}
+function restart(){history=[];state=fresh();render(true);persist()}
+
+function render(scroll){
+  const sc=S[state.scene], main=document.getElementById("main");
+  const paras=val(sc.p,state).map(t=>/^<span class="(charter|speech|entry)/.test(t)?smart(t):`<p>${smart(t)}</p>`).join("");
+  let html=`<div class="fade"><div class="meta"><span>${sc.end?"<b>The Reckoning</b>":`The Auditor's account · <b>folio ${state.n+1}</b>`}</span><span>${hourWords(state.clock)}</span></div>
+   <h2 class="scene-title">${smart(sc.t)}</h2><div class="passage">${paras}</div>`;
+  if(sc.end){
+    const got=loadE(), n=Object.keys(ENDINGS).filter(k=>got[k]).length, c=NOTES.filter(x=>state.f[x[0]]).length;
+    html+=`<div class="ending-card"><p class="label">${sc.best?"The truest ending":"Ending reached"} · ${n} of 6 discovered</p><h4>${smart(sc.t)}</h4>
+     <ul class="endings">${Object.entries(ENDINGS).map(([k,v])=>`<li class="${got[k]?"got":""}">${got[k]?smart(v):"Undiscovered"}</li>`).join("")}</ul>
+     <p class="hint" style="margin:0 0 16px">${c} of 7 notes taken · each citizen's share ended at ${fmt(perHead(state))} hours.${sc.best?"":" The truest ending needs the forged pages corrected in the clockmaker's ink, and the city's gift."}</p>
+     <button class="begin" id="again">Open the Book again</button></div>`;
+  } else {
+    const opts=val(sc.o,state);
+    html+=`<ol class="choices">${opts.map((o,i)=>{const t=S[o[1]];let tag="";
+      if(o[1]==="amend") tag=`<span class="tag g">Moves ${fmt(FORGED)} hours back to the Guild</span>`;
+      else if(o[1]==="market"&&state.f.clause&&!state.f.gift) tag=`<span class="tag g">Ask the city for a gift of hours</span>`;
+      else if(t.cost>=40) tag=`<span class="tag">Takes forty minutes</span>`;
+      return `<li><button class="choice" data-i="${i}"><span class="num">${["i","ii","iii"][i]}</span><span>${smart(o[0])}${tag}</span></button></li>`}).join("")}</ol>
+     <p class="hint">Press 1, 2 or 3 to choose</p>`;
+  }
+  html+=`<div class="tools"><button class="link" id="back" ${history.length?"":"disabled"}>Retrace your last step</button><button class="link" id="restart">Start over</button></div></div>`;
+  main.innerHTML=html;
+  if(!sc.end){const opts=val(sc.o,state);main.querySelectorAll(".choice").forEach(b=>b.onclick=()=>go(opts[+b.dataset.i][1]));}
+  else document.getElementById("again").onclick=restart;
+  document.getElementById("back").onclick=back;
+  document.getElementById("restart").onclick=restart;
+  side();
+  if(scroll){const top=document.querySelector(".mast");if(window.scrollY>top.offsetHeight)window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
+}
+function side(){
+  const left=1440-state.clock, ph=perHead(state);
+  document.getElementById("time").textContent=hourWords(state.clock);
+  document.getElementById("left").textContent=left<=0?"now":left>=60?`in ${Math.floor(left/60)}h ${String(left%60).padStart(2,"0")}m`:`in ${left} minutes`;
+  document.getElementById("loss").textContent=`${fmt(ph)} hours`;
+  document.getElementById("book").innerHTML=`<table>${bookRows(state).map(([l,n,c],i,a)=>`<tr class="${i===a.length-1?"tot":c==="new"?"gift":""}"><td>${l}</td><td class="n">${n}</td></tr>`).join("")}<tr><td colspan="2"><span class="who">≈ ${Math.round(ph/24)} days of life from every man, woman and child</span></td></tr></table>`;
+  const c=NOTES.filter(n=>state.f[n[0]]).length;
+  document.getElementById("nCount").textContent=`${c} of 7 entered`;
+  document.getElementById("notes").innerHTML=NOTES.map(([k,t])=>state.f[k]?`<li>${smart(t)}</li>`:`<li class="unk">Not yet discovered</li>`).join("");
+  drawClock();
+}
+function drawClock(){
+  const m=state.clock, ang=((m%720)/720)*360, red=!(state.scene==="E2"&&state.f.wish);
+  let ticks="";for(let i=0;i<12;i++){const a=i*30*Math.PI/180;ticks+=`<text x="${100+70*Math.sin(a)}" y="${104-70*Math.cos(a)}" text-anchor="middle" style="font:700 11px var(--display);fill:var(--dial-ink)">${["XII","I","II","III","IIII","V","VI","VII","VIII","IX","X","XI"][i]}</text>`}
+  let seg="";for(let i=0;i<24;i++){const a1=i*15*Math.PI/180,a2=(i+1)*15*Math.PI/180;seg+=`<path d="M${100+88*Math.sin(a1)} ${100-88*Math.cos(a1)} A88 88 0 0 1 ${100+88*Math.sin(a2)} ${100-88*Math.cos(a2)}" stroke="${i%2?"var(--gilt)":"var(--verd)"}" stroke-width="8" fill="none" opacity=".8"/>`}
+  document.getElementById("clock").innerHTML=`<svg viewBox="0 0 200 200" role="img" aria-label="The Great Clock, showing ${hourWords(m)}">
+   <circle cx="100" cy="100" r="97" fill="var(--gilt)"/>
+   <circle cx="100" cy="100" r="92" fill="var(--dial)"/>${seg}
+   <circle cx="100" cy="100" r="82" fill="${red?"#5b1a15":"#1f3b4a"}" style="transition:fill 1s"/>
+   ${ticks}
+   <circle cx="100" cy="100" r="34" fill="none" stroke="var(--dial-ink)" stroke-width=".8" opacity=".5"/>
+   <circle cx="${100+34*Math.sin(m/100)}" cy="${100-34*Math.cos(m/100)}" r="5" fill="var(--gilt)"/>
+   <g class="hand" style="transform:rotate(${ang}deg)"><path d="M100 104 L97 100 L100 34 L103 100 Z" fill="var(--dial-ink)"/><circle cx="100" cy="36" r="5" fill="none" stroke="var(--dial-ink)" stroke-width="1.5"/></g>
+   <circle cx="100" cy="100" r="6" fill="var(--gilt)"/>
+  </svg>`;
+}
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const i=["1","2","3"].indexOf(e.key); if(i>-1){const b=document.querySelectorAll(".choice")[i]; if(b)b.click();}
+});
+function start(d){const saved=d&&d.state?d:restore();state=saved&&saved.state&&S[saved.state.scene]?saved.state:fresh();history=saved&&Array.isArray(saved.history)?saved.history:[];render(false);persist()}
+const dossierToggle=document.getElementById("dossierToggle"),accountNotes=document.getElementById("accountNotes");
+const small=matchMedia("(max-width:880px)");
+function toggleDossier(){const hidden=accountNotes.dataset.collapsed==="true";accountNotes.dataset.collapsed=hidden?"false":"true";dossierToggle.setAttribute("aria-expanded",String(hidden));dossierToggle.textContent=hidden?"Hide the Book of Hours and Auditor’s notes":"Show the Book of Hours and Auditor’s notes"}
+dossierToggle.addEventListener("click",toggleDossier);
+function responsiveDossier(){accountNotes.dataset.collapsed=small.matches?"true":"false";dossierToggle.setAttribute("aria-expanded",String(!small.matches));dossierToggle.textContent="Show the Book of Hours and Auditor’s notes"}
+small.addEventListener("change",responsiveDossier);responsiveDossier();
+window.claude?.hot?.snapshot?.(()=>({state,history}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+</script>
+
+</body></html>
