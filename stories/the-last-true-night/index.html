@@ -1,0 +1,399 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Last True Night</title>
+<meta name="description" content="At nine tonight, a world sees its first true night in sixty-one years. Daily Door #27 from The Axiom Continuum.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="https://theaxiomcontinuum.com/assets/tac-emblem.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the sky (canvas) across the top, with the Lantern's ring of mirrors and the light level; the passage and choices beneath; the Dimming schedule, the Darkness Map of Meridian, Looking Up, and the Sky Book alongside. The page itself shifts from lantern-day to night as the light falls. */
+:root{
+  --bg:#f4efe2; --card:#fbf8f0; --ink:#1d2230; --muted:#5f6577; --line:#dcd4c1;
+  --lamp:#d79a2b; --lamp-soft:rgba(215,154,43,.12); --star:#2c4a8c; --star-soft:rgba(44,74,140,.1); --red:#b8402e;
+  --display:"Instrument Serif",Georgia,serif; --body:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c0f17; --card:#131826; --ink:#e7e9f2; --muted:#9aa1b6; --line:#252c3d;
+  --lamp:#f0b54a; --lamp-soft:rgba(240,181,74,.12); --star:#9fbaf5; --star-soft:rgba(159,186,245,.1); --red:#ff7a66; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c0f17; --card:#131826; --ink:#e7e9f2; --muted:#9aa1b6; --line:#252c3d;
+  --lamp:#f0b54a; --lamp-soft:rgba(240,181,74,.12); --star:#9fbaf5; --star-soft:rgba(159,186,245,.1); --red:#ff7a66; color-scheme:dark}
+:root[data-phase="dusk"]:not([data-theme="dark"]){--bg:#d9d3c6;--card:#e8e3d7;--line:#c2baa7}
+:root[data-phase="night"]{--bg:#070910;--card:#0f131e;--ink:#e2e5ef;--muted:#8b93aa;--line:#1f2636;--lamp:#f0b54a;--lamp-soft:rgba(240,181,74,.1);--star:#a9c2ff;--star-soft:rgba(169,194,255,.09);--red:#ff7a66;color-scheme:dark}
+:root[data-phase="true"]{--bg:#020306;--card:#080b12;--ink:#d8dcea;--muted:#7f879e;--line:#161b27;--lamp:#c99a45;--lamp-soft:rgba(201,154,69,.08);--star:#b9cdff;--star-soft:rgba(185,205,255,.08);--red:#e0705f;color-scheme:dark}
+
+html{background:var(--bg);transition:background 1.6s ease}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-weight:300;font-size:18px;line-height:1.72;margin:0;transition:background 1.6s ease,color 1.6s ease;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 56px}
+
+.mast{max-width:1060px;margin:0 auto 26px}
+.mast .pre{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0;text-align:center}
+.mast h1{font-family:var(--display);font-weight:400;font-size:clamp(2.6rem,9vw,5.2rem);line-height:.95;margin:6px 0 18px;text-align:center;letter-spacing:-.01em}
+.mast h1 i{color:var(--star)}
+.skybox{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.skybox canvas{display:block;width:100%;height:clamp(170px,30vw,280px)}
+.skybox .lvl{position:absolute;left:14px;bottom:12px;font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.skybox .lvl b{font-size:1.5rem;font-weight:500;display:block;letter-spacing:0}
+.skybox .clock{position:absolute;right:14px;bottom:12px;font-family:var(--mono);font-size:.74rem;color:#fff;text-align:right;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.skybox .clock b{font-size:1.5rem;font-weight:500;display:block}
+
+.wrap{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:52px;align-items:start}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:34px}}
+main{min-width:0}
+.meta{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
+.meta b{color:var(--lamp);font-weight:500}
+h2.scene-title{font-family:var(--display);font-weight:400;font-size:clamp(2.2rem,6vw,3.2rem);line-height:1;margin:0 0 18px}
+.passage{max-width:60ch}
+.passage p{margin:0 0 1.05em}
+.log{display:block;margin:0 0 1.2em;padding:14px 18px;border:1px solid var(--line);border-left:3px solid var(--lamp);background:var(--card);font-family:var(--mono);font-size:.86rem;line-height:1.6;max-width:56ch}
+.log .h{display:block;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--lamp);margin-bottom:6px}
+.said{display:block;margin:0 0 1.1em;padding-left:16px;border-left:2px solid var(--star);font-family:var(--display);font-style:italic;font-size:1.32rem;line-height:1.4;max-width:52ch}
+.said .who{display:block;font-family:var(--mono);font-style:normal;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--star);margin-top:4px}
+.named{display:inline-flex;gap:8px;align-items:center;font-family:var(--mono);font-size:.76rem;color:var(--star);border:1px solid var(--star);border-radius:999px;padding:3px 12px;margin:0 0 1em}
+.fade{animation:fade .8s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+.choices{list-style:none;margin:28px 0 0;padding:0;display:grid;gap:10px;max-width:60ch}
+.choice{width:100%;display:grid;grid-template-columns:1.8em minmax(0,1fr);gap:12px;align-items:baseline;text-align:left;
+  background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:13px 16px;
+  font:inherit;font-weight:400;font-size:1rem;line-height:1.45;cursor:pointer;transition:border-color .2s,background .2s}
+.choice .num{font-family:var(--mono);font-size:.9rem;color:var(--lamp)}
+.choice .tag{display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.choice .tag.dim{color:var(--lamp)}
+.choice:hover{border-color:var(--star);background:var(--star-soft)}
+.choice:focus-visible{outline:2px solid var(--star);outline-offset:2px}
+.hint{font-family:var(--mono);font-size:.7rem;color:var(--muted);margin-top:14px}
+.tools{display:flex;gap:18px;margin-top:20px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;font-family:var(--mono);font-size:.74rem;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--star)}
+.link:focus-visible{outline:2px solid var(--star);outline-offset:2px}
+.link[disabled]{opacity:.4;cursor:default;text-decoration:none}
+
+aside{min-width:0;display:grid;gap:28px}
+aside h3{font-family:var(--display);font-weight:400;font-size:1.75rem;margin:0;line-height:1}
+aside .sub{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:6px 0 12px}
+.stages{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-family:var(--mono);font-size:.78rem}
+.stages li{display:grid;grid-template-columns:44px 1fr auto;gap:8px;padding:5px 8px;border-radius:6px;color:var(--muted)}
+.stages li.done{color:var(--ink)}
+.stages li.done span:last-child::after{content:" ✓";color:var(--star)}
+.stages li.now{background:var(--lamp-soft);color:var(--ink)}
+.map{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px}
+.map svg{display:block;width:100%;height:auto}
+.map text{font-family:var(--mono)}
+.look .big{font-family:var(--display);font-size:2.6rem;line-height:1}
+.look .big small{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-left:6px}
+.dots{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:3px;margin-top:8px}
+.dots i{aspect-ratio:1;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--star)}
+.book{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.book li{font-family:var(--display);font-size:1.25rem;line-height:1.15}
+.book li small{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;color:var(--muted)}
+.book li.none{font-family:var(--body);font-size:.88rem;font-style:italic;color:var(--muted)}
+
+.ending-card{margin-top:28px;border:1px solid var(--star);border-radius:12px;background:var(--card);padding:22px;max-width:60ch}
+.ending-card .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--lamp);margin:0 0 4px}
+.ending-card h4{font-family:var(--display);font-weight:400;font-size:2.7rem;margin:0 0 12px;line-height:1;color:var(--star)}
+.endings{list-style:none;margin:0 0 14px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px;font-size:.92rem}
+@media (max-width:480px){.endings{grid-template-columns:minmax(0,1fr)}}
+.endings li{color:var(--muted)}
+.endings li.got{color:var(--ink)}
+.endings li.got::before{content:"✦ ";color:var(--star)}
+.endings li:not(.got)::before{content:"· "}
+.endnote{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin:0 0 16px;line-height:1.6}
+.begin{font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;background:var(--star);color:var(--bg);border:0;border-radius:999px;padding:10px 20px;cursor:pointer}
+.begin:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}html,body{transition:none}}
+
+.tac-brand{max-width:1060px;margin:0 auto 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;font:12px var(--mono);color:var(--muted);border-bottom:1px solid var(--line);padding:0 0 12px}
+.tac-brand a{display:inline-flex;align-items:center;gap:9px;color:var(--ink);text-decoration:none}
+.tac-brand img{width:28px;height:28px}
+.ref-fold summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px}
+.ref-fold summary::-webkit-details-marker{display:none}
+.ref-fold summary::after{content:"▾";margin-left:auto;font:16px var(--mono);color:var(--star)}
+.ref-fold:not([open]) summary::after{content:"▸"}
+.ref-fold[open] summary{margin-bottom:5px}
+.ref-fold summary:focus-visible{outline:2px solid var(--star);outline-offset:3px}
+@media(min-width:901px){.ref-fold summary{cursor:default}.ref-fold summary::after{display:none}.ref-fold:not([open])>*:not(summary){display:block}.ref-fold{display:block}}
+@media(max-width:900px){aside{gap:14px}.ref-fold{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:12px}.ref-fold summary h3{font-size:1.4rem}}
+@media(max-width:480px){.tac-brand{font-size:10px;gap:8px}.tac-brand img{width:23px;height:23px}.skybox .lvl,.skybox .clock{font-size:.62rem}.stages li{grid-template-columns:40px minmax(0,1fr) auto;font-size:.7rem}}
+</style>
+</head><body>
+<div class="tac-brand"><a href="https://theaxiomcontinuum.com/"><img src="https://theaxiomcontinuum.com/assets/tac-emblem.svg" width="28" height="28" alt=""><span>The Axiom Continuum</span></a><span>· Daily Door #27</span></div>
+<header class="mast">
+  <p class="pre">Meridian, on the world of Hesper · Daily Door No. 27</p>
+  <h1>The Last <i>True</i> Night</h1>
+  <div class="skybox"><canvas id="sky" aria-label="The sky over Meridian"></canvas><div class="lvl" id="lvl"></div><div class="clock" id="clock"></div></div>
+</header>
+
+<div class="wrap">
+  <main id="main" aria-live="polite"></main>
+  <aside>
+    <details class="ref-fold" open><summary><h3>The Dimming</h3></summary><p class="sub">The Lantern's shutdown schedule</p><ul class="stages" id="stages"></ul></details>
+    <details class="ref-fold" open><summary><h3>Meridian</h3></summary><p class="sub">Which districts have put their lights out</p><div class="map" id="map"></div></details>
+    <details class="ref-fold" open><summary><h3>Looking Up</h3></summary><p class="sub">Who'll be outside at nine</p><div class="big" id="lookBig"></div><div class="dots" id="dots" aria-hidden="true"></div></details>
+    <details class="ref-fold" open><summary><h3>The Sky Book</h3></summary><p class="sub">Names for stars nobody here has seen</p><ul class="book" id="book"></ul></details>
+  </aside>
+</div>
+
+<script>
+const STAGES=[["18:00",100,"The Lantern, full"],["18:30",80,"Stage one"],["19:00",60,"Stage two"],["19:30",40,"Stage three"],["20:00",20,"Stage four"],["20:30",5,"Stage five"],["21:00",0,"The last switch"]];
+const DISTRICTS={harbour:["The Harbour",[58,136]],landing:["Old Landing",[150,70]],spires:["The Spires",[250,60]],orchards:["The Orchards",[255,150]],hospital:["St. Ines Hospital",[165,160]]};
+const ENDINGS={E1:"The First Night",E2:"The Ember",E3:"Lights in the Windows",E4:"The Lantern Relit",E5:"A Private Sky",E6:"The Console"};
+const log=(h,t)=>`<span class="log"><span class="h">${h}</span>${t}</span>`;
+const said=(who,t)=>`<span class="said">${t}<span class="who">${who}</span></span>`;
+const named=t=>`<span class="named">✦ Named: ${t}</span>`;
+const dark=s=>Object.keys(DISTRICTS).filter(k=>s.f[k]).length;
+
+const S={
+start:{t:`Sixty-One Years of Noon`,stage:0,p:[
+ `For sixty-one years, nobody on Hesper has seen the night.`,
+ `When the colony ships came down, the founders found a world with a twenty-hour night and a black sky so deep the children screamed at it. So they built the Lantern: a ring of twelve orbital mirrors that catch the sun from the far side of the planet and lay a warm, gold, permanent afternoon over every city on the night side.`,
+ `The mirrors are failing now. Repairs would cost more than the colony has. The Council voted, very narrowly, to let them go. Tonight at nine, in five stages, the Lantern goes out, and two million people who have never seen a star will see them all.`,
+ `You're the last operator of the Lantern, at Lantern Control in Meridian, with the shutdown procedure open on the console in front of you. It's six o'clock.`],
+ o:[[`Read the founding log before you begin`,`log`],[`Call your grandmother, Nana Femi`,`nana0`],[`Begin. Pull the first lever.`,`s1`,{dim:1},`Dims the Lantern to 80%`]]},
+
+log:{t:`The Founding Log`,stage:0,set:["log"],p:[
+ `The founding log is still on the system, sixty-one years old. You've never actually read the first entry.`,
+ log(`Captain Adaeze Okonjo · Landing + 41 days`,`We lit the Lantern tonight. The children stopped crying. I am not proud of it. We have built a lamp because we were afraid of a sky, and fear is a poor thing to build a world on. Whoever reads this: when the children aren't afraid any more, turn it off. Let them look up.`),
+ `You copy it to your wrist screen.`],
+ o:[[`Call your grandmother, Nana Femi`,`nana0`],[`Begin. Pull the first lever.`,`s1`,{dim:1},`Dims the Lantern to 80%`],[`Read it once more, then begin`,`s1`,{dim:1},`Dims the Lantern to 80%`]]},
+
+nana0:{t:`Nana Femi`,stage:0,set:["nanaAsked"],p:[
+ `Your grandmother is ninety-two and lives in the care home in the Orchards. She is the last person alive on Hesper who has seen a real night. She was four, on a beach in Lagos, on Earth, the week before the ships left.`,
+ said(`Nana Femi`,`I've been waiting sixty-one years, child. You'll come and get me? I want to see it from somewhere high. I want to see if it's the same.`),
+ `You tell her you'll try. She says *try* is what you said about her birthday.`],
+ o:[[`Read the founding log`,`log`],[`Begin. Pull the first lever.`,`s1`,{dim:1},`Dims the Lantern to 80%`],[`Promise her properly, then begin`,`s1`,{dim:1,f:["promised"]},`Dims the Lantern to 80%`]]},
+
+s1:{t:`The Child at the Window`,stage:1,p:s=>[
+ `You pull the first lever. Two of the twelve mirrors turn away, and the light over Meridian goes a shade more gold, the way a room does when someone draws one curtain.`,
+ `In the public gallery above the control room, a little girl has her face pressed to the glass. Seven, perhaps, with her father's coat round her shoulders. Her name, the badge on her school bag says, is Pell.`,
+ said(`Pell, aged seven`,`What lives in the dark? My brother says things live in it.`),
+ `Her father looks at you apologetically. Everybody in the gallery is listening.`],
+ o:[[`"Nothing lives in the dark that doesn't live in the day. It's the same world, with the lid off."`,`s2`,{dim:1,look:5,f:["pell"]},`Dims to 60%`],
+   [`Give her your engineer's red torch. "Red light doesn't spoil your eyes for stars."`,`s2`,{dim:1,look:10,f:["pell","torch"]},`Dims to 60%`],
+   [`"Stars live in it. Thousands. Nobody here has seen one yet. You'll be first."`,`s2`,{dim:1,look:5,f:["pell","starPromise"]},`Dims to 60%`]]},
+
+s2:{t:`The Darkness Map`,stage:2,p:s=>[
+ `Second lever. The light over the city drops to the colour of late tea. The streetlamps are coming on automatically all over Meridian, sixty-one years of habit.`,
+ `The Lantern is only half the problem. The city's own lights will blot out the stars just as well. The Council's plan asks each district to switch off its own, voluntarily, for the Dark Hour. Most haven't decided.`,
+ `You have time for one call before the next stage.`],
+ o:[[`Call the Harbour. The fishing families have worked by Lantern light for three generations.`,`s3`,{dim:1,look:15,f:["harbour"]},`Dims to 40% · The Harbour goes dark`],
+   [`Call Old Landing, the founders' quarter, where the oldest families live`,`s3`,{dim:1,look:10,f:["landing"]},`Dims to 40% · Old Landing goes dark`],
+   [`Call St. Ines Hospital. Ask them to switch to red lamps and wheel patients to the windows.`,`s3`,{dim:1,look:5,f:["hospital"]},`Dims to 40% · The hospital goes red`]]},
+
+s3:{t:`The Ember`,stage:3,p:s=>[
+ `Third lever. Meridian is in deep dusk now, a colour none of them have a word for. Somewhere a dog has started howling and can't stop.`,
+ `Councillor Halvard comes down to the control room himself, a big, careful, frightened man with the Council's seal on a lanyard.`,
+ said(`Councillor Halvard`,`The Council has had... second thoughts. Not to stop it. Only to keep the last mirror at five per cent. A glow. An ember. So nobody trips on the stairs, and nobody's frightened. You understand. The people aren't ready.`),
+ `At five per cent, you'd still see the moon. You'd see a handful of stars. You would not see the night.`],
+ o:s=>[[`Agree to keep the Ember`,`s4`,{dim:1,look:-10,f:["ember"]},`Dims to 20% · The last mirror will stay at 5%`],
+   s.f.log?[`Read him Captain Okonjo's first entry`,`s4`,{dim:1,f:["noEmber","spires","landing","readLog"]},`Dims to 20% · The Council's own districts go dark`]:[`Refuse, on your own authority as operator`,`s4`,{dim:1,look:-5,f:["noEmber","defied"]},`Dims to 20%`],
+   [`Put it to the city: a vote on every screen, right now`,`s4`,s.look>=40?{dim:1,look:10,f:["noEmber","voted"]}:{dim:1,f:["ember","votedLost"]},s.look>=40?`Dims to 20% · Enough people are with you`:`Dims to 20% · Too few are with you yet`]]},
+
+s4:{t:`Dr. Nnaji's Telescope`,stage:4,p:s=>[
+ `Fourth lever. Only one mirror is still turned toward Hesper${s.f.ember?", and it's going to stay that way, at a glow":""}. The sky above Meridian is a deep, bruised blue, and in the east, low down, there's a single bright point that wasn't there before. People in the street below are pointing.`,
+ `Your wrist buzzes: Dr. Amara Nnaji, at the old observatory on the roof of the Science Hall. She built a telescope there thirty years ago, in the hope of this night. It has never once been pointed at a star.`,
+ said(`Dr. Nnaji`,`I'm going to find Sol tonight. Our own sun. The one our grandparents were born under. It's in Cygnus-of-Hesper, low in the north. But the Spires are lit up like a birthday cake, and the glare's right in the way.`)],
+ o:s=>s.f.spires?[[`Help her find Sol`,`s5`,{dim:1,look:5,f:["sol"]},`Dims to 5% · The Spires are already dark`],[`Name the first constellation with her`,`s5`,{dim:1,look:5,f:["named"]},`Dims to 5%`],[`Tell her you'll look for it later`,`s5`,{dim:1},`Dims to 5%`]]
+   :[[`Help her look for Sol anyway`,`s5`,{dim:1,f:["solMissed"]},`Dims to 5% · The Spires are still lit`],[`Call the Spires and ask them to go dark`,`s5`,{dim:1,look:10,f:["spires"]},`Dims to 5% · The Spires go dark`],[`Name the first constellation with her`,`s5`,{dim:1,look:5,f:["named"]},`Dims to 5%`]]},
+
+s5:{t:`The Orchards`,stage:5,p:s=>[
+ `Fifth lever.${s.f.ember?" The last mirror settles at its ember glow, a dim brown haze over everything.":" The last mirror turns to its final five per cent and holds there, waiting for the last switch."} You can see your own hands, just. Through the control-room skylight the first stars are coming out, three, nine, thirty, faster than you can count them.`,
+ s.f.sol?`On your wrist, a message from Dr. Nnaji, just two words: *Found her.* And an image: a small, ordinary, yellow-white star. Home.`:s.f.solMissed?`Dr. Nnaji sends a message: *Can't find her through the glare. Next year, maybe.*`:``,
+ `Half an hour to nine. The care home in the Orchards is twenty minutes by tram.${s.f.nanaAsked?" Nana Femi is waiting.":" You think of your grandmother."}`].filter(Boolean),
+ o:s=>[[`Fetch Nana Femi and bring her up to the Control roof`,`s6`,{dim:1,look:10,f:["nana","orchards"]},`The Orchards go dark for her`],
+   [`Set up a screen link so she can watch from her bed`,`s6`,{dim:1,look:5,f:["nanaScreen"]}],
+   [s.f.nanaAsked?`Let her sleep. She's ninety-two.`:`Don't call. She'll be asleep.`,`s6`,{dim:1,f:["nanaMissed"]}]]},
+
+s6:{t:`The Last Switch`,stage:6,p:s=>{const a=[`Nine o'clock.`];
+ if(s.f.nana) a.push(`Nana Femi is on the Control roof in a wheelchair with three blankets over her knees, her face turned up, not saying anything at all. ${s.f.pell?"Pell and her father have come up from the gallery and are sitting on the parapet beside her.":""}`);
+ else a.push(`You're alone in the control room${s.f.nanaScreen?", with Nana Femi's face on a small screen, lit from beneath by her bedside lamp":""}.`);
+ a.push(`On the console, one lever left. ${s.f.ember?"The Council's order is attached to it: <em>to five per cent, and hold.</em>":"The last mirror, the last five per cent, the last of sixty-one years."}`);
+ a.push(`${dark(s)>=4?"Below, Meridian is almost black, district after district. ":dark(s)>=2?"Below, half of Meridian is dark and half still glowing. ":"Below, Meridian is still lit up street by street, every window gold. "}About ${s.look}% of the city is outside, looking up.`);
+ return a;},
+ o:s=>{const o=[];
+  o.push(s.f.ember?[`Throw it to five per cent, as the Council ordered`,`E2`,{dim:1}]:[`Throw the last switch yourself`,finalEnd(s),{dim:1}]);
+  o.push(s.f.pell&&s.f.torch&&!s.f.ember?[`Give the switch to Pell. Hold her red torch for her.`,finalEnd(s),{dim:1,f:["pellSwitch"]}]:s.f.ember?[`Throw it all the way down, against the order`,s.f.nana&&dark(s)>=4&&s.look>=50?`E1`:`E4`,{dim:1,f:["defiedEmber"]},`Defies the Council`]:[`Ask Councillor Halvard to throw it`,finalEnd(s),{dim:1}]);
+  o.push([`Stay at the console, monitoring the shutdown`,`E6`,{dim:1}]);
+  return o;}},
+
+E1:{end:true,best:true,stage:7,t:`The First Night`,p:s=>[
+ `${s.f.pellSwitch?"Pell puts both hands on the lever, and looks at you, and you nod, and she pulls.":"You pull the lever."} The last mirror turns away. For the first time in sixty-one years, nothing is lighting Hesper except Hesper's own sky.`,
+ `It takes eight minutes for eyes to adjust. Nobody in Meridian has ever had to know that. In the first minute there's a hundred stars. In the fourth, a thousand. In the eighth, there's a pale river across the whole sky from one horizon to the other, so bright it throws shadows, and two million people who have never seen it make, all at once, a sound you will remember for the rest of your life.`,
+ said(`Nana Femi`,`There. Oh, there. It's not the same sky. But it's the same <em>night</em>.`),
+ `${s.f.pell?"Pell has her red torch pointed straight up, as if she could reach it. She names a star in the river. Then another. Then she runs out of names and starts on her brother's. ":""}${s.f.sol?"In the north, low down, Dr. Nnaji has a small yellow-white star in the eyepiece, and a queue of two hundred people waiting to see where their grandparents came from. ":""}`,
+ `In the morning, the real morning, the sun comes up over the hills at its proper time, all on its own. It turns out it always would have.`]},
+
+E2:{end:true,stage:7,t:`The Ember`,p:s=>[
+ `You throw the last switch to five per cent and hold it there, as ordered.`,
+ `Hesper gets a dusk that never ends: a dim brown glow, enough to read by if you squint, enough that nobody trips on the stairs. The moon is up. A few dozen of the brightest stars show through. People look up, and say *oh*, and go inside.`,
+ `${s.f.nana?"Nana Femi watches for an hour, then asks to go home. \"That's not it,\" she says, kindly. \"That's a lamp with the shade on.\"":"Somewhere in the Orchards an old woman is asleep under her bedside lamp."}`,
+ `*The Ember kept everyone comfortable. The truest ending trusts them with the dark.*`]},
+
+E3:{end:true,stage:7,t:`Lights in the Windows`,p:s=>[
+ `The last mirror turns away. The Lantern is out.`,
+ `But Meridian is still lit: streetlamps, windows, the gold glare of a city that never needed curtains. Above it the sky goes dark grey-orange, and through the glow perhaps fifty stars show, faint as dust.`,
+ `People come out, look up, and are puzzled. *Is that it?* They go back in. The streetlamps stay on all night out of sixty-one years of habit.`,
+ `*The Lantern was only half the light. The truest ending puts out the city too: four districts or more.*`]},
+
+E4:{end:true,stage:7,t:`The Lantern Relit`,p:s=>[
+ `The last mirror turns away, and for eleven minutes Hesper is dark.`,
+ `Then the calls start. ${s.look<35?"Most of the city stayed indoors, and indoors, without the Lantern, with the windows black, the fear comes in fast.":"The Council panics."} A child is lost in the Orchards. A tram stops between stations. Councillor Halvard, white-faced, invokes the emergency protocol and orders the mirrors back.`,
+ `By midnight the Lantern is lit again, at full. Two million people sleep under a gold afternoon, relieved, and slightly ashamed.`,
+ `*Turning off the light isn't enough. People have to be ready, and out, and looking up together.*`]},
+
+E5:{end:true,stage:7,t:`A Private Sky`,p:s=>[
+ `The last mirror turns away, and the night comes in, real and deep, ${dark(s)>=4?"over a city that has put its lights out to meet it":"over a city still half-lit"}.`,
+ `You go up to the Control roof alone and lie on your back on the cold concrete, and watch the stars come, a hundred, then a thousand. It is the most beautiful thing you have ever seen.`,
+ `${s.f.nanaScreen?"On the little screen, Nana Femi's bedside lamp is still on. She can't see a thing. \"Describe it to me,\" she says, and you try.":"In the Orchards, your grandmother sleeps through it."} ${s.look<55?"Most of Meridian stayed indoors.":""}`,
+ `*You saw the night. The truest ending shares it: bring Nana Femi up, and bring the city out with you.*`]},
+
+E6:{end:true,stage:7,t:`The Console`,p:s=>[
+ `You stay at the console. Someone has to. You watch the shutdown telemetry come in, mirror by mirror, line by line: nominal, nominal, nominal.`,
+ `You can hear it, through the skylight, when the city sees the sky: a sound like a wave coming in. You don't look up. There's a power fluctuation in mirror nine that needs logging.`,
+ `At five in the morning your shift ends. The sky is already going pale at the edges. You missed it.`,
+ `*Sixty-one years of watching the light. On the last night, look up.*`]}
+};
+function finalEnd(s){
+  if(s.f.ember) return "E2";
+  if(dark(s)<3) return "E3";
+  if(s.look<35) return "E4";
+  if(s.f.nana&&dark(s)>=4&&s.look>=50) return "E1";
+  return "E5";
+}
+
+/* ---------- engine ---------- */
+const SAVE_KEY="tac-last-true-night-daily-door-v1";
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({state,history}))}catch(e){}}
+function restore(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");return x&&x.state&&S[x.state.scene]&&Array.isArray(x.history)?x:null}catch(e){return null}}
+
+let state,history=[];
+const fresh=()=>({scene:"start",f:{},seen:{start:1},n:0,stage:0,look:20});
+const val=(x,s)=>typeof x==="function"?x(s):x;
+function loadE(){try{return JSON.parse(localStorage.getItem("night-endings")||"{}")}catch(e){return {}}}
+function saveE(id){const e=loadE();e[id]=1;try{localStorage.setItem("night-endings",JSON.stringify(e))}catch(err){}}
+function smart(html){
+  return html.split(/(<[^>]+>)/).map(p=>p.startsWith("<")?p:
+    p.replace(/(^|[\s(\[—])"/g,"$1“").replace(/"/g,"”")
+     .replace(/(^|[\s(\[—])'/g,"$1‘").replace(/'/g,"’")
+     .replace(/\*(.+?)\*/g,"<em>$1</em>")).join("");
+}
+function go(opt){
+  history.push(JSON.stringify(state)); if(history.length>60) history.shift();
+  const [,to,e0]=opt; const e=e0||{};
+  if(e.look) state.look=Math.max(0,Math.min(100,state.look+e.look));
+  (e.f||[]).forEach(k=>state.f[k]=1);
+  const sc=S[to];
+  state.scene=to; state.n++; state.seen[to]=1;
+  (sc.set||[]).forEach(k=>state.f[k]=1);
+  if(sc.stage!=null) state.stage=sc.stage;
+  if(sc.end) saveE(to);
+  persist();render(true);
+}
+function back(){if(!history.length)return;state=JSON.parse(history.pop());persist();render(true)}
+function restart(){history=[];state=fresh();persist();render(true)}
+
+function level(s){if(s.stage>=7) return (s.scene==="E2"?5:(s.scene==="E4"?100:0));return STAGES[Math.min(s.stage,6)][1]}
+function render(scroll){
+  const sc=S[state.scene], main=document.getElementById("main");
+  const L=level(state);
+  const phase=state.scene==="E4"?"day":L>=80?"day":L>=40?"dusk":(L===0&&!["E3"].includes(state.scene)&&state.stage>=6?"true":"night");
+  document.documentElement.setAttribute("data-phase",phase);
+  const paras=val(sc.p,state).map(t=>/^<span class="(log|said|named)/.test(t)?smart(t):`<p>${smart(t)}</p>`).join("");
+  let html=`<div class="fade"><div class="meta"><span><b>${sc.end?"After nine":STAGES[Math.min(state.stage,6)][0]}</b></span><span>Lantern ${L}%</span></div>
+   <h2 class="scene-title">${smart(sc.t)}</h2><div class="passage">${paras}</div>`;
+  if(sc.end){
+    const got=loadE(), n=Object.keys(ENDINGS).filter(k=>got[k]).length;
+    html+=`<div class="ending-card"><p class="label">${sc.best?"The truest ending":"An ending"} · ${n} of 6 discovered</p><h4>${smart(sc.t)}</h4>
+     <ul class="endings">${Object.entries(ENDINGS).map(([k,v])=>`<li class="${got[k]?"got":""}">${got[k]?smart(v):"Undiscovered"}</li>`).join("")}</ul>
+     <p class="endnote">${dark(state)} of 5 districts dark · ${state.look}% looking up · ${state.f.ember?"the Ember kept":"no Ember"} · ${state.f.nana?"Nana Femi on the roof":"Nana Femi not there"}.${sc.best?"":"<br>The truest ending: no Ember, four districts dark or more, at least half the city looking up, and Nana Femi on the roof."}</p>
+     <button class="begin" id="again">Light the Lantern again</button></div>`;
+  } else {
+    const opts=val(sc.o,state);
+    html+=`<ol class="choices">${opts.map((o,i)=>`<li><button class="choice" data-i="${i}"><span class="num">${i+1}</span><span>${smart(o[0])}${o[3]?`<span class="tag${/Dims/.test(o[3])?" dim":""}">${smart(o[3])}</span>`:""}</span></button></li>`).join("")}</ol>
+     <p class="hint">Press 1, 2 or 3 to choose</p>`;
+  }
+  html+=`<div class="tools"><button class="link" id="back" ${history.length?"":"disabled"}>Retrace your last step</button><button class="link" id="restart">Start over</button></div></div>`;
+  main.innerHTML=html;
+  if(!sc.end){const opts=val(sc.o,state);main.querySelectorAll(".choice").forEach(b=>b.onclick=()=>go(opts[+b.dataset.i]));}
+  else document.getElementById("again").onclick=restart;
+  document.getElementById("back").onclick=back;
+  document.getElementById("restart").onclick=restart;
+  side();
+  if(scroll){const top=document.querySelector(".wrap");if(window.scrollY>top.offsetTop)window.scrollTo({top:top.offsetTop-10,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
+}
+function side(){
+  const s=state, L=level(s);
+  document.getElementById("lvl").innerHTML=`LANTERN<b>${L}%</b>`;
+  document.getElementById("clock").innerHTML=`MERIDIAN<b>${s.stage>=7?(s.scene==="E6"?"05:00":"21:08"):STAGES[s.stage][0]}</b>`;
+  document.getElementById("stages").innerHTML=STAGES.map(([t,l,n],i)=>`<li class="${i<s.stage?"done":i===s.stage&&!S[s.scene].end?"now":""}"><span>${t}</span><span>${n}</span><span>${l}%</span></li>`).join("");
+  let g=`<rect x="0" y="0" width="320" height="200" fill="none"/><path d="M0 178 Q80 168 140 186 T320 176 L320 200 L0 200 Z" fill="${getComputedStyle(document.documentElement).getPropertyValue('--star').trim()}" opacity=".12"/>`;
+  Object.entries(DISTRICTS).forEach(([k,[n,[x,y]]])=>{const off=s.f[k], red=k==="hospital"&&off;
+    const col=red?"#c0473a":off?"none":"#f0b54a";
+    for(let i=0;i<14;i++){const dx=((i*37)%46)-23,dy=((i*53)%30)-15;g+=`<rect x="${x+dx}" y="${y+dy}" width="4" height="4" fill="${col==="none"?"transparent":col}" stroke="${off&&!red?"var(--line)":"none"}" opacity="${off?.9:.85}"/>`}
+    g+=`<text x="${x}" y="${y+30}" text-anchor="middle" font-size="10" fill="currentColor" opacity=".8">${n}${off?(red?" · red":" · dark"):""}</text>`});
+  g+=`<circle cx="300" cy="20" r="6" fill="none" stroke="currentColor" opacity=".4"/><text x="290" y="24" text-anchor="end" font-size="9" fill="currentColor" opacity=".6">Lantern Control</text>`;
+  document.getElementById("map").innerHTML=`<svg viewBox="0 0 320 200" style="color:var(--ink)" role="img" aria-label="Map of Meridian: ${dark(s)} of 5 districts dark">${g}</svg>`;
+  document.getElementById("lookBig").innerHTML=`${s.look}%<small>of Meridian</small>`;
+  document.getElementById("dots").innerHTML=[...Array(100)].map((_,i)=>`<i class="${i<s.look?"on":""}"></i>`).join("");
+  const B=[];
+  if(s.f.sol) B.push(["Sol, our sun","Found by Dr. Nnaji, low in the north"]);
+  if(s.f.named) B.push(["The Orchard Ladder","Named by you and Dr. Nnaji, 20:00"]);
+  if(S[s.scene].end&&s.scene==="E1"&&s.f.pell) B.push(["Pell's Brother, and others","Named by Pell, aged seven, 21:08"]);
+  if(S[s.scene].end&&s.scene==="E1") B.push(["The River","Named by everyone at once"]);
+  document.getElementById("book").innerHTML=B.length?B.map(([n,w])=>`<li>${n}<small>${w}</small></li>`).join(""):`<li class="none">No stars yet. The Lantern is too bright.</li>`;
+  skyTarget=L;
+}
+/* ---------- sky ---------- */
+const cv=document.getElementById("sky"),cx=cv.getContext("2d");
+let skyNow=100,skyTarget=100,STARS=[],tick=0;
+function seed(){STARS=[];let r=7;const rnd=()=>{r=(r*16807)%2147483647;return r/2147483647};
+  for(let i=0;i<520;i++){const band=rnd()<.45;let x=rnd(),y=rnd();if(band){const t=rnd();x=t;y=.18+t*.6+(rnd()-.5)*.18}
+    STARS.push({x,y,m:Math.pow(rnd(),2.2),tw:rnd()*6.28,band})}}
+seed();
+function lerp(a,b,t){return a+(b-a)*t}
+function drawSky(){
+  const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(2,window.devicePixelRatio||1);
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+  cx.setTransform(dpr,0,0,dpr,0,0);
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  skyNow=reduce?skyTarget:lerp(skyNow,skyTarget,.035);
+  const L=skyNow/100, ember=state&&state.scene==="E2";
+  const lit=state?Object.keys(DISTRICTS).filter(k=>!state.f[k]).length:5;
+  const top=[lerp(6,236,L),lerp(9,196,L),lerp(20,128,L)], bot=[lerp(14,250,L),lerp(18,226,L),lerp(34,170,L)];
+  const glow=Math.max(0,lit-1)/4*(1-L);
+  const g=cx.createLinearGradient(0,0,0,h);g.addColorStop(0,`rgb(${top.map(Math.round)})`);g.addColorStop(1,`rgb(${[bot[0]+glow*90,bot[1]+glow*55,bot[2]+glow*10].map(v=>Math.round(Math.min(255,v)))})`);
+  cx.fillStyle=g;cx.fillRect(0,0,w,h);
+  const vis=Math.max(0,Math.min(1,(1-L)*1.25-.05))*(ember?.25:1)*(1-glow*.75);
+  if(vis>0){tick+=reduce?0:.02;
+    if(vis>.6&&!ember){cx.save();cx.translate(w/2,h/2);cx.rotate(.55);const mg=cx.createLinearGradient(0,-h*.2,0,h*.2);mg.addColorStop(0,"rgba(200,210,255,0)");mg.addColorStop(.5,`rgba(200,210,255,${.12*(vis-.6)/.4})`);mg.addColorStop(1,"rgba(200,210,255,0)");
+      cx.fillStyle=mg;cx.fillRect(-w,-h*.2,w*2,h*.4);cx.restore();}
+    STARS.forEach(st=>{const thr=1-vis;if(st.m<thr*.98)return;const a=Math.min(1,(st.m-thr)/(1-thr+.001))*(.6+.4*Math.sin(st.tw+tick*(1+st.m)));
+      cx.fillStyle=`rgba(235,240,255,${a})`;const r=.5+st.m*1.5;cx.beginPath();cx.arc(st.x*w,st.y*h*.92,r,0,6.283);cx.fill()});}
+  // the Lantern ring of mirrors
+  const lit12=Math.round(skyNow/100*12+(skyNow>0&&skyNow<9?1:0));
+  for(let i=0;i<12;i++){const a=Math.PI*(1.08+i*.84/11),R=Math.min(w*.62,h*1.6);const x=w/2+Math.cos(a)*R,y=h*1.55+Math.sin(a)*R;
+    cx.fillStyle=i<lit12?`rgba(255,226,150,${.55+.45*L})`:"rgba(160,170,190,.35)";cx.fillRect(x-4,y-2,8,4);}
+  // horizon city silhouette
+  cx.fillStyle=`rgba(${Math.round(lerp(10,90,L))},${Math.round(lerp(12,80,L))},${Math.round(lerp(20,60,L))},1)`;
+  let x=0;cx.beginPath();cx.moveTo(0,h);let i=0;while(x<w){const bh=8+((i*37)%28)+(i%7===3?26:0);cx.lineTo(x,h-bh);x+=10+((i*13)%14);cx.lineTo(x,h-bh);i++}cx.lineTo(w,h);cx.closePath();cx.fill();
+  i=0;x=0;while(x<w){const bh=8+((i*37)%28)+(i%7===3?26:0);const ww=10+((i*13)%14);const k=["harbour","landing","hospital","spires","orchards"][i%5];
+    if(state&&!state.f[k]&&L<.85){cx.fillStyle="rgba(255,205,110,.85)";for(let j=0;j<2;j++)cx.fillRect(x+3+j*4,h-bh+5+j*3,2,2)}
+    else if(state&&k==="hospital"&&state.f.hospital){cx.fillStyle="rgba(220,70,60,.8)";cx.fillRect(x+4,h-bh+6,2,2)}
+    x+=ww;i++}
+  requestAnimationFrame(drawSky);
+}
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(e.target&&e.target.closest&&e.target.closest("input,textarea,select,[contenteditable]"))return;
+  const i=["1","2","3"].indexOf(e.key); if(i>-1){const b=document.querySelectorAll(".choice")[i]; if(b)b.click();}
+});
+function start(d){const saved=d&&d.state&&S[d.state.scene]&&Array.isArray(d.history)?d:restore();state=saved?saved.state:fresh();history=saved?saved.history:[];render(false);skyNow=level(state);persist();if(matchMedia("(max-width:900px)").matches)document.querySelectorAll(".ref-fold").forEach(x=>x.open=false)}
+window.claude?.hot?.snapshot?.(()=>({state,history}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+requestAnimationFrame(drawSky);
+</script>
+
+</body></html>
