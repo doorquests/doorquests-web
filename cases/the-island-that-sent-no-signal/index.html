@@ -1,0 +1,807 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Island That Sent No Signal | DoorQuests Cluortals</title>
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<meta name="robots" content="index,follow">
+<meta name="description" content="Cluortal No. 31, the finale: The Island That Sent No Signal. North Atlantic, 2038: a remote observatory keeps sending its six-hourly all-clear for nine days after every researcher has gone. Correlate the weather, power, door and transmitter streams to find when the station stopped being honest, read a concealed experiment's notes, and find out what became of the crew before the weather window closes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+/* Layout: a sea chart at dusk. The island's silhouette: the south headland with the helipad, the station in its sheltered volcanic Bowl, and the old north light on the summit. Along the bottom, a telemetry strip of thirty-six six-hourly all-clear pips over nine days. When you prove the loop, every pip after 15 Oct 06:00 turns hollow and is marked LOOP. When you find the leak, a haze fills the Bowl. When you find the crew, the north light sweeps its beam. Signature tab: Sensor Streams. */
+:root{
+  --bg:#eef1f3; --panel:#ffffff; --panel2:#e3e8ec; --ink:#121a20; --muted:#55626c; --line:#cfd8de;
+  --rust:#c2410c; --rust-soft:rgba(194,65,12,.08); --sky:#0e6b7a; --sky-soft:rgba(14,107,122,.08); --ok:#1f7a4a; --gold:#b7791f;
+  --pap:#f6f8f9; --lapis:#16324a;
+  --display:"Sora",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+  --label:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0a0f13; --panel:#111920; --panel2:#0e151b; --ink:#e4ecf1; --muted:#93a3ae; --line:#24313b;
+  --rust:#ff8a4c; --rust-soft:rgba(255,138,76,.1); --sky:#5fd0e0; --sky-soft:rgba(95,208,224,.1); --ok:#7fdca6; --gold:#f2c35b;
+  --pap:#eef2f4; --lapis:#1f4766; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a0f13; --panel:#111920; --panel2:#0e151b; --ink:#e4ecf1; --muted:#93a3ae; --line:#24313b;
+  --rust:#ff8a4c; --rust-soft:rgba(255,138,76,.1); --sky:#5fd0e0; --sky-soft:rgba(95,208,224,.1); --ok:#7fdca6; --gold:#f2c35b;
+  --pap:#eef2f4; --lapis:#1f4766; color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:max(18px,env(safe-area-inset-top,0px));padding-bottom:max(56px,env(safe-area-inset-bottom,0px))}
+button,select,input{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.mast,.wrap,.story-footer{max-width:1000px;margin-left:auto;margin-right:auto}
+.tac-brand{margin:0 0 14px;display:flex;align-items:center;gap:10px;font:700 .72rem/1.4 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tac-brand img{width:30px;height:30px;object-fit:contain;flex:none}
+.tac-brand a{color:inherit;text-decoration:none}.tac-brand a:hover{text-decoration:underline}
+
+/* HEADER */
+.chart{position:relative;border-radius:8px;overflow:hidden;background:linear-gradient(180deg,#0f2233 0%,#1b3a4f 55%,#2c4f5e 100%);color:#e8f1f5;border:1px solid #23445a}
+.chart .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:center;padding:22px 22px}
+.chart .pre{margin:0;font:600 .78rem/1.4 var(--label);letter-spacing:.14em;text-transform:uppercase;color:#ffa36b}
+.chart h1{margin:6px 0 8px;font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,4.8vw,3rem);line-height:1.06;color:#fff;letter-spacing:-.01em}
+.chart .sub{margin:0;color:#c3d6df;font-size:.98rem;max-width:42ch}
+.chart svg{display:block;width:100%;height:auto}
+@media (max-width:720px){.chart .row{grid-template-columns:minmax(0,1fr);padding:16px 14px}.chart .sub{display:none}}
+.status{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1.3fr);gap:8px;margin-top:10px}
+.tile{background:var(--panel);border:1px dashed var(--line);border-radius:4px;padding:7px 10px;display:grid;gap:2px;font:600 .68rem/1.3 var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tile b{font:700 .92rem/1.2 var(--body);letter-spacing:0;text-transform:none;color:var(--muted)}
+.tile.got{border-style:solid;border-color:var(--sky);color:var(--ink)}
+.tile.got b{color:var(--sky)}
+.clock{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:7px 10px;display:grid;gap:2px;font:600 .68rem var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.clock b{font:700 1.12rem/1.1 var(--display);text-transform:none;color:var(--ink)}
+.clock.urgent b{color:var(--rust)}
+@media (max-width:700px){.status{grid-template-columns:repeat(2,minmax(0,1fr))}.clock{grid-column:1/-1}}
+
+.tabs{max-width:1000px;margin:16px auto 0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px 8px;font:700 .8rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--rust)}
+.tab .badge{display:inline-block;min-width:1.6em;margin-left:5px;padding:1px 5px;border-radius:9px;background:var(--rust-soft);color:var(--rust);font-size:.72rem;text-align:center}
+.tab:focus-visible{outline:2px solid var(--sky);outline-offset:-2px}
+
+.wrap{margin-top:24px}
+.meta{font:700 .72rem var(--label);letter-spacing:.1em;color:var(--muted);display:flex;justify-content:space-between;gap:12px;text-transform:uppercase;margin-bottom:6px;flex-wrap:wrap}
+.meta b{color:var(--rust);font-weight:700}
+h2.scene-title{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,4.8vw,2.5rem);line-height:1.1;margin:0 0 16px;text-wrap:balance}
+h3.sec{font-family:var(--label);font-weight:700;font-size:.95rem;margin:30px 0 10px;line-height:1.2;letter-spacing:.1em;text-transform:uppercase}
+.passage{max-width:64ch}
+.passage p{margin:0 0 1em}
+.flash{max-width:64ch;display:grid;gap:8px;margin:0 0 18px}
+.flash div{font-size:.96rem;line-height:1.45;padding:9px 14px;border-left:3px solid var(--sky);background:var(--sky-soft)}
+.flash div.new{border-left-color:var(--ok);background:rgba(47,107,79,.09)}
+.flash div.new b{font:700 .66rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--ok);margin-right:8px}
+.flash div.warn{border-left-color:var(--rust);background:var(--rust-soft)}
+.fade{animation:rise .35s ease both}
+@keyframes rise{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.choices{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:9px;max-width:64ch}
+.choice{width:100%;display:grid;grid-template-columns:2em minmax(0,1fr);gap:8px;align-items:baseline;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 16px;font-size:1.04rem;line-height:1.4;cursor:pointer;transition:border-color .15s,background .15s}
+.choice .num{font:400 1.2rem var(--display);color:var(--rust)}
+.choice .tag{display:flex;flex-wrap:wrap;gap:4px 12px;font:700 .66rem var(--label);letter-spacing:.08em;color:var(--muted);margin-top:5px;text-transform:uppercase}
+.choice .tag .risk{color:var(--rust)}
+.choice .tag .tool{color:var(--sky)}
+.choice:hover{border-color:var(--rust);background:var(--rust-soft)}
+.choice:focus-visible,.btn:focus-visible,.link:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.hint{font-size:.92rem;font-style:italic;color:var(--muted);margin-top:14px}
+.tools{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;font:700 .74rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--rust)}
+.link[disabled]{opacity:.4;cursor:default;text-decoration:none}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:7px 13px;font:700 .74rem var(--label);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.btn:hover{border-color:var(--rust)}
+.btn.primary{background:var(--rust);border-color:var(--rust);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#22100a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#22100a}}
+.btn.danger{border-color:var(--rust);color:var(--rust)}
+.btn[disabled]{opacity:.45;cursor:default}
+select{font-size:.96rem;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:6px 8px;max-width:100%;min-width:0}
+
+
+/* SENSOR STREAMS */
+.legend{max-width:960px;background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--sky);border-radius:4px;padding:10px 14px;font-size:.95rem}
+.legend p{margin:0 0 6px}.legend ul{margin:0;padding-left:1.2em}
+.streams{width:100%;max-width:960px;border-collapse:collapse;font-size:.82rem;background:var(--panel);margin-top:12px}
+.streams th,.streams td{border:1px solid var(--line);padding:5px 7px;vertical-align:top;text-align:left}
+.streams th{font:600 .66rem var(--label);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--panel2)}
+.streams td.mn{font-family:var(--label);white-space:nowrap}
+.streams td.ev{color:var(--rust);font-weight:600}
+.streams td.ind{background:var(--sky-soft)}
+.streams tr.lie td{background:var(--rust-soft)}
+.streams tr.lie td.ind{background:var(--sky-soft)}
+.streams label{display:flex;align-items:center;gap:6px;font:600 .7rem var(--label);text-transform:uppercase;cursor:pointer}
+.streams input{width:18px;height:18px;accent-color:var(--rust)}
+@media (max-width:760px){.streams,.streams tbody,.streams tr{display:block}.streams thead{display:none}.streams tr{border:1px solid var(--line);border-radius:4px;margin-bottom:8px;overflow:hidden}.streams td{display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:8px;border:0;border-top:1px solid var(--line);white-space:normal}.streams td::before{content:attr(data-h);font:600 .64rem var(--label);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}.streams td.first{display:block;border-top:0;background:var(--panel2)}.streams td.first::before{content:none}}
+.tellset{display:grid;gap:6px;max-width:960px;margin-top:10px}
+.tellset label{display:flex;gap:8px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:7px 10px;cursor:pointer}
+.tellset input{margin-top:5px;accent-color:var(--rust)}
+.pick{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.res2{color:var(--ok);font-weight:700;margin:0}
+.bad{color:var(--rust)}
+.qbox{max-width:960px;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-top:12px}
+.qbox p{margin:0 0 8px}
+.lens .glass.term{background:#0b1217;color:#a8f0d4;font:400 .84rem/1.6 var(--label);white-space:pre-wrap}
+
+/* interview */
+.who{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;align-items:center;margin-bottom:16px;max-width:64ch}
+.mono{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--lapis);color:#f3e4b5;font:400 1.15rem var(--display);border:3px solid #c9a227}
+.who h2{margin:0;font-family:var(--display);font-weight:400;font-size:1.6rem;line-height:1.1}
+.who p{margin:4px 0 0;color:var(--muted);font-size:.98rem}
+.meter{display:flex;align-items:center;gap:10px;font:700 .66rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.meter .bar{display:flex;gap:3px}
+.meter .bar i{width:16px;height:7px;border-radius:2px;background:var(--line)}
+.meter .bar i.on{background:var(--rust)}
+.tells{max-width:64ch;font-size:.98rem;font-style:italic;padding:8px 14px;border:1px dashed var(--sky);margin:0 0 14px}
+.transcript{max-width:64ch;display:grid;gap:12px;margin:0 0 20px}
+.transcript .q{font:700 .68rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--sky)}
+.transcript .a{margin:3px 0 0;padding-left:14px;border-left:2px solid var(--line)}
+.topics{display:grid;gap:8px;max-width:64ch}
+.topic{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;display:grid;gap:8px}
+.topic.done{opacity:.55}
+.topic .tones{display:flex;flex-wrap:wrap;gap:6px}
+.present{display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:64ch;margin-top:16px;padding:12px 14px;border:1px solid var(--line);background:var(--panel2);border-radius:4px}
+.present label{font:700 .68rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.present select{flex:1 1 12em}
+
+/* evidence */
+.linker{position:sticky;top:0;z-index:2;background:var(--bg);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.linker .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.slot{min-width:9em;flex:1 1 9em;padding:7px 10px;border:1px dashed var(--line);border-radius:4px;font-size:.94rem;color:var(--muted)}
+.slot.full{border-style:solid;border-color:var(--rust);color:var(--ink)}
+.plus{font:400 1.3rem var(--display);color:var(--rust)}
+.linkmsg{margin:8px 0 0;font-size:.98rem}
+.linkmsg.good{color:var(--ok)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.card-ev{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.card-ev.sel{border-color:var(--rust);box-shadow:0 0 0 2px var(--rust-soft)}
+.card-ev .kind{font:700 .6rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--sky)}
+.card-ev .nm{font-weight:600;font-size:1.06rem;line-height:1.25}
+.card-ev .sh{font-size:.9rem;color:var(--muted);line-height:1.35}
+.card-ev .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.card-ev .look{position:absolute;top:10px;right:12px;font:700 .58rem var(--label);letter-spacing:.1em;color:var(--ok);text-transform:uppercase}
+.card-ev.ghost{background:none;border-style:dashed;color:var(--muted);font-style:italic;min-height:84px;align-content:center;justify-items:center;text-align:center}
+.deds{list-style:none;padding:0;margin:0;display:grid;gap:8px;max-width:72ch}
+.deds li{padding:9px 14px;border-left:3px solid var(--rust);background:var(--panel)}
+.deds b{display:block;font-weight:600}
+.deds span{font-size:.95rem;color:var(--muted)}
+
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.scard{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.scard .top{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:center}
+.scard .mono{width:48px;height:48px;font-size:.95rem;border-width:2px}
+.scard h4{margin:0;font-family:var(--display);font-weight:400;font-size:1.15rem;line-height:1.15}
+.scard .role{font-size:.9rem;color:var(--muted)}
+.scard dl{margin:0;display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:4px 10px;font-size:.92rem;line-height:1.35}
+.scard dt{font:700 .58rem/1.9 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.scard dd{margin:0}
+.st{font:700 .58rem var(--label);letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:2px;margin-right:4px}
+.st.broken{background:var(--rust-soft);color:var(--rust)}
+.st.ok{background:rgba(47,107,79,.12);color:var(--ok)}
+.st.un{background:var(--sky-soft);color:var(--sky)}
+
+.timeline{list-style:none;margin:0;padding:0;max-width:66ch;border-left:2px solid var(--line)}
+.timeline li{position:relative;padding:4px 0 10px 18px;font-size:.98rem;line-height:1.4}
+.timeline li::before{content:"";position:absolute;left:-6px;top:10px;width:10px;height:10px;border-radius:50%;background:var(--sky)}
+.timeline li.now::before{background:var(--rust)}
+.timeline time{display:block;font:700 .66rem var(--label);letter-spacing:.1em;color:var(--sky);text-transform:uppercase}
+.leads{margin:0;padding-left:1.2em;max-width:66ch}
+.leads li{margin-bottom:5px}
+.log{list-style:none;margin:0;padding:0;max-width:66ch;font-size:.94rem;color:var(--muted);display:grid;gap:4px}
+.log time{font:700 .66rem var(--label);color:var(--sky);margin-right:8px}
+
+.hyp{display:grid;gap:22px;max-width:72ch}
+.hyp fieldset{border:0;margin:0;padding:0}
+.hyp legend{font-family:var(--display);font-weight:400;font-size:1.25rem;margin-bottom:8px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt span{display:block;height:100%;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:4px;cursor:pointer;font-size:.99rem;line-height:1.3}
+.opt input:checked+span{border-color:var(--rust);background:var(--rust-soft);box-shadow:inset 3px 0 0 var(--rust)}
+.opt input:focus-visible+span{outline:2px solid var(--sky);outline-offset:2px}
+.accbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
+
+.ending-card{margin-top:24px;border:1px solid var(--line);background:var(--panel);padding:20px;max-width:66ch;border-radius:4px}
+.ending-card .label{font:700 .66rem var(--label);letter-spacing:.12em;color:var(--sky);margin:0 0 2px;text-transform:uppercase}
+.ending-card h4{font-family:var(--display);font-weight:400;font-size:1.9rem;color:var(--rust);margin:0 0 14px;line-height:1.1}
+.endings{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 18px;font-size:.95rem}
+@media (max-width:480px){.endings{grid-template-columns:minmax(0,1fr)}}
+.endings li{color:var(--muted)}
+.endings li.got{color:var(--ink)}
+.endings li.got::before{content:"◆ ";color:var(--rust)}
+.endings li:not(.got)::before{content:"◇ "}
+.score{width:100%;border-collapse:collapse;font-size:.97rem;margin:0 0 14px}
+.score td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.score td:last-child{text-align:right;font-weight:600;padding-left:12px}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:4px 0 16px;flex-wrap:wrap}
+.total b{font:400 2.4rem var(--display);color:var(--rust)}
+.total span{font:700 .74rem var(--label);letter-spacing:.12em;text-transform:uppercase}
+.chapters{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+dialog{border:0;padding:0;background:transparent;max-width:min(580px,calc(100vw - 32px));width:100%;color:var(--ink)}
+dialog::backdrop{background:rgba(10,12,22,.66)}
+.lens{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:22px 22px 18px;position:relative}
+.lens .kind{font:700 .64rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--sky)}
+.lens h3{font-family:var(--display);font-weight:400;font-size:1.45rem;margin:4px 0 14px;line-height:1.15}
+.glass{padding:16px 18px;background:var(--panel2);border:1px solid var(--line);font-size:1.02rem;line-height:1.55}
+.glass.doc{background:var(--pap);color:#2a1c10;font-style:italic;white-space:pre-wrap}
+.glass.test{font-style:italic}
+.glass .pic{margin:0 0 10px;background:var(--pap);border-radius:4px;padding:6px;display:flex;justify-content:center}
+.glass .pic svg{width:100%;max-width:260px;height:auto;display:block}
+.closer{margin-top:12px;padding:12px 16px;border-left:3px solid var(--ok);background:rgba(47,107,79,.09);font-size:1rem;line-height:1.5}
+.closer b{display:block;font:700 .6rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--ok);margin-bottom:3px}
+.lens .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;justify-content:space-between}
+.x{position:absolute;top:10px;right:12px;background:none;border:0;font-size:1.5rem;line-height:1;color:var(--muted);cursor:pointer;padding:4px 8px}
+
+.story-footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font:.78rem/1.6 system-ui,sans-serif;color:var(--muted)}
+.story-footer a{color:var(--rust)}
+@media (max-width:560px){body{font-size:18px}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}}
+</style>
+
+</head>
+<body>
+<header class="mast">
+  <p class="tac-brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="/">DoorQuests</a> · Cluortals · Cluortal No. 31</span></p>
+  <div class="chart">
+    <div class="row">
+      <div>
+        <p class="pre">North Atlantic · October 2038 · Cluortal No. 31 · Finale</p>
+        <h1>The Island That Sent No Signal</h1>
+        <p class="sub">A remote observatory keeps sending its six-hourly all-clear for nine days after every researcher has gone.</p>
+      </div>
+      <svg id="isle" viewBox="0 0 420 220" aria-hidden="true"></svg>
+    </div>
+  </div>
+  <div class="status" id="status" aria-label="Cluortal status"></div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Cluortal file" id="tabs"></nav>
+<div class="wrap"><div id="panel" aria-live="polite"></div></div>
+<dialog id="lens" aria-labelledby="lensTitle"><div class="lens" id="lensBody"></div></dialog>
+<footer class="story-footer"><a href="/">DoorQuests</a> · Cluortals · Cluortal No. 31 · Kaldsker, its observatory, Halcyon and everyone in this story are fiction · Progress, chapters and endings saved in this browser</footer>
+
+<script>
+/* ================= TIME (minutes after 09:00, Sunday 24 October 2038) ================= */
+const T0=540, WIPE_T=150, MID_T=120, LATE_T=210, WINDOW=300;
+function hm(t){const m=T0+Math.round(t);return `Sun · ${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`}
+function dur(m){m=Math.max(0,Math.round(m));const h=Math.floor(m/60),mm=m%60;return h?`${h}h ${String(mm).padStart(2,"0")}m`:`${mm}m`}
+
+/* ================= THE STREAMS ================= */
+const SLOTS=[
+ {t:"Wed 13 Oct · 18:00",p:1011,b:1011,kw:21,dr:"34",co:"620",tx:"All-clear sent",nl:"0.0"},
+ {t:"Thu 14 Oct · 00:00",p:1009,b:1009,kw:17,dr:"12",co:"540",tx:"All-clear sent",nl:"0.0"},
+ {t:"Thu 14 Oct · 06:00",p:1006,b:1006,kw:23,dr:"41",co:"700",tx:"All-clear sent",nl:"0.0"},
+ {t:"Thu 14 Oct · 12:00",p:1004,b:1004,kw:22,dr:"38",co:"680",tx:"All-clear sent",nl:"0.0"},
+ {t:"Thu 14 Oct · 18:00",p:1003,b:1002,kw:20,dr:"29",co:"650",tx:"All-clear sent",nl:"0.0"},
+ {t:"Fri 15 Oct · 00:00",p:1001,b:1000,kw:43,dr:"6, then 02:14: all 4 exterior doors OPEN · no close",co:"1,900 → 46,000",tx:"All-clear sent · keyed 02:31 for 40 s, nothing logged",nl:"0.9",ev:1},
+ {t:"Fri 15 Oct · 06:00",p:1011,b:991,kw:21,dr:"34",co:"620",tx:"All-clear sent",nl:"0.1"},
+ {t:"Fri 15 Oct · 12:00",p:1009,b:979,kw:17,dr:"12",co:"540",tx:"All-clear sent",nl:"0.0"},
+ {t:"Fri 15 Oct · 18:00",p:1006,b:984,kw:23,dr:"41",co:"700",tx:"All-clear sent",nl:"1.6"},
+ {t:"Sat 16 Oct · 00:00",p:1004,b:995,kw:22,dr:"38",co:"680",tx:"All-clear sent",nl:"1.4"},
+ {t:"Sat 16 Oct · 06:00",p:1011,b:1003,kw:21,dr:"34",co:"620",tx:"All-clear sent",nl:"0.1"},
+ {t:"Sat 16 Oct · 12:00",p:1009,b:1008,kw:17,dr:"12",co:"540",tx:"All-clear sent",nl:"0.0"}
+];
+const FIRST_LIE=6, LAST_TRUE=5;
+const TELLS=[["co2","Carbon dioxide in the bunkhouse climbs past 4% in a few hours"],["doors","All four exterior doors open together at 02:14 and never close again"],["tx","The transmitter is keyed for 40 seconds at 02:31, but no message was logged"],["fire","A fire in the generator house: the load doubles"],["storm","Storm damage: the pressure is falling"],["cut","A power failure"]];
+const TELL_OK=["co2","doors","tx"];
+
+/* ================= EVIDENCE ================= */
+const EV={
+ brief:{n:"Your orders",k:"Document",s:"North Atlantic Observatory Consortium",doc:1,d:"From Prof. Helga Brandt, Director, North Atlantic Observatory Consortium, Reykjavík:\n“Kaldsker Station has sent every six-hourly all-clear on time. But Maren Lindqvist, the station chief's sister, says the messages since 15 October are word-for-word copies of older ones, and nobody has answered a voice call since. Go and look. Halcyon Climate Systems, the station's industrial sponsor, is sending its operations lead, Dominik Varga, to help with the systems. Your pilot must lift off by 14:00; a storm closes the window after that.”"},
+ stationLog:{n:"The station's telemetry archive",k:"Document",s:"Ops room",doc:1,d:"Kaldsker Station telemetry, six-hourly summaries from 13 October: mast pressure, generator load, door events, bunkhouse air quality and transmitter activity. The Sensor Streams tab lays it out."},
+ buoyData:{n:"Weather buoy 64-117",k:"Document",s:"Coast Guard, by radio",doc:1,d:"Moored weather buoy 64-117, eleven kilometres west of Kaldsker. Barometric pressure, six-hourly, 13–16 October. Independent of the station; it reports straight to the Met Office. It shows a deep low passing over on 15 October. Its readings are in the Sensor Streams tab."},
+ beaconMeter:{n:"The north light's battery meter",k:"Document",s:"Lights authority, by radio",doc:1,d:"Kaldsker North Light, decommissioned 2021. Its battery bank stays on the lights authority's remote monitor for corrosion alarms. It reports nothing to the station. Draw in kWh, six-hourly: zero for two years, then from the small hours of 15 October a draw every night. Readings are in the Sensor Streams tab."},
+ messageArchive:{n:"Maren's copies of the all-clears",k:"Document",s:"Maren Lindqvist, by satellite phone",doc:1,d:"All-clear, Thu 14 Oct 06:00: “KALDSKER ALL CLEAR. Wind W 4. All instruments nominal. Happy birthday Tomas from all of us. R.L.”\nAll-clear, Fri 15 Oct 06:00: “KALDSKER ALL CLEAR. Wind W 4. All instruments nominal. Happy birthday Tomas from all of us. R.L.”\nAll-clear, Sat 16 Oct 06:00: the same. And every day since."},
+ uplinkLog:{n:"The remote uplink log",k:"Document",s:"Ops room",doc:1,d:"Kaldsker Station · remote maintenance sessions:\n15 Oct 05:40–06:12 · account dvarga · from Halcyon Ops, Aberdeen\n  05:58 telemetry service: mode LIVE → LOOP\n  05:59 loop source: 13-10 18:00 to 14-10 18:00 (24 h)\n  06:03 all-clear generator: template from 14-10 06:00\n  06:10 transmitter log: 1 entry deleted (15-10 02:31)\nNo further sessions.",c:"One more line, between the others: “05:52 · viewed: door log · exterior doors 02:14 OPEN (4) · no close events.” He saw that they had got out of the buildings before he switched the station to loop."},
+ notes:{n:"Okafor's notebook",k:"Physical",s:"Annex B, the locked container",d:"A waterproof field notebook belonging to Tomas Okafor, geochemist, in a locked container labelled ANNEX B · HALCYON PROPERTY. Pressure logs for “Basalt Sink”: injecting liquefied CO2 into borehole BH-2, in the Bowl, to be stored in the basalt below.",c:"The last pages: “11 Oct. 140 bar. Varga says keep going, the permit is ‘in process’.” “13 Oct. Bubbles at the old cistern. Told Rúna.” “14 Oct, 23:50. Hissing at the BH-2 wellhead. CO2 is heavy; it'll fill the Bowl like water. If it gets worse we go uphill, to the north light. There's the refuge cache.” Then nothing."},
+ wellhead:{n:"The BH-2 wellhead",k:"Physical",s:"The Bowl, in a breathing set",d:"In the floor of the Bowl, a steel wellhead with Halcyon's logo. A valve has split and is still hissing. Your meter reads 9% CO2 at knee height and 3% at head height: enough to knock a person out in minutes. The bunkhouse below it is empty; five sleeping bags thrown open."},
+ charter:{n:"Halcyon's ship charter",k:"Document",s:"Prof. Brandt, by satellite phone",doc:1,d:"Forwarded by Prof. Brandt: Halcyon Climate Systems' charter of the supply ship Morgan Fell, booked 16 Oct: “Kaldsker, Mon 25 Oct. Purpose: equipment recovery, BH-2. Crew transfer: none required.”"},
+ vargaWord:{n:"Varga on the all-clears",k:"Testimony",s:"Ops room",d:"Dominik Varga: “Salt air kills sensors. When the live feed drops, the system falls back to a loop so the consortium's dashboards don't scream. Standard failover. The crew must have taken the boat out on the fifteenth and been caught by the storm. Terrible. But not a mystery.”"},
+ brandtWord:{n:"Brandt on Basalt Sink",k:"Testimony",s:"By satellite phone",d:"Prof. Helga Brandt: “Basalt Sink? There's no such project on Kaldsker. Carbon injection needs a permit from two governments, and Halcyon never applied for one. If they've been pumping CO2 under my station, they did it behind my back.”"},
+ hallWord:{n:"Hall on the island",k:"Testimony",s:"The helipad",d:"Sigrún Hall, pilot: “Boat's still in the boathouse, I saw it on the way in. Nobody took it out. And I'll tell you another thing: flying in at dawn I'd have sworn I saw a light up on the north hill. That lighthouse has been dark for years.”"},
+ survivors:{n:"The crew at the north light",k:"Testimony",s:"The north light",d:"Dr. Rúna Lindqvist, inside the lighthouse with four others: “Tomas woke us at two. We could hear the wellhead. We opened every door and ran uphill in the dark; Ines broke her ankle on the scree, so we couldn't get back down past the Bowl to the boat. Tomas went back once to key the radio, but the air took him halfway and he had to crawl out. We've eaten the refuge cache and burned the light every night. We thought someone would see it.”"},
+ replayFound:{n:"The station is a recording",k:"Finding",s:"Sensor Streams",d:"From 15 Oct 06:00, every station stream repeats 13 Oct 18:00 to 14 Oct 18:00, number for number. Meanwhile the independent buoy shows a deep low passing over the island, which the station's mast never feels."},
+ leakFound:{n:"What happened at two in the morning",k:"Finding",s:"Sensor Streams",d:"In the last honest hours: CO2 in the bunkhouse rising past 4%, the generator nearly doubling as the fans run flat out, all four exterior doors opened at 02:14 and never closed, and a 40-second transmission at 02:31 that someone later deleted from the log."},
+ offerRefused:{n:"Varga's offer",k:"Testimony",s:"Refused",d:"Varga offered you a post as Halcyon's head of safety, “starting with the Kaldsker report”. You declined."}
+};
+const EV_TOTAL=Object.keys(EV).length;
+
+/* ================= CONNECTIONS ================= */
+const DED={
+ R1:{a:"replayFound",b:"buoyData",t:"Since 15 Oct 06:00 the station has been replaying a day that's already happened",x:"A storm crossed the island on the 15th; the station's mast never felt it."},
+ R2:{a:"messageArchive",b:"replayFound",t:"The all-clears are recordings",x:"Nine days of “Happy birthday Tomas”: the message from the morning of his birthday, sent again and again."},
+ C1:{a:"leakFound",b:"notes",t:"The crew fled a CO2 leak from an injection test",x:"Okafor heard the wellhead hissing at 23:50; the doors opened at 02:14."},
+ C2:{a:"notes",b:"wellhead",need:["cl:notes"],t:"BH-2 is still leaking into the Bowl",x:"A split valve, 9% CO2 at knee height, and five empty sleeping bags."},
+ W1:{a:"uplinkLog",b:"vargaWord",t:"Varga switched the station to loop by hand",x:"No automatic failover: his own account, from Aberdeen, at 05:58."},
+ W2:{a:"uplinkLog",b:"charter",need:["cl:uplinkLog"],t:"He knew they had got out, and sent a ship for the rig",x:"He read the door log at 05:52. Halcyon's charter, booked the next day, says “crew transfer: none required”."},
+ F1:{a:"beaconMeter",b:"leakFound",t:"Someone has burned the north light every night since",x:"A dead lighthouse, drawing power from the small hours of 15 October."},
+ F2:{a:"survivors",b:"notes",t:"They went uphill, as Okafor planned",x:"To the north light and the refuge cache: five of them, alive."},
+ M1:{a:"brandtWord",b:"notes",t:"Basalt Sink was never permitted",x:"An illegal experiment under a public observatory. Halcyon had to hide it more than it needed to find its crew."},
+ X1:{a:"hallWord",b:"vargaWord",t:"Nobody took the boat out",x:"It's still in the boathouse."},
+ X2:{a:"hallWord",b:"beaconMeter",t:"Hall saw the light",x:"At dawn, from the cockpit."}
+};
+const DED_TOTAL=Object.keys(DED).length;
+
+/* ================= PEOPLE ================= */
+const TONE={coax:"Easy",ask:"Direct",press:"Hard"};
+const strip=(id,who)=>EV[id].d.replace(who+": ","");
+const SUS={
+ varga:{n:"Dominik Varga",short:"Varga",mono:"DV",role:"Operations lead, Halcyon Climate Systems · the ops room",pref:"coax",
+  tell:"Forty-four, fluent, helpful, and never more than a metre from the station server. Keep him relaxed; push him and he starts “fixing” things.",
+  topics:[{id:"loop",q:"Why have the all-clears kept coming?",r:{coax:{t:strip("vargaWord","Dominik Varga"),ev:"vargaWord"},ask:{t:strip("vargaWord","Dominik Varga"),ev:"vargaWord",sus:1},press:{t:strip("vargaWord","Dominik Varga"),ev:"vargaWord",sus:2}}}],
+  present:{uplinkLog:{t:"“Remote maintenance. I'm the ops lead; I maintain things remotely.”",sus:2},notes:{t:"His smile goes. “That container is Halcyon property.”",sus:2},replayFound:{t:"“Failover. I told you.”",sus:1},survivors:{t:"He sits down slowly and doesn't say anything at all.",sus:3}},dflt:"“Let me know if you need any of the systems explained.”"},
+ hall:{n:"Sigrún Hall",short:"Hall",mono:"SH",role:"Helicopter pilot · the helipad",pref:"ask",
+  tell:"Fifty, ex-Coast Guard, watches the sky and the clock and has no patience for anything else. Ask her straight.",
+  topics:[{id:"island",q:"What did you see coming in?",r:{coax:{t:"“I'm not a counsellor.” Then: "+strip("hallWord","Sigrún Hall"),ev:"hallWord"},ask:{t:strip("hallWord","Sigrún Hall"),ev:"hallWord"},press:{t:strip("hallWord","Sigrún Hall"),ev:"hallWord",sus:1}}},
+   {id:"window",q:"How long do we have?",r:{coax:{t:"“Wheels up at two. Not a minute after.”"},ask:{t:"“The front's due by three. I lift at two, with or without you.”"},press:{t:"“Two o'clock. Ask me again and it's half one.”",sus:1}}}],
+  present:{beaconMeter:{t:"“So I wasn't seeing things.”"}},dflt:"“Clock's running.”"},
+ brandt:{n:"Prof. Helga Brandt",short:"Brandt",mono:"HB",role:"Consortium director · satellite phone, Reykjavík",pref:"ask",
+  tell:"Sixty-one, an oceanographer who became an administrator, frightened and angry with herself. Direct.",
+  topics:[{id:"halcyon",q:"What is Halcyon doing on Kaldsker?",r:{coax:{t:"“Paying for the generator and the new mast. And Annex B, a ‘sensor calibration container’.” She forwards you Halcyon's ship charter.",ev:"charter"},ask:{t:"“Paying for the generator, the mast, and a ‘calibration container’ called Annex B. And now this.” She forwards you Halcyon's ship charter.",ev:"charter"},press:{t:"“Don't shout at me; I'm on your side.” She forwards you Halcyon's ship charter.",ev:"charter",sus:1}}},
+   {id:"basalt",q:"Have you heard of Basalt Sink?",r:{coax:{t:strip("brandtWord","Prof. Helga Brandt"),ev:"brandtWord"},ask:{t:strip("brandtWord","Prof. Helga Brandt"),ev:"brandtWord"},press:{t:strip("brandtWord","Prof. Helga Brandt"),ev:"brandtWord",sus:1}}}],
+  present:{notes:{t:"“Then I want them in front of a court, not a press office.”"}},dflt:"“Tell me they're alive.”"},
+ maren:{n:"Maren Lindqvist",short:"Maren",mono:"ML",role:"The station chief's sister · satellite phone, Gothenburg",pref:"coax",
+  tell:"Forty-seven, a schoolteacher who noticed what nobody else did, and has been told for nine days that she's imagining things. Be gentle.",
+  topics:[{id:"msgs",q:"What made you sure something was wrong?",r:{coax:{t:"“Rúna never writes the same sentence twice. Look.” She reads you the messages.",ev:"messageArchive"},ask:{t:"She reads you the messages, very evenly.",ev:"messageArchive"},press:{t:"“Everyone's been hard with me for nine days.” But she reads them.",ev:"messageArchive",sus:1}}}],
+  present:{survivors:{t:"She can't speak for a long time. Then: “Tell her I'm coming.”"}},dflt:"“Have you found her?”"},
+ jonsson:{n:"Lt. Ari Jónsson",short:"Jónsson",mono:"AJ",role:"Coast Guard duty officer · radio",pref:"ask",
+  tell:"Thirty-five, procedural, quick. Ask for exactly what you want.",
+  topics:[{id:"buoy",q:"What does the weather buoy west of the island show?",r:{coax:{t:"He sends buoy 64-117's readings.",ev:"buoyData"},ask:{t:"“Sending 64-117 now. Deep low over you on the fifteenth.”",ev:"buoyData"},press:{t:"He sends them without comment.",ev:"buoyData",sus:1}}},
+   {id:"light",q:"Does anyone still monitor the old north light?",r:{coax:{t:"“The lights authority, for corrosion. Hang on.” He reads you the battery meter.",ev:"beaconMeter"},ask:{t:"“Lights authority keeps a battery monitor on it. Reading it now… that's odd.”",ev:"beaconMeter"},press:{t:"He reads you the battery meter.",ev:"beaconMeter",sus:1}}}],
+  present:{replayFound:{t:"“Then the all-clears are worthless. I'm putting a cutter on standby.”"}},dflt:"“Coast Guard, go ahead.”"},
+ runa:{n:"Dr. Rúna Lindqvist",short:"Rúna",mono:"RL",role:"Station chief · the north light",pref:"ask",
+  tell:"Fifty-two, gaunt, hoarse, utterly lucid. Tell her plainly what you know.",
+  topics:[{id:"night",q:"What happened on the night of the fourteenth?",r:{coax:{t:strip("survivors","Dr. Rúna Lindqvist"),ev:"survivors"},ask:{t:strip("survivors","Dr. Rúna Lindqvist"),ev:"survivors"},press:{t:strip("survivors","Dr. Rúna Lindqvist"),ev:"survivors"}}}],
+  present:{messageArchive:{t:"She reads it twice. “Tomas's birthday. Nine days of it.”"},uplinkLog:{t:"“He saw the doors. He knew we were out.”"}},dflt:"“Is the helicopter big enough for five?”"}
+};
+const SUS_ORDER=["varga","hall","brandt","maren","jonsson","runa"];
+const MOOD=["Calm","Wary","Uneasy","Guarded","Silent","Silent"];
+const WHERE={varga:"ops",hall:"helipad",brandt:"ops",maren:"ops",jonsson:"ops",runa:"light"};
+const PLACES=["helipad","ops","annex","bowl","light"];
+const PLACE_N={helipad:"the helipad on the south headland",ops:"the ops room on the Bowl's rim",annex:"Annex B, Halcyon's container",bowl:"the floor of the Bowl",light:"the old north light, up the scree"};
+const FAR={helipad:8,ops:4,annex:5,bowl:16,light:40};
+const moveCost=(a,b)=>Math.max(FAR[a]||4,FAR[b]||4);
+
+const HYP={
+ fate:{l:"What became of the crew?",o:[["light","They escaped uphill and are alive at the north light"],["bowl","They died in the Bowl"],["boat","They took the boat and were lost in the storm"],["taken","Halcyon took them off the island"]]},
+ cause:{l:"What drove them out?",o:[["co2","A CO2 leak from an unpermitted injection test under the Bowl"],["fire","A fire in the generator house"],["storm","Storm damage"],["mutiny","A quarrel among the crew"]]},
+ who:{l:"Who made the station lie?",o:[["varga","Dominik Varga of Halcyon, by hand, from Aberdeen"],["runa","Rúna Lindqvist, whose initials sign the all-clears"],["brandt","Prof. Brandt, to protect the consortium"],["auto","Nobody: it was an automatic failover"]]},
+ why:{l:"Why?",o:[["hide","To hide an illegal experiment until the rig could be recovered"],["calm","To avoid alarming the families"],["money","To keep the sponsorship money flowing"],["fault","There was no why; it was a fault"]]}
+};
+const ENDINGS={E1:"The Light on the North Hill",E2:"A Name Without Proof",E3:"The Wrong Signature",E4:"The Window Closes",E5:"Failover",E6:"Head of Safety",E7:"The Bowl"};
+const CHAPTERS={ch1:"Chapter I · Landfall",ch2:"Chapter II · The Streams",ch3:"Chapter III · The Last Hours of Light"};
+
+/* ================= HELPERS ================= */
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function cost(c){return `${c} min`}
+function em(t){return String(t).replace(/\*(.+?)\*/g,"<em>$1</em>")}
+function add(s,id){if(s.ev[id]||!EV[id])return;s.ev[id]=1;s.flash.push(["new",`<b>New evidence</b>${EV[id].n}`]);s.log.push([s.clock,`Found: ${EV[id].n}`])}
+function note(s,t,cls){s.flash.push([cls||"",t]);if(cls==="warn")s.log.push([s.clock,t.replace(/<[^>]+>/g,"")])}
+
+/* ================= MOVING ================= */
+function walk(s,to){s.pending=moveCost(s.loc,to);s.loc=to;s.view="scene"}
+function walks(s){return PLACES.filter(k=>k!==s.loc).map(k=>({l:`${k==="light"?"Climb":"Go"} to ${PLACE_N[k]}`,c:0,walkTo:k,a:s=>walk(s,k)}))}
+const talk=id=>({l:`${["brandt","maren"].includes(id)?"Call":id==="jonsson"?"Radio":"Speak with"} ${SUS[id].n}`,c:0,tag:"Talk",a:s=>{s.view="interview";s.who=id}});
+
+/* ================= SCENES ================= */
+const L={
+ intro:{t:"Landfall",chapter:"Chapter I",p:()=>[
+  "Sunday, 24 October 2038. Kaldsker is a broken volcanic cone in the North Atlantic, halfway between the Faroes and Iceland: a south headland with a helipad, a sheltered hollow called the Bowl where the observatory stands, and a bare north summit with a lighthouse nobody has lit since 2021.",
+  "Five researchers live here. Every six hours for nine days the station has sent its all-clear. Nobody has answered a call.",
+  "You're the consortium's safety investigator. Dominik Varga of Halcyon Climate Systems, the station's sponsor, has come with you “to help with the systems”. Your pilot, Sigrún Hall, has to lift off by two o'clock, before the next storm closes in.",
+  "*Five people, nine days, and a station that keeps saying everything is fine.*"],
+  o:()=>[{l:"Step down onto the helipad",c:3,a:s=>{s.loc="helipad";add(s,"brief")}}]},
+
+ helipad:{t:"The Helipad",p:()=>["A concrete pad on the south headland, the rotor still ticking as it cools. Below you the Bowl lies quiet, its buildings unlit. Far to the north, the dark tower of the old light stands against the cloud."],
+  o:s=>[talk("hall"),...walks(s)]},
+
+ ops:{t:"The Ops Room",p:s=>["The station's nerve centre, a prefab on the Bowl's rim above the gas line: racks, screens, a satellite phone and the Coast Guard radio. The screens show green lights and a cheerful dashboard. Dominik Varga has already pulled up a chair beside the server."+(s.f.wiped?" The server has just rebooted; the maintenance logs are blank.":"")],
+  o:s=>{const o=[talk("varga"),talk("jonsson"),talk("brandt"),talk("maren")];
+   if(!s.ev.stationLog)o.push({l:"Download the station's telemetry archive",c:10,a:s=>add(s,"stationLog")});
+   if(!s.ev.uplinkLog&&!s.f.wiped)o.push({l:"Read the remote maintenance log",c:8,a:s=>{if(s.sus.varga>=2&&s.clock+8>=WIPE_T){s.f.wiped=1;note(s,"The server restarts before you finish reading. Varga has erased the remote maintenance log.","warn")}else add(s,"uplinkLog")}});
+   if(!s.ev.uplinkLog&&s.f.wiped)o.push({l:"Read the remote maintenance log",c:4,a:s=>note(s,"Blank. “The server needed a restart,” Varga says. “Salt air.”","warn")});
+   if(s.ev.stationLog)o.push({l:"Sign Varga's draft report: sensor failure, crew lost at sea",c:0,risk:"Ends the case",a:s=>endCase(s,"E5")});
+   if(s.sus.varga>=2&&!s.ev.offerRefused){o.push({l:"Accept Varga's offer",c:0,risk:"Ends the case",a:s=>endCase(s,"E6")});o.push({l:"Decline",c:2,a:s=>add(s,"offerRefused")})}
+   if(s.ev.leakFound)o.push({l:"Report your finding to the Coast Guard and the consortium",c:0,ui:"accuse",tag:"Your finding"});
+   return o.concat(walks(s))}},
+
+ annex:{t:"Annex B",p:()=>["A grey shipping container behind the generator house, stencilled ANNEX B · HALCYON PROPERTY · NO ENTRY. Inside: a pump skid, gas cylinders and a desk."],
+  o:s=>{const o=[];if(!s.ev.notes)o.push({l:"Force the desk drawer",c:6,a:s=>{add(s,"notes");s.sus.varga=clamp(s.sus.varga+1,0,5)}});return o.concat(walks(s))}},
+
+ bowl:{t:"The Floor of the Bowl",p:()=>["You put on the breathing set at the rim and go down. The grass in the hollow is grey and still; a dead gull lies by the path. Your gas meter chirps faster with every step."],
+  o:s=>{const o=[];
+   if(!s.ev.wellhead)o.push({l:"Find the BH-2 wellhead and the bunkhouse",c:12,a:s=>add(s,"wellhead")});
+   o.push({l:"Take off the breathing set to search the bunkhouse faster",c:0,risk:"Ends the case",a:s=>endCase(s,"E7")});
+   return o.concat(walks(s))}},
+
+ light:{t:"The North Light",p:()=>["Forty minutes up loose scree in a rising wind. The lighthouse door is shut, and someone has scratched an arrow on it pointing in. Inside, five people in sleeping bags turn their faces towards the daylight."],
+  o:s=>[talk("runa"),...walks(s)]},
+
+ window:{t:"Two o'clock",chapter:"Chapter III",p:()=>["Two o'clock on the helipad. The rotors are turning; the cloud to the west has gone black. Hall leans out of the cockpit. “Now or never. And whatever you've got, give it to the Coast Guard before we lose the link.”"],
+  o:()=>[{l:"Give your finding over the radio",c:0,ui:"accuse"},{l:"Get in and go",c:0,a:s=>endCase(s,"E4")}]}
+};
+
+/* ================= PROOFS & ENDINGS ================= */
+const pReplay=s=>!!(s.ded.R1&&s.ded.R2), pCause=s=>!!(s.ded.C1&&s.ded.C2), pWho=s=>!!(s.ded.W1&&s.ded.W2), pFate=s=>!!(s.ded.F1&&s.ded.F2), pWhy=s=>!!s.ded.M1;
+function missing(s){const m=[],h=s.hyp;
+ if(!pReplay(s))m.push("you never proved the station was replaying itself");
+ if(h.fate!=="light")m.push("you got the crew's fate wrong");else if(!pFate(s))m.push("you never proved where the crew went");
+ if(h.cause!=="co2")m.push("you got the cause wrong");else if(!pCause(s))m.push("you never proved the leak");
+ if(!pWho(s))m.push("you never proved Varga switched the station to loop knowing they were alive");
+ if(h.why!=="hide")m.push("you missed the motive");else if(!pWhy(s))m.push("you never proved the experiment was illegal");
+ return m}
+const END={
+ E1:{best:true,p:()=>[
+  "You give it to Lieutenant Jónsson over the radio, with the consortium and Maren Lindqvist listening in.",
+  "Kaldsker stopped telling the truth at six in the morning on Friday 15 October. From that hour every station stream repeats the day before, number for number. The buoy eleven kilometres west recorded a storm the station's mast never felt, and the all-clears have wished Tomas Okafor a happy birthday nine days running.",
+  "In the last honest hours the bunkhouse air went past four per cent CO2. Halcyon's borehole BH-2 had split a valve, and the gas, heavier than air, filled the Bowl like water. Okafor's notes had planned for it: uphill, to the north light. At 02:14 every door opened. At 02:31 someone keyed a mayday, and at 06:10 Dominik Varga deleted it from Aberdeen, eighteen minutes after reading that the crew had got out. Basalt Sink had no permit. Halcyon's ship was booked for the rig, with “crew transfer: none required”.",
+  "The cutter is already on its way. Hall flies two trips before the front: Ines Duarte and her ankle first, then the rest, while the light on the north hill burns one last time behind them. Varga is met at Reykjavík by the police. Halcyon's directors spend the winter in front of two parliaments, and the BH-2 borehole is sealed with concrete in the spring.",
+  "Maren is at the hangar door when the helicopter lands. Her sister steps down, thin as a rake, and says the first new sentence anyone has heard from Kaldsker in nine days.",
+  "*The island was sending a signal all along. It just wasn't the one on the screens.*"]},
+ E2:{p:s=>[
+  `You name Dominik Varga. But ${missing(s).join("; ")}.`,
+  "Halcyon's lawyers call it an automatic failover by the next morning. "+(s.ev.survivors?"The crew come home, and Varga keeps his job.":"Nobody climbs the north hill before the storm, and by the time the Coast Guard does, it has taken three days."),
+  "*A name without proof.*"]},
+ E3:{p:s=>[
+  s.hyp.who==="runa"?"You blame the station chief whose initials are on every all-clear. Her sister hears it on the news.":s.hyp.who==="brandt"?"You blame Prof. Brandt. The consortium suspends her; Halcyon offers to “help with the investigation”.":"You call it an automatic failover, and Halcyon thanks you for your professionalism.",
+  "Dominik Varga flies home and has the rig taken off the island on Monday.",
+  "*The wrong signature.*"]},
+ E4:{p:()=>[
+  "You get in. The helicopter lifts, swings south, and the island shrinks behind the rain.",
+  "At three o'clock the storm closes Kaldsker for three days. At six that evening the station sends its all-clear.",
+  "*The window closes.*"]},
+ E5:{p:()=>[
+  "You sign Varga's draft: sensor failure, crew presumed lost at sea. It reads well.",
+  "Two days later a trawler sees a light on the north hill of Kaldsker and radios it in, and your signature is at the bottom of the worst report of your career.",
+  "*Failover.*"]},
+ E6:{p:()=>[
+  "You accept. Halcyon's new head of safety writes the Kaldsker report herself.",
+  "It's very thorough about salt air.",
+  "*Head of safety.*"]},
+ E7:{p:()=>[
+  "You take off the mask. The air tastes of nothing at all. Then your legs fold, the grey grass comes up to meet you, and the last thing you hear is your meter shrieking.",
+  "Hall drags you out on a rope ten minutes later. You wake in Reykjavík two days after the window closed.",
+  "*The Bowl.*"]}
+};
+
+/* ================= JOURNAL ================= */
+const TL=[
+ [1,"Basalt Sink injects CO2 into BH-2 at 140 bar.",s=>s.cl.notes,"11 Oct"],
+ [2,"Bubbles at the old cistern.",s=>s.cl.notes,"13 Oct"],
+ [3,"Hissing at the wellhead.",s=>s.cl.notes,"14 Oct 23:50"],
+ [4,"All four exterior doors open.",s=>s.ev.leakFound,"15 Oct 02:14"],
+ [5,"The transmitter is keyed for 40 seconds.",s=>s.ev.leakFound,"15 Oct 02:31"],
+ [6,"Varga reads the door log, then switches the station to loop.",s=>s.cl.uplinkLog,"15 Oct 05:52"],
+ [7,"A storm crosses the island; the station doesn't notice.",s=>s.ev.replayFound,"15 Oct"],
+ [8,"Halcyon books a ship for the rig.",s=>s.ev.charter,"16 Oct"],
+ [9,"You land.",()=>true,"24 Oct 09:00"],
+ [10,"The weather window closes.",()=>true,"24 Oct 14:00"]
+];
+function leads(s){const a=[];
+ if(!s.ev.stationLog)a.push("The ops room keeps the station's telemetry.");
+ if(!s.ev.buoyData)a.push("Something out at sea measures the weather independently. Ask the Coast Guard.");
+ if(!s.ev.replayFound)a.push("Find the hour the station stopped being honest in the Sensor Streams tab.");
+ if(!s.ev.notes)a.push("Halcyon's container is locked. Why?");
+ if(!s.ev.messageArchive)a.push("Somebody noticed the messages first.");
+ if(s.ev.leakFound&&!s.ev.beaconMeter)a.push("Where would people go to escape a heavy gas?");
+ return a.slice(0,6)}
+
+/* ================= ENGINE ================= */
+const SAVE_KEY="dq-cluortal-31-nosignal-v1", END_KEY="dq-cluortal-31-endings", CH_KEY="dq-cluortal-31-chapters";
+const fresh=()=>({loc:"intro",view:"scene",who:null,clock:0,n:0,pending:0,f:{},ev:{},cl:{},ded:{},
+ sus:Object.fromEntries(SUS_ORDER.map(k=>[k,0])),asked:{},shown:{},tools:{intuit:2},intuited:{},log:[],flash:[],
+ tr:Object.fromEntries(SUS_ORDER.map(k=>[k,[]])),hyp:{},mk:{},q:{},ended:null});
+let state=fresh(), history=[];
+const ui={tab:"investigate",sel:[],msg:null,bmsg:null,confirm:false};
+
+function validState(s){
+ if(!s||typeof s!=="object"||!Object.prototype.hasOwnProperty.call(L,s.loc)||!["scene","interview"].includes(s.view)||
+    !Number.isFinite(s.clock)||s.clock<0||s.clock>WINDOW||!Number.isInteger(s.n)||s.n<0||![null,...Object.keys(ENDINGS)].includes(s.ended))return false;
+ const objects=["f","ev","cl","ded","sus","asked","shown","tools","intuited","hyp","tr","mk","q"];
+ if(!objects.every(k=>s[k]&&typeof s[k]==="object"&&!Array.isArray(s[k])))return false;
+ if(Object.entries(s.mk).some(([k,v])=>!(TELLS.some(t=>"t_"+t[0]===k)&&v===1)&&!(k==="slot"&&Number.isInteger(v)&&v>=0&&v<SLOTS.length)))return false;
+ if(!Array.isArray(s.log)||!Array.isArray(s.flash)||!Number.isInteger(s.tools.intuit)||s.tools.intuit<0||s.tools.intuit>2)return false;
+ if(!SUS_ORDER.every(k=>Array.isArray(s.tr[k])&&Number.isInteger(s.sus[k])))return false;
+ if(Object.keys(s.ev).some(k=>!EV[k])||Object.keys(s.ded).some(k=>!DED[k]))return false;
+ if(s.view==="interview"&&!SUS[s.who])return false;
+ return true;
+}
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({state,history}))}catch(e){}}
+function restore(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");if(d&&validState(d.state)&&Array.isArray(d.history))return {state:d.state,history:d.history.slice(-80)}}catch(e){}return null}
+function loadJ(k){try{const v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return {}}}
+function saveJ(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function saveChapter(id){const c=loadJ(CH_KEY);c[id]=JSON.stringify(state);saveJ(CH_KEY,c)}
+function snapshot(){history.push(JSON.stringify(state));if(history.length>80)history.shift()}
+
+function spend(s,min){
+ const b=s.clock,a=Math.min(WINDOW,b+min);s.clock=a;
+ if(b<MID_T&&a>=MID_T){s._ch="ch2";note(s,"Eleven o'clock. Three hours of flying weather left.","warn")}
+ if(b<WIPE_T&&a>=WIPE_T&&s.sus.varga>=2&&!s.ev.uplinkLog){s.f.wiped=1;note(s,"Half past eleven. Hall radios from the helipad: “Every light in the ops room just went out and came back on. Your Halcyon man's doing something to the server.”","warn")}
+ if(b<LATE_T&&a>=LATE_T){s._ch="ch3";note(s,"Half past twelve. The western sky is turning to slate. An hour and a half.","warn")}
+ if(a>=WINDOW&&!s.ended){s.clock=WINDOW;s.loc="window";s.view="scene"}
+}
+const forced=()=>state.loc==="window";
+const atMove=()=>(state.loc==="ops"&&state.ev.leakFound)||forced();
+function doAct(opt){
+ if(state.ended)return;
+ if(opt.ui){ui.tab=opt.ui;render(true);return}
+ if(opt.free===false&&forced()){ui.msg=["","The rotors are turning. Go to the Investigate tab."];render();return}
+ snapshot();state.flash=[];const prev=state.loc;state.pending=0;
+ if(opt.a)opt.a(state);
+ if(!state.ended){spend(state,(opt.c||0)+state.pending);state.pending=0}
+ state.n++;
+ if(state._ch){saveChapter(state._ch);delete state._ch}
+ if((state.loc!==prev&&state.loc==="window")||state.ended){ui.tab="investigate";closeLens()}
+ persist();render(true);
+}
+function endCase(s,id){s.ended=id;const e=loadJ(END_KEY);e[id]=1;saveJ(END_KEY,e);s.view="scene"}
+function back_(){if(!history.length)return;try{const prev=JSON.parse(history.pop());if(!validState(prev))return;state=prev}catch(e){return}ui.sel=[];ui.msg=null;ui.bmsg=null;ui.confirm=false;persist();closeLens();render(true)}
+function restart(){history=[];state=fresh();Object.assign(ui,{sel:[],msg:null,bmsg:null,confirm:false,tab:"investigate"});saveChapter("ch1");persist();render(true)}
+function loadChapter(id){const c=loadJ(CH_KEY);if(!c[id])return;try{const st=JSON.parse(c[id]);if(!validState(st))return;history=[];state=st;state.ended=null;state.flash=[];Object.assign(ui,{tab:"investigate",sel:[],msg:null,bmsg:null,confirm:false});persist();render(true)}catch(e){}}
+
+function askTopic(sid,tid,tone){
+ const sp=SUS[sid],tp=sp.topics.find(t=>t.id===tid),r=tp.r[tone];
+ doAct({c:7,a:s=>{s.asked[sid+"."+tid]=tone;s.tr[sid].push({q:`${TONE[tone]}: ${tp.q}`,a:r.t});
+  s.sus[sid]=clamp(s.sus[sid]+(r.sus||0),0,5);if(r.ev)add(s,r.ev);
+  if(s.sus[sid]>=4)note(s,`${sp.short} will say nothing more.`,"warn")}});
+}
+function presentEv(sid,eid){
+ const sp=SUS[sid];let r=sp.present[eid]||{t:sp.dflt};
+ doAct({c:4,a:s=>{s.shown[sid+"."+eid]=1;s.tr[sid].push({q:`Shown: ${EV[eid].n}`,a:r.t});s.sus[sid]=clamp(s.sus[sid]+(r.sus||0),0,5);if(r.ev)add(s,r.ev)}});
+}
+function intuit(sid){doAct({c:0,a:s=>{if(s.tools.intuit<1||s.intuited[sid])return;s.tools.intuit--;s.intuited[sid]=1}})}
+function lookCloser(id){doAct({free:false,c:4,a:s=>{s.cl[id]=1;s.log.push([s.clock,`Looked closer: ${EV[id].n}`])}})}
+
+/* ---- Sensor streams ---- */
+function setMk(k,v){if(state.ended||forced())return;
+ if(TELLS.some(t=>"t_"+t[0]===k)){if(state.ev.leakFound)return;if(state.mk[k])delete state.mk[k];else state.mk[k]=1}
+ else if(k==="slot"){if(state.ev.replayFound)return;const n=parseInt(v,10);if(!(n>=0&&n<SLOTS.length))return;state.mk.slot=n}
+ else return;
+ ui.bmsg=null;persist();render()}
+function checkSlot(){
+ if(state.ev.replayFound||forced()||!state.ev.stationLog||!state.ev.buoyData)return;
+ const v=state.mk.slot;if(v==null){ui.bmsg=["sl","Choose a row."];render();return}
+ doAct({free:false,c:8,a:s=>{if(v===FIRST_LIE)add(s,"replayFound");else{s.q.sl=(s.q.sl||0)+1;ui.bmsg=["sl",v<FIRST_LIE?"At that hour the station's mast still agrees with the buoy, and nothing has started to repeat. Look later.":"The station was already lying before that. Find the first row that agrees with nothing outside the island and repeats a row above it."]}}});
+}
+function checkWhat(){
+ if(!state.ev.replayFound||state.ev.leakFound||forced())return;
+ if(!TELLS.some(t=>state.mk["t_"+t[0]])){ui.bmsg=["wh","Tick what the last honest hours show."];render();return}
+ const ok=TELLS.filter(t=>!!state.mk["t_"+t[0]]===TELL_OK.includes(t[0])).length;
+ doAct({free:false,c:6,a:s=>{if(ok===TELLS.length)add(s,"leakFound");else{s.q.wh=(s.q.wh||0)+1;ui.bmsg=["wh",`${ok} of ${TELLS.length} judged right. Read the 15 Oct 00:00 row column by column. A fire would show in the air, not the fans; the buoy says the storm came later; and the load went up, not down.`]}}});
+}
+
+function connect(){
+ const [a,b]=ui.sel;ui.msg=null;const has=(x,v)=>Array.isArray(x)?x.includes(v):x===v;
+ const hit=Object.entries(DED).find(([k,d])=>(has(d.a,a)&&has(d.b,b))||(has(d.a,b)&&has(d.b,a)));
+ if(!hit){ui.msg=["","No link between those two."];render();return}
+ const [id,d]=hit;if(state.ded[id]){ui.msg=["","You've already linked those."];render();return}
+ const need=(d.need||[]).filter(n=>{const [k,e]=n.split(":");return k==="cl"&&!state.cl[e]});
+ if(need.length){ui.msg=["",`Look closer at ${need.map(n=>EV[n.split(":")[1]].n).join(" and ")} first.`];render();return}
+ snapshot();state.ded[id]=1;state.log.push([state.clock,`Connected: ${d.t}`]);ui.sel=[];ui.msg=["good",`<b>${d.t}.</b> ${d.x}`];persist();render();
+}
+
+/* ================= HEADER ================= */
+function renderHead(){
+ const s=state,loop=!!s.ev.replayFound,leak=!!s.ev.leakFound,lit=!!s.ev.survivors;
+ const pips=Array.from({length:40},(_,i)=>{const x=14+i*9.9,lie=i>=6;const hollow=loop&&lie;return `<circle cx="${x.toFixed(1)}" cy="196" r="3" fill="${hollow?"none":lie&&!loop?"#7fdca6":"#7fdca6"}" stroke="${hollow?"#ff8a4c":"none"}" stroke-width="1.4"/>`}).join("");
+ $("isle").innerHTML=`
+ <line x1="0" y1="140" x2="420" y2="140" stroke="#5f8aa0" stroke-width=".6" opacity=".6"/>
+ ${[150,158,166].map(y=>`<path d="M0 ${y} q 15 -3 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 30 0 t 30 0" stroke="#3d6b80" fill="none" opacity=".6"/>`).join("")}
+ <path d="M30 140 L60 112 L84 108 L100 116 L118 104 L132 116 L150 122 L200 124 L250 120 L272 104 L300 74 L318 66 L336 72 L360 104 L392 140 Z" fill="#0b1820" stroke="#2b4a5c"/>
+ ${leak?`<path d="M152 122 Q200 112 250 120 L250 124 Q200 128 152 124 Z" fill="#c9e35b" opacity=".55"/><ellipse cx="200" cy="120" rx="52" ry="6" fill="#c9e35b" opacity=".25"/>`:""}
+ <rect x="62" y="104" width="22" height="3" fill="#4d6f82"/><text x="73" y="100" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="7" fill="#9fc0cf">H</text>
+ <g fill="#2f4e60"><rect x="176" y="114" width="14" height="8"/><rect x="194" y="112" width="20" height="10"/><rect x="218" y="115" width="10" height="7"/></g>
+ <rect x="166" y="104" width="12" height="9" fill="#3a5a6c"/>
+ <rect x="314" y="44" width="8" height="24" fill="#d9e3e8"/><rect x="312" y="40" width="12" height="5" fill="#9fb4bf"/>
+ ${lit?`<path d="M318 42 L420 18 L420 40 Z" fill="#ffd36b" opacity=".45"/><path d="M318 42 L230 20 L232 34 Z" fill="#ffd36b" opacity=".3"/><circle cx="318" cy="42" r="4" fill="#ffe7a3"/>`:`<circle cx="318" cy="42" r="2" fill="#2b3f4a"/>`}
+ <text x="14" y="183" font-family="IBM Plex Mono,monospace" font-size="8" fill="#9fc0cf">ALL-CLEAR · EVERY 6 H · 14 OCT → 24 OCT</text>
+ ${loop?`<text x="406" y="183" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="8" font-weight="600" fill="#ff8a4c">LOOP FROM 15 OCT 06:00</text><line x1="${(14+5.5*9.9).toFixed(1)}" y1="188" x2="${(14+5.5*9.9).toFixed(1)}" y2="204" stroke="#ff8a4c"/>`:""}
+ ${pips}`;
+ const T=[["The signal",loop?"Looping since 15 Oct":"?",loop],["The cause",pCause(s)?"CO2 from BH-2":leak?"Gas in the Bowl":"?",pCause(s)],["Who",pWho(s)?"Dominik Varga":"?",pWho(s)],["The crew",lit?"Alive · north light":pFate(s)?"North light":"?",lit]];
+ const left=WINDOW-s.clock;
+ $("status").innerHTML=T.map(([l,v,g])=>`<div class="tile ${g?"got":""}">${l}<b>${v}</b></div>`).join("")+`<div class="clock ${left<=45&&!s.ended?"urgent":""}">Weather window · 14:00<b>${s.ended?"—":`${dur(left)} left`}</b>${hm(s.clock)}</div>`;
+}
+
+/* ================= RENDER ================= */
+function render(scroll){
+ renderTabs();renderHead();
+ $("panel").innerHTML={investigate:viewInvestigate,streams:viewStreams,evidence:viewEvidence,people:viewPeople,journal:viewJournal,accuse:viewAccuse}[ui.tab]();
+ bindPanel();
+ if(scroll){const top=document.querySelector(".tabs");const y=top.getBoundingClientRect().top+window.scrollY-8;if(window.scrollY>y)window.scrollTo({top:y,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}
+}
+function renderTabs(){
+ const nD=["replayFound","leakFound"].filter(k=>state.ev[k]).length;
+ const T=[["investigate","Investigate"],["streams","Sensor Streams",nD||null],["evidence","Evidence",Object.keys(state.ev).length],["people","People"],["journal","Notebook"],["accuse",state.ended?"Outcome":"Finding"]];
+ $("tabs").innerHTML=T.map(([k,l,b])=>`<button class="tab" role="tab" aria-selected="${ui.tab===k}" data-tab="${k}">${l}${b!=null?`<span class="badge">${b}</span>`:""}</button>`).join("");
+ $("tabs").querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ui.tab=t.dataset.tab;ui.confirm=false;ui.msg=null;ui.bmsg=null;render()});
+}
+function optTag(o){const t=[];if(o.c)t.push(cost(o.c));if(o.walkTo)t.push(`${moveCost(state.loc,o.walkTo)} min`);if(o.tag)t.push(`<span class="tool">${o.tag}</span>`);if(o.risk)t.push(`<span class="risk">${o.risk}</span>`);return t.length?`<span class="tag">${t.map(x=>`<span>${x}</span>`).join("")}</span>`:""}
+function flashHTML(){return state.flash.length?`<div class="flash">${state.flash.map(([c,t])=>`<div class="${c}">${t}</div>`).join("")}</div>`:""}
+function toolsRow(){return `<div class="tools"><button class="link" data-act="back" ${history.length?"":"disabled"}>Retrace your last step</button><button class="link" data-act="restart">Restart this Cluortal</button></div>`}
+
+function viewInvestigate(){
+ const s=state;
+ if(s.ended)return viewEnding();
+ if(s.view==="interview"&&s.who)return viewInterview();
+ const sc=L[s.loc],p=sc.p(s),o=sc.o(s);
+ return `<div class="fade"><div class="meta"><span>${sc.chapter?`<b>${sc.chapter}</b>`:`Investigation log · <b>${String(s.n+1).padStart(2,"0")}</b>`}</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">${sc.t}</h2>${flashHTML()}
+ <div class="passage">${p.filter(Boolean).map(t=>`<p>${em(t)}</p>`).join("")}</div>
+ <ol class="choices">${o.map((x,i)=>`<li><button class="choice" data-i="${i}"><span class="num">${i+1}</span><span>${em(x.l)}${optTag(x)}</span></button></li>`).join("")}</ol>
+ <p class="hint">Press a number key to choose. Compare the station's data in the Sensor Streams tab.</p>${toolsRow()}</div>`;
+}
+function meterHTML(v){return `<div class="meter">Guard <span class="bar">${[0,1,2,3,4].map(i=>`<i class="${i<v?"on":""}"></i>`).join("")}</span> ${MOOD[v]}</div>`}
+function viewInterview(){
+ const s=state,id=s.who,sp=SUS[id],v=s.sus[id],silent=v>=4;
+ const evOpts=Object.keys(EV).filter(k=>s.ev[k]&&!s.shown[id+"."+k]);
+ return `<div class="fade"><div class="meta"><span>Speaking with</span><span>${hm(s.clock)}</span></div>
+ <div class="who"><div class="mono" aria-hidden="true">${sp.mono}</div><div><h2>${sp.n}</h2><p>${sp.role}</p>${meterHTML(v)}</div></div>
+ ${flashHTML()}
+ ${s.intuited[id]?`<p class="tells"><b>Your read:</b> ${sp.tell}</p>`:""}
+ ${s.tr[id].length?`<div class="transcript">${s.tr[id].map(e=>`<div><div class="q">${e.q}</div><p class="a">${em(e.a)}</p></div>`).join("")}</div>`:`<p class="passage">${sp.short} is waiting.</p>`}
+ ${silent?`<p class="tells">${sp.short} will say nothing more.</p>`:""}
+ <div class="topics">${sp.topics.map(t=>{const done=s.asked[id+"."+t.id];return `<div class="topic ${done?"done":""}"><div>${t.q}${done?` <span class="hint">(${TONE[done]})</span>`:""}</div>${done||silent?"":`<div class="tones">${["coax","ask","press"].map(tn=>`<button class="btn" data-ask="${t.id}" data-tone="${tn}">${TONE[tn]} · 7 min</button>`).join("")}</div>`}</div>`}).join("")}</div>
+ <div class="present"><label for="pres">Show evidence</label>${evOpts.length?`<select id="pres">${evOpts.map(k=>`<option value="${k}">${EV[k].n}</option>`).join("")}</select><button class="btn primary" data-act="present">Show · 4 min</button>`:`<span class="hint" style="margin:0">You've shown everything you have.</span>`}</div>
+ <div class="tools"><button class="btn" data-act="leave">End the conversation</button>${s.intuited[id]?"":`<button class="btn" data-act="intuit" ${s.tools.intuit?"":"disabled"}>Read their manner (${s.tools.intuit} left)</button>`}</div>
+ <p class="hint">Easy, Direct or Hard: each person answers best to one. Hard talk puts people on guard.</p>${toolsRow()}</div>`;
+}
+function viewStreams(){
+ const s=state,b=ui.bmsg,hasS=!!s.ev.stationLog,hasB=!!s.ev.buoyData,hasN=!!s.ev.beaconMeter,done=!!s.ev.replayFound,lock=done||forced()||!hasS||!hasB;
+ const dash="—";
+ const rows=SLOTS.map((x,i)=>{const lie=done&&i>=FIRST_LIE,pick=!done&&s.mk.slot===i;return `<tr class="${lie||pick?"lie":""}">
+ <td class="first mn">${x.t}</td>
+ <td class="mn" data-h="Mast pressure">${hasS?x.p+" hPa":dash}</td>
+ <td class="mn ind" data-h="Buoy 64-117 ★">${hasB?x.b+" hPa":dash}</td>
+ <td class="mn${x.ev&&hasS?" ev":""}" data-h="Generator">${hasS?x.kw+" kW":dash}</td>
+ <td class="${x.ev&&hasS?"ev":""}" data-h="Door events">${hasS?x.dr:dash}</td>
+ <td class="${x.ev&&hasS?"ev":""}" data-h="Bunkhouse CO2 (ppm)">${hasS?x.co:dash}</td>
+ <td class="${x.ev&&hasS?"ev":""}" data-h="Transmitter">${hasS?x.tx:dash}</td>
+ <td class="mn ind" data-h="North light ★ (kWh)">${hasN?x.nl:dash}</td>
+ <td data-h="Lying from here?">${done?(i===FIRST_LIE?"<b class='bad'>LOOP STARTS</b>":lie?"<span class='bad'>loop</span>":"✓"):`<label><input type="radio" name="slot" data-mk="slot" value="${i}" ${pick?"checked":""} ${lock?"disabled":""}> first lie</label>`}</td></tr>`}).join("");
+ const step1=done?`<p class="res2" style="margin-top:10px">${EV.replayFound.d}</p>`:`<div class="pick" style="margin-top:10px"><button class="btn primary" data-act="checksl" ${hasS&&hasB&&!forced()?"":"disabled"}>Check · 8 min</button>${hasS&&hasB?"":`<span class="hint" style="margin:0">You need the station's own archive and something independent to check it against.</span>`}</div>${b&&b[0]==="sl"?`<p class="hint bad">${b[1]}</p>`:""}`;
+ const step2=!done?`<p class="hint" style="margin:0">Find the first dishonest hour first.</p>`:s.ev.leakFound?`<p class="res2">${EV.leakFound.d}</p>`:`<p><b>The 15 Oct 00:00 row is the station's last honest report. What does it show happened?</b> Tick everything that holds.</p><div class="tellset">${TELLS.map(([k,l])=>`<label><input type="checkbox" data-mk="t_${k}" ${s.mk["t_"+k]?"checked":""} ${forced()?"disabled":""}><span>${l}</span></label>`).join("")}</div><div class="pick" style="margin-top:10px"><button class="btn primary" data-act="checkwh" ${forced()?"disabled":""}>Check · 6 min</button></div>${b&&b[0]==="wh"?`<p class="hint bad">${b[1]}</p>`:""}`;
+ return `<div class="fade"><div class="meta"><span>Sensor streams</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">When did Kaldsker stop being honest?</h2>
+ <div class="legend"><p>A station that's lying can repeat itself perfectly. What it can't do is agree with the world outside. Read the streams in six-hour rows:</p><ul>
+ <li><b>Station streams</b> (mast pressure, generator load, door events, air, transmitter) all pass through the station's own server, so whoever controls the server controls them.</li>
+ <li><b>Independent streams ★</b> (the weather buoy at sea; anything that reports elsewhere) can't be faked from the station. When the two disagree, believe the one the station doesn't own.</li>
+ <li>A recording gives itself away by <b>repeating</b>: the same numbers, in the same order, as rows that came before.</li></ul></div>
+ <div style="overflow-x:auto"><table class="streams"><thead><tr><th>Six hours from</th><th>Mast pressure</th><th>Buoy 64-117 ★</th><th>Generator</th><th>Door events</th><th>Bunkhouse CO2 (ppm)</th><th>Transmitter</th><th>North light ★ (kWh)</th><th>Lying from here?</th></tr></thead><tbody>${rows}</tbody></table></div>
+ ${step1}
+ <h3 class="sec">The last honest hours</h3><div class="qbox">${step2}</div>${toolsRow()}</div>`;
+}
+function viewEvidence(){
+ const s=state,found=Object.keys(EV).filter(k=>s.ev[k]);
+ const slot=i=>ui.sel[i]?`<span class="slot full">${EV[ui.sel[i]].n}</span>`:`<span class="slot">Select an item</span>`;
+ return `<div class="fade"><div class="meta"><span>Evidence · <b>${found.length}</b></span><span>${hm(s.clock)}</span></div>
+ <div class="linker"><div class="row">${slot(0)}<span class="plus">+</span>${slot(1)}<button class="btn primary" data-act="connect" ${ui.sel.length===2?"":"disabled"}>Connect</button><button class="btn" data-act="clearsel" ${ui.sel.length?"":"disabled"}>Clear</button></div>
+ ${ui.msg&&ui.tab==="evidence"?`<p class="linkmsg ${ui.msg[0]}">${ui.msg[1]}</p>`:`<p class="hint" style="margin-top:8px">Pick two items to test a connection. Thinking costs no time.</p>`}</div>
+ ${Object.keys(s.ded).length?`<h3 class="sec" style="margin-top:4px">Connections</h3><ul class="deds">${Object.keys(DED).filter(k=>s.ded[k]).map(k=>`<li><b>${DED[k].t}</b><span>${DED[k].x}</span></li>`).join("")}</ul><h3 class="sec">Items</h3>`:""}
+ <div class="grid">${found.map(k=>{const e=EV[k],sel=ui.sel.includes(k);return `<div class="card-ev ${sel?"sel":""}">${e.c?`<span class="look">${s.cl[k]?"Examined":"Look closer"}</span>`:""}<span class="kind">${e.k}</span><span class="nm">${e.n}</span><span class="sh">${e.s}</span><span class="acts"><button class="btn" data-exam="${k}">Examine</button><button class="btn ${sel?"primary":""}" data-sel="${k}" aria-pressed="${sel}">${sel?"Selected":"Select"}</button></span></div>`}).join("")}
+ ${found.length<EV_TOTAL?`<div class="card-ev ghost">More on the island</div>`:""}</div>${toolsRow()}</div>`;
+}
+function viewPeople(){
+ const s=state,blocked=s.ended||s.loc==="intro"||forced();
+ return `<div class="fade"><div class="meta"><span>Kaldsker and the radio</span><span>${hm(s.clock)}</span></div>
+ <div class="sgrid">${SUS_ORDER.map(id=>{const sp=SUS[id],here=s.loc===WHERE[id];
+ return `<div class="scard"><div class="top"><div class="mono" aria-hidden="true">${sp.mono}</div><div><h4>${sp.n}</h4><div class="role">${sp.role}</div></div></div>
+ ${meterHTML(s.sus[id])}<dl><dt>Manner</dt><dd>${s.intuited[id]?`Answers best to <b>${TONE[sp.pref]}</b> talk.`:"Read them when you speak."}</dd></dl>
+ <div><button class="btn" data-qq="${id}" ${blocked||!here?"disabled":""}>${here?"Speak now":"Go there first"}</button></div></div>`}).join("")}</div>${toolsRow()}</div>`;
+}
+function viewJournal(){
+ const s=state,items=TL.filter(t=>t[2](s)),ld=leads(s),ch=loadJ(CH_KEY),endsGot=Object.keys(loadJ(END_KEY)).length;
+ return `<div class="fade"><div class="meta"><span>Case notes</span><span>${hm(s.clock)}</span></div>
+ <h3 class="sec" style="margin-top:0">The timeline, as you have it</h3><ul class="timeline">${items.map(t=>`<li><time>${t[3]}</time>${t[1]}</li>`).join("")}</ul>
+ <h3 class="sec">Leads</h3>${ld.length?`<ul class="leads">${ld.map(x=>`<li>${x}</li>`).join("")}</ul>`:`<p class="passage">Nothing obvious left. Think it through.</p>`}
+ <h3 class="sec">Log</h3>${s.log.length?`<ul class="log">${s.log.slice(-14).reverse().map(([t,x])=>`<li><time>${hm(t)}</time>${x}</li>`).join("")}</ul>`:`<p class="passage">Nothing logged yet.</p>`}
+ ${endsGot?`<h3 class="sec">Chapters</h3><div class="chapters">${Object.keys(CHAPTERS).map(k=>`<button class="btn" data-ch="${k}" ${ch[k]?"":"disabled"}>${CHAPTERS[k]}</button>`).join("")}</div>`:""}
+ ${toolsRow()}</div>`;
+}
+function viewAccuse(){
+ const s=state;
+ if(s.ended)return `<div class="fade"><h2 class="scene-title">The case is closed</h2><p class="passage">See the Investigate tab for how it ended, or start again.</p>${toolsRow()}</div>`;
+ const h=s.hyp,ready=Object.keys(HYP).every(k=>h[k]);const dl=Object.keys(DED).filter(k=>s.ded[k]);
+ return `<div class="fade"><div class="meta"><span>Your finding</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">What you'll tell the Coast Guard</h2>
+ <p class="passage">Prepare your finding now. Once you know what happened in the station's last honest hours, you can report it from the ops room. Otherwise you'll have to give it over the radio at two, with the rotors turning.</p>
+ <form class="hyp" id="hyp" onsubmit="return false">${Object.entries(HYP).map(([k,g])=>`<fieldset><legend>${g.l}</legend><div class="opts">${g.o.map(([v,l])=>`<label class="opt"><input type="radio" name="${k}" value="${v}" ${h[k]===v?"checked":""}><span>${l}</span></label>`).join("")}</div></fieldset>`).join("")}</form>
+ <h3 class="sec">Your connections (${dl.length})</h3>${dl.length?`<ul class="deds">${dl.map(k=>`<li><b>${DED[k].t}</b></li>`).join("")}</ul>`:`<p class="passage">Nothing linked yet.</p>`}
+ ${atMove()?"":`<p class="hint">Not yet. Find what happened in the last honest hours in the Sensor Streams tab, then report from the ops room, or wait for two o'clock.</p>`}
+ <div class="accbar" style="margin-top:14px"><button class="btn ${ui.confirm?"danger":"primary"}" data-act="accuse" ${ready&&atMove()?"":"disabled"}>${ui.confirm?"Are you sure? This ends the Cluortal":"Give your finding"}</button>${ui.confirm?`<button class="btn" data-act="unconfirm">Not yet</button>`:""}</div>
+ ${toolsRow()}</div>`;
+}
+function scoreOf(id){
+ const s=state,h=s.hyp||{};let acc=0,parts=null;
+ if(["E1","E2","E3"].includes(id)){parts=[["Fate",h.fate==="light"],["Cause",h.cause==="co2"],["Who",h.who==="varga"],["Why",h.why==="hide"]];acc=parts.filter(p=>p[1]).length}
+ const evN=Object.keys(s.ev).length,dN=Object.keys(s.ded).length,fN=["replayFound","leakFound"].filter(k=>s.ev[k]).length,wr=Object.values(s.q).reduce((a,v)=>a+v,0);
+ let sc=acc*(id==="E1"?12:6)+Math.round(clamp(evN/(EV_TOTAL-2),0,1)*12)+Math.round(clamp(dN/(DED_TOTAL-2),0,1)*14)+fN*9+(s.ev.offerRefused?2:0)-Math.min(6,wr*2);
+ if(["E4","E6","E7"].includes(id))sc=Math.min(sc,25);if(id==="E5")sc=Math.min(sc,30);if(id==="E3")sc=Math.min(sc,40);if(id==="E2")sc=Math.min(sc,62);
+ sc=clamp(sc,0,100);
+ const rank=sc>=90?"Chief investigator":sc>=72?"Senior investigator":sc>=50?"Safety investigator":sc>=30?"Data clerk":"Looped";
+ return {parts,evN,dN,fN,sc,rank};
+}
+function viewEnding(){
+ const s=state,id=s.ended,E=END[id],got=loadJ(END_KEY),n=Object.keys(ENDINGS).filter(k=>got[k]).length,r=scoreOf(id),ch=loadJ(CH_KEY);
+ const ac=r.parts?r.parts.map(([l,ok])=>`${l} ${ok?"✓":"✗"}`).join(" · "):"No finding given";
+ return `<div class="fade"><div class="meta"><span><b>Outcome</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">${ENDINGS[id]}</h2>
+ <div class="passage">${E.p(s).map(t=>`<p>${em(t)}</p>`).join("")}</div>
+ <div class="ending-card"><p class="label">${E.best?"The truest ending":"Ending reached"} · ${n} of 7 discovered</p><h4>${ENDINGS[id]}</h4>
+ <ul class="endings">${Object.entries(ENDINGS).map(([k,v])=>`<li class="${got[k]?"got":""}">${got[k]?v:"Undiscovered"}</li>`).join("")}</ul>
+ <p class="label" style="margin-bottom:6px">Your investigation</p>
+ <table class="score"><tr><td>Finding</td><td>${ac}</td></tr><tr><td>Stream findings</td><td>${r.fN} of 2</td></tr><tr><td>Evidence found</td><td>${r.evN} of ${EV_TOTAL}</td></tr><tr><td>Connections made</td><td>${r.dN} of ${DED_TOTAL}</td></tr></table>
+ <div class="total"><span>Cluortal score · ${r.rank}</span><b>${r.sc}</b></div>
+ ${E.best?"":`<p class="hint" style="margin:0 0 14px">The truest ending proves when the station began to lie, what drove the crew out, who made the station lie and why, and where the crew went. The last of those means a climb.</p>`}
+ <div class="chapters"><button class="btn primary" data-act="restart">Start again</button>${Object.keys(CHAPTERS).map(k=>`<button class="btn" data-ch="${k}" ${ch[k]?"":"disabled"}>${CHAPTERS[k]}</button>`).join("")}</div></div>
+ ${toolsRow()}</div>`;
+}
+
+/* ================= BINDINGS ================= */
+function bindPanel(){
+ const P=$("panel");
+ P.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{const o=L[state.loc].o(state)[+b.dataset.i];if(o)doAct(o)});
+ P.querySelectorAll("[data-ask]").forEach(b=>b.onclick=()=>askTopic(state.who,b.dataset.ask,b.dataset.tone));
+ P.querySelectorAll("[data-exam]").forEach(b=>b.onclick=()=>openLens(b.dataset.exam));
+ P.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{const k=b.dataset.sel,i=ui.sel.indexOf(k);if(i>-1)ui.sel.splice(i,1);else{ui.sel.push(k);if(ui.sel.length>2)ui.sel.shift()}ui.msg=null;render()});
+ P.querySelectorAll("[data-qq]").forEach(b=>b.onclick=()=>{const id=b.dataset.qq;ui.tab="investigate";doAct({free:false,c:0,a:s=>{s.view="interview";s.who=id}})});
+ P.querySelectorAll("[data-ch]").forEach(b=>b.onclick=()=>loadChapter(b.dataset.ch));
+ P.querySelectorAll("input[data-mk]").forEach(c=>c.onchange=()=>setMk(c.dataset.mk,c.value));
+ const f=$("hyp");if(f)f.querySelectorAll("input").forEach(i=>i.onchange=()=>{state.hyp[i.name]=i.value;ui.confirm=false;persist();render()});
+ P.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+  const a=b.dataset.act;
+  if(a==="back")back_();
+  else if(a==="restart")restart();
+  else if(a==="leave")doAct({c:0,a:s=>{s.view="scene"}});
+  else if(a==="intuit")intuit(state.who);
+  else if(a==="present"){const v=$("pres").value;if(v)presentEv(state.who,v)}
+  else if(a==="checksl")checkSlot();
+  else if(a==="checkwh")checkWhat();
+  else if(a==="connect")connect();
+  else if(a==="clearsel"){ui.sel=[];ui.msg=null;render()}
+  else if(a==="unconfirm"){ui.confirm=false;render()}
+  else if(a==="accuse"){if(!atMove()||!Object.keys(HYP).every(k=>state.hyp[k]))return;if(!ui.confirm){ui.confirm=true;render();return}ui.confirm=false;doAct({c:0,a:s=>resolve(s)})}
+ });
+}
+function resolve(s){
+ if(!((s.loc==="ops"&&s.ev.leakFound)||s.loc==="window"))return;
+ const h=s.hyp;
+ if(h.who!=="varga")return endCase(s,"E3");
+ endCase(s,h.fate==="light"&&h.cause==="co2"&&h.why==="hide"&&pReplay(s)&&pCause(s)&&pWho(s)&&pFate(s)&&pWhy(s)?"E1":"E2");
+}
+let lensReturnFocus=null;
+function openLens(id){
+ lensReturnFocus=document.activeElement;
+ const e=EV[id],s=state,cls=["uplinkLog","messageArchive","stationLog","buoyData","beaconMeter"].includes(id)?"term":e.doc?"doc":/Testimony/.test(e.k)?"test":"";
+ $("lensBody").innerHTML=`<button class="x" data-lens="close" aria-label="Close">×</button><span class="kind">${e.k}</span><h3 id="lensTitle">${e.n}</h3>
+ <div class="glass ${cls}">${e.d}</div>
+ ${e.c&&s.cl[id]?`<div class="closer"><b>Looking closer</b>${e.c}</div>`:""}
+ <div class="acts">${e.c&&!s.cl[id]?`<button class="btn primary" data-lens="closer" ${s.ended?"disabled":""}>Look closer · 4 min</button>`:"<span></span>"}<button class="btn" data-lens="select">${ui.sel.includes(id)?"Selected for linking":"Select for linking"}</button></div>`;
+ const d=$("lens");if(!d.open){d.showModal?d.showModal():d.setAttribute("open","")}
+ $("lensBody").querySelector("[data-lens=close]")?.focus();
+ $("lensBody").querySelectorAll("[data-lens]").forEach(b=>b.onclick=()=>{
+  const a=b.dataset.lens;
+  if(a==="close")closeLens();
+  else if(a==="closer"){lookCloser(id);if($("lens").open)openLens(id)}
+  else{if(!ui.sel.includes(id)){ui.sel.push(id);if(ui.sel.length>2)ui.sel.shift()}ui.msg=null;closeLens();ui.tab="evidence";render()}
+ });
+}
+function closeLens(){const d=$("lens");if(d.open){d.close?d.close():d.removeAttribute("open")}if(lensReturnFocus?.isConnected)lensReturnFocus.focus();lensReturnFocus=null}
+$("lens").addEventListener("click",e=>{if(e.target===$("lens"))closeLens()});
+document.addEventListener("keydown",e=>{
+ if(e.metaKey||e.ctrlKey||e.altKey||e.repeat||$("lens").open||["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName))return;
+ if(ui.tab!=="investigate"||state.view==="interview"||state.ended)return;
+ const n=parseInt(e.key,10);if(n>=1&&n<=9){const b=document.querySelectorAll(".choice")[n-1];if(b)b.click()}
+});
+function start(d){
+ if(d&&validState(d.state)){state=d.state;history=Array.isArray(d.history)?d.history:[]}
+ else{state=fresh();history=[]}
+ const c=loadJ(CH_KEY);if(!c.ch1){c.ch1=JSON.stringify(fresh());saveJ(CH_KEY,c)}
+ persist();render(false);
+}
+window.claude?.hot?.snapshot?.(()=>({state,history}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(restore());
+</script>
+</body></html>
