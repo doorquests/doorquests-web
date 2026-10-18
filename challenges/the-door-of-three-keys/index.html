@@ -1,0 +1,862 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Door of Three Keys | DoorQuests Chaortals</title>
+<meta name="robots" content="noindex,nofollow">
+<!-- PROTOTYPE: robots is noindex until reviewed. Switch to index,follow at publication. -->
+<meta name="description" content="Chaortal No. 01: The Door of Three Keys. In a forgotten locksmith's candlelit library, a carved door will open to one key, and only one inscription above it tells the truth. Deduce both. Bronze, Silver and Gold locks.">
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: a candlelit locksmith's library. The carved oak door stands centre stage between bookshelves and two candles,
+   its brass lockplate carrying one keyhole (Bronze, Silver) or two (Gold). Keys you choose appear in the keyholes.
+   On a correct answer the door swings inward onto warm light. Below the stage: the lockplate's rule, the inscriptions
+   as brass plaques, and the key cabinet. Signature verb: DEDUCE. */
+:root{
+  --bg:#f4efe6; --panel:#fffdf8; --panel2:#efe7d8; --ink:#1f1a14; --muted:#6a5f50; --line:#d9cdb8;
+  --accent:#8a4b1f; --accent-ink:#fff7ea; --brass:#a87b2a; --good:#2f6b3f; --bad:#9b2c1f; --focus:#1f5fbf;
+  --bronze:#9a5b2c; --silver:#7b8189; --gold:#b38a16;
+  --display:"Cinzel",Georgia,serif; --body:"Spectral",Georgia,serif; --label:"Barlow Semi Condensed",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#13100c; --panel:#1c1812; --panel2:#17130e; --ink:#efe6d6; --muted:#ad9f88; --line:#352d22;
+  --accent:#e0a35c; --accent-ink:#1b130a; --brass:#e0b45a; --good:#8fd09c; --bad:#f08a76; --focus:#8ab4ff;
+  --bronze:#d08a52; --silver:#b9c0c8; --gold:#e8c44d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13100c; --panel:#1c1812; --panel2:#17130e; --ink:#efe6d6; --muted:#ad9f88; --line:#352d22;
+  --accent:#e0a35c; --accent-ink:#1b130a; --brass:#e0b45a; --good:#8fd09c; --bad:#f08a76; --focus:#8ab4ff;
+  --bronze:#d08a52; --silver:#b9c0c8; --gold:#e8c44d; color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65;
+  padding:max(18px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(56px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.brand{margin:0 0 14px;display:flex;align-items:center;gap:10px;font:700 .72rem/1.4 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.brand img{width:30px;height:30px}
+.brand a{color:inherit;text-decoration:none}.brand a:hover{text-decoration:underline}
+.proto{display:inline-block;margin-left:auto;padding:2px 8px;border:1px dashed var(--bad);border-radius:999px;color:var(--bad);font:700 .66rem var(--label);letter-spacing:.1em}
+
+/* STAGE */
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#1a120b;border:1px solid #3b2a19;color:#f3e6cf}
+.stage .titles{position:absolute;left:22px;top:18px;right:22px;z-index:2;pointer-events:none}
+.stage .pre{margin:0;font:600 .78rem/1.3 var(--label);letter-spacing:.18em;text-transform:uppercase;color:#e7b766}
+.stage h1{margin:4px 0 0;font:600 clamp(1.5rem,4.2vw,2.5rem)/1.08 var(--display);color:#fff4df;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.verb{position:absolute;right:20px;bottom:16px;z-index:2;font:700 .9rem var(--display);letter-spacing:.34em;color:#e7b766;border:1px solid #7a5a2a;border-radius:4px;padding:5px 10px 5px 14px;background:rgba(20,12,6,.6)}
+#scene{display:block;width:100%;height:auto}
+@media (max-width:640px){.stage .titles{left:14px;top:12px}.verb{right:12px;bottom:10px;font-size:.78rem}}
+.flame{transform-origin:50% 100%;animation:flick 2.6s ease-in-out infinite}
+.flame.b{animation-duration:3.3s;animation-delay:-1.1s}
+@keyframes flick{0%,100%{transform:scale(1,1)}30%{transform:scale(.92,1.08)}60%{transform:scale(1.05,.95)}}
+.leaf{transform-box:fill-box;transform-origin:0% 50%;transition:transform 1.4s cubic-bezier(.4,.1,.2,1),opacity 1.4s}
+.open .leaf{transform:perspective(900px) rotateY(-72deg)}
+.rattle{animation:rattle .45s ease-in-out}
+@keyframes rattle{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+html.rm .flame,html.rm .rattle{animation:none!important}
+html.rm .leaf{transition:opacity .2s}
+html.rm .open .leaf{transform:none;opacity:.12}
+@media (prefers-reduced-motion: reduce){html:not(.motion-ok) .flame,html:not(.motion-ok) .rattle{animation:none!important}html:not(.motion-ok) .leaf{transition:opacity .2s}html:not(.motion-ok) .open .leaf{transform:none;opacity:.12}}
+
+/* TIERS */
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 4px}
+.tierbtn{display:grid;gap:2px;text-align:left;background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:6px;padding:9px 12px;cursor:pointer}
+.tierbtn[data-t="bronze"]{border-top-color:var(--bronze)}.tierbtn[data-t="silver"]{border-top-color:var(--silver)}.tierbtn[data-t="gold"]{border-top-color:var(--gold)}
+.tierbtn[aria-pressed="true"]{background:var(--panel2);box-shadow:inset 0 0 0 2px var(--accent)}
+.tierbtn b{font:700 1rem var(--display);letter-spacing:.06em}
+.tierbtn span{font:500 .8rem var(--label);color:var(--muted);letter-spacing:.02em}
+.tierbtn .st{color:var(--good);font-weight:700}
+@media (max-width:560px){.tierbtn{padding:7px 8px}.tierbtn span.aim{display:none}}
+
+/* PUZZLE */
+.grid2{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px;margin-top:12px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.card h2{margin:0 0 8px;font:600 .82rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.plate{margin:0 0 12px;padding:12px 14px;border-radius:6px;background:linear-gradient(180deg,#e9c97f,#c99a43);color:#2a1b06;border:1px solid #8a6420;box-shadow:inset 0 1px 0 rgba(255,255,255,.5);font-style:italic}
+.plate b{font-style:normal;font:700 .78rem var(--label);letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:2px}
+fieldset{border:0;margin:0;padding:0}
+legend{padding:0;margin:0 0 8px;font:600 .82rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ins{display:grid;gap:8px}
+.ins label{display:grid;grid-template-columns:auto 2.1em minmax(0,1fr);gap:10px;align-items:start;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px 12px;cursor:pointer}
+.ins input{margin-top:6px;width:18px;height:18px;accent-color:var(--accent)}
+.ins .id{font:700 1.05rem var(--display);color:var(--brass)}
+.ins label:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.ins label.locked{cursor:default}
+.locks{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.hole{display:flex;align-items:center;gap:10px;min-height:56px;flex:1 1 200px;background:var(--panel2);border:1px dashed var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;text-align:left}
+.hole[aria-checked="true"]{border-style:solid;border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.hole.drop{background:var(--panel);border-color:var(--accent)}
+.hole .hl{font:600 .76rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block}
+.hole .hk{font-weight:600}
+.cab{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.key{display:grid;grid-template-columns:54px minmax(0,1fr);gap:8px;align-items:center;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;touch-action:manipulation}
+.key svg,.hole svg{width:54px;height:30px;flex:none;background:#efe4cc;border-radius:4px;padding:1px 2px}
+.slot svg{background:#efe4cc;border-radius:3px}
+.key b{display:block;font-weight:600;line-height:1.2}
+.key small{display:block;color:var(--muted);font-size:.8rem;line-height:1.3}
+.key[aria-pressed="true"]{border-color:var(--accent);background:var(--panel);box-shadow:inset 0 0 0 2px var(--accent)}
+.key .where{font:600 .72rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.note{color:var(--muted);font-size:.9rem;margin:8px 0 0}
+
+/* ACTION BAR */
+.bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+@media (max-width:640px){.bar{grid-template-columns:minmax(0,1fr)}}
+.score{font:600 .86rem var(--label);letter-spacing:.06em;color:var(--muted)}
+.score b{font:600 1.5rem var(--display);color:var(--ink);letter-spacing:0;margin-right:6px}
+.btn{border:1px solid var(--line);background:var(--panel2);border-radius:6px;padding:8px 14px;cursor:pointer;font:600 .92rem var(--label);letter-spacing:.04em}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.big{padding:12px 22px;font-size:1.05rem;letter-spacing:.08em;text-transform:uppercase}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.feedback{margin:10px 0 0;padding:10px 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel2)}
+.feedback.bad{border-color:var(--bad);color:var(--bad)}
+.feedback.good{border-color:var(--good);color:var(--good)}
+.feedback:empty{display:none}
+.why{font-size:.9rem;color:var(--muted);margin:6px 0 0}
+
+/* HINTS */
+.hints{display:grid;gap:8px}
+.hint{background:var(--panel2);border-left:4px solid var(--brass);border-radius:4px;padding:8px 12px}
+.hint b{font:700 .78rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--brass);display:block}
+.hintrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* AWARD */
+.award{margin-top:14px;border:2px solid var(--accent);border-radius:10px;padding:16px;background:var(--panel);display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:center}
+@media (max-width:560px){.award{grid-template-columns:minmax(0,1fr);text-align:center}.award .emb{margin:0 auto}}
+.award h2{margin:0 0 4px;font:600 1.4rem var(--display)}
+.award .emb{width:150px;height:150px}
+.award p{margin:6px 0}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+@media (max-width:560px){.tags{justify-content:center}}
+.tag{font:700 .72rem var(--label);letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.tag.hf{border-color:var(--good);color:var(--good)}
+.tag.up{border-color:var(--accent);color:var(--accent)}
+.explain{background:var(--panel2);border-radius:6px;padding:10px 12px;font-size:.95rem}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+@media (max-width:560px){.actions{justify-content:center}}
+
+/* KEYRING */
+.ring{margin-top:22px}
+.ring h2{font:600 1.2rem var(--display);margin:0 0 4px}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-top:10px}
+.slot{border:1px dashed var(--line);border-radius:6px;padding:8px;min-height:92px;display:grid;align-content:start;gap:2px;background:var(--panel)}
+.slot.has{border-style:solid}
+.slot.has.bronze{border-color:var(--bronze)}.slot.has.silver{border-color:var(--silver)}.slot.has.gold{border-color:var(--gold)}
+.slot .n{font:700 .72rem var(--label);letter-spacing:.1em;color:var(--muted)}
+.slot .t{font-size:.8rem;line-height:1.25}
+.slot .k{font:700 .7rem var(--label);letter-spacing:.08em;text-transform:uppercase}
+.slot svg{width:44px;height:26px}
+.stats{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:10px}
+.stats th,.stats td{border:1px solid var(--line);padding:5px 8px;text-align:left}
+.stats th{font:600 .74rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--panel2)}
+.ringtools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+footer{margin-top:28px;padding-top:12px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between}
+footer a{color:var(--accent)}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="/">DoorQuests</a> · Chaortals · Chaortal No. 01</span><span class="proto">Prototype · not published</span></p>
+
+  <section class="stage" aria-label="The locksmith's library">
+    <div class="titles"><p class="pre">Chaortal No. 01 · Unlock the Impossible</p><h1>The Door of Three Keys</h1></div>
+    <svg id="scene" viewBox="0 0 800 380" role="img" aria-labelledby="sceneDesc"><desc id="sceneDesc">A candlelit library. Between tall bookshelves stands a carved oak door with a brass lockplate.</desc></svg>
+    <span class="verb" aria-hidden="true">DEDUCE</span>
+  </section>
+
+  <nav class="tiers" aria-label="Choose a lock" id="tiers"></nav>
+
+  <p class="note" id="brief"></p>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="plate" id="plate"></div>
+      <fieldset id="insSet"><legend>Which inscription is true?</legend><div class="ins" id="ins"></div></fieldset>
+    </div>
+    <div class="card">
+      <h2 id="cabTitle">The key cabinet</h2>
+      <div class="locks" id="locks" role="radiogroup" aria-label="Keyholes"></div>
+      <div class="cab" id="cab" role="group" aria-labelledby="cabTitle"></div>
+      <p class="note" id="cabNote"></p>
+    </div>
+  </div>
+
+  <div class="bar">
+    <div>
+      <div class="score" id="score"></div>
+      <p class="why" id="need"></p>
+    </div>
+    <button class="btn primary big" id="turn" type="button">Turn the key</button>
+  </div>
+  <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+
+  <section class="card" style="margin-top:14px" aria-labelledby="hintsTitle">
+    <h2 id="hintsTitle">Hints</h2>
+    <div class="hints" id="hints"></div>
+    <div class="hintrow" style="margin-top:8px"><button class="btn" id="hintBtn" type="button"></button><span class="note" style="margin:0">Hints teach the method. Each costs 12 points, never the key.</span></div>
+  </section>
+
+  <section id="award" hidden></section>
+
+  <section class="ring card" aria-labelledby="ringTitle">
+    <h2 id="ringTitle">Your DoorQuests Keyring</h2>
+    <p class="note" style="margin:0">One key per Chaortal, upgraded Bronze → Silver → Gold. Saved in this browser only. Export it to keep it safe or move it.</p>
+    <table class="stats" id="stats"></table>
+    <div class="slots" id="slots"></div>
+    <div class="ringtools">
+      <button class="btn" id="exportBtn" type="button">Export Keyring</button>
+      <label class="btn" for="importFile" style="display:inline-block">Import Keyring</label>
+      <input type="file" id="importFile" accept="application/json,.json" class="sr">
+      <button class="btn danger" id="resetBtn" type="button">Reset progress</button>
+      <span id="ringMsg" class="note" role="status" aria-live="polite" style="margin:0"></span>
+    </div>
+  </section>
+
+  <footer>
+    <span><a href="/">DoorQuests</a> · Chaortals · Chaortal No. 01 · The locksmith and the library are fiction</span>
+    <span><button class="linkbtn" id="motionBtn" type="button"></button></span>
+  </footer>
+</div>
+
+<script>
+/* DoorQuests Keyring v1 · shared achievement store for all 31 Chaortals.
+   Canonical source: chaortals/shared/keyring.js. Inlined into each door's index.html at build time,
+   so every door stays a single standalone file while sharing one implementation.
+   Browser-local and best-effort: for personal enjoyment, not a tamper-proof credential. */
+var DQKeyring = (function () {
+  "use strict";
+  var STORE = "dq-chaortals-keyring-v1", SCHEMA = 1, TIERS = ["bronze", "silver", "gold"];
+  var DOORS = [
+    ["01","The Door of Three Keys","DEDUCE"],["02","The Clockwork Latch","ENGAGE"],["03","The Room That Changed","NOTICE"],
+    ["04","The Mirror Gate","REFLECT"],["05","The Cistern Valve","MEASURE"],["06","The Ferryman's Lock","PLAN"],
+    ["07","The Lantern Bridge","ESCORT"],["08","The Tumbler Lock","PROBE"],["09","The Switchboard Door","TOGGLE"],
+    ["10","The Cipher Disk","DECODE"],["11","The Shatranj Gallery","TRAVERSE"],["12","The Lens Cradles","TRANSFER"],
+    ["13","The Ringing Chamber","CHIME"],["14","The Jacquard Card","REVEAL"],["15","The Alhambra Arch","FIT"],
+    ["16","The Observatory Stair","CONTINUE"],["17","The Fortune Booth","CHOOSE"],["18","The Telegraph Tower","ENCODE"],
+    ["19","The Star Compass","ORIENT"],["20","The Mint Warden's Scale","WEIGH"],["21","The Two Wardens","ASK"],
+    ["22","The Calendar Door","RECKON"],["23","The Rule Keeper","INFER"],["24","The Hundred Shutters","PASS"],
+    ["25","The Self-Counting Ledger","BALANCE"],["26","The Masked Line","STRATEGIZE"],["27","The Seven Seals","ARRANGE"],
+    ["28","The Scroll Cases","SLIDE"],["29","The Turning Labyrinth","ROTATE"],["30","The Shadow Stage","CAST"],
+    ["31","The Impossible Door","UNLOCK"]
+  ].map(function (d) { return { id: d[0], title: d[1], verb: d[2] }; });
+  var DOOR_IDS = DOORS.map(function (d) { return d.id; });
+
+  function empty() { return { schema: SCHEMA, app: "doorquests-chaortals", updated: null, doors: {} }; }
+  function isInt(n, lo, hi) { return typeof n === "number" && Number.isInteger(n) && n >= lo && n <= hi; }
+  function isTime(v) { return v === null || (typeof v === "string" && v.length <= 40 && !isNaN(Date.parse(v))); }
+
+  /* Validates one tier record; returns a clean copy or null. Unknown fields are dropped. */
+  function cleanTier(t) {
+    if (!t || typeof t !== "object" || Array.isArray(t)) return null;
+    var out = {
+      solved: t.solved === true,
+      best: t.best == null ? null : t.best,
+      hintFree: t.hintFree === true,
+      solves: t.solves == null ? 0 : t.solves,
+      attempts: t.attempts == null ? 0 : t.attempts,
+      fewestHints: t.fewestHints == null ? null : t.fewestHints,
+      firstSolved: t.firstSolved == null ? null : t.firstSolved,
+      lastPlayed: t.lastPlayed == null ? null : t.lastPlayed
+    };
+    if (out.best !== null && !isInt(out.best, 0, 100)) return null;
+    if (out.fewestHints !== null && !isInt(out.fewestHints, 0, 3)) return null;
+    if (!isInt(out.solves, 0, 1e6) || !isInt(out.attempts, 0, 1e6)) return null;
+    if (!isTime(out.firstSolved) || !isTime(out.lastPlayed)) return null;
+    if (out.solved && out.best === null) return null;
+    if (!out.solved && (out.best !== null || out.hintFree)) return null;
+    return out;
+  }
+  /* Validates a whole envelope (from storage or an import); returns a clean copy or null. */
+  function clean(env) {
+    if (!env || typeof env !== "object" || Array.isArray(env) || env.schema !== SCHEMA) return null;
+    if (!env.doors || typeof env.doors !== "object" || Array.isArray(env.doors)) return null;
+    var out = empty(); out.updated = isTime(env.updated || null) ? (env.updated || null) : null;
+    var ids = Object.keys(env.doors);
+    if (ids.length > DOOR_IDS.length) return null;
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i], d = env.doors[id];
+      if (DOOR_IDS.indexOf(id) < 0 || !d || typeof d !== "object" || !d.tiers || typeof d.tiers !== "object") return null;
+      var tiers = {};
+      for (var k in d.tiers) {
+        if (!Object.prototype.hasOwnProperty.call(d.tiers, k)) continue;
+        if (TIERS.indexOf(k) < 0) return null;
+        var c = cleanTier(d.tiers[k]); if (!c) return null; tiers[k] = c;
+      }
+      out.doors[id] = { tiers: tiers };
+    }
+    return out;
+  }
+  function load() {
+    try { var raw = localStorage.getItem(STORE); if (!raw) return empty(); return clean(JSON.parse(raw)) || empty(); }
+    catch (e) { return empty(); }
+  }
+  function save(env) {
+    env.updated = new Date().toISOString();
+    try { localStorage.setItem(STORE, JSON.stringify(env)); return true; } catch (e) { return false; }
+  }
+  function tierRec(env, door, tier) {
+    if (DOOR_IDS.indexOf(door) < 0 || TIERS.indexOf(tier) < 0) throw new Error("Unknown door or tier");
+    env.doors[door] = env.doors[door] || { tiers: {} };
+    return env.doors[door].tiers[tier] = env.doors[door].tiers[tier] ||
+      { solved: false, best: null, hintFree: false, solves: 0, attempts: 0, fewestHints: null, firstSolved: null, lastPlayed: null };
+  }
+
+  /* Count one submitted attempt (correct or not). */
+  function noteAttempt(door, tier) {
+    var env = load(), t = tierRec(env, door, tier);
+    t.attempts++; t.lastPlayed = new Date().toISOString(); save(env);
+  }
+  /* Record a solve. Returns what changed, for the award screen. */
+  function recordSolve(door, tier, score, hintsUsed) {
+    if (!isInt(score, 0, 100) || !isInt(hintsUsed, 0, 3)) throw new Error("Bad score");
+    var env = load(), before = highest(door, env), t = tierRec(env, door, tier), now = new Date().toISOString();
+    var firstTier = !t.solved, newBest = t.best === null || score > t.best, newHintFree = hintsUsed === 0 && !t.hintFree;
+    t.solved = true; t.solves++; t.lastPlayed = now; if (!t.firstSolved) t.firstSolved = now;
+    if (newBest) t.best = score;
+    if (hintsUsed === 0) t.hintFree = true;
+    t.fewestHints = t.fewestHints === null ? hintsUsed : Math.min(t.fewestHints, hintsUsed);
+    save(env);
+    var after = highest(door, env);
+    return { firstTier: firstTier, newBest: newBest, newHintFree: newHintFree, best: t.best, keyBefore: before, keyAfter: after, upgraded: before !== after };
+  }
+  function highest(door, env) {
+    env = env || load(); var d = env.doors[door]; if (!d) return null;
+    for (var i = TIERS.length - 1; i >= 0; i--) if (d.tiers[TIERS[i]] && d.tiers[TIERS[i]].solved) return TIERS[i];
+    return null;
+  }
+  function tier(door, t) { var env = load(); return (env.doors[door] && env.doors[door].tiers[t]) || null; }
+  function summary() {
+    var env = load();
+    return DOORS.map(function (d) {
+      var rec = env.doors[d.id] || { tiers: {} };
+      return { id: d.id, title: d.title, verb: d.verb, key: highest(d.id, env), tiers: rec.tiers };
+    });
+  }
+
+  /* Export / import (JSON). Import validates fully, then merges without ever downgrading. */
+  function exportText() { return JSON.stringify(load(), null, 2); }
+  function mergeTier(a, b) {
+    if (!a) return b; if (!b) return a;
+    var minT = function (x, y) { return !x ? y : !y ? x : (x < y ? x : y); };
+    var maxT = function (x, y) { return !x ? y : !y ? x : (x > y ? x : y); };
+    return {
+      solved: a.solved || b.solved,
+      best: a.best === null ? b.best : b.best === null ? a.best : Math.max(a.best, b.best),
+      hintFree: a.hintFree || b.hintFree,
+      solves: Math.max(a.solves, b.solves),
+      attempts: Math.max(a.attempts, b.attempts),
+      fewestHints: a.fewestHints === null ? b.fewestHints : b.fewestHints === null ? a.fewestHints : Math.min(a.fewestHints, b.fewestHints),
+      firstSolved: minT(a.firstSolved, b.firstSolved),
+      lastPlayed: maxT(a.lastPlayed, b.lastPlayed)
+    };
+  }
+  function importText(text) {
+    if (typeof text !== "string" || text.length > 200000) return { ok: false, error: "That file is too large to be a Keyring." };
+    var parsed; try { parsed = JSON.parse(text); } catch (e) { return { ok: false, error: "That file isn't valid JSON." }; }
+    var inc = clean(parsed); if (!inc) return { ok: false, error: "That file isn't a valid DoorQuests Keyring (schema 1). Nothing was changed." };
+    var env = load(), added = 0;
+    Object.keys(inc.doors).forEach(function (id) {
+      env.doors[id] = env.doors[id] || { tiers: {} };
+      Object.keys(inc.doors[id].tiers).forEach(function (t) {
+        var had = env.doors[id].tiers[t] && env.doors[id].tiers[t].solved;
+        env.doors[id].tiers[t] = mergeTier(env.doors[id].tiers[t], inc.doors[id].tiers[t]);
+        if (!had && env.doors[id].tiers[t].solved) added++;
+      });
+    });
+    save(env);
+    return { ok: true, added: added };
+  }
+  function reset() { try { localStorage.removeItem(STORE); } catch (e) {} }
+
+  return { DOORS: DOORS, TIERS: TIERS, STORE: STORE, load: load, clean: clean, noteAttempt: noteAttempt, recordSolve: recordSolve,
+           highest: highest, tier: tier, summary: summary, exportText: exportText, importText: importText, reset: reset };
+})();
+if (typeof module !== "undefined") module.exports = DQKeyring;
+
+</script>
+<script>
+/* Chaortal No. 01 · The Door of Three Keys · puzzle definitions and logic engine.
+   Single source of truth: inlined into index.html by build.py and loaded by tools/verify-three-keys.js.
+   Inscriptions are structured predicates, never free text, so the solver, the validator and the
+   post-solve explanation all read the same rules. */
+var THREE_KEYS = (function () {
+  "use strict";
+
+  /* ---------- expression evaluator ----------
+     {t:"opens", key, lock?}  key opens the given lock (or the only lock)
+     {t:"any", key}           key opens at least one lock
+     {t:"not", a} {t:"and", args} {t:"or", args} {t:"if", a, b} {t:"xor", a, b} */
+  function ev(e, w) {
+    switch (e.t) {
+      case "opens": return w[e.lock || "door"] === e.key;
+      case "any": return Object.keys(w).some(function (l) { return w[l] === e.key; });
+      case "not": return !ev(e.a, w);
+      case "and": return e.args.every(function (x) { return ev(x, w); });
+      case "or": return e.args.some(function (x) { return ev(x, w); });
+      case "if": return !ev(e.a, w) || ev(e.b, w);
+      case "xor": return ev(e.a, w) !== ev(e.b, w);
+      default: throw new Error("Unknown expression type: " + e.t);
+    }
+  }
+  var O = function (key, lock) { return { t: "opens", key: key, lock: lock }; };
+  var ANY = function (key) { return { t: "any", key: key }; };
+  var NOT = function (a) { return { t: "not", a: a }; };
+  var AND = function () { return { t: "and", args: [].slice.call(arguments) }; };
+  var OR = function () { return { t: "or", args: [].slice.call(arguments) }; };
+  var IF = function (a, b) { return { t: "if", a: a, b: b }; };
+  var XOR = function (a, b) { return { t: "xor", a: a, b: b }; };
+
+  /* ---------- the three tiers ---------- */
+  var TIERS = {
+    bronze: {
+      id: "bronze", name: "Bronze", aim: "Understand the principle",
+      locks: [{ id: "door", name: "the door" }],
+      plate: "One of these keys opens this door. Exactly one inscription speaks truth.",
+      keys: [
+        { id: "copper", name: "Copper key", look: "a warm reddish bow, two plain teeth" },
+        { id: "silver", name: "Silver key", look: "a pale ring bow, three fine teeth" },
+        { id: "obsidian", name: "Obsidian key", look: "a black glassy bow, one hooked tooth" }
+      ],
+      inscriptions: [
+        { id: "A", text: "The copper key opens this door.", expr: O("copper") },
+        { id: "B", text: "Either the copper key or the silver key opens this door.", expr: OR(O("copper"), O("silver")) },
+        { id: "C", text: "Either the silver key or the obsidian key opens this door.", expr: OR(O("silver"), O("obsidian")) }
+      ],
+      hints: [
+        "Observe: the lockplate gives two facts. One key opens the door, and exactly one inscription is true. Every candidate must satisfy both.",
+        "Understand: pretend a key is the right one, then count how many inscriptions would be true. If the count isn't exactly one, that key can't be right.",
+        "Begin: suppose it's the copper key. Then A is true, and so is B. That's two truths, so copper is out. Test the other two the same way."
+      ],
+      explain: "If copper opened the door, A and B would both be true. If silver did, B and C would both be true. Only the obsidian key leaves exactly one truth: inscription C."
+    },
+
+    silver: {
+      id: "silver", name: "Silver", aim: "Apply and combine the principle",
+      locks: [{ id: "door", name: "the door" }],
+      plate: "One of these keys opens this door. Exactly one inscription speaks truth. An “if… then…” inscription is false only when its first part holds and its second does not.",
+      keys: [
+        { id: "brass", name: "Brass key", look: "a heavy round bow, square teeth" },
+        { id: "iron", name: "Iron key", look: "a rough black bow, a single long bit" },
+        { id: "bone", name: "Bone key", look: "a carved ivory-white bow, curved teeth" },
+        { id: "glass", name: "Glass key", look: "a clear faceted bow, thin ridged blade" }
+      ],
+      inscriptions: [
+        { id: "A", text: "If the brass key does not open this door, then the bone key does.", expr: IF(NOT(O("brass")), O("bone")) },
+        { id: "B", text: "The iron key does not open this door.", expr: NOT(O("iron")) },
+        { id: "C", text: "Neither the glass key nor the brass key opens this door.", expr: AND(NOT(O("glass")), NOT(O("brass"))) },
+        { id: "D", text: "Exactly one of the iron key and the bone key opens this door.", expr: XOR(O("iron"), O("bone")) }
+      ],
+      hints: [
+        "Observe: one of these inscriptions is almost always true. Find it, because it narrows things fast.",
+        "Understand: B says the iron key doesn't open the door. That's true for every key except iron. So unless iron is the answer, B is the one true inscription, and A, C and D must all be false.",
+        "Begin: if A is false, its first part holds (not brass) and its second fails (not bone). So the key is neither brass nor bone. Now check what C and D need in order to be false."
+      ],
+      explain: "Inscription B is true for every key but iron. If iron opened the door, C and D would both be true, which is too many. So B is the single truth and A, C and D are false. A false means neither brass nor bone. C false means glass or brass. D false means neither iron nor bone. Only the glass key fits."
+    },
+
+    gold: {
+      id: "gold", name: "Gold", aim: "Demonstrate mastery",
+      locks: [{ id: "upper", name: "the upper lock" }, { id: "lower", name: "the lower lock" }],
+      plate: "This door has two locks. Each opens to exactly one of these five keys, and no key opens both. Exactly one inscription speaks truth.",
+      keys: [
+        { id: "amber", name: "Amber key", look: "a honey-gold translucent bow, wavy blade" },
+        { id: "jade", name: "Jade key", look: "a green stone bow, stepped teeth" },
+        { id: "pewter", name: "Pewter key", look: "a dull grey bow, short flat blade" },
+        { id: "onyx", name: "Onyx key", look: "a banded black-and-white bow, forked bit" },
+        { id: "ivory", name: "Ivory key", look: "a cream bow carved like a shell, long thin blade" }
+      ],
+      inscriptions: [
+        { id: "A", text: "If the pewter key opens neither lock, then the onyx key opens the upper lock.", expr: IF(NOT(ANY("pewter")), O("onyx", "upper")) },
+        { id: "B", text: "The ivory key opens one of the two locks.", expr: ANY("ivory") },
+        { id: "C", text: "Neither the jade key nor the onyx key opens the lower lock.", expr: AND(NOT(O("jade", "lower")), NOT(O("onyx", "lower"))) },
+        { id: "D", text: "The amber key opens neither lock.", expr: NOT(ANY("amber")) },
+        { id: "E", text: "Exactly one of the amber key and the onyx key opens a lock.", expr: XOR(ANY("amber"), ANY("onyx")) }
+      ],
+      hints: [
+        "Observe: four inscriptions are false. A false inscription is a fact too. Each one you assume false tells you something definite about the keys.",
+        "Understand: an “if… then…” is false only when its first part holds and its second fails. So if A is false, pewter opens neither lock and onyx is not in the upper lock. And D false means amber is in one of the locks.",
+        "Begin: try assuming E is the true one. Then A, B, C and D are all false. Write down what each false inscription forces, and see whether exactly one pair of keys survives."
+      ],
+      explain: "Only E can be the single truth. With A false, pewter is unused and onyx isn't in the upper lock. With B false, ivory is unused. With D false, amber opens a lock. With C false, jade or onyx opens the lower lock. E then forbids onyx alongside amber, so jade is in the lower lock and amber is in the upper. Every other choice of true inscription leads to zero or several truths."
+    }
+  };
+
+  /* ---------- worlds and solving ---------- */
+  function worlds(tier) {
+    var T = TIERS[tier], ks = T.keys.map(function (k) { return k.id; }), out = [];
+    if (T.locks.length === 1) ks.forEach(function (k) { out.push({ door: k }); });
+    else ks.forEach(function (a) { ks.forEach(function (b) { if (a !== b) out.push({ upper: a, lower: b }); }); });
+    return out;
+  }
+  function truths(tier, w) {
+    return TIERS[tier].inscriptions.filter(function (i) { return ev(i.expr, w); }).map(function (i) { return i.id; });
+  }
+  function solutions(tier) {
+    return worlds(tier).map(function (w) { return { world: w, truths: truths(tier, w) }; })
+      .filter(function (r) { return r.truths.length === 1; })
+      .map(function (r) { return { world: r.world, inscription: r.truths[0] }; });
+  }
+  /* answer = {inscription:"C", keys:{door:"obsidian"}} ; returns true only if every part is right.
+     Never reports which part was wrong, so the answer can't be found by trial and error on one part. */
+  function check(tier, answer) {
+    if (!TIERS[tier] || !answer || !answer.keys) return false;
+    var sols = solutions(tier);
+    if (sols.length !== 1) return false;
+    var s = sols[0];
+    if (answer.inscription !== s.inscription) return false;
+    return TIERS[tier].locks.every(function (l) { return answer.keys[l.id] === s.world[l.id]; });
+  }
+  return { TIERS: TIERS, ev: ev, worlds: worlds, truths: truths, solutions: solutions, check: check,
+           PENALTY_PER_WRONG: 4, PENALTY_CAP: 12, HINT_COST: 12 };
+})();
+if (typeof module !== "undefined") module.exports = THREE_KEYS;
+
+</script>
+<script>
+(function () {
+  "use strict";
+  var P = THREE_KEYS, K = DQKeyring, DOOR = "01", STATE_KEY = "dq-chaortal-01-v1", ORDER = ["bronze", "silver", "gold"];
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+
+  /* ---------- per-door state (in-progress puzzle), validated on load ---------- */
+  function freshPlay() { return { ins: null, keys: {}, hints: 0, wrong: 0, tried: [], solved: false, score: null, active: null }; }
+  function freshState() { return { schema: 1, tier: "bronze", motion: null, play: { bronze: freshPlay(), silver: freshPlay(), gold: freshPlay() } }; }
+  function validPlay(t, p) {
+    var T = P.TIERS[t];
+    if (!p || typeof p !== "object") return false;
+    var insOk = p.ins === null || T.inscriptions.some(function (i) { return i.id === p.ins; });
+    var keyIds = T.keys.map(function (k) { return k.id; }), lockIds = T.locks.map(function (l) { return l.id; });
+    var keysOk = p.keys && typeof p.keys === "object" && Object.keys(p.keys).every(function (l) { return lockIds.indexOf(l) >= 0 && keyIds.indexOf(p.keys[l]) >= 0; });
+    var distinct = Object.keys(p.keys || {}).map(function (l) { return p.keys[l]; });
+    keysOk = keysOk && new Set(distinct).size === distinct.length;
+    return insOk && keysOk && Number.isInteger(p.hints) && p.hints >= 0 && p.hints <= 3 && Number.isInteger(p.wrong) && p.wrong >= 0 && p.wrong <= 1000 &&
+      Array.isArray(p.tried) && p.tried.length <= 500 && p.tried.every(function (x) { return typeof x === "string" && x.length < 80; }) &&
+      typeof p.solved === "boolean" && (p.score === null || (Number.isInteger(p.score) && p.score >= 0 && p.score <= 100)) &&
+      (p.active === null || lockIds.indexOf(p.active) >= 0);
+  }
+  function loadState() {
+    try {
+      var s = JSON.parse(localStorage.getItem(STATE_KEY) || "null");
+      if (s && s.schema === 1 && ORDER.indexOf(s.tier) >= 0 && (s.motion === null || typeof s.motion === "boolean") && s.play &&
+          ORDER.every(function (t) { return validPlay(t, s.play[t]); })) return s;
+    } catch (e) {}
+    return freshState();
+  }
+  function saveState() { try { localStorage.setItem(STATE_KEY, JSON.stringify(S)); } catch (e) {} }
+  var S = loadState();
+  var cur = function () { return S.play[S.tier]; };
+  var T = function () { return P.TIERS[S.tier]; };
+
+  /* ---------- scoring ---------- */
+  function penalty(p) { return Math.min(P.PENALTY_CAP, p.wrong * P.PENALTY_PER_WRONG); }
+  function scoreNow(p) { return Math.max(0, Math.min(100, 100 - p.hints * P.HINT_COST - penalty(p))); }
+
+  /* ---------- key drawing (shape differs per key, never colour alone) ---------- */
+  var KEYCOL = { copper: "#b8653a", silver: "#c9ccd1", obsidian: "#24212b", brass: "#c9a043", iron: "#55575c", bone: "#e8dfc8", glass: "#bfe3ea",
+                 amber: "#e3a33a", jade: "#3f9b6e", pewter: "#8d9196", onyx: "#2b2b2f", ivory: "#efe6d2" };
+  var BOW = { copper: "circle", silver: "ring", obsidian: "diamond", brass: "circle", iron: "square", bone: "trefoil", glass: "diamond",
+              amber: "oval", jade: "square", pewter: "ring", onyx: "trefoil", ivory: "shell" };
+  function keyShape(id, x, y, s) {
+    var c = KEYCOL[id] || "#c9a043", st = 'stroke="#1a120b" stroke-width="' + (1.2 / s).toFixed(2) + '"', bow, b = BOW[id];
+    if (b === "ring") bow = '<circle cx="12" cy="15" r="10" fill="' + c + '" ' + st + '/><circle cx="12" cy="15" r="4.5" fill="#1a120b" opacity=".85"/>';
+    else if (b === "diamond") bow = '<path d="M12 4 L23 15 L12 26 L1 15 Z" fill="' + c + '" ' + st + '/><circle cx="12" cy="15" r="3" fill="#1a120b" opacity=".7"/>';
+    else if (b === "square") bow = '<rect x="2" y="5" width="20" height="20" rx="3" fill="' + c + '" ' + st + '/><rect x="8" y="11" width="8" height="8" fill="#1a120b" opacity=".7"/>';
+    else if (b === "trefoil") bow = '<circle cx="12" cy="8" r="6" fill="' + c + '" ' + st + '/><circle cx="6" cy="19" r="6" fill="' + c + '" ' + st + '/><circle cx="18" cy="19" r="6" fill="' + c + '" ' + st + '/>';
+    else if (b === "oval") bow = '<ellipse cx="12" cy="15" rx="11" ry="8" fill="' + c + '" ' + st + '/><ellipse cx="12" cy="15" rx="4" ry="2.5" fill="#1a120b" opacity=".7"/>';
+    else if (b === "shell") bow = '<path d="M2 24 Q12 0 22 24 Z" fill="' + c + '" ' + st + '/><path d="M12 6 L12 24 M7 22 L12 8 L17 22" stroke="#1a120b" stroke-width=".8" fill="none" opacity=".6"/>';
+    else bow = '<circle cx="12" cy="15" r="10" fill="' + c + '" ' + st + '/><circle cx="12" cy="15" r="3.5" fill="#1a120b" opacity=".85"/>';
+    var teeth = { copper: "M44 15v7h4v-7M52 15v6h4v-6", silver: "M42 15v6h3v-6M48 15v8h3v-8M54 15v5h3v-5", obsidian: "M50 15v9q0 3 4 3",
+                  brass: "M44 15v8h6v-8M54 15v6h4v-6", iron: "M42 15v10h14v-10", bone: "M44 15q2 7 5 0M51 15q2 7 5 0", glass: "M42 15v4h2v-4M46 15v6h2v-6M50 15v4h2v-4M54 15v6h2v-6",
+                  amber: "M44 15q3 8 6 0q3 8 6 0", jade: "M43 15v4h4v3h4v3h4v-10", pewter: "M48 15v5h8v-5", onyx: "M48 15v9h3v-5h2v5h3v-9", ivory: "M40 15v5h2v-5M45 15v7h2v-7M50 15v5h2v-5M55 15v7h2v-7" }[id] || "M44 15v7h4v-7";
+    return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><rect x="21" y="12.5" width="38" height="5" rx="1.5" fill="' + c + '" ' + st + '/><path d="' + teeth + '" fill="' + c + '" ' + st + '/>' + bow + '</g>';
+  }
+  function keySVG(id) { return '<svg viewBox="0 0 62 30" aria-hidden="true">' + keyShape(id, 0, 0, 1) + '</svg>'; }
+
+  /* ---------- scene ---------- */
+  function renderScene(rattle) {
+    var t = T(), p = cur(), two = t.locks.length === 2;
+    var books = "";
+    [[18, 170], [612, 170]].forEach(function (o, side) {
+      for (var r = 0; r < 4; r++) {
+        var y = 70 + r * 76, x = o[0];
+        books += '<rect x="' + (x - 6) + '" y="' + (y + 62) + '" width="' + (o[1] + 12) + '" height="7" fill="#3a2614"/>';
+        var bx = x;
+        for (var i = 0; bx < x + o[1] - 8; i++) {
+          var w = 9 + ((i * 7 + r * 5 + side * 3) % 9), h = 40 + ((i * 11 + r * 3) % 20);
+          var col = ["#5a1f1a", "#2e3f2a", "#6b4a1e", "#24324a", "#4a2a3a", "#7a5a2a"][(i + r + side) % 6];
+          books += '<rect x="' + bx + '" y="' + (y + 62 - h) + '" width="' + w + '" height="' + h + '" fill="' + col + '"/><rect x="' + bx + '" y="' + (y + 62 - h + 6) + '" width="' + w + '" height="2" fill="#d6a85a" opacity=".45"/>';
+          bx += w + 1;
+        }
+      }
+    });
+    var candle = function (x) {
+      return '<rect x="' + (x - 7) + '" y="300" width="14" height="44" rx="2" fill="#efe1c0"/><rect x="' + (x - 16) + '" y="342" width="32" height="6" rx="2" fill="#8a6420"/>' +
+        '<circle cx="' + x + '" cy="282" r="38" fill="url(#glow)"/><path class="flame' + (x > 400 ? " b" : "") + '" d="M' + x + ' 272 q-7 12 0 26 q7 -14 0 -26" fill="#ffd27a"/>';
+    };
+    var plateY = two ? 168 : 190, holes = two ? [{ id: "upper", y: 172 }, { id: "lower", y: 232 }] : [{ id: "door", y: 205 }];
+    var holeG = holes.map(function (h) {
+      var k = p.keys[h.id];
+      return '<g><path d="M400 ' + (h.y - 9) + ' a7 7 0 1 1 0.1 0 M396 ' + (h.y - 4) + ' l-3 16 h14 l-3 -16 z" fill="#1a0f05"/>' +
+        (k ? keyShape(k, 404, h.y - 16, 1.05) : "") + '</g>';
+    }).join("");
+    var plate = '<rect x="372" y="' + (plateY - 30) + '" width="56" height="' + (two ? 128 : 74) + '" rx="10" fill="url(#brassG)" stroke="#6b4a12" stroke-width="2"/>';
+    var light = '<path d="M300 360 V134 Q400 52 500 134 V360 Z" fill="url(#beyond)"/>';
+    $("scene").innerHTML = '<desc id="sceneDesc">A candlelit library. Between tall bookshelves stands a carved oak door with ' + (two ? "two keyholes" : "one keyhole") + '.' + (p.solved ? " The door stands open on warm light." : "") + '</desc>' +
+      '<defs><radialGradient id="glow"><stop offset="0" stop-color="#ffcf73" stop-opacity=".55"/><stop offset="1" stop-color="#ffcf73" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="brassG" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f0cf82"/><stop offset="1" stop-color="#b8862e"/></linearGradient>' +
+      '<linearGradient id="oak" x1="0" x2="1"><stop offset="0" stop-color="#5a3518"/><stop offset=".5" stop-color="#734520"/><stop offset="1" stop-color="#4c2c12"/></linearGradient>' +
+      '<radialGradient id="beyond" cx=".5" cy=".55" r=".7"><stop offset="0" stop-color="#fff2c8"/><stop offset=".55" stop-color="#e9a94a"/><stop offset="1" stop-color="#6a3a10"/></radialGradient></defs>' +
+      '<rect width="800" height="380" fill="#20150c"/><rect y="350" width="800" height="30" fill="#140c06"/>' + books +
+      '<path d="M290 360 V130 Q400 40 510 130 V360 Z" fill="#2a1a0c" stroke="#8a6420" stroke-width="3"/>' + light +
+      '<g id="doorG" class="' + (p.solved ? "open" : "") + '"><g class="leaf' + (rattle ? " rattle" : "") + '">' +
+      '<path d="M300 360 V134 Q400 52 500 134 V360 Z" fill="url(#oak)" stroke="#2a1608" stroke-width="2"/>' +
+      '<path d="M318 340 V150 Q400 82 482 150 V340 Z" fill="none" stroke="#3a210c" stroke-width="3"/>' +
+      '<path d="M330 330 V250 H385 V330 Z M415 330 V250 H470 V330 Z" fill="none" stroke="#3a210c" stroke-width="2"/>' +
+      '<path d="M400 96 l10 18 h-20 z M380 128 l20 -10 l20 10" fill="none" stroke="#a87b2a" stroke-width="1.5" opacity=".8"/>' +
+      plate + holeG + '</g></g>' + candle(232) + candle(568);
+  }
+
+  /* ---------- tiers ---------- */
+  function renderTiers() {
+    $("tiers").innerHTML = ORDER.map(function (t) {
+      var rec = K.tier(DOOR, t), tt = P.TIERS[t];
+      var st = rec && rec.solved ? '<span class="st">✓ Solved · best ' + rec.best + (rec.hintFree ? " · ★ hint-free" : "") + "</span>" : "<span>" + (t === "bronze" ? "Recommended first" : "Not yet solved") + "</span>";
+      return '<button type="button" class="tierbtn" data-t="' + t + '" aria-pressed="' + (S.tier === t) + '"><b>' + tt.name + '</b><span class="aim">' + tt.aim + "</span>" + st + "</button>";
+    }).join("");
+    $("tiers").querySelectorAll(".tierbtn").forEach(function (b) {
+      b.onclick = function () { S.tier = b.dataset.t; saveState(); clearFeedback(); render(); };
+    });
+  }
+
+  /* ---------- puzzle panels ---------- */
+  function renderPuzzle() {
+    var t = T(), p = cur(), lock = p.solved;
+    $("brief").textContent = t.locks.length === 2
+      ? "Mark the one true inscription, then put one key in each lock. Both keys and the inscription must be right."
+      : "Mark the one true inscription, then put a key in the lock. The door opens only when both are right.";
+    $("plate").innerHTML = "<b>The lockplate reads</b>" + esc(t.plate);
+    $("ins").innerHTML = t.inscriptions.map(function (i) {
+      return '<label class="' + (lock ? "locked" : "") + '"><input type="radio" name="ins" value="' + i.id + '"' + (p.ins === i.id ? " checked" : "") + (lock ? " disabled" : "") +
+        '><span class="id" aria-hidden="true">' + i.id + '</span><span><span class="sr">Inscription ' + i.id + ': </span>“' + esc(i.text) + "”</span></label>";
+    }).join("");
+    $("ins").querySelectorAll("input").forEach(function (inp) {
+      inp.onchange = function () { if (cur().solved) return; cur().ins = inp.value; saveState(); clearFeedback(); renderBar(); };
+    });
+
+    // keyholes
+    var two = t.locks.length === 2;
+    if (two && !p.active) p.active = t.locks.find(function (l) { return !p.keys[l.id]; }) ? t.locks.find(function (l) { return !p.keys[l.id]; }).id : "upper";
+    $("locks").hidden = false;
+    $("locks").innerHTML = t.locks.map(function (l) {
+      var k = p.keys[l.id], kn = k ? t.keys.find(function (x) { return x.id === k; }).name : "Empty";
+      var on = two ? p.active === l.id : true;
+      return '<button type="button" class="hole" role="radio" aria-checked="' + on + '" data-lock="' + l.id + '"' + (lock ? " disabled" : "") + '>' + (k ? keySVG(k) : "") +
+        '<span><span class="hl">' + (two ? (l.id === "upper" ? "Upper lock" : "Lower lock") : "The keyhole") + '</span><span class="hk">' + esc(kn) + "</span></span></button>";
+    }).join("");
+    $("locks").querySelectorAll(".hole").forEach(function (h) {
+      h.onclick = function () {
+        if (cur().solved) return;
+        var id = h.dataset.lock;
+        if (cur().active === id && cur().keys[id]) { delete cur().keys[id]; } // second press on a filled, active hole removes its key
+        cur().active = id; saveState(); clearFeedback(); render();
+      };
+      h.ondragover = function (e) { e.preventDefault(); h.classList.add("drop"); };
+      h.ondragleave = function () { h.classList.remove("drop"); };
+      h.ondrop = function (e) { e.preventDefault(); h.classList.remove("drop"); var k = e.dataTransfer.getData("text/plain"); cur().active = h.dataset.lock; placeKey(k); };
+    });
+    $("cabNote").textContent = lock ? "" : two
+      ? "Choose a lock, then a key. Press a filled lock twice to take its key out. You can also drag keys onto the locks."
+      : "Choose a key to put it in the lock; choose another to swap. You can also drag a key onto the keyhole.";
+
+    // cabinet
+    $("cab").innerHTML = t.keys.map(function (k) {
+      var inLock = t.locks.find(function (l) { return p.keys[l.id] === k.id; });
+      var where = inLock ? (two ? (inLock.id === "upper" ? "In the upper lock" : "In the lower lock") : "In the lock") : "";
+      return '<button type="button" class="key" draggable="' + (!lock) + '" data-key="' + k.id + '" aria-pressed="' + (!!inLock) + '"' + (lock ? " disabled" : "") +
+        ' aria-label="' + esc(k.name + ": " + k.look + (where ? ". " + where : "")) + '">' + keySVG(k.id) + '<span><b>' + esc(k.name) + '</b><small>' + esc(k.look) + "</small>" +
+        (where ? '<span class="where">' + where + "</span>" : "") + "</span></button>";
+    }).join("");
+    $("cab").querySelectorAll(".key").forEach(function (b) {
+      b.onclick = function () { placeKey(b.dataset.key); };
+      b.ondragstart = function (e) { e.dataTransfer.setData("text/plain", b.dataset.key); e.dataTransfer.effectAllowed = "move"; };
+    });
+  }
+  function placeKey(kid) {
+    var t = T(), p = cur();
+    if (p.solved || !t.keys.some(function (k) { return k.id === kid; })) return;
+    var target = t.locks.length === 2 ? (p.active || "upper") : "door";
+    Object.keys(p.keys).forEach(function (l) { if (p.keys[l] === kid) delete p.keys[l]; }); // a key can only be in one lock
+    p.keys[target] = kid;
+    if (t.locks.length === 2) { var empty = t.locks.find(function (l) { return !p.keys[l.id]; }); if (empty) p.active = empty.id; }
+    saveState(); clearFeedback(); render();
+    var nb = document.querySelector('.key[data-key="' + kid + '"]'); if (nb) nb.focus();
+  }
+
+  /* ---------- action bar ---------- */
+  function missing() {
+    var t = T(), p = cur(), m = [];
+    if (!p.ins) m.push("mark the true inscription");
+    t.locks.forEach(function (l) { if (!p.keys[l.id]) m.push(t.locks.length === 2 ? "put a key in the " + l.id + " lock" : "put a key in the lock"); });
+    return m;
+  }
+  function renderBar() {
+    var p = cur(), m = missing(), two = T().locks.length === 2;
+    $("turn").textContent = p.solved ? "Opened" : two ? "Turn both keys" : "Turn the key";
+    $("turn").disabled = p.solved || m.length > 0;
+    var parts = [];
+    if (p.hints) parts.push("−" + p.hints * P.HINT_COST + " for " + p.hints + " hint" + (p.hints > 1 ? "s" : ""));
+    if (p.wrong) parts.push("−" + penalty(p) + " for " + p.wrong + " wrong attempt" + (p.wrong > 1 ? "s" : "") + (penalty(p) === P.PENALTY_CAP ? " (capped)" : ""));
+    $("score").innerHTML = p.solved
+      ? "<b>" + p.score + "</b> scored on this attempt"
+      : "<b>" + scoreNow(p) + "</b> if you open it now" + (parts.length ? " · " + parts.join(" · ") : "");
+    $("need").textContent = p.solved ? "" : m.length ? "To turn the key: " + m.join(", ") + "." : "Ready. A wrong attempt costs " + P.PENALTY_PER_WRONG + " points (" + P.PENALTY_CAP + " at most).";
+  }
+  function clearFeedback() { $("feedback").className = "feedback"; $("feedback").textContent = ""; }
+  function signature(p) { return (p.ins || "") + "|" + T().locks.map(function (l) { return p.keys[l.id] || ""; }).join("|"); }
+
+  function turn() {
+    var t = T(), p = cur();
+    if (p.solved || missing().length) return;
+    var sig = signature(p), fb = $("feedback");
+    if (p.tried.indexOf(sig) >= 0) {
+      fb.className = "feedback bad"; fb.textContent = "You've already tried that exact combination. It didn't open, and trying it again costs nothing.";
+      return;
+    }
+    K.noteAttempt(DOOR, S.tier);
+    var answer = { inscription: p.ins, keys: Object.assign({}, p.keys) };
+    if (P.check(S.tier, answer)) {
+      p.solved = true; p.score = scoreNow(p);
+      var res = K.recordSolve(DOOR, S.tier, p.score, p.hints);
+      saveState(); render(); showAward(res);
+    } else {
+      p.wrong++; p.tried.push(sig); saveState();
+      renderScene(true); renderBar();
+      fb.className = "feedback bad";
+      fb.textContent = "The lock won't turn. Your inscription, your " + (t.locks.length === 2 ? "keys" : "key") + ", or both are wrong. " +
+        (penalty(p) < P.PENALTY_CAP ? "−" + P.PENALTY_PER_WRONG + " points." : "Wrong-attempt penalties have reached their cap.");
+    }
+  }
+
+  /* ---------- hints ---------- */
+  var HL = ["Observe", "Understand", "Begin"];
+  function renderHints() {
+    var t = T(), p = cur();
+    $("hints").innerHTML = p.hints ? t.hints.slice(0, p.hints).map(function (h, i) {
+      var txt = h.replace(/^(Observe|Understand|Begin):\s*/, "");
+      return '<div class="hint"><b>Hint ' + (i + 1) + " · " + HL[i] + "</b>" + esc(txt) + "</div>";
+    }).join("") : '<p class="note" style="margin:0">No hints used.</p>';
+    var b = $("hintBtn");
+    if (p.hints >= 3) { b.textContent = "All three hints shown"; b.disabled = true; }
+    else { b.textContent = "Reveal hint " + (p.hints + 1) + " · " + HL[p.hints] + " (−" + P.HINT_COST + ")"; b.disabled = p.solved; }
+  }
+
+  /* ---------- award ---------- */
+  function emblem(tier) {
+    var col = { bronze: "#b0703a", silver: "#c3c8cf", gold: "#e2b93b" }[tier];
+    var crown = tier === "gold" ? '<path d="M44 26 l8 -12 l8 10 l8 -14 l8 14 l8 -10 l8 12 z" fill="' + col + '" stroke="#3a2808" stroke-width="2"/>' : "";
+    var ring2 = tier !== "bronze" ? '<circle cx="76" cy="58" r="20" fill="none" stroke="#3a2808" stroke-width="2"/>' : "";
+    return '<svg class="emb" viewBox="0 0 150 150" aria-hidden="true"><circle cx="75" cy="75" r="72" fill="none" stroke="' + col + '" stroke-width="3" stroke-dasharray="' + (tier === "bronze" ? "0" : tier === "silver" ? "8 5" : "2 4") + '"/>' +
+      crown + '<circle cx="76" cy="58" r="28" fill="' + col + '" stroke="#3a2808" stroke-width="2.5"/>' + ring2 +
+      '<g fill="#3a2808"><circle cx="76" cy="47" r="5"/><circle cx="67" cy="63" r="5"/><circle cx="85" cy="63" r="5"/></g>' +
+      '<rect x="71" y="84" width="10" height="46" rx="3" fill="' + col + '" stroke="#3a2808" stroke-width="2.5"/>' +
+      '<path d="M81 108 h14 v8 h-14 M81 120 h10 v7 h-10" fill="' + col + '" stroke="#3a2808" stroke-width="2.5"/>' +
+      '<text x="75" y="146" text-anchor="middle" font-family="Barlow Semi Condensed,sans-serif" font-size="11" font-weight="700" letter-spacing="2" fill="currentColor">' + tier.toUpperCase() + "</text></svg>";
+  }
+  function showAward(res) {
+    var t = T(), p = cur(), next = ORDER[ORDER.indexOf(S.tier) + 1];
+    var tags = [];
+    if (p.hints === 0) tags.push('<span class="tag hf">★ Hint-free</span>');
+    if (res.newBest) tags.push('<span class="tag up">New personal best</span>');
+    if (res.upgraded) tags.push('<span class="tag up">Key upgraded to ' + res.keyAfter + "</span>");
+    var a = $("award");
+    a.hidden = false;
+    a.className = "award";
+    a.innerHTML = emblem(S.tier) + '<div><h2 id="awardTitle" tabindex="-1">The door opens.</h2>' +
+      '<p><b>' + t.name + " key</b> · Chaortal No. 01 · The Door of Three Keys</p><div class=\"tags\">" + tags.join("") + "</div>" +
+      "<p>Score <b>" + p.score + "</b> · personal best for " + t.name + " <b>" + res.best + "</b>" +
+      (p.hints ? " · " + p.hints + " hint" + (p.hints > 1 ? "s" : "") : "") + (p.wrong ? " · " + p.wrong + " wrong attempt" + (p.wrong > 1 ? "s" : "") : "") + "</p>" +
+      '<div class="explain"><b>Why it opens.</b> ' + esc(t.explain) + "</div>" +
+      '<div class="actions">' + (next ? '<button class="btn primary" type="button" data-go="' + next + '">Try ' + P.TIERS[next].name + "</button>" : "") +
+      '<button class="btn" type="button" data-again="1">Play this lock again</button><a class="btn" href="#ringTitle">See your Keyring</a></div></div>';
+    a.querySelectorAll("[data-go]").forEach(function (b) { b.onclick = function () { S.tier = b.dataset.go; saveState(); clearFeedback(); render(); window.scrollTo({ top: 0, behavior: motionOK() ? "smooth" : "auto" }); }; });
+    a.querySelector("[data-again]").onclick = function () { S.play[S.tier] = freshPlay(); saveState(); clearFeedback(); render(); };
+    $("awardTitle").focus();
+  }
+
+  /* ---------- keyring ---------- */
+  function renderRing() {
+    var rows = ORDER.map(function (t) {
+      var r = K.tier(DOOR, t);
+      return "<tr><th scope=\"row\">" + P.TIERS[t].name + "</th><td>" + (r && r.solved ? "Solved" + (r.hintFree ? " ★" : "") : "—") + "</td><td>" + (r && r.best !== null ? r.best : "—") +
+        "</td><td>" + (r && r.fewestHints !== null ? r.fewestHints : "—") + "</td><td>" + (r ? r.attempts : 0) + "</td></tr>";
+    }).join("");
+    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Best</th><th scope="col">Fewest hints</th><th scope="col">Attempts</th></tr></thead><tbody>' + rows + "</tbody>";
+    $("slots").innerHTML = K.summary().map(function (d) {
+      var hf = d.key && d.tiers[d.key] && d.tiers[d.key].hintFree;
+      return '<div class="slot' + (d.key ? " has " + d.key : "") + '"><span class="n">No. ' + d.id + " · " + d.verb + '</span><span class="t">' + esc(d.title) + "</span>" +
+        (d.key ? '<svg viewBox="0 0 62 30" aria-hidden="true">' + keyShape({ bronze: "copper", silver: "silver", gold: "amber" }[d.key], 0, 0, 1) + '</svg><span class="k">' + d.key + " key" + (hf ? " ★" : "") + "</span>"
+               : '<span class="k" style="color:var(--muted)">' + (d.id === DOOR ? "Not yet earned" : "Locked") + "</span>") + "</div>";
+    }).join("");
+  }
+  $("exportBtn").onclick = function () {
+    var blob = new Blob([K.exportText()], { type: "application/json" }), a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "doorquests-keyring.json"; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+    $("ringMsg").textContent = "Keyring exported.";
+  };
+  $("importFile").onchange = function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    if (f.size > 200000) { $("ringMsg").textContent = "That file is too large to be a Keyring."; this.value = ""; return; }
+    var input = this;
+    f.text().then(function (txt) {
+      var r = K.importText(txt);
+      $("ringMsg").textContent = r.ok ? "Keyring imported. " + (r.added ? r.added + " new tier" + (r.added > 1 ? "s" : "") + " added; " : "") + "nothing was downgraded." : r.error;
+      input.value = ""; render();
+    });
+  };
+  var resetArmed = false;
+  $("resetBtn").onclick = function () {
+    if (!resetArmed) { resetArmed = true; $("resetBtn").textContent = "Really erase every key? Press again"; $("ringMsg").textContent = "This erases all Chaortal keys in this browser."; return; }
+    resetArmed = false; K.reset(); S = freshState(); saveState(); clearFeedback(); $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = "Progress erased."; render();
+  };
+  $("resetBtn").onblur = function () { if (resetArmed) { resetArmed = false; $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = ""; } };
+
+  /* ---------- motion ---------- */
+  function motionOK() { return S.motion === null ? !matchMedia("(prefers-reduced-motion: reduce)").matches : S.motion; }
+  function applyMotion() {
+    var ok = motionOK();
+    document.documentElement.classList.toggle("rm", !ok);
+    document.documentElement.classList.toggle("motion-ok", ok);
+    $("motionBtn").textContent = ok ? "Reduce motion" : "Allow motion";
+  }
+  $("motionBtn").onclick = function () { S.motion = !motionOK(); saveState(); applyMotion(); };
+
+  /* ---------- main render ---------- */
+  function render() {
+    renderTiers(); renderScene(false); renderPuzzle(); renderBar(); renderHints(); renderRing();
+    var p = cur();
+    if (!p.solved) { $("award").hidden = true; $("award").innerHTML = ""; }
+    else if ($("award").hidden) {
+      $("award").hidden = false; $("award").className = "award";
+      $("award").innerHTML = emblem(S.tier) + '<div><h2>Opened</h2><p>You solved the ' + T().name + " lock with a score of <b>" + p.score + '</b>.</p><div class="explain"><b>Why it opens.</b> ' + esc(T().explain) +
+        '</div><div class="actions"><button class="btn" type="button" data-again="1">Play this lock again</button></div></div>';
+      $("award").querySelector("[data-again]").onclick = function () { S.play[S.tier] = freshPlay(); saveState(); clearFeedback(); render(); };
+    }
+  }
+  $("turn").onclick = turn;
+  $("hintBtn").onclick = function () { var p = cur(); if (p.solved || p.hints >= 3) return; p.hints++; saveState(); renderHints(); renderBar(); };
+  applyMotion();
+  render();
+  window.__ck = { S: function () { return S; }, P: P, K: K }; // test hook (harmless; read-only use in tests)
+})();
+</script>
+</body>
+</html>
