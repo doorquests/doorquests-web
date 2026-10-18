@@ -1,0 +1,1312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Clockwork Latch | DoorQuests Chaortals</title>
+<meta name="robots" content="noindex,nofollow">
+<!-- PROTOTYPE: noindex until reviewed. Switch to index,follow at publication. -->
+<meta name="description" content="Chaortal No. 02: The Clockwork Latch. High in an abandoned alpine clock tower, a sealed door waits for its latch to turn. Mount gears, turn the crank, and restore the transmission. Bronze, Silver and Gold mechanisms.">
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: the machinery chamber of an abandoned alpine clock tower. Stone wall, a timber beam, cold mountain light
+   through a lancet window. Brass bushings mark the axles; the drive gear (steel) waits on the left, the latch spindle
+   and its bolt sit by a sealed door on the right. Gears are drawn with their exact tooth counts and turn only as the
+   solver says. On success the train turns, the bolt draws back and the door swings open. Signature verb: ENGAGE. */
+:root{
+  --bg:#eef0f0; --panel:#fbfbf9; --panel2:#e8ebea; --ink:#1b1f22; --muted:#5d666b; --line:#d2d8da;
+  --accent:#8a5a1c; --accent-ink:#fff8ec; --brass:#a77b26; --good:#2f6b3f; --bad:#a3301f; --focus:#1f5fbf;
+  --bronze:#9a5b2c; --silver:#7b8189; --gold:#b38a16;
+  --display:"Cinzel",Georgia,serif; --body:"Spectral",Georgia,serif; --label:"Barlow Semi Condensed",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101315; --panel:#181c1f; --panel2:#14181a; --ink:#e8ecee; --muted:#a0aab0; --line:#2c3337;
+  --accent:#e0a85c; --accent-ink:#1a1208; --brass:#e0b45a; --good:#8fd09c; --bad:#f08a76; --focus:#8ab4ff;
+  --bronze:#d08a52; --silver:#b9c0c8; --gold:#e8c44d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101315; --panel:#181c1f; --panel2:#14181a; --ink:#e8ecee; --muted:#a0aab0; --line:#2c3337;
+  --accent:#e0a85c; --accent-ink:#1a1208; --brass:#e0b45a; --good:#8fd09c; --bad:#f08a76; --focus:#8ab4ff;
+  --bronze:#d08a52; --silver:#b9c0c8; --gold:#e8c44d; color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding:max(18px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(56px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.brand{margin:0 0 14px;display:flex;align-items:center;gap:10px;font:700 .72rem/1.4 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.brand img{width:30px;height:30px}
+.brand a{color:inherit;text-decoration:none}.brand a:hover{text-decoration:underline}
+.proto{display:inline-block;margin-left:auto;padding:2px 8px;border:1px dashed var(--bad);border-radius:999px;color:var(--bad);font:700 .66rem var(--label);letter-spacing:.1em}
+
+/* STAGE */
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#1d2226;border:1px solid #39424a;color:#eef2f4}
+.stage .titles{position:absolute;left:20px;top:14px;right:20px;z-index:2;pointer-events:none;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.stage .pre{margin:0;font:600 .76rem/1.3 var(--label);letter-spacing:.18em;text-transform:uppercase;color:#e9c27a}
+.stage h1{margin:4px 0 0;font:600 clamp(1.4rem,3.8vw,2.3rem)/1.08 var(--display);color:#fbf6ea;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.verb{font:700 .86rem var(--display);letter-spacing:.34em;color:#e9c27a;border:1px solid #7a5a2a;border-radius:4px;padding:5px 8px 5px 12px;background:rgba(15,18,20,.6);white-space:nowrap}
+#machine{display:block;width:100%;height:auto;touch-action:manipulation}
+#machine .pos{cursor:pointer}
+#machine .pos:focus{outline:none}
+#machine .pos:focus-visible .ring{stroke:#8ab4ff;stroke-width:.9;stroke-dasharray:none}
+#machine .pos.sel .ring{stroke:#ffd27a;stroke-dasharray:none}
+#machine .shake{animation:shake .12s linear 6}
+@keyframes shake{0%,100%{transform:translate(0,0)}25%{transform:translate(-.6px,0)}75%{transform:translate(.6px,0)}}
+.stagebar{position:absolute;right:12px;bottom:10px;z-index:2;display:flex;gap:6px}
+.chip{font:600 .72rem var(--label);letter-spacing:.08em;text-transform:uppercase;border:1px solid #556069;background:rgba(15,18,20,.7);color:#dfe6ea;border-radius:999px;padding:3px 10px;cursor:pointer}
+@media (max-width:640px){.stage .titles{left:12px;top:10px;right:12px}.verb{font-size:.7rem;padding:3px 6px 3px 9px}}
+html.rm #machine .shake{animation:none}
+
+/* TIERS */
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 4px}
+.tierbtn{display:grid;gap:2px;text-align:left;background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:6px;padding:9px 12px;cursor:pointer}
+.tierbtn[data-t="bronze"]{border-top-color:var(--bronze)}.tierbtn[data-t="silver"]{border-top-color:var(--silver)}.tierbtn[data-t="gold"]{border-top-color:var(--gold)}
+.tierbtn[aria-pressed="true"]{background:var(--panel2);box-shadow:inset 0 0 0 2px var(--accent)}
+.tierbtn b{font:700 1rem var(--display);letter-spacing:.06em}
+.tierbtn span{font:500 .8rem var(--label);color:var(--muted)}
+.tierbtn .st{color:var(--good);font-weight:700}
+@media (max-width:560px){.tierbtn{padding:7px 8px}.tierbtn span.aim{display:none}}
+
+.brief{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+@media (max-width:640px){.brief{grid-template-columns:minmax(0,1fr)}}
+.brief h2{margin:0 0 2px;font:600 1.15rem var(--display)}
+.brief p{margin:0}
+.need{border-radius:6px;padding:10px 14px;background:linear-gradient(180deg,#e9c97f,#c99a43);color:#2a1b06;border:1px solid #8a6420;text-align:center;min-width:190px}
+.need b{display:block;font:700 .74rem var(--label);letter-spacing:.14em;text-transform:uppercase}
+.need span{font:600 1.25rem var(--display)}
+
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:12px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.card h2{margin:0 0 8px;font:600 .82rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tray{display:flex;flex-wrap:wrap;gap:8px}
+.tg{display:grid;justify-items:center;gap:2px;min-width:74px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;cursor:pointer}
+.tg svg{width:46px;height:46px}
+.tg b{font:600 .95rem var(--label)}
+.tg small{font:500 .74rem var(--label);color:var(--muted)}
+.tg[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent);background:var(--panel)}
+.tg:disabled{opacity:.4;cursor:not-allowed}
+.axles{display:grid;gap:6px;margin-top:12px}
+.axrow{display:grid;grid-template-columns:minmax(0,1fr) 11em;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.axrow label{font:600 .9rem var(--label)}
+.axrow small{display:block;font:500 .78rem var(--label);color:var(--muted)}
+.axrow select{width:100%;padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+.note{color:var(--muted);font-size:.9rem;margin:8px 0 0}
+.readings{width:100%;border-collapse:collapse;font-size:.92rem}
+.readings th,.readings td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left}
+.readings th{font:600 .74rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readings tr.latch td{font-weight:600}
+.dir{font:600 .85rem var(--label)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{border:1px solid var(--line);background:var(--panel2);border-radius:6px;padding:8px 14px;cursor:pointer;font:600 .92rem var(--label);letter-spacing:.04em}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.big{padding:11px 20px;font-size:1rem;letter-spacing:.08em;text-transform:uppercase}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+@media (max-width:640px){.bar{grid-template-columns:minmax(0,1fr)}}
+.score{font:600 .86rem var(--label);letter-spacing:.06em;color:var(--muted)}
+.score b{font:600 1.5rem var(--display);color:var(--ink);letter-spacing:0;margin-right:6px}
+.why{font-size:.9rem;color:var(--muted);margin:4px 0 0}
+.feedback{margin:10px 0 0;padding:10px 12px;border-radius:6px;border:1px solid var(--line);background:var(--panel2)}
+.feedback.bad{border-color:var(--bad);color:var(--bad)}
+.feedback.good{border-color:var(--good);color:var(--good)}
+.feedback:empty{display:none}
+
+/* WORKBENCH (Reasoning Toolkit skin: a mechanic's drafting sheet) */
+.bench{margin-top:14px;border-radius:8px;border:1px solid #9fb3c2;background:#eef3f6;color:#1d2a33;
+  background-image:linear-gradient(rgba(70,110,140,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(70,110,140,.12) 1px,transparent 1px);background-size:18px 18px}
+.bench summary{cursor:pointer;padding:12px 16px;font:600 1.05rem var(--display);letter-spacing:.06em;list-style:none;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.bench summary::-webkit-details-marker{display:none}
+.bench summary::before{content:"▸";font-family:var(--label);transition:transform .2s}
+.bench[open] summary::before{transform:rotate(90deg)}
+.bench summary small{font:500 .82rem var(--label);letter-spacing:.04em;color:#4a5d6b}
+.bench .inner{padding:0 16px 16px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px}
+@media (max-width:820px){.bench .inner{grid-template-columns:minmax(0,1fr)}}
+.bench h3{margin:0 0 4px;font:600 .86rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:#2f5470}
+.bench .fine{grid-column:1/-1;margin:0;font-size:.85rem;color:#4a5d6b}
+.dqt-intro{margin:0 0 6px;font-style:italic}
+.dqt-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 10px;font:600 .82rem var(--label)}
+.dqt-leg{display:inline-flex;gap:6px;align-items:center}
+.dqt-leg kbd{font:600 .7rem var(--label);border:1px solid #9fb3c2;border-radius:3px;padding:0 4px;background:#fff}
+.dqt-boards{display:grid;gap:12px}
+.dqt-board h4{margin:0;font:600 .82rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:#2f5470}
+.dqt-help{margin:2px 0 6px;font-size:.88rem;color:#3d5162}
+.dqt-table{border-collapse:collapse;width:100%;font-size:.86rem}
+.dqt-table th{font-weight:400;text-align:left;padding:3px 5px;border-bottom:1px solid rgba(70,110,140,.3);white-space:nowrap}
+.dqt-table th[scope=col]{font:600 .72rem var(--label);letter-spacing:.04em;text-align:center;color:#2f5470}
+.dqt-table td{text-align:center;padding:2px;border-bottom:1px solid rgba(70,110,140,.3)}
+.dqt-cell{width:32px;height:30px;border:1px solid #9fb3c2;border-radius:4px;background:#fff;cursor:pointer;font:700 1rem var(--body);color:#7e8f9b}
+.dqt-cell[data-s="p"]{color:#1f5a2c;background:#eaf3e4;border-color:#4d7a3a}
+.dqt-cell[data-s="x"]{color:#8e2418;background:#f7e3dc;border-color:#a2412f}
+.dqt-sym{display:inline-grid;place-items:center;width:22px;height:20px;border:1px solid #9fb3c2;border-radius:3px;background:#fff}
+.dqt-sym[data-s="p"]{color:#1f5a2c}.dqt-sym[data-s="x"]{color:#8e2418}
+.dqt-cell:focus-visible{outline:3px solid #1f5fbf;outline-offset:1px}
+.dqt-notes-label{display:block;margin:10px 0 4px;font:600 .82rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:#2f5470}
+.dqt-notes{width:100%;min-height:84px;resize:vertical;border:1px solid #9fb3c2;border-radius:4px;background:#fff;color:#1d2a33;padding:8px 10px;font:italic 1rem/1.5 var(--body)}
+.dqt-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.dqt-foot .btn{background:#fff;border-color:#9fb3c2;color:#1d2a33}
+.dqt-msg{font-size:.86rem;color:#3d5162}
+.dqt-log{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:360px;overflow:auto}
+.dqt-log li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 6px;background:#fff;border:1px solid #c7d5df;border-radius:4px;padding:6px 8px}
+.dqt-log-t{font:500 .86rem var(--label);grid-column:1}
+.dqt-log-n{grid-column:1;border:0;border-bottom:1px dashed #9fb3c2;background:transparent;font:italic .88rem var(--body);padding:2px 0;color:#1d2a33}
+.dqt-log-x{grid-column:2;grid-row:1/3;border:0;background:none;font-size:1.1rem;cursor:pointer;color:#7e8f9b;align-self:start}
+
+/* HINTS / RULES / AWARD / KEYRING */
+.hints{display:grid;gap:8px}
+.hint{background:var(--panel2);border-left:4px solid var(--brass);border-radius:4px;padding:8px 12px}
+.hint b{font:700 .78rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--brass);display:block}
+.hintrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+details.rules{margin-top:14px}
+details.rules summary{cursor:pointer;font:600 .86rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+details.rules ol{margin:8px 0 0;padding-left:1.3em}
+.award{margin-top:14px;border:2px solid var(--accent);border-radius:10px;padding:16px;background:var(--panel);display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:center}
+@media (max-width:560px){.award{grid-template-columns:minmax(0,1fr);text-align:center}.award .emb{margin:0 auto}}
+.award h2{margin:0 0 4px;font:600 1.4rem var(--display)}
+.award .emb{width:150px;height:150px}
+.award p{margin:6px 0}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+@media (max-width:560px){.tags{justify-content:center}}
+.tag{font:700 .72rem var(--label);letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.tag.hf{border-color:var(--good);color:var(--good)}
+.tag.up{border-color:var(--accent);color:var(--accent)}
+.tag.ma{border-color:var(--brass);color:var(--brass)}
+.explain{background:var(--panel2);border-radius:6px;padding:10px 12px;font-size:.95rem}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+@media (max-width:560px){.actions{justify-content:center}}
+.ring{margin-top:22px}
+.ring h2{font:600 1.2rem var(--display);margin:0 0 4px;letter-spacing:0;text-transform:none;color:var(--ink)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-top:10px}
+.slot{border:1px dashed var(--line);border-radius:6px;padding:8px;min-height:84px;display:grid;align-content:start;gap:2px;background:var(--panel)}
+.slot.has{border-style:solid}
+.slot.has.bronze{border-color:var(--bronze)}.slot.has.silver{border-color:var(--silver)}.slot.has.gold{border-color:var(--gold)}
+.slot .n{font:700 .72rem var(--label);letter-spacing:.1em;color:var(--muted)}
+.slot .t{font-size:.8rem;line-height:1.25}
+.slot .k{font:700 .7rem var(--label);letter-spacing:.08em;text-transform:uppercase}
+.statwrap{overflow-x:auto;margin-top:10px}
+.stats{width:100%;border-collapse:collapse;font-size:.9rem}
+.stats th,.stats td{border:1px solid var(--line);padding:5px 8px;text-align:left}
+.stats th{font:600 .74rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--panel2)}
+@media (max-width:560px){.stats{font-size:.8rem}.stats th,.stats td{padding:4px 5px}}
+.ringtools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+footer{margin-top:28px;padding-top:12px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between}
+footer a{color:var(--accent)}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="/">DoorQuests</a> · Chaortals · Chaortal No. 02</span><span class="proto">Prototype · not published</span></p>
+
+  <section class="stage" aria-label="The machinery chamber">
+    <div class="titles"><div><p class="pre">Chaortal No. 02 · Unlock the Impossible</p><h1>The Clockwork Latch</h1></div><span class="verb" aria-hidden="true">ENGAGE</span></div>
+    <svg id="machine" role="group" aria-label="The machine. Each axle position is a button."></svg>
+    <div class="stagebar"><button class="chip" id="soundBtn" type="button"></button></div>
+  </section>
+
+  <nav class="tiers" aria-label="Choose a mechanism" id="tiers"></nav>
+
+  <div class="brief">
+    <div><h2 id="briefTitle"></h2><p id="briefText"></p></div>
+    <div class="need" id="need"></div>
+  </div>
+
+  <div class="grid2">
+    <section class="card" aria-labelledby="trayTitle">
+      <h2 id="trayTitle">The gear tray</h2>
+      <div class="tray" id="tray" role="group" aria-labelledby="trayTitle"></div>
+      <p class="note" id="trayNote"></p>
+      <h2 style="margin-top:14px">Axles</h2>
+      <div class="axles" id="axles"></div>
+    </section>
+    <section class="card" aria-labelledby="readTitle">
+      <h2 id="readTitle">Readings from the last turn of the crank</h2>
+      <div id="readings"><p class="note" style="margin:0">Turn the crank to see how every gear moves. Test runs are free and unlimited.</p></div>
+      <div class="controls">
+        <button class="btn" id="crankBtn" type="button">Turn the crank</button>
+        <button class="btn" id="undoBtn" type="button">Undo</button>
+        <button class="btn" id="clearBtn" type="button">Clear my gears</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="bar">
+    <div><div class="score" id="score"></div><p class="why" id="engNote"></p></div>
+    <button class="btn primary big" id="engageBtn" type="button">Engage the latch</button>
+  </div>
+  <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+
+  <details class="bench" id="benchBox">
+    <summary>The Mechanic's Workbench <small>Optional · free to use · never checks your work</small></summary>
+    <div class="inner">
+      <div><h3>Fit sheet and notes</h3><div id="bench"></div></div>
+      <div><h3>Run log</h3><div id="runlog"></div></div>
+      <p class="fine">Each mechanism has its own sheet and log. Every turn of the crank is written in the log automatically, as a plain reading. Playing a mechanism again keeps its sheet and log; clear them here. “Reset progress” erases everything.</p>
+    </div>
+  </details>
+
+  <section class="card" style="margin-top:14px" aria-labelledby="hintsTitle">
+    <h2 id="hintsTitle">Hints</h2>
+    <div class="hints" id="hints"></div>
+    <div class="hintrow" style="margin-top:8px"><button class="btn" id="hintBtn" type="button"></button><span class="note" style="margin:0">Hints teach the mechanics. Each costs 12 points, never the key.</span></div>
+  </section>
+
+  <details class="rules card">
+    <summary>How the machinery works</summary>
+    <ol>
+      <li>All gears have the same size of tooth, so a gear's radius grows with its tooth count.</li>
+      <li>Two gears mesh only when they are on the same layer and their axles are exactly the right distance apart: half of the two tooth counts added together. Too far and they don't touch; too close and they can't both fit.</li>
+      <li>Every mesh reverses the direction of turning.</li>
+      <li>Speed changes by the ratio of teeth: driven speed = driver speed × driver teeth ÷ driven teeth.</li>
+      <li>A compound axle carries a front gear and a back gear fixed together: they turn at the same speed and in the same direction. Front gears mesh only with front gears, back with back.</li>
+      <li>If gears in a loop disagree about speed or direction, the train jams and nothing turns.</li>
+      <li>Simplifications: no friction, slip, backlash or wear. Speeds are exact fractions.</li>
+    </ol>
+  </details>
+
+  <section id="award" hidden></section>
+
+  <section class="ring card" aria-labelledby="ringTitle">
+    <h2 id="ringTitle">Your DoorQuests Keyring</h2>
+    <p class="note" style="margin:0">One key per Chaortal, upgraded Bronze → Silver → Gold. Saved in this browser only. Export it to keep it safe or move it.</p>
+    <div class="statwrap"><table class="stats" id="stats"></table></div>
+    <div class="slots" id="slots"></div>
+    <div class="ringtools">
+      <button class="btn" id="exportBtn" type="button">Export Keyring</button>
+      <label class="btn" for="importFile" style="display:inline-block">Import Keyring</label>
+      <input type="file" id="importFile" accept="application/json,.json" class="sr">
+      <button class="btn danger" id="resetBtn" type="button">Reset progress</button>
+      <span id="ringMsg" class="note" role="status" aria-live="polite" style="margin:0"></span>
+    </div>
+  </section>
+
+  <footer>
+    <span><a href="/">DoorQuests</a> · Chaortals · Chaortal No. 02 · The tower and its clockmaker are fiction</span>
+    <span><button class="linkbtn" id="motionBtn" type="button"></button></span>
+  </footer>
+</div>
+
+<script>
+/* DoorQuests Keyring v1.1 · shared achievement store for all 31 Chaortals.
+   v1.1 adds optional per-tier `achievements` (e.g. Deduction Mastery). Storage schema stays 1: records
+   without the field load unchanged, and Keyring v1.0 ignores the field, so files move safely both ways.
+   Canonical source: chaortals/shared/keyring.js. Inlined into each door's index.html at build time,
+   so every door stays a single standalone file while sharing one implementation.
+   Browser-local and best-effort: for personal enjoyment, not a tamper-proof credential. */
+var DQKeyring = (function () {
+  "use strict";
+  var STORE = "dq-chaortals-keyring-v1", SCHEMA = 1, TIERS = ["bronze", "silver", "gold"];
+  var DOORS = [
+    ["01","The Door of Three Keys","DEDUCE"],["02","The Clockwork Latch","ENGAGE"],["03","The Room That Changed","NOTICE"],
+    ["04","The Mirror Gate","REFLECT"],["05","The Cistern Valve","MEASURE"],["06","The Ferryman's Lock","PLAN"],
+    ["07","The Lantern Bridge","ESCORT"],["08","The Tumbler Lock","PROBE"],["09","The Switchboard Door","TOGGLE"],
+    ["10","The Cipher Disk","DECODE"],["11","The Shatranj Gallery","TRAVERSE"],["12","The Lens Cradles","TRANSFER"],
+    ["13","The Ringing Chamber","CHIME"],["14","The Jacquard Card","REVEAL"],["15","The Alhambra Arch","FIT"],
+    ["16","The Observatory Stair","CONTINUE"],["17","The Fortune Booth","CHOOSE"],["18","The Telegraph Tower","ENCODE"],
+    ["19","The Star Compass","ORIENT"],["20","The Mint Warden's Scale","WEIGH"],["21","The Two Wardens","ASK"],
+    ["22","The Calendar Door","RECKON"],["23","The Rule Keeper","INFER"],["24","The Hundred Shutters","PASS"],
+    ["25","The Self-Counting Ledger","BALANCE"],["26","The Masked Line","STRATEGIZE"],["27","The Seven Seals","ARRANGE"],
+    ["28","The Scroll Cases","SLIDE"],["29","The Turning Labyrinth","ROTATE"],["30","The Shadow Stage","CAST"],
+    ["31","The Impossible Door","UNLOCK"]
+  ].map(function (d) { return { id: d[0], title: d[1], verb: d[2] }; });
+  var DOOR_IDS = DOORS.map(function (d) { return d.id; });
+
+  function empty() { return { schema: SCHEMA, app: "doorquests-chaortals", updated: null, doors: {} }; }
+  function isInt(n, lo, hi) { return typeof n === "number" && Number.isInteger(n) && n >= lo && n <= hi; }
+  function isTime(v) { return v === null || (typeof v === "string" && v.length <= 40 && !isNaN(Date.parse(v))); }
+  var ACH_ID = /^[a-z][a-z0-9-]{1,31}$/, ACH_MAX = 8;
+  /* Achievements: { "deduction-mastery": { at: ISO time | null } }. Returns a clean copy or null if invalid. */
+  function cleanAch(a) {
+    if (a == null) return {};
+    if (typeof a !== "object" || Array.isArray(a)) return null;
+    var ids = Object.keys(a), out = {};
+    if (ids.length > ACH_MAX) return null;
+    for (var i = 0; i < ids.length; i++) {
+      var v = a[ids[i]];
+      if (!ACH_ID.test(ids[i]) || !v || typeof v !== "object" || Array.isArray(v) || !isTime(v.at == null ? null : v.at)) return null;
+      out[ids[i]] = { at: v.at == null ? null : v.at };
+    }
+    return out;
+  }
+
+  /* Validates one tier record; returns a clean copy or null. Unknown fields are dropped. */
+  function cleanTier(t) {
+    if (!t || typeof t !== "object" || Array.isArray(t)) return null;
+    var out = {
+      solved: t.solved === true,
+      best: t.best == null ? null : t.best,
+      hintFree: t.hintFree === true,
+      solves: t.solves == null ? 0 : t.solves,
+      attempts: t.attempts == null ? 0 : t.attempts,
+      fewestHints: t.fewestHints == null ? null : t.fewestHints,
+      firstSolved: t.firstSolved == null ? null : t.firstSolved,
+      lastPlayed: t.lastPlayed == null ? null : t.lastPlayed,
+      achievements: cleanAch(t.achievements)
+    };
+    if (out.achievements === null) return null;
+    if (!out.solved && Object.keys(out.achievements).length) return null;
+    if (out.best !== null && !isInt(out.best, 0, 100)) return null;
+    if (out.fewestHints !== null && !isInt(out.fewestHints, 0, 3)) return null;
+    if (!isInt(out.solves, 0, 1e6) || !isInt(out.attempts, 0, 1e6)) return null;
+    if (!isTime(out.firstSolved) || !isTime(out.lastPlayed)) return null;
+    if (out.solved && out.best === null) return null;
+    if (!out.solved && (out.best !== null || out.hintFree)) return null;
+    return out;
+  }
+  /* Validates a whole envelope (from storage or an import); returns a clean copy or null. */
+  function clean(env) {
+    if (!env || typeof env !== "object" || Array.isArray(env) || env.schema !== SCHEMA) return null;
+    if (!env.doors || typeof env.doors !== "object" || Array.isArray(env.doors)) return null;
+    var out = empty(); out.updated = isTime(env.updated || null) ? (env.updated || null) : null;
+    var ids = Object.keys(env.doors);
+    if (ids.length > DOOR_IDS.length) return null;
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i], d = env.doors[id];
+      if (DOOR_IDS.indexOf(id) < 0 || !d || typeof d !== "object" || !d.tiers || typeof d.tiers !== "object") return null;
+      var tiers = {};
+      for (var k in d.tiers) {
+        if (!Object.prototype.hasOwnProperty.call(d.tiers, k)) continue;
+        if (TIERS.indexOf(k) < 0) return null;
+        var c = cleanTier(d.tiers[k]); if (!c) return null; tiers[k] = c;
+      }
+      out.doors[id] = { tiers: tiers };
+    }
+    return out;
+  }
+  function load() {
+    try { var raw = localStorage.getItem(STORE); if (!raw) return empty(); return clean(JSON.parse(raw)) || empty(); }
+    catch (e) { return empty(); }
+  }
+  function save(env) {
+    env.updated = new Date().toISOString();
+    try { localStorage.setItem(STORE, JSON.stringify(env)); return true; } catch (e) { return false; }
+  }
+  function tierRec(env, door, tier) {
+    if (DOOR_IDS.indexOf(door) < 0 || TIERS.indexOf(tier) < 0) throw new Error("Unknown door or tier");
+    env.doors[door] = env.doors[door] || { tiers: {} };
+    return env.doors[door].tiers[tier] = env.doors[door].tiers[tier] ||
+      { solved: false, best: null, hintFree: false, solves: 0, attempts: 0, fewestHints: null, firstSolved: null, lastPlayed: null, achievements: {} };
+  }
+
+  /* Count one submitted attempt (correct or not). */
+  function noteAttempt(door, tier) {
+    var env = load(), t = tierRec(env, door, tier);
+    t.attempts++; t.lastPlayed = new Date().toISOString(); save(env);
+  }
+  /* Record a solve. `earned` lists achievement ids this run qualified for (judged by the door, never retroactively).
+     Returns what changed, for the award screen. */
+  function recordSolve(door, tier, score, hintsUsed, earned) {
+    if (!isInt(score, 0, 100) || !isInt(hintsUsed, 0, 3)) throw new Error("Bad score");
+    earned = (earned || []).filter(function (id) { return ACH_ID.test(id); });
+    var env = load(), before = highest(door, env), t = tierRec(env, door, tier), now = new Date().toISOString();
+    var firstTier = !t.solved, newBest = t.best === null || score > t.best, newHintFree = hintsUsed === 0 && !t.hintFree;
+    t.solved = true; t.solves++; t.lastPlayed = now; if (!t.firstSolved) t.firstSolved = now;
+    if (newBest) t.best = score;
+    if (hintsUsed === 0) t.hintFree = true;
+    t.fewestHints = t.fewestHints === null ? hintsUsed : Math.min(t.fewestHints, hintsUsed);
+    t.achievements = t.achievements || {};
+    var newAch = earned.filter(function (id) { return !t.achievements[id]; });
+    newAch.forEach(function (id) { if (Object.keys(t.achievements).length < ACH_MAX) t.achievements[id] = { at: now }; });
+    save(env);
+    var after = highest(door, env);
+    return { firstTier: firstTier, newBest: newBest, newHintFree: newHintFree, best: t.best, earned: earned, newAchievements: newAch, keyBefore: before, keyAfter: after, upgraded: before !== after };
+  }
+  function highest(door, env) {
+    env = env || load(); var d = env.doors[door]; if (!d) return null;
+    for (var i = TIERS.length - 1; i >= 0; i--) if (d.tiers[TIERS[i]] && d.tiers[TIERS[i]].solved) return TIERS[i];
+    return null;
+  }
+  function tier(door, t) { var env = load(); return (env.doors[door] && env.doors[door].tiers[t]) || null; }
+  function summary() {
+    var env = load();
+    return DOORS.map(function (d) {
+      var rec = env.doors[d.id] || { tiers: {} };
+      return { id: d.id, title: d.title, verb: d.verb, key: highest(d.id, env), tiers: rec.tiers };
+    });
+  }
+
+  /* Export / import (JSON). Import validates fully, then merges without ever downgrading. */
+  function exportText() { return JSON.stringify(load(), null, 2); }
+  function mergeAch(a, b) {
+    var out = {};
+    Object.keys(a).concat(Object.keys(b)).forEach(function (id) {
+      var x = a[id] && a[id].at, y = b[id] && b[id].at;
+      out[id] = { at: !x ? (y || null) : !y ? x : (x < y ? x : y) };
+    });
+    return out;
+  }
+  function hasAch(door, t, id) { var r = tier(door, t); return !!(r && r.achievements && r.achievements[id]); }
+  function mergeTier(a, b) {
+    if (!a) return b; if (!b) return a;
+    var minT = function (x, y) { return !x ? y : !y ? x : (x < y ? x : y); };
+    var maxT = function (x, y) { return !x ? y : !y ? x : (x > y ? x : y); };
+    return {
+      solved: a.solved || b.solved,
+      best: a.best === null ? b.best : b.best === null ? a.best : Math.max(a.best, b.best),
+      hintFree: a.hintFree || b.hintFree,
+      solves: Math.max(a.solves, b.solves),
+      attempts: Math.max(a.attempts, b.attempts),
+      fewestHints: a.fewestHints === null ? b.fewestHints : b.fewestHints === null ? a.fewestHints : Math.min(a.fewestHints, b.fewestHints),
+      firstSolved: minT(a.firstSolved, b.firstSolved),
+      lastPlayed: maxT(a.lastPlayed, b.lastPlayed),
+      achievements: mergeAch(a.achievements || {}, b.achievements || {})
+    };
+  }
+  function importText(text) {
+    if (typeof text !== "string" || text.length > 200000) return { ok: false, error: "That file is too large to be a Keyring." };
+    var parsed; try { parsed = JSON.parse(text); } catch (e) { return { ok: false, error: "That file isn't valid JSON." }; }
+    var inc = clean(parsed); if (!inc) return { ok: false, error: "That file isn't a valid DoorQuests Keyring (schema 1). Nothing was changed." };
+    var env = load(), added = 0;
+    Object.keys(inc.doors).forEach(function (id) {
+      env.doors[id] = env.doors[id] || { tiers: {} };
+      Object.keys(inc.doors[id].tiers).forEach(function (t) {
+        var had = env.doors[id].tiers[t] && env.doors[id].tiers[t].solved;
+        env.doors[id].tiers[t] = mergeTier(env.doors[id].tiers[t], inc.doors[id].tiers[t]);
+        if (!had && env.doors[id].tiers[t].solved) added++;
+      });
+    });
+    save(env);
+    return { ok: true, added: added };
+  }
+  function reset() { try { localStorage.removeItem(STORE); } catch (e) {} }
+
+  return { DOORS: DOORS, TIERS: TIERS, STORE: STORE, load: load, clean: clean, noteAttempt: noteAttempt, recordSolve: recordSolve,
+           highest: highest, tier: tier, hasAch: hasAch, summary: summary, exportText: exportText, importText: importText, reset: reset };
+})();
+if (typeof module !== "undefined") module.exports = DQKeyring;
+
+</script>
+<script>
+/* DoorQuests Reasoning Toolkit v1.1 · optional, door-configurable thinking aids for Chaortals.
+   v1.1 adds the Log tool (first used by No. 02 for the Mechanic's Workbench). The Notebook is unchanged.
+   Canonical source: chaortals/shared/toolkit.js, inlined into each door's index.html at build time.
+
+   Principles (from the Chaortal #01 playtest refinement, October 17, 2026):
+   - Optional and free: using it never changes a score.
+   - It never knows the answer. The toolkit receives only labels (rows, columns, notes), never puzzle
+     rules or solutions, so it cannot validate, hint or leak. Doors must not pass solver data into it.
+   - Each door chooses the tools that fit its discipline. v1 ships the Notebook: "list" boards (mark
+     items), "grid" boards (mark pairs of items, e.g. key × lock) and free notes. Future doors can add
+     tools (e.g. a tally, a sketch pad, a move log) alongside the Notebook under the same rules.
+
+   Storage: one key per door, e.g. "dq-chaortal-01-notebook-v1":
+   { schema: 1, tiers: { bronze: { marks: { "<board>:<row>[:<col>]": "<stateId>" }, notes: "" }, ... } }
+   Only non-default marks are stored. On load every mark is checked against the door's current
+   configuration and anything unknown is dropped. */
+var DQToolkit = (function () {
+  "use strict";
+  var DEFAULT_STATES = [
+    { id: "u", sym: "·", label: "Uncertain", key: "u" },
+    { id: "p", sym: "✓", label: "Possible", key: "p" },
+    { id: "x", sym: "✗", label: "Impossible", key: "x" }
+  ];
+  var NOTES_MAX = 2000;
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+
+  function Notebook(opts) {
+    var states = opts.states || DEFAULT_STATES, stateIds = states.map(function (s) { return s.id; }), dflt = states[0].id;
+    var tiers = opts.tiers, el = opts.mount, KEY = opts.storageKey, armed = false;
+
+    function validKeys(tier) {
+      var cfg = opts.config(tier), keys = {};
+      cfg.boards.forEach(function (b) {
+        b.rows.forEach(function (r) {
+          if (b.type === "grid") b.cols.forEach(function (c) { keys[b.id + ":" + r.id + ":" + c.id] = 1; });
+          else keys[b.id + ":" + r.id] = 1;
+        });
+      });
+      return keys;
+    }
+    function empty() { var o = { schema: 1, tiers: {} }; tiers.forEach(function (t) { o.tiers[t] = { marks: {}, notes: "" }; }); return o; }
+    function load() {
+      var data = empty();
+      try {
+        var raw = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (!raw || raw.schema !== 1 || !raw.tiers || typeof raw.tiers !== "object") return data;
+        tiers.forEach(function (t) {
+          var src = raw.tiers[t]; if (!src || typeof src !== "object") return;
+          var ok = validKeys(t);
+          if (src.marks && typeof src.marks === "object" && !Array.isArray(src.marks))
+            Object.keys(src.marks).forEach(function (k) { var v = src.marks[k]; if (ok[k] && stateIds.indexOf(v) > 0) data.tiers[t].marks[k] = v; });
+          if (typeof src.notes === "string") data.tiers[t].notes = src.notes.slice(0, NOTES_MAX);
+        });
+      } catch (e) {}
+      return data;
+    }
+    var D = load();
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} }
+    function get(tier, k) { return D.tiers[tier].marks[k] || dflt; }
+    function set(tier, k, v) { if (v === dflt) delete D.tiers[tier].marks[k]; else D.tiers[tier].marks[k] = v; save(); }
+    function stateOf(id) { return states.filter(function (s) { return s.id === id; })[0]; }
+    function next(id) { return stateIds[(stateIds.indexOf(id) + 1) % stateIds.length]; }
+
+    function cellBtn(tier, k, label) {
+      var s = stateOf(get(tier, k));
+      return '<button type="button" class="dqt-cell" data-k="' + esc(k) + '" data-s="' + s.id + '" tabindex="-1" aria-label="' + esc(label + ": " + s.label) +
+        '"><span aria-hidden="true">' + s.sym + "</span></button>";
+    }
+    function render() {
+      var tier = opts.getTier(), cfg = opts.config(tier), T = D.tiers[tier];
+      var legend = states.map(function (s) { return '<span class="dqt-leg"><span class="dqt-sym" data-s="' + s.id + '" aria-hidden="true">' + s.sym + "</span>" + esc(s.label) + " <kbd>" + s.key.toUpperCase() + "</kbd></span>"; }).join("");
+      var boards = cfg.boards.map(function (b) {
+        var head = b.type === "grid" ? "<tr><td></td>" + b.cols.map(function (c) { return '<th scope="col">' + esc(c.label) + "</th>"; }).join("") + "</tr>" : "";
+        var rows = b.rows.map(function (r) {
+          var cells = b.type === "grid"
+            ? b.cols.map(function (c) { return "<td>" + cellBtn(tier, b.id + ":" + r.id + ":" + c.id, r.label + ", " + c.label) + "</td>"; }).join("")
+            : "<td>" + cellBtn(tier, b.id + ":" + r.id, r.label) + "</td>";
+          return '<tr><th scope="row">' + esc(r.label) + "</th>" + cells + "</tr>";
+        }).join("");
+        return '<div class="dqt-board"><h4 id="dqt-' + b.id + '">' + esc(b.title) + "</h4>" + (b.help ? '<p class="dqt-help">' + esc(b.help) + "</p>" : "") +
+          '<table class="dqt-table dqt-' + b.type + '" role="grid" aria-labelledby="dqt-' + b.id + '" data-board="' + b.id + '">' + head + rows + "</table></div>";
+      }).join("");
+      el.innerHTML = '<p class="dqt-intro">' + esc(cfg.intro) + '</p><p class="dqt-legend">' + legend + "</p>" +
+        '<div class="dqt-boards">' + boards + "</div>" +
+        '<label class="dqt-notes-label" for="dqt-notes">' + esc(cfg.notesLabel || "Your notes") + "</label>" +
+        '<textarea id="dqt-notes" class="dqt-notes" maxlength="' + NOTES_MAX + '" rows="4" placeholder="' + esc(cfg.notesPlaceholder || "") + '">' + esc(T.notes) + "</textarea>" +
+        '<div class="dqt-foot"><button type="button" class="btn dqt-clear">Clear this page</button><span class="dqt-msg" role="status" aria-live="polite"></span></div>';
+      // roving tabindex: first cell of each board is tabbable
+      el.querySelectorAll(".dqt-table").forEach(function (tb) { var f = tb.querySelector(".dqt-cell"); if (f) f.tabIndex = 0; });
+      el.querySelectorAll(".dqt-cell").forEach(function (b) {
+        b.onclick = function () { apply(b, next(b.dataset.s)); };
+        b.onkeydown = function (e) {
+          var k = e.key.toLowerCase(), st = states.filter(function (s) { return s.key === k; })[0];
+          if (st && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); apply(b, st.id); return; }
+          var dir = { arrowup: [-1, 0], arrowdown: [1, 0], arrowleft: [0, -1], arrowright: [0, 1] }[k]; if (!dir) return;
+          e.preventDefault();
+          var td = b.parentElement, tr = td.parentElement, tb = tr.closest("table");
+          var rows = [].slice.call(tb.querySelectorAll("tr")).filter(function (r) { return r.querySelector(".dqt-cell"); });
+          var ri = rows.indexOf(tr), ci = [].slice.call(tr.querySelectorAll(".dqt-cell")).indexOf(b);
+          var nr = rows[Math.max(0, Math.min(rows.length - 1, ri + dir[0]))], cs = nr.querySelectorAll(".dqt-cell");
+          var nb = cs[Math.max(0, Math.min(cs.length - 1, ci + dir[1]))];
+          if (nb) { tb.querySelectorAll(".dqt-cell").forEach(function (x) { x.tabIndex = -1; }); nb.tabIndex = 0; nb.focus(); }
+        };
+      });
+      var ta = el.querySelector(".dqt-notes");
+      ta.oninput = function () { D.tiers[opts.getTier()].notes = ta.value.slice(0, NOTES_MAX); save(); };
+      var clr = el.querySelector(".dqt-clear"), msg = el.querySelector(".dqt-msg");
+      clr.onclick = function () {
+        if (!armed) { armed = true; clr.textContent = "Clear every mark and note on this page?"; msg.textContent = "Press again to clear. Only this tier's page is affected."; return; }
+        armed = false; clearTier(opts.getTier()); render(); el.querySelector(".dqt-msg").textContent = "Page cleared.";
+      };
+      clr.onblur = function () { if (armed) { armed = false; clr.textContent = "Clear this page"; msg.textContent = ""; } };
+    }
+    function apply(btn, v) {
+      var tier = opts.getTier(), k = btn.dataset.k; set(tier, k, v);
+      var s = stateOf(v); btn.dataset.s = v; btn.querySelector("span").textContent = s.sym;
+      btn.setAttribute("aria-label", btn.getAttribute("aria-label").replace(/: [^:]+$/, ": " + s.label));
+      btn.closest("table").querySelectorAll(".dqt-cell").forEach(function (x) { x.tabIndex = -1; }); btn.tabIndex = 0;
+    }
+    function clearTier(t) { D.tiers[t] = { marks: {}, notes: "" }; save(); }
+    function clearAll() { D = empty(); try { localStorage.removeItem(KEY); } catch (e) {} }
+    return { render: render, clearTier: clearTier, clearAll: clearAll, data: function () { return JSON.parse(JSON.stringify(D)); } };
+  }
+
+
+  /* Log (v1.1): a per-tier list of short text entries the door records (e.g. "Run 3: …") plus the player's own
+     one-line notes on any entry. The door supplies only display text, never rules or answers.
+     Storage: { schema: 1, tiers: { <tier>: [ { t: "<text>", n: "<player note>", at: ISO } ] } }, newest first. */
+  var LOG_MAX = 60, TEXT_MAX = 240, NOTE_MAX = 160;
+  function Log(opts) {
+    var tiers = opts.tiers, el = opts.mount, KEY = opts.storageKey, armed = false;
+    function empty() { var o = { schema: 1, tiers: {} }; tiers.forEach(function (t) { o.tiers[t] = []; }); return o; }
+    function load() {
+      var d = empty();
+      try {
+        var raw = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (!raw || raw.schema !== 1 || !raw.tiers) return d;
+        tiers.forEach(function (t) {
+          var list = raw.tiers[t]; if (!Array.isArray(list)) return;
+          d.tiers[t] = list.filter(function (e) { return e && typeof e.t === "string"; }).slice(0, LOG_MAX).map(function (e) {
+            return { t: e.t.slice(0, TEXT_MAX), n: typeof e.n === "string" ? e.n.slice(0, NOTE_MAX) : "", at: typeof e.at === "string" ? e.at.slice(0, 40) : null };
+          });
+        });
+      } catch (e) {}
+      return d;
+    }
+    var D = load();
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} }
+    function add(text) {
+      var t = opts.getTier(); D.tiers[t].unshift({ t: String(text).slice(0, TEXT_MAX), n: "", at: new Date().toISOString() });
+      D.tiers[t] = D.tiers[t].slice(0, LOG_MAX); save(); render();
+    }
+    function render() {
+      var t = opts.getTier(), list = D.tiers[t];
+      el.innerHTML = '<p class="dqt-help">' + esc(opts.intro || "") + "</p>" +
+        (list.length ? '<ol class="dqt-log">' + list.map(function (e, i) {
+          return '<li><span class="dqt-log-t">' + esc(e.t) + '</span><label class="sr" for="dqt-ln-' + i + '">Your note on this entry</label>' +
+            '<input id="dqt-ln-' + i + '" class="dqt-log-n" data-i="' + i + '" maxlength="' + NOTE_MAX + '" placeholder="Add a note…" value="' + esc(e.n) + '">' +
+            '<button type="button" class="dqt-log-x" data-i="' + i + '" aria-label="Delete this entry">×</button></li>';
+        }).join("") + "</ol>" : '<p class="dqt-help"><i>' + esc(opts.emptyText || "Nothing recorded yet.") + "</i></p>") +
+        '<div class="dqt-foot"><button type="button" class="btn dqt-log-clear"' + (list.length ? "" : " disabled") + '>Clear this log</button><span class="dqt-msg" role="status" aria-live="polite"></span></div>';
+      el.querySelectorAll(".dqt-log-n").forEach(function (inp) { inp.oninput = function () { D.tiers[opts.getTier()][+inp.dataset.i].n = inp.value.slice(0, NOTE_MAX); save(); }; });
+      el.querySelectorAll(".dqt-log-x").forEach(function (b) { b.onclick = function () { D.tiers[opts.getTier()].splice(+b.dataset.i, 1); save(); render(); }; });
+      var clr = el.querySelector(".dqt-log-clear"), msg = el.querySelector(".dqt-msg");
+      clr.onclick = function () {
+        if (!armed) { armed = true; clr.textContent = "Clear every entry in this tier's log?"; msg.textContent = "Press again to clear."; return; }
+        armed = false; D.tiers[opts.getTier()] = []; save(); render();
+      };
+      clr.onblur = function () { if (armed) { armed = false; clr.textContent = "Clear this log"; msg.textContent = ""; } };
+    }
+    function clearAll() { D = empty(); try { localStorage.removeItem(KEY); } catch (e) {} }
+    return { add: add, render: render, clearAll: clearAll, data: function () { return JSON.parse(JSON.stringify(D)); } };
+  }
+
+  /* Achievement standard. Each door declares its mastery achievements as plain criteria over a finished
+     run, so different disciplines can define mastery differently (fewest moves, no hints, etc.).
+     A run object is supplied by the door: e.g. { solved, hints, wrong, moves, reviews }.
+     Achievements are judged only at the moment of a successful solve, never from past records. */
+  function judge(defs, run) {
+    if (!run || run.solved !== true) return [];
+    return defs.filter(function (d) { return d.test(run); }).map(function (d) { return d.id; });
+  }
+
+  return { Notebook: Notebook, Log: Log, judge: judge, DEFAULT_STATES: DEFAULT_STATES };
+})();
+if (typeof module !== "undefined") module.exports = DQToolkit;
+
+</script>
+<script>
+/* Chaortal No. 02 · The Clockwork Latch · mechanical model, solver and tier definitions.
+   Single source of truth for the game, the animation and tools/verify-clockwork.js.
+
+   SIMPLIFIED PHYSICAL MODEL (documented for players in the page's "How the machinery works" panel)
+   1. Every gear has the same tooth size, so a gear's pitch radius is proportional to its tooth count:
+      radius = teeth / 2 "units".
+   2. Gears sit on fixed axles (brass bushings in the wall). Some axles are compound: they carry a FRONT
+      and a BACK gear, which are fixed together and turn as one.
+   3. Two gears mesh only if they are on the same layer (front or back) and the distance between their
+      axles is exactly radius A + radius B. Every layout distance is a whole number, so meshing is exact.
+   4. If two gears on the same layer would overlap (distance < radius A + radius B), they can't both be
+      mounted: the game refuses the placement. Gears on different layers pass over each other freely.
+   5. Meshing reverses direction, and speed scales by driver teeth / driven teeth:
+      rpm_driven = − rpm_driver × T_driver / T_driven.
+   6. Gears on one axle share one speed and direction.
+   7. If the gears in a closed loop disagree about how fast or which way to turn, the train locks
+      ("jams") and nothing moves. Gears connected to nothing simply stay still.
+   8. No friction, slip, backlash or inertia. Speeds are exact fractions (numerator/denominator).
+      Positive rpm is clockwise as seen from the front. */
+var CLOCKWORK = (function () {
+  "use strict";
+
+  /* ---------- exact rationals ---------- */
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = a % b; a = b; b = t; } return a || 1; }
+  function R(n, d) { if (d === undefined) d = 1; if (d === 0) throw new Error("zero denominator"); if (d < 0) { n = -n; d = -d; } var g = gcd(n, d); return { n: n / g, d: d / g }; }
+  function mul(a, b) { return R(a.n * b.n, a.d * b.d); }
+  function eq(a, b) { return a.n === b.n && a.d === b.d; }
+  function str(a) { return a.d === 1 ? String(a.n) : a.n + "/" + a.d; }
+  function num(a) { return a.n / a.d; }
+
+  /* ---------- geometry ---------- */
+  function dist2(a, b) { var dx = a.x - b.x, dy = a.y - b.y; return dx * dx + dy * dy; }
+  /* Compare 2·distance with T1+T2 using squares, so no square roots: 4·d² vs (T1+T2)². */
+  function contact(a, b, t1, t2) { var lhs = 4 * dist2(a, b), rhs = (t1 + t2) * (t1 + t2); return lhs === rhs ? "mesh" : lhs < rhs ? "overlap" : "apart"; }
+
+  /* ---------- tiers ----------
+     slots: axles on the wall. layers: which layers can hold a gear. fixed: gears that come with the machine.
+     inventory: the gear tray (each piece can be used once). Positions are in radius units. */
+  var TIERS = {
+    bronze: {
+      id: "bronze", name: "Bronze", title: "The First Movement", aim: "Understand the principle",
+      brief: "The tower's drive shaft turns its 20-tooth gear clockwise at 12 rpm. The latch spindle needs a 20-tooth gear turning counterclockwise at 12 rpm. Fill the empty axles to carry the motion across.",
+      drive: { slot: "M", rpm: R(12) },
+      target: { slot: "L", rpm: R(-12) },
+      slots: [
+        { id: "M", x: 0, y: 0, layers: ["f"], role: "drive", fixed: { f: 20 } },
+        { id: "A", x: 20, y: 0, layers: ["f"] },
+        { id: "C", x: 40, y: 0, layers: ["f"] },
+        { id: "B", x: 15, y: 20, layers: ["f"] },
+        { id: "L", x: 40, y: 20, layers: ["f"], role: "latch", fixed: { f: 20 } }
+      ],
+      inventory: [20, 20, 20, 12, 16, 30],
+      fewest: 2,
+      traps: [{ build: { "B.f": 30 }, note: "The shortcut over axle B: one big idler, two meshes, so the latch turns clockwise (wrong way).", expect: { reason: "wrong-output", output: [12, 1] } }],
+      hints: [
+        "Observe: run the crank with one gear in place and watch its direction. Every time one gear drives another, the direction flips.",
+        "Understand: the drive turns clockwise and the latch must turn counterclockwise. Count the meshes along the route: an odd number flips the direction, an even number keeps it.",
+        "Begin: a gear only engages when its teeth exactly reach its neighbour's. Between the drive and axle A, only a 20-tooth gear fits. Then count how many times the motion flips along each route before it reaches the latch."
+      ]
+    },
+    silver: {
+      id: "silver", name: "Silver", title: "The Transmission", aim: "Apply and combine the principle",
+      brief: "A 12-tooth driver turns clockwise at 60 rpm. The latch spindle must turn clockwise at exactly 30 rpm. You choose the gear for the latch spindle and the gears that carry the motion to it.",
+      drive: { slot: "M", rpm: R(60) },
+      target: { slot: "L", rpm: R(30) },
+      slots: [
+        { id: "M", x: 0, y: 0, layers: ["f"], role: "drive", fixed: { f: 12 } },
+        { id: "S", x: 24, y: 0, layers: ["f"] },
+        { id: "P", x: 0, y: 12, layers: ["f"] },
+        { id: "Q", x: 16, y: 24, layers: ["f"] },
+        { id: "L", x: 42, y: 24, layers: ["f"], role: "latch" }
+      ],
+      inventory: [12, 16, 18, 24, 28, 36],
+      fewest: 2,
+      traps: [{ build: { "P.f": 12, "Q.f": 28, "L.f": 24 }, note: "The route over the top: right speed, but three meshes turn the latch counterclockwise.", expect: { reason: "wrong-output", output: [-30, 1] } }],
+      hints: [
+        "Observe: the latch's speed depends only on the first and last gears in a simple chain. The gears in between change the direction, not the speed. Test it.",
+        "Understand: with a 12-tooth driver at 60 rpm, the latch speed is 60 × 12 ÷ (teeth on the latch gear). And clockwise at the latch means an even number of meshes: an odd number of gears in between.",
+        "Begin: 60 × 12 ÷ (latch teeth) = 30 means the latch gear needs 24 teeth. Clockwise at the latch needs an even number of meshes, so an odd number of gears between the driver and the latch. Count the meshes on each route before you engage."
+      ]
+    },
+    gold: {
+      id: "gold", name: "Gold", title: "The Clockwork Latch", aim: "Demonstrate mastery",
+      brief: "The driver turns clockwise at 60 rpm. The great latch needs its spindle turning counterclockwise at exactly 5 rpm. Axle C is compound: its front and back gears turn together. Every center distance is fixed.",
+      drive: { slot: "M", rpm: R(60) },
+      target: { slot: "L", rpm: R(-5) },
+      slots: [
+        { id: "M", x: 0, y: 0, layers: ["f"], role: "drive", fixed: { f: 12 } },
+        { id: "C", x: 30, y: 0, layers: ["f", "b"], role: "compound" },
+        { id: "I", x: 48, y: 0, layers: ["b"] },
+        { id: "N", x: 30, y: 24, layers: ["b"] },
+        { id: "L", x: 66, y: 24, layers: ["b"], role: "latch" }
+      ],
+      inventory: [12, 18, 24, 30, 36, 42, 48],
+      fewest: 4,
+      traps: [{ build: { "C.f": 48, "C.b": 18, "N.b": 30, "L.b": 42 }, note: "The upper route through N: right direction, but 15 × 18 ÷ 42 = 45/7 ≈ 6.43 rpm, not 5.", expect: { reason: "wrong-output", output: [-45, 7] } }],
+      hints: [
+        "Observe: no single pair of these gears turns 60 rpm into 5 rpm. The compound axle C lets you multiply two stages: whatever the front pair does, then whatever the back pair does.",
+        "Understand: meshing gears must add up to twice the distance between their axles. The drive and C are 30 apart, so C's front gear must have 60 − 12 = 48 teeth, and C then turns at 60 × 12 ÷ 48 = 15 rpm counterclockwise. Check every other distance the same way before you place a gear.",
+        "Begin: from 15 rpm to 5 rpm, the back stage must divide by 3, so the gear on the back of C and the latch gear must be in the ratio 1 : 3. C already turns counterclockwise, so the back stage needs an even number of meshes to keep that direction: one idler between C and the latch, not zero and not two."
+      ]
+    }
+  };
+
+  /* ---------- solving a build ----------
+     build: { "<slot>.<layer>": teeth } for the player's gears (fixed gears are added automatically).
+     Returns { ok, reason, collisions, jam, rpm: {gearKey: rational|null}, axle: {slot: rational|null}, output, meshes }. */
+  function gearsOf(tier, build) {
+    var T = TIERS[tier], g = {};
+    T.slots.forEach(function (s) { if (s.fixed) Object.keys(s.fixed).forEach(function (l) { g[s.id + "." + l] = s.fixed[l]; }); });
+    Object.keys(build || {}).forEach(function (k) { g[k] = build[k]; });
+    return g;
+  }
+  function slotById(tier, id) { return TIERS[tier].slots.filter(function (s) { return s.id === id; })[0]; }
+  function canPlace(tier, build, key, teeth) {
+    // Placement rule: slot/layer exists and is empty, not a fixed gear, and the gear overlaps nothing on its layer.
+    var parts = key.split("."), s = slotById(tier, parts[0]);
+    if (!s || s.layers.indexOf(parts[1]) < 0) return { ok: false, why: "That axle has no " + (parts[1] === "f" ? "front" : "back") + " position." };
+    if (s.fixed && s.fixed[parts[1]]) return { ok: false, why: "That gear is part of the machine." };
+    var g = gearsOf(tier, build);
+    if (g[key]) return { ok: false, why: "There's already a gear there." };
+    for (var k in g) {
+      var p = k.split("."); if (p[1] !== parts[1] || p[0] === parts[0]) continue;
+      if (contact(s, slotById(tier, p[0]), teeth, g[k]) === "overlap")
+        return { ok: false, why: "A " + teeth + "-tooth gear there would collide with the " + g[k] + "-tooth gear on axle " + p[0] + ".", clash: k };
+    }
+    return { ok: true };
+  }
+  function solve(tier, build) {
+    var T = TIERS[tier], g = gearsOf(tier, build), keys = Object.keys(g), collisions = [], meshes = [];
+    for (var i = 0; i < keys.length; i++) for (var j = i + 1; j < keys.length; j++) {
+      var a = keys[i].split("."), b = keys[j].split(".");
+      if (a[1] !== b[1] || a[0] === b[0]) continue;
+      var c = contact(slotById(tier, a[0]), slotById(tier, b[0]), g[keys[i]], g[keys[j]]);
+      if (c === "overlap") collisions.push([keys[i], keys[j]]);
+      if (c === "mesh") meshes.push([keys[i], keys[j]]);
+    }
+    var rpm = {}, axle = {};
+    keys.forEach(function (k) { rpm[k] = null; });
+    T.slots.forEach(function (s) { axle[s.id] = null; });
+    if (collisions.length) return { ok: false, reason: "collision", collisions: collisions, jam: null, rpm: rpm, axle: axle, output: null, meshes: meshes };
+    // Propagate from the drive axle through rigid (same-axle) and mesh links; detect contradictions.
+    var queue = [], jam = null;
+    function setAxle(sid, v, from) {
+      if (axle[sid] === null) { axle[sid] = v; queue.push(sid); }
+      else if (!eq(axle[sid], v) && !jam) jam = { axle: sid, a: str(axle[sid]), b: str(v), via: from };
+    }
+    setAxle(T.drive.slot, T.drive.rpm, "drive");
+    while (queue.length && !jam) {
+      var sid = queue.shift();
+      keys.forEach(function (k) { if (k.split(".")[0] === sid) rpm[k] = axle[sid]; });
+      meshes.forEach(function (m) {
+        var here = m[0].split(".")[0] === sid ? 0 : m[1].split(".")[0] === sid ? 1 : -1; if (here < 0) return;
+        var me = m[here], other = m[1 - here], os = other.split(".")[0];
+        setAxle(os, mul(axle[sid], R(-g[me], g[other])), me + "→" + other);
+      });
+    }
+    if (jam) { keys.forEach(function (k) { rpm[k] = null; }); T.slots.forEach(function (s) { axle[s.id] = null; }); }
+    var out = axle[T.target.slot], hasLatchGear = Object.keys(g).some(function (k) { return k.split(".")[0] === T.target.slot; });
+    var ok = !jam && hasLatchGear && out !== null && eq(out, T.target.rpm);
+    return { ok: ok, reason: jam ? "jam" : !hasLatchGear ? "no-latch-gear" : out === null ? "not-connected" : ok ? "ok" : "wrong-output",
+             collisions: [], jam: jam, rpm: rpm, axle: axle, output: out, meshes: meshes };
+  }
+
+  /* ---------- exhaustive enumeration of every buildable arrangement ----------
+     Each open position gets nothing or one tray gear (each piece used at most once; equal-sized pieces are
+     interchangeable). Builds a placement-by-placement game could reach = builds with no collisions. */
+  function positions(tier) {
+    var out = [];
+    TIERS[tier].slots.forEach(function (s) { s.layers.forEach(function (l) { if (!(s.fixed && s.fixed[l])) out.push(s.id + "." + l); }); });
+    return out;
+  }
+  function enumerate(tier, visit) {
+    var pos = positions(tier), inv = TIERS[tier].inventory.slice(), counts = {};
+    inv.forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
+    var sizes = Object.keys(counts).map(Number), build = {}, n = 0;
+    (function rec(i) {
+      if (i === pos.length) { n++; visit(Object.assign({}, build)); return; }
+      rec(i + 1);
+      sizes.forEach(function (t) {
+        if (!counts[t]) return;
+        counts[t]--; build[pos[i]] = t; rec(i + 1); delete build[pos[i]]; counts[t]++;
+      });
+    })(0);
+    return n;
+  }
+  /* A build is "minimal" if removing any player gear stops it from working. */
+  function essential(tier, build) {
+    return Object.keys(build).filter(function (k) { var b = Object.assign({}, build); delete b[k]; return !solve(tier, b).ok; }).length === Object.keys(build).length;
+  }
+  function census(tier) {
+    var total = 0, buildable = 0, jams = 0, solutions = [];
+    enumerate(tier, function (b) {
+      total++;
+      var r = solve(tier, b);
+      if (r.reason === "collision") return;
+      buildable++;
+      if (r.reason === "jam") jams++;
+      if (r.ok) solutions.push(b);
+    });
+    var minimal = solutions.filter(function (b) { return essential(tier, b); });
+    var fewest = solutions.reduce(function (m, b) { return Math.min(m, Object.keys(b).length); }, Infinity);
+    return { total: total, buildable: buildable, jams: jams, solutions: solutions, minimal: minimal, fewest: fewest };
+  }
+
+  /* ---------- Clockwork Mastery ----------
+     Judged once, at the moment of a successful engagement. Test runs are free and never counted. */
+  var MASTERY = [{
+    id: "clockwork-mastery", name: "Clockwork Mastery",
+    rule: "Engage the latch with no hints, no failed engagements, and no more gears than the fewest that can do the job.",
+    test: function (run) { return run.solved === true && run.hints === 0 && run.wrong === 0 && run.gears <= run.fewest; }
+  }];
+
+  return { R: R, mul: mul, eq: eq, str: str, num: num, contact: contact, TIERS: TIERS, gearsOf: gearsOf, slotById: slotById,
+           canPlace: canPlace, solve: solve, positions: positions, enumerate: enumerate, essential: essential, census: census,
+           MASTERY: MASTERY, PENALTY_PER_WRONG: 4, PENALTY_CAP: 12, HINT_COST: 12 };
+})();
+if (typeof module !== "undefined") module.exports = CLOCKWORK;
+
+</script>
+<script>
+(function () {
+  "use strict";
+  var M = CLOCKWORK, K = DQKeyring, DOOR = "02", STATE_KEY = "dq-chaortal-02-v1", ORDER = ["bronze", "silver", "gold"];
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var NS = "http://www.w3.org/2000/svg";
+
+  /* ---------- state (validated on load) ---------- */
+  function freshPlay() { return { build: {}, hints: 0, wrong: 0, tried: [], solved: false, score: null, mastery: false, runs: 0 }; }
+  function freshState() { return { schema: 1, tier: "bronze", motion: null, sound: false, play: { bronze: freshPlay(), silver: freshPlay(), gold: freshPlay() } }; }
+  function validBuild(t, b) {
+    if (!b || typeof b !== "object" || Array.isArray(b)) return false;
+    var cur = {}, left = {}, ok = true;
+    M.TIERS[t].inventory.forEach(function (n) { left[n] = (left[n] || 0) + 1; });
+    Object.keys(b).forEach(function (k) {
+      if (!ok) return; var n = b[k];
+      if (M.positions(t).indexOf(k) < 0 || !Number.isInteger(n) || !left[n] || !M.canPlace(t, cur, k, n).ok) { ok = false; return; }
+      left[n]--; cur[k] = n;
+    });
+    return ok;
+  }
+  function validPlay(t, p) {
+    return p && typeof p === "object" && validBuild(t, p.build) && Number.isInteger(p.hints) && p.hints >= 0 && p.hints <= 3 &&
+      Number.isInteger(p.wrong) && p.wrong >= 0 && p.wrong <= 1000 && Array.isArray(p.tried) && p.tried.length <= 500 &&
+      p.tried.every(function (x) { return typeof x === "string" && x.length < 200; }) && typeof p.solved === "boolean" &&
+      (p.score === null || (Number.isInteger(p.score) && p.score >= 0 && p.score <= 100)) && typeof p.mastery === "boolean" &&
+      Number.isInteger(p.runs) && p.runs >= 0;
+  }
+  function loadState() {
+    try {
+      var s = JSON.parse(localStorage.getItem(STATE_KEY) || "null");
+      if (s && s.schema === 1 && ORDER.indexOf(s.tier) >= 0 && (s.motion === null || typeof s.motion === "boolean") && typeof s.sound === "boolean" && s.play &&
+          ORDER.every(function (t) { return validPlay(t, s.play[t]); })) return s;
+    } catch (e) {}
+    return freshState();
+  }
+  function saveState() { try { localStorage.setItem(STATE_KEY, JSON.stringify(S)); } catch (e) {} }
+  var S = loadState(), undoStack = { bronze: [], silver: [], gold: [] }, sel = null, lastRun = null;
+  var cur = function () { return S.play[S.tier]; }, T = function () { return M.TIERS[S.tier]; };
+
+  /* ---------- helpers ---------- */
+  function penalty(p) { return Math.min(M.PENALTY_CAP, p.wrong * M.PENALTY_PER_WRONG); }
+  function scoreNow(p) { return Math.max(0, Math.min(100, 100 - p.hints * M.HINT_COST - penalty(p))); }
+  function posName(k) { var a = k.split("."), s = M.slotById(S.tier, a[0]), both = s.layers.length === 2;
+    return (s.role === "latch" ? "Latch spindle" : s.role === "drive" ? "Drive shaft" : "Axle " + a[0]) + (both ? (a[1] === "f" ? " · front" : " · back") : ""); }
+  function rpmText(r) { if (r === null) return "still"; if (r.n === 0) return "0 rpm"; var v = { n: Math.abs(r.n), d: r.d }, frac = M.str(v);
+    var approx = v.d === 1 ? "" : " (≈ " + (v.n / v.d).toFixed(2) + ")"; return frac + approx + " rpm " + (r.n > 0 ? "clockwise ↻" : "counterclockwise ↺"); }
+  function left(t, build) { var c = {}; M.TIERS[t].inventory.forEach(function (n) { c[n] = (c[n] || 0) + 1; }); Object.keys(build).forEach(function (k) { c[build[k]]--; }); return c; }
+  function signature(b) { return Object.keys(b).sort().map(function (k) { return k + "=" + b[k]; }).join(","); }
+  function buildText(b) { var ks = Object.keys(b).sort(); return ks.length ? ks.map(function (k) { var a = k.split("."); return a[0] + (M.slotById(S.tier, a[0]).layers.length === 2 ? (a[1] === "f" ? "·front " : "·back ") : " ") + b[k]; }).join(", ") : "no gears"; }
+
+  /* ---------- gear drawing ---------- */
+  function gearPath(n) {
+    var r = n / 2, ro = r + 0.95, rr = r - 1.15, p = 2 * Math.PI / n, d = "";
+    for (var i = 0; i < n; i++) {
+      var a = i * p, pts = [[rr, a - 0.34 * p], [ro, a - 0.17 * p], [ro, a + 0.17 * p], [rr, a + 0.34 * p], [rr, a + 0.66 * p]];
+      pts.forEach(function (q, j) { d += (i === 0 && j === 0 ? "M" : "L") + (q[0] * Math.cos(q[1])).toFixed(3) + " " + (q[0] * Math.sin(q[1])).toFixed(3); });
+    }
+    d += "Z";
+    var hub = Math.max(1.6, r * 0.22);
+    d += "M" + hub + " 0A" + hub + " " + hub + " 0 1 0 " + (-hub) + " 0A" + hub + " " + hub + " 0 1 0 " + hub + " 0Z";
+    if (n >= 24) { var hr = r * 0.2, hc = r * 0.55;
+      for (var k = 0; k < 4; k++) { var ca = Math.PI / 4 + k * Math.PI / 2, cx = hc * Math.cos(ca), cy = hc * Math.sin(ca);
+        d += "M" + (cx + hr).toFixed(2) + " " + cy.toFixed(2) + "A" + hr + " " + hr + " 0 1 0 " + (cx - hr).toFixed(2) + " " + cy.toFixed(2) + "A" + hr + " " + hr + " 0 1 0 " + (cx + hr).toFixed(2) + " " + cy.toFixed(2) + "Z"; } }
+    return d;
+  }
+  function trayIcon(n) {
+    var vb = n / 2 + 1.4;
+    return '<svg viewBox="' + (-vb) + " " + (-vb) + " " + 2 * vb + " " + 2 * vb + '" aria-hidden="true"><path d="' + gearPath(n) + '" fill="#c9a043" fill-rule="evenodd" stroke="#5a3d0e" stroke-width="' + (vb / 30).toFixed(2) + '"/></svg>';
+  }
+
+  /* ---------- machine view (renders solver state; never decides it) ---------- */
+  var anim = null, phases = {}, gearEls = {};
+  function bounds() {
+    var t = T(), maxR = Math.max.apply(null, t.inventory.concat([24])) / 2 + 2, xs = t.slots.map(function (s) { return s.x; }), ys = t.slots.map(function (s) { return s.y; });
+    var minX = Math.min.apply(null, xs) - maxR, maxX = Math.max.apply(null, xs) + maxR + 26, minY = Math.min.apply(null, ys) - maxR - 12, maxY = Math.max.apply(null, ys) + maxR + 4;
+    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+  }
+  function renderMachine() {
+    stopAnim();
+    var t = T(), p = cur(), B = bounds(), g = M.gearsOf(S.tier, p.build), svg = $("machine");
+    var L = M.slotById(S.tier, t.target.slot), doorX = B.x + B.w - 18, sw = B.w / 600;
+    svg.setAttribute("viewBox", B.x + " " + B.y + " " + B.w + " " + B.h);
+    var h = '<defs><linearGradient id="stone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f363c"/><stop offset="1" stop-color="#1d2226"/></linearGradient>' +
+      '<linearGradient id="shaft" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfe3f0" stop-opacity=".22"/><stop offset="1" stop-color="#cfe3f0" stop-opacity="0"/></linearGradient>' +
+      '<radialGradient id="brass"><stop offset="0" stop-color="#e8c873"/><stop offset="1" stop-color="#a87b26"/></radialGradient>' +
+      '<radialGradient id="copper"><stop offset="0" stop-color="#d0875a"/><stop offset="1" stop-color="#8a4a26"/></radialGradient>' +
+      '<radialGradient id="steel"><stop offset="0" stop-color="#b9c2c9"/><stop offset="1" stop-color="#6c767e"/></radialGradient></defs>' +
+      '<rect x="' + B.x + '" y="' + B.y + '" width="' + B.w + '" height="' + B.h + '" fill="url(#stone)"/>';
+    // stone courses and a timber beam (decoration)
+    for (var yy = B.y + 9; yy < B.y + B.h; yy += 9) h += '<line x1="' + B.x + '" x2="' + (B.x + B.w) + '" y1="' + yy + '" y2="' + yy + '" stroke="#ffffff" stroke-opacity=".035" stroke-width="' + (sw * 1.2) + '"/>';
+    h += '<rect x="' + B.x + '" y="' + (B.y + 1) + '" width="' + B.w + '" height="5" fill="#4a3522"/><rect x="' + B.x + '" y="' + (B.y + 5.4) + '" width="' + B.w + '" height=".7" fill="#2b1e12"/>';
+    // lancet window light
+    var wx = B.x + B.w * 0.18;
+    h += '<path d="M' + wx + ' ' + (B.y + 6) + ' l6 0 l' + B.w * 0.3 + ' ' + B.h + ' l-' + (B.w * 0.3 + 18) + ' 0 Z" fill="url(#shaft)"/>';
+    // the sealed door and its bolt
+    var open = p.solved;
+    h += '<g id="doorG"><rect x="' + doorX + '" y="' + (L.y - 22) + '" width="14" height="40" fill="#151a1d" stroke="#59646c" stroke-width="' + sw * 2 + '"/>' +
+      '<rect id="doorLeaf" x="' + doorX + '" y="' + (L.y - 22) + '" width="14" height="40" fill="#5a3e24" stroke="#2b1e12" stroke-width="' + sw * 2 + '" style="transform-box:fill-box;transform-origin:100% 50%;transition:transform 1.2s ease' + (open ? ';transform:scaleX(.18)' : '') + '"/>' +
+      '<rect x="' + (doorX + 2) + '" y="' + (L.y - 18) + '" width="10" height="14" fill="none" stroke="#2b1e12" stroke-width="' + sw * 1.5 + '" opacity=".6"/></g>';
+    var boltLen = doorX - (L.x + 4);
+    h += '<rect id="bolt" x="' + (L.x + 4) + '" y="' + (L.y - 1.2) + '" width="' + boltLen + '" height="2.4" rx="1" fill="url(#steel)" style="transition:transform 1s ease' + (open ? ';transform:translateX(-' + (boltLen - 4) + 'px)' : '') + '"/>';
+    // required direction marker, above the bolt by the door
+    var need = t.target.rpm, cw = need.n > 0;
+    h += '<text x="' + (doorX - 2) + '" y="' + (L.y - 5) + '" text-anchor="end" font-family="Barlow Semi Condensed,sans-serif" font-weight="600" font-size="' + (sw * 13) + '" fill="#ffd27a" stroke="#14181b" stroke-width="' + sw * 3 + '" paint-order="stroke">needs ' + esc(M.str({ n: Math.abs(need.n), d: need.d })) + " rpm " + (cw ? "↻" : "↺") + "</text>";
+    // gears: back layer first, then front
+    var order = Object.keys(g).sort(function (a, b) { return (a.split(".")[1] === "b" ? 0 : 1) - (b.split(".")[1] === "b" ? 0 : 1); });
+    h += '<g id="gears">';
+    order.forEach(function (k) {
+      var a = k.split("."), s = M.slotById(S.tier, a[0]), fixed = s.fixed && s.fixed[a[1]], back = a[1] === "b";
+      var fill = fixed ? "url(#steel)" : back ? "url(#copper)" : "url(#brass)";
+      h += '<g transform="translate(' + s.x + " " + s.y + ')"><g data-gear="' + k + '"><g class="rot"><path d="' + gearPath(g[k]) + '" fill="' + fill + '" fill-rule="evenodd" stroke="' + (back ? "#3d1f0e" : "#3a2808") + '" stroke-width="' + sw * 1.4 + '"' + (back ? ' stroke-dasharray="' + sw * 3 + " " + sw * 2 + '" opacity=".92"' : (Object.keys(g).some(function (x) { return x.split(".")[1] === "b"; }) ? ' opacity=".9"' : "")) + "/></g></g></g>";
+    });
+    h += "</g>";
+    // axle positions (buttons) + bushings + labels + tooth counts
+    t.slots.forEach(function (s) {
+      h += '<circle cx="' + s.x + '" cy="' + s.y + '" r="1.5" fill="#d9b25c" stroke="#3a2808" stroke-width="' + sw + '"/>';
+      var label = s.role === "drive" ? "drive" : s.role === "latch" ? "latch" : s.id;
+      h += '<text x="' + (s.x - 3.2) + '" y="' + (s.y - 3.2) + '" text-anchor="end" font-family="Barlow Semi Condensed,sans-serif" font-weight="700" font-size="' + sw * 14 + '" fill="#e9c27a" stroke="#14181b" stroke-width="' + sw * 3 + '" paint-order="stroke">' + label + "</text>";
+      s.layers.forEach(function (l, li) {
+        var k = s.id + "." + l, fixed = s.fixed && s.fixed[l]; if (fixed) return;
+        var off = s.layers.length === 2 ? (li === 0 ? -4.2 : 4.2) : 0, cy = s.y + (s.layers.length === 2 ? 5.2 : 0), has = g[k];
+        h += '<g class="pos' + (sel && sel.pos === k ? " sel" : "") + '" data-pos="' + k + '" role="button" tabindex="0" aria-label="' + esc(posName(k) + (has ? ", " + has + "-tooth gear. Press to remove it." : ", empty. Press to place the selected gear.")) + '">' +
+          '<circle class="ring" cx="' + (s.x + off) + '" cy="' + cy + '" r="' + (s.layers.length === 2 ? 3 : 4.2) + '" fill="rgba(0,0,0,.001)" stroke="' + (has ? "rgba(255,255,255,.25)" : "#e9c27a") + '" stroke-width="' + sw * 1.6 + '" stroke-dasharray="' + sw * 4 + " " + sw * 3 + '"/>' +
+          (s.layers.length === 2 ? '<text x="' + (s.x + off) + '" y="' + (cy + 1.4) + '" text-anchor="middle" font-family="Barlow Semi Condensed,sans-serif" font-weight="700" font-size="' + sw * 11 + '" fill="#e9c27a" pointer-events="none">' + (l === "f" ? "F" : "B") + "</text>" : "") + "</g>";
+      });
+    });
+    // tooth counts (do not rotate)
+    order.forEach(function (k) {
+      var a = k.split("."), s = M.slotById(S.tier, a[0]), back = a[1] === "b", both = s.layers.length === 2;
+      h += '<text x="' + (s.x + (both ? (back ? 0 : 0) : 0)) + '" y="' + (s.y + (both ? (back ? 13 : -7.5) : -g[k] / 2 + 4.6)) + '" text-anchor="middle" font-family="Barlow Semi Condensed,sans-serif" font-weight="700" font-size="' + sw * 12 + '" fill="#fff" stroke="#14181b" stroke-width="' + sw * 3 + '" paint-order="stroke" pointer-events="none">' + g[k] + (both ? (back ? " back" : " front") : "") + "</text>";
+    });
+    svg.innerHTML = h;
+    gearEls = {}; svg.querySelectorAll("[data-gear]").forEach(function (el) { gearEls[el.dataset.gear] = el.querySelector(".rot"); });
+    svg.querySelectorAll(".pos").forEach(function (el) {
+      el.onclick = function () { posAction(el.dataset.pos); };
+      el.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); posAction(el.dataset.pos); } };
+    });
+    computePhases(); setAngles(0);
+  }
+  /* Mesh phases: each driven gear's starting angle is derived from its driver so teeth interlock, then every gear
+     turns at exactly the solver's rate, so meshing stays consistent. (Formula derived in the README.) */
+  function computePhases() {
+    var p = cur(), g = M.gearsOf(S.tier, p.build), r = M.solve(S.tier, p.build); phases = {};
+    var drive = T().drive.slot, done = {}, q = [];
+    Object.keys(g).forEach(function (k) { if (k.split(".")[0] === drive) { phases[k] = 0; done[k] = 1; q.push(k); } });
+    while (q.length) {
+      var k = q.shift(), ax = k.split(".")[0];
+      Object.keys(g).forEach(function (o) { if (!done[o] && o.split(".")[0] === ax) { phases[o] = phases[k]; done[o] = 1; q.push(o); } });
+      r.meshes.forEach(function (m) {
+        var i = m[0] === k ? 0 : m[1] === k ? 1 : -1; if (i < 0) return; var o = m[1 - i]; if (done[o]) return;
+        var A = M.slotById(S.tier, ax), Bs = M.slotById(S.tier, o.split(".")[0]), th = Math.atan2(Bs.y - A.y, Bs.x - A.x);
+        phases[o] = th + Math.PI + (th - phases[k]) * g[k] / g[o] - Math.PI / g[o]; done[o] = 1; q.push(o);
+      });
+    }
+    Object.keys(g).forEach(function (k) { if (!(k in phases)) phases[k] = 0; });
+  }
+  var VIS = 0.5 * 2 * Math.PI / 60; // radians per second per rpm, at half real speed
+  function setAngles(tSec, rates) {
+    Object.keys(gearEls).forEach(function (k) {
+      var w = rates && rates[k] ? rates[k] : 0, a = (phases[k] || 0) + w * VIS * tSec;
+      gearEls[k].setAttribute("transform", "rotate(" + (a * 180 / Math.PI).toFixed(3) + ")");
+    });
+  }
+  function stopAnim() { if (anim) { cancelAnimationFrame(anim.id); anim = null; } stopTicks(); }
+  function runAnim(result, ms, onEnd) {
+    stopAnim();
+    var rates = {}; Object.keys(result.rpm).forEach(function (k) { rates[k] = result.rpm[k] === null ? 0 : M.num(result.rpm[k]); });
+    if (!motionOK()) { setAngles(0); if (onEnd) onEnd(); return; }
+    var t0 = performance.now(); anim = { id: 0 };
+    startTicks(Math.abs(M.num(T().drive.rpm)));
+    (function frame(now) {
+      var t = (now - t0) / 1000; setAngles(t, rates);
+      if (now - t0 < ms) anim.id = requestAnimationFrame(frame); else { anim = null; stopTicks(); if (onEnd) onEnd(); }
+    })(t0);
+  }
+
+  /* ---------- sound (optional, off by default) ---------- */
+  var actx = null, tickTimer = null;
+  function audio() { if (!S.sound) return null; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } return actx; }
+  function blip(freq, dur, vol, type) { var a = audio(); if (!a) return; var o = a.createOscillator(), g = a.createGain(); o.type = type || "square"; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, a.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur); o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + dur); }
+  function startTicks(rpm) { stopTicks(); if (!S.sound) return; var every = Math.max(90, 6000 / Math.max(1, rpm)); tickTimer = setInterval(function () { blip(1800, 0.03, 0.04); }, every); }
+  function stopTicks() { if (tickTimer) { clearInterval(tickTimer); tickTimer = null; } }
+
+  /* ---------- placing gears ---------- */
+  function msg(text, cls) { var f = $("feedback"); f.className = "feedback" + (cls ? " " + cls : ""); f.textContent = text || ""; }
+  function changed() { lastRun = null; renderReadings(); }
+  function posAction(k) {
+    var p = cur(); if (p.solved) { msg("This mechanism is open. Play it again to rebuild."); return; }
+    if (p.build[k]) { undoStack[S.tier].push(Object.assign({}, p.build)); var n = p.build[k]; delete p.build[k]; saveState(); changed(); sel = null; render(); msg("Took the " + n + "-tooth gear off " + posName(k) + "."); focusPos(k); return; }
+    if (!sel || !sel.size) { sel = { pos: k }; render(); msg("Now choose a gear from the tray for " + posName(k) + "."); var first = document.querySelector(".tg:not(:disabled)"); if (first) first.focus(); return; }
+    place(k, sel.size);
+  }
+  function place(k, n) {
+    var p = cur(), chk = M.canPlace(S.tier, p.build, k, n);
+    if (!chk.ok) { msg(chk.why, "bad"); return false; }
+    if (!left(S.tier, p.build)[n]) { msg("There are no " + n + "-tooth gears left in the tray.", "bad"); return false; }
+    undoStack[S.tier].push(Object.assign({}, p.build)); p.build[k] = n; sel = null; saveState(); changed(); render();
+    msg("Mounted a " + n + "-tooth gear on " + posName(k) + "."); blip(520, 0.06, 0.05, "triangle"); focusPos(k); return true;
+  }
+  function focusPos(k) { var el = document.querySelector('.pos[data-pos="' + k + '"]'); if (el) el.focus(); }
+  function renderTray() {
+    var p = cur(), c = left(S.tier, p.build), sizes = [];
+    T().inventory.forEach(function (n) { if (sizes.indexOf(n) < 0) sizes.push(n); });
+    $("tray").innerHTML = sizes.map(function (n) {
+      return '<button type="button" class="tg" data-n="' + n + '" aria-pressed="' + (!!(sel && sel.size === n)) + '"' + (c[n] && !p.solved ? "" : " disabled") +
+        ' aria-label="' + n + "-tooth gear, " + c[n] + ' left">' + trayIcon(n) + "<b>" + n + "</b><small>× " + c[n] + "</small></button>";
+    }).join("");
+    $("tray").querySelectorAll(".tg").forEach(function (b) {
+      b.onclick = function () {
+        var n = +b.dataset.n;
+        if (sel && sel.pos && !sel.size) { var k = sel.pos; if (place(k, n)) return; sel = null; render(); return; }
+        sel = sel && sel.size === n ? null : { size: n }; render();
+        msg(sel ? "Selected a " + n + "-tooth gear. Now choose an axle on the machine, or use the Axles list." : "");
+      };
+    });
+    $("trayNote").textContent = p.solved ? "" : "Pick a gear, then an axle (or pick an axle first). Press a mounted gear to take it off.";
+  }
+  function renderAxles() {
+    var p = cur(), c = left(S.tier, p.build), sizes = [];
+    T().inventory.forEach(function (n) { if (sizes.indexOf(n) < 0) sizes.push(n); });
+    var r = M.solve(S.tier, p.build);
+    $("axles").innerHTML = M.positions(S.tier).map(function (k, i) {
+      var curN = p.build[k] || "", meshes = r.meshes.filter(function (m) { return m[0] === k || m[1] === k; }).map(function (m) { var o = m[0] === k ? m[1] : m[0]; return posName(o).replace("Axle ", ""); });
+      var opts = '<option value="">Empty</option>' + sizes.filter(function (n) { return c[n] || n === curN; }).map(function (n) { return '<option value="' + n + '"' + (n === curN ? " selected" : "") + ">" + n + " teeth</option>"; }).join("");
+      return '<div class="axrow"><label for="ax' + i + '">' + esc(posName(k)) + "<small>" + (curN ? (meshes.length ? "meshes with " + esc(meshes.join(", ")) : "touches no other gear") : "empty") + '</small></label><select id="ax' + i + '" data-pos="' + k + '"' + (p.solved ? " disabled" : "") + ">" + opts + "</select></div>";
+    }).join("");
+    $("axles").querySelectorAll("select").forEach(function (sl) {
+      sl.onchange = function () {
+        var k = sl.dataset.pos, v = sl.value ? +sl.value : null, p = cur();
+        if (p.build[k] && !v) { posAction(k); return; }
+        if (p.build[k] && v) { var prev = p.build[k]; undoStack[S.tier].push(Object.assign({}, p.build)); delete p.build[k];
+          if (!place(k, v)) { p.build[k] = prev; undoStack[S.tier].pop(); render(); } else undoStack[S.tier].splice(-2, 1); return; }
+        if (v && !place(k, v)) render();
+      };
+    });
+  }
+
+  /* ---------- crank (free) and engage (scored) ---------- */
+  function crank() {
+    var p = cur(); if (p.solved) return;
+    var r = M.solve(S.tier, p.build); lastRun = r; p.runs++; saveState();
+    renderReadings(); log.add(runText(p.runs, p.build, r));
+    if (r.reason === "jam") { blip(110, 0.25, 0.08, "sawtooth"); document.querySelectorAll("#gears [data-gear]").forEach(function (el) { el.classList.add("shake"); }); setTimeout(function () { document.querySelectorAll(".shake").forEach(function (el) { el.classList.remove("shake"); }); }, 800); }
+    runAnim(r, 3200);
+  }
+  function runText(n, b, r) {
+    var out = r.reason === "jam" ? "jammed at axle " + r.jam.axle : r.output === null ? "latch still" : "latch " + rpmText(r.output);
+    return "Run " + n + " · " + buildText(b) + " → " + out;
+  }
+  function renderReadings() {
+    var el = $("readings"), r = lastRun, t = T();
+    if (!r) { el.innerHTML = '<p class="note" style="margin:0">Turn the crank to see how every gear moves. Test runs are free and unlimited.</p>'; return; }
+    if (r.reason === "jam") { el.innerHTML = '<p class="feedback bad" style="margin:0">The train jams. Axle ' + esc(r.jam.axle) + " is being pushed to turn at " + esc(r.jam.a) + " rpm and at " + esc(r.jam.b) + " rpm at the same time, so nothing moves. Look for a loop of gears.</p>"; return; }
+    var rows = t.slots.filter(function (s) { return r.axle[s.id] !== null || s.role === "latch"; }).map(function (s) {
+      var teeth = s.layers.map(function (l) { var g = M.gearsOf(S.tier, cur().build)[s.id + "." + l]; return g ? g + (s.layers.length === 2 ? (l === "f" ? " front" : " back") : "") : null; }).filter(Boolean).join(" + ") || "—";
+      return '<tr class="' + (s.role === "latch" ? "latch" : "") + '"><td>' + (s.role === "drive" ? "Drive shaft" : s.role === "latch" ? "Latch spindle" : "Axle " + s.id) + "</td><td>" + esc(teeth) + '</td><td class="dir">' + esc(rpmText(r.axle[s.id])) + "</td></tr>";
+    }).join("");
+    el.innerHTML = '<table class="readings"><thead><tr><th scope="col">Axle</th><th scope="col">Teeth</th><th scope="col">Turning</th></tr></thead><tbody>' + rows + "</tbody></table>" +
+      '<p class="note">The latch needs ' + esc(rpmText(t.target.rpm)) + ".</p>";
+  }
+  function engage() {
+    var p = cur(), t = T(); if (p.solved) return;
+    if (!M.gearsOf(S.tier, p.build)[t.target.slot + "." + M.slotById(S.tier, t.target.slot).layers[0]]) { msg("The latch spindle has no gear on it yet.", "bad"); return; }
+    var sig = signature(p.build), r = M.solve(S.tier, p.build);
+    if (!r.ok && p.tried.indexOf(sig) >= 0) { msg("You've already engaged this exact arrangement and it didn't catch. Trying it again costs nothing.", "bad"); return; }
+    K.noteAttempt(DOOR, S.tier);
+    if (r.ok) {
+      p.solved = true; p.score = scoreNow(p);
+      var gears = Object.keys(p.build).length;
+      var earned = DQToolkit.judge(M.MASTERY, { solved: true, hints: p.hints, wrong: p.wrong, gears: gears, fewest: t.fewest });
+      p.mastery = earned.indexOf("clockwork-mastery") >= 0;
+      var res = K.recordSolve(DOOR, S.tier, p.score, p.hints, earned);
+      saveState(); lastRun = r; log.add("Engaged · " + buildText(p.build) + " → the latch caught");
+      blip(392, 0.25, 0.06, "triangle"); setTimeout(function () { blip(523, 0.4, 0.06, "triangle"); }, 220);
+      render(); runAnim(r, 2800); showAward(res, gears);
+    } else {
+      p.wrong++; p.tried.push(sig); saveState();
+      var why = r.reason === "jam" ? "the train jammed" : r.reason === "not-connected" ? "the latch spindle never moved" : "the spindle turned " + rpmText(r.output);
+      log.add("Engaged · " + buildText(p.build) + " → didn't catch (" + why + ")");
+      lastRun = r; renderReadings(); renderBar(); runAnim(r, 1600);
+      msg("The latch didn't catch: " + why + ". It needs " + rpmText(t.target.rpm) + ". " + (penalty(p) < M.PENALTY_CAP ? "−" + M.PENALTY_PER_WRONG + " points." : "Engagement penalties have reached their cap."), "bad");
+    }
+  }
+
+  /* ---------- tiers, bar, hints ---------- */
+  function renderTiers() {
+    $("tiers").innerHTML = ORDER.map(function (t) {
+      var rec = K.tier(DOOR, t), tt = M.TIERS[t];
+      var st = rec && rec.solved ? '<span class="st">✓ Open · best ' + rec.best + (rec.hintFree ? " · ★ hint-free" : "") + (K.hasAch(DOOR, t, "clockwork-mastery") ? " · ⚙ mastery" : "") + "</span>" : "<span>" + (t === "bronze" ? "Recommended first" : "Not yet opened") + "</span>";
+      return '<button type="button" class="tierbtn" data-t="' + t + '" aria-pressed="' + (S.tier === t) + '"><b>' + tt.name + " · " + tt.title + '</b><span class="aim">' + tt.aim + "</span>" + st + "</button>";
+    }).join("");
+    $("tiers").querySelectorAll(".tierbtn").forEach(function (b) { b.onclick = function () { S.tier = b.dataset.t; sel = null; lastRun = null; saveState(); msg(""); render(); }; });
+  }
+  function renderBar() {
+    var p = cur(), parts = [];
+    if (p.hints) parts.push("−" + p.hints * M.HINT_COST + " for " + p.hints + " hint" + (p.hints > 1 ? "s" : ""));
+    if (p.wrong) parts.push("−" + penalty(p) + " for " + p.wrong + " failed engagement" + (p.wrong > 1 ? "s" : "") + (penalty(p) === M.PENALTY_CAP ? " (capped)" : ""));
+    $("score").innerHTML = p.solved ? "<b>" + p.score + "</b> scored on this attempt" : "<b>" + scoreNow(p) + "</b> if the latch catches now" + (parts.length ? " · " + parts.join(" · ") : "");
+    $("engNote").textContent = p.solved ? "" : "Turning the crank is free. Engaging the latch with an arrangement that doesn't work costs " + M.PENALTY_PER_WRONG + " points (" + M.PENALTY_CAP + " at most).";
+    $("engageBtn").disabled = p.solved; $("engageBtn").textContent = p.solved ? "Engaged" : "Engage the latch";
+    $("crankBtn").disabled = p.solved; $("undoBtn").disabled = p.solved || !undoStack[S.tier].length; $("clearBtn").disabled = p.solved || !Object.keys(p.build).length;
+  }
+  var HL = ["Observe", "Understand", "Begin"];
+  function renderHints() {
+    var t = T(), p = cur();
+    $("hints").innerHTML = p.hints ? t.hints.slice(0, p.hints).map(function (h, i) { var x = h.replace(/^(Observe|Understand|Begin):\s*/, ""); x = x.charAt(0).toUpperCase() + x.slice(1);
+      return '<div class="hint"><b>Hint ' + (i + 1) + " · " + HL[i] + "</b>" + esc(x) + "</div>"; }).join("") : '<p class="note" style="margin:0">No hints used.</p>';
+    var b = $("hintBtn"); if (p.hints >= 3) { b.textContent = "All three hints shown"; b.disabled = true; } else { b.textContent = "Reveal hint " + (p.hints + 1) + " · " + HL[p.hints] + " (−" + M.HINT_COST + ")"; b.disabled = p.solved; }
+  }
+
+  /* ---------- award ---------- */
+  function emblem(tier) {
+    var col = { bronze: "#b0703a", silver: "#c3c8cf", gold: "#e2b93b" }[tier];
+    return '<svg class="emb" viewBox="-75 -75 150 150" aria-hidden="true"><circle r="72" fill="none" stroke="' + col + '" stroke-width="3" stroke-dasharray="' + (tier === "bronze" ? "0" : tier === "silver" ? "8 5" : "2 4") + '"/>' +
+      '<g transform="translate(-6 -14) scale(2.3)"><path d="' + gearPath(16) + '" fill="' + col + '" fill-rule="evenodd" stroke="#3a2808" stroke-width=".8"/></g>' +
+      '<rect x="-5" y="2" width="10" height="44" rx="3" fill="' + col + '" stroke="#3a2808" stroke-width="2.5"/><path d="M5 26 h14 v8 h-14 M5 38 h10 v7 h-10" fill="' + col + '" stroke="#3a2808" stroke-width="2.5"/>' +
+      '<text y="68" text-anchor="middle" font-family="Barlow Semi Condensed,sans-serif" font-size="11" font-weight="700" letter-spacing="2" fill="currentColor">' + tier.toUpperCase() + "</text></svg>";
+  }
+  function masteryLine(p, gears) {
+    var m = M.MASTERY[0];
+    return p.mastery ? "<p><b>⚙ Clockwork Mastery.</b> " + esc(m.rule) + "</p>"
+      : '<p class="note">⚙ <b>Clockwork Mastery</b> is a separate honour: ' + esc(m.rule.charAt(0).toLowerCase() + m.rule.slice(1)) + (gears !== undefined ? " This mechanism can be done with " + T().fewest + " gears; you used " + gears + "." : "") + " Test runs never count against it.</p>";
+  }
+  function explain() {
+    var t = T(), r = M.solve(S.tier, cur().build), s = M.slotById(S.tier, t.target.slot);
+    return "Your train turns the latch spindle at " + rpmText(r.axle[s.id]) + ", exactly what the latch needs.";
+  }
+  function showAward(res, gears) {
+    var t = T(), p = cur(), next = ORDER[ORDER.indexOf(S.tier) + 1], tags = [];
+    if (p.hints === 0) tags.push('<span class="tag hf">★ Hint-free</span>');
+    if (p.mastery) tags.push('<span class="tag ma">⚙ Clockwork Mastery' + (res.newAchievements.indexOf("clockwork-mastery") >= 0 ? " · new" : "") + "</span>");
+    if (res.newBest) tags.push('<span class="tag up">New personal best</span>');
+    if (res.upgraded) tags.push('<span class="tag up">Key upgraded to ' + res.keyAfter + "</span>");
+    var a = $("award"); a.hidden = false; a.className = "award";
+    a.innerHTML = emblem(S.tier) + '<div><h2 id="awardTitle" tabindex="-1">The latch engages. The door opens.</h2><p><b>' + t.name + " key</b> · Chaortal No. 02 · The Clockwork Latch</p><div class=\"tags\">" + tags.join("") + "</div>" +
+      "<p>Score <b>" + p.score + "</b> · personal best for " + t.name + " <b>" + res.best + "</b>" + (p.hints ? " · " + p.hints + " hint" + (p.hints > 1 ? "s" : "") : "") + (p.wrong ? " · " + p.wrong + " failed engagement" + (p.wrong > 1 ? "s" : "") : "") + " · " + gears + " gear" + (gears > 1 ? "s" : "") + " mounted</p>" +
+      masteryLine(p, gears) + '<div class="explain"><b>Why it works.</b> ' + esc(explain()) + "</div>" +
+      '<div class="actions">' + (next ? '<button class="btn primary" type="button" data-go="' + next + '">Try ' + M.TIERS[next].name + "</button>" : "") +
+      '<button class="btn" type="button" data-again="1">Play this mechanism again</button><a class="btn" href="#ringTitle">See your Keyring</a></div></div>';
+    bindAward(a); $("awardTitle").focus();
+  }
+  function bindAward(a) {
+    a.querySelectorAll("[data-go]").forEach(function (b) { b.onclick = function () { S.tier = b.dataset.go; saveState(); msg(""); lastRun = null; render(); window.scrollTo({ top: 0, behavior: motionOK() ? "smooth" : "auto" }); }; });
+    var ag = a.querySelector("[data-again]"); if (ag) ag.onclick = function () { S.play[S.tier] = freshPlay(); undoStack[S.tier] = []; saveState(); msg(""); lastRun = null; render(); };
+  }
+
+  /* ---------- workbench (Reasoning Toolkit) — receives only labels and plain readings ---------- */
+  function benchConfig(tier) {
+    var t = M.TIERS[tier], sizes = []; t.inventory.forEach(function (n) { if (sizes.indexOf(n) < 0) sizes.push(n); });
+    var name = function (k) { var a = k.split("."), s = t.slots.filter(function (x) { return x.id === a[0]; })[0]; return (s.role === "latch" ? "Latch" : "Axle " + a[0]) + (s.layers.length === 2 ? (a[1] === "f" ? " front" : " back") : ""); };
+    return { intro: "Mark which gear sizes could work where. The sheet keeps your marks but never judges them.",
+      boards: [{ id: "fit", type: "grid", title: "Which gears could fit where?", help: "Rows: open positions. Columns: tooth counts in the tray.",
+                 rows: M.positions(tier).map(function (k) { return { id: k.replace(".", "-"), label: name(k) }; }), cols: sizes.map(function (n) { return { id: "t" + n, label: String(n) }; }) }],
+      notesLabel: "Calculations and conclusions", notesPlaceholder: tier === "gold" ? "e.g. drive→C is 30 apart, so 12 + front = 60…" : "e.g. 60 × 12 ÷ ? = 30…" };
+  }
+  var bench = DQToolkit.Notebook({ mount: $("bench"), storageKey: "dq-chaortal-02-notebook-v1", tiers: ORDER, getTier: function () { return S.tier; }, config: benchConfig });
+  var log = DQToolkit.Log({ mount: $("runlog"), storageKey: "dq-chaortal-02-log-v1", tiers: ORDER, getTier: function () { return S.tier; },
+    intro: "Every turn of the crank and every engagement is written here. Add your own note to any line.", emptyText: "No runs yet. Turn the crank to start the log." });
+
+  /* ---------- keyring ---------- */
+  function renderRing() {
+    var rows = ORDER.map(function (t) { var r = K.tier(DOOR, t);
+      return "<tr><th scope=\"row\">" + M.TIERS[t].name + "</th><td>" + (r && r.solved ? "Open" + (r.hintFree ? " ★" : "") : "—") + "</td><td>" + (r && r.best !== null ? r.best : "—") + "</td><td>" + (r && r.fewestHints !== null ? r.fewestHints : "—") + "</td><td>" + (K.hasAch(DOOR, t, "clockwork-mastery") ? "⚙ Earned" : "—") + "</td><td>" + (r ? r.attempts : 0) + "</td></tr>"; }).join("");
+    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Best</th><th scope="col">Fewest hints</th><th scope="col">Clockwork Mastery</th><th scope="col">Engagements</th></tr></thead><tbody>' + rows + "</tbody>";
+    $("slots").innerHTML = K.summary().map(function (d) {
+      var hf = d.key && d.tiers[d.key] && d.tiers[d.key].hintFree;
+      var mc = K.TIERS.filter(function (t) { return d.tiers[t] && d.tiers[t].achievements && Object.keys(d.tiers[t].achievements).length; }).length;
+      return '<div class="slot' + (d.key ? " has " + d.key : "") + '"><span class="n">No. ' + d.id + " · " + d.verb + '</span><span class="t">' + esc(d.title) + "</span>" +
+        (d.key ? '<span class="k">' + d.key + " key" + (hf ? " ★" : "") + "</span>" + (mc ? '<span class="k" style="color:var(--brass)">Mastery ×' + mc + "</span>" : "") : '<span class="k" style="color:var(--muted)">' + (d.id === DOOR ? "Not yet earned" : "Locked") + "</span>") + "</div>";
+    }).join("");
+  }
+  $("exportBtn").onclick = function () { var blob = new Blob([K.exportText()], { type: "application/json" }), a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "doorquests-keyring.json"; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0); $("ringMsg").textContent = "Keyring exported."; };
+  $("importFile").onchange = function () { var f = this.files && this.files[0], input = this; if (!f) return;
+    if (f.size > 200000) { $("ringMsg").textContent = "That file is too large to be a Keyring."; this.value = ""; return; }
+    f.text().then(function (txt) { var r = K.importText(txt); $("ringMsg").textContent = r.ok ? "Keyring imported. " + (r.added ? r.added + " new tier" + (r.added > 1 ? "s" : "") + " added; " : "") + "nothing was downgraded." : r.error; input.value = ""; render(); }); };
+  var resetArmed = false;
+  $("resetBtn").onclick = function () {
+    if (!resetArmed) { resetArmed = true; $("resetBtn").textContent = "Really erase every key? Press again"; $("ringMsg").textContent = "This erases all Chaortal keys and achievements in this browser, plus this door's workbench."; return; }
+    resetArmed = false; K.reset(); bench.clearAll(); log.clearAll(); S = freshState(); undoStack = { bronze: [], silver: [], gold: [] }; saveState(); msg(""); $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = "Progress erased."; lastRun = null; render(); };
+  $("resetBtn").onblur = function () { if (resetArmed) { resetArmed = false; $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = ""; } };
+
+  /* ---------- motion / sound ---------- */
+  function motionOK() { return S.motion === null ? !matchMedia("(prefers-reduced-motion: reduce)").matches : S.motion; }
+  function applyPrefs() { var ok = motionOK(); document.documentElement.classList.toggle("rm", !ok); $("motionBtn").textContent = ok ? "Reduce motion" : "Allow motion";
+    $("soundBtn").textContent = "Sound: " + (S.sound ? "on" : "off"); $("soundBtn").setAttribute("aria-pressed", S.sound); }
+  $("motionBtn").onclick = function () { S.motion = !motionOK(); saveState(); applyPrefs(); };
+  $("soundBtn").onclick = function () { S.sound = !S.sound; saveState(); applyPrefs(); if (S.sound) blip(660, 0.08, 0.05, "triangle"); };
+
+  /* ---------- main ---------- */
+  function render() {
+    var t = T(), p = cur();
+    $("briefTitle").textContent = t.name + " · " + t.title; $("briefText").textContent = t.brief;
+    $("need").innerHTML = "<b>The latch needs</b><span>" + esc(M.str({ n: Math.abs(t.target.rpm.n), d: t.target.rpm.d })) + " rpm " + (t.target.rpm.n > 0 ? "↻" : "↺") + "</span><br>" + (t.target.rpm.n > 0 ? "clockwise" : "counterclockwise");
+    renderTiers(); renderMachine(); renderTray(); renderAxles(); renderReadings(); renderBar(); renderHints(); renderRing(); bench.render(); log.render();
+    if (!p.solved) { $("award").hidden = true; $("award").innerHTML = ""; }
+    else if ($("award").hidden) {
+      var a = $("award"); a.hidden = false; a.className = "award";
+      a.innerHTML = emblem(S.tier) + "<div><h2>Open</h2><p>You restored the " + esc(t.name) + " mechanism with a score of <b>" + p.score + "</b>.</p>" + masteryLine(p) +
+        '<div class="actions"><button class="btn" type="button" data-again="1">Play this mechanism again</button></div></div>'; bindAward(a);
+    }
+  }
+  $("crankBtn").onclick = crank;
+  $("engageBtn").onclick = engage;
+  $("undoBtn").onclick = function () { var st = undoStack[S.tier]; if (!st.length || cur().solved) return; cur().build = st.pop(); saveState(); changed(); render(); msg("Undone."); };
+  var clearArmed = false;
+  $("clearBtn").onclick = function () { var p = cur(); if (p.solved || !Object.keys(p.build).length) return;
+    undoStack[S.tier].push(Object.assign({}, p.build)); p.build = {}; saveState(); changed(); render(); msg("All your gears are back in the tray. Undo puts them back. Hints and penalties for this attempt are kept."); };
+  $("hintBtn").onclick = function () { var p = cur(); if (p.solved || p.hints >= 3) return; p.hints++; saveState(); renderHints(); renderBar(); };
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && sel) { sel = null; render(); msg("Selection cleared."); } });
+  applyPrefs(); render();
+  window.__cw = { S: function () { return S; }, M: M, K: K, phases: function () { return phases; } }; // test hook
+})();
+</script>
+</body>
+</html>
