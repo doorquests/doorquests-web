@@ -1,0 +1,785 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Memory Broker | DoorQuests Cluortals</title>
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<meta name="robots" content="index,follow">
+<meta name="description" content="Cluortal No. 29: The Memory Broker. Neo-Tokyo, 2074: a witness remembers a stabbing that the city's cameras prove never happened. Someone edited a stored memory to frame a union organizer. Read the memory's metadata, its edit stamps, sensory gaps and broker transactions, before the vault's nightly compaction erases the traces.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Layout: a neon night panel. Rain streaks, a skyline of towers, and a memory strip of eight segments with five sensory channels drawn as bars. Segments four to six flicker with a glitch pattern until you prove the edit, when they're outlined in magenta and stamped EDITED. A broker-network line runs from the strip to a node that names the terminal once you find it. Signature tab: Memory Forensics. */
+:root{
+  --bg:#eef0f5; --panel:#ffffff; --panel2:#e4e7ef; --ink:#14151c; --muted:#5d6070; --line:#d3d7e2;
+  --rust:#d0105a; --rust-soft:rgba(208,16,90,.08); --sky:#0a8aa6; --sky-soft:rgba(10,138,166,.08); --ok:#1a7a4c; --gold:#b98a10;
+  --pap:#f7f8fb; --lapis:#2a1e52;
+  --display:"Chakra Petch",system-ui,sans-serif;
+  --body:"Zen Kaku Gothic New",system-ui,sans-serif;
+  --label:"Share Tech Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0a0b12; --panel:#12131d; --panel2:#0f1018; --ink:#e9e9f3; --muted:#9a9cb3; --line:#262838;
+  --rust:#ff4fa0; --rust-soft:rgba(255,79,160,.1); --sky:#4fe3ff; --sky-soft:rgba(79,227,255,.1); --ok:#6fe0a8; --gold:#ffd25a;
+  --pap:#eef0f8; --lapis:#3a2a72; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a0b12; --panel:#12131d; --panel2:#0f1018; --ink:#e9e9f3; --muted:#9a9cb3; --line:#262838;
+  --rust:#ff4fa0; --rust-soft:rgba(255,79,160,.1); --sky:#4fe3ff; --sky-soft:rgba(79,227,255,.1); --ok:#6fe0a8; --gold:#ffd25a;
+  --pap:#eef0f8; --lapis:#3a2a72; color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:max(18px,env(safe-area-inset-top,0px));padding-bottom:max(56px,env(safe-area-inset-bottom,0px))}
+button,select,input{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.mast,.wrap,.story-footer{max-width:1000px;margin-left:auto;margin-right:auto}
+.tac-brand{margin:0 0 14px;display:flex;align-items:center;gap:10px;font:700 .72rem/1.4 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tac-brand img{width:30px;height:30px;object-fit:contain;flex:none}
+.tac-brand a{color:inherit;text-decoration:none}.tac-brand a:hover{text-decoration:underline}
+
+/* HEADER */
+.neon{position:relative;border-radius:8px;overflow:hidden;background:linear-gradient(180deg,#0b0c1a 0%,#1a1036 60%,#2b0f35 100%);color:#ecebf7;border:1px solid #2c2550}
+.neon::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(100deg,rgba(120,200,255,.08) 0 1px,transparent 1px 14px);pointer-events:none}
+.neon .row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:16px;align-items:center;padding:22px 22px}
+.neon .pre{margin:0;font:400 .8rem/1.4 var(--label);letter-spacing:.14em;text-transform:uppercase;color:#4fe3ff}
+.neon h1{margin:6px 0 8px;font-family:var(--display);font-weight:700;font-size:clamp(2.1rem,5.6vw,3.4rem);line-height:1.02;color:#fff;letter-spacing:.02em;text-shadow:0 0 18px rgba(255,79,160,.55)}
+.neon .sub{margin:0;color:#c9c6e6;font-size:.98rem;max-width:42ch}
+.neon svg{display:block;width:100%;height:auto}
+@media (max-width:720px){.neon .row{grid-template-columns:minmax(0,1fr);padding:16px 14px}.neon .sub{display:none}}
+.status{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1.3fr);gap:8px;margin-top:10px}
+.tile{background:var(--panel);border:1px dashed var(--line);border-radius:4px;padding:7px 10px;display:grid;gap:2px;font:400 .72rem/1.3 var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tile b{font:700 .92rem/1.2 var(--body);letter-spacing:0;text-transform:none;color:var(--muted)}
+.tile.got{border-style:solid;border-color:var(--rust);color:var(--ink)}
+.tile.got b{color:var(--rust)}
+.clock{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:7px 10px;display:grid;gap:2px;font:400 .72rem var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.clock b{font:700 1.12rem/1.1 var(--display);text-transform:none;color:var(--ink)}
+.clock.urgent b{color:var(--rust)}
+@media (max-width:700px){.status{grid-template-columns:repeat(2,minmax(0,1fr))}.clock{grid-column:1/-1}}
+
+.tabs{max-width:1000px;margin:16px auto 0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px 8px;font:700 .8rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--rust)}
+.tab .badge{display:inline-block;min-width:1.6em;margin-left:5px;padding:1px 5px;border-radius:9px;background:var(--rust-soft);color:var(--rust);font-size:.72rem;text-align:center}
+.tab:focus-visible{outline:2px solid var(--sky);outline-offset:-2px}
+
+.wrap{margin-top:24px}
+.meta{font:700 .72rem var(--label);letter-spacing:.1em;color:var(--muted);display:flex;justify-content:space-between;gap:12px;text-transform:uppercase;margin-bottom:6px;flex-wrap:wrap}
+.meta b{color:var(--rust);font-weight:700}
+h2.scene-title{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,4.8vw,2.5rem);line-height:1.1;margin:0 0 16px;text-wrap:balance}
+h3.sec{font-family:var(--label);font-weight:700;font-size:.95rem;margin:30px 0 10px;line-height:1.2;letter-spacing:.1em;text-transform:uppercase}
+.passage{max-width:64ch}
+.passage p{margin:0 0 1em}
+.flash{max-width:64ch;display:grid;gap:8px;margin:0 0 18px}
+.flash div{font-size:.96rem;line-height:1.45;padding:9px 14px;border-left:3px solid var(--sky);background:var(--sky-soft)}
+.flash div.new{border-left-color:var(--ok);background:rgba(47,107,79,.09)}
+.flash div.new b{font:700 .66rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--ok);margin-right:8px}
+.flash div.warn{border-left-color:var(--rust);background:var(--rust-soft)}
+.fade{animation:rise .35s ease both}
+@keyframes rise{from{opacity:.3;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.choices{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:9px;max-width:64ch}
+.choice{width:100%;display:grid;grid-template-columns:2em minmax(0,1fr);gap:8px;align-items:baseline;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 16px;font-size:1.04rem;line-height:1.4;cursor:pointer;transition:border-color .15s,background .15s}
+.choice .num{font:400 1.2rem var(--display);color:var(--rust)}
+.choice .tag{display:flex;flex-wrap:wrap;gap:4px 12px;font:700 .66rem var(--label);letter-spacing:.08em;color:var(--muted);margin-top:5px;text-transform:uppercase}
+.choice .tag .risk{color:var(--rust)}
+.choice .tag .tool{color:var(--sky)}
+.choice:hover{border-color:var(--rust);background:var(--rust-soft)}
+.choice:focus-visible,.btn:focus-visible,.link:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.hint{font-size:.92rem;font-style:italic;color:var(--muted);margin-top:14px}
+.tools{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap}
+.link{background:none;border:0;padding:0;font:700 .74rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.link:hover{color:var(--rust)}
+.link[disabled]{opacity:.4;cursor:default;text-decoration:none}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:7px 13px;font:700 .74rem var(--label);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.btn:hover{border-color:var(--rust)}
+.btn.primary{background:var(--rust);border-color:var(--rust);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#22100a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#22100a}}
+.btn.danger{border-color:var(--rust);color:var(--rust)}
+.btn[disabled]{opacity:.45;cursor:default}
+select{font-size:.96rem;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:6px 8px;max-width:100%;min-width:0}
+
+
+/* MEMORY FORENSICS */
+.legend{max-width:960px;background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--sky);border-radius:4px;padding:10px 14px;font-size:.95rem}
+.legend p{margin:0 0 6px}.legend ul{margin:0;padding-left:1.2em}
+.mem{width:100%;max-width:960px;border-collapse:collapse;font-size:.84rem;background:var(--panel);margin-top:12px}
+.mem th,.mem td{border:1px solid var(--line);padding:5px 7px;vertical-align:top;text-align:left}
+.mem th{font:400 .7rem var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--panel2)}
+.mem td.mn{font-family:var(--label);white-space:nowrap}
+.mem td.gap{color:var(--rust);font-style:italic}
+.mem tr.bad td{background:var(--rust-soft)}
+.mem label{display:flex;align-items:center;gap:6px;font:400 .72rem var(--label);text-transform:uppercase;cursor:pointer}
+.mem input{width:18px;height:18px;accent-color:var(--rust)}
+@media (max-width:760px){.mem,.mem tbody,.mem tr{display:block}.mem thead{display:none}.mem tr{border:1px solid var(--line);border-radius:4px;margin-bottom:8px;overflow:hidden}.mem td{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:8px;border:0;border-top:1px solid var(--line);white-space:normal}.mem td::before{content:attr(data-h);font:400 .68rem var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.mem td.first{display:block;border-top:0;background:var(--panel2)}.mem td.first::before{content:none}}
+.tellset{display:grid;gap:6px;max-width:960px;margin-top:10px}
+.tellset label{display:flex;gap:8px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:7px 10px;cursor:pointer}
+.tellset input{margin-top:5px;accent-color:var(--rust)}
+.pick{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.res2{color:var(--ok);font-weight:700;margin:0}
+.bad{color:var(--rust)}
+.qbox{max-width:960px;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-top:12px}
+.qbox p{margin:0 0 8px}
+.lens .glass.term{background:#0b0c14;color:#9ff0d0;font:400 .86rem/1.6 var(--label);white-space:pre-wrap}
+
+/* interview */
+.who{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;align-items:center;margin-bottom:16px;max-width:64ch}
+.mono{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--lapis);color:#f3e4b5;font:400 1.15rem var(--display);border:3px solid #c9a227}
+.who h2{margin:0;font-family:var(--display);font-weight:400;font-size:1.6rem;line-height:1.1}
+.who p{margin:4px 0 0;color:var(--muted);font-size:.98rem}
+.meter{display:flex;align-items:center;gap:10px;font:700 .66rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.meter .bar{display:flex;gap:3px}
+.meter .bar i{width:16px;height:7px;border-radius:2px;background:var(--line)}
+.meter .bar i.on{background:var(--rust)}
+.tells{max-width:64ch;font-size:.98rem;font-style:italic;padding:8px 14px;border:1px dashed var(--sky);margin:0 0 14px}
+.transcript{max-width:64ch;display:grid;gap:12px;margin:0 0 20px}
+.transcript .q{font:700 .68rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--sky)}
+.transcript .a{margin:3px 0 0;padding-left:14px;border-left:2px solid var(--line)}
+.topics{display:grid;gap:8px;max-width:64ch}
+.topic{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;display:grid;gap:8px}
+.topic.done{opacity:.55}
+.topic .tones{display:flex;flex-wrap:wrap;gap:6px}
+.present{display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:64ch;margin-top:16px;padding:12px 14px;border:1px solid var(--line);background:var(--panel2);border-radius:4px}
+.present label{font:700 .68rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.present select{flex:1 1 12em}
+
+/* evidence */
+.linker{position:sticky;top:0;z-index:2;background:var(--bg);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.linker .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.slot{min-width:9em;flex:1 1 9em;padding:7px 10px;border:1px dashed var(--line);border-radius:4px;font-size:.94rem;color:var(--muted)}
+.slot.full{border-style:solid;border-color:var(--rust);color:var(--ink)}
+.plus{font:400 1.3rem var(--display);color:var(--rust)}
+.linkmsg{margin:8px 0 0;font-size:.98rem}
+.linkmsg.good{color:var(--ok)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.card-ev{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.card-ev.sel{border-color:var(--rust);box-shadow:0 0 0 2px var(--rust-soft)}
+.card-ev .kind{font:700 .6rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--sky)}
+.card-ev .nm{font-weight:600;font-size:1.06rem;line-height:1.25}
+.card-ev .sh{font-size:.9rem;color:var(--muted);line-height:1.35}
+.card-ev .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.card-ev .look{position:absolute;top:10px;right:12px;font:700 .58rem var(--label);letter-spacing:.1em;color:var(--ok);text-transform:uppercase}
+.card-ev.ghost{background:none;border-style:dashed;color:var(--muted);font-style:italic;min-height:84px;align-content:center;justify-items:center;text-align:center}
+.deds{list-style:none;padding:0;margin:0;display:grid;gap:8px;max-width:72ch}
+.deds li{padding:9px 14px;border-left:3px solid var(--rust);background:var(--panel)}
+.deds b{display:block;font-weight:600}
+.deds span{font-size:.95rem;color:var(--muted)}
+
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.scard{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.scard .top{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:center}
+.scard .mono{width:48px;height:48px;font-size:.95rem;border-width:2px}
+.scard h4{margin:0;font-family:var(--display);font-weight:400;font-size:1.15rem;line-height:1.15}
+.scard .role{font-size:.9rem;color:var(--muted)}
+.scard dl{margin:0;display:grid;grid-template-columns:5.2em minmax(0,1fr);gap:4px 10px;font-size:.92rem;line-height:1.35}
+.scard dt{font:700 .58rem/1.9 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.scard dd{margin:0}
+.st{font:700 .58rem var(--label);letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:2px;margin-right:4px}
+.st.broken{background:var(--rust-soft);color:var(--rust)}
+.st.ok{background:rgba(47,107,79,.12);color:var(--ok)}
+.st.un{background:var(--sky-soft);color:var(--sky)}
+
+.timeline{list-style:none;margin:0;padding:0;max-width:66ch;border-left:2px solid var(--line)}
+.timeline li{position:relative;padding:4px 0 10px 18px;font-size:.98rem;line-height:1.4}
+.timeline li::before{content:"";position:absolute;left:-6px;top:10px;width:10px;height:10px;border-radius:50%;background:var(--sky)}
+.timeline li.now::before{background:var(--rust)}
+.timeline time{display:block;font:700 .66rem var(--label);letter-spacing:.1em;color:var(--sky);text-transform:uppercase}
+.leads{margin:0;padding-left:1.2em;max-width:66ch}
+.leads li{margin-bottom:5px}
+.log{list-style:none;margin:0;padding:0;max-width:66ch;font-size:.94rem;color:var(--muted);display:grid;gap:4px}
+.log time{font:700 .66rem var(--label);color:var(--sky);margin-right:8px}
+
+.hyp{display:grid;gap:22px;max-width:72ch}
+.hyp fieldset{border:0;margin:0;padding:0}
+.hyp legend{font-family:var(--display);font-weight:400;font-size:1.25rem;margin-bottom:8px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.opt{position:relative}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt span{display:block;height:100%;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:4px;cursor:pointer;font-size:.99rem;line-height:1.3}
+.opt input:checked+span{border-color:var(--rust);background:var(--rust-soft);box-shadow:inset 3px 0 0 var(--rust)}
+.opt input:focus-visible+span{outline:2px solid var(--sky);outline-offset:2px}
+.accbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
+
+.ending-card{margin-top:24px;border:1px solid var(--line);background:var(--panel);padding:20px;max-width:66ch;border-radius:4px}
+.ending-card .label{font:700 .66rem var(--label);letter-spacing:.12em;color:var(--sky);margin:0 0 2px;text-transform:uppercase}
+.ending-card h4{font-family:var(--display);font-weight:400;font-size:1.9rem;color:var(--rust);margin:0 0 14px;line-height:1.1}
+.endings{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 18px;font-size:.95rem}
+@media (max-width:480px){.endings{grid-template-columns:minmax(0,1fr)}}
+.endings li{color:var(--muted)}
+.endings li.got{color:var(--ink)}
+.endings li.got::before{content:"◆ ";color:var(--rust)}
+.endings li:not(.got)::before{content:"◇ "}
+.score{width:100%;border-collapse:collapse;font-size:.97rem;margin:0 0 14px}
+.score td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.score td:last-child{text-align:right;font-weight:600;padding-left:12px}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:4px 0 16px;flex-wrap:wrap}
+.total b{font:400 2.4rem var(--display);color:var(--rust)}
+.total span{font:700 .74rem var(--label);letter-spacing:.12em;text-transform:uppercase}
+.chapters{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+dialog{border:0;padding:0;background:transparent;max-width:min(580px,calc(100vw - 32px));width:100%;color:var(--ink)}
+dialog::backdrop{background:rgba(10,12,22,.66)}
+.lens{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:22px 22px 18px;position:relative}
+.lens .kind{font:700 .64rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--sky)}
+.lens h3{font-family:var(--display);font-weight:400;font-size:1.45rem;margin:4px 0 14px;line-height:1.15}
+.glass{padding:16px 18px;background:var(--panel2);border:1px solid var(--line);font-size:1.02rem;line-height:1.55}
+.glass.doc{background:var(--pap);color:#2a1c10;font-style:italic;white-space:pre-wrap}
+.glass.test{font-style:italic}
+.glass .pic{margin:0 0 10px;background:var(--pap);border-radius:4px;padding:6px;display:flex;justify-content:center}
+.glass .pic svg{width:100%;max-width:260px;height:auto;display:block}
+.closer{margin-top:12px;padding:12px 16px;border-left:3px solid var(--ok);background:rgba(47,107,79,.09);font-size:1rem;line-height:1.5}
+.closer b{display:block;font:700 .6rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--ok);margin-bottom:3px}
+.lens .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;justify-content:space-between}
+.x{position:absolute;top:10px;right:12px;background:none;border:0;font-size:1.5rem;line-height:1;color:var(--muted);cursor:pointer;padding:4px 8px}
+
+.story-footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font:.78rem/1.6 system-ui,sans-serif;color:var(--muted)}
+.story-footer a{color:var(--rust)}
+@media (max-width:560px){body{font-size:18px}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}}
+</style>
+
+</head>
+<body>
+<header class="mast">
+  <p class="tac-brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="/">DoorQuests</a> · Cluortals · Cluortal No. 29</span></p>
+  <div class="neon">
+    <div class="row">
+      <div>
+        <p class="pre">Neo-Tokyo · March 2074 · Cluortal No. 29</p>
+        <h1>The Memory Broker</h1>
+        <p class="sub">A witness remembers a crime that surveillance proves never happened. Someone edited a stored memory.</p>
+      </div>
+      <svg id="strip" viewBox="0 0 420 220" aria-hidden="true"></svg>
+    </div>
+  </div>
+  <div class="status" id="status" aria-label="Cluortal status"></div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Cluortal file" id="tabs"></nav>
+<div class="wrap"><div id="panel" aria-live="polite"></div></div>
+<dialog id="lens" aria-labelledby="lensTitle"><div class="lens" id="lensBody"></div></dialog>
+<footer class="story-footer"><a href="/">DoorQuests</a> · Cluortals · Cluortal No. 29 · Neo-Tokyo in 2074, memory vaults, brokers and everyone in this story are fiction · Progress, chapters and endings saved in this browser</footer>
+
+<script>
+/* ================= TIME (minutes after 23:00, Saturday 17 March 2074) ================= */
+const T0=1380, WIPE_T=90, LATE_T=180, COMPACT=240, MID_T=60;
+function hm(t){const m=((T0+Math.round(t))%1440+1440)%1440;return `${m>=1320?"Sat":"Sun"} · ${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`}
+function dur(m){m=Math.max(0,Math.round(m));const h=Math.floor(m/60),mm=m%60;return h?`${h}h ${String(mm).padStart(2,"0")}m`:`${mm}m`}
+
+/* ================= THE MEMORY ================= */
+const SEGS=[
+ {seq:4411,clk:"22:40:00",vis:"The alley from the noodle shop; rain on neon",aud:"Rain; a scooter far off",sm:"Wet asphalt, pork broth",hr:82,st:"—",bad:false},
+ {seq:4412,clk:"22:40:15",vis:"A man in a grey coat ahead, under a sign",aud:"Rain; a sign buzzing",sm:"Ozone, cigarette smoke",hr:84,st:"—",bad:false},
+ {seq:4413,clk:"22:40:30",vis:"A young man passes on the left, hood up",aud:"Rain; footsteps",sm:"Rain",hr:85,st:"—",bad:false},
+ {seq:4419,clk:"22:40:45",vis:"The young man turns. A blade. It's Ren Takeda",aud:"Rain; a shout",sm:null,hr:72,st:"KX-1191 · 15-03 01:12",bad:true},
+ {seq:4420,clk:"22:41:00",vis:"The blade strikes the grey-coat man; he falls",aud:"Rain; a cry",sm:null,hr:72,st:"KX-1191 · 15-03 01:12",bad:true},
+ {seq:4421,clk:"22:41:15",vis:"Ren looks straight at her, face lit, and runs",aud:"Rain; running feet",sm:null,hr:72,st:"KX-1191 · 15-03 01:12",bad:true},
+ {seq:4417,clk:"22:41:30",vis:"Standing still in the rain",aud:"Rain; her own breath",sm:"Rain, pork broth",hr:88,st:"—",bad:false},
+ {seq:4418,clk:"22:41:45",vis:"Walking home past the station",aud:"Rain; a train",sm:"Rain, frying oil",hr:83,st:"—",bad:false}
+];
+const TELLS=[["smell","The stabbing frames have no smell channel at all"],["heart","Her heart rate sits flat at 72 while she watches a stabbing"],["seq","The frame sequence jumps from 4413 to 4419, then back to 4417"],["rain","There's rain in the audio"],["colour","The colours are oversaturated"]];
+const TELL_OK=["smell","heart","seq"];
+const TERMS={mirai:"Mirai Recall · terminal MR-02 · Shibuya (licensed)",lotus:"Lotus Memory Lounge · terminal LT-07 · Kabukichō",police:"Metropolitan Police mnemonic lab",self:"Hana's own home implant"};
+
+/* ================= EVIDENCE ================= */
+const EV={
+ arrest:{n:"The arrest of Ren Takeda",k:"Document",s:"Public defender's file",doc:1,d:"Ren Takeda, 29, robotics technician and union organizer at Ishida Robotics, arrested 15 March 2074 for the stabbing of an unknown man in a Shimokitazawa alley on 14 March at 22:41. Sole evidence: the certified memory of a witness, Hana Okamura. The city camera lattice shows no stabbing; the prosecution says the lattice was spoofed by union hackers. Certification hearing: Monday 09:00. Ren is held at Shinjuku Detention."},
+ memoryCopy:{n:"Hana's memory, forensic copy",k:"Physical",s:"Your lab",d:"A sealed forensic copy of memory M-0314-2241 from Hana Okamura's vault: eight segments, 22:40:00 to 22:41:45, with five sensory channels and full metadata. The Memory Forensics tab lays it out.",c:"Under magnification, the segment headers: sequence numbers, the implant's frame clock, and a write stamp on three segments, KX-1191 · 15-03-2074 01:12. A licensed broker's token, used two and a half hours after the event."},
+ lattice:{n:"The camera lattice, 22:40–22:43",k:"Document",s:"City surveillance archive",doc:1,d:"Lattice nodes SK-114 and SK-115, Shimokitazawa alley 3, 14 March:\n22:40:02 · Woman (Okamura) leaves noodle shop, walks east.\n22:40:35 · Man in hood (Takeda) passes her, walking west. No contact.\n22:40:40–22:42:00 · No other persons in the alley. No grey coat.\n22:41:50 · Okamura stops briefly, continues east.\nStreetlamp SK-115b: out of order since 2 March (repair ticket open).\nLattice integrity: hash-chained, verified, no gap."},
+ vaultLog:{n:"Hana's vault access log",k:"Document",s:"Mnemosyne Vault, Odaiba",doc:1,d:"Vault HO-55-1903 (Okamura Hana), sessions:\n14-03 23:30 · AUTO backup · nightly\n15-03 00:58 · READ · licensed replay (memory: K. Okamura, 2051–2069) · terminal LT-07 · client key: HO\n15-03 01:12 · WRITE · 3 segments into M-0314-2241 · token KX-1191 · terminal LT-07\n15-03 01:40 · session closed\n15-03 08:15 · READ · police certification\nNightly compaction scheduled: 18-03 03:00 (normalizes headers, purges write stamps and sequence gaps)"},
+ tokenRecord:{n:"Broker token KX-1191",k:"Document",s:"Mirai Recall, Shibuya",doc:1,d:"Mirai Recall licence register: token KX-1191 issued to Sato Emi, licensed broker, terminal MR-02 only. MR-02 activity 13–17 March: none (broker on leave; terminal powered down at 18:02 on Tuesday 13 March).",c:"The token record carries a security note from the issuing authority, dated 10 March: “KX-1191: duplicate credential request from an unregistered device. Flagged, not revoked.”"},
+ satoWord:{n:"Sato Emi on her token",k:"Testimony",s:"Licensed broker",d:"Sato Emi, on a call from Osaka: “I've been in Osaka since Tuesday for my sister's wedding. My token lives in MR-02, and MR-02 was switched off. If KX-1191 wrote into someone's memory on Wednesday night, somebody cloned it. I reported a strange duplicate request on the tenth.”"},
+ ledger:{n:"The Lotus client ledger",k:"Document",s:"Lotus Memory Lounge",doc:1,d:"Lotus Memory Lounge · Kabukichō · client ledger, 15 March:\n00:55 · H.O. · replay, husband (2051–2069) · booth 3 · LT-07 · ¥8,000 · cash\n01:10 · — · “maintenance”, booth 3, LT-07 · ¥2,400,000 · paid: Kanade Consulting K.K.\n01:45 · H.O. · checkout · tea"},
+ donorClip:{n:"A stock clip in Lotus's library",k:"Physical",s:"Lotus Memory Lounge",d:"In Lotus's licensed library of experience clips: “V-88 · Alley stabbing · stunt performer take 3 · 45 s · audio/visual only.”",c:"Played against the three edited segments: the same falling body, the same blade, the same rain loop. The attacker's face has been replaced with Ren Takeda's, lifted from a union rally video posted in February. The clip was never recorded with smell or heart-rate channels: it's a stunt, not a memory."},
+ kanadeReg:{n:"Kanade Consulting K.K.",k:"Document",s:"Corporate registry",doc:1,d:"Corporate registry: Kanade Consulting K.K., registered 3 March 2074. Sole director: Kuroda Shun. Registered address: a mailbox in Shinagawa. Kuroda Shun is head of labor relations at Ishida Robotics."},
+ unionNotice:{n:"The Ishida union vote",k:"Document",s:"Ren's things",doc:1,d:"Notice to all Ishida Robotics staff: a ballot on recognition of the Ishida Workers' Union, 20 March 2074. Organizer and contact: Takeda Ren."},
+ renWord:{n:"Ren on the night",k:"Testimony",s:"Shinjuku Detention",d:"Ren Takeda: “I was walking home from the union meeting at the community hall. I passed an old lady in the rain, I think. I never saw a stabbing; I never saw anyone else. Then the next morning I'm a murderer in somebody's head. Five days before the vote.”"},
+ hanaWord:{n:"Hana on what she saw",k:"Testimony",s:"Her noodle shop",d:"Hana Okamura: “I see it every time I close my eyes: the blade, his face. I'm sorry for that young man, but I saw it. After I closed the shop I went to the Lotus, the way I do on Wednesdays, to sit with my husband for an hour. Kenji died five years ago. They let me replay our good years. I went home and slept, and in the morning I couldn't stop seeing that alley.”"},
+ kaiWord:{n:"Kai Mori on the job",k:"Testimony",s:"Lotus Memory Lounge",d:"Kai Mori: “A man from ‘Kanade Consulting’ came on the twelfth with a token, a clip and a face. Two point four million to put three frames into a booth-three client, any regular, during a replay. I owe people. I didn't ask who the face was. I did the craft, that's all. I'm good at the craft.”"},
+ kurodaWord:{n:"Kuroda on Kanade",k:"Testimony",s:"Ishida Robotics",d:"Kuroda Shun: “Kanade is a consultancy I set up for some outside work. I have nothing to do with memory brokers. The union is the workers' right, of course. Mr. Takeda's arrest is a tragedy for everyone.”"},
+ tamperFound:{n:"Three edited segments",k:"Finding",s:"Memory Forensics",d:"Segments 4, 5 and 6, the stabbing, are an insert. No smell channel, heart rate flat at 72 through a stabbing, and frame numbers 4419–4421 dropped between 4413 and 4417, where the overwritten 4414–4416 used to be."},
+ writeFound:{n:"Where the edit was written",k:"Finding",s:"Memory Forensics",d:"The write stamp names Mirai's token KX-1191, but the vault log says the write came from terminal LT-07 at the Lotus Memory Lounge, at 01:12, fourteen minutes into Hana's replay session."},
+ offerRefused:{n:"Kuroda's offer",k:"Testimony",s:"Refused",d:"Kuroda offered you a consulting contract with Ishida Robotics, “effective immediately”, if your report found the memory sound. You declined."}
+};
+const EV_TOTAL=Object.keys(EV).length;
+
+/* ================= CONNECTIONS ================= */
+const DED={
+ F1:{a:"tamperFound",b:"lattice",t:"The stabbing was written into her memory; it never happened in the alley",x:"The lattice is hash-chained and unbroken: Ren passed her at 22:40:35 and walked on. No grey coat, no blade."},
+ F2:{a:"donorClip",b:"tamperFound",need:["cl:donorClip"],t:"The insert is a stunt clip with Ren's face on it",x:"Library clip V-88, audio and visual only. That's why there's no smell and no heartbeat in it."},
+ B1:{a:"writeFound",b:"vaultLog",t:"The edit was written at the Lotus during Hana's replay",x:"Terminal LT-07, 01:12, while she sat with her husband's memories in booth 3."},
+ B2:{a:"tokenRecord",b:"satoWord",need:["cl:tokenRecord"],t:"Sato's broker token was cloned",x:"She was in Osaka with MR-02 powered down; a duplicate credential request was flagged on the tenth."},
+ L1:{a:"ledger",b:"kanadeReg",t:"Kanade Consulting, which paid for the edit, is Kuroda Shun",x:"¥2,400,000 for booth-three “maintenance” at 01:10, from a shell company with a single director."},
+ L2:{a:"kaiWord",b:"ledger",t:"Kai Mori did the work for Kanade's money",x:"A token, a clip and a face, delivered on the twelfth."},
+ M1:{a:"unionNotice",b:"kanadeReg",t:"Kuroda framed the union organizer five days before the vote",x:"Ishida's head of labor relations, and a murder charge on the man whose name is on the ballot notice."},
+ X1:{a:"hanaWord",b:"vaultLog",t:"Hana was a victim too",x:"Her Wednesday hour with her husband was the open door they used."},
+ X2:{a:"renWord",b:"lattice",t:"Ren's account matches the cameras",x:"He passed an old woman in the rain and kept walking."}
+};
+const DED_TOTAL=Object.keys(DED).length;
+
+/* ================= PEOPLE ================= */
+const TONE={coax:"Soft",ask:"Direct",press:"Hard"};
+const strip=(id,who)=>EV[id].d.replace(who+": ","");
+const SUS={
+ hana:{n:"Hana Okamura",short:"Hana",mono:"HO",role:"Witness, noodle-shop owner, 71 · Shimokitazawa",pref:"coax",
+  tell:"Seventy-one, a widow who has run the same eight-seat noodle shop for forty years. She is sure of what she saw and frightened by it. Softness.",
+  topics:[{id:"saw",q:"Tell me what you remember.",r:{coax:{t:strip("hanaWord","Hana Okamura"),ev:"hanaWord"},ask:{t:strip("hanaWord","Hana Okamura"),ev:"hanaWord",sus:1},press:{t:"“You think I'm lying? An old woman lying?” She turns away to the stove.",sus:2}}}],
+  present:{tamperFound:{t:"She puts both hands flat on the counter. “Someone was in my head. While I was with Kenji.”"},lattice:{t:"“But I see it. I see it.”"}},dflt:"“Would you like some soup?”"},
+ ren:{n:"Ren Takeda",short:"Ren",mono:"RT",role:"Accused, union organizer · Shinjuku Detention",pref:"ask",
+  tell:"Twenty-nine, angry, exhausted, and holding together for the people counting on him. Direct talk.",
+  topics:[{id:"night",q:"Where were you at 22:40 on the fourteenth?",r:{coax:{t:"“Spare me the bedside manner.” Then: "+strip("renWord","Ren Takeda"),ev:"renWord"},ask:{t:strip("renWord","Ren Takeda"),ev:"renWord"},press:{t:strip("renWord","Ren Takeda"),ev:"renWord",sus:1}}},
+   {id:"vote",q:"What's happening at Ishida?",r:{coax:{t:"“A ballot on the twentieth. First union in the company's history.” He gives you the notice.",ev:"unionNotice"},ask:{t:"He gives you the ballot notice.",ev:"unionNotice"},press:{t:"He gives you the notice without a word.",ev:"unionNotice",sus:1}}}],
+  present:{donorClip:{t:"He stares at his own face on a stranger's body. “That's from the February rally. I gave that speech.”"}},dflt:"“Monday at nine they certify me a killer.”"},
+ kai:{n:"Kai Mori",short:"Kai",mono:"KM",role:"Unlicensed broker · Lotus Memory Lounge",pref:"coax",
+  tell:"Thirty-four, brilliant with memory craft and deep in debt to the wrong people. Soft talk keeps him bragging; hard talk makes him wipe things.",
+  topics:[{id:"booth3",q:"What happened in booth three on the fifteenth?",r:{coax:{t:"“A regular, a replay. Nothing.” He smiles too much."},ask:{t:"“Replay. Lawful. Check the ledger.” His eyes go to the terminal.",sus:1},press:{t:"He reaches for the terminal's wipe key and stops himself.",sus:2}}}],
+  present:{ledger:{t:strip("kaiWord","Kai Mori"),ev:"kaiWord",sus:1},writeFound:{t:"“LT-07 has a lot of people at it.”",sus:2},donorClip:{t:"He goes grey. “That's licensed library stock.”",sus:2}},dflt:"“Want a replay? First one's half price.”"},
+ kuroda:{n:"Kuroda Shun",short:"Kuroda",mono:"KS",role:"Head of labor relations, Ishida Robotics · Ishida Tower",pref:"ask",
+  tell:"Forty-eight, impeccable, never raises his voice, and keeps his office lights on all night. Direct talk; hard talk makes him reach for lawyers or money.",
+  topics:[{id:"kanade",q:"What is Kanade Consulting?",r:{coax:{t:strip("kurodaWord","Kuroda Shun"),ev:"kurodaWord"},ask:{t:strip("kurodaWord","Kuroda Shun"),ev:"kurodaWord",sus:1},press:{t:strip("kurodaWord","Kuroda Shun"),ev:"kurodaWord",sus:2}}}],
+  present:{ledger:{t:"“A consultancy may hire whoever it likes.”",sus:2},kaiWord:{t:"He takes his glasses off and cleans them very slowly.",sus:3},unionNotice:{t:"“The company respects the ballot.”",sus:1}},dflt:"“It's late. Shall I call my counsel?”"},
+ sato:{n:"Sato Emi",short:"Sato",mono:"SE",role:"Licensed broker, Mirai Recall · by call from Osaka",pref:"ask",
+  tell:"Thirty-eight, scrupulous, furious that her token was used. Direct.",
+  topics:[{id:"token",q:"Where was your token on Saturday night?",r:{coax:{t:strip("satoWord","Sato Emi"),ev:"satoWord"},ask:{t:strip("satoWord","Sato Emi"),ev:"satoWord"},press:{t:strip("satoWord","Sato Emi"),ev:"satoWord",sus:1}}}],
+  present:{},dflt:"“My licence is everything I have.”"},
+ aoki:{n:"Aoki Rin",short:"Aoki",mono:"AR",role:"Night sysadmin, Mnemosyne Vault · Odaiba",pref:"ask",
+  tell:"Twenty-six, bored, precise, delighted to have something real to do. Direct.",
+  topics:[{id:"compact",q:"What happens at three o'clock?",r:{coax:{t:"“Nightly compaction. Every header gets normalized: write stamps purged, sequence numbers renumbered. After three, an edit looks like it was always there.”"},ask:{t:"“Compaction. After three, the edit stamps and the sequence gaps are gone for good. Freeze order from a judge stops it. Nothing else does.”"},press:{t:"“Hey, I just run the racks.”",sus:1}}}],
+  present:{},dflt:"“Vault's quiet tonight. Usually is.”"}
+};
+const SUS_ORDER=["hana","ren","kai","kuroda","sato","aoki"];
+const MOOD=["Calm","Wary","Uneasy","Guarded","Silent","Silent"];
+const WHERE={hana:"shop",ren:"detention",kai:"lotus",kuroda:"ishida",sato:"lab",aoki:"vault"};
+const PLACES=["lab","vault","lotus","shop","detention","ishida"];
+const PLACE_N={lab:"your lab at the Legal Aid Mnemonic Office",vault:"the Mnemosyne Vault, Odaiba",lotus:"the Lotus Memory Lounge, Kabukichō",shop:"Hana's noodle shop, Shimokitazawa",detention:"Shinjuku Detention",ishida:"Ishida Tower, Shinagawa"};
+const FAR={vault:18,lotus:8,shop:12,detention:6,ishida:14,lab:4};
+const moveCost=(a,b)=>Math.max(FAR[a]||4,FAR[b]||4);
+
+const HYP={
+ memory:{l:"What happened to Hana's memory?",o:[["edited","A stunt clip with Ren's face was written into it during her replay session"],["true","Nothing: she saw a real stabbing and the cameras were spoofed"],["dream","She confused a dream with the night"],["self","She edited it herself"]]},
+ where:{l:"Where and how was the edit written?",o:[["lotus","At the Lotus, terminal LT-07, with a cloned Mirai token, at 01:12"],["mirai","At Mirai Recall by Sato Emi"],["police","In the police lab during certification"],["home","Through her home implant"]]},
+ who:{l:"Who framed Ren Takeda?",o:[["kuroda","Kuroda Shun, through Kanade Consulting"],["kai","Kai Mori, on his own"],["sato","Sato Emi"],["hana","Hana Okamura"]]},
+ why:{l:"Why?",o:[["union","To jail the union's organizer before the Ishida ballot"],["grudge","A personal grudge against Ren"],["money","Insurance money"],["thrill","For the thrill of it"]]}
+};
+const ENDINGS={E1:"Clean Recall",E2:"A Name Without Proof",E3:"The Hands, Not the Head",E4:"Compaction",E5:"Mercy Deletion",E6:"A Consulting Contract",E7:"Deep Dive"};
+const CHAPTERS={ch1:"Chapter I · The Copy",ch2:"Chapter II · Midnight",ch3:"Chapter III · Before Compaction"};
+
+/* ================= HELPERS ================= */
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function cost(c){return `${c} min`}
+function em(t){return String(t).replace(/\*(.+?)\*/g,"<em>$1</em>")}
+function add(s,id){if(s.ev[id]||!EV[id])return;s.ev[id]=1;s.flash.push(["new",`<b>New evidence</b>${EV[id].n}`]);s.log.push([s.clock,`Found: ${EV[id].n}`])}
+function note(s,t,cls){s.flash.push([cls||"",t]);if(cls==="warn")s.log.push([s.clock,t.replace(/<[^>]+>/g,"")])}
+
+/* ================= MOVING ================= */
+function walk(s,to){s.pending=moveCost(s.loc,to);s.loc=to;s.view="scene"}
+function walks(s){return PLACES.filter(k=>k!==s.loc).map(k=>({l:`Go to ${PLACE_N[k]}`,c:0,walkTo:k,a:s=>walk(s,k)}))}
+const talk=id=>({l:`Speak with ${SUS[id].n}`,c:0,tag:"Talk",a:s=>{s.view="interview";s.who=id}});
+
+/* ================= SCENES ================= */
+const L={
+ intro:{t:"The Copy",chapter:"Chapter I",p:()=>[
+  "Eleven o'clock on Saturday night, 17 March 2074. Neo-Tokyo in the rain. Ten million people store their memories in vaults the way your grandparents stored photographs, and a certified memory counts in court as much as a camera.",
+  "Ren Takeda, a union organizer at Ishida Robotics, has been charged with a stabbing on the strength of one memory: Hana Okamura, seventy-one, remembers him stabbing a man in a Shimokitazawa alley on Wednesday night. The city's camera lattice shows no stabbing, no victim, and no blood. The prosecution says the cameras were hacked.",
+  "You're a mnemonic auditor for the Legal Aid office. You have a sealed forensic copy of Hana's memory and four hours to read it. At three o'clock the vault runs its nightly compaction, and every write stamp and sequence gap in the memory will be smoothed away for good.",
+  "*Eight segments, five senses, and three of them are lying.*"],
+  o:()=>[{l:"Open the case file in your lab",c:2,a:s=>{s.loc="lab";add(s,"arrest");add(s,"memoryCopy")}}]},
+
+ lab:{t:"The Legal Aid Mnemonic Office",p:s=>["A narrow lab above a pharmacy in Shinjuku: two forensic rigs, a coffee machine, and a window full of rain and neon. Hana's memory copy sits sealed in the rig."+(s.ev.writeFound?" You can file for a freeze order with the duty judge from here.":"")],
+  o:s=>{const o=[];
+   if(!s.ev.lattice)o.push({l:"Pull the camera lattice for the alley",c:10,a:s=>add(s,"lattice")});
+   if(s.ev.ledger&&!s.ev.kanadeReg)o.push({l:"Search the corporate registry for Kanade Consulting",c:8,a:s=>add(s,"kanadeReg")});
+   o.push(talk("sato"));
+   if(s.ev.writeFound)o.push({l:"File your finding with the duty judge and ask for a freeze order",c:0,ui:"accuse",tag:"Your finding"});
+   return o.concat(walks(s))}},
+
+ vault:{t:"The Mnemosyne Vault",p:()=>["A data center on reclaimed land in Odaiba: cold air, blue light, and racks of memory stacked thirty metres high. Aoki Rin, the night sysadmin, waves you through with her feet on the desk."],
+  o:s=>{const o=[talk("aoki")];if(!s.ev.vaultLog)o.push({l:"Read the access log for Hana's vault",c:8,a:s=>add(s,"vaultLog")});return o.concat(walks(s))}},
+
+ lotus:{t:"The Lotus Memory Lounge",p:s=>["Up a narrow stair in Kabukichō: soft lighting, six curtained booths with reclining chairs and neural crowns, and the smell of incense. Kai Mori sits at terminal LT-07 behind the counter."+(s.f.wiped?" The terminal's screen shows a fresh install.":"")],
+  o:s=>{const o=[talk("kai")];
+   if(!s.ev.ledger&&!s.f.wiped)o.push({l:"Demand to see the client ledger",c:6,a:s=>{s.sus.kai=clamp(s.sus.kai+1,0,5);if(s.sus.kai>=2&&s.clock+6>=WIPE_T){s.f.wiped=1;note(s,"00:30. Kai wipes the Lotus client ledger before you can finish reading it.","warn")}else add(s,"ledger")}});
+   if(!s.ev.ledger&&s.f.wiped)o.push({l:"Demand to see the client ledger",c:6,a:s=>note(s,"The ledger starts this evening at 23:50. Everything before that has been wiped.","warn")});
+   if(!s.ev.donorClip)o.push({l:"Browse the lounge's licensed clip library",c:10,a:s=>add(s,"donorClip")});
+   o.push({l:"Let Kai jack you into his rig to see the edit from inside",c:0,risk:"Ends the case",a:s=>endCase(s,"E7")});
+   return o.concat(walks(s))}},
+
+ shop:{t:"Hana's Noodle Shop",p:()=>["Eight stools, a counter, a pot of broth that has been simmering since 1994. Hana Okamura wipes the same spot on the counter over and over. A photograph of a smiling man in a cook's jacket hangs by the register."],
+  o:s=>{const o=[talk("hana")];
+   if(s.ev.hanaWord)o.push({l:"Help Hana have the memory deleted tonight, as she begs you to",c:0,risk:"Ends the case",a:s=>endCase(s,"E5")});
+   return o.concat(walks(s))}},
+
+ detention:{t:"Shinjuku Detention",p:()=>["A visiting booth with a glass wall and a speaker grille. Ren Takeda sits on the other side in a grey tunic, his hands flat on the table."],
+  o:s=>[talk("ren"),...walks(s)]},
+
+ ishida:{t:"Ishida Tower",p:()=>["Forty floors of glass in Shinagawa, dark except for the thirty-first, where Kuroda Shun works late under a single lamp."],
+  o:s=>{const o=[talk("kuroda")];
+   if(s.sus.kuroda>=2&&!s.ev.offerRefused){o.push({l:"Accept Kuroda's consulting contract",c:0,risk:"Ends the case",a:s=>endCase(s,"E6")});o.push({l:"Decline",c:2,a:s=>add(s,"offerRefused")})}
+   return o.concat(walks(s))}},
+
+ compact:{t:"03:00",chapter:"Chapter III",p:()=>["Three o'clock. In Odaiba the vault's compaction job begins to run down the racks. On your screen, the duty judge's channel is open, waiting. “Auditor? Anything for me, or do I let it run?”"],
+  o:()=>[{l:"Give your finding",c:0,ui:"accuse"},{l:"Let compaction run",c:0,a:s=>endCase(s,"E4")}]}
+};
+
+/* ================= PROOFS & ENDINGS ================= */
+const pEdit=s=>!!(s.ded.F1&&s.ded.F2), pWhere=s=>!!(s.ded.B1&&s.ded.B2), pWho=s=>!!(s.ded.L1&&s.ded.L2), pWhy=s=>!!s.ded.M1;
+function missing(s){const m=[],h=s.hyp;
+ if(h.memory!=="edited")m.push("you got the memory wrong");else if(!pEdit(s))m.push("you never proved the insert");
+ if(h.where!=="lotus")m.push("you got the terminal wrong");else if(!pWhere(s))m.push("you never proved where it was written");
+ if(!pWho(s))m.push("you never followed the money to Kuroda");
+ if(h.why!=="union")m.push("you missed the motive");else if(!pWhy(s))m.push("you never tied it to the ballot");
+ return m}
+const END={
+ E1:{best:true,p:()=>[
+  "You put it to the duty judge in the order the metadata gives it.",
+  "Hana's memory runs 4411, 4412, 4413, then 4419, 4420, 4421, then back to 4417. Three frames were overwritten and three were dropped in. Those three have no smell, though the rest of her night smells of rain and pork broth, and her heart sits at 72 through a stabbing. They're a stunt clip from the Lotus library, V-88, with Ren's face from a February rally pasted on. The camera lattice, hash-chained and unbroken, shows Ren passing her at 22:40:35 and walking on.",
+  "The write stamp says KX-1191, Sato Emi's token, but Sato was in Osaka with her terminal switched off. Her token was cloned, and the vault log says the write came from LT-07 at the Lotus at 01:12, fourteen minutes into Hana's Wednesday hour with her husband. Two point four million yen for “maintenance”, paid by Kanade Consulting, whose only director is Ishida Robotics' head of labor relations. The ballot is on the twentieth.",
+  "The judge freezes the vault at 02:58. Ren is released on Monday morning and the charge is withdrawn by noon. Kuroda and Kai Mori are charged under the Mnemonic Integrity Act. A certified mnemonic counsellor restores Hana's memory to what she really saw: an old woman walking home in the rain, and a young man passing her. She still goes on Wednesdays, to a different lounge, to sit with Kenji.",
+  "*Eight segments, five senses, and every one of them back where it belongs.*"]},
+ E2:{p:s=>[
+  `You name Kuroda Shun. But ${missing(s).join("; ")}.`,
+  "The judge declines to freeze the vault on what you have. Compaction runs. On Monday the memory is certified, and Ren's lawyers start again from nothing.",
+  "*A name without proof.*"]},
+ E3:{p:s=>[
+  s.hyp.who==="kai"?"You name Kai Mori, who did the craft. He's arrested by noon and says nothing about who paid him; he owes those people too.":s.hyp.who==="sato"?"You name Sato Emi, whose token was cloned. She loses her licence while the investigation runs.":"You name Hana herself. An old woman's grief becomes a headline.",
+  "Kanade Consulting dissolves itself on Tuesday. The ballot is postponed “in light of recent events”.",
+  "*The hands, not the head.*"]},
+ E4:{p:()=>[
+  "You let compaction run. By 03:20 the write stamps are gone and the frames are renumbered 4411 to 4418, as smooth as any memory that was always there.",
+  "The memory is certified on Monday. The ballot on the twentieth fails by forty votes.",
+  "*Compaction.*"]},
+ E5:{p:()=>[
+  "You help Hana file an emergency deletion request; a grieving witness's right to forget is absolute in law. The stabbing is gone from her head by two o'clock, and so is the only evidence against Ren.",
+  "The charge collapses for want of a witness. Ren goes free, the ballot goes ahead, and nobody ever asks who put the stabbing there.",
+  "*Mercy deletion: kind to two people, and the man who did it walks away.*"]},
+ E6:{p:()=>[
+  "You accept Kuroda's contract. Your report finds the memory sound.",
+  "You're very well paid. You stop replaying your own memories after that.",
+  "*A consulting contract.*"]},
+ E7:{p:()=>[
+  "You let Kai jack you in. Inside Hana's memory the rain is perfect, the blade is perfect, and Ren's face is perfect, and for twenty minutes you believe it.",
+  "When you come out, your own vault has a write stamp in it, and your testimony is inadmissible in any court in Japan.",
+  "*Deep dive.*"]}
+};
+
+/* ================= JOURNAL ================= */
+const TL=[
+ [1,"Kanade Consulting K.K. registered.",s=>s.ev.kanadeReg,"3 Mar"],
+ [2,"A duplicate request for token KX-1191 is flagged.",s=>s.cl.tokenRecord,"10 Mar"],
+ [3,"Kai Mori is handed a token, a clip and a face.",s=>s.ev.kaiWord,"12 Mar"],
+ [4,"Ren passes Hana in the alley, and walks on.",s=>s.ev.lattice,"14 Mar 22:40"],
+ [5,"Hana's replay session at the Lotus begins.",s=>s.ev.vaultLog,"15 Mar 00:58"],
+ [6,"Three segments written into her memory.",s=>s.ev.vaultLog,"15 Mar 01:12"],
+ [7,"Ren arrested on her certified memory.",()=>true,"15 Mar 11:00"],
+ [8,"Nightly compaction.",()=>true,"18 Mar 03:00"]
+];
+function leads(s){const a=[];
+ if(!s.ev.tamperFound)a.push("Read the memory's metadata in the Memory Forensics tab.");
+ if(!s.ev.vaultLog)a.push("The vault logs every read and write.");
+ if(!s.ev.lattice)a.push("Pull the camera lattice for the alley.");
+ if(!s.ev.ledger&&!s.f.wiped)a.push("Brokers keep client ledgers. Find where she had a session.");
+ if(!s.ev.tokenRecord&&s.ev.tamperFound)a.push("The write stamp names a broker token. Whose is it?");
+ if(!s.ev.unionNotice)a.push("Ask Ren what's happening at work.");
+ return a.slice(0,6)}
+
+/* ================= ENGINE ================= */
+const SAVE_KEY="dq-cluortal-29-memorybroker-v1", END_KEY="dq-cluortal-29-endings", CH_KEY="dq-cluortal-29-chapters";
+const fresh=()=>({loc:"intro",view:"scene",who:null,clock:0,n:0,pending:0,f:{},ev:{},cl:{},ded:{},
+ sus:Object.fromEntries(SUS_ORDER.map(k=>[k,0])),asked:{},shown:{},tools:{intuit:2},intuited:{},log:[],flash:[],
+ tr:Object.fromEntries(SUS_ORDER.map(k=>[k,[]])),hyp:{},mk:{},q:{},ended:null});
+let state=fresh(), history=[];
+const ui={tab:"investigate",sel:[],msg:null,bmsg:null,confirm:false};
+
+function validState(s){
+ if(!s||typeof s!=="object"||!Object.prototype.hasOwnProperty.call(L,s.loc)||!["scene","interview"].includes(s.view)||
+    !Number.isFinite(s.clock)||s.clock<0||s.clock>COMPACT||!Number.isInteger(s.n)||s.n<0||![null,...Object.keys(ENDINGS)].includes(s.ended))return false;
+ const objects=["f","ev","cl","ded","sus","asked","shown","tools","intuited","hyp","tr","mk","q"];
+ if(!objects.every(k=>s[k]&&typeof s[k]==="object"&&!Array.isArray(s[k])))return false;
+ if(Object.entries(s.mk).some(([k,v])=>!((/^s[0-7]$/.test(k)||TELLS.some(t=>"t_"+t[0]===k))&&v===1)&&!(k==="term"&&TERMS[v])))return false;
+ if(!Array.isArray(s.log)||!Array.isArray(s.flash)||!Number.isInteger(s.tools.intuit)||s.tools.intuit<0||s.tools.intuit>2)return false;
+ if(!SUS_ORDER.every(k=>Array.isArray(s.tr[k])&&Number.isInteger(s.sus[k])))return false;
+ if(Object.keys(s.ev).some(k=>!EV[k])||Object.keys(s.ded).some(k=>!DED[k]))return false;
+ if(s.view==="interview"&&!SUS[s.who])return false;
+ return true;
+}
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({state,history}))}catch(e){}}
+function restore(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");if(d&&validState(d.state)&&Array.isArray(d.history))return {state:d.state,history:d.history.slice(-80)}}catch(e){}return null}
+function loadJ(k){try{const v=JSON.parse(localStorage.getItem(k)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{}}catch(e){return {}}}
+function saveJ(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function saveChapter(id){const c=loadJ(CH_KEY);c[id]=JSON.stringify(state);saveJ(CH_KEY,c)}
+function snapshot(){history.push(JSON.stringify(state));if(history.length>80)history.shift()}
+
+function spend(s,min){
+ const b=s.clock,a=Math.min(COMPACT,b+min);s.clock=a;
+ if(b<MID_T&&a>=MID_T){s._ch="ch2";note(s,"Midnight. Three hours to compaction.","warn")}
+ if(b<WIPE_T&&a>=WIPE_T&&s.sus.kai>=2&&!s.ev.ledger){s.f.wiped=1;note(s,"00:30. A message from an informant in Kabukichō: the Lotus pulled its shutter down half an hour ago, and somebody's been reinstalling a terminal.","warn")}
+ if(b<LATE_T&&a>=LATE_T){s._ch="ch3";note(s,"02:00. One hour to compaction.","warn")}
+ if(a>=COMPACT&&!s.ended){s.clock=COMPACT;s.loc="compact";s.view="scene"}
+}
+const forced=()=>state.loc==="compact";
+const atMove=()=>(state.loc==="lab"&&state.ev.writeFound)||forced();
+function doAct(opt){
+ if(state.ended)return;
+ if(opt.ui){ui.tab=opt.ui;render(true);return}
+ if(opt.free===false&&forced()){ui.msg=["","Compaction has begun. Go to the Investigate tab."];render();return}
+ snapshot();state.flash=[];const prev=state.loc;state.pending=0;
+ if(opt.a)opt.a(state);
+ if(!state.ended){spend(state,(opt.c||0)+state.pending);state.pending=0}
+ state.n++;
+ if(state._ch){saveChapter(state._ch);delete state._ch}
+ if((state.loc!==prev&&state.loc==="compact")||state.ended){ui.tab="investigate";closeLens()}
+ persist();render(true);
+}
+function endCase(s,id){s.ended=id;const e=loadJ(END_KEY);e[id]=1;saveJ(END_KEY,e);s.view="scene"}
+function back_(){if(!history.length)return;try{const prev=JSON.parse(history.pop());if(!validState(prev))return;state=prev}catch(e){return}ui.sel=[];ui.msg=null;ui.bmsg=null;ui.confirm=false;persist();closeLens();render(true)}
+function restart(){history=[];state=fresh();Object.assign(ui,{sel:[],msg:null,bmsg:null,confirm:false,tab:"investigate"});saveChapter("ch1");persist();render(true)}
+function loadChapter(id){const c=loadJ(CH_KEY);if(!c[id])return;try{const st=JSON.parse(c[id]);if(!validState(st))return;history=[];state=st;state.ended=null;state.flash=[];Object.assign(ui,{tab:"investigate",sel:[],msg:null,bmsg:null,confirm:false});persist();render(true)}catch(e){}}
+
+function askTopic(sid,tid,tone){
+ const sp=SUS[sid],tp=sp.topics.find(t=>t.id===tid),r=tp.r[tone];
+ doAct({c:7,a:s=>{s.asked[sid+"."+tid]=tone;s.tr[sid].push({q:`${TONE[tone]}: ${tp.q}`,a:r.t});
+  s.sus[sid]=clamp(s.sus[sid]+(r.sus||0),0,5);if(r.ev)add(s,r.ev);
+  if(s.sus[sid]>=4)note(s,`${sp.short} will say nothing more.`,"warn")}});
+}
+function presentEv(sid,eid){
+ const sp=SUS[sid];let r=sp.present[eid]||{t:sp.dflt};
+ doAct({c:4,a:s=>{s.shown[sid+"."+eid]=1;s.tr[sid].push({q:`Shown: ${EV[eid].n}`,a:r.t});s.sus[sid]=clamp(s.sus[sid]+(r.sus||0),0,5);if(r.ev)add(s,r.ev)}});
+}
+function intuit(sid){doAct({c:0,a:s=>{if(s.tools.intuit<1||s.intuited[sid])return;s.tools.intuit--;s.intuited[sid]=1}})}
+function lookCloser(id){doAct({free:false,c:4,a:s=>{s.cl[id]=1;s.log.push([s.clock,`Looked closer: ${EV[id].n}`])}})}
+
+/* ---- Memory forensics ---- */
+function setMk(k,v){if(state.ended||forced())return;
+ if(/^s[0-7]$/.test(k)||TELLS.some(t=>"t_"+t[0]===k)){if(state.ev.tamperFound)return;if(state.mk[k])delete state.mk[k];else state.mk[k]=1}
+ else if(k==="term"){if(state.ev.writeFound||(v&&!TERMS[v]))return;if(v)state.mk.term=v;else delete state.mk.term}
+ else return;
+ ui.bmsg=null;persist();render()}
+function checkTamper(){
+ if(state.ev.tamperFound||forced()||!state.cl.memoryCopy)return;
+ const segOK=SEGS.filter((x,i)=>!!state.mk["s"+i]===x.bad).length,tellOK=TELLS.filter(t=>!!state.mk["t_"+t[0]]===TELL_OK.includes(t[0])).length;
+ if(!SEGS.some((x,i)=>state.mk["s"+i])){ui.bmsg=["tm","Mark the segments you think were edited."];render();return}
+ doAct({free:false,c:8,a:s=>{if(segOK===8&&tellOK===5)add(s,"tamperFound");else{s.q.tm=(s.q.tm||0)+1;ui.bmsg=["tm",`Segments judged right: ${segOK} of 8. Signs judged right: ${tellOK} of 5. A real memory records every sense, its body reacts to what it sees, and its frames are numbered in order.`]}}});
+}
+function checkTerm(){
+ if(!state.ev.tamperFound||state.ev.writeFound||forced()||!state.ev.vaultLog)return;
+ const v=state.mk.term;if(!v){ui.bmsg=["wr","Choose a terminal."];render();return}
+ doAct({free:false,c:5,a:s=>{if(v==="lotus")add(s,"writeFound");else{s.q.wr=(s.q.wr||0)+1;ui.bmsg=["wr",v==="mirai"?"The stamp names Mirai's token, but the vault log records which terminal actually wrote it.":"Read the vault log's WRITE line again."]}}});
+}
+
+function connect(){
+ const [a,b]=ui.sel;ui.msg=null;const has=(x,v)=>Array.isArray(x)?x.includes(v):x===v;
+ const hit=Object.entries(DED).find(([k,d])=>(has(d.a,a)&&has(d.b,b))||(has(d.a,b)&&has(d.b,a)));
+ if(!hit){ui.msg=["","No link between those two."];render();return}
+ const [id,d]=hit;if(state.ded[id]){ui.msg=["","You've already linked those."];render();return}
+ const need=(d.need||[]).filter(n=>{const [k,e]=n.split(":");return k==="cl"&&!state.cl[e]});
+ if(need.length){ui.msg=["",`Look closer at ${need.map(n=>EV[n.split(":")[1]].n).join(" and ")} first.`];render();return}
+ snapshot();state.ded[id]=1;state.log.push([state.clock,`Connected: ${d.t}`]);ui.sel=[];ui.msg=["good",`<b>${d.t}.</b> ${d.x}`];persist();render();
+}
+
+/* ================= HEADER ================= */
+function renderHead(){
+ const s=state,found=!!s.ev.tamperFound;
+ const towers=[[10,90,40],[55,60,30],[90,110,36],[132,40,28],[166,80,44],[214,55,30],[250,120,40],[296,70,32],[334,100,38],[378,50,34]].map(([x,h,w])=>`<rect x="${x}" y="${120-h}" width="${w}" height="${h}" fill="#141530"/>`+Array.from({length:Math.floor(h/14)},(_,i)=>`<rect x="${x+6}" y="${124-h+i*14}" width="${w-12}" height="3" fill="${(i+x)%3?"#2b2f6a":"#4fe3ff"}" opacity=".7"/>`).join("")).join("");
+ const segs=SEGS.map((x,i)=>{const gx=14+i*50,bad=x.bad;return `<g><rect x="${gx}" y="140" width="44" height="62" rx="3" fill="${bad&&found?"rgba(255,79,160,.2)":"rgba(79,227,255,.08)"}" stroke="${bad?(found?"#ff4fa0":"#7a6fd0"):"#3d4a7a"}" stroke-width="${bad&&found?2.5:1}" ${bad&&!found?'stroke-dasharray="3 2"':""}/>${[0,1,2,3,4].map(c=>{const miss=bad&&c===2;const w=miss?0:bad&&c===3?14:10+((i*7+c*5)%26);return `<rect x="${gx+5}" y="${146+c*11}" width="${w}" height="6" fill="${["#4fe3ff","#9b8cff","#ffd25a","#ff6f8f","#6fe0a8"][c]}" opacity=".85"/>`}).join("")}<text x="${gx+22}" y="214" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="${bad&&found?"#ff4fa0":"#9a9cb3"}">${found?x.seq:"·"+(i+1)}</text></g>`}).join("");
+ $("strip").innerHTML=`${towers}<line x1="0" y1="120" x2="420" y2="120" stroke="#4fe3ff" stroke-width="1" opacity=".5"/>${segs}
+ ${found?`<text x="164" y="136" font-family="Chakra Petch,sans-serif" font-size="11" font-weight="700" fill="#ff4fa0" letter-spacing="2">EDITED</text>`:""}
+ ${s.ev.writeFound?`<path d="M214 140 L300 30" stroke="#ff4fa0" stroke-width="1.5" stroke-dasharray="4 3"/><rect x="290" y="14" width="118" height="22" rx="3" fill="#2b0f35" stroke="#ff4fa0"/><text x="349" y="29" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#ff9fcf">LT-07 · LOTUS</text>`:""}`;
+ const T=[["The memory",found?"3 frames edited":"?",found],["The terminal",s.ev.writeFound?"LT-07 · Lotus":"?",!!s.ev.writeFound],["Who paid",pWho(s)?"Kuroda Shun":s.ev.ledger?"Kanade K.K.":"?",pWho(s)],["Why",pWhy(s)?"The ballot":"?",pWhy(s)]];
+ const left=COMPACT-s.clock;
+ $("status").innerHTML=T.map(([l,v,g])=>`<div class="tile ${g?"got":""}">${l}<b>${v}</b></div>`).join("")+`<div class="clock ${left<=45&&!s.ended?"urgent":""}">Vault compaction 03:00<b>${s.ended?"—":`${dur(left)} left`}</b>${hm(s.clock)}</div>`;
+}
+
+/* ================= RENDER ================= */
+function render(scroll){
+ renderTabs();renderHead();
+ $("panel").innerHTML={investigate:viewInvestigate,forensics:viewForensics,evidence:viewEvidence,people:viewPeople,journal:viewJournal,accuse:viewAccuse}[ui.tab]();
+ bindPanel();
+ if(scroll){const top=document.querySelector(".tabs");const y=top.getBoundingClientRect().top+window.scrollY-8;if(window.scrollY>y)window.scrollTo({top:y,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}
+}
+function renderTabs(){
+ const nD=["tamperFound","writeFound"].filter(k=>state.ev[k]).length;
+ const T=[["investigate","Investigate"],["forensics","Memory Forensics",nD||null],["evidence","Evidence",Object.keys(state.ev).length],["people","People"],["journal","Notebook"],["accuse",state.ended?"Outcome":"Finding"]];
+ $("tabs").innerHTML=T.map(([k,l,b])=>`<button class="tab" role="tab" aria-selected="${ui.tab===k}" data-tab="${k}">${l}${b!=null?`<span class="badge">${b}</span>`:""}</button>`).join("");
+ $("tabs").querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ui.tab=t.dataset.tab;ui.confirm=false;ui.msg=null;ui.bmsg=null;render()});
+}
+function optTag(o){const t=[];if(o.c)t.push(cost(o.c));if(o.walkTo)t.push(`${moveCost(state.loc,o.walkTo)} min`);if(o.tag)t.push(`<span class="tool">${o.tag}</span>`);if(o.risk)t.push(`<span class="risk">${o.risk}</span>`);return t.length?`<span class="tag">${t.map(x=>`<span>${x}</span>`).join("")}</span>`:""}
+function flashHTML(){return state.flash.length?`<div class="flash">${state.flash.map(([c,t])=>`<div class="${c}">${t}</div>`).join("")}</div>`:""}
+function toolsRow(){return `<div class="tools"><button class="link" data-act="back" ${history.length?"":"disabled"}>Retrace your last step</button><button class="link" data-act="restart">Restart this Cluortal</button></div>`}
+
+function viewInvestigate(){
+ const s=state;
+ if(s.ended)return viewEnding();
+ if(s.view==="interview"&&s.who)return viewInterview();
+ const sc=L[s.loc],p=sc.p(s),o=sc.o(s);
+ return `<div class="fade"><div class="meta"><span>${sc.chapter?`<b>${sc.chapter}</b>`:`Investigation log · <b>${String(s.n+1).padStart(2,"0")}</b>`}</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">${sc.t}</h2>${flashHTML()}
+ <div class="passage">${p.filter(Boolean).map(t=>`<p>${em(t)}</p>`).join("")}</div>
+ <ol class="choices">${o.map((x,i)=>`<li><button class="choice" data-i="${i}"><span class="num">${i+1}</span><span>${em(x.l)}${optTag(x)}</span></button></li>`).join("")}</ol>
+ <p class="hint">Press a number key to choose. Read the memory itself in the Memory Forensics tab.</p>${toolsRow()}</div>`;
+}
+function meterHTML(v){return `<div class="meter">Guard <span class="bar">${[0,1,2,3,4].map(i=>`<i class="${i<v?"on":""}"></i>`).join("")}</span> ${MOOD[v]}</div>`}
+function viewInterview(){
+ const s=state,id=s.who,sp=SUS[id],v=s.sus[id],silent=v>=4;
+ const evOpts=Object.keys(EV).filter(k=>s.ev[k]&&!s.shown[id+"."+k]);
+ return `<div class="fade"><div class="meta"><span>Speaking with</span><span>${hm(s.clock)}</span></div>
+ <div class="who"><div class="mono" aria-hidden="true">${sp.mono}</div><div><h2>${sp.n}</h2><p>${sp.role}</p>${meterHTML(v)}</div></div>
+ ${flashHTML()}
+ ${s.intuited[id]?`<p class="tells"><b>Your read:</b> ${sp.tell}</p>`:""}
+ ${s.tr[id].length?`<div class="transcript">${s.tr[id].map(e=>`<div><div class="q">${e.q}</div><p class="a">${em(e.a)}</p></div>`).join("")}</div>`:`<p class="passage">${sp.short} is waiting.</p>`}
+ ${silent?`<p class="tells">${sp.short} will say nothing more.</p>`:""}
+ <div class="topics">${sp.topics.map(t=>{const done=s.asked[id+"."+t.id];return `<div class="topic ${done?"done":""}"><div>${t.q}${done?` <span class="hint">(${TONE[done]})</span>`:""}</div>${done||silent?"":`<div class="tones">${["coax","ask","press"].map(tn=>`<button class="btn" data-ask="${t.id}" data-tone="${tn}">${TONE[tn]} · 7 min</button>`).join("")}</div>`}</div>`}).join("")}</div>
+ <div class="present"><label for="pres">Show evidence</label>${evOpts.length?`<select id="pres">${evOpts.map(k=>`<option value="${k}">${EV[k].n}</option>`).join("")}</select><button class="btn primary" data-act="present">Show · 4 min</button>`:`<span class="hint" style="margin:0">You've shown everything you have.</span>`}</div>
+ <div class="tools"><button class="btn" data-act="leave">End the conversation</button>${s.intuited[id]?"":`<button class="btn" data-act="intuit" ${s.tools.intuit?"":"disabled"}>Read their manner (${s.tools.intuit} left)</button>`}</div>
+ <p class="hint">Soft, Direct or Hard: each person answers best to one. Hard talk puts people on guard.</p>${toolsRow()}</div>`;
+}
+function viewForensics(){
+ const s=state,b=ui.bmsg,open=!!s.cl.memoryCopy,done=!!s.ev.tamperFound,lock=done||forced()||!open;
+ const rows=SEGS.map((x,i)=>{const mark=done?x.bad:!!s.mk["s"+i];return `<tr class="${mark?"bad":""}"><td class="first mn">Segment ${i+1}</td><td class="mn" data-h="Frame no.">${open?x.seq:"··"}</td><td class="mn" data-h="Clock">${x.clk}</td><td data-h="Vision">${x.vis}</td><td data-h="Hearing">${x.aud}</td><td data-h="Smell" class="${x.sm?"":"gap"}">${x.sm||"no signal"}</td><td class="mn" data-h="Heart">${x.hr} bpm</td><td class="mn" data-h="Write stamp">${open?x.st:"··"}</td><td data-h="Edited?">${done?(x.bad?"<b class='bad'>EDITED</b>":"✓"):`<label><input type="checkbox" data-mk="s${i}" ${s.mk["s"+i]?"checked":""} ${lock?"disabled":""}> edited</label>`}</td></tr>`}).join("");
+ const tells=done?`<p class="res2" style="margin-top:10px">${EV.tamperFound.d}</p>`:`<p style="margin:12px 0 4px"><b>What gives the edit away?</b> Tick every sign that holds.</p><div class="tellset">${TELLS.map(([k,l])=>`<label><input type="checkbox" data-mk="t_${k}" ${s.mk["t_"+k]?"checked":""} ${lock?"disabled":""}><span>${l}</span></label>`).join("")}</div><div class="pick" style="margin-top:10px"><button class="btn primary" data-act="checktm" ${open&&!forced()?"":"disabled"}>Check the analysis · 8 min</button>${open?"":`<span class="hint" style="margin:0">Look closer at the memory copy to open its headers.</span>`}</div>${b&&b[0]==="tm"?`<p class="hint bad">${b[1]}</p>`:""}`;
+ const term=!done?`<p class="hint" style="margin:0">Find the edited segments first.</p>`:!s.ev.vaultLog?`<p class="hint" style="margin:0">The stamp names a token, not a place. The vault's access log records the terminal.</p>`:s.ev.writeFound?`<p class="res2">${EV.writeFound.d}</p>`:`<p><b>The write stamp says token KX-1191, 15 March 01:12. Where was the edit actually written?</b></p><div class="pick"><select data-mk="term" ${forced()?"disabled":""}><option value="">Choose a terminal…</option>${Object.entries(TERMS).map(([k,l])=>`<option value="${k}" ${s.mk.term===k?"selected":""}>${l}</option>`).join("")}</select><button class="btn primary" data-act="checkwr" ${forced()?"disabled":""}>Check · 5 min</button></div>${b&&b[0]==="wr"?`<p class="hint bad">${b[1]}</p>`:""}`;
+ return `<div class="fade"><div class="meta"><span>Memory forensics</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">M-0314-2241 · Shimokitazawa alley</h2>
+ <div class="legend"><p>A stored memory is a run of short segments. Each records five senses, and each header carries:</p><ul>
+ <li><b>a frame number</b>, given by the implant in strict order as the memory is laid down;</li>
+ <li><b>the body's own channels</b>, smell and heart rate, which a real experience always records and which react to what's happening;</li>
+ <li><b>a write stamp</b> if anything was ever written into the segment afterwards: the broker's token and the time of writing.</li></ul>
+ <p style="margin:6px 0 0">Edits are written by brokers. Licensed brokers sign with their own token; the vault logs which terminal each write came from.</p></div>
+ <div style="overflow-x:auto"><table class="mem"><thead><tr><th>Segment</th><th>Frame no.</th><th>Clock</th><th>Vision</th><th>Hearing</th><th>Smell</th><th>Heart</th><th>Write stamp</th><th>Edited?</th></tr></thead><tbody>${rows}</tbody></table></div>
+ ${tells}
+ <h3 class="sec">The broker</h3><div class="qbox">${term}</div>${toolsRow()}</div>`;
+}
+function viewEvidence(){
+ const s=state,found=Object.keys(EV).filter(k=>s.ev[k]);
+ const slot=i=>ui.sel[i]?`<span class="slot full">${EV[ui.sel[i]].n}</span>`:`<span class="slot">Select an item</span>`;
+ return `<div class="fade"><div class="meta"><span>Evidence · <b>${found.length}</b></span><span>${hm(s.clock)}</span></div>
+ <div class="linker"><div class="row">${slot(0)}<span class="plus">+</span>${slot(1)}<button class="btn primary" data-act="connect" ${ui.sel.length===2?"":"disabled"}>Connect</button><button class="btn" data-act="clearsel" ${ui.sel.length?"":"disabled"}>Clear</button></div>
+ ${ui.msg&&ui.tab==="evidence"?`<p class="linkmsg ${ui.msg[0]}">${ui.msg[1]}</p>`:`<p class="hint" style="margin-top:8px">Pick two items to test a connection. Thinking costs no time.</p>`}</div>
+ ${Object.keys(s.ded).length?`<h3 class="sec" style="margin-top:4px">Connections</h3><ul class="deds">${Object.keys(DED).filter(k=>s.ded[k]).map(k=>`<li><b>${DED[k].t}</b><span>${DED[k].x}</span></li>`).join("")}</ul><h3 class="sec">Items</h3>`:""}
+ <div class="grid">${found.map(k=>{const e=EV[k],sel=ui.sel.includes(k);return `<div class="card-ev ${sel?"sel":""}">${e.c?`<span class="look">${s.cl[k]?"Examined":"Look closer"}</span>`:""}<span class="kind">${e.k}</span><span class="nm">${e.n}</span><span class="sh">${e.s}</span><span class="acts"><button class="btn" data-exam="${k}">Examine</button><button class="btn ${sel?"primary":""}" data-sel="${k}" aria-pressed="${sel}">${sel?"Selected":"Select"}</button></span></div>`}).join("")}
+ ${found.length<EV_TOTAL?`<div class="card-ev ghost">More in the city</div>`:""}</div>${toolsRow()}</div>`;
+}
+function viewPeople(){
+ const s=state,blocked=s.ended||s.loc==="intro"||forced();
+ return `<div class="fade"><div class="meta"><span>Neo-Tokyo, after dark</span><span>${hm(s.clock)}</span></div>
+ <div class="sgrid">${SUS_ORDER.map(id=>{const sp=SUS[id],here=s.loc===WHERE[id];
+ return `<div class="scard"><div class="top"><div class="mono" aria-hidden="true">${sp.mono}</div><div><h4>${sp.n}</h4><div class="role">${sp.role}</div></div></div>
+ ${meterHTML(s.sus[id])}<dl><dt>Manner</dt><dd>${s.intuited[id]?`Answers best to <b>${TONE[sp.pref]}</b> talk.`:"Read them when you speak."}</dd></dl>
+ <div><button class="btn" data-qq="${id}" ${blocked||!here?"disabled":""}>${here?"Speak now":"Go there first"}</button></div></div>`}).join("")}</div>${toolsRow()}</div>`;
+}
+function viewJournal(){
+ const s=state,items=TL.filter(t=>t[2](s)),ld=leads(s),ch=loadJ(CH_KEY),endsGot=Object.keys(loadJ(END_KEY)).length;
+ return `<div class="fade"><div class="meta"><span>Case notes</span><span>${hm(s.clock)}</span></div>
+ <h3 class="sec" style="margin-top:0">The timeline, as you have it</h3><ul class="timeline">${items.map(t=>`<li><time>${t[3]}</time>${t[1]}</li>`).join("")}</ul>
+ <h3 class="sec">Leads</h3>${ld.length?`<ul class="leads">${ld.map(x=>`<li>${x}</li>`).join("")}</ul>`:`<p class="passage">Nothing obvious left. Think it through.</p>`}
+ <h3 class="sec">Log</h3>${s.log.length?`<ul class="log">${s.log.slice(-14).reverse().map(([t,x])=>`<li><time>${hm(t)}</time>${x}</li>`).join("")}</ul>`:`<p class="passage">Nothing logged yet.</p>`}
+ ${endsGot?`<h3 class="sec">Chapters</h3><div class="chapters">${Object.keys(CHAPTERS).map(k=>`<button class="btn" data-ch="${k}" ${ch[k]?"":"disabled"}>${CHAPTERS[k]}</button>`).join("")}</div>`:""}
+ ${toolsRow()}</div>`;
+}
+function viewAccuse(){
+ const s=state;
+ if(s.ended)return `<div class="fade"><h2 class="scene-title">Session closed</h2><p class="passage">See the Investigate tab for how it ended, or start again.</p>${toolsRow()}</div>`;
+ const h=s.hyp,ready=Object.keys(HYP).every(k=>h[k]);const dl=Object.keys(DED).filter(k=>s.ded[k]);
+ return `<div class="fade"><div class="meta"><span>Your finding</span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">What you'll tell the duty judge</h2>
+ <p class="passage">Prepare your finding now. Once you've found where the edit was written, you can file it with the duty judge from your lab and ask for a freeze order. Otherwise you'll have to make your case at three, as compaction starts to run.</p>
+ <form class="hyp" id="hyp" onsubmit="return false">${Object.entries(HYP).map(([k,g])=>`<fieldset><legend>${g.l}</legend><div class="opts">${g.o.map(([v,l])=>`<label class="opt"><input type="radio" name="${k}" value="${v}" ${h[k]===v?"checked":""}><span>${l}</span></label>`).join("")}</div></fieldset>`).join("")}</form>
+ <h3 class="sec">Your connections (${dl.length})</h3>${dl.length?`<ul class="deds">${dl.map(k=>`<li><b>${DED[k].t}</b></li>`).join("")}</ul>`:`<p class="passage">Nothing linked yet.</p>`}
+ ${atMove()?"":`<p class="hint">Not yet. Find where the edit was written in the Memory Forensics tab, then go back to your lab, or wait for three o'clock.</p>`}
+ <div class="accbar" style="margin-top:14px"><button class="btn ${ui.confirm?"danger":"primary"}" data-act="accuse" ${ready&&atMove()?"":"disabled"}>${ui.confirm?"Are you sure? This ends the Cluortal":"Give your finding"}</button>${ui.confirm?`<button class="btn" data-act="unconfirm">Not yet</button>`:""}</div>
+ ${toolsRow()}</div>`;
+}
+function scoreOf(id){
+ const s=state,h=s.hyp||{};let acc=0,parts=null;
+ if(["E1","E2","E3"].includes(id)){parts=[["Memory",h.memory==="edited"],["Terminal",h.where==="lotus"],["Who",h.who==="kuroda"],["Why",h.why==="union"]];acc=parts.filter(p=>p[1]).length}
+ const evN=Object.keys(s.ev).length,dN=Object.keys(s.ded).length,fN=["tamperFound","writeFound"].filter(k=>s.ev[k]).length,wr=Object.values(s.q).reduce((a,v)=>a+v,0);
+ let sc=acc*(id==="E1"?12:6)+Math.round(clamp(evN/(EV_TOTAL-2),0,1)*12)+Math.round(clamp(dN/(DED_TOTAL-2),0,1)*14)+fN*9+(s.ev.offerRefused?2:0)-Math.min(6,wr*2);
+ if(["E4","E6","E7"].includes(id))sc=Math.min(sc,25);if(id==="E5")sc=Math.min(sc,40);if(id==="E3")sc=Math.min(sc,40);if(id==="E2")sc=Math.min(sc,62);
+ sc=clamp(sc,0,100);
+ const rank=sc>=90?"Master auditor":sc>=72?"Senior auditor":sc>=50?"Mnemonic auditor":sc>=30?"Trainee":"Overwritten";
+ return {parts,evN,dN,fN,sc,rank};
+}
+function viewEnding(){
+ const s=state,id=s.ended,E=END[id],got=loadJ(END_KEY),n=Object.keys(ENDINGS).filter(k=>got[k]).length,r=scoreOf(id),ch=loadJ(CH_KEY);
+ const ac=r.parts?r.parts.map(([l,ok])=>`${l} ${ok?"✓":"✗"}`).join(" · "):"No finding given";
+ return `<div class="fade"><div class="meta"><span><b>Outcome</b></span><span>${hm(s.clock)}</span></div>
+ <h2 class="scene-title">${ENDINGS[id]}</h2>
+ <div class="passage">${E.p(s).map(t=>`<p>${em(t)}</p>`).join("")}</div>
+ <div class="ending-card"><p class="label">${E.best?"The truest ending":"Ending reached"} · ${n} of 7 discovered</p><h4>${ENDINGS[id]}</h4>
+ <ul class="endings">${Object.entries(ENDINGS).map(([k,v])=>`<li class="${got[k]?"got":""}">${got[k]?v:"Undiscovered"}</li>`).join("")}</ul>
+ <p class="label" style="margin-bottom:6px">Your audit</p>
+ <table class="score"><tr><td>Finding</td><td>${ac}</td></tr><tr><td>Forensics findings</td><td>${r.fN} of 2</td></tr><tr><td>Evidence found</td><td>${r.evN} of ${EV_TOTAL}</td></tr><tr><td>Connections made</td><td>${r.dN} of ${DED_TOTAL}</td></tr></table>
+ <div class="total"><span>Cluortal score · ${r.rank}</span><b>${r.sc}</b></div>
+ ${E.best?"":`<p class="hint" style="margin:0 0 14px">The truest ending proves the insert, finds the terminal behind the cloned token, follows the money to its source, and ties it to the ballot.</p>`}
+ <div class="chapters"><button class="btn primary" data-act="restart">Start again</button>${Object.keys(CHAPTERS).map(k=>`<button class="btn" data-ch="${k}" ${ch[k]?"":"disabled"}>${CHAPTERS[k]}</button>`).join("")}</div></div>
+ ${toolsRow()}</div>`;
+}
+
+/* ================= BINDINGS ================= */
+function bindPanel(){
+ const P=$("panel");
+ P.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{const o=L[state.loc].o(state)[+b.dataset.i];if(o)doAct(o)});
+ P.querySelectorAll("[data-ask]").forEach(b=>b.onclick=()=>askTopic(state.who,b.dataset.ask,b.dataset.tone));
+ P.querySelectorAll("[data-exam]").forEach(b=>b.onclick=()=>openLens(b.dataset.exam));
+ P.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{const k=b.dataset.sel,i=ui.sel.indexOf(k);if(i>-1)ui.sel.splice(i,1);else{ui.sel.push(k);if(ui.sel.length>2)ui.sel.shift()}ui.msg=null;render()});
+ P.querySelectorAll("[data-qq]").forEach(b=>b.onclick=()=>{const id=b.dataset.qq;ui.tab="investigate";doAct({free:false,c:0,a:s=>{s.view="interview";s.who=id}})});
+ P.querySelectorAll("[data-ch]").forEach(b=>b.onclick=()=>loadChapter(b.dataset.ch));
+ P.querySelectorAll("input[data-mk]").forEach(c=>c.onchange=()=>setMk(c.dataset.mk));
+ P.querySelectorAll("select[data-mk]").forEach(c=>c.onchange=()=>setMk(c.dataset.mk,c.value));
+ const f=$("hyp");if(f)f.querySelectorAll("input").forEach(i=>i.onchange=()=>{state.hyp[i.name]=i.value;ui.confirm=false;persist();render()});
+ P.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+  const a=b.dataset.act;
+  if(a==="back")back_();
+  else if(a==="restart")restart();
+  else if(a==="leave")doAct({c:0,a:s=>{s.view="scene"}});
+  else if(a==="intuit")intuit(state.who);
+  else if(a==="present"){const v=$("pres").value;if(v)presentEv(state.who,v)}
+  else if(a==="checktm")checkTamper();
+  else if(a==="checkwr")checkTerm();
+  else if(a==="connect")connect();
+  else if(a==="clearsel"){ui.sel=[];ui.msg=null;render()}
+  else if(a==="unconfirm"){ui.confirm=false;render()}
+  else if(a==="accuse"){if(!atMove()||!Object.keys(HYP).every(k=>state.hyp[k]))return;if(!ui.confirm){ui.confirm=true;render();return}ui.confirm=false;doAct({c:0,a:s=>resolve(s)})}
+ });
+}
+function resolve(s){
+ if(!((s.loc==="lab"&&s.ev.writeFound)||s.loc==="compact"))return;
+ const h=s.hyp;
+ if(h.who!=="kuroda")return endCase(s,"E3");
+ endCase(s,h.memory==="edited"&&h.where==="lotus"&&h.why==="union"&&pEdit(s)&&pWhere(s)&&pWho(s)&&pWhy(s)?"E1":"E2");
+}
+let lensReturnFocus=null;
+function openLens(id){
+ lensReturnFocus=document.activeElement;
+ const e=EV[id],s=state,cls=["vaultLog","ledger","lattice","tokenRecord"].includes(id)?"term":e.doc?"doc":/Testimony/.test(e.k)?"test":"";
+ $("lensBody").innerHTML=`<button class="x" data-lens="close" aria-label="Close">×</button><span class="kind">${e.k}</span><h3 id="lensTitle">${e.n}</h3>
+ <div class="glass ${cls}">${e.d}</div>
+ ${e.c&&s.cl[id]?`<div class="closer"><b>Looking closer</b>${e.c}</div>`:""}
+ <div class="acts">${e.c&&!s.cl[id]?`<button class="btn primary" data-lens="closer" ${s.ended?"disabled":""}>Look closer · 4 min</button>`:"<span></span>"}<button class="btn" data-lens="select">${ui.sel.includes(id)?"Selected for linking":"Select for linking"}</button></div>`;
+ const d=$("lens");if(!d.open){d.showModal?d.showModal():d.setAttribute("open","")}
+ $("lensBody").querySelector("[data-lens=close]")?.focus();
+ $("lensBody").querySelectorAll("[data-lens]").forEach(b=>b.onclick=()=>{
+  const a=b.dataset.lens;
+  if(a==="close")closeLens();
+  else if(a==="closer"){lookCloser(id);if($("lens").open)openLens(id)}
+  else{if(!ui.sel.includes(id)){ui.sel.push(id);if(ui.sel.length>2)ui.sel.shift()}ui.msg=null;closeLens();ui.tab="evidence";render()}
+ });
+}
+function closeLens(){const d=$("lens");if(d.open){d.close?d.close():d.removeAttribute("open")}if(lensReturnFocus?.isConnected)lensReturnFocus.focus();lensReturnFocus=null}
+$("lens").addEventListener("click",e=>{if(e.target===$("lens"))closeLens()});
+document.addEventListener("keydown",e=>{
+ if(e.metaKey||e.ctrlKey||e.altKey||e.repeat||$("lens").open||["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName))return;
+ if(ui.tab!=="investigate"||state.view==="interview"||state.ended)return;
+ const n=parseInt(e.key,10);if(n>=1&&n<=9){const b=document.querySelectorAll(".choice")[n-1];if(b)b.click()}
+});
+function start(d){
+ if(d&&validState(d.state)){state=d.state;history=Array.isArray(d.history)?d.history:[]}
+ else{state=fresh();history=[]}
+ const c=loadJ(CH_KEY);if(!c.ch1){c.ch1=JSON.stringify(fresh());saveJ(CH_KEY,c)}
+ persist();render(false);
+}
+window.claude?.hot?.snapshot?.(()=>({state,history}));
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(restore());
+</script>
+</body></html>
