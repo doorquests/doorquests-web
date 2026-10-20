@@ -1,0 +1,1509 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Fortune Booth | DoorQuests Chaortals</title>
+<meta name="robots" content="noindex,nofollow">
+<!-- PROTOTYPE: noindex until the Founder accepts. Switch to index,follow at publication. -->
+<meta name="description" content="Chaortal No. 17: The Fortune Booth. In a fictional 1920s carnival booth, a fortune-teller opens empty curtains. Run real trials, then work out exactly when switching pays, and what a host's preferences reveal.">
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Limelight&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@500;600&display=swap">
+<style>
+/* Layout: a fictional 1920s carnival fortune-teller's booth. Above, the booth's painted front: striped canvas, a carved sign,
+   bulbs, the fortune-teller at her counter and the midway beyond. Below it, the stage of velvet curtains with her dialogue
+   and the trial controls, beside the Prediction Card (the formal answer). Under the booth: the Trial Ledger (real trials and
+   seeded simulations) and the Probability Table (givens, a worksheet, and the exact tree once a tier is answered).
+   Verb: CHOOSE. Concept: probability and conditional information. */
+:root{
+  --bg:#f3eee6; --panel:#fffdf8; --panel2:#f1e9dc; --ink:#22161c; --muted:#5f4f57; --line:#dccfbd;
+  --accent:#7a1f3a; --accent-ink:#fff7ee; --good:#23673d; --bad:#a3301f; --focus:#d9771a;
+  --bronze:#9a5b2c; --silver:#6f767e; --goldtier:#b38a16; --brass:#c9a24a; --amber:#f2b552; --velvet:#6e1530; --violet:#3a2150; --midnight:#141a36; --cream:#f6ead2; --copper:#b8743a;
+  --display:"Limelight",Georgia,serif; --body:"Libre Baskerville",Georgia,serif; --label:"Oswald","Arial Narrow",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#120d14; --panel:#1c151e; --panel2:#160f18; --ink:#f1e8ee; --muted:#bba8b4; --line:#3a2c3c;
+  --accent:#e78aa5; --accent-ink:#2a0a14; --good:#8fd09c; --bad:#f08a76; --focus:#ffb37a;
+  --bronze:#d08a52; --silver:#b9c0c8; --goldtier:#e8c44d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#120d14; --panel:#1c151e; --panel2:#160f18; --ink:#f1e8ee; --muted:#bba8b4; --line:#3a2c3c;
+  --accent:#e78aa5; --accent-ink:#2a0a14; --good:#8fd09c; --bad:#f08a76; --focus:#ffb37a;
+  --bronze:#d08a52; --silver:#b9c0c8; --goldtier:#e8c44d; color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding:max(18px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(56px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.brand{margin:0 0 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font:600 .74rem/1.4 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.brand img{width:30px;height:30px}
+.brand a{color:inherit;text-decoration:none}.brand a:hover{text-decoration:underline}
+.proto{display:inline-block;margin-left:auto;padding:2px 8px;border:1px dashed var(--bad);border-radius:999px;color:var(--bad);font:600 .68rem var(--label);letter-spacing:.1em}
+
+/* ---------- THE BOOTH ---------- */
+.booth{position:relative;border-radius:18px;overflow:hidden;color:#f6ead2;border:1px solid #1a0c14;background:#1b0f1c}
+.scene{position:relative}
+.scene svg{display:block;width:100%;height:auto}
+.scenehead{position:absolute;left:0;top:0;right:0;padding:18px 22px 26px;pointer-events:none;background:linear-gradient(180deg,rgba(20,8,16,.78),rgba(20,8,16,.35) 70%,transparent)}
+.booth .pre{margin:0;font:600 .76rem/1.35 var(--label);letter-spacing:.16em;text-transform:uppercase;color:#f3cf86;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.booth h1{margin:4px 0 0;font:400 clamp(1.9rem,5vw,3.2rem)/1.05 var(--display);color:#fff4dc;text-shadow:0 2px 10px rgba(0,0,0,.6);letter-spacing:.02em}
+.verb{display:inline-block;margin-top:8px;font:600 .82rem var(--label);letter-spacing:.34em;color:#f3cf86;border:1px solid #c9a24a;border-radius:4px;padding:4px 8px 4px 12px;background:rgba(20,8,16,.5)}
+@media (max-width:640px){.scenehead{position:relative;padding:16px 16px 4px;background:#1b0f1c}}
+.hour{margin:0;padding:8px 18px;font:500 .92rem var(--label);letter-spacing:.04em;color:#f6ead2;background:#24132a;border-top:1px solid #3e2440}
+.bulb{animation:flick 5s ease-in-out infinite}
+@keyframes flick{0%,100%{opacity:1}46%{opacity:1}48%{opacity:.72}50%{opacity:1}}
+html.rm .bulb{animation:none}
+.stagewrap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr);gap:16px;padding:16px;align-items:start;
+  background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(242,181,82,.12),transparent 60%),linear-gradient(180deg,#2a1530,#1d0f22)}
+@media (max-width:980px){.stagewrap{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){.stagewrap{padding:10px 6px;gap:10px}}
+.stage{position:relative;border-radius:14px;padding:12px 12px 10px;background:linear-gradient(180deg,#3a1b2c,#24101c);box-shadow:inset 0 0 0 2px #8a6a2a,0 10px 24px rgba(0,0,0,.45)}
+.valance{height:22px;margin:-12px -12px 10px;border-radius:14px 14px 0 0;background:radial-gradient(circle at 12px -4px,#9a2a46 14px,transparent 15px) 0 0/24px 22px repeat-x,linear-gradient(180deg,#7a1f3a,#5a1229);border-bottom:2px solid #c9a24a}
+.midway{position:absolute;inset:34px 12px 66px;border-radius:8px;overflow:hidden;z-index:0}
+.midway svg{width:100%;height:100%;display:block}
+.curtains{position:relative;z-index:1;display:grid;gap:8px;grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+.curt{position:relative;display:grid;grid-template-rows:auto 1fr auto;min-height:250px;border:0;padding:0;border-radius:8px 8px 4px 4px;background:#160a12;cursor:pointer;overflow:hidden;color:#f6ead2;box-shadow:inset 0 0 0 2px #5a3a1a}
+@media (max-width:560px){.curt{min-height:190px}}
+.curt:disabled{cursor:default}
+.curt .plate{position:relative;z-index:3;margin:6px auto 0;min-width:44px;padding:1px 10px;border-radius:999px;background:linear-gradient(180deg,#f3d58a,#b8862c);color:#2a1606;font:600 1rem var(--label);letter-spacing:.06em;box-shadow:0 1px 2px rgba(0,0,0,.5)}
+.curt .behind{position:relative;z-index:1;display:grid;place-items:center;padding:6px}
+.curt .behind svg{width:min(76px,80%);height:auto}
+.curt .half{position:absolute;top:0;bottom:0;width:51%;z-index:2;transition:transform .9s cubic-bezier(.5,.05,.2,1);
+  background:repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 3px,transparent 3px 12px,rgba(255,255,255,.07) 12px 14px,transparent 14px 20px),linear-gradient(180deg,#8e1d3e,#5c0f27 70%,#4a0b1f);
+  border-bottom:6px dotted #d9b45c}
+.curt .half.l{left:0;transform-origin:left center;border-right:1px solid rgba(0,0,0,.4)}
+.curt .half.r{right:0;transform-origin:right center}
+.curt .half::after{content:"";position:absolute;left:8%;right:8%;top:36%;height:14px;border-top:2px solid rgba(217,180,92,.55);border-radius:50%}
+.curt.open .half.l{transform:scaleX(.16)}.curt.open .half.r{transform:scaleX(.16)}
+html.rm .curt .half{transition:none}
+.curt .tag{position:relative;z-index:3;margin:0 4px 6px;padding:2px 4px;border-radius:6px;background:rgba(20,8,16,.82);font:500 .8rem/1.25 var(--label);letter-spacing:.02em;text-align:center;min-height:2.5em;display:grid;place-items:center}
+.curt.sel{box-shadow:inset 0 0 0 3px var(--amber),0 0 0 3px var(--amber)}
+.curt.fin{box-shadow:inset 0 0 0 3px #fff,0 0 0 4px #7fd0ff}
+.curt.win .tag{background:#5a4210;color:#fff3c8}
+.curt .wt{position:absolute;z-index:3;right:6px;top:34px;padding:0 6px;border-radius:4px;background:#2a1606;border:1px solid #c9a24a;color:#f3d58a;font:600 .74rem var(--label)}
+.curt .ribbon{position:absolute;z-index:3;left:-2px;top:36px;padding:1px 8px 1px 6px;background:var(--amber);color:#2a1606;font:600 .7rem var(--label);letter-spacing:.06em;text-transform:uppercase;border-radius:0 6px 6px 0}
+.stage.fold .curt .half.l{transform:perspective(500px) rotateY(70deg) scaleX(.2)}.stage.fold .curt .half.r{transform:perspective(500px) rotateY(-70deg) scaleX(.2)}
+.stage.fold .curt{background:transparent}
+.stage.drawn .curt{background:transparent;box-shadow:none}
+.stage.drawn .curt .half{transform:scaleX(.04)}
+.dialogue{position:relative;z-index:1;margin:10px 0 0;padding:10px 14px;border-radius:10px;background:linear-gradient(180deg,#f6ead2,#e9d8b8);color:#2a1606;border:1px solid #c9a24a;font:400 1rem/1.5 var(--body)}
+.dialogue b{font-family:var(--label);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:.78rem;color:#7a1f3a;display:block}
+.trialctl{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.hbtn{border:1px solid #c9a24a;background:#f6ead2;color:#2a1606;border-radius:8px;padding:8px 12px;min-height:44px;cursor:pointer;font:600 .92rem var(--label);letter-spacing:.03em}
+.hbtn:hover:not(:disabled){background:#fff8ea}
+.hbtn:disabled{opacity:.45;cursor:not-allowed}
+.hbtn.go{background:#f2b552;border-color:#f2b552}
+.hbtn.dark{background:#3a1b2c;color:#f6ead2;border-color:#8a6a2a}
+.card{border-radius:14px;padding:14px;color:#2a1606;background:radial-gradient(ellipse at 20% 0%,rgba(255,255,255,.5),transparent 55%),linear-gradient(180deg,#f6ead2,#e6d2ae);box-shadow:inset 0 0 0 2px #b8862c,inset 0 0 0 6px #f6ead2,inset 0 0 0 7px #b8862c,0 10px 24px rgba(0,0,0,.45)}
+.card h2{margin:0 0 6px;font:400 1.3rem var(--display);color:#7a1f3a;text-align:center}
+.card .q{margin:6px 0;font-size:.98rem}
+.card fieldset{border:0;margin:6px 0;padding:0}
+.card legend{font:600 .86rem var(--label);letter-spacing:.04em;margin-bottom:4px}
+.opt{display:flex;flex-wrap:wrap;gap:6px}
+.opt label{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:4px 12px;border:1px solid #b8862c;border-radius:8px;background:#fffaf0;cursor:pointer;font:500 .95rem var(--label)}
+.opt input{width:18px;height:18px;accent-color:#7a1f3a}
+.frac{display:grid;gap:4px;margin:8px 0}
+.frac label{font:600 .86rem var(--label);letter-spacing:.03em}
+.frac input{min-height:44px;border:2px solid #8a6a2a;border-radius:8px;background:#fffdf7;color:#1a0c06;padding:4px 12px;font:700 1.25rem var(--body);letter-spacing:.04em;width:100%;max-width:220px}
+.card .fine{margin:6px 0 0;font:500 .82rem/1.4 var(--label);color:#5a3a1a}
+.meters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px;font:500 .9rem var(--label);margin-top:10px}
+.meters div{display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted rgba(42,22,6,.35);padding:2px 0}
+.meters b{font-size:1.02rem}
+.msg{margin:0 16px 14px;padding:9px 12px;border-radius:8px;background:rgba(255,253,248,.96);border:1px solid #9a8aa0;color:#22161c}
+.msg:empty{display:none}
+.msg.bad{border-color:#a3301f;background:#fff1ec}
+.msg.good{border-color:#23673d;background:#effaf1}
+.boothfoot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:0 16px 14px;font:500 .82rem var(--label);color:#e6d6e6;background:#1d0f22}
+kbd{font:600 .78rem var(--label);border:1px solid #8a6a2a;border-bottom-width:2px;border-radius:4px;padding:0 5px;background:rgba(255,255,255,.12);color:inherit}
+.chip{font:600 .74rem var(--label);letter-spacing:.08em;text-transform:uppercase;border:1px solid #c9a24a;background:rgba(246,234,210,.12);color:#f6ead2;border-radius:999px;padding:3px 12px;cursor:pointer;min-height:36px}
+
+/* ---------- below the booth ---------- */
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 4px}
+.tierbtn{display:grid;gap:2px;text-align:left;background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:6px;padding:9px 12px;cursor:pointer}
+.tierbtn[data-t="bronze"]{border-top-color:var(--bronze)}.tierbtn[data-t="silver"]{border-top-color:var(--silver)}.tierbtn[data-t="gold"]{border-top-color:var(--goldtier)}
+.tierbtn[aria-pressed="true"]{background:var(--panel2);box-shadow:inset 0 0 0 2px var(--accent)}
+.tierbtn b{font:700 1rem var(--body)}
+.tierbtn span{font:500 .84rem var(--label);color:var(--muted)}
+.tierbtn .st{color:var(--good);font-weight:600}
+@media (max-width:560px){.tierbtn{padding:7px 8px}.tierbtn span.aim{display:none}}
+.brief{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+.brief h2{margin:0 0 4px;font:400 1.45rem var(--display);color:var(--accent)}
+.brief p{margin:0}
+.rule{margin-top:8px!important;padding:8px 12px;border-left:4px solid var(--accent);background:var(--panel2);border-radius:4px}
+.rule ol,.rule ul{margin:4px 0 0;padding-left:1.3em}
+.scoring{margin-top:6px!important;font-size:.92rem;color:var(--muted)}
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:14px}
+@media (max-width:980px){.twocol{grid-template-columns:minmax(0,1fr)}}
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+.card2 h2{margin:0 0 8px;font:600 .86rem var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.card2 h3{margin:12px 0 4px;font:600 .84rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.note{color:var(--muted);font-size:.92rem;margin:8px 0 0}
+.btn{border:1px solid var(--line);background:var(--panel2);border-radius:6px;padding:8px 14px;cursor:pointer;font:600 .92rem var(--label);letter-spacing:.04em;min-height:44px}
+a.btn{color:inherit;text-decoration:none;display:inline-block}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.tablewrap{overflow-x:auto;margin-top:6px}
+.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
+.tbl th,.tbl td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.tbl th{font:600 .76rem var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--panel2)}
+.tbl td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl .fr{font:700 1.02rem var(--body);white-space:nowrap}
+.sealed{font:500 .84rem var(--label);color:var(--muted);font-style:italic}
+@media (max-width:560px){.tbl{font-size:.8rem}.tbl th,.tbl td{padding:4px 5px}}
+.simrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.simrow label{font:600 .84rem var(--label)}
+.simrow input[type=text]{min-height:44px;width:9em;border:1px solid var(--line);border-radius:6px;background:var(--panel);padding:4px 8px}
+.progress{font:500 .9rem var(--label);color:var(--muted);min-height:1.4em;margin:6px 0 0}
+.check{display:inline-flex;gap:8px;align-items:center;min-height:44px;font:600 .9rem var(--label)}
+.check input{width:20px;height:20px}
+.sheet input{width:100%;min-width:4.5em;min-height:36px;border:1px solid var(--line);border-radius:4px;background:var(--panel);padding:2px 6px;font:600 .95rem var(--body)}
+.givens{margin:4px 0 0;padding-left:1.2em}
+.hints{display:grid;gap:8px}
+.hint{background:var(--panel2);border-left:4px solid var(--bronze);border-radius:4px;padding:8px 12px}
+.hint b{font:600 .78rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--bronze);display:block}
+.hintrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+details.card2{margin-top:14px}
+details.card2 summary{cursor:pointer;font:600 .88rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+details.card2 ul{margin:8px 0 0;padding-left:1.2em}
+details.card2 p{margin:8px 0 0}
+details.card2 kbd{border-color:var(--line);background:var(--panel2);color:var(--ink)}
+.src{font-size:.88rem}
+
+/* the Fortune-Teller's Ledger (Reasoning Toolkit skin) */
+.nbk{margin-top:14px;border-radius:8px;border:1px solid #c9a24a;color:#22140a;background:linear-gradient(180deg,#f7efdf,#ead9b9)}
+.nbk summary{cursor:pointer;padding:12px 16px;font:400 1.3rem var(--display);color:#6e1530;list-style:none;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.nbk summary::-webkit-details-marker{display:none}
+.nbk summary small{font:500 .84rem var(--label);letter-spacing:.04em;color:#5a3a1a}
+.nbk .inner{padding:0 16px 16px;display:grid;gap:16px}
+.nbk h3{margin:0;font:600 .86rem var(--label);letter-spacing:.12em;text-transform:uppercase;color:#6e1530}
+.nbk .ref{margin:4px 0 0;padding-left:1.2em;font-size:.95rem}
+.scratch{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.scratch input{width:7em;min-height:44px;border:1px solid #b9a079;border-radius:4px;background:#fffdf7;color:#1f1a12;padding:4px 8px;font:700 1.05rem var(--body)}
+.scratch select{min-height:44px;border:1px solid #b9a079;border-radius:4px;background:#fffdf7;color:#1f1a12;padding:4px}
+.scratch .btn{background:#fffdf7;border-color:#b9a079;color:#1f1a12}
+.scratch output{font:700 1.1rem var(--body);min-width:6em}
+.dqt-intro{margin:0 0 6px;font-style:italic}
+.dqt-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 10px;font:600 .84rem var(--label)}
+.dqt-leg{display:inline-flex;gap:6px;align-items:center}
+.dqt-leg kbd{font:600 .7rem var(--label);border:1px solid #b9a079;border-radius:3px;padding:0 4px;background:#fffdf7;color:#1f1a12}
+.dqt-boards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.dqt-board{overflow-x:auto}
+.dqt-board h4{margin:0;font:600 .86rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:#6e1530}
+.dqt-help{margin:2px 0 6px;font-size:.9rem;color:#4f4636}
+.dqt-table{border-collapse:collapse;font-size:.9rem}
+.dqt-table th{font-weight:500;text-align:left;padding:2px 4px;font-family:var(--body)}
+.dqt-table td{text-align:center;padding:1px}
+.dqt-cell{width:32px;height:32px;border:1px solid #b9a079;border-radius:4px;background:#fffdf7;cursor:pointer;font:700 .95rem var(--body);color:#86795f;padding:0}
+.dqt-cell[data-s="y"]{color:#2f5d9a;background:#e1ebf7;border-color:#2f5d9a}
+.dqt-cell[data-s="n"]{color:#3b3b3b;background:#e6e3de;border-color:#6d675e}
+.dqt-cell[data-s="q"]{color:#7a5a10;background:#f6ecd0;border-color:#a77b26}
+.dqt-sym{display:inline-grid;place-items:center;width:22px;height:20px;border:1px solid #b9a079;border-radius:3px;background:#fffdf7}
+.dqt-sym[data-s="y"]{color:#2f5d9a}.dqt-sym[data-s="n"]{color:#3b3b3b}.dqt-sym[data-s="q"]{color:#7a5a10}
+.dqt-cell:focus-visible{outline:3px solid #c2410c;outline-offset:1px}
+.dqt-notes-label{display:block;margin:12px 0 4px;font:600 .86rem var(--label);letter-spacing:.1em;text-transform:uppercase;color:#6e1530}
+.dqt-notes{width:100%;min-height:100px;resize:vertical;border:1px solid #b9a079;border-radius:4px;background:#fffdf7;color:#1f1a12;padding:8px 10px;font:italic 1rem/1.6 var(--body)}
+.dqt-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.dqt-foot .btn{background:#fffdf7;border-color:#b9a079;color:#1f1a12}
+.dqt-msg{font-size:.9rem;color:#4f4636}
+.dqt-log{margin:0;padding-left:1.3em;display:grid;gap:6px}
+.dqt-log li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;align-items:center}
+.dqt-log-t{grid-column:1/-1;font-size:.92rem}
+.dqt-log-n{border:1px solid #b9a079;border-radius:4px;padding:4px 8px;background:#fffdf7;color:#1f1a12;min-width:0}
+.dqt-log-x{border:0;background:none;font-size:1.1rem;cursor:pointer;color:#4f4636}
+.nbk .fine{margin:0;font-size:.88rem;color:#4f4636}
+.dedrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.dedrow input{flex:1 1 220px;min-width:0;border:1px solid #b9a079;border-radius:4px;padding:6px 10px;background:#fffdf7;color:#1f1a12;min-height:44px}
+.dedrow .btn{background:#fffdf7;border-color:#b9a079;color:#1f1a12}
+
+/* award, keyring, footer */
+.award{margin-top:14px;border:2px solid var(--accent);border-radius:10px;padding:16px;background:var(--panel);display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:640px){.award{grid-template-columns:minmax(0,1fr);text-align:center}.award .emb{margin:0 auto}}
+.award h2{margin:0 0 4px;font:400 1.6rem var(--display);color:var(--accent)}
+.award .emb{width:100%;max-width:220px;height:auto;border-radius:10px;background:#1b0f1c}
+.award p{margin:6px 0}
+.flip{perspective:900px;max-width:220px;margin:0 auto}
+.flip .inner2{position:relative;transform-style:preserve-3d;animation:flipin 1.2s ease .2s both}
+@keyframes flipin{from{transform:rotateY(180deg)}to{transform:rotateY(0)}}
+html.rm .flip .inner2{animation:none}
+.keydrop{animation:drop 1.4s cubic-bezier(.3,1.4,.6,1) .6s both}
+@keyframes drop{from{transform:translateY(-60px);opacity:0}to{transform:translateY(0);opacity:1}}
+html.rm .keydrop{animation:none}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+@media (max-width:640px){.tags{justify-content:center}}
+.tag2{font:600 .74rem var(--label);letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.tag2.hf{border-color:var(--good);color:var(--good)}.tag2.up{border-color:var(--accent);color:var(--accent)}.tag2.ma{border-color:var(--bronze);color:var(--bronze)}
+.explain{background:var(--panel2);border-radius:6px;padding:10px 12px;font-size:.98rem;text-align:left}
+.ending{background:linear-gradient(180deg,#2a1530,#160b1a);color:#f6ead2;border-radius:8px;padding:12px 16px;margin-top:10px;text-align:left;font:400 1.02rem/1.7 var(--body);border:1px solid #c9a24a}
+.ending p{margin:6px 0}
+.ending i{color:#f3cf86}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+@media (max-width:640px){.actions{justify-content:center}}
+.ring2{margin-top:22px}
+.ring2 h2{font:400 1.45rem var(--display);margin:0 0 4px;letter-spacing:0;text-transform:none;color:var(--ink)}
+.kslots{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-top:10px}
+.slot{border:1px dashed var(--line);border-radius:6px;padding:8px;min-height:84px;display:grid;align-content:start;gap:2px;background:var(--panel)}
+.slot.has{border-style:solid}
+.slot.has.bronze{border-color:var(--bronze)}.slot.has.silver{border-color:var(--silver)}.slot.has.gold{border-color:var(--goldtier)}
+.slot .n{font:600 .72rem var(--label);letter-spacing:.1em;color:var(--muted)}
+.slot .t{font-size:.84rem;line-height:1.25}
+.slot .k{font:600 .72rem var(--label);letter-spacing:.08em;text-transform:uppercase}
+.ringtools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+footer{margin-top:28px;padding-top:12px;border-top:1px solid var(--line);font-size:.9rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between}
+footer a{color:var(--accent)}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;min-height:44px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="https://doorquests.com/">DoorQuests</a> · Chaortals · Chaortal No. 17 · <i style="text-transform:none;letter-spacing:0;font-family:var(--body);font-size:.95rem">Choose Your Path. Find the Truth. Unlock the Impossible.</i></span><span class="proto">Prototype · not published</span></p>
+
+  <section class="booth" id="booth" aria-labelledby="boothTitle">
+    <div class="scene">
+      <div class="scenehead"><p class="pre">Chaortal No. 17 · A fictional booth at a 1920s travelling carnival · Probability</p><h1 id="boothTitle">The Fortune Booth</h1><span class="verb" aria-hidden="true">CHOOSE</span></div>
+      <div id="scene"></div>
+    </div>
+    <p class="hour" id="hour"></p>
+    <div class="stagewrap">
+      <div>
+        <div class="stage" id="stage">
+          <div class="valance" aria-hidden="true"></div>
+          <div class="midway" id="midway" aria-hidden="true"></div>
+          <div class="curtains" id="curtains" role="group" aria-label="The curtains"></div>
+          <p class="dialogue" id="dialogue" aria-live="polite"></p>
+          <div class="trialctl" id="trialCtl"></div>
+        </div>
+      </div>
+      <form class="card" id="card" novalidate aria-labelledby="cardTitle">
+        <h2 id="cardTitle">The Prediction Card</h2>
+        <div id="cardBody"></div>
+        <button type="submit" class="hbtn go" id="answerBtn" style="width:100%;margin-top:6px">Give your answer</button>
+        <p class="fine" id="cardFine"></p>
+        <div class="meters" id="meters"></div>
+      </form>
+    </div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="boothfoot"><span id="keysHelp"></span><button class="chip" id="soundBtn" type="button"></button></div>
+  </section>
+
+  <nav class="tiers" aria-label="Choose a challenge" id="tiers"></nav>
+  <div class="brief"><h2 id="briefTitle"></h2><p id="briefText"></p><div class="rule" id="briefRule"></div><p class="scoring" id="briefScore"></p></div>
+
+  <div class="twocol">
+    <section class="card2" aria-labelledby="ledgerTitle">
+      <h2 id="ledgerTitle">The Trial Ledger · what actually happened</h2>
+      <div id="trialLedger"></div>
+      <h3>Automatic trials (free)</h3>
+      <div class="simrow" id="simBtns"></div>
+      <div class="simrow"><label for="seedIn">Seed (optional)</label><input type="text" id="seedIn" inputmode="numeric" maxlength="9" autocomplete="off" placeholder="random"><span class="note" style="margin:0">The same seed repeats the same trials exactly.</span></div>
+      <p class="progress" id="simStatus" role="status" aria-live="polite"></p>
+      <p class="note" id="lastBatch"></p>
+      <div class="simrow"><button type="button" class="btn danger" id="clearTrials">Clear this challenge's trial records</button></div>
+      <p class="note">Every trial follows the stated rules, using the browser's random numbers (or your seed). No result is adjusted to look closer to the exact answer, and short runs can look surprising. Trials cost nothing and never decide whether an answer is right.</p>
+    </section>
+    <section class="card2" aria-labelledby="probTitle">
+      <h2 id="probTitle">The Probability Table · what must happen</h2>
+      <div id="probTable"></div>
+    </section>
+  </div>
+
+  <details class="nbk" id="nbBox">
+    <summary>The Fortune-Teller's Ledger <small>Optional · free · never answers for you</small></summary>
+    <div class="inner">
+      <div><h3>Her rules (reference)</h3><ul class="ref" id="policyRef"></ul></div>
+      <div><h3>Exact-fraction scratchpad</h3>
+        <div class="scratch"><label class="sr" for="fa">First fraction</label><input id="fa" type="text" maxlength="21" placeholder="1/5" autocomplete="off"><label class="sr" for="fop">Operation</label><select id="fop"><option value="+">+</option><option value="-">−</option><option value="*">×</option><option value="/">÷</option></select><label class="sr" for="fb">Second fraction</label><input id="fb" type="text" maxlength="21" placeholder="1/4" autocomplete="off"><button class="btn" id="fGo" type="button">=</button><output id="fOut" for="fa fb" aria-live="polite"></output></div>
+        <p class="fine">Whole numbers and fractions such as 3/20; results are always written in lowest terms. It does arithmetic only.</p></div>
+      <div><h3>Your pages</h3><div id="nb"></div></div>
+      <div><h3>Deduction journal</h3><div id="log"></div>
+        <div class="dedrow"><label class="sr" for="dedIn">Record a deduction</label><input id="dedIn" type="text" maxlength="200" placeholder="Record a deduction, e.g. she can always open an empty curtain"><button class="btn" id="dedBtn" type="button">Record</button></div></div>
+      <p class="fine">Your pages, worksheet, scratchpad and journal belong to each challenge and survive reloads. “Reset progress” erases them. The ledger never fills anything in and never shows an answer.</p>
+    </div>
+  </details>
+
+  <section class="card2" style="margin-top:14px" aria-labelledby="hintsTitle">
+    <h2 id="hintsTitle">The fortune-teller's hints</h2>
+    <div class="hints" id="hints"></div>
+    <div class="hintrow" style="margin-top:8px"><button class="btn" id="hintBtn" type="button"></button><span class="note" style="margin:0">Three hints per challenge, from a nudge to a worked step. Each costs 12 points, shown before you take it.</span></div>
+  </section>
+
+  <details class="card2" id="howBox">
+    <summary>How to play, controls and scoring</summary>
+    <ul id="rulesList"></ul>
+  </details>
+
+  <details class="card2" id="histBox">
+    <summary>A note on carnivals, fortune booths and this puzzle</summary>
+    <p><b>The setting.</b> Travelling carnivals grew out of the midways of late nineteenth-century fairs: Chicago's 1893 World's Columbian Exposition set the pattern with its Midway Plaisance of rides, sideshows, games of chance and food stands, and travelling carnival companies followed in its wake. One history counts 17 travelling carnivals in the United States in 1902 and more than 300 by 1936. Carnivals offered sideshows and games of skill and chance, and they soon had a reputation for less than perfect honesty with their customers.</p>
+    <p><b>What is fiction.</b> This booth, its curtains and its fortune-teller, Augusta Lark, are invented. Her “predictions” are stage patter: nobody in this game can see the future, and the game does not present fortune-telling as real. Augusta is an original character; she is not modelled on, and does not stand for, any real person, people or culture.</p>
+    <p><b>The mathematics is modern.</b> The switch-or-stay puzzle is known today as the Monty Hall problem, after the host of the 1960s American television game show <i>Let's Make a Deal</i>. It was posed by the biostatistician Steve Selvin in a 1975 letter to <i>The American Statistician</i> and became famous in 1990 through Marilyn vos Savant's “Ask Marilyn” column in <i>Parade</i>. Nobody claims it was played in a 1920s booth; the game simply sets it there. Like the classic statement of the puzzle, every rule here is spelled out, because the answer depends on exactly how the host chooses.</p>
+    <p class="src">Sources: Encyclopedia of Mathematics (European Mathematical Society), “Monty Hall problem”; Encyclopaedia Britannica, “carnival”; Faye Charpentier, “The Origins of the American Traveling Carnival” (Folkstreams); International Independent Showmen's Museum photograph collection, “Midway, Carnival in New York” (circa 1920), hosted by the University of South Florida Libraries. Full addresses are in the game's documentation.</p>
+  </details>
+
+  <section id="award" hidden></section>
+
+  <section class="ring2 card2" aria-labelledby="ringTitle">
+    <h2 id="ringTitle">Your DoorQuests Keyring</h2>
+    <p class="note" style="margin:0">One key per Chaortal, upgraded Bronze → Silver → Gold. Saved in this browser only. Export it to keep it safe or move it.</p>
+    <div class="tablewrap"><table class="tbl" id="stats"></table></div>
+    <div class="kslots" id="kslots"></div>
+    <div class="ringtools">
+      <button class="btn" id="exportBtn" type="button">Export Keyring</button>
+      <label class="btn" for="importFile" style="display:inline-block">Import Keyring</label>
+      <input type="file" id="importFile" accept="application/json,.json" class="sr">
+      <button class="btn danger" id="resetBtn" type="button">Reset progress</button>
+      <span id="ringMsg" class="note" role="status" aria-live="polite" style="margin:0"></span>
+    </div>
+  </section>
+
+  <footer>
+    <span><a href="https://doorquests.com/">DoorQuests</a> · Chaortals · Chaortal No. 17 · Created by The Axiom Continuum · The booth, its fortune-teller and her curtains are fiction; the history in the note is real</span>
+    <span><button class="linkbtn" id="motionBtn" type="button"></button></span>
+  </footer>
+</div>
+
+<script>
+/* DoorQuests Keyring v1.1 · shared achievement store for all 31 Chaortals.
+   v1.1 adds optional per-tier `achievements` (e.g. Deduction Mastery). Storage schema stays 1: records
+   without the field load unchanged, and Keyring v1.0 ignores the field, so files move safely both ways.
+   Canonical source: chaortals/shared/keyring.js. Inlined into each door's index.html at build time,
+   so every door stays a single standalone file while sharing one implementation.
+   Browser-local and best-effort: for personal enjoyment, not a tamper-proof credential. */
+var DQKeyring = (function () {
+  "use strict";
+  var STORE = "dq-chaortals-keyring-v1", SCHEMA = 1, TIERS = ["bronze", "silver", "gold"];
+  var DOORS = [
+    ["01","The Door of Three Keys","DEDUCE"],["02","The Clockwork Latch","ENGAGE"],["03","The Room That Changed","NOTICE"],
+    ["04","The Mirror Gate","REFLECT"],["05","The Cistern Valve","MEASURE"],["06","The Ferryman's Lock","PLAN"],
+    ["07","The Lantern Bridge","ESCORT"],["08","The Tumbler Lock","PROBE"],["09","The Switchboard Door","TOGGLE"],
+    ["10","The Cipher Disk","DECODE"],["11","The Shatranj Gallery","TRAVERSE"],["12","The Lens Cradles","TRANSFER"],
+    ["13","The Ringing Chamber","CHIME"],["14","The Jacquard Card","REVEAL"],["15","The Alhambra Arch","FIT"],
+    ["16","The Observatory Stair","CONTINUE"],["17","The Fortune Booth","CHOOSE"],["18","The Telegraph Tower","ENCODE"],
+    ["19","The Star Compass","ORIENT"],["20","The Mint Warden's Scale","WEIGH"],["21","The Two Wardens","ASK"],
+    ["22","The Calendar Door","RECKON"],["23","The Rule Keeper","INFER"],["24","The Hundred Shutters","PASS"],
+    ["25","The Self-Counting Ledger","BALANCE"],["26","The Masked Line","STRATEGIZE"],["27","The Seven Seals","ARRANGE"],
+    ["28","The Scroll Cases","SLIDE"],["29","The Turning Labyrinth","ROTATE"],["30","The Shadow Stage","CAST"],
+    ["31","The Impossible Door","UNLOCK"]
+  ].map(function (d) { return { id: d[0], title: d[1], verb: d[2] }; });
+  var DOOR_IDS = DOORS.map(function (d) { return d.id; });
+
+  function empty() { return { schema: SCHEMA, app: "doorquests-chaortals", updated: null, doors: {} }; }
+  function isInt(n, lo, hi) { return typeof n === "number" && Number.isInteger(n) && n >= lo && n <= hi; }
+  function isTime(v) { return v === null || (typeof v === "string" && v.length <= 40 && !isNaN(Date.parse(v))); }
+  var ACH_ID = /^[a-z][a-z0-9-]{1,31}$/, ACH_MAX = 8;
+  /* Achievements: { "deduction-mastery": { at: ISO time | null } }. Returns a clean copy or null if invalid. */
+  function cleanAch(a) {
+    if (a == null) return {};
+    if (typeof a !== "object" || Array.isArray(a)) return null;
+    var ids = Object.keys(a), out = {};
+    if (ids.length > ACH_MAX) return null;
+    for (var i = 0; i < ids.length; i++) {
+      var v = a[ids[i]];
+      if (!ACH_ID.test(ids[i]) || !v || typeof v !== "object" || Array.isArray(v) || !isTime(v.at == null ? null : v.at)) return null;
+      out[ids[i]] = { at: v.at == null ? null : v.at };
+    }
+    return out;
+  }
+
+  /* Validates one tier record; returns a clean copy or null. Unknown fields are dropped. */
+  function cleanTier(t) {
+    if (!t || typeof t !== "object" || Array.isArray(t)) return null;
+    var out = {
+      solved: t.solved === true,
+      best: t.best == null ? null : t.best,
+      hintFree: t.hintFree === true,
+      solves: t.solves == null ? 0 : t.solves,
+      attempts: t.attempts == null ? 0 : t.attempts,
+      fewestHints: t.fewestHints == null ? null : t.fewestHints,
+      firstSolved: t.firstSolved == null ? null : t.firstSolved,
+      lastPlayed: t.lastPlayed == null ? null : t.lastPlayed,
+      achievements: cleanAch(t.achievements)
+    };
+    if (out.achievements === null) return null;
+    if (!out.solved && Object.keys(out.achievements).length) return null;
+    if (out.best !== null && !isInt(out.best, 0, 100)) return null;
+    if (out.fewestHints !== null && !isInt(out.fewestHints, 0, 3)) return null;
+    if (!isInt(out.solves, 0, 1e6) || !isInt(out.attempts, 0, 1e6)) return null;
+    if (!isTime(out.firstSolved) || !isTime(out.lastPlayed)) return null;
+    if (out.solved && out.best === null) return null;
+    if (!out.solved && (out.best !== null || out.hintFree)) return null;
+    return out;
+  }
+  /* Validates a whole envelope (from storage or an import); returns a clean copy or null. */
+  function clean(env) {
+    if (!env || typeof env !== "object" || Array.isArray(env) || env.schema !== SCHEMA) return null;
+    if (!env.doors || typeof env.doors !== "object" || Array.isArray(env.doors)) return null;
+    var out = empty(); out.updated = isTime(env.updated || null) ? (env.updated || null) : null;
+    var ids = Object.keys(env.doors);
+    if (ids.length > DOOR_IDS.length) return null;
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i], d = env.doors[id];
+      if (DOOR_IDS.indexOf(id) < 0 || !d || typeof d !== "object" || !d.tiers || typeof d.tiers !== "object") return null;
+      var tiers = {};
+      for (var k in d.tiers) {
+        if (!Object.prototype.hasOwnProperty.call(d.tiers, k)) continue;
+        if (TIERS.indexOf(k) < 0) return null;
+        var c = cleanTier(d.tiers[k]); if (!c) return null; tiers[k] = c;
+      }
+      out.doors[id] = { tiers: tiers };
+    }
+    return out;
+  }
+  function load() {
+    try { var raw = localStorage.getItem(STORE); if (!raw) return empty(); return clean(JSON.parse(raw)) || empty(); }
+    catch (e) { return empty(); }
+  }
+  function save(env) {
+    env.updated = new Date().toISOString();
+    try { localStorage.setItem(STORE, JSON.stringify(env)); return true; } catch (e) { return false; }
+  }
+  function tierRec(env, door, tier) {
+    if (DOOR_IDS.indexOf(door) < 0 || TIERS.indexOf(tier) < 0) throw new Error("Unknown door or tier");
+    env.doors[door] = env.doors[door] || { tiers: {} };
+    return env.doors[door].tiers[tier] = env.doors[door].tiers[tier] ||
+      { solved: false, best: null, hintFree: false, solves: 0, attempts: 0, fewestHints: null, firstSolved: null, lastPlayed: null, achievements: {} };
+  }
+
+  /* Count one submitted attempt (correct or not). */
+  function noteAttempt(door, tier) {
+    var env = load(), t = tierRec(env, door, tier);
+    t.attempts++; t.lastPlayed = new Date().toISOString(); save(env);
+  }
+  /* Record a solve. `earned` lists achievement ids this run qualified for (judged by the door, never retroactively).
+     Returns what changed, for the award screen. */
+  function recordSolve(door, tier, score, hintsUsed, earned) {
+    if (!isInt(score, 0, 100) || !isInt(hintsUsed, 0, 3)) throw new Error("Bad score");
+    earned = (earned || []).filter(function (id) { return ACH_ID.test(id); });
+    var env = load(), before = highest(door, env), t = tierRec(env, door, tier), now = new Date().toISOString();
+    var firstTier = !t.solved, newBest = t.best === null || score > t.best, newHintFree = hintsUsed === 0 && !t.hintFree;
+    t.solved = true; t.solves++; t.lastPlayed = now; if (!t.firstSolved) t.firstSolved = now;
+    if (newBest) t.best = score;
+    if (hintsUsed === 0) t.hintFree = true;
+    t.fewestHints = t.fewestHints === null ? hintsUsed : Math.min(t.fewestHints, hintsUsed);
+    t.achievements = t.achievements || {};
+    var newAch = earned.filter(function (id) { return !t.achievements[id]; });
+    newAch.forEach(function (id) { if (Object.keys(t.achievements).length < ACH_MAX) t.achievements[id] = { at: now }; });
+    save(env);
+    var after = highest(door, env);
+    return { firstTier: firstTier, newBest: newBest, newHintFree: newHintFree, best: t.best, earned: earned, newAchievements: newAch, keyBefore: before, keyAfter: after, upgraded: before !== after };
+  }
+  function highest(door, env) {
+    env = env || load(); var d = env.doors[door]; if (!d) return null;
+    for (var i = TIERS.length - 1; i >= 0; i--) if (d.tiers[TIERS[i]] && d.tiers[TIERS[i]].solved) return TIERS[i];
+    return null;
+  }
+  function tier(door, t) { var env = load(); return (env.doors[door] && env.doors[door].tiers[t]) || null; }
+  function summary() {
+    var env = load();
+    return DOORS.map(function (d) {
+      var rec = env.doors[d.id] || { tiers: {} };
+      return { id: d.id, title: d.title, verb: d.verb, key: highest(d.id, env), tiers: rec.tiers };
+    });
+  }
+
+  /* Export / import (JSON). Import validates fully, then merges without ever downgrading. */
+  function exportText() { return JSON.stringify(load(), null, 2); }
+  function mergeAch(a, b) {
+    var out = {};
+    Object.keys(a).concat(Object.keys(b)).forEach(function (id) {
+      var x = a[id] && a[id].at, y = b[id] && b[id].at;
+      out[id] = { at: !x ? (y || null) : !y ? x : (x < y ? x : y) };
+    });
+    return out;
+  }
+  function hasAch(door, t, id) { var r = tier(door, t); return !!(r && r.achievements && r.achievements[id]); }
+  function mergeTier(a, b) {
+    if (!a) return b; if (!b) return a;
+    var minT = function (x, y) { return !x ? y : !y ? x : (x < y ? x : y); };
+    var maxT = function (x, y) { return !x ? y : !y ? x : (x > y ? x : y); };
+    return {
+      solved: a.solved || b.solved,
+      best: a.best === null ? b.best : b.best === null ? a.best : Math.max(a.best, b.best),
+      hintFree: a.hintFree || b.hintFree,
+      solves: Math.max(a.solves, b.solves),
+      attempts: Math.max(a.attempts, b.attempts),
+      fewestHints: a.fewestHints === null ? b.fewestHints : b.fewestHints === null ? a.fewestHints : Math.min(a.fewestHints, b.fewestHints),
+      firstSolved: minT(a.firstSolved, b.firstSolved),
+      lastPlayed: maxT(a.lastPlayed, b.lastPlayed),
+      achievements: mergeAch(a.achievements || {}, b.achievements || {})
+    };
+  }
+  function importText(text) {
+    if (typeof text !== "string" || text.length > 200000) return { ok: false, error: "That file is too large to be a Keyring." };
+    var parsed; try { parsed = JSON.parse(text); } catch (e) { return { ok: false, error: "That file isn't valid JSON." }; }
+    var inc = clean(parsed); if (!inc) return { ok: false, error: "That file isn't a valid DoorQuests Keyring (schema 1). Nothing was changed." };
+    var env = load(), added = 0;
+    Object.keys(inc.doors).forEach(function (id) {
+      env.doors[id] = env.doors[id] || { tiers: {} };
+      Object.keys(inc.doors[id].tiers).forEach(function (t) {
+        var had = env.doors[id].tiers[t] && env.doors[id].tiers[t].solved;
+        env.doors[id].tiers[t] = mergeTier(env.doors[id].tiers[t], inc.doors[id].tiers[t]);
+        if (!had && env.doors[id].tiers[t].solved) added++;
+      });
+    });
+    save(env);
+    return { ok: true, added: added };
+  }
+  function reset() { try { localStorage.removeItem(STORE); } catch (e) {} }
+
+  return { DOORS: DOORS, TIERS: TIERS, STORE: STORE, load: load, clean: clean, noteAttempt: noteAttempt, recordSolve: recordSolve,
+           highest: highest, tier: tier, hasAch: hasAch, summary: summary, exportText: exportText, importText: importText, reset: reset };
+})();
+if (typeof module !== "undefined") module.exports = DQKeyring;
+
+</script>
+<script>
+/* DoorQuests Reasoning Toolkit v1.1 · optional, door-configurable thinking aids for Chaortals.
+   v1.1 adds the Log tool (first used by No. 02 for the Mechanic's Workbench). The Notebook is unchanged.
+   Canonical source: chaortals/shared/toolkit.js, inlined into each door's index.html at build time.
+
+   Principles (from the Chaortal #01 playtest refinement, October 17, 2026):
+   - Optional and free: using it never changes a score.
+   - It never knows the answer. The toolkit receives only labels (rows, columns, notes), never puzzle
+     rules or solutions, so it cannot validate, hint or leak. Doors must not pass solver data into it.
+   - Each door chooses the tools that fit its discipline. v1 ships the Notebook: "list" boards (mark
+     items), "grid" boards (mark pairs of items, e.g. key × lock) and free notes. Future doors can add
+     tools (e.g. a tally, a sketch pad, a move log) alongside the Notebook under the same rules.
+
+   Storage: one key per door, e.g. "dq-chaortal-01-notebook-v1":
+   { schema: 1, tiers: { bronze: { marks: { "<board>:<row>[:<col>]": "<stateId>" }, notes: "" }, ... } }
+   Only non-default marks are stored. On load every mark is checked against the door's current
+   configuration and anything unknown is dropped. */
+var DQToolkit = (function () {
+  "use strict";
+  var DEFAULT_STATES = [
+    { id: "u", sym: "·", label: "Uncertain", key: "u" },
+    { id: "p", sym: "✓", label: "Possible", key: "p" },
+    { id: "x", sym: "✗", label: "Impossible", key: "x" }
+  ];
+  var NOTES_MAX = 2000;
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+
+  function Notebook(opts) {
+    var states = opts.states || DEFAULT_STATES, stateIds = states.map(function (s) { return s.id; }), dflt = states[0].id;
+    var tiers = opts.tiers, el = opts.mount, KEY = opts.storageKey, armed = false;
+
+    function validKeys(tier) {
+      var cfg = opts.config(tier), keys = {};
+      cfg.boards.forEach(function (b) {
+        b.rows.forEach(function (r) {
+          if (b.type === "grid") b.cols.forEach(function (c) { keys[b.id + ":" + r.id + ":" + c.id] = 1; });
+          else keys[b.id + ":" + r.id] = 1;
+        });
+      });
+      return keys;
+    }
+    function empty() { var o = { schema: 1, tiers: {} }; tiers.forEach(function (t) { o.tiers[t] = { marks: {}, notes: "" }; }); return o; }
+    function load() {
+      var data = empty();
+      try {
+        var raw = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (!raw || raw.schema !== 1 || !raw.tiers || typeof raw.tiers !== "object") return data;
+        tiers.forEach(function (t) {
+          var src = raw.tiers[t]; if (!src || typeof src !== "object") return;
+          var ok = validKeys(t);
+          if (src.marks && typeof src.marks === "object" && !Array.isArray(src.marks))
+            Object.keys(src.marks).forEach(function (k) { var v = src.marks[k]; if (ok[k] && stateIds.indexOf(v) > 0) data.tiers[t].marks[k] = v; });
+          if (typeof src.notes === "string") data.tiers[t].notes = src.notes.slice(0, NOTES_MAX);
+        });
+      } catch (e) {}
+      return data;
+    }
+    var D = load();
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} }
+    function get(tier, k) { return D.tiers[tier].marks[k] || dflt; }
+    function set(tier, k, v) { if (v === dflt) delete D.tiers[tier].marks[k]; else D.tiers[tier].marks[k] = v; save(); }
+    function stateOf(id) { return states.filter(function (s) { return s.id === id; })[0]; }
+    function next(id) { return stateIds[(stateIds.indexOf(id) + 1) % stateIds.length]; }
+
+    function cellBtn(tier, k, label) {
+      var s = stateOf(get(tier, k));
+      return '<button type="button" class="dqt-cell" data-k="' + esc(k) + '" data-s="' + s.id + '" tabindex="-1" aria-label="' + esc(label + ": " + s.label) +
+        '"><span aria-hidden="true">' + s.sym + "</span></button>";
+    }
+    function render() {
+      var tier = opts.getTier(), cfg = opts.config(tier), T = D.tiers[tier];
+      var legend = states.map(function (s) { return '<span class="dqt-leg"><span class="dqt-sym" data-s="' + s.id + '" aria-hidden="true">' + s.sym + "</span>" + esc(s.label) + " <kbd>" + s.key.toUpperCase() + "</kbd></span>"; }).join("");
+      var boards = cfg.boards.map(function (b) {
+        var head = b.type === "grid" ? "<tr><td></td>" + b.cols.map(function (c) { return '<th scope="col">' + esc(c.label) + "</th>"; }).join("") + "</tr>" : "";
+        var rows = b.rows.map(function (r) {
+          var cells = b.type === "grid"
+            ? b.cols.map(function (c) { return "<td>" + cellBtn(tier, b.id + ":" + r.id + ":" + c.id, r.label + ", " + c.label) + "</td>"; }).join("")
+            : "<td>" + cellBtn(tier, b.id + ":" + r.id, r.label) + "</td>";
+          return '<tr><th scope="row">' + esc(r.label) + "</th>" + cells + "</tr>";
+        }).join("");
+        return '<div class="dqt-board"><h4 id="dqt-' + b.id + '">' + esc(b.title) + "</h4>" + (b.help ? '<p class="dqt-help">' + esc(b.help) + "</p>" : "") +
+          '<table class="dqt-table dqt-' + b.type + '" role="grid" aria-labelledby="dqt-' + b.id + '" data-board="' + b.id + '">' + head + rows + "</table></div>";
+      }).join("");
+      el.innerHTML = '<p class="dqt-intro">' + esc(cfg.intro) + '</p><p class="dqt-legend">' + legend + "</p>" +
+        '<div class="dqt-boards">' + boards + "</div>" +
+        '<label class="dqt-notes-label" for="dqt-notes">' + esc(cfg.notesLabel || "Your notes") + "</label>" +
+        '<textarea id="dqt-notes" class="dqt-notes" maxlength="' + NOTES_MAX + '" rows="4" placeholder="' + esc(cfg.notesPlaceholder || "") + '">' + esc(T.notes) + "</textarea>" +
+        '<div class="dqt-foot"><button type="button" class="btn dqt-clear">Clear this page</button><span class="dqt-msg" role="status" aria-live="polite"></span></div>';
+      // roving tabindex: first cell of each board is tabbable
+      el.querySelectorAll(".dqt-table").forEach(function (tb) { var f = tb.querySelector(".dqt-cell"); if (f) f.tabIndex = 0; });
+      el.querySelectorAll(".dqt-cell").forEach(function (b) {
+        b.onclick = function () { apply(b, next(b.dataset.s)); };
+        b.onkeydown = function (e) {
+          var k = e.key.toLowerCase(), st = states.filter(function (s) { return s.key === k; })[0];
+          if (st && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); apply(b, st.id); return; }
+          var dir = { arrowup: [-1, 0], arrowdown: [1, 0], arrowleft: [0, -1], arrowright: [0, 1] }[k]; if (!dir) return;
+          e.preventDefault();
+          var td = b.parentElement, tr = td.parentElement, tb = tr.closest("table");
+          var rows = [].slice.call(tb.querySelectorAll("tr")).filter(function (r) { return r.querySelector(".dqt-cell"); });
+          var ri = rows.indexOf(tr), ci = [].slice.call(tr.querySelectorAll(".dqt-cell")).indexOf(b);
+          var nr = rows[Math.max(0, Math.min(rows.length - 1, ri + dir[0]))], cs = nr.querySelectorAll(".dqt-cell");
+          var nb = cs[Math.max(0, Math.min(cs.length - 1, ci + dir[1]))];
+          if (nb) { tb.querySelectorAll(".dqt-cell").forEach(function (x) { x.tabIndex = -1; }); nb.tabIndex = 0; nb.focus(); }
+        };
+      });
+      var ta = el.querySelector(".dqt-notes");
+      ta.oninput = function () { D.tiers[opts.getTier()].notes = ta.value.slice(0, NOTES_MAX); save(); };
+      var clr = el.querySelector(".dqt-clear"), msg = el.querySelector(".dqt-msg");
+      clr.onclick = function () {
+        if (!armed) { armed = true; clr.textContent = "Clear every mark and note on this page?"; msg.textContent = "Press again to clear. Only this tier's page is affected."; return; }
+        armed = false; clearTier(opts.getTier()); render(); el.querySelector(".dqt-msg").textContent = "Page cleared.";
+      };
+      clr.onblur = function () { if (armed) { armed = false; clr.textContent = "Clear this page"; msg.textContent = ""; } };
+    }
+    function apply(btn, v) {
+      var tier = opts.getTier(), k = btn.dataset.k; set(tier, k, v);
+      var s = stateOf(v); btn.dataset.s = v; btn.querySelector("span").textContent = s.sym;
+      btn.setAttribute("aria-label", btn.getAttribute("aria-label").replace(/: [^:]+$/, ": " + s.label));
+      btn.closest("table").querySelectorAll(".dqt-cell").forEach(function (x) { x.tabIndex = -1; }); btn.tabIndex = 0;
+    }
+    function clearTier(t) { D.tiers[t] = { marks: {}, notes: "" }; save(); }
+    function clearAll() { D = empty(); try { localStorage.removeItem(KEY); } catch (e) {} }
+    return { render: render, clearTier: clearTier, clearAll: clearAll, data: function () { return JSON.parse(JSON.stringify(D)); } };
+  }
+
+
+  /* Log (v1.1): a per-tier list of short text entries the door records (e.g. "Run 3: …") plus the player's own
+     one-line notes on any entry. The door supplies only display text, never rules or answers.
+     Storage: { schema: 1, tiers: { <tier>: [ { t: "<text>", n: "<player note>", at: ISO } ] } }, newest first. */
+  var LOG_MAX = 60, TEXT_MAX = 240, NOTE_MAX = 160;
+  function Log(opts) {
+    var tiers = opts.tiers, el = opts.mount, KEY = opts.storageKey, armed = false;
+    function empty() { var o = { schema: 1, tiers: {} }; tiers.forEach(function (t) { o.tiers[t] = []; }); return o; }
+    function load() {
+      var d = empty();
+      try {
+        var raw = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (!raw || raw.schema !== 1 || !raw.tiers) return d;
+        tiers.forEach(function (t) {
+          var list = raw.tiers[t]; if (!Array.isArray(list)) return;
+          d.tiers[t] = list.filter(function (e) { return e && typeof e.t === "string"; }).slice(0, LOG_MAX).map(function (e) {
+            return { t: e.t.slice(0, TEXT_MAX), n: typeof e.n === "string" ? e.n.slice(0, NOTE_MAX) : "", at: typeof e.at === "string" ? e.at.slice(0, 40) : null };
+          });
+        });
+      } catch (e) {}
+      return d;
+    }
+    var D = load();
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} }
+    function add(text) {
+      var t = opts.getTier(); D.tiers[t].unshift({ t: String(text).slice(0, TEXT_MAX), n: "", at: new Date().toISOString() });
+      D.tiers[t] = D.tiers[t].slice(0, LOG_MAX); save(); render();
+    }
+    function render() {
+      var t = opts.getTier(), list = D.tiers[t];
+      el.innerHTML = '<p class="dqt-help">' + esc(opts.intro || "") + "</p>" +
+        (list.length ? '<ol class="dqt-log">' + list.map(function (e, i) {
+          return '<li><span class="dqt-log-t">' + esc(e.t) + '</span><label class="sr" for="dqt-ln-' + i + '">Your note on this entry</label>' +
+            '<input id="dqt-ln-' + i + '" class="dqt-log-n" data-i="' + i + '" maxlength="' + NOTE_MAX + '" placeholder="Add a note…" value="' + esc(e.n) + '">' +
+            '<button type="button" class="dqt-log-x" data-i="' + i + '" aria-label="Delete this entry">×</button></li>';
+        }).join("") + "</ol>" : '<p class="dqt-help"><i>' + esc(opts.emptyText || "Nothing recorded yet.") + "</i></p>") +
+        '<div class="dqt-foot"><button type="button" class="btn dqt-log-clear"' + (list.length ? "" : " disabled") + '>Clear this log</button><span class="dqt-msg" role="status" aria-live="polite"></span></div>';
+      el.querySelectorAll(".dqt-log-n").forEach(function (inp) { inp.oninput = function () { D.tiers[opts.getTier()][+inp.dataset.i].n = inp.value.slice(0, NOTE_MAX); save(); }; });
+      el.querySelectorAll(".dqt-log-x").forEach(function (b) { b.onclick = function () { D.tiers[opts.getTier()].splice(+b.dataset.i, 1); save(); render(); }; });
+      var clr = el.querySelector(".dqt-log-clear"), msg = el.querySelector(".dqt-msg");
+      clr.onclick = function () {
+        if (!armed) { armed = true; clr.textContent = "Clear every entry in this tier's log?"; msg.textContent = "Press again to clear."; return; }
+        armed = false; D.tiers[opts.getTier()] = []; save(); render();
+      };
+      clr.onblur = function () { if (armed) { armed = false; clr.textContent = "Clear this log"; msg.textContent = ""; } };
+    }
+    function clearAll() { D = empty(); try { localStorage.removeItem(KEY); } catch (e) {} }
+    return { add: add, render: render, clearAll: clearAll, data: function () { return JSON.parse(JSON.stringify(D)); } };
+  }
+
+  /* Achievement standard. Each door declares its mastery achievements as plain criteria over a finished
+     run, so different disciplines can define mastery differently (fewest moves, no hints, etc.).
+     A run object is supplied by the door: e.g. { solved, hints, wrong, moves, reviews }.
+     Achievements are judged only at the moment of a successful solve, never from past records. */
+  function judge(defs, run) {
+    if (!run || run.solved !== true) return [];
+    return defs.filter(function (d) { return d.test(run); }).map(function (d) { return d.id; });
+  }
+
+  return { Notebook: Notebook, Log: Log, judge: judge, DEFAULT_STATES: DEFAULT_STATES };
+})();
+if (typeof module !== "undefined") module.exports = DQToolkit;
+
+</script>
+<script>
+/* Chaortal 17 · The Fortune Booth · rules engine (CHOOSE · probability).
+   Exact rational arithmetic for every probability the page judges; seeded simulation for every trial it shows.
+   The engine stores no answer: each formal answer is compared with a probability computed here by enumerating
+   the complete probability tree of the stated rules. */
+var FORTUNE = (function () {
+  "use strict";
+
+  /* ---------- exact fractions (always reduced; denominators positive) ---------- */
+  function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = a % b; a = b; b = t; } return a; }
+  function F(n, d) {
+    if (d === undefined) d = 1;
+    if (!Number.isSafeInteger(n) || !Number.isSafeInteger(d) || d === 0) throw new Error("not a fraction");
+    if (d < 0) { n = -n; d = -d; }
+    var g = gcd(n, d) || 1; return { n: n / g, d: d / g };
+  }
+  var ZERO = F(0), ONE = F(1);
+  function add(a, b) { var g = gcd(a.d, b.d); return F(a.n * (b.d / g) + b.n * (a.d / g), a.d / g * b.d); }
+  function sub(a, b) { return add(a, F(-b.n, b.d)); }
+  function mul(a, b) { var g1 = gcd(a.n, b.d) || 1, g2 = gcd(b.n, a.d) || 1; return F((a.n / g1) * (b.n / g2), (a.d / g2) * (b.d / g1)); }
+  function div(a, b) { if (b.n === 0) throw new Error("division by zero"); return mul(a, F(b.d, b.n)); }
+  function eq(a, b) { return a.n === b.n && a.d === b.d; } // both reduced, so equality of values is equality of parts
+  function str(a) { return a.d === 1 ? String(a.n) : a.n + "/" + a.d; }
+  function sum(list) { return list.reduce(add, ZERO); }
+
+  /* reading a typed answer: only exact fractions a/b (or the whole numbers 0 and 1) between 0 and 1 */
+  function parseFraction(s) {
+    var t = String(s == null ? "" : s).trim().replace(/⁄|∕/g, "/");
+    if (!t) return { ok: false, why: "empty" };
+    if (/%/.test(t)) return { ok: false, why: "percent" };
+    if (/^[+-]?\d*[.,]\d+$|^[+-]?\d+[.,]$/.test(t)) return { ok: false, why: "decimal" };
+    if (/^-/.test(t)) return { ok: false, why: "negative" };
+    var m = /^\+?(\d{1,9})\s*\/\s*\+?(\d{1,9})$/.exec(t), n, d;
+    if (m) { n = +m[1]; d = +m[2]; } else if ((m = /^\+?(\d{1,9})$/.exec(t))) { n = +m[1]; d = 1; } else return { ok: false, why: /[.,]/.test(t) ? "decimal" : "malformed" };
+    if (d === 0) return { ok: false, why: "zeroDenominator" };
+    var v = F(n, d);
+    if (v.n > v.d) return { ok: false, why: "notProbability", value: v };
+    return { ok: true, value: v };
+  }
+
+  /* ---------- the three booths ---------- */
+  var TIERS = {
+    bronze: { curtains: 3, reveals: 1, host: "uniform", pick: 1 },
+    silver: { curtains: 5, reveals: 2, host: "uniform-pairs", pick: 1 },
+    gold: { curtains: 5, reveals: 2, host: "weighted", pick: 1, weights: { 2: 2, 3: 1, 4: 1, 5: 1 }, observed: [3, 4], ask: 2 }
+  };
+  var ORDER = ["bronze", "silver", "gold"];
+  function range(n) { var a = []; for (var i = 1; i <= n; i++) a.push(i); return a; }
+  function eligible(tier, pick, prize, opened) { return range(TIERS[tier].curtains).filter(function (c) { return c !== pick && c !== prize && (opened || []).indexOf(c) < 0; }); }
+  function pairs(list) { var out = []; for (var i = 0; i < list.length; i++) for (var j = i + 1; j < list.length; j++) out.push([list[i], list[j]]); return out; }
+  function key(set) { return set.slice().sort(function (a, b) { return a - b; }).join("-"); }
+  function weightOf(tier, c, weights) { var w = weights || TIERS[tier].weights; return w ? (w[c] || 0) : 1; }
+
+  /* every way the host can open her curtains, with its exact probability.
+     bronze: one losing curtain chosen uniformly; silver: one eligible pair chosen uniformly; gold: two curtains drawn one at a time,
+     each with probability proportional to its weight among the curtains still eligible (an ordered draw). */
+  function revealTree(tier, pick, prize, weights) {
+    var T = TIERS[tier], el = eligible(tier, pick, prize);
+    if (T.host === "uniform") return el.map(function (c) { return { order: [c], set: [c], p: F(1, el.length) }; });
+    if (T.host === "uniform-pairs") { var ps = pairs(el); return ps.map(function (s) { return { order: null, set: s, p: F(1, ps.length) }; }); }
+    var out = [];
+    el.forEach(function (a) {
+      var tot1 = sum(el.map(function (c) { return F(weightOf(tier, c, weights)); })), p1 = div(F(weightOf(tier, a, weights)), tot1);
+      var el2 = el.filter(function (c) { return c !== a; }), tot2 = sum(el2.map(function (c) { return F(weightOf(tier, c, weights)); }));
+      el2.forEach(function (b) { out.push({ order: [a, b], set: [a, b].sort(function (x, y) { return x - y; }), p: mul(p1, div(F(weightOf(tier, b, weights)), tot2)) }); });
+    });
+    return out;
+  }
+  /* probability of seeing an unordered set of opened curtains (both orders summed for the weighted host) */
+  function likelihood(tier, pick, prize, set, weights) { var k = key(set); return sum(revealTree(tier, pick, prize, weights).filter(function (r) { return key(r.set) === k; }).map(function (r) { return r.p; })); }
+  /* the exact chance of each strategy winning, averaged over every prize position and every reveal */
+  function strategyWin(tier, strategy) {
+    var T = TIERS[tier], pick = T.pick, prior = F(1, T.curtains);
+    return sum(range(T.curtains).map(function (prize) {
+      return sum(revealTree(tier, pick, prize).map(function (r) {
+        var rest = range(T.curtains).filter(function (c) { return c !== pick && r.set.indexOf(c) < 0; }), win;
+        if (strategy === "stay") win = prize === pick ? ONE : ZERO;
+        else win = F(rest.indexOf(prize) >= 0 ? 1 : 0, rest.length); // switch: the only other (bronze) or one of the others uniformly
+        return mul(prior, mul(r.p, win));
+      }));
+    }));
+  }
+  /* the chance that the prize is somewhere among the other closed curtains together */
+  function othersTogether(tier) { return sub(ONE, strategyWin(tier, "stay")); }
+  /* Bayes' rule over prize positions, given an observed unordered set; null when the observation is impossible */
+  function posterior(tier, set, weights, pick) {
+    var T = TIERS[tier]; pick = pick || T.pick;
+    var prior = F(1, T.curtains), joint = {}, total = ZERO;
+    range(T.curtains).forEach(function (i) { joint[i] = mul(prior, likelihood(tier, pick, i, set, weights)); total = add(total, joint[i]); });
+    if (total.n === 0) return null;
+    var post = {}; range(T.curtains).forEach(function (i) { post[i] = div(joint[i], total); }); return post;
+  }
+  function better() { var s = strategyWin("bronze", "stay"), w = strategyWin("bronze", "switch"); return s.n * w.d > w.n * s.d ? "stay" : "switch"; }
+
+  /* ---------- formal answers ---------- */
+  function checkBronze(a) { // a = { strategy: "stay"|"switch", p: fraction }
+    if (!a || (a.strategy !== "stay" && a.strategy !== "switch") || !a.p) return { ok: false, kind: "incomplete" };
+    var best = better(); return { ok: a.strategy === best && eq(a.p, strategyWin("bronze", best)), kind: "answer" };
+  }
+  function checkSilver(a) { // a = { stay: fraction, rswitch: fraction, better: "stay"|"switch" }
+    if (!a || !a.stay || !a.rswitch || (a.better !== "stay" && a.better !== "switch")) return { ok: false, kind: "incomplete" };
+    var s = strategyWin("silver", "stay"), w = strategyWin("silver", "switch"), b = s.n * w.d > w.n * s.d ? "stay" : "switch";
+    var right = [eq(a.stay, s), eq(a.rswitch, w), a.better === b].filter(Boolean).length;
+    return { ok: right === 3, kind: "answer", right: right };
+  }
+  function checkGold(p) {
+    if (!p) return { ok: false, kind: "incomplete" };
+    var T = TIERS.gold, post = posterior("gold", T.observed); return { ok: !!post && eq(p, post[T.ask]), kind: "answer" };
+  }
+
+  /* ---------- simulation: real random trials of the stated rules (seeded, reproducible) ---------- */
+  function rng(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function randInt(r, k) { return Math.floor(r() * k); }
+  function hostOpens(tier, pick, prize, r) {
+    var T = TIERS[tier], el = eligible(tier, pick, prize);
+    if (T.host === "uniform") return [el[randInt(r, el.length)]];
+    if (T.host === "uniform-pairs") { var ps = pairs(el); return ps[randInt(r, ps.length)].slice(); }
+    var opened = [];
+    for (var k = 0; k < T.reveals; k++) {
+      var cand = eligible(tier, pick, prize, opened), tot = cand.reduce(function (s, c) { return s + weightOf(tier, c); }, 0), x = r() * tot, acc = 0, chosen = cand[cand.length - 1];
+      for (var i = 0; i < cand.length; i++) { acc += weightOf(tier, cand[i]); if (x < acc) { chosen = cand[i]; break; } }
+      opened.push(chosen);
+    }
+    return opened;
+  }
+  /* one complete trial. strategy: "stay" | "switch" (bronze: the other closed curtain; silver: one of the two others chosen uniformly); gold has no strategy */
+  function trial(tier, r, strategy, pick) {
+    var T = TIERS[tier]; pick = tier === "gold" ? T.pick : (pick || 1 + randInt(r, T.curtains));
+    var prize = 1 + randInt(r, T.curtains), opened = hostOpens(tier, pick, prize, r);
+    var rest = range(T.curtains).filter(function (c) { return c !== pick && opened.indexOf(c) < 0; });
+    var fin = null;
+    if (tier !== "gold") fin = strategy === "stay" ? pick : rest[randInt(r, rest.length)];
+    return { pick: pick, prize: prize, opened: opened, rest: rest, final: fin, win: fin === prize };
+  }
+  function freshSeed() { var a = new Uint32Array(1); try { crypto.getRandomValues(a); return a[0] % 1000000000; } catch (e) { return Math.floor(Math.random() * 1000000000); } }
+
+  /* ---------- scoring, achievements, hints ---------- */
+  var HINT_COST = 12, WRONG = 8, CAP = 24;
+  function score(tier, run) { return Math.max(0, 100 - HINT_COST * run.hints - Math.min(CAP, WRONG * run.wrong)); }
+  var ACHIEVEMENTS = [
+    { id: "against-the-odds", name: "Against the Odds", test: function (r) { return !!r.solved && r.firstCompletion && r.hints === 0 && r.wrong === 0; } },
+    { id: "master-of-chance", name: "Master of Chance", test: function (r) { return !!r.solved && r.firstCompletion && r.tier === "gold" && r.hints === 0 && r.wrong === 0; } }
+  ];
+  var HINTS = {
+    bronze: [
+      "Before anything opens, your curtain is one of three: a 1 in 3 chance. Ask whether the fortune-teller's reveal could change what is already behind your curtain.",
+      "She knows where the emblem is, and she always opens an empty curtain that you did not choose. Whatever you picked, she can always do that, so her reveal tells you nothing new about your own curtain.",
+      "Your curtain keeps its 1/3. The other two curtains together held the remaining 2/3, and she has just shown you which of those two is empty. Where must that 2/3 go now?"
+    ],
+    silver: [
+      "Your first choice is one curtain in five: 1/5. She always opens two empty curtains that are not yours, which she can do whatever you chose, so her reveal says nothing new about your curtain.",
+      "The two other closed curtains together hold everything your curtain does not: 4/5. But you may finish on only one curtain, not on both of them at once.",
+      "Under her even-handed rule, neither of the two other closed curtains is special, so the 4/5 is shared equally between them. Work out one curtain's share, and compare it with staying."
+    ],
+    gold: [
+      "Her preference matters. If the emblem were behind Curtain 2, she could never open it; if it is anywhere else, she is drawn to Curtain 2 first. So the fact that Curtain 2 is still closed is itself a clue.",
+      "For each place the emblem could be (Curtain 1, 2 or 5), work out how likely she was to open exactly Curtains 3 and 4, in either order. Every place starts equally likely, so compare those likelihoods.",
+      "A worked case: if the emblem is behind Curtain 1, she draws from 2, 3, 4, 5 with weights 2, 1, 1, 1. Curtain 3 first has chance 1/5, then Curtain 4 from 2, 4, 5 has chance 1/4: 1/20. Curtain 4 then 3 is also 1/20, so the likelihood is 1/10. Now do the same with the emblem behind Curtain 2 and behind Curtain 5, then apply Bayes' rule."
+    ]
+  };
+  return { F: F, add: add, sub: sub, mul: mul, div: div, eq: eq, str: str, parseFraction: parseFraction, TIERS: TIERS, ORDER: ORDER, range: range, eligible: eligible, key: key,
+    revealTree: revealTree, likelihood: likelihood, strategyWin: strategyWin, othersTogether: othersTogether, posterior: posterior, checkBronze: checkBronze, checkSilver: checkSilver,
+    checkGold: checkGold, rng: rng, hostOpens: hostOpens, trial: trial, freshSeed: freshSeed, HINT_COST: HINT_COST, WRONG: WRONG, CAP: CAP, score: score, ACHIEVEMENTS: ACHIEVEMENTS, HINTS: HINTS };
+})();
+if (typeof module !== "undefined") module.exports = FORTUNE;
+
+</script>
+<script>
+(function () {
+  "use strict";
+  var E = FORTUNE, K = DQKeyring, DOOR = "17", STATE_KEY = "dq-chaortal-17-v1", WS_KEY = "dq-chaortal-17-worksheet-v1", ORDER = ["bronze", "silver", "gold"];
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var plural = function (n, a, b) { return n + " " + (n === 1 ? a : b); };
+  var fmt = function (n) { return n.toLocaleString("en-US"); };
+  var TNAME = { bronze: "Bronze", silver: "Silver", gold: "Gold" };
+  var STRATS = { bronze: ["stay", "switch"], silver: ["stay", "rswitch", "mswitch"] };
+  var SNAME = { stay: "Stay", switch: "Switch", rswitch: "Switch at random", mswitch: "Switch, your own pick" };
+  var PAIRS = ["2-3", "2-4", "2-5", "3-4", "3-5", "4-5"];
+  var MAX_TRIALS = 1e9;
+
+  /* ---------- persistence ----------
+     S.play[t]: the scored run { hints, wrong (incorrect formal answers), refused (malformed answers, free), solved, score, practice, earned, answer, draft }
+     S.trials[t]: trial records { manual, auto } (bronze/silver: per strategy {n, w}; gold: {n, pairs, match}), kept through practice replays
+     S.booth[t]: the trial on stage { phase, pick, prize, opened, final, strategy } (gold: a demonstration trial, or null for the question) */
+  function freshRun(t) { return { hints: 0, wrong: 0, refused: 0, solved: false, score: null, practice: false, earned: [], answer: null, draft: freshDraft(t) }; }
+  function freshDraft(t) { return t === "bronze" ? { strategy: "", p: "" } : t === "silver" ? { stay: "", rswitch: "", better: "" } : { p: "" }; }
+  function freshCounts(t) {
+    if (t === "gold") { var g = { n: 0, pairs: {}, match: {} }; PAIRS.forEach(function (k) { g.pairs[k] = 0; }); [1, 2, 3, 4, 5].forEach(function (c) { g.match[c] = 0; }); return g; }
+    var o = {}; STRATS[t].forEach(function (s) { o[s] = { n: 0, w: 0 }; }); return o; }
+  function freshTrials(t) { return { manual: freshCounts(t), auto: freshCounts(t), last: null }; }
+  function freshState() { var s = { schema: 1, tier: "bronze", motion: null, sound: false, seed: "", filter: false, play: {}, trials: {}, booth: {} };
+    ORDER.forEach(function (t) { s.play[t] = freshRun(t); s.trials[t] = freshTrials(t); s.booth[t] = null; }); return s; }
+  var isInt = function (n, max) { return Number.isInteger(n) && n >= 0 && n <= max; };
+  var isStr = function (x, max) { return typeof x === "string" && x.length <= max; };
+  function sameKeys(o, keys) { return o && typeof o === "object" && !Array.isArray(o) && Object.keys(o).sort().join() === keys.slice().sort().join(); }
+  function validCounts(t, c) {
+    if (t === "gold") return sameKeys(c, ["n", "pairs", "match"]) && isInt(c.n, MAX_TRIALS) && sameKeys(c.pairs, PAIRS) && PAIRS.every(function (k) { return isInt(c.pairs[k], c.n); })
+      && PAIRS.reduce(function (s, k) { return s + c.pairs[k]; }, 0) === c.n && sameKeys(c.match, ["1", "2", "3", "4", "5"]) && [1, 2, 3, 4, 5].every(function (k) { return isInt(c.match[k], c.n); }) && c.match[3] === 0 && c.match[4] === 0
+      && [1, 2, 5].reduce(function (s, k) { return s + c.match[k]; }, 0) === c.pairs["3-4"];
+    return sameKeys(c, STRATS[t]) && STRATS[t].every(function (s) { return sameKeys(c[s], ["n", "w"]) && isInt(c[s].n, MAX_TRIALS) && isInt(c[s].w, c[s].n); });
+  }
+  function validBooth(t, b) {
+    if (b === null) return true;
+    var T = E.TIERS[t], n = T.curtains, cur = function (x) { return Number.isInteger(x) && x >= 1 && x <= n; };
+    if (!b || typeof b !== "object" || ["pick", "decide", "result"].indexOf(b.phase) < 0 || !cur(b.prize)) return false;
+    if (b.phase === "pick") return b.pick === null && Array.isArray(b.opened) && b.opened.length === 0 && b.final === null && b.strategy === null && t !== "gold";
+    if (!cur(b.pick) || !Array.isArray(b.opened) || b.opened.length !== T.reveals || !b.opened.every(cur)) return false;
+    if (t === "gold" && b.pick !== T.pick) return false;
+    if (b.opened.indexOf(b.pick) >= 0 || b.opened.indexOf(b.prize) >= 0 || E.key(b.opened).split("-").length !== T.reveals || new Set(b.opened).size !== b.opened.length) return false; // never yours, never the emblem
+    if (t === "gold") return b.phase === "result" && b.final === null;
+    if (b.phase === "decide") return b.final === null && b.strategy === null;
+    return cur(b.final) && b.opened.indexOf(b.final) < 0 && STRATS[t].indexOf(b.strategy) >= 0 && ((b.strategy === "stay") === (b.final === b.pick));
+  }
+  function validRun(t, r) {
+    if (!sameKeys(r, ["hints", "wrong", "refused", "solved", "score", "practice", "earned", "answer", "draft"])) return false;
+    if (!isInt(r.hints, 3) || !isInt(r.wrong, 100000) || !isInt(r.refused, 1000000) || typeof r.solved !== "boolean" || typeof r.practice !== "boolean") return false;
+    if (!Array.isArray(r.earned) || r.earned.length > 4 || !r.earned.every(function (x) { return typeof x === "string" && /^[a-z-]{2,40}$/.test(x); })) return false;
+    if (r.score !== null && !isInt(r.score, 100)) return false;
+    var d = r.draft, dk = Object.keys(freshDraft(t)); if (!sameKeys(d, dk) || !dk.every(function (k) { return isStr(d[k], 24); })) return false;
+    if (r.solved) { if (r.score === null || !r.answer) return false; if (!checkAnswer(t, r.answer).ok) return false; }
+    else if (r.answer !== null) return false;
+    return true;
+  }
+  function loadState() {
+    try { var s = JSON.parse(localStorage.getItem(STATE_KEY) || "null");
+      if (sameKeys(s, ["schema", "tier", "motion", "sound", "seed", "filter", "play", "trials", "booth"]) && s.schema === 1 && ORDER.indexOf(s.tier) >= 0 && (s.motion === null || typeof s.motion === "boolean") && typeof s.sound === "boolean"
+        && isStr(s.seed, 9) && typeof s.filter === "boolean" && ORDER.every(function (t) { return validRun(t, s.play[t]) && s.trials[t] && sameKeys(s.trials[t], ["manual", "auto", "last"]) && validCounts(t, s.trials[t].manual) && validCounts(t, s.trials[t].auto) && validLast(s.trials[t].last) && validBooth(t, s.booth[t]); })) return s;
+    } catch (e) {}
+    return freshState();
+  }
+  function validLast(l) { return l === null || (sameKeys(l, ["seed", "count", "text"]) && isInt(l.seed, 999999999) && isInt(l.count, 10000) && isStr(l.text, 400)); }
+  function saveState() { try { localStorage.setItem(STATE_KEY, JSON.stringify(S)); } catch (e) {} }
+
+  /* answers as stored: strings of exact fractions, re-read and re-checked on load */
+  function checkAnswer(t, a) {
+    try {
+      if (t === "bronze") { var p = E.parseFraction(a.p); return p.ok ? E.checkBronze({ strategy: a.strategy, p: p.value }) : { ok: false }; }
+      if (t === "silver") { var s1 = E.parseFraction(a.stay), s2 = E.parseFraction(a.rswitch); return s1.ok && s2.ok ? E.checkSilver({ stay: s1.value, rswitch: s2.value, better: a.better }) : { ok: false }; }
+      var g = E.parseFraction(a.p); return g.ok ? E.checkGold(g.value) : { ok: false };
+    } catch (e) { return { ok: false }; }
+  }
+  var S = loadState();
+  var run = function () { return S.play[S.tier]; };
+
+  /* the worksheet: the Probability Table's blank cells and the scratchpad, filled only by the player */
+  function freshWS() { return { sheet: { bronze: {}, silver: {}, gold: {} }, fa: "", fb: "", fop: "+" }; }
+  function loadWS() { try { var w = JSON.parse(localStorage.getItem(WS_KEY) || "null");
+      if (sameKeys(w, ["sheet", "fa", "fb", "fop"]) && sameKeys(w.sheet, ORDER) && ORDER.every(function (t) { var o = w.sheet[t]; return o && typeof o === "object" && !Array.isArray(o) && Object.keys(o).length <= 60 && Object.keys(o).every(function (k) { return /^r\dc\d$/.test(k) && isStr(o[k], 24); }); })
+        && isStr(w.fa, 21) && isStr(w.fb, 21) && ["+", "-", "*", "/"].indexOf(w.fop) >= 0) return w; } catch (e) {}
+    return freshWS(); }
+  var WS = loadWS();
+  function saveWS() { try { localStorage.setItem(WS_KEY, JSON.stringify(WS)); } catch (e) {} }
+
+  /* ---------- pictures ---------- */
+  function tokenSVG() { return '<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="30" fill="#b8743a" stroke="#6e3f14" stroke-width="3"/><circle cx="40" cy="40" r="22" fill="none" stroke="#f3cf86" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M40 26 L44 36 L55 36 L46 43 L50 54 L40 47 L30 54 L34 43 L25 36 L36 36Z" fill="#f6ead2" opacity=".85"/></svg>'; }
+  function emblemSVG() { var r = ""; for (var i = 0; i < 12; i++) { var a = i * Math.PI / 6; r += '<path d="M' + (40 + 18 * Math.cos(a)).toFixed(1) + " " + (40 + 18 * Math.sin(a)).toFixed(1) + " L" + (40 + 34 * Math.cos(a + .13)).toFixed(1) + " " + (40 + 34 * Math.sin(a + .13)).toFixed(1) + " L" + (40 + 34 * Math.cos(a - .13)).toFixed(1) + " " + (40 + 34 * Math.sin(a - .13)).toFixed(1) + 'Z" fill="#f3cf86"/>'; }
+    return '<svg viewBox="0 0 80 80" aria-hidden="true">' + r + '<circle cx="40" cy="40" r="19" fill="#e8b73c" stroke="#8a5a10" stroke-width="2.5"/><path d="M33 38 Q40 30 47 38 M34 44 Q40 50 46 44" stroke="#6e3f14" stroke-width="2" fill="none"/><circle cx="40" cy="40" r="3" fill="#6e3f14"/></svg>'; }
+  function level() { return ORDER.filter(function (t) { var r = K.tier(DOOR, t); return r && r.solved; }).length; }
+  var SKIES = [["#f3c27a", "#8fb6d8"], ["#d9786a", "#3a2a5e"], ["#2a2058", "#0c0f26"], ["#1c1846", "#06081a"]];
+  function midwaySVG(lv, big) {
+    var sky = SKIES[lv], lit = lv >= 1, h = '<svg viewBox="0 0 600 260" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="mwSky' + (big ? "b" : "") + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + sky[1] + '"/><stop offset="1" stop-color="' + sky[0] + '"/></linearGradient></defs><rect width="600" height="260" fill="url(#mwSky' + (big ? "b" : "") + ')"/>';
+    if (lv >= 2) for (var i = 0; i < 40; i++) h += '<circle cx="' + (i * 149 % 600) + '" cy="' + (i * 61 % 120) + '" r="' + (i % 6 ? .9 : 1.6) + '" fill="#fff" opacity=".8"/>';
+    // Ferris wheel
+    h += '<g transform="translate(150 120)"><circle r="78" fill="none" stroke="' + (lit ? "#f3cf86" : "#4a2a3a") + '" stroke-width="3"/>';
+    for (var s = 0; s < 12; s++) { var a = s * Math.PI / 6, x = 78 * Math.cos(a), y = 78 * Math.sin(a); h += '<line x1="0" y1="0" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="' + (lit ? "#c9a24a" : "#4a2a3a") + '" stroke-width="1.4"/><rect x="' + (x - 7).toFixed(1) + '" y="' + (y + 2).toFixed(1) + '" width="14" height="10" rx="2" fill="' + (lit ? ["#e8b73c", "#d9786a", "#7fd0ff"][s % 3] : "#3a1b2c") + '"/>'; }
+    h += '<path d="M-40 140 L0 0 L40 140" fill="none" stroke="' + (lit ? "#c9a24a" : "#4a2a3a") + '" stroke-width="4"/></g>';
+    // carousel tent and stalls
+    h += '<g transform="translate(400 150)"><path d="M-80 30 L0 -40 L80 30Z" fill="' + (lit ? "#9a2a46" : "#5a1229") + '"/><path d="M-60 30 L0 -40 L-20 30Z M20 30 L0 -40 L60 30Z" fill="' + (lit ? "#f6ead2" : "#d8c6a8") + '" opacity=".9"/><rect x="-74" y="30" width="148" height="60" fill="' + (lit ? "#3a1b2c" : "#2a1420") + '"/>';
+    for (var b = -70; b <= 70; b += 14) h += '<circle cx="' + b + '" cy="32" r="3" fill="' + (lit ? "#ffe39a" : "#6a4a3a") + '"/>';
+    h += "</g>";
+    h += '<path d="M0 230 L600 230 L600 260 L0 260Z" fill="' + (lv >= 2 ? "#120914" : "#3a2a24") + '"/>';
+    for (var p = 0; p < 600; p += 40) h += '<circle cx="' + (p + 20) + '" cy="226" r="3.4" fill="' + (lit ? "#ffe39a" : "#7a6a5a") + '" opacity="' + (lit ? 1 : .6) + '"/>';
+    return h + "</svg>";
+  }
+  function sceneLabel(lv) { return "The Fortune Booth: a striped carnival tent with a carved sign and a string of bulbs. Augusta Lark, the fortune-teller, sits behind a polished counter with a crystal ball and a fan of cards. Beyond the tent, the midway: " + ["afternoon light; no keys earned yet.", "twilight; the Bronze key is earned and the first lamps are lit.", "evening; two keys earned, and the Ferris wheel is lit.", "full night; all three keys earned, and the whole midway glows."][lv]; }
+  function renderScene() {
+    var lv = level(), sky = SKIES[lv], lit = lv >= 1;
+    var h = '<svg viewBox="0 0 1200 430" role="img" aria-label="' + esc(sceneLabel(lv)) + '"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + sky[1] + '"/><stop offset="1" stop-color="' + sky[0] + '"/></linearGradient>' +
+      '<radialGradient id="ball" cx=".35" cy=".3"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".35" stop-color="#b9c6ff" stop-opacity=".7"/><stop offset="1" stop-color="#3a2150" stop-opacity=".9"/></radialGradient>' +
+      '<radialGradient id="warm"><stop offset="0" stop-color="#ffd27a" stop-opacity=".55"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>' +
+      '<pattern id="stripes" width="80" height="10" patternUnits="userSpaceOnUse"><rect width="40" height="10" fill="#7a1f3a"/><rect x="40" width="40" height="10" fill="#f1e2c6"/></pattern></defs>';
+    h += '<rect width="1200" height="430" fill="url(#sk)"/>';
+    if (lv === 0) h += '<circle cx="1080" cy="80" r="34" fill="#fff4cf" opacity=".9"/>';
+    if (lv >= 2) for (var i = 0; i < 70; i++) h += '<circle cx="' + (i * 173 % 1200) + '" cy="' + (i * 37 % 120) + '" r="' + (i % 7 ? 1 : 1.8) + '" fill="#fff" opacity=".8"/>';
+    // distant midway silhouettes
+    h += '<g transform="translate(960 250) scale(.9)"><circle r="95" fill="none" stroke="' + (lit ? "#f3cf86" : "#5a3a4a") + '" stroke-width="3"/>';
+    for (var s = 0; s < 10; s++) { var a = s * Math.PI / 5; h += '<line x2="' + (95 * Math.cos(a)).toFixed(1) + '" y2="' + (95 * Math.sin(a)).toFixed(1) + '" stroke="' + (lit ? "#c9a24a" : "#5a3a4a") + '" stroke-width="1.3"/>' + (lit ? '<circle class="bulb" cx="' + (95 * Math.cos(a)).toFixed(1) + '" cy="' + (95 * Math.sin(a)).toFixed(1) + '" r="4" fill="#ffe39a" style="animation-delay:' + s * .4 + 's"/>' : ""); }
+    h += '<path d="M-50 180 L0 0 L50 180" stroke="' + (lit ? "#c9a24a" : "#5a3a4a") + '" stroke-width="5" fill="none"/></g>';
+    h += '<path d="M40 330 L110 250 L180 330Z" fill="' + (lit ? "#9a2a46" : "#5a2a3a") + '"/><path d="M200 330 L250 270 L300 330Z" fill="' + (lit ? "#3a2150" : "#3a2a3a") + '"/>';
+    // tent body
+    h += '<path d="M260 120 L600 30 L940 120 L940 430 L260 430Z" fill="url(#stripes)" opacity=".95" transform="rotate(0)"/>';
+    h += '<path d="M260 120 L600 30 L940 120" fill="none" stroke="#c9a24a" stroke-width="4"/>';
+    h += '<path d="M600 30 L600 8" stroke="#c9a24a" stroke-width="4"/><path d="M600 8 L640 18 L600 26Z" fill="#9a2a46"/>';
+    // scalloped valance
+    var v = ""; for (var x = 270; x < 935; x += 44) v += '<path d="M' + x + " 120 Q" + (x + 22) + " 150 " + (x + 44) + ' 120Z" fill="#5a1229" stroke="#c9a24a" stroke-width="1.5"/>'; h += v;
+    // bulbs
+    for (var b = 0; b < 15; b++) { var bx = 280 + b * 46; h += '<circle class="bulb" cx="' + bx + '" cy="' + (166 + (b % 2) * 6) + '" r="6" fill="' + (lit ? "#ffe39a" : "#f3d58a") + '" style="animation-delay:' + (b % 5) * .7 + 's"/>' + (lit ? '<circle cx="' + bx + '" cy="' + (166 + (b % 2) * 6) + '" r="16" fill="url(#warm)"/>' : ""); }
+    // carved sign
+    h += '<rect x="440" y="60" width="320" height="58" rx="10" fill="#4a2a10" stroke="#c9a24a" stroke-width="3"/><rect x="448" y="68" width="304" height="42" rx="7" fill="none" stroke="#e8c87a" stroke-width="1"/><text x="600" y="98" text-anchor="middle" font-family="Limelight, Georgia, serif" font-size="26" fill="#f3d58a" textLength="284" lengthAdjust="spacingAndGlyphs">THE FORTUNE BOOTH</text>';
+    // interior opening
+    h += '<path d="M330 430 L330 210 Q600 170 870 210 L870 430Z" fill="#2a1226"/><path d="M330 210 Q600 170 870 210" fill="none" stroke="#c9a24a" stroke-width="3"/>';
+    h += '<circle cx="600" cy="300" r="190" fill="url(#warm)" opacity="' + (lit ? .9 : .5) + '"/>';
+    // posters
+    h += '<g transform="translate(345 230)"><rect width="110" height="150" rx="4" fill="#f1e2c6" stroke="#c9a24a" stroke-width="2"/><text x="55" y="30" text-anchor="middle" font-family="Oswald, sans-serif" font-size="13" fill="#7a1f3a" letter-spacing="1">AUGUSTA LARK</text><text x="55" y="48" text-anchor="middle" font-family="Libre Baskerville, Georgia, serif" font-size="9.5" fill="#3a2150" font-style="italic">The Lady Who</text><text x="55" y="61" text-anchor="middle" font-family="Libre Baskerville, Georgia, serif" font-size="9.5" fill="#3a2150" font-style="italic">Knows Your Choice</text><circle cx="55" cy="100" r="26" fill="none" stroke="#7a1f3a" stroke-width="2"/><path d="M42 100 Q55 84 68 100 Q55 116 42 100Z" fill="#3a2150"/><circle cx="55" cy="100" r="5" fill="#f3cf86"/><text x="55" y="142" text-anchor="middle" font-family="Oswald, sans-serif" font-size="10" fill="#7a1f3a">ONE DIME</text></g>';
+    h += '<g transform="translate(745 236)"><rect width="110" height="140" rx="4" fill="#3a2150" stroke="#c9a24a" stroke-width="2"/><rect x="18" y="22" width="34" height="50" rx="3" fill="#f6ead2" stroke="#c9a24a" transform="rotate(-10 35 47)"/><rect x="40" y="18" width="34" height="50" rx="3" fill="#f6ead2" stroke="#c9a24a"/><rect x="62" y="22" width="34" height="50" rx="3" fill="#f6ead2" stroke="#c9a24a" transform="rotate(10 79 47)"/><text x="57" y="50" text-anchor="middle" font-family="Limelight, serif" font-size="20" fill="#7a1f3a">?</text><text x="55" y="108" text-anchor="middle" font-family="Oswald, sans-serif" font-size="12" fill="#f3cf86" letter-spacing="1">PICK A CURTAIN</text><text x="55" y="124" text-anchor="middle" font-family="Oswald, sans-serif" font-size="9" fill="#f6ead2">STAY OR SWITCH?</text></g>';
+    // a small mirror
+    h += '<ellipse cx="680" cy="232" rx="20" ry="26" fill="#c6d3e0" stroke="#c9a24a" stroke-width="3"/><path d="M670 220 L684 214" stroke="#fff" stroke-width="2" opacity=".8"/>';
+    // the fortune-teller (an original character: a bobbed 1920s performer in a beaded headband and a high-collared jacket)
+    h += '<g transform="translate(600 300)">' +
+      '<path d="M-78 130 Q-80 40 -30 22 L30 22 Q80 40 78 130Z" fill="#141a36"/><path d="M-30 22 L0 62 L30 22" fill="none" stroke="#c9a24a" stroke-width="3"/><path d="M-20 22 L0 48 L20 22Z" fill="#f6ead2"/>' +
+      '<rect x="-9" y="2" width="18" height="24" fill="#b07a58"/>' +
+      '<ellipse cx="0" cy="-28" rx="32" ry="38" fill="#c08a66"/>' +
+      '<path d="M-36 -30 Q-38 -70 0 -70 Q38 -70 36 -30 L36 -4 Q30 -12 26 -26 Q10 -40 -26 -26 Q-30 -12 -36 -4Z" fill="#1c1018"/>' +
+      '<path d="M-34 -44 Q0 -58 34 -44" fill="none" stroke="#c9a24a" stroke-width="5"/><circle cx="0" cy="-51" r="5" fill="#7fd0ff" stroke="#c9a24a" stroke-width="2"/>' +
+      '<path d="M22 -50 Q40 -86 30 -104 Q26 -80 18 -54Z" fill="#f6ead2" opacity=".9"/>' +
+      '<path d="M-16 -30 Q-10 -34 -4 -30 M4 -30 Q10 -34 16 -30" stroke="#1c1018" stroke-width="2.4" fill="none"/>' +
+      '<path d="M-12 -8 Q0 -2 12 -8" stroke="#7a1f3a" stroke-width="2.6" fill="none"/>' +
+      '</g>';
+    // counter, crystal ball and cards
+    h += '<rect x="420" y="380" width="360" height="50" fill="#5a3214"/><rect x="410" y="372" width="380" height="12" rx="3" fill="#8a5a24"/><path d="M420 392 L780 392" stroke="#c9a24a" stroke-width="2"/>';
+    h += '<rect x="575" y="356" width="50" height="18" rx="4" fill="#c9a24a"/><circle cx="600" cy="330" r="30" fill="url(#ball)" stroke="#c9a24a" stroke-width="2"/>';
+    h += '<g transform="translate(690 358)"><rect x="-14" y="-20" width="22" height="30" rx="2" fill="#f6ead2" stroke="#7a1f3a" transform="rotate(-16)"/><rect x="-4" y="-22" width="22" height="30" rx="2" fill="#f6ead2" stroke="#7a1f3a"/><rect x="6" y="-20" width="22" height="30" rx="2" fill="#7a1f3a" stroke="#c9a24a" transform="rotate(16)"/></g>';
+    h += '<g transform="translate(500 360)"><circle r="9" fill="#b8743a" stroke="#6e3f14" stroke-width="2"/><circle cx="16" cy="4" r="9" fill="#b8743a" stroke="#6e3f14" stroke-width="2"/></g>';
+    $("scene").innerHTML = h + "</svg>";
+    $("hour").textContent = ["Late afternoon · the midway is still busy", "Twilight · the first bulbs are lit", "Evening · the Ferris wheel is lit", "Full night · the whole midway glows"][lv];
+    $("midway").innerHTML = midwaySVG(lv);
+  }
+
+  /* ---------- the stage ---------- */
+  function newTrial(t) { var T = E.TIERS[t], r = E.rng(E.freshSeed()); return { phase: "pick", pick: null, prize: 1 + Math.floor(r() * T.curtains), opened: [], final: null, strategy: null }; }
+  function booth() { var t = S.tier; if (t !== "gold" && !S.booth[t]) { S.booth[t] = newTrial(t); saveState(); } return S.booth[t]; }
+  function curtainInfo(t, c, b) {
+    // what the player is allowed to know about curtain c right now
+    var T = E.TIERS[t], st = { open: false, prize: false, labels: [] };
+    if (t === "gold" && !b) { // the Gold question: you hold Curtain 1; she has opened the observed pair
+      if (c === T.pick) st.labels.push("Your choice", "Closed");
+      else if (T.observed.indexOf(c) >= 0) { st.open = true; st.labels.push("Opened: empty"); }
+      else st.labels.push("Closed");
+      return st;
+    }
+    if (b.phase === "pick") { st.labels.push("Closed"); return st; }
+    if (c === b.pick) st.labels.push("Your choice");
+    if (b.opened.indexOf(c) >= 0) { st.open = true; st.labels.push("Opened: empty"); }
+    else if (b.phase === "result") { st.open = true; st.prize = c === b.prize; st.labels.push(st.prize ? "The emblem" : "Empty"); }
+    else st.labels.push("Closed");
+    if (b.phase === "result" && c === b.final) st.labels.unshift("Final choice");
+    return st;
+  }
+  function renderStage() {
+    var t = S.tier, T = E.TIERS[t], b = t === "gold" ? S.booth.gold : booth(), cs = $("curtains"), h = "";
+    cs.style.setProperty("--n", T.curtains);
+    for (var c = 1; c <= T.curtains; c++) {
+      var st = curtainInfo(t, c, b), cls = "curt" + (st.open ? " open" : "") + (st.prize ? " win" : "");
+      var mine = t === "gold" && !b ? c === T.pick : b && b.pick === c;
+      if (mine) cls += " sel"; if (b && b.phase === "result" && b.final === c) cls += " fin";
+      var act = curtainAction(t, c, b);
+      h += '<button type="button" class="' + cls + '" data-c="' + c + '"' + (act ? "" : " disabled") + ' aria-label="' + esc("Curtain " + c + ": " + st.labels.join(", ") + (t === "gold" ? ", weight " + (T.weights[c] || "none (your curtain)") : "") + (act ? ". " + act : "")) + '">' +
+        '<span class="plate" aria-hidden="true">' + c + "</span>" + (mine ? '<span class="ribbon" aria-hidden="true">Yours</span>' : "") +
+        (t === "gold" && T.weights[c] ? '<span class="wt" aria-hidden="true">weight ' + T.weights[c] + "</span>" : "") +
+        '<span class="behind" aria-hidden="true">' + (st.open ? (st.prize ? emblemSVG() : tokenSVG()) : "") + "</span>" +
+        '<span class="half l" aria-hidden="true"></span><span class="half r" aria-hidden="true"></span><span class="tag" aria-hidden="true">' + esc(st.labels.join(" · ")) + "</span></button>";
+    }
+    cs.innerHTML = h;
+    cs.querySelectorAll(".curt").forEach(function (el) { el.onclick = function () { curtainClick(+el.dataset.c); }; });
+    $("stage").classList.toggle("fold", flourish === "silver" && t === "silver");
+    $("stage").classList.toggle("drawn", t === "gold" && run().solved && !b);
+    renderDialogue(); renderTrialCtl();
+  }
+  function curtainAction(t, c, b) {
+    if (t === "gold") return "";
+    if (b.phase === "pick") return "Choose this curtain";
+    if (b.phase === "decide" && b.opened.indexOf(c) < 0) return c === b.pick ? "Stay with this curtain" : "Switch to this curtain";
+    return "";
+  }
+  function others(b) { var T = E.TIERS[S.tier]; return E.range(T.curtains).filter(function (c) { return c !== b.pick && b.opened.indexOf(c) < 0; }); }
+  function curtainClick(c) {
+    var t = S.tier, b = booth(); if (t === "gold" || !b) return;
+    if (b.phase === "pick") return pickCurtain(c);
+    if (b.phase === "decide" && b.opened.indexOf(c) < 0) return finish(c === b.pick ? "stay" : t === "bronze" ? "switch" : "mswitch", c);
+  }
+  var flourish = null; // the one-time Silver fold-back after a completion
+  function pickCurtain(c) {
+    var t = S.tier, b = booth(); if (b.phase !== "pick") return; flourish = null;
+    b.pick = c; b.opened = E.hostOpens(t, c, b.prize, E.rng(E.freshSeed())); b.phase = "decide"; saveState(); blip(330, .3, .04, "triangle");
+    renderStage(); focusCurtain(c);
+  }
+  function finish(strategy, target) {
+    var t = S.tier, b = booth(); if (b.phase !== "decide") return;
+    var rest = others(b);
+    if (strategy === "stay") b.final = b.pick;
+    else if (strategy === "rswitch") b.final = rest[Math.floor(E.rng(E.freshSeed())() * rest.length)];
+    else b.final = target != null ? target : rest[0];
+    b.strategy = strategy; b.phase = "result";
+    var win = b.final === b.prize, rec = S.trials[t].manual[strategy]; rec.n++; if (win) rec.w++;
+    saveState(); blip(win ? 660 : 200, .5, .05, win ? "sine" : "sawtooth");
+    log.add("Trial: chose Curtain " + b.pick + ", she opened " + b.opened.join(" and ") + "; " + SNAME[strategy].toLowerCase() + " to Curtain " + b.final + ": " + (win ? "won" : "lost") + ".");
+    renderStage(); renderLedger(); focusCurtain(b.final);
+  }
+  function nextTrial() { var t = S.tier; flourish = null; if (t === "gold") { S.booth.gold = null; saveState(); renderStage(); return; } S.booth[t] = newTrial(t); saveState(); renderStage(); var f = document.querySelector(".curt"); if (f) f.focus(); }
+  function goldDemo() {
+    var r = E.rng(E.freshSeed()), tr = E.trial("gold", r);
+    S.booth.gold = { phase: "result", pick: tr.pick, prize: tr.prize, opened: tr.opened, final: null, strategy: null };
+    var g = S.trials.gold.manual; g.n++; g.pairs[E.key(tr.opened)]++; if (E.key(tr.opened) === E.key(E.TIERS.gold.observed)) g.match[tr.prize]++;
+    saveState(); log.add("Watched her once: she opened " + tr.opened.join(" then ") + "; the emblem was behind Curtain " + tr.prize + ".");
+    renderStage(); renderLedger();
+  }
+  function focusCurtain(c) { var el = document.querySelector('.curt[data-c="' + c + '"]'); if (el && !el.disabled) el.focus(); else { var n = document.querySelector("#trialCtl button"); if (n) n.focus(); } }
+  function renderDialogue() {
+    var t = S.tier, T = E.TIERS[t], b = t === "gold" ? S.booth.gold : booth(), d;
+    if (t === "gold" && !b) d = run().solved ? "“The secret was never seeing the future. It was understanding why I chose what to show you.”" : "“You hold Curtain 1. I drew back Curtains 3 and 4 together, and both are empty. You saw which two I opened, but not which I chose first. Remember my preference for Curtain 2.”";
+    else if (t === "gold") d = "“A demonstration: you hold Curtain 1; I opened Curtain " + b.opened[0] + ", then Curtain " + b.opened[1] + ", drawing by my weights. The emblem was behind Curtain " + b.prize + ".”";
+    else if (b.phase === "pick") d = t === "bronze" ? "“Three curtains, one golden emblem. Choose a curtain, and I shall open an empty one you did not choose.”" : "“Five curtains, one emblem. Choose, and I shall open two empty curtains you did not choose.”";
+    else if (b.phase === "decide") { var rest = others(b); d = "“You chose Curtain " + b.pick + ". I have opened Curtain" + (b.opened.length > 1 ? "s " + b.opened.join(" and ") + "; both are" : " " + b.opened[0] + "; it is") + " empty. Will you stay with Curtain " + b.pick + ", or switch to Curtain " + rest.join(" or ") + "?”"; }
+    else { var win = b.final === b.prize; d = "“" + (b.strategy === "stay" ? "You stayed with Curtain " + b.final : "You switched to Curtain " + b.final + (b.strategy === "rswitch" ? ", chosen at random" : "")) + ". The emblem was behind Curtain " + b.prize + ": " + (win ? "you win" : "not this time") + ".” This trial is recorded in the Trial Ledger.";
+    }
+    $("dialogue").innerHTML = "<b>Augusta Lark</b>" + esc(d);
+  }
+  function renderTrialCtl() {
+    var t = S.tier, b = t === "gold" ? S.booth.gold : booth(), h = "";
+    if (t === "gold") h = b ? '<button type="button" class="hbtn" id="demoBack">Back to the question (Q)</button><button type="button" class="hbtn dark" id="demoBtn">Watch her once more (W)</button>' : '<button type="button" class="hbtn dark" id="demoBtn">Watch her play once (W)</button>';
+    else if (b.phase === "pick") h = '<span style="font:500 .92rem var(--label)">Choose a curtain (click, tap, or keys 1–' + E.TIERS[t].curtains + ").</span>";
+    else if (b.phase === "decide") { var rest = others(b);
+      h = '<button type="button" class="hbtn" data-s="stay">Stay with Curtain ' + b.pick + " (S)</button>";
+      if (t === "bronze") h += '<button type="button" class="hbtn go" data-s="switch">Switch to Curtain ' + rest[0] + " (W)</button>";
+      else h += rest.map(function (c) { return '<button type="button" class="hbtn" data-s="mswitch" data-c="' + c + '">Switch to Curtain ' + c + " (" + c + ")</button>"; }).join("") + '<button type="button" class="hbtn go" data-s="rswitch">Switch at random (R)</button>';
+    } else h = '<button type="button" class="hbtn go" id="nextBtn">Next trial (N)</button>';
+    $("trialCtl").innerHTML = h;
+    $("trialCtl").querySelectorAll("[data-s]").forEach(function (el) { el.onclick = function () { finish(el.dataset.s, el.dataset.c ? +el.dataset.c : null); }; });
+    if ($("nextBtn")) $("nextBtn").onclick = nextTrial;
+    if ($("demoBtn")) $("demoBtn").onclick = goldDemo;
+    if ($("demoBack")) $("demoBack").onclick = nextTrial;
+  }
+
+  /* ---------- the Trial Ledger ---------- */
+  function known(t) { var r = K.tier(DOOR, t); return S.play[t].solved || !!(r && r.solved); }
+  function pct(w, n) { return n ? (100 * w / n).toFixed(1) + "%" : "—"; }
+  function exactOf(t, s) { if (s === "mswitch") { var p = E.posterior("silver", [2, 3]); return p[4]; } return E.strategyWin(t, s === "rswitch" ? "switch" : s); }
+  function renderLedger() {
+    var t = S.tier, tr = S.trials[t], h = "", open = known(t);
+    if (t !== "gold") {
+      h = '<div class="tablewrap"><table class="tbl"><caption class="sr">Trial results by strategy</caption><thead><tr><th scope="col">Strategy</th><th scope="col">Trials (yours + automatic)</th><th scope="col">Wins</th><th scope="col">Losses</th><th scope="col">Observed win rate</th><th scope="col">Exact chance</th><th scope="col">Observed − exact</th></tr></thead><tbody>';
+      STRATS[t].forEach(function (s) {
+        var m = tr.manual[s], a = tr.auto[s], n = m.n + a.n, w = m.w + a.w, ex = open ? exactOf(t, s) : null;
+        h += '<tr><th scope="row">' + SNAME[s] + '</th><td class="num">' + fmt(n) + " (" + fmt(m.n) + " + " + fmt(a.n) + ')</td><td class="num">' + fmt(w) + '</td><td class="num">' + fmt(n - w) + '</td><td class="num">' + pct(w, n) + "</td>" +
+          (ex ? '<td class="num"><span class="fr">' + E.str(ex) + "</span> (" + (100 * ex.n / ex.d).toFixed(1) + '%)</td><td class="num">' + (n ? ((100 * w / n) - 100 * ex.n / ex.d).toFixed(1) + " points" : "—") + "</td>" : '<td colspan="2" class="sealed">Sealed until you answer this challenge</td>') + "</tr>";
+      });
+      h += "</tbody></table></div>";
+      if (t === "silver") h += '<p class="note">“Switch at random” is the defined strategy: of the two other closed curtains, take one with equal chance. “Your own pick” records the switches you chose by hand; it is kept apart because your choices need not be random.</p>';
+    } else {
+      var all = { n: tr.manual.n + tr.auto.n, pairs: {}, match: {} }; PAIRS.forEach(function (k) { all.pairs[k] = tr.manual.pairs[k] + tr.auto.pairs[k]; }); [1, 2, 3, 4, 5].forEach(function (c) { all.match[c] = tr.manual.match[c] + tr.auto.match[c]; });
+      h = '<p style="margin:0">Trials with the biased host (you always hold Curtain 1): <b>' + fmt(all.n) + "</b> (" + fmt(tr.manual.n) + " watched + " + fmt(tr.auto.n) + " automatic).</p>";
+      h += '<div class="tablewrap"><table class="tbl"><caption class="sr">How often she opened each pair</caption><thead><tr><th scope="col">She opened</th><th scope="col">Trials</th><th scope="col">Observed share</th><th scope="col">Exact chance</th></tr></thead><tbody>';
+      PAIRS.forEach(function (k) { var ex = open ? pairChance(k) : null; h += "<tr" + (k === "3-4" ? ' style="font-weight:700"' : "") + '><th scope="row">Curtains ' + k.replace("-", " and ") + '</th><td class="num">' + fmt(all.pairs[k]) + '</td><td class="num">' + pct(all.pairs[k], all.n) + "</td>" + (ex ? '<td class="num"><span class="fr">' + E.str(ex) + "</span></td>" : '<td class="sealed">Sealed</td>') + "</tr>"; });
+      h += '</tbody></table></div><label class="check" style="margin-top:6px"><input type="checkbox" id="filterBox"' + (S.filter ? " checked" : "") + "> Show only trials where she opened Curtains 3 and 4</label>";
+      if (S.filter) { var mn = all.pairs["3-4"];
+        h += '<div class="tablewrap"><table class="tbl"><caption class="sr">Where the emblem was, in trials where she opened 3 and 4</caption><thead><tr><th scope="col">Emblem behind</th><th scope="col">Matching trials</th><th scope="col">Observed share</th><th scope="col">Exact (Bayes)</th></tr></thead><tbody>';
+        [1, 2, 5].forEach(function (c) { var post = open ? E.posterior("gold", E.TIERS.gold.observed)[c] : null; h += '<tr><th scope="row">Curtain ' + c + '</th><td class="num">' + fmt(all.match[c]) + '</td><td class="num">' + pct(all.match[c], mn) + "</td>" + (post ? '<td class="num"><span class="fr">' + E.str(post) + "</span></td>" : '<td class="sealed">Sealed</td>') + "</tr>"; });
+        h += "</tbody></table></div><p class=\"note\">" + fmt(mn) + " of " + fmt(all.n) + " trials match. The observed shares approach the exact values as matching trials accumulate, but they are evidence, not a proof.</p>"; }
+    }
+    $("trialLedger").innerHTML = h;
+    if ($("filterBox")) $("filterBox").onchange = function () { S.filter = this.checked; saveState(); renderLedger(); };
+    $("simBtns").innerHTML = [10, 100, 1000, 10000].map(function (n) { return '<button type="button" class="btn" data-n="' + n + '"' + (simming ? " disabled" : "") + ">Run " + fmt(n) + (t === "gold" ? " trials" : " of each") + "</button>"; }).join("");
+    $("simBtns").querySelectorAll("[data-n]").forEach(function (el) { el.onclick = function () { simulate(+el.dataset.n); }; });
+    var l = tr.last; $("lastBatch").textContent = l ? "Last automatic batch: seed " + l.seed + ", " + fmt(l.count) + (t === "gold" ? " trials" : " trials of each strategy") + ". " + l.text : "No automatic trials yet.";
+    $("clearTrials").textContent = clearArmed ? "Erase this challenge's trial records? Press again" : "Clear this challenge's trial records";
+  }
+  function pairChance(k) { var T = E.TIERS.gold; return E.range(5).reduce(function (s, prize) { return E.add(s, E.mul(E.F(1, 5), E.likelihood("gold", T.pick, prize, k.split("-").map(Number)))); }, E.F(0)); }
+  var simming = false;
+  function simulate(count) {
+    if (simming) return; var t = S.tier, raw = $("seedIn").value.trim();
+    if (raw && !/^\d{1,9}$/.test(raw)) { $("simStatus").textContent = "A seed is a whole number from 0 to 999,999,999, or leave it blank for a random one."; return; }
+    var seed = raw ? +raw : E.freshSeed(), r = E.rng(seed), done = 0, CH = 2000, acc = t === "gold" ? freshCounts("gold") : freshCounts(t);
+    simming = true; renderLedger(); $("simStatus").textContent = "Running trials with seed " + seed + "…";
+    (function step() {
+      var end = Math.min(count, done + CH);
+      for (; done < end; done++) {
+        if (t === "gold") { var g = E.trial("gold", r), k = E.key(g.opened); acc.n++; acc.pairs[k]++; if (k === "3-4") acc.match[g.prize]++; }
+        else { var a = E.trial(t, r, "stay"), b = E.trial(t, r, "switch"), sw = t === "bronze" ? "switch" : "rswitch"; acc.stay.n++; if (a.win) acc.stay.w++; acc[sw].n++; if (b.win) acc[sw].w++; }
+      }
+      if (done < count) { $("simStatus").textContent = "Running trials with seed " + seed + ": " + fmt(done) + " of " + fmt(count) + "…"; setTimeout(step, 0); return; }
+      // commit the whole batch at once, so an interrupted run never records half a batch
+      var dst = S.trials[t].auto, text;
+      if (t === "gold") { dst.n += acc.n; PAIRS.forEach(function (k) { dst.pairs[k] += acc.pairs[k]; }); [1, 2, 3, 4, 5].forEach(function (c) { dst.match[c] += acc.match[c]; });
+        text = "She opened Curtains 3 and 4 in " + fmt(acc.pairs["3-4"]) + " of them; among those the emblem was behind Curtain 1 in " + fmt(acc.match[1]) + ", Curtain 2 in " + fmt(acc.match[2]) + " and Curtain 5 in " + fmt(acc.match[5]) + "."; }
+      else { STRATS[t].forEach(function (s) { if (acc[s]) { dst[s].n += acc[s].n; dst[s].w += acc[s].w; } }); var sw2 = t === "bronze" ? "switch" : "rswitch";
+        text = "Stay won " + fmt(acc.stay.w) + " of " + fmt(acc.stay.n) + "; " + SNAME[sw2].toLowerCase() + " won " + fmt(acc[sw2].w) + " of " + fmt(acc[sw2].n) + "."; }
+      S.trials[t].last = { seed: seed, count: count, text: text }; saveState(); simming = false;
+      $("simStatus").textContent = "Done: " + fmt(count) + (t === "gold" ? " trials" : " trials of each strategy") + " with seed " + seed + ". " + text;
+      log.add("Ran " + fmt(count) + " automatic trials (seed " + seed + "). " + text); renderLedger();
+    })();
+  }
+  var clearArmed = false;
+  $("clearTrials").onclick = function () { if (!clearArmed) { clearArmed = true; renderLedger(); $("simStatus").textContent = "This erases this challenge's trial counts (yours and automatic). Your score is not affected."; return; }
+    clearArmed = false; S.trials[S.tier] = freshTrials(S.tier); saveState(); $("simStatus").textContent = "Trial records cleared."; renderLedger(); };
+  $("clearTrials").onblur = function () { if (clearArmed) { clearArmed = false; renderLedger(); } };
+  $("seedIn").oninput = function () { S.seed = this.value.slice(0, 9); saveState(); };
+
+  /* ---------- the Probability Table ---------- */
+  var SHEET = {
+    bronze: { rows: ["Emblem behind 1 (yours)", "Emblem behind 2", "Emblem behind 3"], cols: ["Chance it is there", "Curtains she may open", "Staying wins?", "Switching wins?"] },
+    silver: { rows: ["Emblem behind 1 (yours)", "Emblem behind 2", "Emblem behind 3", "Emblem behind 4", "Emblem behind 5"], cols: ["Chance it is there", "Pairs she may open", "Staying wins?", "A random switch wins with chance"] },
+    gold: { rows: ["Emblem behind 1 (yours)", "Emblem behind 2", "Emblem behind 3", "Emblem behind 4", "Emblem behind 5"], cols: ["Prior", "P(3, then 4)", "P(4, then 3)", "P(she shows 3 and 4)", "Prior × that", "Posterior"] }
+  };
+  var GIVENS = {
+    bronze: ["Three curtains; the emblem is behind exactly one, each with chance 1/3.", "Worksheet below assumes you chose Curtain 1 (any choice works the same way).", "She opens one empty curtain you did not choose. If both of the others are empty, she picks one of them with a fair coin (1/2 each); otherwise she has exactly one choice."],
+    silver: ["Five curtains; the emblem is behind exactly one, each with chance 1/5.", "Worksheet below assumes you chose Curtain 1.", "She opens exactly two empty curtains you did not choose. Among all such pairs she picks one, each equally likely: 6 possible pairs when your curtain hides the emblem, 3 otherwise.", "A random switch takes one of the two other closed curtains, 1/2 each."],
+    gold: ["Five curtains; the emblem is behind exactly one, each with chance 1/5. You hold Curtain 1.", "She opens two empty curtains, one at a time. Each time she draws among the curtains still allowed (not yours, not the emblem's, not already open), with chances in proportion to the weights: Curtain 2 weight 2; Curtains 3, 4 and 5 weight 1 each.", "You saw that she opened Curtains 3 and 4, not the order. So the evidence is the unordered pair: add the chances of both orders.", "Bayes' rule: P(emblem at i | she shows 3 and 4) = P(she shows 3 and 4 | emblem at i) × P(emblem at i) ÷ (the sum of the same products over every i)."]
+  };
+  function renderProb() {
+    var t = S.tier, sh = SHEET[t], h = '<h3 style="margin-top:0">The givens</h3><ul class="givens">' + GIVENS[t].map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
+    if (!known(t)) {
+      h += '<h3>Your worksheet (never checked)</h3><div class="tablewrap sheet"><table class="tbl"><caption class="sr">Your worksheet</caption><thead><tr><th scope="col">Case</th>' + sh.cols.map(function (c) { return '<th scope="col">' + esc(c) + "</th>"; }).join("") + "</tr></thead><tbody>";
+      sh.rows.forEach(function (rw, i) { h += '<tr><th scope="row">' + esc(rw) + "</th>" + sh.cols.map(function (c, j) { var id = "r" + i + "c" + j; return '<td><input type="text" maxlength="24" data-cell="' + id + '" aria-label="' + esc(rw + ": " + c) + '" value="' + esc(WS.sheet[t][id] || "") + '" autocomplete="off"></td>'; }).join("") + "</tr>"; });
+      h += '</tbody></table></div><p class="note">The exact table appears here once you have answered this challenge.</p>';
+    } else h += exactTable(t);
+    $("probTable").innerHTML = h;
+    $("probTable").querySelectorAll("[data-cell]").forEach(function (el) { el.oninput = function () { var v = el.value.slice(0, 24); if (v) WS.sheet[t][el.dataset.cell] = v; else delete WS.sheet[t][el.dataset.cell]; saveWS(); }; });
+  }
+  function exactTable(t) {
+    var T = E.TIERS[t], h = "", s = E.str;
+    if (t !== "gold") {
+      h += '<h3>The exact tree (you chose Curtain 1)</h3><div class="tablewrap"><table class="tbl"><caption class="sr">Every case, with its exact probability</caption><thead><tr><th scope="col">Emblem behind</th><th scope="col">She opens</th><th scope="col">Chance of this branch</th><th scope="col">Stay</th><th scope="col">' + (t === "bronze" ? "Switch" : "Random switch") + "</th></tr></thead><tbody>";
+      E.range(T.curtains).forEach(function (prize) { E.revealTree(t, 1, prize).forEach(function (rv) { var rest = E.range(T.curtains).filter(function (c) { return c !== 1 && rv.set.indexOf(c) < 0; });
+        h += "<tr><td>" + prize + "</td><td>" + rv.set.join(" and ") + '</td><td class="num"><span class="fr">' + s(E.mul(E.F(1, T.curtains), rv.p)) + "</span></td><td>" + (prize === 1 ? "wins" : "loses") + "</td><td>" + (rest.indexOf(prize) >= 0 ? (rest.length === 1 ? "wins" : "wins with chance 1/" + rest.length) : "loses") + "</td></tr>"; }); });
+      h += "</tbody></table></div>";
+      var st = E.strategyWin(t, "stay"), sw = E.strategyWin(t, "switch"), tog = E.othersTogether(t);
+      h += '<ul class="givens"><li>Staying wins with chance <span class="fr">' + s(st) + "</span>.</li><li>" + (t === "bronze" ? "Switching wins" : "Switching to one of the two other closed curtains, chosen at random, wins") + ' with chance <span class="fr">' + s(sw) + "</span>.</li>" +
+        (t === "silver" ? '<li>The emblem is somewhere among the two other closed curtains together with chance <span class="fr">' + s(tog) + "</span>, but you may finish on only one of them. These are three different events.</li>" : "") + "</ul>";
+    } else {
+      var obs = T.observed, post = E.posterior("gold", obs), flat = { 2: 1, 3: 1, 4: 1, 5: 1 }, postU = E.posterior("gold", obs, flat);
+      h += '<h3>The exact calculation</h3><div class="tablewrap"><table class="tbl"><caption class="sr">Likelihoods and posteriors given that she showed Curtains 3 and 4</caption><thead><tr><th scope="col">Emblem behind</th><th scope="col">P(3, then 4)</th><th scope="col">P(4, then 3)</th><th scope="col">P(shows 3 and 4)</th><th scope="col">Posterior</th><th scope="col">Unbiased host</th></tr></thead><tbody>';
+      E.range(5).forEach(function (prize) { var tr = E.revealTree("gold", 1, prize), o1 = tr.filter(function (r) { return r.order.join() === "3,4"; })[0], o2 = tr.filter(function (r) { return r.order.join() === "4,3"; })[0];
+        h += "<tr><td>" + prize + '</td><td class="num">' + s(o1 ? o1.p : E.F(0)) + '</td><td class="num">' + s(o2 ? o2.p : E.F(0)) + '</td><td class="num">' + s(E.likelihood("gold", 1, prize, obs)) + '</td><td class="num"><span class="fr">' + s(post[prize]) + '</span></td><td class="num">' + s(postU[prize]) + "</td></tr>"; });
+      h += '</tbody></table></div><p class="note">Every curtain starts at 1/5, so the posterior is each likelihood divided by their total. With an unbiased host (all weights 1) the answer would be ' + s(postU[T.ask]) + "; her preference for Curtain 2 changes it to " + s(post[T.ask]) + ". The posteriors add up to " + s(E.range(5).reduce(function (a, i) { return E.add(a, post[i]); }, E.F(0))) + ".</p>";
+    }
+    return h;
+  }
+
+  /* ---------- the Prediction Card (formal answers) ---------- */
+  function renderCard() {
+    var t = S.tier, rn = run(), d = rn.draft, lock = rn.solved, h = "";
+    var radio = function (name, val, label) { return '<label><input type="radio" name="' + name + '" value="' + val + '"' + (d[name === "bStrat" ? "strategy" : "better"] === val ? " checked" : "") + (lock ? " disabled" : "") + "> " + label + "</label>"; };
+    var frac = function (id, field, label) { return '<div class="frac"><label for="' + id + '">' + label + '</label><input id="' + id + '" data-f="' + field + '" type="text" inputmode="text" maxlength="21" autocomplete="off" spellcheck="false" placeholder="a/b" value="' + esc(d[field]) + '"' + (lock ? " disabled" : "") + "></div>"; };
+    if (t === "bronze") h = '<p class="q">Which strategy gives the greater chance of winning, and what is that chance exactly?</p><fieldset><legend>The better strategy</legend><div class="opt">' + radio("bStrat", "stay", "Stay") + radio("bStrat", "switch", "Switch") + "</div></fieldset>" + frac("bP", "p", "Its exact chance of winning");
+    else if (t === "silver") h = '<p class="q">Five curtains, two opened. Give exact chances, and choose the better strategy.</p>' + frac("sStay", "stay", "Chance that staying wins") + frac("sSwitch", "rswitch", "Chance that switching to one of the two others, chosen at random, wins") + '<fieldset><legend>The better strategy</legend><div class="opt">' + radio("sBetter", "stay", "Stay") + radio("sBetter", "switch", "Switch at random") + "</div></fieldset>";
+    else h = '<p class="q">Given her weights and that she opened Curtains 3 and 4, what is the exact probability that the emblem is behind <b>Curtain 2</b>?</p>' + frac("gP", "p", "P(emblem behind Curtain 2 | she opened 3 and 4)");
+    $("cardBody").innerHTML = h;
+    $("cardBody").querySelectorAll("[data-f]").forEach(function (el) { el.oninput = function () { run().draft[el.dataset.f] = el.value.slice(0, 21); saveState(); }; });
+    $("cardBody").querySelectorAll("input[type=radio]").forEach(function (el) { el.onchange = function () { run().draft[el.name === "bStrat" ? "strategy" : "better"] = el.value; saveState(); }; });
+    $("answerBtn").disabled = lock; $("answerBtn").textContent = lock ? "Answered · see the award below" : "Give your answer";
+    $("cardFine").textContent = "Write exact fractions such as 3/7 (equivalent fractions like 6/14 are fine). Decimals and percentages are not accepted, and a malformed entry costs nothing. A wrong answer costs 8 (at most 24 in all).";
+    renderMeters();
+  }
+  var WHY = { empty: "is empty", percent: "is a percentage", decimal: "is a decimal", negative: "is negative", zeroDenominator: "has a zero denominator", notProbability: "is larger than 1, which no probability can be", malformed: "is not a fraction" };
+  function refuse(text) { var rn = run(); rn.refused++; saveState(); say(text + " Write an exact fraction such as 3/7 (no decimals or percentages). Nothing was deducted.", "bad"); renderMeters(); }
+  function submit(e) {
+    if (e) e.preventDefault();
+    var t = S.tier, rn = run(), d = rn.draft; if (rn.solved) return;
+    var ans, res, fields = t === "bronze" ? [["p", "Your chance"]] : t === "silver" ? [["stay", "Your chance for staying"], ["rswitch", "Your chance for switching at random"]] : [["p", "Your answer"]];
+    if (t === "bronze" && !d.strategy) return refuse("Choose a strategy first: Stay or Switch.");
+    if (t === "silver" && !d.better) return refuse("Choose the better strategy first.");
+    for (var i = 0; i < fields.length; i++) { var p = E.parseFraction(d[fields[i][0]]); if (!p.ok) return refuse(fields[i][1] + " " + WHY[p.why] + "."); }
+    ans = t === "bronze" ? { strategy: d.strategy, p: d.p.trim() } : t === "silver" ? { stay: d.stay.trim(), rswitch: d.rswitch.trim(), better: d.better } : { p: d.p.trim() };
+    res = checkAnswer(t, ans);
+    if (res.ok) return complete(ans);
+    rn.wrong++; saveState(); blip(150, .3, .05, "sawtooth");
+    log.add("Answered " + TNAME[t] + ": not right.");
+    say((t === "silver" ? "Not quite: " + res.right + " of your three answers " + (res.right === 1 ? "is" : "are") + " right." : "Not quite: the curtains stay closed.") + " (−" + E.WRONG + "; wrong answers cost at most " + E.CAP + " in all.) Your card is kept, and trials are still free.", "bad");
+    renderMeters();
+  }
+  $("card").onsubmit = submit;
+
+  /* ---------- completion ---------- */
+  function complete(ans) {
+    var t = S.tier, rn = run(); if (rn.solved) return;
+    var first = !(K.tier(DOOR, t) || {}).solved && !rn.practice;
+    rn.solved = true; rn.answer = ans; rn.score = E.score(t, rn); rn.practice = !first;
+    var earned = DQToolkit.judge(E.ACHIEVEMENTS, { tier: t, solved: true, firstCompletion: first, hints: rn.hints, wrong: rn.wrong });
+    rn.earned = earned.slice(0, 4); K.noteAttempt(DOOR, t);
+    var res = first ? K.recordSolve(DOOR, t, rn.score, rn.hints, earned) : null;
+    if (t === "gold") S.booth.gold = null;
+    if (t === "silver") flourish = "silver";
+    if (t === "silver") S.booth.silver = { phase: "pick", pick: null, prize: S.booth.silver ? S.booth.silver.prize : 1, opened: [], final: null, strategy: null };
+    saveState(); log.add("Completed " + TNAME[t] + (res ? " (score " + rn.score + ")." : " (practice run)."));
+    [392, 523, 659, 784].forEach(function (f, i) { setTimeout(function () { blip(f, .8, .04, "sine"); }, i * 180); });
+    say(t === "gold" ? "Exactly right. She lifts the last curtain, and the carnival beyond comes into view." : t === "silver" ? "Exactly right. The five curtains fold back together." : "Exactly right. She turns over a painted probability card, and a brass catch releases the first key.", "good");
+    renderAll(); showAward(res);
+  }
+  function emblem(t) {
+    if (t === "bronze") return '<div class="flip"><div class="inner2"><svg class="emb" viewBox="0 0 220 240" aria-hidden="true"><rect x="10" y="10" width="200" height="220" rx="12" fill="#f6ead2" stroke="#b8862c" stroke-width="4"/><text x="110" y="40" text-anchor="middle" font-family="Limelight, serif" font-size="17" fill="#7a1f3a">STAY OR SWITCH</text>' +
+      [0, 1, 2].map(function (i) { return '<g transform="translate(' + (36 + i * 74) + ' 58)"><rect width="48" height="70" rx="5" fill="' + (i === 0 ? "#3a2150" : "#7a1f3a") + '"/><text x="24" y="44" text-anchor="middle" font-family="Oswald, sans-serif" font-size="20" fill="#f6ead2">' + (i + 1) + "</text></g>"; }).join("") +
+      '<path d="M36 140 h48" stroke="#3a2150" stroke-width="6"/><text x="60" y="160" text-anchor="middle" font-family="Oswald, sans-serif" font-size="13" fill="#3a2150">yours: 1 in 3</text><path d="M110 140 h96" stroke="#7a1f3a" stroke-width="6"/><text x="158" y="160" text-anchor="middle" font-family="Oswald, sans-serif" font-size="13" fill="#7a1f3a">the others: 2 in 3</text>' +
+      '<g class="keydrop"><circle cx="110" cy="196" r="14" fill="none" stroke="#b8862c" stroke-width="5"/><path d="M124 196 h50 v10 M160 196 v10" stroke="#b8862c" stroke-width="5" fill="none"/></g></svg></div></div>';
+    if (t === "silver") return '<svg class="emb" viewBox="0 0 220 220" aria-hidden="true"><rect width="220" height="220" fill="#2a1530"/>' + [0, 1, 2, 3, 4].map(function (i) { return '<g transform="translate(' + (14 + i * 40) + ' 40)"><rect width="34" height="120" fill="#160a12" stroke="#8a6a2a"/><path d="M0 0 h7 v120 h-7Z M27 0 h7 v120 h-7Z" fill="#8e1d3e"/><circle cx="17" cy="60" r="9" fill="' + (i === 0 ? "#3a2150" : "#e8b73c") + '" opacity="' + (i === 0 ? 1 : .35) + '"/></g>'; }).join("") + '<text x="110" y="190" text-anchor="middle" font-family="Oswald, sans-serif" font-size="13" fill="#f3cf86">1/5 stays · the rest is shared</text></svg>';
+    return '<svg class="emb" viewBox="0 0 220 220" aria-hidden="true">' + midwaySVG(3, true).replace("<svg ", '<svg x="0" y="0" width="220" height="220" ') + '</svg>';
+  }
+  function story(t) {
+    if (t === "bronze") return "<p>Augusta turns over a painted card. “Your first choice held one chance in three, and nothing I did could change that: I can always open an empty curtain. The other two held two chances in three, and I have just shown you which of them is empty.”</p><p>A brass catch clicks inside the counter, and the first key drops into your palm. Outside, the first bulbs of the evening come on.</p>";
+    if (t === "silver") return "<p>The five curtains fold back together like a fan. “Two curtains closed besides yours,” Augusta says, “and between them they hold everything yours does not. But you may only stand behind one of them.”</p><p>“Knowing which curtains I <i>could</i> open matters as much as counting how many remain. Tomorrow, I shall tell you my preferences.”</p>";
+    return "<p>Augusta lifts the last curtain, and the canvas wall behind it rolls up: the whole midway glows beyond, the Ferris wheel turning against the night.</p><p>“I never knew your future. When the emblem was not behind my favourite curtain, I almost always opened it. Leaving it closed told you something.” She smiles. <i>“The secret was never seeing the future. It was understanding why I chose what to show you.”</i></p>";
+  }
+  function awardHtml(res) {
+    var t = S.tier, rn = run(), next = ORDER[ORDER.indexOf(t) + 1], tags = [], s = E.str;
+    if (res) { if (rn.hints === 0) tags.push('<span class="tag2 hf">★ Unaided</span>');
+      if (rn.earned.indexOf("against-the-odds") >= 0) tags.push('<span class="tag2 ma">♦ Against the Odds</span>');
+      if (rn.earned.indexOf("master-of-chance") >= 0) tags.push('<span class="tag2 ma">✸ Master of Chance</span>');
+      tags.push('<span class="tag2 up">' + (res.upgraded ? "Key upgraded to " + res.keyAfter : "Recorded") + "</span>"); }
+    else if (rn.practice) tags.push('<span class="tag2">Practice run · record unchanged</span>');
+    var why;
+    if (t === "bronze") why = "Your first pick wins exactly when the emblem was already there: chance " + s(E.strategyWin("bronze", "stay")) + ". She can always open an empty curtain you did not choose, so her reveal cannot change that. Switching wins in every other case: chance " + s(E.strategyWin("bronze", "switch")) + ".";
+    else if (t === "silver") why = "Staying wins with chance " + s(E.strategyWin("silver", "stay")) + ", as before. The two other closed curtains together hold the rest, " + s(E.othersTogether("silver")) + ", but you finish on only one of them; under her even-handed rule each holds half of it, so a random switch wins with chance " + s(E.strategyWin("silver", "switch")) + ". Three different events: your curtain, one other curtain, and both other curtains together.";
+    else { var post = E.posterior("gold", E.TIERS.gold.observed), L = function (i) { return s(E.likelihood("gold", 1, i, E.TIERS.gold.observed)); };
+      why = "The chance that she shows Curtains 3 and 4 (in either order) is " + L(1) + " if the emblem is behind Curtain 1, " + L(2) + " if it is behind Curtain 2, and " + L(5) + " if it is behind Curtain 5 (0 for 3 and 4). Each starts at 1/5, so Bayes' rule gives Curtain 1 " + s(post[1]) + ", Curtain 2 " + s(post[2]) + " and Curtain 5 " + s(post[5]) + ". An unbiased host would give Curtain 2 " + s(E.posterior("gold", E.TIERS.gold.observed, { 2: 1, 3: 1, 4: 1, 5: 1 })[2]) + "."; }
+    return emblem(t) + '<div><h2 id="awardTitle" tabindex="-1">' + { bronze: "The first prediction", silver: "The five curtains", gold: "The fortune revealed" }[t] + "</h2><p><b>" + TNAME[t] + " key</b> · Chaortal No. 17 · The Fortune Booth</p><div class=\"tags\">" + tags.join("") + "</div>" +
+      "<p>" + plural(rn.wrong, "wrong answer", "wrong answers") + (rn.hints ? " · " + plural(rn.hints, "hint", "hints") : "") + " · score <b>" + rn.score + "</b>" + (res ? " · recorded on your Keyring" : " · practice run") + "</p>" +
+      '<div class="ending">' + story(t) + '</div><div class="explain" style="margin-top:10px"><b>Why it works.</b> ' + why + "</div>" +
+      '<div class="actions">' + (next ? '<button class="btn primary" type="button" data-go="' + next + '">On to ' + TNAME[next] + "</button>" : '<button class="btn primary" type="button" data-view="1">See the midway</button>') + '<button class="btn" type="button" data-again="1">Answer again (practice)</button><a class="btn" href="#ringTitle">See your Keyring</a><a class="btn" href="https://doorquests.com/">DoorQuests home</a></div></div>';
+  }
+  function bindAward(a) {
+    a.querySelectorAll("[data-go]").forEach(function (b) { b.onclick = function () { switchTier(b.dataset.go); window.scrollTo({ top: 0, behavior: motionOK() ? "smooth" : "auto" }); }; });
+    var v = a.querySelector("[data-view]"); if (v) v.onclick = function () { $("booth").scrollIntoView({ block: "start", behavior: motionOK() ? "smooth" : "auto" }); };
+    var ag = a.querySelector("[data-again]"); if (ag) ag.onclick = function () { practice(); window.scrollTo({ top: 0, behavior: motionOK() ? "smooth" : "auto" }); };
+  }
+  function showAward(res) { var a = $("award"); a.hidden = false; a.className = "award"; a.dataset.t = S.tier; a.innerHTML = awardHtml(res); bindAward(a); $("awardTitle").focus(); }
+  function practice() { var t = S.tier; S.play[t] = freshRun(t); S.play[t].practice = true; saveState(); say("A fresh card for practice. Your recorded result stays on the Keyring; your trial records are kept."); renderAll(); }
+
+  /* ---------- tiers, brief, hints, rules ---------- */
+  var TEXT = {
+    bronze: { title: "Bronze · The First Prediction", intro: "Past the last lamp of the midway stands a booth of burgundy canvas. Inside, Augusta Lark, billed as the Lady Who Knows Your Choice, sits behind three velvet curtains. “Behind one is my golden emblem; behind the others, carnival tokens. Choose, and I shall open an empty curtain for you. Then you may keep your choice, or change it.”",
+      rule: "<ol><li>Exactly one curtain hides the emblem; each curtain is equally likely (1/3).</li><li>You choose a curtain before anything is opened.</li><li>Augusta knows where the emblem is. She never opens your curtain and never opens the emblem's.</li><li>She always opens exactly one empty curtain. When both of the others are empty, she chooses between them with a fair coin.</li><li>Then you stay or switch to the other closed curtain, and every curtain is revealed.</li></ol><p style=\"margin:6px 0 0\"><b>Your task:</b> run as many trials as you like (free), then answer on the Prediction Card: which strategy wins more often, and with what exact chance?</p>" },
+    silver: { title: "Silver · The Five Curtains", intro: "“Now five curtains,” says Augusta, “and I shall open two of them. Three will remain closed: yours, and two others.”",
+      rule: "<ol><li>Exactly one of five curtains hides the emblem; each is equally likely (1/5).</li><li>You choose first. Augusta knows where the emblem is, and opens exactly two empty curtains you did not choose.</li><li><b>Her rule:</b> among all pairs of empty curtains she is allowed to open, she picks one pair, each equally likely (6 pairs when your curtain hides the emblem, otherwise 3).</li><li>Then you may stay, or switch to one of the two other closed curtains. <b>Switch at random</b> means taking one of those two with equal chance; you may also choose one by hand.</li></ol><p style=\"margin:6px 0 0\"><b>Your task:</b> give the exact chance of winning by staying, the exact chance of winning by switching at random, and the better strategy.</p>" },
+    gold: { title: "Gold · The Fortune-Teller's Preference", intro: "Augusta leans across the counter. “I confess I have a favourite curtain. When I open empty curtains, I am drawn to Curtain 2.”",
+      rule: "<ol><li>Five curtains; the emblem is equally likely to be behind any of them (1/5). <b>You hold Curtain 1.</b></li><li>Augusta knows where the emblem is. She opens exactly two empty curtains, never yours and never the emblem's.</li><li><b>Her weights:</b> she opens them one at a time. Each time she draws among the curtains still allowed, with chances in proportion to their weights: <b>Curtain 2 weight 2; Curtains 3, 4 and 5 weight 1</b>. For example, if Curtains 2, 3, 4 and 5 are all allowed, she opens Curtain 2 with chance 2/5 and each of the others with chance 1/5.</li><li><b>What you saw:</b> she drew back <b>Curtains 3 and 4</b> together. You know which two she opened, not in which order.</li></ol><p style=\"margin:6px 0 0\"><b>Your task:</b> the exact probability, as a fraction, that the emblem is behind Curtain 2.</p>" }
+  };
+  function switchTier(t) { S.tier = t; clearArmed = false; flourish = null; saveState(); say(""); $("simStatus").textContent = ""; renderAll(); }
+  function renderTiers() {
+    $("tiers").innerHTML = ORDER.map(function (t) {
+      var rec = K.tier(DOOR, t), nm = TEXT[t].title.split(" · "), aim = { bronze: "Three curtains: stay or switch?", silver: "Five curtains, two opened", gold: "A host with a preference" }[t];
+      var st = rec && rec.solved ? '<span class="st">✓ Key earned · best ' + rec.best + (K.hasAch(DOOR, t, "master-of-chance") ? " · ✸ master" : K.hasAch(DOOR, t, "against-the-odds") ? " · ♦ odds" : "") + "</span>" : "<span>" + (t === "bronze" ? "Begin here" : "Open to try") + "</span>";
+      return '<button type="button" class="tierbtn" data-t="' + t + '" aria-pressed="' + (S.tier === t) + '"><b>' + nm[0] + " · " + nm[1] + '</b><span class="aim">' + aim + "</span>" + st + "</button>";
+    }).join("");
+    $("tiers").querySelectorAll(".tierbtn").forEach(function (b) { b.onclick = function () { switchTier(b.dataset.t); var h = $("booth"); if (h.getBoundingClientRect().top < 0) h.scrollIntoView({ block: "start", behavior: motionOK() ? "smooth" : "auto" }); }; });
+  }
+  var HL = ["A nudge", "A closer look", "A worked step"];
+  function renderHints() {
+    var rn = run(), list = E.HINTS[S.tier];
+    $("hints").innerHTML = rn.hints ? list.slice(0, rn.hints).map(function (h, i) { return '<div class="hint"><b>' + HL[i] + "</b>" + esc(h) + "</div>"; }).join("") : '<p class="note" style="margin:0">No hints taken.</p>';
+    var b = $("hintBtn"); if (rn.hints >= 3) { b.textContent = "All three hints taken"; b.disabled = true; } else { b.textContent = "Take hint " + (rn.hints + 1) + ": " + HL[rn.hints] + " (−" + E.HINT_COST + ")"; b.disabled = rn.solved; }
+  }
+  function renderRules() {
+    var r = ["<b>Trials (free):</b> choose a curtain (click, tap, or press its number). Augusta opens empty curtains by her stated rule. Then stay or switch: click a closed curtain, or use the buttons (S stay, W switch, R switch at random in Silver). Every curtain is then revealed and the trial is recorded. N starts the next trial.",
+      "<b>Automatic trials (free):</b> run 10, 100, 1,000 or 10,000 trials of each strategy (Gold: of her biased opening). Type a seed to make a run repeatable. Results are real random trials of the stated rules, never adjusted.",
+      "<b>Gold:</b> the stage shows the situation in question. “Watch her play once” (W) runs one real trial with her weights; Q returns to the question. In the Trial Ledger, tick “only trials where she opened Curtains 3 and 4” to see where the emblem was in those trials.",
+      "<b>The Prediction Card:</b> your formal answer. Write exact fractions such as 3/7; equivalent fractions such as 6/14 count as the same. Decimals, percentages, zero denominators and numbers above 1 are refused with an explanation and cost nothing.",
+      "<b>Scoring:</b> 100, less 12 per hint and 8 per wrong answer (at most 24). Trials, simulations, the ledger and the worksheet are always free. Penalties are kept through reloads until your first completion; only that is recorded on the Keyring. Later answers are practice.",
+      "<b>Achievements:</b> ♦ Against the Odds is the first completion of a challenge with no hints and no wrong answer. ✸ Master of Chance is the first completion of Gold with no hints and the exact fraction at the first answer.",
+      "<b>Sealed values:</b> exact chances in the Trial Ledger and the Probability Table stay sealed until you answer that challenge.",
+      "<b>Sound</b> is optional and off by default; nothing is conveyed by sound or colour alone. There is no time limit."];
+    $("rulesList").innerHTML = r.map(function (x) { return "<li>" + x + "</li>"; }).join("");
+  }
+
+  /* ---------- the Fortune-Teller's Ledger ---------- */
+  var NB_STATES = [{ id: "u", sym: "·", label: "Unmarked", key: "u" }, { id: "y", sym: "✓", label: "Convinced", key: "y" }, { id: "n", sym: "✕", label: "Ruled out", key: "n" }, { id: "q", sym: "?", label: "Testing", key: "q" }];
+  var LEDGER = { bronze: { title: "Claims to test", rows: ["After her reveal, the two closed curtains are equally likely", "Staying wins about one time in three", "Switching wins about two times in three", "Her reveal changes my own curtain's chance"] },
+    silver: { title: "Claims to test", rows: ["Staying wins one time in five", "Each other closed curtain holds the emblem four times in five", "The two other closed curtains together hold it four times in five", "One other closed curtain holds it two times in five", "Switching at random beats staying"] },
+    gold: { title: "Claims to test", rows: ["Every closed curtain is still equally likely", "Curtain 2 still being closed is a clue", "Curtain 1 keeps exactly its 1/5", "An unbiased host would give a different answer", "The order she opened 3 and 4 is needed"] } };
+  function nbConfig(t) { var L = LEDGER[t]; return { intro: "Mark what your trials and reasoning suggest. The ledger never checks your marks.", boards: [{ id: "a", type: "list", title: L.title, help: "Your own judgements. Never checked.", rows: L.rows.map(function (x, k) { return { id: "r" + k, label: x }; }) }], notesLabel: "Notes", notesPlaceholder: t === "gold" ? "e.g. if the emblem is behind Curtain 5, she draws from 2, 3, 4 …" : "e.g. after 100 trials of each …" }; }
+  var nb = DQToolkit.Notebook({ mount: $("nb"), storageKey: "dq-chaortal-17-notebook-v1", tiers: ORDER, getTier: function () { return S.tier; }, config: nbConfig, states: NB_STATES });
+  function makeLog() { return DQToolkit.Log({ mount: $("log"), storageKey: "dq-chaortal-17-log-v1", tiers: ORDER, getTier: function () { return S.tier; },
+    intro: "Your deductions, your trials, automatic batches, hints and answers (newest first). Add a comment to any entry.", emptyText: "Nothing recorded yet." }); }
+  var log = makeLog();
+  $("dedBtn").onclick = function () { var v = $("dedIn").value.trim(); if (!v) return; log.add("Deduction: " + v.slice(0, 200)); $("dedIn").value = ""; log.render(); };
+  $("dedIn").onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); $("dedBtn").click(); } };
+  var POLICY = {
+    bronze: ["The emblem is placed uniformly: 1/3 per curtain.", "She knows where it is; she never opens your curtain or the emblem's.", "She opens one empty curtain; with two to choose from, a fair coin decides."],
+    silver: ["The emblem is placed uniformly: 1/5 per curtain.", "She opens exactly two empty curtains you did not choose.", "She picks uniformly among the allowed pairs (6 if your curtain hides the emblem, else 3).", "A random switch: one of the two other closed curtains, 1/2 each."],
+    gold: ["The emblem is placed uniformly: 1/5 per curtain. You hold Curtain 1.", "She opens two empty curtains one at a time, never yours, never the emblem's.", "Each draw is in proportion to the weights of the curtains still allowed: Curtain 2 → 2; Curtains 3, 4, 5 → 1.", "You observed the unordered pair {3, 4}: both orders count."]
+  };
+  function parseLoose(s) { var t = String(s).trim().replace(/−/g, "-"), m = /^(-?\d{1,9})(?:\s*\/\s*(\d{1,9}))?$/.exec(t); if (!m) return null; var d = m[2] === undefined ? 1 : +m[2]; if (d === 0) return { zero: true }; return E.F(+m[1], d); }
+  $("fGo").onclick = function () { var a = parseLoose($("fa").value), b = parseLoose($("fb").value), op = $("fop").value, out = $("fOut");
+    WS.fa = $("fa").value.slice(0, 21); WS.fb = $("fb").value.slice(0, 21); WS.fop = op; saveWS();
+    if (!a || !b) { out.textContent = "Enter two whole numbers or fractions."; return; }
+    if (a.zero || b.zero) { out.textContent = "A denominator cannot be zero."; return; }
+    try { var r = op === "+" ? E.add(a, b) : op === "-" ? E.sub(a, b) : op === "*" ? E.mul(a, b) : E.div(a, b); out.textContent = "= " + E.str(r); } catch (e) { out.textContent = "Division by zero is undefined."; } };
+
+  /* ---------- keyring ---------- */
+  function renderRing() {
+    var rows = ORDER.map(function (t) { var r = K.tier(DOOR, t);
+      return "<tr><th scope=\"row\">" + TNAME[t] + "</th><td>" + (r && r.solved ? "Earned" + (r.hintFree ? " ★" : "") : "—") + "</td><td>" + (r && r.best !== null ? r.best : "—") + "</td><td>" + (r && r.fewestHints !== null ? r.fewestHints : "—") + "</td><td>" + [K.hasAch(DOOR, t, "against-the-odds") ? "♦ Against the Odds" : "", K.hasAch(DOOR, t, "master-of-chance") ? "✸ Master of Chance" : ""].filter(Boolean).join(" · ") + "</td><td>" + (r ? r.attempts : 0) + "</td></tr>"; }).join("");
+    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Plays</th></tr></thead><tbody>' + rows + "</tbody>";
+    $("kslots").innerHTML = K.summary().map(function (d) {
+      var hf = d.key && d.tiers[d.key] && d.tiers[d.key].hintFree, mc = K.TIERS.filter(function (t) { return d.tiers[t] && d.tiers[t].achievements && Object.keys(d.tiers[t].achievements).length; }).length;
+      return '<div class="slot' + (d.key ? " has " + d.key : "") + '"><span class="n">No. ' + d.id + " · " + d.verb + '</span><span class="t">' + esc(d.title) + "</span>" +
+        (d.key ? '<span class="k">' + d.key + " key" + (hf ? " ★" : "") + "</span>" + (mc ? '<span class="k" style="color:var(--bronze)">Mastery ×' + mc + "</span>" : "") : '<span class="k" style="color:var(--muted)">' + (d.id === DOOR ? "Not yet earned" : "Locked") + "</span>") + "</div>";
+    }).join("");
+  }
+  $("exportBtn").onclick = function () { var blob = new Blob([K.exportText()], { type: "application/json" }), a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "doorquests-keyring.json"; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0); $("ringMsg").textContent = "Keyring exported."; };
+  $("importFile").onchange = function () { var f = this.files && this.files[0], input = this; if (!f) return;
+    if (f.size > 200000) { $("ringMsg").textContent = "That file is too large to be a Keyring."; this.value = ""; return; }
+    f.text().then(function (txt) { var r = K.importText(txt); $("ringMsg").textContent = r.ok ? "Keyring imported. " + (r.added ? r.added + " new tier" + (r.added > 1 ? "s" : "") + " added; " : "") + "nothing was downgraded." : r.error; input.value = ""; renderAll(); }); };
+  var resetArmed = false;
+  $("resetBtn").onclick = function () {
+    if (!resetArmed) { resetArmed = true; $("resetBtn").textContent = "Really erase every key? Press again"; $("ringMsg").textContent = "This erases all Chaortal keys and achievements in this browser, plus this door's trials, ledger, worksheet and journal."; return; }
+    resetArmed = false; K.reset(); nb.clearAll(); log.clearAll(); log = makeLog(); S = freshState(); WS = freshWS(); saveState(); saveWS(); say(""); $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = "Progress erased."; renderAll(); };
+  $("resetBtn").onblur = function () { if (resetArmed) { resetArmed = false; $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = ""; } };
+
+  /* ---------- prefs, sound, keys ---------- */
+  var actx = null;
+  function audio() { if (!S.sound) return null; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } return actx; }
+  function blip(freq, dur, vol, type) { var a = audio(); if (!a) return; var o = a.createOscillator(), g = a.createGain(); o.type = type || "sine"; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, a.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur); o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + dur); }
+  function motionOK() { return S.motion === null ? !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) : S.motion; }
+  function applyPrefs() { document.documentElement.classList.toggle("rm", !motionOK()); $("motionBtn").textContent = motionOK() ? "Reduce motion" : "Allow motion";
+    $("soundBtn").textContent = "Sound: " + (S.sound ? "on" : "off"); $("soundBtn").setAttribute("aria-pressed", S.sound); }
+  $("motionBtn").onclick = function () { S.motion = !motionOK(); saveState(); applyPrefs(); };
+  $("soundBtn").onclick = function () { S.sound = !S.sound; saveState(); applyPrefs(); };
+  var liveT = null;
+  function say(text, cls) { clearTimeout(liveT); var m = $("msg"); m.textContent = text; m.className = "msg" + (cls ? " " + cls : ""); }
+  document.addEventListener("keydown", function (e) {
+    var a = document.activeElement, k = e.key;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.closest("#nbBox") || a.closest("#card"))) return;
+    var t = S.tier;
+    if (t === "gold") { if (k === "w" || k === "W") { e.preventDefault(); goldDemo(); } else if ((k === "q" || k === "Q") && S.booth.gold) { e.preventDefault(); nextTrial(); } return; }
+    var b = booth();
+    if (/^[1-5]$/.test(k) && +k <= E.TIERS[t].curtains) { e.preventDefault(); curtainClick(+k); return; }
+    if (b.phase === "decide") {
+      if (k === "s" || k === "S") { e.preventDefault(); finish("stay"); return; }
+      if ((k === "w" || k === "W") && t === "bronze") { e.preventDefault(); finish("switch"); return; }
+      if ((k === "r" || k === "R") && t === "silver") { e.preventDefault(); finish("rswitch"); return; }
+    }
+    if ((k === "n" || k === "N") && b.phase === "result") { e.preventDefault(); nextTrial(); }
+  });
+
+  function renderMeters() {
+    var rn = run(), tr = S.trials[S.tier], n = S.tier === "gold" ? tr.manual.n + tr.auto.n : STRATS[S.tier].reduce(function (s, k) { return s + tr.manual[k].n + tr.auto[k].n; }, 0);
+    $("meters").innerHTML = "<div>Wrong answers <b>" + rn.wrong + "</b></div><div>Hints <b>" + rn.hints + "</b></div><div>Trials (free) <b>" + fmt(n) + "</b></div><div>Score <b>" + (rn.solved ? rn.score : E.score(S.tier, rn)) + "</b></div>";
+  }
+  function renderAll() {
+    var rn = run(), t = S.tier;
+    $("briefTitle").textContent = TEXT[t].title; $("briefText").textContent = TEXT[t].intro; $("briefRule").innerHTML = TEXT[t].rule;
+    $("briefScore").textContent = "Scoring: 100, less 12 per hint and 8 per wrong answer (at most 24). Trials, simulations and the ledger are free. Your first completion is recorded.";
+    $("keysHelp").innerHTML = t === "gold" ? "Keys: <kbd>W</kbd> watch her play once · <kbd>Q</kbd> back to the question · Tab to the Prediction Card" : "Keys: <kbd>1</kbd>–<kbd>" + E.TIERS[t].curtains + "</kbd> choose a curtain · <kbd>S</kbd> stay · " + (t === "bronze" ? "<kbd>W</kbd> switch" : "<kbd>R</kbd> switch at random") + " · <kbd>N</kbd> next trial";
+    $("seedIn").value = S.seed;
+    $("policyRef").innerHTML = POLICY[t].map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("");
+    $("fa").value = WS.fa; $("fb").value = WS.fb; $("fop").value = WS.fop;
+    renderScene(); renderTiers(); renderStage(); renderCard(); renderLedger(); renderProb(); renderHints(); renderRules(); renderRing(); nb.render(); log.render();
+    var a = $("award"); if (rn.solved) { if (a.hidden || a.dataset.t !== t) { a.hidden = false; a.className = "award"; a.dataset.t = t; a.innerHTML = awardHtml(null); bindAward(a); } } else { a.hidden = true; a.innerHTML = ""; a.dataset.t = ""; }
+  }
+  $("hintBtn").onclick = function () { var rn = run(); if (rn.solved || rn.hints >= 3) return; rn.hints++; saveState(); log.add("Took hint " + rn.hints + "."); renderHints(); renderMeters(); };
+  applyPrefs(); renderAll();
+  window.__fb = { S: function () { return JSON.parse(JSON.stringify(S)); }, WS: function () { return JSON.parse(JSON.stringify(WS)); }, E: E, K: K }; // test hook
+})();
+</script>
+<!-- Cloudflare Web Analytics -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3f72232588414cf087bd7c4ed5e4ddaa"}'></script>
+<!-- End Cloudflare Web Analytics -->
+</body>
+</html>
