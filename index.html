@@ -227,7 +227,7 @@ section.band{padding-block:clamp(56px,8vw,104px)}
 .gamortal-door .puzzle-art .p10{fill:#7a3ca3}.gamortal-door .puzzle-art .p11{fill:#2f8f87}.gamortal-door .puzzle-art .p12{fill:#b58a31}
 .gamortal-door .leaf::after{right:12%;top:58%;width:10%;z-index:4;background:radial-gradient(circle at 35% 35%,#FFE8B0,var(--gold) 55%,#7a5a22);box-shadow:0 2px 8px rgba(0,0,0,.35)}
 .realm.challenges .chaortal-door{width:120px;margin-bottom:4px}
-#first-chaortal .feature:hover .chaortal-door .leaf,#first-chaortal .feature:focus-within .chaortal-door .leaf{transform:rotateY(-44deg)}
+#today-chaortal .feature:hover .chaortal-door .leaf,#today-chaortal .feature:focus-within .chaortal-door .leaf{transform:rotateY(-44deg)}
 @media(max-width:680px){.realm.challenges .chaortal-door{width:92px;grid-row:span 4;margin-bottom:0}}
 @media (max-width:1050px){.realms{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:680px){.realms{grid-template-columns:1fr}.realm{grid-template-columns:auto minmax(0,1fr);justify-items:start;text-align:left;align-items:center;column-gap:22px}
@@ -336,16 +336,16 @@ footer .legal-details{font-size:.84rem}
     </div>
   </section>
 
-  <section class="band" id="first-chaortal" aria-labelledby="first-chaortal-title">
+  <section class="band" id="today-chaortal" aria-labelledby="today-chaortal-title">
     <div class="wrap">
       <article class="feature">
-        <a class="portal chaortal-door g-sea" href="/challenges/the-door-of-three-keys/" target="_blank" rel="noopener noreferrer" aria-label="Open Chaortal 01: The Door of Three Keys (opens in a new tab)"><span class="halo"></span><span class="frame"></span><span class="light"></span><span class="leaf"><svg class="puzzle-lines" viewBox="0 0 100 160" aria-hidden="true"><path d="M0 54H30V77H51 M100 48H78V70 M0 116H23V98H41 M100 121H72V103H59 M28 160V138H48"/></svg><span class="num">01</span></span></a>
+        <a class="portal chaortal-door ch-twowardens g-purple" id="today-chaortal-door" href="/challenges/the-two-wardens/" target="_blank" rel="noopener noreferrer" aria-label="Open Chaortal 21: The Two Wardens (opens in a new tab)"><span class="halo"></span><span class="frame"></span><span class="light"></span><span class="leaf"><svg class="puzzle-lines" viewBox="0 0 100 160" aria-hidden="true"><path d="M0 54H30V77H51 M100 48H78V70 M0 116H23V98H41 M100 121H72V103H59 M28 160V138H48"/></svg><span class="num" id="today-chaortal-number">21</span></span></a>
         <div class="feature-copy">
-          <span class="eyebrow">Our First Chaortal · Now Open</span>
-          <h3 id="first-chaortal-title" class="goldtext">The Door of Three Keys</h3>
-          <p class="logline">Enter a candlelit locksmith's library. One inscription tells the truth. Which key opens the door? Work through Bronze, Silver and Gold, use the optional Investigator's Ledger to organize your deductions, and earn a collectible key.</p>
-          <ul class="facts"><li>DEDUCE</li><li>Three difficulty tiers</li><li>Investigator's Ledger</li></ul>
-          <a class="btn btn-gold" href="/challenges/the-door-of-three-keys/" target="_blank" rel="noopener noreferrer">Unlock Our First Chaortal <span aria-hidden="true">→</span></a>
+          <span class="eyebrow" id="today-chaortal-eyebrow">Today's Chaortal · No. 21</span>
+          <h3 id="today-chaortal-title" class="goldtext">The Two Wardens</h3>
+          <p class="logline" id="today-chaortal-description">At an Edo-era checkpoint, ask one question to determine which warden tells the truth. Three difficulty tiers challenge your logic and reward you with Keyring seals.</p>
+          <ul class="facts"><li id="today-chaortal-verb">ASK · One-Question Logic</li><li>Bronze · Silver · Gold</li><li>Earn your Keyring seals</li></ul>
+          <a class="btn btn-gold" id="today-chaortal-link" href="/challenges/the-two-wardens/" target="_blank" rel="noopener noreferrer">Unlock Today's Chaortal <span aria-hidden="true">→</span></a>
         </div>
       </article>
     </div>
@@ -692,6 +692,39 @@ footer .legal-details{font-size:.84rem}
   }
   renderCluortals();
   window.setInterval(renderCluortals,60000);
+  /* Daily Chaortal: reuse the published gallery as the authoritative roster.
+     A day beyond available releases features the latest official door instead of linking to an unbuilt challenge. */
+  function renderTodayChaortal(){
+    const entries=Array.from(document.querySelectorAll(".chaortals-wall a.card")).map(a=>{
+      const number=Number((a.querySelector(".num")||{}).textContent);
+      const portal=a.querySelector(".chaortal-door");
+      const title=a.querySelector(".cap .t");
+      const verb=a.querySelector(".cap .g");
+      return {number,href:a.getAttribute("href"),title:title&&title.textContent,verb:verb&&verb.textContent,classes:portal&&portal.className};
+    }).filter(x=>Number.isInteger(x.number)&&x.number>=1&&x.number<=31&&x.href&&x.title&&x.verb&&x.classes);
+    if(!entries.length)return;
+    const day=new Date().getDate();
+    const current=entries.find(x=>x.number===day);
+    const selected=current||entries.reduce((latest,x)=>x.number>latest.number?x:latest);
+    const fallback=!current;
+    const door=document.getElementById("today-chaortal-door");
+    door.className=selected.classes;
+    door.href=selected.href;
+    door.setAttribute("aria-label","Open Chaortal "+String(selected.number).padStart(2,"0")+": "+selected.title+" (opens in a new tab)");
+    document.getElementById("today-chaortal-number").textContent=String(selected.number).padStart(2,"0");
+    document.getElementById("today-chaortal-eyebrow").textContent=(fallback?"Featured Chaortal":"Today's Chaortal")+" · No. "+selected.number;
+    document.getElementById("today-chaortal-title").textContent=selected.title;
+    document.getElementById("today-chaortal-verb").textContent=selected.verb;
+    document.getElementById("today-chaortal-description").textContent=fallback
+      ? "Door "+String(day).padStart(2,"0")+" is not yet published. Until then, explore "+selected.title+"—one of our official interactive challenges with Bronze, Silver and Gold tiers."
+      : "Today, unlock "+selected.title+". Explore its Bronze, Silver and Gold challenges, exercise your reasoning, and collect seals for your shared Keyring.";
+    const link=document.getElementById("today-chaortal-link");
+    link.href=selected.href;
+    link.firstChild.textContent=fallback?"Unlock Featured Chaortal ":"Unlock Today's Chaortal ";
+  }
+  renderTodayChaortal();
+  window.setInterval(renderTodayChaortal,60000);
+
 })();
 </script>
 <!-- Cloudflare Web Analytics -->
