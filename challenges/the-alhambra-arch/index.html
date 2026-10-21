@@ -8,6 +8,12 @@
 <!-- Official Chaortal No. 15 -->
 <meta name="description" content="Chaortal No. 15: The Alhambra Arch. A tile-setter's workshop in fourteenth-century Granada: fit glazed ceramic pieces exactly into an arch panel, turn them to fit an arch surround, and set a star medallion that must match the master's colour drawing.">
 <link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DoorQuests">
+<meta property="og:title" content="The Alhambra Arch | DoorQuests Chaortal No. 15">
+<meta property="og:description" content="Fit, turn and arrange glazed tiles in three exact-tiling challenges inspired by Nasrid Granada.">
+<meta name="twitter:card" content="summary">
+<!-- Add rel=canonical and og:url only after the exact public URL has been verified. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Alegreya:ital,wght@0,400;0,600;1,400&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
 <style>
@@ -267,7 +273,8 @@ footer a{color:var(--accent)}
             <button type="button" class="hbtn" id="rotL" aria-label="Turn anticlockwise (Shift+R)">⟲ Turn</button>
             <button type="button" class="hbtn" id="rotR" aria-label="Turn clockwise (R)">Turn ⟳</button>
             <button type="button" class="hbtn go" id="setBtn">Set here (Enter)</button>
-            <button type="button" class="hbtn" id="backBtn">Back to table (Esc)</button>
+            <button type="button" class="hbtn" id="backBtn">Cancel move (Esc)</button>
+            <button type="button" class="hbtn" id="tableBtn" hidden>Remove tile to table (Delete)</button>
           </div>
           <div class="pad" aria-label="Move the held tile">
             <button type="button" class="hbtn" data-mv="-1,0" aria-label="Move left">◀</button><button type="button" class="hbtn" data-mv="0,-1" aria-label="Move up">▲</button><button type="button" class="hbtn" data-mv="0,1" aria-label="Move down">▼</button><button type="button" class="hbtn" data-mv="1,0" aria-label="Move right">▶</button><span></span>
@@ -278,7 +285,7 @@ footer a{color:var(--accent)}
       </div>
     </div>
     <p class="msg" id="msg" role="status" aria-live="polite"></p>
-    <div class="shopfoot"><span>Pick up a tile, then click or tap the panel to set it (or drag it with a mouse). Keys: <kbd>Tab</kbd> to a tile · <kbd>Enter</kbd> pick up / set · arrows move · <kbd>R</kbd>/<kbd>Shift</kbd>+<kbd>R</kbd> turn · <kbd>Esc</kbd> back · <kbd>Z</kbd>/<kbd>Y</kbd> undo/redo</span><button class="chip" id="soundBtn" type="button"></button></div>
+    <div class="shopfoot"><span>Pick up a tile, then click or tap the panel to set it (or drag it with a mouse). Keys: <kbd>Tab</kbd> to a tile · <kbd>Enter</kbd> pick up / set · arrows move · <kbd>R</kbd>/<kbd>Shift</kbd>+<kbd>R</kbd> turn · <kbd>Esc</kbd> cancel · <kbd>Delete</kbd> remove set tile · <kbd>Z</kbd>/<kbd>Y</kbd> undo/redo (while panel focused)</span><button class="chip" id="soundBtn" type="button"></button></div>
   </section>
 
   <nav class="tiers" aria-label="Choose a commission" id="tiers"></nav>
@@ -1011,12 +1018,15 @@ if (typeof module !== "undefined") module.exports = ALHAMBRA;
   function reasonWords(res) { return res.reason === "outside" ? "part of it would lie outside the panel" + (res.overlap.length ? " and over tile " + res.overlap.map(function (j) { return T().pieces[j].id; }).join(", ") : "") : res.reason === "overlap" ? "it would overlap tile " + res.overlap.map(function (j) { return T().pieces[j].id; }).join(" and ") : res.reason === "turn" ? "tiles are not turned in this commission" : "that is not a position on the panel"; }
   function pickUp(i, how) {
     if (locked()) return; restartArmed = false;
-    if (held && held.i === i) { putBack(); return; }
+    if (held && held.i === i) { putBack(); $("panel").focus({ preventScroll: true }); return; }
     if (held) putBack(true);
     var rn = run(), pl = rn.placements[i];
     held = { i: i, rot: pl ? pl.rot : rn.tableRot[i], from: pl ? { rot: pl.rot, x: pl.x, y: pl.y } : null, ax: pl ? pl.x : null, ay: pl ? pl.y : null };
     if (held.ax === null && how === "key") centreHeld();
     blip(660, .05, .03, "triangle"); say(holdWords()); renderAll();
+    // Give pointer and touch players the same active game controls as keyboard players.
+    // Focus stays within the game, with no automatic scrolling.
+    if (held && (how === "click" || how === "drag")) $("panel").focus({ preventScroll: true });
   }
   function centreHeld() { var b = E.bbox(heldShape()), d = T(); held.ax = Math.max(0, Math.floor((d.W - b.w) / 2)); held.ay = Math.max(0, Math.floor((d.H - b.h) / 2)); }
   function putBack(quiet) { // cancel: back to the previous legal position (the panel spot it came from, or the table)
@@ -1186,7 +1196,9 @@ if (typeof module !== "undefined") module.exports = ALHAMBRA;
     $("holdText").textContent = held ? holdWords() : run().solved ? "This panel is finished." : "Pick up a tile: click or tap it, or Tab to it and press Enter.";
     ["rotL", "rotR"].forEach(function (id) { $(id).hidden = !d.rotate; $(id).disabled = !held; });
     $("setBtn").disabled = !held || held.ax === null; $("backBtn").disabled = !held;
-    $("backBtn").textContent = held && held.from ? "Back to table" : "Put down (Esc)";
+    $("backBtn").textContent = "Cancel move (Esc)";
+    $("tableBtn").hidden = !(held && held.from);
+    $("tableBtn").disabled = !(held && held.from);
     bar.querySelectorAll("[data-mv]").forEach(function (b) { b.disabled = !held; });
   }
   function renderMeters() {
@@ -1231,22 +1243,25 @@ if (typeof module !== "undefined") module.exports = ALHAMBRA;
     if (!held || Date.now() - dragEnded < 300) return; var c = cellAt(e); if (!c || !c.inside) return;
     aimAt(c.cx, c.cy); setHeld(false);
   });
-  document.addEventListener("keydown", function (e) {
-    var a = document.activeElement, k = e.key;
-    if (e.ctrlKey || e.metaKey) { if (!(a && /^(INPUT|TEXTAREA)$/.test(a.tagName))) { if ((k === "z" || k === "Z") && !e.shiftKey) { e.preventDefault(); undo(); } else if (k === "y" || k === "Y" || ((k === "z" || k === "Z") && e.shiftKey)) { e.preventDefault(); redo(); } } return; }
-    if (e.altKey) return;
-    if (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.closest("#nbBox"))) return;
-    var mv = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[k];
-    if (mv && held) { e.preventDefault(); moveHeld(mv[0], mv[1]); return; }
-    if (k === "r" || k === "R") { e.preventDefault(); turnHeld(e.shiftKey ? -1 : 1); return; }
-    if (k === "Escape") { if (held) { e.preventDefault(); putBack(); } return; }
-    if ((k === "Enter" || k === " ") && held && a && (a.id === "panel" || a === document.body)) { e.preventDefault(); setHeld(false); return; }
-    if ((k === "Backspace" || k === "Delete") && held) { e.preventDefault(); toTable(); return; }
-    if (k === "z" || k === "Z") { e.preventDefault(); undo(); return; } if (k === "y" || k === "Y") { e.preventDefault(); redo(); return; }
-    if ((k === "p" || k === "P") && S.tier === "gold") { e.preventDefault(); present(); }
-  });
+   // Gameplay shortcuts are restricted to the focused panel. Standard buttons, links,
+   // form inputs, browser shortcuts and assistive-technology controls retain their keys.
+   $("panel").addEventListener("keydown", function (e) {
+     if (e.altKey || e.ctrlKey || e.metaKey || e.isComposing) return;
+     var k = e.key;
+     var mv = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[k];
+     if (mv && held) { e.preventDefault(); moveHeld(mv[0], mv[1]); return; }
+     if ((k === "r" || k === "R") && held) { e.preventDefault(); turnHeld(e.shiftKey ? -1 : 1); return; }
+     if (k === "Escape" && held) { e.preventDefault(); putBack(); return; }
+     if ((k === "Enter" || k === " ") && held) { e.preventDefault(); setHeld(false); return; }
+     if ((k === "Backspace" || k === "Delete") && held && held.from) { e.preventDefault(); toTable(); return; }
+     if ((k === "z" || k === "Z") && !e.shiftKey) { e.preventDefault(); undo(); return; }
+     if ((k === "y" || k === "Y") || ((k === "z" || k === "Z") && e.shiftKey)) { e.preventDefault(); redo(); return; }
+     if ((k === "p" || k === "P") && S.tier === "gold") { e.preventDefault(); present(); }
+   });
+
   $("rotL").onclick = function () { turnHeld(-1); }; $("rotR").onclick = function () { turnHeld(1); };
-  $("setBtn").onclick = function () { setHeld(false); }; $("backBtn").onclick = function () { if (held && held.from) toTable(); else putBack(); };
+   $("setBtn").onclick = function () { setHeld(false); }; $("backBtn").onclick = function () { putBack(); };
+   $("tableBtn").onclick = function () { toTable(); };
   $("holdbar").querySelectorAll("[data-mv]").forEach(function (b) { b.onclick = function () { var d = b.dataset.mv.split(",").map(Number); moveHeld(d[0], d[1]); }; });
 
   function say(text, cls) { clearTimeout(liveT); var m = $("msg"); m.textContent = text; m.className = "msg" + (cls ? " " + cls : ""); }
@@ -1279,8 +1294,9 @@ if (typeof module !== "undefined") module.exports = ALHAMBRA;
   function renderRules() {
     var r = ["<b>Picking up and setting:</b> click or tap a tile on the worktable to pick it up, then click or tap the panel where it should go. With a mouse you can also drag a tile straight onto the panel. A tile that does not fit is never forced in: it stays in your hand (or, after a drag, returns to where it was) and the message says why.",
       "<b>Fitting spots:</b> while you hold a tile, gold dots mark every place it would fit as currently turned, given the tiles already set. They show legal fits only, never the answer; hide them with the chip under the panel.",
-      "<b>Keyboard:</b> Tab to a tile and press Enter to pick it up; the arrow keys move it over the panel; R turns it clockwise, Shift+R anticlockwise; Enter sets it; Esc puts it back where it was; Backspace returns a set tile to the worktable. The “On the panel” list lifts any set tile. Z undo, Y redo" + "; P presents the Gold star.",
-      "<b>Screen readers:</b> each tile's button describes its glaze, size, turn and footprint row by row; the readout under the panel announces the held tile's position and whether it fits, overlaps or lies outside.",
+      "<b>Keyboard:</b> Tab to a tile and press Enter to pick it up; the arrow keys move it over the panel; R turns it clockwise, Shift+R anticlockwise; Enter sets it; Esc cancels the move and restores the original position; Delete or Backspace removes a set tile to the worktable. The “On the panel” list selects a set tile. With the panel focused, Z undoes and Y redoes" + "; P presents the Gold star.",
+      "<b>Shortcuts:</b> letter-key shortcuts work only while the tiling panel has keyboard focus; the visible control buttons work at any time. Browser and form shortcuts are unaffected.",
+       "<b>Screen readers:</b> each tile's button describes its glaze, size, turn and footprint row by row; the readout under the panel announces the held tile's position and whether it fits, overlaps or lies outside.",
       "<b>Turning (Silver and Gold):</b> quarter-turns only, about the tile's own centre; the true footprint turns, not just the picture. Flipping is never possible.",
       "<b>Scoring:</b> 100, less 12 per hint and, in Gold, 8 per incorrect presentation (at most 24). Picking up, moving, turning, lifting, undo, redo and restart are free. Penalties are kept through restarts and reloads until your first completion.",
       "<b>Completion:</b> Bronze and Silver complete themselves the moment the last tile is legally set, because a full legal panel cannot be wrong. Gold must be presented: a perfect fit can still break the colour rule.",
@@ -1314,7 +1330,7 @@ if (typeof module !== "undefined") module.exports = ALHAMBRA;
   function renderRing() {
     var rows = ORDER.map(function (t) { var r = K.tier(DOOR, t);
       return "<tr><th scope=\"row\">" + { bronze: "Bronze", silver: "Silver", gold: "Gold" }[t] + "</th><td>" + (r && r.solved ? "Set" + (r.hintFree ? " ★" : "") : "—") + "</td><td>" + (r && r.best !== null ? r.best : "—") + "</td><td>" + (r && r.fewestHints !== null ? r.fewestHints : "—") + "</td><td>" + [K.hasAch(DOOR, t, "master-of-the-fit") ? "✦ Fit" : "", K.hasAch(DOOR, t, "nasrid-geometer") ? "✸ Geometer" : ""].filter(Boolean).join(" · ") + "</td><td>" + (r ? r.attempts : 0) + "</td></tr>"; }).join("");
-    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Plays</th></tr></thead><tbody>' + rows + "</tbody>";
+    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Completed attempts</th></tr></thead><tbody>' + rows + "</tbody>";
     $("slots").innerHTML = K.summary().map(function (d) {
       var hf = d.key && d.tiers[d.key] && d.tiers[d.key].hintFree, mc = K.TIERS.filter(function (t) { return d.tiers[t] && d.tiers[t].achievements && Object.keys(d.tiers[t].achievements).length; }).length;
       return '<div class="slot' + (d.key ? " has " + d.key : "") + '"><span class="n">No. ' + d.id + " · " + d.verb + '</span><span class="t">' + esc(d.title) + "</span>" +
