@@ -7,6 +7,12 @@
 <meta name="robots" content="index,follow">
 <meta name="description" content="Chaortal No. 21: The Two Wardens. At a fictional mountain checkpoint in Edo-period Japan, build questions that a truthful warden, a lying warden, and an alternating one cannot bend, even when their yes and no are the unknown words KA and TO, and prove which gate is safe.">
 <link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DoorQuests">
+<meta property="og:title" content="The Two Wardens | DoorQuests Chaortal No. 21">
+<meta property="og:description" content="ASK through Bronze, Silver, and Gold: uncover the safe gate with questions that withstand truth, lies, and unfamiliar words.">
+<meta name="twitter:card" content="summary">
+<!-- Canonical and og:url pending confirmation of the exact public Door #21 URL. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Josefin+Sans:wght@600;700&display=swap">
 <style>
@@ -717,7 +723,7 @@ if (typeof module !== "undefined") module.exports = DQToolkit;
    the next answer he gives. Bronze words are "yes" and "no"; Silver and Gold use the invented tokens KA and TO, one meaning yes.
    Certification: a question is SOUND if every reply it could receive (over the hidden cases still possible) leaves the
    remaining questions able to settle the safe gate in every case; a gate is accepted only if every hidden case consistent
-   with the replies has that gate safe. Neither judgement consults the actual hidden case. The engine stores no answer. */
+   with the replies has that gate safe. Neither judgement consults the actual hidden case. The chosen hidden case is stored as browser-local progress; the solver does not consult it when certifying a question or gate. */
 var TWOWARDENS = (function () {
   "use strict";
   var NAMES = { I: "indigo", O: "olive", U: "umber" };
@@ -996,7 +1002,8 @@ if (typeof module !== "undefined") module.exports = TWOWARDENS;
     ["L", "R"].forEach(function (g) { var x = g === "L" ? 220 : 980, lit = open === g;
       h += '<path d="M' + (x - 60) + " 350 Q" + (x + (g === "L" ? -60 : 60)) + " 290 " + (x + (g === "L" ? -150 : 150)) + ' 230" stroke="' + (lit ? "#c9a46a" : "#4b4036") + '" stroke-width="' + (lit ? 26 : 18) + '" fill="none" opacity=".9"/>';
       if (lit) [0.25, 0.5, 0.75].forEach(function (f) { var lx = x - 60 + ((x + (g === "L" ? -150 : 150)) - (x - 60)) * f, ly = 350 - 120 * f; h += '<circle class="glow" cx="' + lx.toFixed(0) + '" cy="' + (ly - 18).toFixed(0) + '" r="26" fill="url(#lg)"/><rect x="' + (lx - 5).toFixed(0) + '" y="' + (ly - 26).toFixed(0) + '" width="10" height="14" rx="4" fill="#ffcf6a"/>'; }); });
-    // the courtyard    h += '<rect y="340" width="1200" height="120" fill="' + (t === "gold" ? "#3b3326" : "#8a7556") + '"/><path d="M0 352 H1200" stroke="rgba(0,0,0,.25)" stroke-width="2"/>';
+    // the courtyard
+    h += '<rect y="340" width="1200" height="120" fill="' + (t === "gold" ? "#3b3326" : "#8a7556") + '"/><path d="M0 352 H1200" stroke="rgba(0,0,0,.25)" stroke-width="2"/>';
     for (var s2 = 0; s2 < 26; s2++) h += '<ellipse cx="' + (s2 * 47 + 20) + '" cy="' + (390 + (s2 % 3) * 18) + '" rx="14" ry="5" fill="rgba(0,0,0,.12)"/>';
     // the gates
     h += gate(220, open === "L", "LEFT", "L") + gate(980, open === "R", "RIGHT", "R");
@@ -1069,7 +1076,7 @@ if (typeof module !== "undefined") module.exports = TWOWARDENS;
     $("askBtn").onclick = askNow;
     $("appBody").querySelectorAll("[data-rh]").forEach(function (sel) { sel.onchange = function () { REH[sel.dataset.rh] = sel.value; renderApp(); refocus('[data-rh="' + sel.dataset.rh + '"]'); }; });
   }
-  function refocus(sel) { var el = document.querySelector(sel); if (el) el.focus(); }
+  function refocus(sel) { var el = document.querySelector(sel); if (el && !el.disabled) el.focus({ preventScroll: true }); }
   function setDraft(ch, focusSel) { if (locked()) return; var d = run().draft; Object.keys(ch).forEach(function (k) { d[k] = ch[k]; }); saveState(); renderApp(); refocus(focusSel); var q = draftQuestion(); if (q) liveSay(E.text(q, d.w)); }
   /* ---------- rehearsal: suppose a case, hear the reply (free; never uses the real hidden case) ---------- */
   function roleOptions(t) { var T = E.TIERS[t], out = []; (function perm(a, acc) { if (!a.length) { out.push(acc); return; } a.forEach(function (x, i) { perm(a.slice(0, i).concat(a.slice(i + 1)), acc.concat([x])); }); })(T.roles, []); return out.map(function (p) { return p.join(""); }); }
@@ -1110,7 +1117,7 @@ if (typeof module !== "undefined") module.exports = TWOWARDENS;
     blip(392, .25, .04, "sine");
     var more = E.available(t, rn.hist).length;
     say(Cap(wname(w)) + " answers: “" + r + "”." + (more ? " " + plural(more, "warden remains", "wardens remain") + " to be asked." : " Your questions are spent: choose a gate at the desk."));
-    renderAll(); refocus(more ? "#askBtn" : "#gateL");
+    renderAll(); refocus(more ? (E.available(t, rn.hist).indexOf("I") >= 0 ? '[data-w="I"]' : E.available(t, rn.hist).indexOf("O") >= 0 ? '[data-w="O"]' : '[data-w="U"]') : "#gateL");
   }
   var Cap = function (s) { return s.charAt(0).toUpperCase() + s.slice(1); };
 
@@ -1152,9 +1159,9 @@ if (typeof module !== "undefined") module.exports = TWOWARDENS;
   function whyHtml(t, rn) {
     var rows = rn.hist.map(function (x, i) { var enc = encoding(t, x.w, x.q, rn.hist.slice(0, i));
       return "<tr><td>" + esc(CNAME[x.w]) + "</td><td>" + esc(E.text(x.q, x.w)) + "</td><td>" + esc(x.r) + "</td><td>" + enc.map(function (e) { return "<b>" + E.roleWord(e.role) + ":</b> " + esc(e.text); }).join("<br>") + "</td></tr>"; }).join("");
-    var lesson = { bronze: "Asked about his own answer, a liar lies about a lie, and the two cancel; asked about the other warden's answer, exactly one lie enters either way, so the reply is reliably reversed. Either question makes the reply mean the same gate whoever answers.",
-      silver: "If KA means yes, the question works exactly as in Bronze: his honesty enters twice and cancels, so “KA” means the left gate. If KA means no, every “KA” he speaks is a “no”, but the question also asks about saying “KA” rather than “yes”, so a second reversal enters, and the two cancel again. In all four cases, “KA” comes back exactly when the left gate is safe.",
-      gold: "The nested question makes the truthful and the lying wardens reliable. The alternating warden's imagined next answer falls in his other phase, so his two layers do not cancel and his reply is reversed. Exactly two of the three replies are therefore reliable: the word given by at least two wardens points to the safe gate, and two replies that agree must both be reliable." }[t];
+    var lesson = { bronze: "Questions about a hypothetical answer can cancel the uncertainty of a liar, while questions about another warden can reverse it. The wording and reply determine which gate follows; the inspector checks both possible role assignments before accepting a gate.",
+      silver: "A carefully framed hypothetical can cancel the uncertainty of the warden's honesty and the meaning of KA or TO. The actual question and reply must establish the gate across every compatible case, regardless of whether KA means yes or no.",
+      gold: "The inspector checks every possible role assignment, KA/TO meaning, alternating phase and safe gate against the questions actually asked and replies received. Some strategies use two reliable answers; others adapt the next question to narrow the surviving cases. Only a gate common to every surviving case can open." }[t];
     return '<b>Why the replies prove it.</b><div class="tablewrap2"><table class="mini"><thead><tr><th scope="col">Warden</th><th scope="col">Question</th><th scope="col">Reply</th><th scope="col">How each kind of warden would reply (over every case)</th></tr></thead><tbody>' + rows + "</tbody></table></div><p style=\"margin:8px 0 0\">" + lesson + "</p>"; }
   function complete(g) {
     var t = S.tier, rn = run(); if (rn.solved) return;
