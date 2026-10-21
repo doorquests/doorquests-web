@@ -149,6 +149,11 @@ section.band{padding-block:clamp(56px,8vw,104px)}
 .clue-card .t{font-family:var(--display);font-weight:700;font-size:1.18rem;line-height:1.15;color:var(--ivory)}
 .clue-card .g{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mist)}
 .clue-card .verbline{font-size:.9rem;color:var(--gold);letter-spacing:.12em;text-transform:uppercase}
+.cluortals-wall li[hidden]{display:none}
+.clu-filter-block{display:grid;gap:8px;margin:-12px 0 30px}
+.clu-filter-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.clu-filter-label{min-width:88px;color:var(--mist);font-size:.82rem;font-weight:600;letter-spacing:.06em}
+.clu-filter-empty{margin:0 0 22px;color:var(--mist)}
 @media (max-width:420px){.cluortals-wall{grid-template-columns:repeat(2,minmax(0,1fr))}.clue-card .clue-door{width:78%}}
 
 /* ---------- today's Doortal ---------- */
@@ -412,6 +417,11 @@ footer .legal-details{font-size:.84rem}
         <h2 id="cluortals-title" class="goldtext">31 Cluortals open, one for every day</h2>
         <p>Each Cluortal is an interactive mystery built on evidence, questioning, and deduction. Hover or focus a door to see it open, then step into the investigation. Today's featured Cluortal is above.</p>
       </div>
+      <div class="clu-filter-block" aria-label="Filter Cluortals">
+        <div class="clu-filter-row" role="group" aria-label="Cluortal categories" id="clu-category-filters"></div>
+        <div class="clu-filter-row" role="group" aria-label="Cluortal difficulty" id="clu-difficulty-filters"></div>
+      </div>
+      <p class="clu-filter-empty" id="clu-filter-empty" role="status" hidden>No Cluortals match these filters.</p>
       <ul class="cluortals-wall" id="cluortals-wall"></ul>
     </div>
   </section>
@@ -638,6 +648,37 @@ footer .legal-details{font-size:.84rem}
     {"no":31,"word":"RECONNECT","title":"The Island That Sent No Signal","genre":"Scientific disappearance","difficulty":"Hard","url":"/cases/the-island-that-sent-no-signal/","color":"sea","description":"Reconnect the signals to find five missing scientists."}
   ];
   const cluWall=document.getElementById("cluortals-wall");
+  const cluCategoryFilters=document.getElementById("clu-category-filters");
+  const cluDifficultyFilters=document.getElementById("clu-difficulty-filters");
+  const cluEmpty=document.getElementById("clu-filter-empty");
+  const CLU_CATEGORIES=[["all","All"],["mystery","Mystery"],["crime","Crime"],["intrigue","Intrigue"],["scifi","Sci-fi"],["historical","Historical"],["thriller","Thriller"]];
+  const CLU_DIFFICULTIES=[["all","All"],["easy","Easy"],["medium","Medium"],["hard","Hard"]];
+  const CLU_CATEGORY_BY_NO={
+    1:"mystery",2:"intrigue",3:"scifi",4:"mystery",5:"intrigue",6:"crime",7:"intrigue",8:"mystery",
+    9:"crime",10:"crime",11:"scifi",12:"historical",13:"historical",14:"crime",15:"intrigue",16:"crime",
+    17:"crime",18:"intrigue",19:"mystery",20:"crime",21:"mystery",22:"crime",23:"intrigue",24:"crime",
+    25:"thriller",26:"historical",27:"crime",28:"mystery",29:"crime",30:"historical",31:"mystery"
+  };
+  let cluCategory="all",cluDifficulty="all";
+  try{
+    const savedCategory=localStorage.getItem("dq-clu-category"),savedDifficulty=localStorage.getItem("dq-clu-difficulty");
+    if(CLU_CATEGORIES.some(x=>x[0]===savedCategory))cluCategory=savedCategory;
+    if(CLU_DIFFICULTIES.some(x=>x[0]===savedDifficulty))cluDifficulty=savedDifficulty;
+  }catch(e){}
+  function applyCluFilters(){
+    let shown=0;
+    cluWall.querySelectorAll("li").forEach(li=>{
+      const visible=(cluCategory==="all"||li.dataset.category===cluCategory)&&(cluDifficulty==="all"||li.dataset.difficulty===cluDifficulty);
+      li.hidden=!visible;if(visible)shown++;
+    });
+    cluCategoryFilters.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.category===cluCategory)));
+    cluDifficultyFilters.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.difficulty===cluDifficulty)));
+    cluEmpty.hidden=shown>0;
+  }
+  cluCategoryFilters.innerHTML='<span class="clu-filter-label">Category</span>'+CLU_CATEGORIES.map(([k,l])=>`<button class="chip" type="button" data-category="${k}" aria-pressed="false">${l}</button>`).join("");
+  cluDifficultyFilters.innerHTML='<span class="clu-filter-label">Difficulty</span>'+CLU_DIFFICULTIES.map(([k,l])=>`<button class="chip" type="button" data-difficulty="${k}" aria-pressed="false">${l}</button>`).join("");
+  cluCategoryFilters.addEventListener("click",e=>{const b=e.target.closest("button[data-category]");if(!b)return;cluCategory=b.dataset.category;try{localStorage.setItem("dq-clu-category",cluCategory)}catch(e){}applyCluFilters();});
+  cluDifficultyFilters.addEventListener("click",e=>{const b=e.target.closest("button[data-difficulty]");if(!b)return;cluDifficulty=b.dataset.difficulty;try{localStorage.setItem("dq-clu-difficulty",cluDifficulty)}catch(e){}applyCluFilters();});
   const KINDS=[["all","All"],["mystery","Mystery"],["fantasy","Fantasy"],["scifi","Sci-fi"],["history","History"],["comedy","Comedy"],["romance","Heart"]];
   function categories(genre){
     const g=(genre||"").toLowerCase();
@@ -687,10 +728,11 @@ footer .legal-details{font-size:.84rem}
   }
 
   function renderCluortals(){
-    cluWall.innerHTML=cluortals.map(c=>`<li><a class="clue-card" href="${escapeHTML(c.url)}" target="_blank" rel="noopener noreferrer" aria-label="Cluortal ${c.no}: ${escapeHTML(c.title)} (opens in a new tab)">
+    cluWall.innerHTML=cluortals.map(c=>`<li data-category="${CLU_CATEGORY_BY_NO[c.no]}" data-difficulty="${c.difficulty.toLowerCase()}"><a class="clue-card" href="${escapeHTML(c.url)}" target="_blank" rel="noopener noreferrer" aria-label="Cluortal ${c.no}: ${escapeHTML(c.title)} (opens in a new tab)">
       <div class="clue-door g-${escapeHTML(c.color)}" aria-hidden="true"><span class="halo"></span><span class="frame"></span><span class="light"></span><span class="leaf"><span class="word">${escapeHTML(c.word)}</span><span class="num">${String(c.no)}</span><span class="knob"></span></span></div>
       <span class="cap"><span class="t">${escapeHTML(c.title)}</span><span class="g">${escapeHTML(c.genre)} · ${escapeHTML(c.difficulty)}</span></span>
       </a></li>`).join("");
+    applyCluFilters();
 
     const todayClu=cluortals.find(c=>c.no===new Date().getDate());
     if(!todayClu)return;
