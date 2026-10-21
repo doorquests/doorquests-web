@@ -7,6 +7,11 @@
 <meta name="robots" content="index,follow">
 <!-- Official Chaortal No. 18 -->
 <meta name="description" content="Chaortal No. 18: The Telegraph Tower. In a fictional 1830s French semaphore relay tower, read lamps as binary, decode signal arms with a codebook, and repair a corrupted transmission with check bits.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DoorQuests">
+<meta property="og:title" content="The Telegraph Tower | DoorQuests Chaortals">
+<meta property="og:description" content="Play The Telegraph Tower: read binary lamps, decode a semaphore message, and repair a transmission using check bits.">
+<meta name="twitter:card" content="summary">
 <link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Spectral:ital,wght@0,400;0,600;1,400&family=Barlow+Condensed:wght@500;600;700&display=swap">
@@ -1050,9 +1055,9 @@ if (typeof module !== "undefined") module.exports = TELEGRAPH;
     }
     $("appBody").innerHTML = h;
     var on = function (id, fn) { if ($(id)) $(id).onclick = fn; };
-    on("fFirst", function () { stopPlay(); setFrame(0); }); on("fPrev", function () { stopPlay(); setFrame(rn.frame - 1); }); on("fNext", function () { stopPlay(); setFrame(rn.frame + 1); }); on("fPlay", togglePlay);
+    on("fFirst", function () { stopPlay(); setFrame(0); focusControl("#fFirst"); }); on("fPrev", function () { stopPlay(); setFrame(rn.frame - 1); focusControl("#fPrev"); }); on("fNext", function () { stopPlay(); setFrame(rn.frame + 1); focusControl("#fNext"); }); on("fPlay", togglePlay);
     $("appBody").querySelectorAll("select[data-i]").forEach(function (sel) { sel.onchange = function () { rn.slots[+sel.dataset.i] = sel.value; rn.sel = +sel.dataset.i; saveState(); $("reading").textContent = readingText(rn.slots); markSel(); }; sel.onfocus = function () { rn.sel = +sel.dataset.i; saveState(); markSel(); }; });
-    $("appBody").querySelectorAll("[data-cb]").forEach(function (b) { b.onclick = function () { var x = E.CODEBOOK[+b.dataset.cb]; if (!rn.decoded) { rn.slots[rn.sel] = x.symbol; var nx = Math.min(NF - 1, rn.sel + 1); log.add("Frame " + (rn.sel + 1) + " noted as “" + E.symName(x.symbol) + "”."); rn.sel = nx; saveState(); renderSilver(); var s = $("slot" + nx); if (s) s.focus(); } else { rn.arms = [x.left, x.right]; saveState(); renderSilver(); renderScene(); } }; });
+    $("appBody").querySelectorAll("[data-cb]").forEach(function (b) { b.onclick = function () { var x = E.CODEBOOK[+b.dataset.cb]; if (!rn.decoded) { rn.slots[rn.sel] = x.symbol; var nx = Math.min(NF - 1, rn.sel + 1); log.add("Frame " + (rn.sel + 1) + " noted as “" + E.symName(x.symbol) + "”."); rn.sel = nx; saveState(); renderSilver(); var s = $("slot" + nx); if (s) s.focus(); } else { rn.arms = [x.left, x.right]; saveState(); renderSilver(); renderScene(); focusControl('[data-cb="' + b.dataset.cb + '"]'); } }; });
     $("appBody").querySelectorAll("[data-arm]").forEach(function (b) { b.onclick = function () { moveArm(+b.dataset.arm, +b.dataset.d); }; });
   }
   function markSel() { var rn = S.play.silver; document.querySelectorAll(".slot2").forEach(function (el, i) { el.classList.toggle("sel", i === rn.sel); }); }
@@ -1064,10 +1069,11 @@ if (typeof module !== "undefined") module.exports = TELEGRAPH;
       h += '<td><button type="button" class="cb' + (cur[0] === l && cur[1] === r && !assign ? " cur" : "") + '" data-cb="' + k + '" aria-label="' + esc(E.symName(x.symbol) + ": left arm " + lp.words + ", right arm " + rp.words) + '"' + (rn.solved ? " disabled" : "") + ">" + cbSVG([l, r]) + "<b>" + esc(x.symbol === " " ? "␣" : x.symbol === "END" ? "END" : x.symbol) + "</b></button></td>"; }); h += "</tr>"; });
     return h + '</tbody></table><p class="note" style="margin:4px 0 0;color:#4a3a28">␣ = word space · END = end of message. ' + (assign ? "Pick a frame on the worksheet, then click its codebook entry (or choose from the list)." : "Click an entry to set both arms at once, or use the arm controls.") + "</p>";
   }
+  function focusControl(sel) { var el = document.querySelector(sel); if (el && !el.disabled) el.focus({ preventScroll: true }); }
   function setFrame(i) { var rn = S.play.silver; rn.frame = Math.max(0, Math.min(NF - 1, i)); saveState(); renderSilver(); renderScene(); }
   function stopPlay() { if (playing) { clearInterval(playing); playing = null; } }
-  function togglePlay() { var rn = S.play.silver; if (playing) { stopPlay(); renderSilver(); return; }
-    if (rn.frame >= NF - 1) rn.frame = -1; playing = setInterval(function () { if (rn.frame >= NF - 1 || S.tier !== "silver" || rn.decoded) { stopPlay(); renderSilver(); return; } setFrame(rn.frame + 1); }, motionOK() ? 2200 : 3000); setFrame(rn.frame + 1); }
+  function togglePlay() { var rn = S.play.silver; if (playing) { stopPlay(); renderSilver(); focusControl("#fPlay"); return; }
+    if (rn.frame >= NF - 1) rn.frame = -1; playing = setInterval(function () { if (rn.frame >= NF - 1 || S.tier !== "silver" || rn.decoded) { stopPlay(); renderSilver(); return; } setFrame(rn.frame + 1); }, motionOK() ? 2200 : 3000); setFrame(rn.frame + 1); focusControl("#fPlay"); }
   function moveArm(k, d) { var rn = S.play.silver; if (!rn.decoded || rn.solved) return; var n = rn.arms[k] + d;
     if (n < 0 || n > 3) { say((k ? "The right" : "The left") + " arm is already at its " + (n < 0 ? "highest" : "lowest") + " legal position: " + E.POS[rn.arms[k]].name + "."); return; }
     rn.arms[k] = n; saveState(); blip(260 + 60 * n, .1, .03, "triangle"); renderSilver(); renderScene(); var b = document.querySelector('[data-arm="' + k + '"][data-d="' + d + '"]'); if (b) b.focus(); liveSay((k ? "Right" : "Left") + " arm: " + E.POS[n].name + ", " + E.POS[n].words + "."); }
@@ -1097,7 +1103,7 @@ if (typeof module !== "undefined") module.exports = TELEGRAPH;
     $("appBody").querySelectorAll(".bit[data-p]").forEach(function (b) { b.onclick = function () { flipBit(+b.dataset.p); }; });
     $("appBody").querySelectorAll("[data-g]").forEach(function (b) { b.onclick = function () { rn.groups[b.dataset.g] = !rn.groups[b.dataset.g]; saveState(); renderGold(); var x = document.querySelector('[data-g="' + b.dataset.g + '"]'); if (x) x.focus(); var g = E.GROUPS.filter(function (y) { return y.id === b.dataset.g; })[0]; liveSay("Group " + g.id + (rn.groups[g.id] ? " shown: positions " + g.members.join(", ") + ", marked " + GMARK[g.id] + "." : " hidden.")); }; });
     $("appBody").querySelectorAll("[data-d]").forEach(function (b) { if (b.dataset.arm !== undefined) return; b.onclick = function () { var i = +b.dataset.d; rn.data[i] ^= 1; saveState(); renderGold(); var x = document.querySelector('[data-d="' + i + '"]'); if (x) x.focus(); }; });
-    $("appBody").querySelectorAll("[data-drill]").forEach(function (b) { b.onclick = function () { rn.drill = b.dataset.drill === "main" ? null : +b.dataset.drill; saveState(); renderAll(); }; });
+    $("appBody").querySelectorAll("[data-drill]").forEach(function (b) { b.onclick = function () { rn.drill = b.dataset.drill === "main" ? null : +b.dataset.drill; saveState(); renderAll(); focusControl('[data-drill="' + b.dataset.drill + '"]'); }; });
     $("appBody").querySelectorAll("[data-ws]").forEach(function (el) { var fn = function () { WS.sheet[el.dataset.ws] = el.value.slice(0, 12); saveWS(); }; el.oninput = fn; el.onchange = fn; });
     if ($("gReset")) $("gReset").onclick = function () { if (rn.drill === null) { if (rn.solved) return; rn.word = E.RECEIVED.slice(); } else rn.drills[rn.drill] = E.DRILLS[rn.drill].slice(); saveState(); renderGold(); say("The received word is restored; no bits changed."); };
   }
@@ -1275,7 +1281,7 @@ if (typeof module !== "undefined") module.exports = TELEGRAPH;
   function renderRing() {
     var rows = ORDER.map(function (t) { var r = K.tier(DOOR, t);
       return "<tr><th scope=\"row\">" + TNAME[t] + "</th><td>" + (r && r.solved ? "Earned" + (r.hintFree ? " ★" : "") : "—") + "</td><td>" + (r && r.best !== null ? r.best : "—") + "</td><td>" + (r && r.fewestHints !== null ? r.fewestHints : "—") + "</td><td>" + [K.hasAch(DOOR, t, "perfect-signal") ? "◈ Perfect Signal" : "", K.hasAch(DOOR, t, "master-of-the-message") ? "✉ Master of the Message" : ""].filter(Boolean).join(" · ") + "</td><td>" + (r ? r.attempts : 0) + "</td></tr>"; }).join("");
-    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Plays</th></tr></thead><tbody>' + rows + "</tbody>";
+    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Completed attempts</th></tr></thead><tbody>' + rows + "</tbody>";
     $("kslots").innerHTML = K.summary().map(function (d) {
       var hf = d.key && d.tiers[d.key] && d.tiers[d.key].hintFree, mc = K.TIERS.filter(function (t) { return d.tiers[t] && d.tiers[t].achievements && Object.keys(d.tiers[t].achievements).length; }).length;
       return '<div class="slot' + (d.key ? " has " + d.key : "") + '"><span class="n">No. ' + d.id + " · " + d.verb + '</span><span class="t">' + esc(d.title) + "</span>" +
@@ -1309,9 +1315,11 @@ if (typeof module !== "undefined") module.exports = TELEGRAPH;
   document.addEventListener("keydown", function (e) {
     var a = document.activeElement, k = e.key;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.closest("#nbBox"))) return;
+    if (!a || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
     var t = S.tier, rn = run();
-    if (k === "Enter" && !(a && /^(BUTTON|A|SUMMARY)$/.test(a.tagName))) { e.preventDefault(); submit(); return; }
+    // Never hijack Enter on unrelated controls; the logbook form handles its own Enter.
+    // Shortcuts apply while focus is inside the signal apparatus or its logbook (the Send button).
+    if (!a.closest("#app, #log2")) return;
     if (t === "bronze" && /^[1-5]$/.test(k)) { e.preventDefault(); toggleLamp(+k - 1); return; }
     if (t === "gold" && /^[1-7]$/.test(k)) { e.preventDefault(); flipBit(+k); return; }
     if (t === "silver") {
@@ -1319,6 +1327,11 @@ if (typeof module !== "undefined") module.exports = TELEGRAPH;
       if (rn.decoded) { var m = { q: [0, -1], a: [0, 1], p: [1, -1], l: [1, 1] }[k.toLowerCase()]; if (m) { e.preventDefault(); moveArm(m[0], m[1]); } }
     }
   });
+
+  // If a handled shortcut re-rendered the focused control, return focus to its replacement without scrolling.
+  var keyFocusId = null;
+  document.addEventListener("keydown", function () { var a = document.activeElement; keyFocusId = a && a.id ? a.id : null; }, true);
+  document.addEventListener("keydown", function (e) { if (e.defaultPrevented && keyFocusId && (!document.activeElement || document.activeElement === document.body)) focusControl("#" + keyFocusId); });
 
   function renderMeters() {
     var rn = run(), extra = S.tier === "silver" ? "<div>Repeats (free) <b>" + rn.repeats + "</b></div>" : "<div>Refused (free) <b>" + rn.refused + "</b></div>";
