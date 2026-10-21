@@ -5,9 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>The Observatory Stair | DoorQuests Chaortals</title>
 <meta name="robots" content="index,follow">
-<!-- Official Chaortal No. 16 -->
 <meta name="description" content="Chaortal No. 16: The Observatory Stair. A fictional chamber inspired by El Caracol at Chichén Itzá: continue a sequence in Maya bars and dots, untangle two woven paths, and discover an inscription that describes itself.">
 <link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DoorQuests">
+<meta property="og:title" content="The Observatory Stair | DoorQuests Chaortal No. 16">
+<meta property="og:description" content="Continue three sequence challenges in a fictional observatory inspired by El Caracol: Maya numerals, woven paths and a self-describing inscription.">
+<meta name="twitter:card" content="summary">
+<!-- Set canonical and og:url only after confirming the exact public URL. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
 <style>
@@ -42,7 +47,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 .brand{margin:0 0 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font:700 .72rem/1.4 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .brand img{width:30px;height:30px}
 .brand a{color:inherit;text-decoration:none}.brand a:hover{text-decoration:underline}
-.proto{display:inline-block;margin-left:auto;padding:2px 8px;border:1px dashed var(--bad);border-radius:999px;color:var(--bad);font:700 .66rem var(--label);letter-spacing:.1em}
 
 /* ---------- THE OBSERVATORY ---------- */
 .obs{position:relative;border-radius:18px;overflow:hidden;color:#eef2f8;border:1px solid #0a0f1c;background:#0f1830}
@@ -111,7 +115,7 @@ html.rm .paths{animation:none}
 .slotbtn[aria-pressed="true"]{background:#f2b552;color:#2a1a06;border-color:#f2b552}
 .build{display:grid;place-items:center;padding:10px;border-radius:12px;background:linear-gradient(180deg,#e9e3d4,#d6ccb6);min-height:150px}
 .cart{display:grid;gap:0;border:3px solid #6e5a3a;border-radius:14px;background:#efe8d8;padding:4px 10px}
-.place{display:grid;justify-items:center;padding:4px 6px;border-bottom:2px solid #8a7a5c;cursor:pointer;border-radius:6px;min-width:96px}
+.place{font:inherit;color:inherit;border:0;background:transparent;width:100%;display:grid;justify-items:center;padding:4px 6px;border-bottom:2px solid #8a7a5c;cursor:pointer;border-radius:6px;min-width:96px}
 .place:last-child{border-bottom:0}
 .place[aria-current="true"]{background:rgba(242,181,82,.35);box-shadow:inset 0 0 0 2px #c9772a}
 .place .pn{font:700 .6rem var(--label);letter-spacing:.06em;color:#6e5a3a}
@@ -273,7 +277,7 @@ footer a{color:var(--accent)}
       </div>
       <div class="work">
         <h2 id="workTitle">The numeral workshop</h2>
-        <div id="workshop"></div>
+        <div id="workshop" tabindex="0" role="group" aria-label="Numeral and inscription workshop; focus here for gameplay keyboard shortcuts" aria-describedby="keysHelp"></div>
         <p class="readout" id="readout" aria-live="polite"></p>
         <div class="ctl">
           <button type="button" class="hbtn go" id="carveBtn">Carve it (Enter)</button>
@@ -734,7 +738,7 @@ if (typeof module !== "undefined") module.exports = DQToolkit;
    the calendrical Long Count, whose third place is 18 × 20 = 360. A single place holds a digit 0–19 written with
    bars (5 each, at most 3) and dots (1 each, at most 4); a place holding zero is written with the shell sign.
 
-   ANSWERS. The page never stores an answer. Each tier states a rule family in its instructions, and an answer is
+   ANSWERS. The rules engine embeds no answer key. A successfully carved answer is saved only as player progress. Each tier states a rule family in its instructions, and an answer is
    accepted if and only if the visible terms followed by the answer still belong to that family:
      Bronze  — "the same change each step": add a whole amount every step, or multiply by a whole number (2 or more).
      Silver  — "woven paths": the band weaves k ≥ 1 paths that take turns in a fixed order; every path is carved at
@@ -1018,22 +1022,22 @@ if (typeof module !== "undefined") module.exports = OBSERVATORY;
       if (t === "silver") h += '<div class="slots" role="group" aria-label="Which missing panel you are building">' + [0, 1].map(function (k) { var c = rn.drafts[k], r = E.readConstruction(c); return '<button type="button" class="slotbtn" data-k="' + k + '" aria-pressed="' + (rn.slot === k) + '">Panel ' + (11 + k) + (r.ok ? " · " + (S.decimals ? r.value : "built") : "") + "</button>"; }).join("") + "</div>";
       var c = cons(), sel = Math.min(rn.sel, c.length - 1);
       h += '<div class="build"><div class="cart" role="group" aria-label="Your numeral, ' + c.length + (c.length === 1 ? " place" : " places") + ', top place first">' + c.map(function (g, i) { var k = c.length - 1 - i, v = E.glyphValue(g);
-        return '<div class="place" data-i="' + i + '" aria-current="' + (i === sel) + '" role="button" tabindex="-1" aria-label="' + PLACE[k] + " place: " + (v === 0 ? "the shell sign, zero" : E.glyphWords(v) + ", value " + E.words(v)) + (i === sel ? ", selected" : "") + '"><span class="pn">' + PLACE[k].toUpperCase() + (S.decimals ? " · " + v + " × " + Math.pow(20, k) : "") + "</span>" + digitSVG(v, 64) + "</div>"; }).join("") + "</div></div>";
+        return '<button type="button" class="place" data-i="' + i + '" aria-current="' + (i === sel) + '" aria-label="' + PLACE[k] + " place: " + (v === 0 ? "the shell sign, zero" : E.glyphWords(v) + ", value " + E.words(v)) + (i === sel ? ", selected" : "") + '"><span class="pn">' + PLACE[k].toUpperCase() + (S.decimals ? " · " + v + " × " + Math.pow(20, k) : "") + "</span>" + digitSVG(v, 64) + "</button>"; }).join("") + "</div></div>";
       h += '<div class="btns"><button type="button" class="hbtn" data-a="dot+">+ Dot (D)</button><button type="button" class="hbtn" data-a="dot-">− Dot (Shift+D)</button><button type="button" class="hbtn" data-a="bar+">+ Bar (B)</button><button type="button" class="hbtn" data-a="bar-">− Bar (Shift+B)</button>' +
         (t === "silver" ? '<button type="button" class="hbtn" data-a="place+">Add a higher place (P)</button><button type="button" class="hbtn" data-a="place-">Remove the top place</button>' : "") + "</div>";
     } else {
       var tk = rn.tokens, s2 = Math.min(rn.sel, Math.max(0, tk.length - 1));
-      h += '<p class="note2" style="color:#d9dfeb;margin:0 0 6px">Your new inscription: a row of separate tokens, in order.</p><div class="draft" role="listbox" aria-label="Your draft inscription, ' + plural(tk.length, "token", "tokens") + '" tabindex="0" id="draftBox">' +
-        (tk.length ? tk.map(function (x, j) { return '<button type="button" class="tok" role="option" data-j="' + j + '" aria-pressed="' + (j === s2) + '" aria-selected="' + (j === s2) + '" aria-label="Token ' + (j + 1) + ": " + E.glyphWords(x) + ", value " + E.words(x) + (j === s2 ? ", selected" : "") + '"><span class="ti">' + (j + 1) + "</span>" + digitSVG(x, 34) + (S.decimals ? '<span style="font:600 .7rem var(--label)">' + x + "</span>" : "") + "</button>"; }).join("") : '<span class="empty">No tokens yet. Add one below.</span>') + "</div>";
+      h += '<p class="note2" style="color:#d9dfeb;margin:0 0 6px">Your new inscription: a row of separate tokens, in order.</p><div class="draft" role="group" aria-label="Your draft inscription, ' + plural(tk.length, "token", "tokens") + '" tabindex="0" id="draftBox">' +
+        (tk.length ? tk.map(function (x, j) { return '<button type="button" class="tok" data-j="' + j + '" aria-pressed="' + (j === s2) + '" aria-label="Token ' + (j + 1) + ": " + E.glyphWords(x) + ", value " + E.words(x) + (j === s2 ? ", selected" : "") + '"><span class="ti">' + (j + 1) + "</span>" + digitSVG(x, 34) + (S.decimals ? '<span style="font:600 .7rem var(--label)">' + x + "</span>" : "") + "</button>"; }).join("") : '<span class="empty">No tokens yet. Add one below.</span>') + "</div>";
       h += '<div class="palette" role="group" aria-label="Add a token">' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (v) { return '<button type="button" class="hbtn" data-add="' + v + '" aria-label="Add a token: ' + E.glyphWords(v) + ", value " + E.words(v) + ' (key ' + v + ')">' + digitSVG(v, 30) + "</button>"; }).join("") + "</div>";
       h += '<div class="btns"><button type="button" class="hbtn" data-a="val+">Token value + (+)</button><button type="button" class="hbtn" data-a="val-">Token value − (−)</button><button type="button" class="hbtn" data-a="left">Move left (Shift+←)</button><button type="button" class="hbtn" data-a="right">Move right (Shift+→)</button><button type="button" class="hbtn" data-a="del">Remove token (Del)</button></div>';
     }
     $("workshop").innerHTML = h;
-    $("workshop").querySelectorAll("[data-a]").forEach(function (b) { b.onclick = function () { act(b.dataset.a); }; });
-    $("workshop").querySelectorAll("[data-add]").forEach(function (b) { b.onclick = function () { addToken(+b.dataset.add); }; });
-    $("workshop").querySelectorAll(".slotbtn").forEach(function (b) { b.onclick = function () { run().slot = +b.dataset.k; run().sel = 0; saveState(); renderWorkshop(); renderReadout(); }; });
-    $("workshop").querySelectorAll(".place").forEach(function (p) { p.onclick = function () { run().sel = +p.dataset.i; saveState(); renderWorkshop(); renderReadout(); }; });
-    $("workshop").querySelectorAll(".draft .tok").forEach(function (b) { b.onclick = function () { run().sel = +b.dataset.j; saveState(); renderWorkshop(); renderReadout(); }; });
+    $("workshop").querySelectorAll("[data-a]").forEach(function (b) { b.onclick = function () { act(b.dataset.a); focusWorkshop(); }; });
+    $("workshop").querySelectorAll("[data-add]").forEach(function (b) { b.onclick = function () { addToken(+b.dataset.add); focusWorkshop(); }; });
+    $("workshop").querySelectorAll(".slotbtn").forEach(function (b) { b.onclick = function () { run().slot = +b.dataset.k; run().sel = 0; saveState(); renderWorkshop(); renderReadout(); focusWorkshop(); }; });
+    $("workshop").querySelectorAll(".place").forEach(function (p) { p.onclick = function () { run().sel = +p.dataset.i; saveState(); renderWorkshop(); renderReadout(); focusWorkshop(); }; });
+    $("workshop").querySelectorAll(".draft .tok").forEach(function (b) { b.onclick = function () { run().sel = +b.dataset.j; saveState(); renderWorkshop(); renderReadout(); focusWorkshop(); }; });
   }
   function renderReadout() {
     var t = S.tier, rn = run(), txt;
@@ -1043,6 +1047,7 @@ if (typeof module !== "undefined") module.exports = OBSERVATORY;
     $("readout").textContent = txt;
   }
   function slip(text) { var rn = run(); rn.slips++; saveState(); say(text, "bad"); blip(150, .2, .04, "sawtooth"); renderMeters(); }
+  function focusWorkshop() { var w = $("workshop"); if (w) w.focus({ preventScroll: true }); }
   function act(a) {
     var rn = run(); if (rn.solved) { say("This landing is complete. Use “Climb again (practice)”, or choose another landing."); return; }
     if (S.tier === "gold") { goldAct(a); return; }
@@ -1179,7 +1184,8 @@ if (typeof module !== "undefined") module.exports = OBSERVATORY;
     var r = ["<b>Maya numerals:</b> a dot is one, a bar is five, and the shell is zero. One place holds 0–19: at most three bars and four dots (five dots are always written as a bar). Numbers of twenty or more stack places vertically: the bottom place counts units, the next counts twenties, the next four-hundreds (pure base 20, not the calendar's Long Count).",
       "<b>Building a numeral:</b> + Dot, − Dot, + Bar, − Bar change the selected place (click a place to select it, or use ↑ ↓). In Silver, “Add a higher place” stacks a twenties place on top. Illegal marks are refused with an explanation.",
       "<b>Building an inscription (Gold):</b> add tokens from the palette (keys 1–9), select a token (← →), change its value (+ −), move it (Shift+← →), or remove it (Delete). Each token is separate; their order is the inscription.",
-      "<b>Carving:</b> press Carve it (Enter) to submit. A carving that does not continue the pattern costs 8 points (at most 24) and keeps your draft. Building, undoing and clearing are always free. Z undoes the last change.",
+      "<b>Keyboard focus:</b> Tab to the workshop surface to use D, B, arrows, Z and other gameplay shortcuts; Tab into a button to activate it normally. Mouse/touch workshop actions return focus to the workshop without scrolling.",
+       "<b>Carving:</b> press Carve it (Enter) to submit. A carving that does not continue the pattern costs 8 points (at most 24) and keeps your draft. Building, undoing and clearing are always free. Z undoes the last change.",
       "<b>Scoring:</b> 100, less 12 per hint and 8 per incorrect carving (at most 24). Penalties are kept through practice resets and reloads until your first completion; only that is recorded on the Keyring.",
       "<b>Achievements:</b> ✦ Keeper of the Pattern is a first completion with no hints, no incorrect carving, and no illegal mark attempted (a fifth dot, a fourth bar, a token out of range, an empty or empty-topped carving). ✸ The Sequence Speaks is a first Gold completion with no hints, correct at the first carving.",
       "<b>Our numbers:</b> the “Show our numbers” chip adds decimal values under every glyph, free. Screen readers always hear both the glyph and its value.",
@@ -1209,7 +1215,7 @@ if (typeof module !== "undefined") module.exports = OBSERVATORY;
   function renderRing() {
     var rows = ORDER.map(function (t) { var r = K.tier(DOOR, t);
       return "<tr><th scope=\"row\">" + { bronze: "Bronze", silver: "Silver", gold: "Gold" }[t] + "</th><td>" + (r && r.solved ? "Lit" + (r.hintFree ? " ★" : "") : "—") + "</td><td>" + (r && r.best !== null ? r.best : "—") + "</td><td>" + (r && r.fewestHints !== null ? r.fewestHints : "—") + "</td><td>" + [K.hasAch(DOOR, t, "keeper-of-the-pattern") ? "✦ Keeper" : "", K.hasAch(DOOR, t, "the-sequence-speaks") ? "✸ Speaks" : ""].filter(Boolean).join(" · ") + "</td><td>" + (r ? r.attempts : 0) + "</td></tr>"; }).join("");
-    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Plays</th></tr></thead><tbody>' + rows + "</tbody>";
+    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Completed attempts</th></tr></thead><tbody>' + rows + "</tbody>";
     $("kslots").innerHTML = K.summary().map(function (d) {
       var hf = d.key && d.tiers[d.key] && d.tiers[d.key].hintFree, mc = K.TIERS.filter(function (t) { return d.tiers[t] && d.tiers[t].achievements && Object.keys(d.tiers[t].achievements).length; }).length;
       return '<div class="slot' + (d.key ? " has " + d.key : "") + '"><span class="n">No. ' + d.id + " · " + d.verb + '</span><span class="t">' + esc(d.title) + "</span>" +
@@ -1241,7 +1247,7 @@ if (typeof module !== "undefined") module.exports = OBSERVATORY;
   $("decBtn").onclick = function () { S.decimals = !S.decimals; saveState(); applyPrefs(); renderTablet(); renderWorkshop(); };
   function say(text, cls) { clearTimeout(liveT); var m = $("msg"); m.textContent = text; m.className = "msg" + (cls ? " " + cls : ""); }
   var liveT = null; function liveSay(t) { clearTimeout(liveT); liveT = setTimeout(function () { var m = $("msg"); m.textContent = t; m.className = "msg"; }, 40); }
-  document.addEventListener("keydown", function (e) {
+  $("workshop").addEventListener("keydown", function (e) {
     var a = document.activeElement, k = e.key;
     if (e.ctrlKey || e.metaKey) { if ((k === "z" || k === "Z") && !(a && /^(INPUT|TEXTAREA)$/.test(a.tagName))) { e.preventDefault(); undo(); } return; }
     if (e.altKey) return;
@@ -1264,6 +1270,9 @@ if (typeof module !== "undefined") module.exports = OBSERVATORY;
     }
   });
 
+  // After a handled gameplay key re-renders the workshop, keep focus inside it without scrolling.
+  $("workshop").addEventListener("keydown", function (e) { if (e.defaultPrevented && !$("workshop").contains(document.activeElement)) focusWorkshop(); });
+
   function renderMeters() {
     var rn = run();
     $("meters").innerHTML = "<div>Incorrect carvings <b>" + rn.wrong + "</b></div><div>Illegal marks refused <b>" + rn.slips + "</b></div><div>Hints <b>" + rn.hints + "</b></div><div>Score <b>" + (rn.solved ? rn.score : E.score(S.tier, rn)) + "</b></div>";
@@ -1276,7 +1285,7 @@ if (typeof module !== "undefined") module.exports = OBSERVATORY;
     $("ruleCard").innerHTML = { bronze: "The keeper's rule: from one panel to the next, <b>the same change</b> every time (the same whole amount added or taken away, or the same whole multiplier).", silver: "The keeper's rule: the band may weave <b>several paths</b> taking turns; each path is carved at least three times here and keeps one constant change.", gold: "The keeper's rule: each inscription is <b>a description of the one just above it</b>, read from left to right." }[t];
     $("briefTitle").textContent = TEXT[t].title; $("briefText").textContent = TEXT[t].intro; $("briefRule").innerHTML = TEXT[t].rule;
     $("briefScore").textContent = "Scoring: 100, less 12 per hint and 8 per incorrect carving (at most 24). Building, undoing and clearing are free. Your first completion is recorded.";
-    $("keysHelp").innerHTML = t === "gold" ? "Keys: <kbd>1</kbd>–<kbd>9</kbd> add a token · <kbd>←</kbd><kbd>→</kbd> select · <kbd>Shift</kbd>+arrows move · <kbd>+</kbd>/<kbd>−</kbd> value · <kbd>Del</kbd> remove · <kbd>Z</kbd> undo · <kbd>Enter</kbd> carve" : "Keys: <kbd>D</kbd> dot · <kbd>B</kbd> bar (with <kbd>Shift</kbd> to remove) · <kbd>↑</kbd><kbd>↓</kbd> choose a place" + (t === "silver" ? " · <kbd>P</kbd> add a place · <kbd>←</kbd><kbd>→</kbd> panel 11 / 12" : "") + " · <kbd>Z</kbd> undo · <kbd>Enter</kbd> carve";
+    $("keysHelp").innerHTML = t === "gold" ? "With workshop focused — keys: <kbd>1</kbd>–<kbd>9</kbd> add a token · <kbd>←</kbd><kbd>→</kbd> select · <kbd>Shift</kbd>+arrows move · <kbd>+</kbd>/<kbd>−</kbd> value · <kbd>Del</kbd> remove · <kbd>Z</kbd> undo · <kbd>Enter</kbd> carve" : "With workshop focused — keys: <kbd>D</kbd> dot · <kbd>B</kbd> bar (with <kbd>Shift</kbd> to remove) · <kbd>↑</kbd><kbd>↓</kbd> choose a place" + (t === "silver" ? " · <kbd>P</kbd> add a place · <kbd>←</kbd><kbd>→</kbd> panel 11 / 12" : "") + " · <kbd>Z</kbd> undo · <kbd>Enter</kbd> carve";
     $("clearBtn").textContent = "Clear";
     renderScene(); renderTiers(); renderTablet(); renderWorkshop(); renderReadout(); renderMeters(); renderHints(); renderRules(); renderRing(); renderChart(); nb.render(); log.render();
     $("nbref").innerHTML = ["Dot = 1, bar = 5, shell = 0. One place holds 0–19 (at most 3 bars and 4 dots).", "Places stack upward: units at the bottom, then twenties, then four-hundreds (each place 20 times the one below). This is pure base 20, not the calendar's Long Count.", "A Gold inscription is a row of separate tokens, not a number."].map(function (x) { return "<li>" + x + "</li>"; }).join("");
