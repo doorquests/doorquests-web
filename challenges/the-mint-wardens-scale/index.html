@@ -6,6 +6,11 @@
 <title>The Mint Warden's Scale | DoorQuests Chaortals</title>
 <meta name="robots" content="index,follow">
 <meta name="description" content="Chaortal No. 20: The Mint Warden's Scale. In a fictional warden's chamber at the Royal Mint in 1696, find the counterfeit coin with an equal-arm balance: four coins in two weighings, nine in two, and twelve in three, where the false coin may be heavier or lighter.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DoorQuests">
+<meta property="og:title" content="The Mint Warden's Scale | DoorQuests Chaortals">
+<meta property="og:description" content="Play The Mint Warden's Scale: deduce the counterfeit with an equal-arm balance across three challenges.">
+<meta name="twitter:card" content="summary">
 <link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@500;700&display=swap">
@@ -1026,13 +1031,13 @@ if (typeof module !== "undefined") module.exports = MINTSCALE;
     $("appBody").querySelectorAll(".coin").forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); toggle(+b.dataset.c); }; });
     $("appBody").querySelectorAll(".place").forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); moveSel(b.dataset.to); }; });
     $("appBody").querySelectorAll(".zone").forEach(function (z) { z.onclick = function (e) { if (e.target.closest("button")) return; if (SEL.length) moveSel(z.dataset.z); }; });
-    $("weighBtn").onclick = weighNow; $("clearBtn").onclick = clearPans; $("noneBtn").onclick = function () { SEL = []; renderApp(); };
+    $("weighBtn").onclick = weighNow; $("clearBtn").onclick = clearPans; $("noneBtn").onclick = function () { SEL = []; renderApp(); refocus("#weighBtn"); };
   }
   function scaleLine() { var rn = run(), i = shownIndex(), nL = rn.pans.L.length, nR = rn.pans.R.length;
     if (i >= 0) return "Weighing " + (i + 1) + " (" + wtext(rn.hist[i]) + "): " + OUT_LONG[String(rn.hist[i].out)] + ".";
     if (!nL && !nR) return "Both pans are empty. " + (SEL.length ? "Selected: coin" + (SEL.length > 1 ? "s " : " ") + SEL.slice().sort(num).join(", ") + "." : "Select coins to place them.");
     return "Left pan: " + plural(nL, "coin", "coins") + "; right pan: " + plural(nR, "coin", "coins") + "." + (nL !== nR ? " The pans must hold equal numbers of coins to weigh." : " Ready to weigh.") + (SEL.length ? " Selected: " + SEL.slice().sort(num).join(", ") + "." : ""); }
-  function refocus(sel) { var el = document.querySelector(sel); if (el) el.focus(); }
+  function refocus(sel) { var el = document.querySelector(sel); if (el && !el.disabled) el.focus({ preventScroll: true }); }
   function toggle(c) { var rn = run(); if (rn.solved || rn.status === "halted") return; var i = SEL.indexOf(c); if (i >= 0) SEL.splice(i, 1); else SEL.push(c); renderApp(); refocus('.coin[data-c="' + c + '"]'); }
   function moveSel(z) { var rn = run(); if (rn.solved || rn.status === "halted" || !SEL.length) return;
     var moving = SEL.slice(); rn.pans.L = rn.pans.L.filter(function (c) { return moving.indexOf(c) < 0; }); rn.pans.R = rn.pans.R.filter(function (c) { return moving.indexOf(c) < 0; });
@@ -1043,7 +1048,7 @@ if (typeof module !== "undefined") module.exports = MINTSCALE;
   function clearPans() { var rn = run(); if (rn.solved || rn.status === "halted") return; rn.pans = { L: [], R: [] }; SEL = []; saveState(); stopBeam(); beam.theta = 0; renderApp(); liveSay("All coins are back on the tray."); refocus("#weighBtn"); }
   function recall(i) { var rn = run(); if (rn.solved || rn.status === "halted") { $("app").scrollIntoView({ block: "nearest" }); }
     var w = rn.hist[i]; if (!(rn.solved || rn.status === "halted")) { rn.pans = { L: w.L.slice(), R: w.R.slice() }; SEL = []; saveState(); }
-    stopBeam(); beam.theta = rn.solved || rn.status === "halted" ? beam.theta : targetTheta(); renderApp(); liveSay("Weighing " + (i + 1) + " set up again (no weighing used): " + wtext(w) + ", " + OUT_LONG[String(w.out)] + "."); }
+    stopBeam(); beam.theta = rn.solved || rn.status === "halted" ? beam.theta : targetTheta(); renderApp(); liveSay("Weighing " + (i + 1) + " set up again (no weighing used): " + wtext(w) + ", " + OUT_LONG[String(w.out)] + "."); refocus("#weighBtn"); }
 
   /* ---------- weighing ---------- */
   var WARDEN_SOUND = ["The warden writes the result in his ledger without a word.", "“Good,” says the warden, and records it.", "The warden nods once and dips his pen."];
@@ -1266,12 +1271,13 @@ if (typeof module !== "undefined") module.exports = MINTSCALE;
   function liveSay(t) { clearTimeout(liveT); liveT = setTimeout(function () { var m = $("msg"); m.textContent = t; m.className = "msg"; }, 40); }
   document.addEventListener("keydown", function (e) {
     var a = document.activeElement, k = e.key;
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (a && (/^(TEXTAREA|SELECT|INPUT)$/.test(a.tagName) || a.closest("#nbBox"))) return;
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+    // Shortcuts are local to the scale: avoid hijacking tier, reset, sound, hints and ledger buttons.
+    if (!a || !a.closest("#app") || /^(TEXTAREA|SELECT|INPUT)$/.test(a.tagName)) return;
     var rn = run(), lk = k.length === 1 ? k.toLowerCase() : k;
     if (lk === "l" || lk === "r" || lk === "t") { if (!SEL.length) { if (!(rn.solved || rn.status === "halted")) liveSay("Select one or more coins first."); return; } e.preventDefault(); moveSel(lk.toUpperCase()); return; }
     if (lk === "w") { e.preventDefault(); if (!(rn.solved || rn.status === "halted")) weighNow(); return; }
-    if (k === "Escape" && SEL.length) { e.preventDefault(); SEL = []; renderApp(); liveSay("Selection cleared."); }
+    if (k === "Escape" && SEL.length) { e.preventDefault(); SEL = []; renderApp(); refocus("#weighBtn"); liveSay("Selection cleared."); }
   });
 
   function renderMeters() {
