@@ -7,6 +7,11 @@
 <meta name="robots" content="index,follow">
 <!-- Official Chaortal No. 17 -->
 <meta name="description" content="Chaortal No. 17: The Fortune Booth. In a fictional 1920s carnival booth, a fortune-teller opens empty curtains. Run real trials, then work out exactly when switching pays, and what a host's preferences reveal.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DoorQuests">
+<meta property="og:title" content="The Fortune Booth | DoorQuests Chaortals">
+<meta property="og:description" content="Play The Fortune Booth: three probability challenges, real trials, and a carnival fortune-teller whose rules matter.">
+<meta name="twitter:card" content="summary">
 <link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Limelight&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@500;600&display=swap">
@@ -1144,14 +1149,16 @@ if (typeof module !== "undefined") module.exports = FORTUNE;
     log.add("Trial: chose Curtain " + b.pick + ", she opened " + b.opened.join(" and ") + "; " + SNAME[strategy].toLowerCase() + " to Curtain " + b.final + ": " + (win ? "won" : "lost") + ".");
     renderStage(); renderLedger(); focusCurtain(b.final);
   }
-  function nextTrial() { var t = S.tier; flourish = null; if (t === "gold") { S.booth.gold = null; saveState(); renderStage(); return; } S.booth[t] = newTrial(t); saveState(); renderStage(); var f = document.querySelector(".curt"); if (f) f.focus(); }
+  function nextTrial() { var t = S.tier; flourish = null; if (t === "gold") { S.booth.gold = null; saveState(); renderStage(); focusStageControl("#demoBtn"); return; } S.booth[t] = newTrial(t); saveState(); renderStage(); var f = document.querySelector(".curt"); if (f) f.focus(); }
   function goldDemo() {
     var r = E.rng(E.freshSeed()), tr = E.trial("gold", r);
     S.booth.gold = { phase: "result", pick: tr.pick, prize: tr.prize, opened: tr.opened, final: null, strategy: null };
     var g = S.trials.gold.manual; g.n++; g.pairs[E.key(tr.opened)]++; if (E.key(tr.opened) === E.key(E.TIERS.gold.observed)) g.match[tr.prize]++;
     saveState(); log.add("Watched her once: she opened " + tr.opened.join(" then ") + "; the emblem was behind Curtain " + tr.prize + ".");
-    renderStage(); renderLedger();
+    renderStage(); renderLedger(); focusStageControl("#demoBack");
   }
+
+  function focusStageControl(sel) { var el = document.querySelector(sel); if (el && !el.disabled) el.focus({ preventScroll: true }); }
   function focusCurtain(c) { var el = document.querySelector('.curt[data-c="' + c + '"]'); if (el && !el.disabled) el.focus(); else { var n = document.querySelector("#trialCtl button"); if (n) n.focus(); } }
   function renderDialogue() {
     var t = S.tier, T = E.TIERS[t], b = t === "gold" ? S.booth.gold : booth(), d;
@@ -1238,7 +1245,7 @@ if (typeof module !== "undefined") module.exports = FORTUNE;
     })();
   }
   var clearArmed = false;
-  $("clearTrials").onclick = function () { if (!clearArmed) { clearArmed = true; renderLedger(); $("simStatus").textContent = "This erases this challenge's trial counts (yours and automatic). Your score is not affected."; return; }
+  $("clearTrials").onclick = function () { if (simming) { $("simStatus").textContent = "Finish the current simulation before clearing trials."; return; } if (!clearArmed) { clearArmed = true; renderLedger(); $("simStatus").textContent = "This erases this challenge's trial counts (yours and automatic). Your score is not affected."; return; }
     clearArmed = false; S.trials[S.tier] = freshTrials(S.tier); saveState(); $("simStatus").textContent = "Trial records cleared."; renderLedger(); };
   $("clearTrials").onblur = function () { if (clearArmed) { clearArmed = false; renderLedger(); } };
   $("seedIn").oninput = function () { S.seed = this.value.slice(0, 9); saveState(); };
@@ -1381,7 +1388,7 @@ if (typeof module !== "undefined") module.exports = FORTUNE;
     gold: { title: "Gold · The Fortune-Teller's Preference", intro: "Augusta leans across the counter. “I confess I have a favourite curtain. When I open empty curtains, I am drawn to Curtain 2.”",
       rule: "<ol><li>Five curtains; the emblem is equally likely to be behind any of them (1/5). <b>You hold Curtain 1.</b></li><li>Augusta knows where the emblem is. She opens exactly two empty curtains, never yours and never the emblem's.</li><li><b>Her weights:</b> she opens them one at a time. Each time she draws among the curtains still allowed, with chances in proportion to their weights: <b>Curtain 2 weight 2; Curtains 3, 4 and 5 weight 1</b>. For example, if Curtains 2, 3, 4 and 5 are all allowed, she opens Curtain 2 with chance 2/5 and each of the others with chance 1/5.</li><li><b>What you saw:</b> she drew back <b>Curtains 3 and 4</b> together. You know which two she opened, not in which order.</li></ol><p style=\"margin:6px 0 0\"><b>Your task:</b> the exact probability, as a fraction, that the emblem is behind Curtain 2.</p>" }
   };
-  function switchTier(t) { S.tier = t; clearArmed = false; flourish = null; saveState(); say(""); $("simStatus").textContent = ""; renderAll(); }
+  function switchTier(t) { if (simming) { $("simStatus").textContent = "Finish the current simulation before changing challenges."; return; } S.tier = t; clearArmed = false; flourish = null; saveState(); say(""); $("simStatus").textContent = ""; renderAll(); }
   function renderTiers() {
     $("tiers").innerHTML = ORDER.map(function (t) {
       var rec = K.tier(DOOR, t), nm = TEXT[t].title.split(" · "), aim = { bronze: "Three curtains: stay or switch?", silver: "Five curtains, two opened", gold: "A host with a preference" }[t];
@@ -1436,7 +1443,7 @@ if (typeof module !== "undefined") module.exports = FORTUNE;
   function renderRing() {
     var rows = ORDER.map(function (t) { var r = K.tier(DOOR, t);
       return "<tr><th scope=\"row\">" + TNAME[t] + "</th><td>" + (r && r.solved ? "Earned" + (r.hintFree ? " ★" : "") : "—") + "</td><td>" + (r && r.best !== null ? r.best : "—") + "</td><td>" + (r && r.fewestHints !== null ? r.fewestHints : "—") + "</td><td>" + [K.hasAch(DOOR, t, "against-the-odds") ? "♦ Against the Odds" : "", K.hasAch(DOOR, t, "master-of-chance") ? "✸ Master of Chance" : ""].filter(Boolean).join(" · ") + "</td><td>" + (r ? r.attempts : 0) + "</td></tr>"; }).join("");
-    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Plays</th></tr></thead><tbody>' + rows + "</tbody>";
+    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Completed attempts</th></tr></thead><tbody>' + rows + "</tbody>";
     $("kslots").innerHTML = K.summary().map(function (d) {
       var hf = d.key && d.tiers[d.key] && d.tiers[d.key].hintFree, mc = K.TIERS.filter(function (t) { return d.tiers[t] && d.tiers[t].achievements && Object.keys(d.tiers[t].achievements).length; }).length;
       return '<div class="slot' + (d.key ? " has " + d.key : "") + '"><span class="n">No. ' + d.id + " · " + d.verb + '</span><span class="t">' + esc(d.title) + "</span>" +
@@ -1450,6 +1457,7 @@ if (typeof module !== "undefined") module.exports = FORTUNE;
     f.text().then(function (txt) { var r = K.importText(txt); $("ringMsg").textContent = r.ok ? "Keyring imported. " + (r.added ? r.added + " new tier" + (r.added > 1 ? "s" : "") + " added; " : "") + "nothing was downgraded." : r.error; input.value = ""; renderAll(); }); };
   var resetArmed = false;
   $("resetBtn").onclick = function () {
+    if (simming) { $("ringMsg").textContent = "Finish the simulation before resetting progress."; return; }
     if (!resetArmed) { resetArmed = true; $("resetBtn").textContent = "Really erase every key? Press again"; $("ringMsg").textContent = "This erases all Chaortal keys and achievements in this browser, plus this door's trials, ledger, worksheet and journal."; return; }
     resetArmed = false; K.reset(); nb.clearAll(); log.clearAll(); log = makeLog(); S = freshState(); WS = freshWS(); saveState(); saveWS(); say(""); $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = "Progress erased."; renderAll(); };
   $("resetBtn").onblur = function () { if (resetArmed) { resetArmed = false; $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = ""; } };
@@ -1469,7 +1477,8 @@ if (typeof module !== "undefined") module.exports = FORTUNE;
   document.addEventListener("keydown", function (e) {
     var a = document.activeElement, k = e.key;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.closest("#nbBox") || a.closest("#card"))) return;
+    // Shortcuts belong to the stage only; do not hijack buttons elsewhere on the page.
+    if (!a || !a.closest("#stage") || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
     var t = S.tier;
     if (t === "gold") { if (k === "w" || k === "W") { e.preventDefault(); goldDemo(); } else if ((k === "q" || k === "Q") && S.booth.gold) { e.preventDefault(); nextTrial(); } return; }
     var b = booth();
