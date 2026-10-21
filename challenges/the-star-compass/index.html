@@ -6,6 +6,11 @@
 <title>The Star Compass | DoorQuests Chaortals</title>
 <meta name="robots" content="index,follow">
 <meta name="description" content="Chaortal No. 19: The Star Compass. Aboard a fictional double-hulled voyaging canoe, find north from a noon shadow, steer by a rising star in the Hawaiian star compass, and correct your heading for an ocean current to reach an island at dawn.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DoorQuests">
+<meta property="og:title" content="The Star Compass | DoorQuests Chaortals">
+<meta property="og:description" content="Play The Star Compass: find true north by the Sun, navigate with rising stars, and steer across a moving ocean.">
+<meta name="twitter:card" content="summary">
 <link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Lora:ital,wght@0,400;0,600;1,400&family=Josefin+Sans:wght@500;600;700&display=swap">
@@ -987,10 +992,14 @@ if (typeof module !== "undefined") module.exports = STARCOMPASS;
     h += '<ul class="facts"><li>Destination: ' + NUMW[V.dest[0]] + " nautical miles east and " + NUMW[V.dest[1]] + " north.</li><li>Canoe speed: " + NUMW[V.speed] + " knots through the water.</li><li>Current: " + NUMW[V.current[0]] + " knot east, steady.</li><li>Voyage: " + NUMW[V.hours] + " hours on one heading.</li><li>Arrival: within " + V.radius + " nautical miles of the island after " + V.hours + " hours.</li></ul>";
     if (anim) h += '<div class="ctlrow"><button type="button" class="hbtn" id="skipBtn">Skip the animation</button></div>';
     h += "</div></div>";
-    $("appBody").innerHTML = h;
+    // While a voyage animates, swap only the chart: rebuilding the whole panel every frame
+    // replaced the Skip button under the pointer and wiped keyboard focus, so Skip could not be used.
+    var body = $("appBody"), curChart = anim && $("skipBtn") && body.querySelector("svg.dial");
+    if (curChart) { var tmp = document.createElement("div"); tmp.innerHTML = h; var nextChart = tmp.querySelector("svg.dial"); if (nextChart) { curChart.replaceWith(nextChart); return; } }
+    body.innerHTML = h;
     var inp = $("hdIn"); if (inp) inp.oninput = function () { rn.heading = inp.value.slice(0, 5); saveState(); $("vecLine").textContent = vecText(currentHeading()); renderGoldChartOnly(); };
     $("appBody").querySelectorAll("[data-h]").forEach(function (b) { b.onclick = function () { nudge(+b.dataset.h); }; });
-    if ($("skipBtn")) $("skipBtn").onclick = function () { finishAnim(); };
+    if ($("skipBtn")) $("skipBtn").onclick = function () { finishAnim(); renderAll(); focusControl(S.play.gold.solved ? "#awardTitle" : "#sendBtn"); };
   }
   function renderGoldChartOnly() { var keep = document.activeElement && document.activeElement.id; var pos = $("hdIn") ? $("hdIn").selectionStart : null; renderGold(); if (keep === "hdIn" && $("hdIn")) { $("hdIn").focus(); try { $("hdIn").setSelectionRange(pos, pos); } catch (e) {} } }
   function vecText(hd) { if (hd === null) return "Type a heading from 0 to 359.9 degrees (one decimal place at most), or use the buttons.";
@@ -1098,7 +1107,7 @@ if (typeof module !== "undefined") module.exports = STARCOMPASS;
     gold: { title: "Gold · The Moving Ocean", intro: "The island lies beyond the horizon. The canoe will hold one heading through the night, while a steady current moves the water beneath it.",
       rule: "<ul><li>Chart: x = east, y = north, in nautical miles; bearings clockwise from north.</li><li>The island: <b>16 nm east and 16 nm north</b>. Canoe speed: <b>5 knots through the water</b>. Current: <b>1 knot east</b>. Voyage: <b>4 hours</b>.</li><li><b>Velocity over ground = velocity through the water + current.</b></li><li>Choose a heading and sail. You arrive if, after 4 hours, the canoe is within <b>0.25 nm</b> of the island. Headings may have one decimal place. A voyage that misses costs 8.</li></ul>" }
   };
-  function switchTier(t) { anim = null; animT = 1; S.tier = t; saveState(); say(""); renderAll(); }
+  function switchTier(t) { if (anim) { finishAnim(); } S.tier = t; saveState(); say(""); renderAll(); }
   function renderTiers() {
     $("tiers").innerHTML = ORDER.map(function (t) {
       var rec = K.tier(DOOR, t), nm = TEXT[t].title.split(" · "), aim = { bronze: "Find north from a shadow", silver: "Steer by a rising star", gold: "Correct for the current" }[t];
@@ -1146,7 +1155,7 @@ if (typeof module !== "undefined") module.exports = STARCOMPASS;
   function renderRing() {
     var rows = ORDER.map(function (t) { var r = K.tier(DOOR, t);
       return "<tr><th scope=\"row\">" + TNAME[t] + "</th><td>" + (r && r.solved ? "Earned" + (r.hintFree ? " ★" : "") : "—") + "</td><td>" + (r && r.best !== null ? r.best : "—") + "</td><td>" + (r && r.fewestHints !== null ? r.fewestHints : "—") + "</td><td>" + [K.hasAch(DOOR, t, "true-bearing") ? "✧ True Bearing" : "", K.hasAch(DOOR, t, "master-wayfinder") ? "✦ Master Wayfinder" : ""].filter(Boolean).join(" · ") + "</td><td>" + (r ? r.attempts : 0) + "</td></tr>"; }).join("");
-    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Plays</th></tr></thead><tbody>' + rows + "</tbody>";
+    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Completed attempts</th></tr></thead><tbody>' + rows + "</tbody>";
     $("kslots").innerHTML = K.summary().map(function (d) {
       var hf = d.key && d.tiers[d.key] && d.tiers[d.key].hintFree, mc = K.TIERS.filter(function (t) { return d.tiers[t] && d.tiers[t].achievements && Object.keys(d.tiers[t].achievements).length; }).length;
       return '<div class="slot' + (d.key ? " has " + d.key : "") + '"><span class="n">No. ' + d.id + " · " + d.verb + '</span><span class="t">' + esc(d.title) + "</span>" +
@@ -1161,7 +1170,7 @@ if (typeof module !== "undefined") module.exports = STARCOMPASS;
   var resetArmed = false;
   $("resetBtn").onclick = function () {
     if (!resetArmed) { resetArmed = true; $("resetBtn").textContent = "Really erase every key? Press again"; $("ringMsg").textContent = "This erases all Chaortal keys and achievements in this browser, plus this door's scratchpad, ledger and journal."; return; }
-    resetArmed = false; anim = null; animT = 1; K.reset(); nb.clearAll(); log.clearAll(); log = makeLog(); S = freshState(); WS = freshWS(); saveState(); saveWS(); say(""); $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = "Progress erased."; renderAll(); };
+    resetArmed = false; if (anim) finishAnim(); K.reset(); nb.clearAll(); log.clearAll(); log = makeLog(); S = freshState(); WS = freshWS(); saveState(); saveWS(); say(""); $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = "Progress erased."; renderAll(); };
   $("resetBtn").onblur = function () { if (resetArmed) { resetArmed = false; $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = ""; } };
 
   /* ---------- prefs, sound, keys ---------- */
@@ -1178,16 +1187,32 @@ if (typeof module !== "undefined") module.exports = STARCOMPASS;
   function say(text, cls) { clearTimeout(liveT); var m = $("msg"); m.textContent = text; m.className = "msg" + (cls ? " " + cls : ""); }
   function liveSay(t) { clearTimeout(liveT); liveT = setTimeout(function () { var m = $("msg"); m.textContent = t; m.className = "msg"; }, 40); }
   document.addEventListener("keydown", function (e) {
-    var a = document.activeElement, k = e.key;
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (a && (/^(TEXTAREA|SELECT)$/.test(a.tagName) || (a.tagName === "INPUT" && a.id !== "hdIn") || a.closest("#nbBox"))) return;
-    var t = S.tier;
-    if (k === "Enter" && !(a && /^(BUTTON|A|SUMMARY|INPUT)$/.test(a.tagName))) { e.preventDefault(); submit(); return; }
-    if (a && a.id === "hdIn" && !(k === "ArrowUp" || k === "ArrowDown")) return;
-    if (t === "bronze" && (k === "ArrowLeft" || k === "ArrowRight")) { e.preventDefault(); turnPointer((k === "ArrowLeft" ? -1 : 1) * (e.shiftKey ? 45 : 5)); return; }
-    if (t === "silver" && (k === "ArrowLeft" || k === "ArrowRight")) { e.preventDefault(); turnBow(k === "ArrowLeft" ? -1 : 1); return; }
-    if (t === "gold" && (k === "ArrowUp" || k === "ArrowDown")) { e.preventDefault(); nudge((k === "ArrowDown" ? -1 : 1) * (e.shiftKey ? 10 : 1)); return; }
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+    var a = document.activeElement, k = e.key, t = S.tier;
+    if (!a || /^(TEXTAREA|SELECT)$/.test(a.tagName)) return;
+    if (a.tagName === "INPUT" && a.id !== "hdIn") return;
+    // Restrict controls to the interactive apparatus and the adjacent course card.
+    // Never hijack challenge, hint, sound, reset, ledger, or navigation controls.
+    if (!a.closest("#app, #card")) return;
+    if (a.id === "hdIn" && !(k === "ArrowUp" || k === "ArrowDown")) return;
+    var restore = a.id ? "#" + a.id : a.hasAttribute("data-p") ? '[data-p="' + a.dataset.p + '"]'
+      : a.hasAttribute("data-b") ? '[data-b="' + a.dataset.b + '"]'
+      : a.hasAttribute("data-h") ? '[data-h="' + a.dataset.h + '"]' : null;
+    if (t === "bronze" && (k === "ArrowLeft" || k === "ArrowRight")) {
+      e.preventDefault(); turnPointer((k === "ArrowLeft" ? -1 : 1) * (e.shiftKey ? 45 : 5));
+    } else if (t === "silver" && (k === "ArrowLeft" || k === "ArrowRight")) {
+      e.preventDefault(); turnBow(k === "ArrowLeft" ? -1 : 1);
+    } else if (t === "gold" && (k === "ArrowUp" || k === "ArrowDown")) {
+      e.preventDefault(); nudge((k === "ArrowDown" ? -1 : 1) * (e.shiftKey ? 10 : 1));
+    } else return;
+    // Re-rendering replaces DOM buttons: return focus to the matching control.
+    if (a.id === "hdIn" && e.defaultPrevented && document.activeElement !== a) { focusControl("#hdIn"); var hi = $("hdIn"); if (hi) { try { hi.setSelectionRange(hi.value.length, hi.value.length); } catch (x) {} } return; }
+    if (restore && (!document.activeElement || document.activeElement === document.body)) {
+      var f = document.querySelector(restore); if (f && !f.disabled) f.focus({ preventScroll: true });
+    }
   });
+
+  function focusControl(sel) { var el = document.querySelector(sel); if (el && !el.disabled) el.focus({ preventScroll: true }); }
 
   function renderMeters() {
     var rn = run(); $("meters").innerHTML = "<div>Wrong submissions <b>" + rn.wrong + "</b></div><div>Advice taken <b>" + rn.hints + "</b></div><div>Refused (free) <b>" + rn.refused + "</b></div><div>Score <b>" + (rn.solved ? rn.score : E.score(S.tier, rn)) + "</b></div>";
