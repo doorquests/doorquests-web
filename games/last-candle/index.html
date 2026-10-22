@@ -1,0 +1,2084 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Last Candle | DoorQuests Gamortals</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Gamortal No. 001 — Last Candle. Keep a candle burning through a storm by opening and closing doors and windows until dawn.">
+<meta name="theme-color" content="#16142e">
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<style>
+:root {
+  --indigo: #16142e;
+  --indigo-2: #201d42;
+  --storm: #22314f;
+  --storm-2: #2e4166;
+  --amber: #e9a23b;
+  --gold: #f6c86a;
+  --wood: #6b4a2f;
+  --wood-2: #8a6240;
+  --ivory: #f3ead6;
+  --ivory-dim: #c9bfa8;
+  --flash: #f8f9ff;
+  --danger: #ff8a6b;
+  --cool: #9cc3ff;
+  --dawn: 0;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --r: 10px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  min-height: 100vh;
+  font-family: var(--sans);
+  color: var(--ivory);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--indigo) calc(100% - var(--dawn) * 70%), #6a7fb8) 0%,
+      color-mix(in srgb, var(--storm) calc(100% - var(--dawn) * 60%), #d99a6c) 100%) fixed;
+  background-color: var(--indigo);
+  line-height: 1.45;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+a { color: var(--gold); }
+button, select, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* decorative storm layer */
+#rain { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .35;
+  background-image: repeating-linear-gradient(105deg, transparent 0 22px, rgba(200,215,255,.18) 22px 23px, transparent 23px 47px);
+  background-size: 200px 200px; animation: rain .5s linear infinite; }
+@keyframes rain { to { background-position: -60px 200px; } }
+#flash { position: fixed; inset: 0; pointer-events: none; z-index: 0; background: var(--flash); opacity: 0; }
+#flash.on { animation: flash .6s ease-out; }
+@keyframes flash { 0% { opacity: .18; } 15% { opacity: .02; } 25% { opacity: .12; } 100% { opacity: 0; } }
+.reduced #rain, .reduced #flash { display: none; }
+
+.wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 0 16px calc(24px + env(safe-area-inset-bottom)); }
+
+/* header */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 14px 0 10px; }
+.brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.brand a.home { font-family: var(--serif); font-weight: 700; font-size: 1.15rem; color: var(--ivory); text-decoration: none; }
+.brand .coll { color: var(--ivory-dim); font-size: .95rem; }
+.proto { font-size: .8rem; padding: 3px 10px; border-radius: 999px; border: 1px dashed var(--amber); color: var(--gold); white-space: nowrap; }
+.title { margin: 2px 0 4px; }
+.title h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.05; margin: 0; letter-spacing: .01em; }
+.title .no { font-family: var(--serif); color: var(--gold); font-style: italic; font-size: 1.05rem; }
+.title .night { color: var(--ivory-dim); margin: 4px 0 0; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { appearance: none; border: 1px solid rgba(243,234,214,.28); background: rgba(22,20,46,.55); border-radius: 999px; padding: 8px 14px; min-height: 44px; cursor: pointer; }
+.btn:hover { border-color: var(--gold); }
+.btn.primary { background: var(--amber); color: #1d1206; border-color: var(--amber); font-weight: 650; }
+.btn.primary:hover { background: var(--gold); }
+.btn.danger { border-color: var(--danger); color: var(--danger); }
+.btn[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* game grid */
+.game { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr); gap: 16px; margin-top: 8px; }
+.panel { background: rgba(16,15,36,.62); border: 1px solid rgba(243,234,214,.12); border-radius: var(--r); padding: 14px; backdrop-filter: blur(3px); }
+.panel h2 { font-family: var(--serif); font-weight: 600; font-size: 1.15rem; margin: 0 0 8px; }
+.plan-wrap { position: relative; }
+#plan { width: 100%; height: auto; display: block; touch-action: manipulation; }
+#plan .room { fill: rgba(107,74,47,.38); stroke: var(--ivory); stroke-width: 3; }
+#plan .room.candle { fill: rgba(138,98,64,.55); }
+#plan .draft { fill: var(--cool); pointer-events: none; }
+#plan .rlabel { fill: var(--ivory-dim); font-family: var(--serif); font-size: 15px; pointer-events: none; }
+#plan .gap { stroke: #19172f; stroke-width: 7; }
+#plan .op { cursor: pointer; }
+#plan .op .hit { fill: transparent; stroke: transparent; stroke-width: 3; }
+#plan .op:hover .hit { stroke: rgba(246,200,106,.5); }
+#plan .op:focus { outline: none; }
+#plan .op:focus-visible .hit { stroke: var(--gold); stroke-width: 4; }
+#plan .win-closed { stroke: var(--ivory); stroke-width: 7; }
+#plan .win-pane { stroke: #19172f; stroke-width: 2; }
+#plan .win-open { stroke: var(--amber); stroke-width: 3; }
+#plan .door-closed { stroke: var(--wood-2); stroke-width: 8; stroke-linecap: round; }
+#plan .door-leaf { stroke: var(--ivory-dim); stroke-width: 3; stroke-linecap: round; }
+#plan .door-arc { fill: none; stroke: var(--ivory-dim); stroke-width: 1.5; stroke-dasharray: 4 4; }
+#plan .inflow { fill: var(--cool); }
+#plan .inflow.hard { fill: var(--danger); }
+#plan .windarrow { stroke: var(--cool); stroke-width: 3; fill: none; stroke-linecap: round; }
+#plan .windarrow.gust { stroke: var(--flash); }
+#plan .cdl { pointer-events: none; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--ivory-dim); font-size: .85rem; margin-top: 8px; }
+
+/* candle */
+.candle-panel { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center; }
+#candle { width: 120px; height: 190px; }
+#flameG { transform-origin: 60px 98px; transform-box: view-box; transition: transform .25s ease-out, opacity .3s; }
+.motion #flameInner { animation: flicker 1.4s ease-in-out infinite; transform-origin: 60px 98px; transform-box: view-box; }
+.motion .st-disturbed #flameInner { animation-duration: .7s; }
+.motion .st-threatened #flameInner, .motion .st-critical #flameInner { animation-duration: .28s; }
+@keyframes flicker { 0%,100% { transform: scale(1,1) rotate(0); } 30% { transform: scale(.96,1.04) rotate(-2deg); } 60% { transform: scale(1.03,.97) rotate(1.5deg); } }
+#smoke { opacity: 0; transition: opacity .6s; }
+.st-out #smoke { opacity: .8; }
+.motion .st-out #smoke { animation: smoke 3s ease-out infinite; }
+@keyframes smoke { from { transform: translateY(0); opacity: .8; } to { transform: translateY(-30px); opacity: 0; } }
+.state-word { font-family: var(--serif); font-size: 1.6rem; line-height: 1.1; margin: 0; }
+.state-sub { color: var(--ivory-dim); margin: 4px 0 0; font-size: .92rem; }
+
+/* meters */
+.meters { display: grid; gap: 10px; margin-top: 12px; }
+.meter { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; font-size: .92rem; }
+.meter .bar { grid-column: 1 / -1; height: 9px; border-radius: 9px; background: rgba(243,234,214,.12); overflow: hidden; }
+.meter .fill { height: 100%; width: 0; background: var(--gold); transition: width .25s linear; }
+.meter.bad .fill { background: var(--danger); }
+.meter.cool .fill { background: var(--cool); }
+.meter .val { color: var(--ivory-dim); font-variant-numeric: tabular-nums; }
+
+/* weather */
+.weather { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: center; }
+#compass { width: 96px; height: 96px; }
+.wind-word { font-family: var(--serif); font-size: 1.25rem; margin: 0; }
+.forecast { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+.forecast li { padding: 7px 10px; border-left: 3px solid var(--cool); background: rgba(34,49,79,.55); border-radius: 0 6px 6px 0; font-size: .93rem; }
+.forecast li.gust { border-left-color: var(--danger); }
+.forecast li.now { background: rgba(120,40,30,.45); }
+.forecast li.calm { border-left-color: var(--ivory-dim); color: var(--ivory-dim); }
+
+/* openings list */
+.rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-top: 4px; }
+.roomcard { border: 1px solid rgba(243,234,214,.12); border-radius: 8px; padding: 8px 10px; }
+.roomcard.candle { border-color: rgba(246,200,106,.55); }
+.roomcard h3 { font-family: var(--serif); font-weight: 600; font-size: 1rem; margin: 0 0 6px; display: flex; justify-content: space-between; gap: 6px; }
+.roomcard h3 small { font-family: var(--sans); font-weight: 400; color: var(--ivory-dim); font-size: .8rem; }
+.opbtn { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 8px; min-height: 44px; margin: 4px 0 0; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(243,234,214,.2); background: rgba(22,20,46,.6); cursor: pointer; text-align: left; }
+.opbtn[aria-pressed="true"] { background: rgba(233,162,59,.16); border-color: var(--amber); }
+.opbtn .st { font-weight: 650; font-size: .85rem; white-space: nowrap; }
+.opbtn .ex { font-size: .78rem; color: var(--ivory-dim); display: block; }
+.opbtn .ex.windward { color: var(--danger); }
+.opbtn:disabled { opacity: .55; cursor: default; }
+
+.log { margin-top: 12px; }
+.log summary { cursor: pointer; font-family: var(--serif); font-size: 1.05rem; min-height: 32px; }
+.log ol { list-style: none; padding: 0; margin: 8px 0 0; max-height: 220px; overflow: auto; font-size: .88rem; }
+.log li { padding: 3px 0; border-bottom: 1px solid rgba(243,234,214,.07); }
+.log time { color: var(--ivory-dim); font-variant-numeric: tabular-nums; margin-right: 6px; }
+.note { color: var(--ivory-dim); font-size: .85rem; }
+
+/* mobile status strip */
+.strip { display: none; }
+
+/* overlays */
+dialog { border: 1px solid rgba(243,234,214,.2); border-radius: 14px; background: #1a1838; color: var(--ivory); padding: 0; width: min(640px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); }
+dialog::backdrop { background: rgba(8,8,20,.72); }
+.dlg { padding: 20px; overflow: auto; max-height: calc(100dvh - 26px); }
+.dlg h2 { font-family: var(--serif); font-weight: 600; font-size: 1.6rem; margin: 0 0 6px; }
+.dlg h3 { font-family: var(--serif); font-weight: 600; margin: 16px 0 6px; }
+.dlg p { margin: 6px 0; }
+.dlg .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.tiers { display: grid; gap: 8px; margin-top: 10px; }
+.tier { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; text-align: left; padding: 10px; border-radius: 10px; border: 1px solid rgba(243,234,214,.2); background: rgba(34,49,79,.4); cursor: pointer; min-height: 56px; }
+.tier[aria-checked="true"] { border-color: var(--gold); background: rgba(233,162,59,.14); }
+.tier b { font-family: var(--serif); font-size: 1.05rem; }
+.tier span { color: var(--ivory-dim); font-size: .88rem; display: block; }
+.seal { width: 40px; height: 40px; }
+.modes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.result-head { font-family: var(--serif); font-size: clamp(1.5rem, 5vw, 2.1rem); line-height: 1.15; margin: 0 0 8px; letter-spacing: .02em; }
+.scoretbl { width: 100%; border-collapse: collapse; font-size: .92rem; margin-top: 8px; }
+.scoretbl td { padding: 4px 0; border-bottom: 1px solid rgba(243,234,214,.08); }
+.scoretbl td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; margin-top: 8px; }
+.slot { border: 1px solid rgba(243,234,214,.14); border-radius: 8px; padding: 6px; min-height: 74px; font-size: .78rem; display: grid; align-content: start; gap: 2px; }
+.slot.reserved { opacity: .45; border-style: dashed; }
+.slot .n { font-family: var(--serif); color: var(--gold); font-size: .95rem; }
+.ach { list-style: none; padding: 0; margin: 6px 0; display: grid; gap: 6px; }
+.ach li { padding: 6px 10px; border-radius: 8px; background: rgba(34,49,79,.45); font-size: .9rem; }
+.ach li.got { border-left: 3px solid var(--gold); }
+.ach li:not(.got) { color: var(--ivory-dim); }
+textarea { width: 100%; min-height: 110px; background: #121029; border: 1px solid rgba(243,234,214,.2); border-radius: 8px; padding: 8px; font-size: .82rem; }
+input[type=number] { background: #121029; border: 1px solid rgba(243,234,214,.25); border-radius: 8px; padding: 8px; width: 9em; min-height: 44px; }
+.msg { min-height: 1.4em; color: var(--gold); }
+.foot { margin-top: 22px; color: var(--ivory-dim); font-size: .85rem; display: grid; gap: 4px; }
+.foot .tag { font-family: var(--serif); font-style: italic; color: var(--ivory); font-size: 1rem; }
+.dev { margin-top: 8px; font-size: .8rem; color: var(--ivory-dim); }
+
+@media (max-width: 860px) {
+  .game { grid-template-columns: 1fr; }
+  .strip { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; position: sticky; top: 0; z-index: 5; margin: 0 -16px; padding: 8px 16px; background: rgba(16,15,36,.92); border-bottom: 1px solid rgba(243,234,214,.12); }
+  .strip svg { width: 34px; height: 52px; }
+  .strip .mini { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 10px; font-size: .8rem; }
+  .strip .fc { grid-column: 1 / -1; font-size: .85rem; min-height: 1.3em; color: var(--ivory); }
+  .strip .fc.gust { color: var(--danger); }
+  .strip .mini .bar { height: 6px; border-radius: 6px; background: rgba(243,234,214,.12); overflow: hidden; }
+  .strip .mini .fill { height: 100%; background: var(--gold); }
+  .strip .mini .bad .fill { background: var(--danger); }
+  .strip .mini .cool .fill { background: var(--cool); }
+  .rooms { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) {
+  .weather { grid-template-columns: 72px 1fr; }
+  #compass { width: 72px; height: 72px; }
+}
+</style>
+</head>
+<body class="motion">
+<div id="rain" aria-hidden="true"></div>
+<div id="flash" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <a class="home" href="https://doorquests.com/">DoorQuests</a>
+      <span class="coll">Gamortals</span>
+    </div>
+    <span class="proto">Prototype · not published</span>
+  </header>
+
+  <div class="strip" id="strip">
+    <svg viewBox="0 0 34 52" aria-hidden="true"><rect x="11" y="24" width="12" height="26" rx="2" fill="#efe3c7"/><path id="miniFlame" d="M17 4 C 23 13 23 20 17 23 C 11 20 11 13 17 4 Z" fill="#f6c86a"/></svg>
+    <div class="mini" aria-hidden="true">
+      <div id="mFlame">Flame <span></span><div class="bar"><div class="fill"></div></div></div>
+      <div id="mAir" class="cool">Air <span></span><div class="bar"><div class="fill"></div></div></div>
+      <div id="mGust">Draft <span></span><div class="bar"><div class="fill"></div></div></div>
+      <div id="mDawn">Dawn <span></span><div class="bar"><div class="fill"></div></div></div>
+    </div>
+    <button class="btn" id="mPause" type="button">Pause</button>
+    <div class="fc" id="mFc" aria-hidden="true"></div>
+  </div>
+
+  <section class="title">
+    <span class="no">Gamortal No. 001</span>
+    <h1>Last Candle</h1>
+    <p class="night" id="nightLine">Keep one flame alive until dawn.</p>
+  </section>
+
+  <div class="toolbar" role="toolbar" aria-label="Game controls">
+    <button class="btn primary" id="bNew" type="button">New night</button>
+    <button class="btn" id="bPause" type="button" disabled>Pause</button>
+    <button class="btn" id="bRestart" type="button" disabled>Restart</button>
+    <button class="btn" id="bHow" type="button">How to play</button>
+    <button class="btn" id="bKeyring" type="button">Keyring</button>
+    <button class="btn" id="bSound" type="button" aria-pressed="false">Sound off</button>
+    <button class="btn" id="bMotion" type="button" aria-pressed="false">Reduce motion</button>
+  </div>
+  <div class="dev" id="dev" hidden></div>
+
+  <main class="game" id="game">
+    <div class="mainc">
+      <section class="panel plan-wrap" aria-labelledby="planH">
+        <h2 id="planH">The house</h2>
+        <svg id="plan" aria-hidden="true" focusable="false"></svg>
+        <p class="sr">The floor plan is a picture of the house. Use the Doors and windows list to open and close them.</p>
+        <div class="legend" aria-hidden="true">
+          <span>Ivory bar: closed window</span><span>Amber gap: open window</span><span>Brown bar: closed door</span><span>Blue haze: draft in a room</span>
+        </div>
+      </section>
+      <section class="panel" aria-labelledby="opsH" style="margin-top:16px">
+        <h2 id="opsH">Doors and windows</h2>
+        <div class="rooms" id="rooms"></div>
+        <details class="log" id="logBox">
+          <summary>Storm log</summary>
+          <ol id="log" aria-live="off"></ol>
+        </details>
+      </section>
+    </div>
+    <aside class="side">
+      <section class="panel candle-panel-wrap" aria-labelledby="flameH">
+        <h2 id="flameH" class="sr">The candle</h2>
+        <div class="candle-panel" id="candleBox">
+          <svg id="candle" viewBox="0 0 120 190" aria-hidden="true">
+            <defs>
+              <radialGradient id="halo" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f6c86a" stop-opacity=".55"/><stop offset="1" stop-color="#f6c86a" stop-opacity="0"/></radialGradient>
+              <linearGradient id="wax" x1="0" x2="1"><stop offset="0" stop-color="#d9ccae"/><stop offset=".5" stop-color="#f6eedb"/><stop offset="1" stop-color="#cbbd9e"/></linearGradient>
+            </defs>
+            <circle id="haloC" cx="60" cy="80" r="58" fill="url(#halo)"/>
+            <g id="smoke"><path d="M60 92 C 54 80 66 72 58 60 C 52 50 64 44 60 34" stroke="#9aa0b5" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>
+            <g id="flameG">
+              <g id="flameInner">
+                <path d="M60 40 C 76 64 76 84 60 98 C 44 84 44 64 60 40 Z" fill="#e9a23b"/>
+                <path d="M60 58 C 69 72 69 84 60 94 C 51 84 51 72 60 58 Z" fill="#fff1c4"/>
+              </g>
+            </g>
+            <line x1="60" y1="98" x2="60" y2="108" stroke="#2a2018" stroke-width="3" stroke-linecap="round"/>
+            <rect x="38" y="106" width="44" height="70" rx="4" fill="url(#wax)"/>
+            <path d="M38 112 q 6 8 0 18" stroke="#e6dcc4" stroke-width="4" fill="none"/>
+            <ellipse cx="60" cy="178" rx="40" ry="8" fill="#6b4a2f"/>
+          </svg>
+          <div>
+            <p class="state-word" id="stateWord">Waiting</p>
+            <p class="state-sub" id="stateSub">Choose a night to begin.</p>
+          </div>
+        </div>
+        <div class="meters">
+          <div class="meter" id="mtFlame"><span>Flame stability</span><span class="val"></span><div class="bar"><div class="fill"></div></div></div>
+          <div class="meter cool" id="mtAir"><span>Fresh air</span><span class="val"></span><div class="bar"><div class="fill"></div></div></div>
+          <div class="meter" id="mtGust"><span>Draft at the candle</span><span class="val"></span><div class="bar"><div class="fill"></div></div></div>
+          <div class="meter" id="mtDawn"><span>Until dawn</span><span class="val"></span><div class="bar"><div class="fill"></div></div></div>
+        </div>
+      </section>
+      <section class="panel" aria-labelledby="wxH" style="margin-top:16px">
+        <h2 id="wxH">The storm</h2>
+        <div class="weather">
+          <svg id="compass" viewBox="-50 -50 100 100" aria-hidden="true">
+            <circle r="44" fill="rgba(34,49,79,.6)" stroke="rgba(243,234,214,.35)"/>
+            <g fill="#c9bfa8" font-size="12" text-anchor="middle" font-family="Georgia, serif"><text y="-30">N</text><text x="33" y="4">E</text><text y="38">S</text><text x="-33" y="4">W</text></g>
+            <g id="needle"><path d="M0 -40 L 7 -24 L 2 -24 L 2 10 L -2 10 L -2 -24 L -7 -24 Z" fill="#9cc3ff" transform="rotate(180)"/></g>
+          </svg>
+          <div>
+            <p class="wind-word" id="windWord">Calm</p>
+            <p class="state-sub" id="windSub">The storm has not begun.</p>
+          </div>
+        </div>
+        <ul class="forecast" id="forecast" aria-label="Forecast"></ul>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <span class="tag">Choose Your Path. Find the Truth. Unlock the Impossible.</span>
+    <span>Gamortal No. 001 — Last Candle. Created by The Axiom Continuum. <a href="https://doorquests.com/">Return to DoorQuests</a></span>
+    <span>A game abstraction, not fire-safety advice: real candles do not use up a room's air in minutes. Never leave a real flame unattended, and keep candles away from drafts, curtains and open windows.</span>
+  </footer>
+</div>
+
+<div id="live" class="sr" aria-live="polite" aria-atomic="true"></div>
+<div id="alert" class="sr" aria-live="assertive" aria-atomic="true"></div>
+
+<dialog id="dStart" aria-labelledby="dStartH"><div class="dlg">
+  <h2 id="dStartH">Choose your night</h2>
+  <p>Each tier is its own house and its own storm. Any tier can be played first.</p>
+  <div class="tiers" role="radiogroup" aria-label="Difficulty" id="tierPick"></div>
+  <div class="modes" role="radiogroup" aria-label="Run type" id="modePick">
+    <button type="button" class="btn" role="radio" data-mode="ranked" aria-checked="true">Ranked night</button>
+    <button type="button" class="btn" role="radio" data-mode="practice" aria-checked="false">Practice night</button>
+  </div>
+  <p class="note" id="modeNote"></p>
+  <div id="seedRow" hidden><label for="seedIn">Storm number (optional)</label><br><input id="seedIn" type="number" min="1" max="4294967295" step="1" inputmode="numeric" placeholder="Random"></div>
+  <div id="speedRow" hidden><label for="speedIn">Test speed</label> <select id="speedIn"><option value="1">1×</option><option value="4">4×</option><option value="16">16×</option></select></div>
+  <div class="row"><button class="btn primary" id="bGo" type="button">Light the candle</button><button class="btn" type="button" data-close>Cancel</button></div>
+</div></dialog>
+
+<dialog id="dPause" aria-labelledby="dPauseH"><div class="dlg">
+  <h2 id="dPauseH">Paused</h2>
+  <p id="pauseText">The storm waits for you.</p>
+  <div class="row"><button class="btn primary" id="bResume" type="button">Resume</button><button class="btn" id="bAbandon" type="button">Abandon this night</button></div>
+</div></dialog>
+
+<dialog id="dResult" aria-labelledby="dResultH"><div class="dlg">
+  <h2 id="dResultH" class="result-head"></h2>
+  <p id="resultWhy"></p>
+  <div id="resultBody"></div>
+  <div class="row" id="resultBtns"></div>
+</div></dialog>
+
+<dialog id="dTut" aria-labelledby="dTutH"><div class="dlg">
+  <h2 id="dTutH">Your first night</h2>
+  <div id="tutBody"></div>
+  <div class="row"><button class="btn primary" id="bTutNext" type="button">Next</button><button class="btn" id="bTutSkip" type="button">Skip and begin</button></div>
+</div></dialog>
+
+<dialog id="dHow" aria-labelledby="dHowH"><div class="dlg">
+  <h2 id="dHowH">How to play</h2>
+  <p>A storm is circling the house. Keep the candle lit until dawn — five minutes of night.</p>
+  <h3>Two dangers</h3>
+  <p><b>Gusts.</b> An open window facing the wind lets a draft in. Drafts travel through open doors, losing half their strength at every doorway. A strong draft reaching the candle drains its stability fast.</p>
+  <p><b>Stale air.</b> The candle slowly uses up its fresh-air reserve. Open windows bring air in; air also travels through doors (and a little under closed ones). Seal the house too tightly and the flame starves.</p>
+  <h3>Reading the wind</h3>
+  <p>Each window is marked <b>Windward</b> (facing the wind — dangerous when open), <b>Angled</b> (partly exposed) or <b>Sheltered</b> (safe ventilation). When the wind turns, these labels change. Forecasts warn you before the wind turns and before gusts hit.</p>
+  <h3>Controls</h3>
+  <p>Tap a door or window on the plan, or use the list under it — both do the same thing. A door or window needs half a second to swing before it can be moved again. Keyboard: Tab to a control, Enter or Space to toggle, P to pause.</p>
+  <h3>Seals and scores</h3>
+  <p>Reaching dawn in a ranked night earns that tier's seal for your Gamortal Keyring. Your score (0–100) rewards a steady flame, a calm candle room, healthy air, never going critical, and not toggling more than you need to. Practice nights never touch your records.</p>
+  <h3>A note on real fire</h3>
+  <p>This is a stylised game model. Real candles do not exhaust a room's air in minutes, and you should never manage real flames around open windows in a storm or leave one unattended.</p>
+  <div class="row"><button class="btn primary" type="button" data-close>Close</button></div>
+</div></dialog>
+
+<dialog id="dKeyring" aria-labelledby="dKeyH"><div class="dlg">
+  <h2 id="dKeyH">Gamortal Keyring</h2>
+  <p class="note">One key per Gamortal. Your highest seal is the key's level. Stored only in this browser.</p>
+  <div id="krBody"></div>
+  <h3>Back up or move your keyring</h3>
+  <div class="row"><button class="btn" id="bExport" type="button">Download backup</button><button class="btn" id="bCopy" type="button">Show backup text</button>
+    <label class="btn" for="fileIn">Import a backup file</label><input id="fileIn" type="file" accept="application/json,.json" class="sr"></div>
+  <textarea id="krText" aria-label="Keyring backup text" hidden></textarea>
+  <div class="row" id="pasteRow" hidden><button class="btn" id="bPasteImport" type="button">Import pasted text</button></div>
+  <p class="msg" id="krMsg" role="status"></p>
+  <h3>Reset</h3>
+  <p class="note">Reset buttons only affect Gamortal records. Records from other DoorQuests collections are never touched.</p>
+  <div class="row"><button class="btn danger" id="bResetGame" type="button">Reset Last Candle records</button><button class="btn danger" id="bResetAll" type="button">Reset all Gamortal records</button></div>
+  <div class="row"><button class="btn primary" type="button" data-close>Close</button></div>
+</div></dialog>
+
+<script id="lc-core">
+/* ---- src/sim.js ---- */
+/* Last Candle — simulation core (Gamortal #001, DoorQuests)
+ * Pure, deterministic, DOM-free. Same file runs in the browser and in Node.
+ * Every rule that can change the flame is in step(); there are no other
+ * code paths that alter flame, air or the outcome.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.LastCandleSim = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  var SIM_VERSION = '1.0.0';
+  var TICK_HZ = 4;
+  var DT = 1 / TICK_HZ;                 // seconds of simulated night per tick
+  var NIGHT_TICKS = 300 * TICK_HZ;      // 300 s = 1200 ticks
+  var TOGGLE_COOLDOWN = 2;              // ticks an opening must rest between toggles
+  var STAB_CRITICAL = 25;               // flame stability below this is "critical"
+  var AIR_GOOD = 50;                    // air reserve at/above this counts as healthy for scoring
+
+  // Doorway transfer factors (fraction passed per doorway on the best path).
+  var DOOR = {
+    draftOpen: 0.5, draftClosed: 0.04,  // gusts lose half at each open doorway
+    airOpen: 0.6, airClosed: 0.1       // closed doors still leak some air (gaps)
+  };
+  var AIR_K = 1.4;                      // fresh air per unit window area per tick-second
+
+  var COMPASS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  var COMPASS_LONG = ['north', 'north-east', 'east', 'south-east', 'south', 'south-west', 'west', 'north-west'];
+  var FACE_DEG = { N: 0, E: 90, S: 180, W: 270 };
+
+  // ---------------------------------------------------------------- houses
+  // Grid units; the renderer scales them. Door/window positions sit on walls.
+  var HOUSES = {
+    bronze: {
+      id: 'cottage', name: 'The Cottage', w: 12, h: 5, candle: 'parlor',
+      rooms: [
+        { id: 'kitchen', name: 'Kitchen', x: 0, y: 0, w: 4, h: 5 },
+        { id: 'parlor', name: 'Parlor', x: 4, y: 0, w: 4, h: 5 },
+        { id: 'bedroom', name: 'Bedroom', x: 8, y: 0, w: 4, h: 5 }
+      ],
+      doors: [
+        { id: 'd-kitchen-parlor', a: 'kitchen', b: 'parlor', name: 'Kitchen–Parlor Door', x: 4, y: 2.5, axis: 'v' },
+        { id: 'd-parlor-bedroom', a: 'parlor', b: 'bedroom', name: 'Parlor–Bedroom Door', x: 8, y: 2.5, axis: 'v' }
+      ],
+      exterior: [
+        { id: 'w-kitchen-w', room: 'kitchen', face: 'W', kind: 'window', area: 1, x: 0, y: 2.5 },
+        { id: 'w-parlor-n', room: 'parlor', face: 'N', kind: 'window', area: 1, x: 6, y: 0 },
+        { id: 'w-bedroom-e', room: 'bedroom', face: 'E', kind: 'window', area: 1, x: 12, y: 2.5 }
+      ]
+    },
+    silver: {
+      id: 'farmhouse', name: 'The Farmhouse', w: 12, h: 8, candle: 'parlor',
+      rooms: [
+        { id: 'kitchen', name: 'Kitchen', x: 0, y: 0, w: 4, h: 4 },
+        { id: 'hall', name: 'Hall', x: 4, y: 0, w: 4, h: 8 },
+        { id: 'study', name: 'Study', x: 8, y: 0, w: 4, h: 4 },
+        { id: 'bedroom', name: 'Bedroom', x: 0, y: 4, w: 4, h: 4 },
+        { id: 'parlor', name: 'Parlor', x: 8, y: 4, w: 4, h: 4 }
+      ],
+      doors: [
+        { id: 'd-kitchen-hall', a: 'kitchen', b: 'hall', name: 'Kitchen–Hall Door', x: 4, y: 2, axis: 'v' },
+        { id: 'd-bedroom-hall', a: 'bedroom', b: 'hall', name: 'Bedroom–Hall Door', x: 4, y: 6, axis: 'v' },
+        { id: 'd-study-hall', a: 'study', b: 'hall', name: 'Study–Hall Door', x: 8, y: 2, axis: 'v' },
+        { id: 'd-parlor-hall', a: 'parlor', b: 'hall', name: 'Parlor–Hall Door', x: 8, y: 6, axis: 'v' },
+        { id: 'd-study-parlor', a: 'study', b: 'parlor', name: 'Study–Parlor Door', x: 10, y: 4, axis: 'h' },
+        { id: 'd-kitchen-bedroom', a: 'kitchen', b: 'bedroom', name: 'Kitchen–Bedroom Door', x: 2, y: 4, axis: 'h' }
+      ],
+      exterior: [
+        { id: 'w-kitchen-n', room: 'kitchen', face: 'N', kind: 'window', area: 1, x: 2, y: 0 },
+        { id: 'w-kitchen-w', room: 'kitchen', face: 'W', kind: 'window', area: 1, x: 0, y: 2 },
+        { id: 'w-study-n', room: 'study', face: 'N', kind: 'window', area: 1, x: 10, y: 0 },
+        { id: 'w-study-e', room: 'study', face: 'E', kind: 'window', area: 1, x: 12, y: 2 },
+        { id: 'w-bedroom-w', room: 'bedroom', face: 'W', kind: 'window', area: 1, x: 0, y: 6 },
+        { id: 'w-bedroom-s', room: 'bedroom', face: 'S', kind: 'window', area: 1, x: 2, y: 8 },
+        { id: 'x-hall-s', room: 'hall', face: 'S', kind: 'xdoor', area: 1.8, x: 6, y: 8 },
+        { id: 'w-parlor-e', room: 'parlor', face: 'E', kind: 'window', area: 1, x: 12, y: 6 },
+        { id: 'w-parlor-s', room: 'parlor', face: 'S', kind: 'window', area: 1, x: 10, y: 8 }
+      ]
+    },
+    gold: {
+      id: 'manor', name: 'The Manor', w: 12, h: 12, candle: 'chapel',
+      rooms: [
+        { id: 'library', name: 'Library', x: 0, y: 0, w: 4, h: 4 },
+        { id: 'gallery', name: 'Gallery', x: 4, y: 0, w: 4, h: 4 },
+        { id: 'conservatory', name: 'Conservatory', x: 8, y: 0, w: 4, h: 4 },
+        { id: 'dining', name: 'Dining Room', x: 0, y: 4, w: 4, h: 4 },
+        { id: 'chapel', name: 'Chapel', x: 4, y: 4, w: 4, h: 4 },
+        { id: 'kitchen', name: 'Kitchen', x: 8, y: 4, w: 4, h: 4 },
+        { id: 'bedroom', name: 'Bedroom', x: 0, y: 8, w: 6, h: 4 },
+        { id: 'foyer', name: 'Foyer', x: 6, y: 8, w: 6, h: 4 }
+      ],
+      doors: [
+        { id: 'd-library-gallery', a: 'library', b: 'gallery', name: 'Library–Gallery Door', x: 4, y: 2, axis: 'v' },
+        { id: 'd-gallery-conservatory', a: 'gallery', b: 'conservatory', name: 'Gallery–Conservatory Door', x: 8, y: 2, axis: 'v' },
+        { id: 'd-library-dining', a: 'library', b: 'dining', name: 'Library–Dining Door', x: 2, y: 4, axis: 'h' },
+        { id: 'd-gallery-chapel', a: 'gallery', b: 'chapel', name: 'Gallery–Chapel Door', x: 6, y: 4, axis: 'h' },
+        { id: 'd-conservatory-kitchen', a: 'conservatory', b: 'kitchen', name: 'Conservatory–Kitchen Door', x: 10, y: 4, axis: 'h' },
+        { id: 'd-dining-chapel', a: 'dining', b: 'chapel', name: 'Dining–Chapel Door', x: 4, y: 6, axis: 'v' },
+        { id: 'd-chapel-kitchen', a: 'chapel', b: 'kitchen', name: 'Chapel–Kitchen Door', x: 8, y: 6, axis: 'v' },
+        { id: 'd-dining-bedroom', a: 'dining', b: 'bedroom', name: 'Dining–Bedroom Door', x: 2, y: 8, axis: 'h' },
+        { id: 'd-chapel-foyer', a: 'chapel', b: 'foyer', name: 'Chapel–Foyer Door', x: 7, y: 8, axis: 'h' },
+        { id: 'd-kitchen-foyer', a: 'kitchen', b: 'foyer', name: 'Kitchen–Foyer Door', x: 10, y: 8, axis: 'h' },
+        { id: 'd-bedroom-foyer', a: 'bedroom', b: 'foyer', name: 'Bedroom–Foyer Door', x: 6, y: 10, axis: 'v' }
+      ],
+      exterior: [
+        { id: 'w-library-n', room: 'library', face: 'N', kind: 'window', area: 1, x: 2, y: 0 },
+        { id: 'w-library-w', room: 'library', face: 'W', kind: 'window', area: 1, x: 0, y: 2 },
+        { id: 'w-gallery-n', room: 'gallery', face: 'N', kind: 'window', area: 1, x: 6, y: 0 },
+        { id: 'w-conservatory-n', room: 'conservatory', face: 'N', kind: 'window', area: 1, x: 10, y: 0 },
+        { id: 'w-conservatory-e', room: 'conservatory', face: 'E', kind: 'window', area: 1, x: 12, y: 2 },
+        { id: 'w-dining-w', room: 'dining', face: 'W', kind: 'window', area: 1, x: 0, y: 6 },
+        { id: 'w-kitchen-e', room: 'kitchen', face: 'E', kind: 'window', area: 1, x: 12, y: 6 },
+        { id: 'w-bedroom-w', room: 'bedroom', face: 'W', kind: 'window', area: 1, x: 0, y: 10 },
+        { id: 'w-bedroom-s', room: 'bedroom', face: 'S', kind: 'window', area: 1, x: 3, y: 12 },
+        { id: 'x-foyer-s', room: 'foyer', face: 'S', kind: 'xdoor', area: 1.8, x: 9, y: 12 },
+        { id: 'w-foyer-e', room: 'foyer', face: 'E', kind: 'window', area: 1, x: 12, y: 10 }
+      ]
+    }
+  };
+
+  // ---------------------------------------------------------------- tiers
+  var TIERS = {
+    bronze: {
+      key: 'bronze', label: 'Bronze', night: 'The First Night', house: 'bronze',
+      flame: { burn: 1.0, leak: 0.15, tolerance: 0.30, draftK: 80, airK: 8, recover: 4, airLow: 35, air0: 100 },
+      weather: {
+        speed: [0.30, 0.42], firstFront: [35, 50], frontGap: [45, 60], turns: [90],
+        transition: 8, frontLead: 12,
+        gustGap: [26, 40], gustAmp: [0.35, 0.55], gustLead: 9, gustRise: 1.5, gustHold: [2.5, 4], gustFall: 2,
+        gustsInFronts: false
+      },
+      actionAllowance: 30
+    },
+    silver: {
+      key: 'silver', label: 'Silver', night: 'The Long Storm', house: 'silver',
+      flame: { burn: 1.25, leak: 0.15, tolerance: 0.34, draftK: 130, airK: 9, recover: 4.5, airLow: 35, air0: 100 },
+      weather: {
+        speed: [0.36, 0.55], firstFront: [25, 40], frontGap: [40, 55], turns: [90, 135],
+        transition: 5, frontLead: 9,
+        gustGap: [18, 30], gustAmp: [0.40, 0.65], gustLead: 7, gustRise: 0.5, gustHold: [2, 4], gustFall: 1.75,
+        gustsInFronts: false
+      },
+      actionAllowance: 50
+    },
+    gold: {
+      key: 'gold', label: 'Gold', night: 'The Last Light', house: 'gold',
+      flame: { burn: 1.5, leak: 0.2, tolerance: 0.32, draftK: 140, airK: 10, recover: 4, airLow: 35, air0: 90 },
+      weather: {
+        speed: [0.30, 0.65], firstFront: [20, 30], frontGap: [28, 42], turns: [90, 135, 180],
+        transition: 3, frontLead: 7,
+        gustGap: [12, 22], gustAmp: [0.45, 0.80], gustLead: 5.5, gustRise: 0.5, gustHold: [2, 4], gustFall: 1.5,
+        gustsInFronts: true
+      },
+      actionAllowance: 70
+    }
+  };
+  var TIER_SALT = { bronze: 0x0b1e55ed, silver: 0x51f0e7a1, gold: 0x601dcafe };
+
+  // ---------------------------------------------------------------- RNG
+  function mulberry32(a) {
+    a = a >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function rRange(rng, lo, hi) { return lo + (hi - lo) * rng(); }
+  function rPick(rng, arr) { return arr[Math.floor(rng() * arr.length)]; }
+  function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+  function round4(v) { return Math.round(v * 10000) / 10000; }
+  function normDeg(d) { d = d % 360; return d < 0 ? d + 360 : d; }
+  function sec(s) { return Math.round(s * TICK_HZ); }
+
+  function isValidSeed(seed) {
+    return typeof seed === 'number' && isFinite(seed) && Math.floor(seed) === seed && seed >= 1 && seed <= 4294967295;
+  }
+
+  // ---------------------------------------------------------------- weather
+  // The whole night's weather is generated up front from (seed, tier).
+  // Player actions never influence weather.
+  function generateWeather(seed, tierKey) {
+    if (!isValidSeed(seed)) throw new Error('invalid seed');
+    var tier = TIERS[tierKey];
+    if (!tier) throw new Error('invalid tier');
+    var P = tier.weather;
+    var rng = mulberry32((seed ^ TIER_SALT[tierKey]) >>> 0);
+    var dir0 = Math.floor(rng() * 8) * 45;
+    var spd0 = round4(rRange(rng, P.speed[0], P.speed[1]));
+    var fronts = [];
+    var t = sec(rRange(rng, P.firstFront[0], P.firstFront[1]));
+    var dir = dir0, spd = spd0;
+    var trans = sec(P.transition);
+    while (t + trans < NIGHT_TICKS - sec(10)) {
+      var turn = rPick(rng, P.turns) * (rng() < 0.5 ? -1 : 1);
+      var toDir = normDeg(dir + turn);
+      var toSpd = round4(clamp(spd + rRange(rng, -0.12, 0.12), P.speed[0], P.speed[1]));
+      fronts.push({ type: 'front', t: t, warn: t - sec(P.frontLead), dur: trans, fromDir: dir, turn: turn, toDir: toDir, fromSpeed: spd, toSpeed: toSpd });
+      dir = toDir; spd = toSpd;
+      t += sec(rRange(rng, P.frontGap[0], P.frontGap[1]));
+    }
+    var gusts = [];
+    var rise = sec(P.gustRise), fall = sec(P.gustFall);
+    t = sec(rRange(rng, P.gustGap[0], P.gustGap[1]) * 0.6 + 8);
+    while (t < NIGHT_TICKS - sec(6)) {
+      var hold = sec(rRange(rng, P.gustHold[0], P.gustHold[1]));
+      var amp = round4(rRange(rng, P.gustAmp[0], P.gustAmp[1]));
+      var end = t + rise + hold + fall;
+      var ok = true;
+      if (!P.gustsInFronts) {
+        for (var i = 0; i < fronts.length; i++) {
+          var f = fronts[i];
+          // keep gusts (and their warnings) clear of front transitions
+          if (end > f.warn && t - sec(P.gustLead) < f.t + f.dur + sec(2)) { ok = false; break; }
+        }
+      }
+      if (ok) gusts.push({ type: 'gust', t: t, warn: t - sec(P.gustLead), rise: rise, hold: hold, fall: fall, amp: amp });
+      t = (ok ? end : t) + sec(rRange(rng, P.gustGap[0], P.gustGap[1]) * (ok ? 1 : 0.35));
+    }
+    // Per-tick tables
+    var dirT = new Float64Array(NIGHT_TICKS), spdT = new Float64Array(NIGHT_TICKS), gustT = new Float64Array(NIGHT_TICKS);
+    var fi = 0; dir = dir0; spd = spd0;
+    for (var k = 0; k < NIGHT_TICKS; k++) {
+      while (fi < fronts.length && k >= fronts[fi].t + fronts[fi].dur) { dir = fronts[fi].toDir; spd = fronts[fi].toSpeed; fi++; }
+      var d = dir, s = spd;
+      if (fi < fronts.length && k >= fronts[fi].t) {
+        var fr = fronts[fi], frac = (k - fr.t + 1) / fr.dur;
+        d = normDeg(fr.fromDir + fr.turn * frac);
+        s = fr.fromSpeed + (fr.toSpeed - fr.fromSpeed) * frac;
+      }
+      dirT[k] = round4(d); spdT[k] = round4(s);
+    }
+    for (var g = 0; g < gusts.length; g++) {
+      var G = gusts[g], total = G.rise + G.hold + G.fall;
+      G.dir = dirT[Math.min(G.t, NIGHT_TICKS - 1)];
+      for (var j = 0; j < total && G.t + j < NIGHT_TICKS; j++) {
+        var prof = j < G.rise ? (j + 1) / G.rise : (j < G.rise + G.hold ? 1 : (total - j) / G.fall);
+        var idx = G.t + j;
+        gustT[idx] = round4(Math.max(gustT[idx], G.amp * prof));
+      }
+    }
+    return { seed: seed, tier: tierKey, dir0: dir0, speed0: spd0, fronts: fronts, gusts: gusts, dir: dirT, speed: spdT, gust: gustT };
+  }
+
+  function windAt(weather, t) {
+    var k = clamp(t, 0, NIGHT_TICKS - 1);
+    var base = weather.speed[k], gust = weather.gust[k];
+    return { dir: weather.dir[k], base: base, gust: gust, total: round4(base + gust) };
+  }
+
+  function compassIndex(deg) { return Math.round(normDeg(deg) / 45) % 8; }
+  function compassName(deg) { return COMPASS_LONG[compassIndex(deg)]; }
+  function compassShort(deg) { return COMPASS[compassIndex(deg)]; }
+
+  function windLabel(total) {
+    if (total < 0.35) return 'Breezy';
+    if (total < 0.55) return 'Windy';
+    if (total < 0.8) return 'Strong';
+    if (total < 1.05) return 'Gale';
+    return 'Violent';
+  }
+  function gustCategory(amp) { return amp >= 0.5 ? 'strong gust' : 'gust'; }
+
+  // Forecasts the player can see at tick t (no hidden future information).
+  function forecastsAt(weather, t) {
+    var out = [];
+    var i, e;
+    for (i = 0; i < weather.fronts.length; i++) {
+      e = weather.fronts[i];
+      if (t >= e.warn && t < e.t + e.dur) {
+        out.push({ type: 'front', inTicks: Math.max(0, e.t - t), active: t >= e.t, toDir: e.toDir, stronger: e.toSpeed > e.fromSpeed + 0.03, weaker: e.toSpeed < e.fromSpeed - 0.03 });
+      }
+    }
+    for (i = 0; i < weather.gusts.length; i++) {
+      e = weather.gusts[i];
+      if (t >= e.warn && t < e.t + e.rise + e.hold + e.fall) {
+        out.push({ type: 'gust', inTicks: Math.max(0, e.t - t), active: t >= e.t, dir: e.dir, category: gustCategory(e.amp) });
+      }
+    }
+    out.sort(function (a, b) { return a.inTicks - b.inTicks; });
+    return out;
+  }
+
+  function forecastText(f) {
+    var s = Math.ceil(f.inTicks / TICK_HZ);
+    if (f.type === 'front') {
+      var w = 'Wind turning to blow from the ' + compassName(f.toDir);
+      if (f.stronger) w += ', strengthening';
+      else if (f.weaker) w += ', easing';
+      return f.active ? w + ' — turning now.' : w + ' in ' + s + ' s.';
+    }
+    var g = (f.category === 'strong gust' ? 'Strong gust' : 'Gust') + ' from the ' + compassName(f.dir);
+    return f.active ? g + ' — hitting now!' : g + ' in ' + s + ' s.';
+  }
+
+  // ---------------------------------------------------------------- model
+  function exposure(face, windDir) {
+    var c = Math.cos((windDir - FACE_DEG[face]) * Math.PI / 180);
+    return c > 1e-9 ? c : 0;
+  }
+  function exposureLabel(e) {
+    if (e >= 0.85) return 'Windward';
+    if (e > 0.05) return 'Angled';
+    return 'Sheltered';
+  }
+
+  // Best-path doorway factor from every room to `target`: product of factors
+  // of doorways along the strongest route (Bellman-Ford on max-product; all
+  // factors <= 1 so this converges in |rooms| passes).
+  function pathFactors(house, open, target, kind) {
+    var fo = kind === 'draft' ? DOOR.draftOpen : DOOR.airOpen;
+    var fc = kind === 'draft' ? DOOR.draftClosed : DOOR.airClosed;
+    var f = {};
+    var i, r;
+    for (i = 0; i < house.rooms.length; i++) f[house.rooms[i].id] = 0;
+    f[target] = 1;
+    for (r = 0; r < house.rooms.length; r++) {
+      var changed = false;
+      for (i = 0; i < house.doors.length; i++) {
+        var d = house.doors[i], k = open[d.id] ? fo : fc;
+        var va = f[d.b] * k, vb = f[d.a] * k;
+        if (va > f[d.a]) { f[d.a] = va; changed = true; }
+        if (vb > f[d.b]) { f[d.b] = vb; changed = true; }
+      }
+      if (!changed) break;
+    }
+    return f;
+  }
+
+  // Evaluate the airflow model for a given configuration and wind.
+  // Returns draft and fresh-air supply reaching `target` (default: candle room).
+  function evalConfig(house, open, windDir, windTotal, target) {
+    target = target || house.candle;
+    var df = pathFactors(house, open, target, 'draft');
+    var af = pathFactors(house, open, target, 'air');
+    var draft = 0, supply = 0;
+    for (var i = 0; i < house.exterior.length; i++) {
+      var o = house.exterior[i];
+      if (!open[o.id]) continue;
+      var e = exposure(o.face, windDir);
+      draft += e * windTotal * o.area * df[o.room];
+      supply += AIR_K * o.area * (0.5 + windTotal) * (1 + 0.5 * e) * af[o.room];
+    }
+    return { draft: draft, supply: supply };
+  }
+
+  function roomDrafts(house, open, windDir, windTotal) {
+    var out = {};
+    for (var i = 0; i < house.rooms.length; i++) {
+      var id = house.rooms[i].id;
+      out[id] = evalConfig(house, open, windDir, windTotal, id).draft;
+    }
+    return out;
+  }
+
+  function allOpenings(house) {
+    var list = [];
+    var i;
+    for (i = 0; i < house.exterior.length; i++) list.push(house.exterior[i].id);
+    for (i = 0; i < house.doors.length; i++) list.push(house.doors[i].id);
+    return list;
+  }
+  function openingById(house, id) {
+    var i;
+    for (i = 0; i < house.exterior.length; i++) if (house.exterior[i].id === id) return house.exterior[i];
+    for (i = 0; i < house.doors.length; i++) if (house.doors[i].id === id) return house.doors[i];
+    return null;
+  }
+  function initialOpen(house) {
+    var open = {};
+    var i;
+    for (i = 0; i < house.exterior.length; i++) open[house.exterior[i].id] = false;
+    for (i = 0; i < house.doors.length; i++) open[house.doors[i].id] = true;
+    return open;
+  }
+
+  // ---------------------------------------------------------------- runs
+  function createRun(tierKey, seed) {
+    var tier = TIERS[tierKey];
+    if (!tier) throw new Error('invalid tier');
+    var house = HOUSES[tier.house];
+    var weather = generateWeather(seed, tierKey);
+    var lastToggle = {};
+    var ids = allOpenings(house);
+    for (var i = 0; i < ids.length; i++) lastToggle[ids[i]] = -1000;
+    return {
+      simVersion: SIM_VERSION, tier: tierKey, seed: seed, house: house, weather: weather,
+      t: 0, status: 'running', // running | won | lost  (pause is a session concept, not a sim state)
+      open: initialOpen(house), lastToggle: lastToggle,
+      flame: 100, air: tier.flame.air0, draft: 0, supply: 0,
+      actions: [],
+      stats: { sumF: 0, sumDraftRatio: 0, airOkTicks: 0, draftTicks: 0, critTicks: 0, minF: 100, everCritical: false, ticks: 0 },
+      endedAt: null, cause: null
+    };
+  }
+
+  // Toggle an opening at the current tick. Returns true if accepted.
+  // Rejected: unknown id, run over, or opening still swinging (cooldown).
+  function applyToggle(run, id) {
+    if (run.status !== 'running') return false;
+    if (!Object.prototype.hasOwnProperty.call(run.open, id)) return false;
+    if (run.t - run.lastToggle[id] < TOGGLE_COOLDOWN) return false;
+    run.open[id] = !run.open[id];
+    run.lastToggle[id] = run.t;
+    run.actions.push({ t: run.t, id: id });
+    return true;
+  }
+
+  // Advance exactly one tick. This is the ONLY function that changes flame,
+  // air reserve, time, or outcome.
+  function step(run) {
+    if (run.status !== 'running') return run.status;
+    var F = TIERS[run.tier].flame;
+    var w = windAt(run.weather, run.t);
+    var r = evalConfig(run.house, run.open, w.dir, w.total);
+    run.draft = r.draft; run.supply = r.supply;
+    // 1. fresh-air reserve
+    run.air = clamp(run.air + (r.supply + F.leak - F.burn) * DT, 0, 100);
+    // 2. flame stress
+    var draftStress = Math.max(0, r.draft - F.tolerance) * F.draftK;
+    var airStress = run.air < F.airLow ? F.airK * (F.airLow - run.air) / F.airLow : 0;
+    var stress = draftStress + airStress;
+    if (stress > 0) run.flame = clamp(run.flame - stress * DT, 0, 100);
+    else run.flame = clamp(run.flame + F.recover * DT, 0, 100);
+    // 3. statistics (for scoring)
+    var S = run.stats;
+    S.ticks++; S.sumF += run.flame;
+    S.sumDraftRatio += Math.min(1, r.draft / F.tolerance);
+    if (run.air >= AIR_GOOD) S.airOkTicks++;
+    if (draftStress > 0) S.draftTicks++;
+    if (run.flame < STAB_CRITICAL) { S.critTicks++; S.everCritical = true; }
+    if (run.flame < S.minF) S.minF = run.flame;
+    run.t++;
+    // 4. outcome: extinction is checked before dawn, so dying on the last tick is a loss
+    if (run.flame <= 0) {
+      run.status = 'lost'; run.endedAt = run.t;
+      run.cause = draftStress >= airStress ? 'gust' : 'air';
+    } else if (run.t >= NIGHT_TICKS) {
+      run.status = 'won'; run.endedAt = run.t;
+    }
+    return run.status;
+  }
+
+  function scoreRun(run) {
+    var S = run.stats, n = Math.max(1, S.ticks);
+    var allowance = TIERS[run.tier].actionAllowance;
+    var parts = {
+      stability: S.sumF / (100 * n),
+      calm: 1 - S.sumDraftRatio / n,
+      air: S.airOkTicks / n,
+      critical: 1 - Math.min(1, S.critTicks / (0.1 * n)),
+      efficiency: 1 - Math.min(1, Math.max(0, run.actions.length - allowance) / allowance)
+    };
+    var score = 100 * (0.35 * parts.stability + 0.25 * parts.calm + 0.15 * parts.air + 0.15 * parts.critical + 0.10 * parts.efficiency);
+    return { score: Math.round(score), parts: parts, actions: run.actions.length, allowance: allowance };
+  }
+
+  function flameState(f, status) {
+    if (status === 'lost' || f <= 0) return 'out';
+    if (f >= 75) return 'stable';
+    if (f >= 50) return 'disturbed';
+    if (f >= STAB_CRITICAL) return 'threatened';
+    return 'critical';
+  }
+
+  // Validate an action log against a fresh run, replaying to `toTick` (or to the end of the log).
+  // Returns a run, or null if the log is invalid (unknown ids, unordered, cooldown violations, actions after the run ended).
+  function replay(tierKey, seed, actions, toTick) {
+    if (!TIERS[tierKey] || !isValidSeed(seed) || !Array.isArray(actions)) return null;
+    if (actions.length > 5000) return null;
+    var run = createRun(tierKey, seed);
+    var target = typeof toTick === 'number' ? toTick : (actions.length ? actions[actions.length - 1].t : 0);
+    if (!(target >= 0 && target <= NIGHT_TICKS && Math.floor(target) === target)) return null;
+    var ai = 0, lastT = -1;
+    while (true) {
+      while (ai < actions.length && actions[ai] && actions[ai].t === run.t) {
+        var a = actions[ai];
+        if (typeof a.id !== 'string' || a.t < lastT) return null;
+        if (!applyToggle(run, a.id)) return null;
+        lastT = a.t; ai++;
+      }
+      if (ai < actions.length) {
+        var nx = actions[ai];
+        if (!nx || typeof nx.t !== 'number' || nx.t < run.t || Math.floor(nx.t) !== nx.t) return null;
+      }
+      if (run.t >= target || run.status !== 'running') break;
+      step(run);
+    }
+    if (ai < actions.length) return null; // actions after the run ended or beyond target
+    return run;
+  }
+
+  function hashRun(run) {
+    var s = [run.tier, run.seed, run.t, run.status, run.flame.toFixed(6), run.air.toFixed(6),
+      JSON.stringify(run.open), JSON.stringify(run.actions), run.stats.sumF.toFixed(4), run.stats.sumDraftRatio.toFixed(6),
+      run.stats.airOkTicks, run.stats.draftTicks, run.stats.critTicks].join('|');
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return ('00000000' + h.toString(16)).slice(-8);
+  }
+
+  // What the player can perceive at the current tick (used by the UI and by
+  // the automated reference strategies, so strategies never see the future).
+  function observe(run) {
+    var w = windAt(run.weather, Math.min(run.t, NIGHT_TICKS - 1));
+    var exp = {};
+    for (var i = 0; i < run.house.exterior.length; i++) {
+      var o = run.house.exterior[i];
+      exp[o.id] = exposure(o.face, w.dir);
+    }
+    return {
+      t: run.t, status: run.status, wind: w, label: windLabel(w.total),
+      forecasts: forecastsAt(run.weather, run.t),
+      flame: run.flame, air: run.air, draft: run.draft, supply: run.supply,
+      open: run.open, exposure: exp, lastToggle: run.lastToggle
+    };
+  }
+
+  // ---------------------------------------------------------------- seed pool
+  // Ranked runs draw from seeds 1..POOL_SIZE per tier, minus seeds the
+  // verifier rejected (the forecast-aware reference strategy lost them).
+  // Regenerate with tools/verify-last-candle.js --write-pool.
+  var POOL_SIZE = 1000;
+  var REJECTED = /*@@REJECTED@@*/{ bronze:[], silver: [], gold: [] }/*@@END@@*/;
+  function poolSeeds(tierKey) {
+    var rej = {}, out = [];
+    var list = REJECTED[tierKey] || [];
+    for (var i = 0; i < list.length; i++) rej[list[i]] = true;
+    for (var s = 1; s <= POOL_SIZE; s++) if (!rej[s]) out.push(s);
+    return out;
+  }
+  function isPoolSeed(tierKey, seed) {
+    return isValidSeed(seed) && seed <= POOL_SIZE && (REJECTED[tierKey] || []).indexOf(seed) < 0;
+  }
+
+  return {
+    SIM_VERSION: SIM_VERSION, TICK_HZ: TICK_HZ, DT: DT, NIGHT_TICKS: NIGHT_TICKS,
+    TOGGLE_COOLDOWN: TOGGLE_COOLDOWN, STAB_CRITICAL: STAB_CRITICAL, AIR_GOOD: AIR_GOOD,
+    DOOR: DOOR, AIR_K: AIR_K, HOUSES: HOUSES, TIERS: TIERS, COMPASS: COMPASS,
+    POOL_SIZE: POOL_SIZE, REJECTED: REJECTED, poolSeeds: poolSeeds, isPoolSeed: isPoolSeed,
+    mulberry32: mulberry32, isValidSeed: isValidSeed, generateWeather: generateWeather, windAt: windAt,
+    forecastsAt: forecastsAt, forecastText: forecastText, windLabel: windLabel, compassName: compassName, compassShort: compassShort,
+    exposure: exposure, exposureLabel: exposureLabel, pathFactors: pathFactors, evalConfig: evalConfig, roomDrafts: roomDrafts,
+    allOpenings: allOpenings, openingById: openingById, initialOpen: initialOpen,
+    createRun: createRun, applyToggle: applyToggle, step: step, scoreRun: scoreRun, flameState: flameState,
+    replay: replay, hashRun: hashRun, observe: observe
+  };
+});
+
+/* ---- src/keyring.js ---- */
+/* DoorQuests Gamortal Keyring v1 — collection-wide record of Gamortal seals.
+ * Storage key: dq-gamortals-keyring-v1. Independent of the Chaortal Keyring
+ * (dq-chaortals-keyring-v1), which this module can never read, write or remove:
+ * every storage call goes through guardKey(), which only admits keys that
+ * start with "dq-gamortal".
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.DQGamortalKeyring = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  var KEYRING_VERSION = '1.0.0';
+  var STORAGE_KEY = 'dq-gamortals-keyring-v1';
+  var SCHEMA = 'dq-gamortals-keyring';
+  var SCHEMA_VERSION = 1;
+  var COLLECTION = 'gamortals';
+  var TIERS = ['bronze', 'silver', 'gold'];
+  var MAX_IMPORT_BYTES = 65536;
+  var MAX_RECORDED_RUNS = 40;
+  var GAME_ID_RE = /^(0[0-2][0-9]|03[01])$/;   // 001..031 (000 rejected below)
+  var ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
+  var ACH_ID_RE = /^[a-z0-9-]{1,40}$/;
+
+  // Only Gamortals that actually exist. Slots 002–031 are reserved, unnamed.
+  var CATALOG = {
+    '001': {
+      title: 'Last Candle', category: 'Arcade / Survival', path: '/games/last-candle/', published: false,
+      achievements: [
+        { id: 'first-light', name: 'First Light', desc: 'Survive Bronze for the first time.' },
+        { id: 'storm-keeper', name: 'Storm Keeper', desc: 'Survive Silver without the flame ever becoming critical.' },
+        { id: 'last-flame-standing', name: 'Last Flame Standing', desc: 'Survive Gold in one ranked run without pausing (automatic pauses count).' },
+        { id: 'perfect-vigil', name: 'Perfect Vigil', desc: 'Survive Silver or Gold with a score of 90+ and the flame never dropping below Stable (75).' },
+        { id: 'dawn-survivor', name: 'Dawn Survivor', desc: 'Hold the Bronze, Silver and Gold seals of Last Candle.' }
+      ]
+    }
+  };
+
+  function guardKey(key) {
+    if (typeof key !== 'string' || key.indexOf('dq-gamortal') !== 0) {
+      throw new Error('Gamortal Keyring refused storage key: ' + key);
+    }
+    return key;
+  }
+  function sGet(storage, key) { try { return storage.getItem(guardKey(key)); } catch (e) { if (/refused/.test(e.message)) throw e; return null; } }
+  function sSet(storage, key, val) { try { storage.setItem(guardKey(key), val); return true; } catch (e) { if (/refused/.test(e.message)) throw e; return false; } }
+  function sDel(storage, key) { try { storage.removeItem(guardKey(key)); return true; } catch (e) { if (/refused/.test(e.message)) throw e; return false; } }
+
+  function emptyTier() { return { won: false, bestScore: null, wins: 0, losses: 0, firstWinAt: null, lastPlayedAt: null }; }
+  function emptyGame(id) {
+    return { id: id, tiers: { bronze: emptyTier(), silver: emptyTier(), gold: emptyTier() }, achievements: {}, recordedRuns: [] };
+  }
+  function empty() { return { schema: SCHEMA, version: SCHEMA_VERSION, collection: COLLECTION, games: {}, updatedAt: null }; }
+
+  function highestKey(game) {
+    if (!game) return null;
+    for (var i = TIERS.length - 1; i >= 0; i--) if (game.tiers[TIERS[i]].won) return TIERS[i];
+    return null;
+  }
+
+  function isInt(v, lo, hi) { return typeof v === 'number' && isFinite(v) && Math.floor(v) === v && v >= lo && v <= hi; }
+  function isIsoOrNull(v) { return v === null || (typeof v === 'string' && v.length <= 30 && ISO_RE.test(v) && !isNaN(Date.parse(v))); }
+
+  // Returns { ok, value, error }. Missing optional fields are filled; wrong
+  // types, out-of-range values or contradictions are rejected outright.
+  function validate(obj) {
+    function fail(msg) { return { ok: false, error: msg }; }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return fail('not an object');
+    if (obj.schema !== SCHEMA) return fail('not a Gamortal Keyring (schema mismatch)');
+    if (obj.version !== SCHEMA_VERSION) return fail('unsupported keyring version');
+    if (obj.collection !== undefined && obj.collection !== COLLECTION) return fail('wrong collection');
+    if (!obj.games || typeof obj.games !== 'object' || Array.isArray(obj.games)) return fail('games missing');
+    if (obj.updatedAt !== undefined && !isIsoOrNull(obj.updatedAt)) return fail('bad updatedAt');
+    var out = empty();
+    out.updatedAt = obj.updatedAt || null;
+    var ids = Object.keys(obj.games);
+    if (ids.length > 31) return fail('too many games');
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      if (!GAME_ID_RE.test(id) || id === '000') return fail('bad game id ' + id);
+      var g = obj.games[id];
+      if (!g || typeof g !== 'object' || Array.isArray(g)) return fail('bad game ' + id);
+      if (g.id !== undefined && g.id !== id) return fail('game id mismatch ' + id);
+      var ng = emptyGame(id);
+      if (!g.tiers || typeof g.tiers !== 'object') return fail('tiers missing ' + id);
+      for (var k in g.tiers) if (Object.prototype.hasOwnProperty.call(g.tiers, k) && TIERS.indexOf(k) < 0) return fail('unknown tier ' + k);
+      for (var t = 0; t < TIERS.length; t++) {
+        var tn = TIERS[t], tr = g.tiers[tn];
+        if (tr === undefined) continue;
+        if (!tr || typeof tr !== 'object') return fail('bad tier ' + id + '/' + tn);
+        var nt = emptyTier();
+        if (tr.won !== undefined) { if (typeof tr.won !== 'boolean') return fail('bad won'); nt.won = tr.won; }
+        if (tr.bestScore !== undefined && tr.bestScore !== null) { if (!isInt(tr.bestScore, 0, 100)) return fail('bad bestScore'); nt.bestScore = tr.bestScore; }
+        if (tr.wins !== undefined) { if (!isInt(tr.wins, 0, 1e6)) return fail('bad wins'); nt.wins = tr.wins; }
+        if (tr.losses !== undefined) { if (!isInt(tr.losses, 0, 1e6)) return fail('bad losses'); nt.losses = tr.losses; }
+        if (tr.firstWinAt !== undefined) { if (!isIsoOrNull(tr.firstWinAt)) return fail('bad firstWinAt'); nt.firstWinAt = tr.firstWinAt; }
+        if (tr.lastPlayedAt !== undefined) { if (!isIsoOrNull(tr.lastPlayedAt)) return fail('bad lastPlayedAt'); nt.lastPlayedAt = tr.lastPlayedAt; }
+        // A seal must be backed by a victory, and only victories carry scores.
+        if (nt.won && nt.wins < 1) return fail('seal without a recorded victory');
+        if (!nt.won && (nt.wins > 0 || nt.bestScore !== null || nt.firstWinAt !== null)) return fail('victory data without a seal');
+        if (nt.won && nt.firstWinAt === null) return fail('seal without first-victory time');
+        ng.tiers[tn] = nt;
+      }
+      if (g.achievements !== undefined) {
+        if (!g.achievements || typeof g.achievements !== 'object' || Array.isArray(g.achievements)) return fail('bad achievements');
+        var known = CATALOG[id] ? CATALOG[id].achievements.map(function (a) { return a.id; }) : null;
+        var aks = Object.keys(g.achievements);
+        if (aks.length > 50) return fail('too many achievements');
+        for (var a = 0; a < aks.length; a++) {
+          if (!ACH_ID_RE.test(aks[a])) return fail('bad achievement id');
+          if (known && known.indexOf(aks[a]) < 0) return fail('unknown achievement ' + aks[a]);
+          if (!isIsoOrNull(g.achievements[aks[a]]) || g.achievements[aks[a]] === null) return fail('bad achievement time');
+          ng.achievements[aks[a]] = g.achievements[aks[a]];
+        }
+      }
+      if (g.recordedRuns !== undefined) {
+        if (!Array.isArray(g.recordedRuns) || g.recordedRuns.length > MAX_RECORDED_RUNS) return fail('bad recordedRuns');
+        for (var r = 0; r < g.recordedRuns.length; r++) {
+          if (typeof g.recordedRuns[r] !== 'string' || g.recordedRuns[r].length > 64) return fail('bad run id');
+        }
+        ng.recordedRuns = g.recordedRuns.slice();
+      }
+      out.games[id] = ng;
+    }
+    return { ok: true, value: out };
+  }
+
+  function minIso(a, b) { if (!a) return b; if (!b) return a; return a < b ? a : b; }
+  function maxIso(a, b) { if (!a) return b; if (!b) return a; return a > b ? a : b; }
+
+  // Merge never downgrades: seals OR, best scores max, counts max (never summed,
+  // so re-importing the same file cannot inflate them), earliest first-win,
+  // latest last-played, achievements union (earliest time).
+  function merge(a, b) {
+    var out = empty();
+    var ids = {};
+    Object.keys(a.games).forEach(function (k) { ids[k] = 1; });
+    Object.keys(b.games).forEach(function (k) { ids[k] = 1; });
+    Object.keys(ids).sort().forEach(function (id) {
+      var ga = a.games[id] || emptyGame(id), gb = b.games[id] || emptyGame(id), g = emptyGame(id);
+      TIERS.forEach(function (t) {
+        var x = ga.tiers[t], y = gb.tiers[t];
+        g.tiers[t] = {
+          won: x.won || y.won,
+          bestScore: (x.bestScore === null ? y.bestScore : (y.bestScore === null ? x.bestScore : Math.max(x.bestScore, y.bestScore))),
+          wins: Math.max(x.wins, y.wins), losses: Math.max(x.losses, y.losses),
+          firstWinAt: minIso(x.firstWinAt, y.firstWinAt), lastPlayedAt: maxIso(x.lastPlayedAt, y.lastPlayedAt)
+        };
+      });
+      Object.keys(ga.achievements).concat(Object.keys(gb.achievements)).forEach(function (k) {
+        g.achievements[k] = minIso(ga.achievements[k] || null, gb.achievements[k] || null);
+      });
+      var runs = ga.recordedRuns.concat(gb.recordedRuns.filter(function (r) { return ga.recordedRuns.indexOf(r) < 0; }));
+      g.recordedRuns = runs.slice(-MAX_RECORDED_RUNS);
+      out.games[id] = g;
+    });
+    out.updatedAt = maxIso(a.updatedAt, b.updatedAt);
+    return out;
+  }
+
+  // ------------------------------------------------------------ storage API
+  function load(storage) {
+    var raw = sGet(storage, STORAGE_KEY);
+    if (raw === null || raw === undefined) return { keyring: empty(), status: 'empty' };
+    var parsed;
+    try { parsed = JSON.parse(raw); } catch (e) { return { keyring: empty(), status: 'corrupt' }; }
+    var v = validate(parsed);
+    if (!v.ok) return { keyring: empty(), status: 'corrupt', error: v.error };
+    return { keyring: v.value, status: 'ok' };
+  }
+
+  // On corrupt data we keep a copy before anything new is written, so a bad
+  // read never silently destroys a player's records.
+  function backupCorrupt(storage) {
+    var raw = sGet(storage, STORAGE_KEY);
+    if (raw !== null) sSet(storage, STORAGE_KEY + '-corrupt-backup', String(raw).slice(0, MAX_IMPORT_BYTES));
+  }
+
+  function save(storage, kr) { return sSet(storage, STORAGE_KEY, JSON.stringify(kr)); }
+
+  // Record a finished ranked run. Idempotent by runId.
+  // result: { runId, gameId, tier, won, score, achievements: [ids], at: ISO }
+  function recordRun(storage, result) {
+    if (!GAME_ID_RE.test(result.gameId) || TIERS.indexOf(result.tier) < 0) throw new Error('bad record');
+    var L = load(storage);
+    if (L.status === 'corrupt') backupCorrupt(storage);
+    var kr = L.keyring;
+    var g = kr.games[result.gameId] || emptyGame(result.gameId);
+    if (g.recordedRuns.indexOf(result.runId) >= 0) return { keyring: kr, duplicate: true, newSeal: false, newBest: false, newAchievements: [] };
+    var tr = g.tiers[result.tier];
+    var hadSeal = tr.won, newBest = false;
+    tr.lastPlayedAt = result.at;
+    if (result.won) {
+      tr.wins++; tr.won = true;
+      if (!tr.firstWinAt) tr.firstWinAt = result.at;
+      if (tr.bestScore === null || result.score > tr.bestScore) { newBest = tr.bestScore !== null; tr.bestScore = result.score; }
+    } else {
+      tr.losses++;
+    }
+    var fresh = [];
+    (result.achievements || []).forEach(function (id) {
+      if (!g.achievements[id]) { g.achievements[id] = result.at; fresh.push(id); }
+    });
+    // Dawn Survivor-style "all seals" achievements are evaluated after the seal update.
+    if (result.gameId === '001' && g.tiers.bronze.won && g.tiers.silver.won && g.tiers.gold.won && !g.achievements['dawn-survivor']) {
+      g.achievements['dawn-survivor'] = result.at; fresh.push('dawn-survivor');
+    }
+    g.recordedRuns.push(result.runId);
+    if (g.recordedRuns.length > MAX_RECORDED_RUNS) g.recordedRuns = g.recordedRuns.slice(-MAX_RECORDED_RUNS);
+    kr.games[result.gameId] = g;
+    kr.updatedAt = result.at;
+    save(storage, kr);
+    return { keyring: kr, duplicate: false, newSeal: result.won && !hadSeal, newBest: newBest, newAchievements: fresh };
+  }
+
+  function exportText(storage) { return JSON.stringify(load(storage).keyring, null, 2); }
+
+  function importText(storage, text) {
+    if (typeof text !== 'string') return { ok: false, error: 'nothing to import' };
+    if (text.length > MAX_IMPORT_BYTES) return { ok: false, error: 'file too large (limit 64 KB)' };
+    var parsed;
+    try { parsed = JSON.parse(text); } catch (e) { return { ok: false, error: 'not valid JSON' }; }
+    var v = validate(parsed);
+    if (!v.ok) return { ok: false, error: v.error };
+    var L = load(storage);
+    if (L.status === 'corrupt') backupCorrupt(storage);
+    var merged = merge(L.keyring, v.value);
+    save(storage, merged);
+    return { ok: true, keyring: merged };
+  }
+
+  function resetAll(storage) { return sDel(storage, STORAGE_KEY); }
+  function resetGame(storage, gameId) {
+    if (!GAME_ID_RE.test(gameId)) return false;
+    var L = load(storage);
+    if (L.status === 'corrupt') return false;
+    delete L.keyring.games[gameId];
+    return save(storage, L.keyring);
+  }
+
+  return {
+    KEYRING_VERSION: KEYRING_VERSION, STORAGE_KEY: STORAGE_KEY, SCHEMA: SCHEMA, SCHEMA_VERSION: SCHEMA_VERSION,
+    TIERS: TIERS, CATALOG: CATALOG, MAX_IMPORT_BYTES: MAX_IMPORT_BYTES,
+    guardKey: guardKey, empty: empty, emptyGame: emptyGame, highestKey: highestKey, validate: validate, merge: merge,
+    load: load, save: save, recordRun: recordRun, exportText: exportText, importText: importText,
+    resetAll: resetAll, resetGame: resetGame
+  };
+});
+
+/* ---- src/session.js ---- */
+/* Last Candle — session controller (run lifecycle, pause, persistence, records).
+ * DOM-free so it can be tested in Node with a fake storage and clock.
+ * Game-local state lives under dq-gamortal-001-v1; collection records go
+ * through the Gamortal Keyring module only.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.LastCandleSession = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  var STATE_KEY = 'dq-gamortal-001-v1';
+  var GAME_ID = '001';
+  var STATE_VERSION = 1;
+
+  function createSession(opts) {
+    var Sim = opts.sim, KR = opts.keyring, storage = opts.storage;
+    var now = opts.now || function () { return new Date(); };
+    var random = opts.random || Math.random;
+    var S = {
+      prefs: { sound: false, motion: 'auto', tutorialSeen: false, lastTier: 'bronze', logOpen: false },
+      run: null,      // Sim run object
+      meta: null,     // { runId, mode, paused, pauses, startedAt, recorded }
+      lastRecord: null,
+      restoreNote: null,
+      log: []         // Storm Log entries for the current run (display only; never affects play)
+    };
+
+    function iso() { return now().toISOString().replace(/\.\d{3}Z$/, 'Z'); }
+
+    function persist() {
+      var data = { v: STATE_VERSION, simVersion: Sim.SIM_VERSION, prefs: S.prefs, run: null };
+      if (S.run) {
+        data.run = {
+          runId: S.meta.runId, tier: S.run.tier, seed: S.run.seed, mode: S.meta.mode,
+          actions: S.run.actions, tick: S.run.t, status: S.run.status,
+          paused: S.meta.paused, pauses: S.meta.pauses, startedAt: S.meta.startedAt, recorded: S.meta.recorded, log: S.log.slice(-40),
+          snapshot: { flame: S.run.flame, air: S.run.air, open: S.run.open, hash: Sim.hashRun(S.run) }
+        };
+      }
+      try { storage.setItem(KR.guardKey(STATE_KEY), JSON.stringify(data)); return true; } catch (e) { if (/refused/.test(e.message)) throw e; return false; }
+    }
+
+    function validPrefs(p) {
+      var out = { sound: false, motion: 'auto', tutorialSeen: false, lastTier: 'bronze', logOpen: false };
+      if (!p || typeof p !== 'object') return out;
+      if (typeof p.sound === 'boolean') out.sound = p.sound;
+      if (p.motion === 'auto' || p.motion === 'reduced' || p.motion === 'full') out.motion = p.motion;
+      if (typeof p.tutorialSeen === 'boolean') out.tutorialSeen = p.tutorialSeen;
+      if (Sim.TIERS[p.lastTier]) out.lastTier = p.lastTier;
+      if (typeof p.logOpen === 'boolean') out.logOpen = p.logOpen;
+      return out;
+    }
+
+    // Restore: the saved run is rebuilt by replaying seed + action log through
+    // the simulation. Saved flame/air/victory values are never trusted.
+    function load() {
+      var raw = null;
+      try { raw = storage.getItem(KR.guardKey(STATE_KEY)); } catch (e) { if (/refused/.test(e.message)) throw e; }
+      S.run = null; S.meta = null; S.restoreNote = null;
+      if (raw === null || raw === undefined) return 'empty';
+      var data;
+      try { data = JSON.parse(raw); } catch (e) { S.restoreNote = 'Saved game was unreadable and has been cleared.'; persist(); return 'corrupt'; }
+      if (!data || data.v !== STATE_VERSION) { S.restoreNote = 'Saved game was from an incompatible version and has been cleared.'; persist(); return 'corrupt'; }
+      S.prefs = validPrefs(data.prefs);
+      var r = data.run;
+      if (!r) return 'ok';
+      if (data.simVersion !== Sim.SIM_VERSION) { S.restoreNote = 'The game was updated; your unfinished night could not be continued.'; persist(); return 'version'; }
+      var okShape = r && typeof r.runId === 'string' && r.runId.length <= 64 && Sim.TIERS[r.tier] && Sim.isValidSeed(r.seed) &&
+        (r.mode === 'ranked' || r.mode === 'practice') && Array.isArray(r.actions) &&
+        typeof r.tick === 'number' && r.tick >= 0 && r.tick <= Sim.NIGHT_TICKS && Math.floor(r.tick) === r.tick &&
+        (r.mode === 'practice' || Sim.isPoolSeed(r.tier, r.seed));
+      var run = okShape ? Sim.replay(r.tier, r.seed, r.actions, r.tick) : null;
+      if (!run) { S.restoreNote = 'Saved night failed validation and has been cleared.'; persist(); return 'corrupt'; }
+      S.run = run;
+      S.log = Array.isArray(r.log) ? r.log.filter(function (e) { return e && typeof e.t === 'number' && typeof e.text === 'string' && e.text.length < 200; }).slice(-40) : [];
+      S.meta = {
+        runId: r.runId, mode: r.mode,
+        paused: run.status === 'running',   // a restored live run always waits for the player
+        pauses: typeof r.pauses === 'number' && r.pauses >= 0 ? Math.floor(r.pauses) : 0,
+        startedAt: typeof r.startedAt === 'string' ? r.startedAt.slice(0, 30) : iso(),
+        recorded: r.recorded === true
+      };
+      if (run.status === 'running' && !(r.paused === true)) S.meta.pauses++; // reload interrupted live play
+      if (run.status !== 'running') finalize(); // e.g. refreshed right after dawn: record if not yet recorded
+      persist();
+      return 'restored';
+    }
+
+    function newRun(tier, mode, seed) {
+      if (!Sim.TIERS[tier]) throw new Error('bad tier');
+      if (mode !== 'ranked' && mode !== 'practice') throw new Error('bad mode');
+      var pool = Sim.poolSeeds(tier);
+      if (mode === 'ranked' || seed === undefined || seed === null) {
+        seed = pool[Math.floor(random() * pool.length) % pool.length];
+      }
+      if (!Sim.isValidSeed(seed)) throw new Error('bad seed');
+      S.run = Sim.createRun(tier, seed);
+      var started = iso();
+      S.meta = { runId: tier + '-' + seed + '-' + started + '-' + Math.floor(random() * 1e9).toString(36), mode: mode, paused: false, pauses: 0, startedAt: started, recorded: false };
+      S.prefs.lastTier = tier;
+      S.lastRecord = null;
+      S.log = [];
+      persist();
+      return S.run;
+    }
+
+    function canAct() { return !!(S.run && S.run.status === 'running' && !S.meta.paused); }
+
+    function toggle(id) {
+      if (!canAct()) return false;
+      var ok = Sim.applyToggle(S.run, id);
+      if (ok) persist();
+      return ok;
+    }
+
+    function pause(reason) {
+      if (!S.run || S.run.status !== 'running' || S.meta.paused) return false;
+      S.meta.paused = true; S.meta.pauses++; S.meta.pauseReason = reason || 'player';
+      persist();
+      return true;
+    }
+    function resume() {
+      if (!S.run || S.run.status !== 'running' || !S.meta.paused) return false;
+      S.meta.paused = false; S.meta.pauseReason = null;
+      persist();
+      return true;
+    }
+
+    // Advance one simulation tick if the run is live. Returns the run status.
+    function tick() {
+      if (!canAct()) return S.run ? S.run.status : null;
+      var st = Sim.step(S.run);
+      if (st !== 'running') finalize();
+      else persist(); // every tick: a refresh resumes at exactly this tick
+      return st;
+    }
+
+    function achievementsFor(run, score, pauses) {
+      var a = [];
+      if (run.status !== 'won') return a;
+      if (run.tier === 'bronze') a.push('first-light');
+      if (run.tier === 'silver' && !run.stats.everCritical) a.push('storm-keeper');
+      if (run.tier === 'gold' && pauses === 0) a.push('last-flame-standing');
+      if ((run.tier === 'silver' || run.tier === 'gold') && score >= 90 && run.stats.minF >= 75) a.push('perfect-vigil');
+      return a;
+    }
+
+    // Write the result of a finished ranked run exactly once.
+    function finalize() {
+      if (!S.run || S.run.status === 'running') return null;
+      var sc = Sim.scoreRun(S.run);
+      var info = { status: S.run.status, score: S.run.status === 'won' ? sc.score : null, scoreParts: sc, practice: S.meta.mode === 'practice' };
+      if (S.meta.mode === 'ranked' && !S.meta.recorded) {
+        var res = KR.recordRun(storage, {
+          runId: S.meta.runId, gameId: GAME_ID, tier: S.run.tier, won: S.run.status === 'won',
+          score: sc.score, achievements: achievementsFor(S.run, sc.score, S.meta.pauses), at: iso()
+        });
+        S.meta.recorded = true;
+        info.newSeal = res.newSeal; info.newBest = res.newBest; info.newAchievements = res.newAchievements; info.duplicate = res.duplicate;
+      }
+      S.lastRecord = info;
+      persist();
+      return info;
+    }
+
+    function abandon() {
+      // Abandoning an unfinished ranked run records nothing (no seal, no loss).
+      S.run = null; S.meta = null; S.lastRecord = null; S.log = [];
+      persist();
+    }
+
+    function addLog(text, kind) {
+      if (!S.run) return;
+      S.log.push({ t: S.run.t, text: String(text).slice(0, 190), kind: kind || 'info' });
+      if (S.log.length > 40) S.log = S.log.slice(-40);
+    }
+
+    function setPref(k, v) { S.prefs[k] = v; S.prefs = validPrefs(S.prefs); persist(); }
+
+    return {
+      state: S, load: load, newRun: newRun, toggle: toggle, pause: pause, resume: resume,
+      tick: tick, finalize: finalize, abandon: abandon, persist: persist, setPref: setPref, addLog: addLog, canAct: canAct,
+      achievementsFor: achievementsFor, STATE_KEY: STATE_KEY, GAME_ID: GAME_ID
+    };
+  }
+
+  // Fixed-timestep clock shared by the browser loop and the verifier.
+  // Rendering frames feed elapsed milliseconds in; whole simulation ticks come
+  // out. Frame rate therefore never changes the physics, only how many ticks
+  // run per frame. Large gaps are capped (maxSteps) rather than fast-forwarded.
+  function frameSteps(acc, dtMs, tickMs, maxSteps) {
+    if (!(dtMs > 0)) dtMs = 0;
+    acc += Math.min(dtMs, tickMs * maxSteps);
+    var n = 0;
+    while (acc >= tickMs && n < maxSteps) { acc -= tickMs; n++; }
+    if (n === maxSteps && acc >= tickMs) acc = 0; // drop backlog instead of spiralling
+    return { steps: n, acc: acc };
+  }
+
+  return { createSession: createSession, frameSteps: frameSteps, STATE_KEY: STATE_KEY, GAME_ID: GAME_ID };
+});
+
+</script>
+<script id="lc-app">
+/* Last Candle — browser UI. All game rules live in sim.js; this file only
+ * renders state, forwards player input to the session, and drives the
+ * fixed-step clock. */
+(function () {
+  'use strict';
+  var Sim = self.LastCandleSim, KR = self.DQGamortalKeyring, SessionLib = self.LastCandleSession;
+  var TICK_MS = 1000 / Sim.TICK_HZ;
+  var U = 40;                     // SVG px per house grid unit
+  var M = 2.2;                    // outside margin (grid units) for wind arrows
+  var DEV = /(?:^|[?&])dev=1(?:&|$)/.test(location.search);
+
+  // ----------------------------------------------------------- storage
+  var storage = (function () {
+    try { var k = 'dq-gamortal-probe'; localStorage.setItem(KR.guardKey(k), '1'); localStorage.removeItem(KR.guardKey(k)); return localStorage; } catch (e) {
+      var m = {}; // private mode fallback: play works, nothing persists
+      return { getItem: function (k) { return k in m ? m[k] : null; }, setItem: function (k, v) { m[k] = String(v); }, removeItem: function (k) { delete m[k]; }, _memory: true };
+    }
+  })();
+  // All writes go through KR.guardKey (only dq-gamortal* keys). The probe key above is also a dq-gamortal key.
+  var guarded = {
+    getItem: function (k) { return storage.getItem(KR.guardKey(k)); },
+    setItem: function (k, v) { return storage.setItem(KR.guardKey(k), v); },
+    removeItem: function (k) { return storage.removeItem(KR.guardKey(k)); }
+  };
+  var sess = SessionLib.createSession({ sim: Sim, keyring: KR, storage: guarded });
+
+  // ----------------------------------------------------------- helpers
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function mmss(sec) { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ':' + ('0' + sec % 60).slice(-2); }
+  function nightClock(t) { // 9:00 pm → 6:00 am across the 300-second night
+    var mins = 21 * 60 + Math.floor(t / Sim.NIGHT_TICKS * 540);
+    var h = Math.floor(mins / 60) % 24, m = mins % 60, ap = h >= 12 && h < 24 ? 'pm' : 'am';
+    var h12 = h % 12 === 0 ? 12 : h % 12;
+    return h12 + ':' + ('0' + m).slice(-2) + ' ' + ap;
+  }
+  function say(text, urgent) { var el = urgent ? $('alert') : $('live'); el.textContent = ''; setTimeout(function () { el.textContent = text; }, 30); }
+  var FACE_WORD = { N: 'North', E: 'East', S: 'South', W: 'West' };
+  function openingName(h, o) {
+    if (o.a) return o.name;
+    return FACE_WORD[o.face] + ' ' + (o.kind === 'xdoor' ? 'front door' : 'window');
+  }
+  function roomName(h, id) { for (var i = 0; i < h.rooms.length; i++) if (h.rooms[i].id === id) return h.rooms[i].name; return id; }
+  function sealSVG(tier, earned) {
+    var col = { bronze: '#c98a4b', silver: '#cfd6e0', gold: '#f6c86a' }[tier];
+    return '<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="' + (earned ? col : 'none') + '" stroke="' + col + '" stroke-width="2.5" ' + (earned ? '' : 'stroke-dasharray="4 3"') + '/>' +
+      '<path d="M20 9 C 25 16 25 21 20 25 C 15 21 15 16 20 9 Z" fill="' + (earned ? '#2a1d10' : col) + '" opacity="' + (earned ? '.8' : '.6') + '"/><rect x="17" y="25" width="6" height="7" rx="1" fill="' + (earned ? '#2a1d10' : col) + '" opacity="' + (earned ? '.8' : '.6') + '"/></svg>';
+  }
+
+  // ----------------------------------------------------------- preferences: motion & sound
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+  function reduced() { return sess.state.prefs.motion === 'reduced' || (sess.state.prefs.motion === 'auto' && mq.matches); }
+  function applyMotion() {
+    var r = reduced();
+    document.body.classList.toggle('reduced', r);
+    document.body.classList.toggle('motion', !r);
+    $('bMotion').setAttribute('aria-pressed', String(r));
+    $('bMotion').textContent = r ? 'Motion reduced' : 'Reduce motion';
+  }
+
+  var audio = null;
+  function initAudio() {
+    if (audio) return audio;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    var ctx = new AC();
+    var len = ctx.sampleRate * 2, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    var seed = 7; for (var i = 0; i < len; i++) { seed = (seed * 16807) % 2147483647; d[i] = seed / 1073741823.5 - 1; }
+    function noise() { var s = ctx.createBufferSource(); s.buffer = buf; s.loop = true; s.start(); return s; }
+    var master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination);
+    var rain = noise(), rf = ctx.createBiquadFilter(); rf.type = 'highpass'; rf.frequency.value = 1800;
+    var rg = ctx.createGain(); rg.gain.value = 0.05; rain.connect(rf); rf.connect(rg); rg.connect(master);
+    var wind = noise(), wf = ctx.createBiquadFilter(); wf.type = 'bandpass'; wf.frequency.value = 400; wf.Q.value = 0.8;
+    var wg = ctx.createGain(); wg.gain.value = 0.0; wind.connect(wf); wf.connect(wg); wg.connect(master);
+    audio = {
+      ctx: ctx, master: master, wg: wg, wf: wf,
+      setWind: function (total) { var t = ctx.currentTime; wg.gain.setTargetAtTime(Math.min(0.5, total * 0.35), t, 0.3); wf.frequency.setTargetAtTime(250 + total * 500, t, 0.3); },
+      blip: function (freq, dur, type, vol) {
+        var o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime;
+        o.type = type || 'triangle'; o.frequency.value = freq; g.gain.setValueAtTime(vol || 0.12, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+      },
+      creak: function () { this.blip(140 + Math.random() * 40, 0.18, 'sawtooth', 0.05); },
+      thunder: function () {
+        var s = ctx.createBufferSource(); s.buffer = buf; var f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 160;
+        var g = ctx.createGain(), t = ctx.currentTime; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.15); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.5);
+        s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + 2.6);
+      },
+      dawn: function () { var self2 = this; [523, 659, 784, 1047].forEach(function (f, i) { setTimeout(function () { self2.blip(f, 0.9, 'sine', 0.12); }, i * 220); }); },
+      out: function () { this.blip(220, 1.2, 'sine', 0.12); setTimeout(function () { audio.blip(165, 1.4, 'sine', 0.1); }, 300); }
+    };
+    return audio;
+  }
+  function applySound() {
+    var on = sess.state.prefs.sound;
+    $('bSound').setAttribute('aria-pressed', String(on));
+    $('bSound').textContent = on ? 'Sound on' : 'Sound off';
+    if (on) { var a = initAudio(); if (a) { a.ctx.resume(); a.master.gain.setTargetAtTime(0.8, a.ctx.currentTime, 0.2); } }
+    else if (audio) audio.master.gain.setTargetAtTime(0, audio.ctx.currentTime, 0.1);
+  }
+  function sfx(name) { if (sess.state.prefs.sound && audio && audio[name]) audio[name](); }
+
+  // ----------------------------------------------------------- floor plan
+  var planBuiltFor = null, opEls = {}, listEls = {}, draftEls = {};
+  function buildPlan(run) {
+    var h = run.house, svg = $('plan');
+    var vbW = (h.w + 2 * M) * U, vbH = (h.h + 2 * M) * U;
+    svg.setAttribute('viewBox', (-M * U) + ' ' + (-M * U) + ' ' + vbW + ' ' + vbH);
+    var p = [];
+    p.push('<defs><radialGradient id="glow"><stop offset="0" stop-color="#f6c86a" stop-opacity=".55"/><stop offset="1" stop-color="#f6c86a" stop-opacity="0"/></radialGradient></defs>');
+    p.push('<g id="windG"></g>');
+    h.rooms.forEach(function (r) {
+      p.push('<rect class="room' + (r.id === h.candle ? ' candle' : '') + '" x="' + r.x * U + '" y="' + r.y * U + '" width="' + r.w * U + '" height="' + r.h * U + '"/>');
+      p.push('<rect class="draft" data-room="' + r.id + '" x="' + (r.x * U + 3) + '" y="' + (r.y * U + 3) + '" width="' + (r.w * U - 6) + '" height="' + (r.h * U - 6) + '" opacity="0"/>');
+    });
+    var c = h.rooms.filter(function (r) { return r.id === h.candle; })[0];
+    var cx = (c.x + c.w / 2) * U, cy = (c.y + c.h / 2) * U;
+    p.push('<circle id="planGlow" class="cdl" cx="' + cx + '" cy="' + cy + '" r="' + 2.2 * U + '" fill="url(#glow)"/>');
+    h.rooms.forEach(function (r) {
+      p.push('<text class="rlabel" x="' + (r.x * U + 10) + '" y="' + (r.y * U + 22) + '">' + esc(r.name) + '</text>');
+    });
+    p.push('<g class="cdl" id="planCandle" transform="translate(' + cx + ',' + (cy + 6) + ')"><rect x="-6" y="0" width="12" height="20" rx="2" fill="#efe3c7"/><path id="planFlame" d="M0 -22 C 8 -12 8 -4 0 0 C -8 -4 -8 -12 0 -22 Z" fill="#f6c86a"/></g>');
+    // openings
+    h.exterior.forEach(function (o) {
+      var horiz = o.face === 'N' || o.face === 'S', half = (o.kind === 'xdoor' ? 0.85 : 0.7) * U;
+      var x = o.x * U, y = o.y * U;
+      var x1 = horiz ? x - half : x, x2 = horiz ? x + half : x, y1 = horiz ? y : y - half, y2 = horiz ? y : y + half;
+      var nx = { N: 0, S: 0, E: 1, W: -1 }[o.face], ny = { N: -1, S: 1, E: 0, W: 0 }[o.face];
+      var label = roomName(h, o.room) + ' — ' + openingName(h, o);
+      p.push('<g class="op" data-id="' + o.id + '" tabindex="-1" aria-label="' + esc(label) + '">' +
+        '<line class="gap" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>' +
+        '<g class="closed"><line class="win-closed" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>' +
+        (o.kind === 'window' ? '<line class="win-pane" x1="' + (horiz ? x : x - 4) + '" y1="' + (horiz ? y - 4 : y) + '" x2="' + (horiz ? x : x + 4) + '" y2="' + (horiz ? y + 4 : y) + '"/>' : '') + '</g>' +
+        '<g class="opened" style="display:none">' +
+        '<line class="win-open" x1="' + x1 + '" y1="' + y1 + '" x2="' + (x1 - ny * 14 + nx * 14) + '" y2="' + (y1 + nx * 14 + ny * 14) + '"/>' +
+        '<line class="win-open" x1="' + x2 + '" y1="' + y2 + '" x2="' + (x2 + ny * 14 + nx * 14) + '" y2="' + (y2 - nx * 14 + ny * 14) + '"/>' +
+        '<path class="inflow" d="M' + (x - nx * 4 - ny * 8) + ' ' + (y - ny * 4 + nx * 8) + ' L' + (x - nx * 22) + ' ' + (y - ny * 22) + ' L' + (x - nx * 4 + ny * 8) + ' ' + (y - ny * 4 - nx * 8) + ' Z" style="display:none"/></g>' +
+        '<rect class="hit" x="' + (x - 1.1 * U) + '" y="' + (y - 1.1 * U) + '" width="' + 2.2 * U + '" height="' + 2.2 * U + '" rx="8"/></g>');
+    });
+    h.doors.forEach(function (d) {
+      var half = 0.6 * U, x = d.x * U, y = d.y * U, v = d.axis === 'v';
+      var x1 = v ? x : x - half, x2 = v ? x : x + half, y1 = v ? y - half : y, y2 = v ? y + half : y;
+      // open leaf swings into room b (to the right/below), hinge at (x1,y1)
+      var lx = v ? x1 + 2 * half : x1, ly = v ? y1 : y1 + 2 * half;
+      p.push('<g class="op" data-id="' + d.id + '" tabindex="-1" aria-label="' + esc(d.name) + '">' +
+        '<line class="gap" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/>' +
+        '<g class="closed"><line class="door-closed" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '"/></g>' +
+        '<g class="opened" style="display:none"><line class="door-leaf" x1="' + x1 + '" y1="' + y1 + '" x2="' + lx + '" y2="' + ly + '"/>' +
+        '<path class="door-arc" d="M' + lx + ' ' + ly + ' A ' + 2 * half + ' ' + 2 * half + ' 0 0 ' + (v ? 1 : 0) + ' ' + x2 + ' ' + y2 + '"/></g>' +
+        '<rect class="hit" x="' + (x - 0.9 * U) + '" y="' + (y - 0.9 * U) + '" width="' + 1.8 * U + '" height="' + 1.8 * U + '" rx="8"/></g>');
+    });
+    svg.innerHTML = p.join('');
+    svg.setAttribute('aria-hidden', 'true'); // the list of doors and windows is the accessible control set
+    opEls = {}; draftEls = {};
+    Array.prototype.forEach.call(svg.querySelectorAll('.op'), function (g) {
+      opEls[g.getAttribute('data-id')] = { g: g, closed: g.querySelector('.closed'), opened: g.querySelector('.opened'), inflow: g.querySelector('.inflow') };
+      g.addEventListener('click', function () { doToggle(g.getAttribute('data-id')); });
+      g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doToggle(g.getAttribute('data-id')); } });
+    });
+    Array.prototype.forEach.call(svg.querySelectorAll('.draft'), function (r) { draftEls[r.getAttribute('data-room')] = r; });
+    buildList(run);
+    planBuiltFor = run.tier;
+  }
+
+  function buildList(run) {
+    var h = run.house, box = $('rooms'), html = [];
+    h.rooms.forEach(function (r) {
+      var items = [];
+      h.exterior.forEach(function (o) { if (o.room === r.id) items.push(o); });
+      h.doors.forEach(function (d) { if (d.a === r.id) items.push(d); }); // each door listed once, under its first room
+      html.push('<div class="roomcard' + (r.id === h.candle ? ' candle' : '') + '"><h3>' + esc(r.name) + (r.id === h.candle ? ' <small>candle is here</small>' : '') + '</h3>');
+      if (!items.length) html.push('<p class="note">No windows. Doors to this room are listed with the other room.</p>');
+      items.forEach(function (o) {
+        html.push('<button type="button" class="opbtn" data-id="' + o.id + '" aria-pressed="false"><span><span class="nm">' + esc(openingName(h, o)) + '</span><span class="ex"></span></span><span class="st">Closed</span></button>');
+      });
+      html.push('</div>');
+    });
+    box.innerHTML = html.join('');
+    listEls = {};
+    Array.prototype.forEach.call(box.querySelectorAll('.opbtn'), function (b) {
+      listEls[b.getAttribute('data-id')] = { b: b, st: b.querySelector('.st'), ex: b.querySelector('.ex') };
+      b.addEventListener('click', function () { doToggle(b.getAttribute('data-id')); });
+    });
+  }
+
+  // ----------------------------------------------------------- input
+  function doToggle(id) {
+    var run = sess.state.run;
+    if (!run) return;
+    if (!sess.canAct()) { if (sess.state.meta && sess.state.meta.paused) say('Paused. Resume to move doors and windows.'); return; }
+    var o = Sim.openingById(run.house, id);
+    if (sess.toggle(id)) {
+      sfx('creak');
+      var name = o.a ? o.name : roomName(run.house, o.room) + ' ' + openingName(run.house, o).toLowerCase();
+      sess.addLog((run.open[id] ? 'Opened ' : 'Closed ') + name + '.', 'action');
+      render(true);
+    } else {
+      say(openingName(run.house, o) + ' is still swinging.');
+    }
+  }
+
+  // ----------------------------------------------------------- rendering
+  var lastState = null, seenForecasts = {}, lastLogLen = -1;
+  function setMeter(id, pct, text, bad) {
+    var el = $(id);
+    el.querySelector('.fill').style.width = Math.max(0, Math.min(100, pct)) + '%';
+    el.querySelector('.val').textContent = text;
+    el.classList.toggle('bad', !!bad);
+  }
+  function setMini(id, pct, text, bad) {
+    var el = $(id);
+    el.querySelector('.fill').style.width = Math.max(0, Math.min(100, pct)) + '%';
+    el.querySelector('span').textContent = text;
+    el.classList.toggle('bad', !!bad);
+  }
+  var STATE_TEXT = {
+    stable: ['Stable', 'Tall and steady.'], disturbed: ['Disturbed', 'The flame is leaning in a draft.'],
+    threatened: ['Threatened', 'Small and erratic. Act now.'], critical: ['Critical', 'Nearly out!'], out: ['Gone dark', 'The wick smokes.']
+  };
+
+  function render(force) {
+    var run = sess.state.run, meta = sess.state.meta;
+    var playing = !!run;
+    $('bPause').disabled = !(run && run.status === 'running');
+    $('bRestart').disabled = !run;
+    $('mPause').disabled = !(run && run.status === 'running');
+    var pauseLabel = meta && meta.paused ? 'Resume' : 'Pause';
+    $('bPause').textContent = pauseLabel; $('mPause').textContent = pauseLabel;
+    if (!playing) {
+      $('stateWord').textContent = 'Waiting'; $('stateSub').textContent = 'Choose a night to begin.';
+      document.documentElement.style.setProperty('--dawn', 0);
+      return;
+    }
+    if (planBuiltFor !== run.tier || !opEls[Sim.allOpenings(run.house)[0]]) buildPlan(run);
+    var T = Sim.TIERS[run.tier], F = T.flame;
+    var obs = Sim.observe(run);
+    var w = obs.wind;
+    var st = Sim.flameState(run.flame, run.status);
+    var tol = F.tolerance;
+    var dr = run.draft / tol;
+    $('nightLine').textContent = T.label + ' — ' + T.night + ' in ' + run.house.name + (meta.mode === 'practice' ? ' (practice, storm ' + run.seed + ')' : '') + '. ' + nightClock(run.t) + '.';
+    // dawn sky
+    var prog = run.t / Sim.NIGHT_TICKS;
+    document.documentElement.style.setProperty('--dawn', Math.max(0, (prog - 0.7) / 0.3).toFixed(3));
+    // candle
+    var box = $('candleBox');
+    box.className = 'candle-panel st-' + st;
+    var lean = Math.max(-1, Math.min(1, dr)) * 18 * (Math.sin((w.dir - 90) * Math.PI / 180) >= 0 ? 1 : -1);
+    var scale = st === 'out' ? 0 : 0.35 + 0.65 * run.flame / 100;
+    $('flameG').style.transform = 'rotate(' + (st === 'out' ? 0 : lean) + 'deg) scale(' + scale + ')';
+    $('haloC').setAttribute('opacity', st === 'out' ? 0 : (0.3 + 0.7 * run.flame / 100).toFixed(2));
+    $('miniFlame').setAttribute('transform', 'translate(17 23) scale(' + scale + ') translate(-17 -23)');
+    $('stateWord').textContent = STATE_TEXT[st][0];
+    $('stateSub').textContent = STATE_TEXT[st][1];
+    // meters
+    setMeter('mtFlame', run.flame, Math.round(run.flame) + ' / 100 · ' + STATE_TEXT[st][0], run.flame < 50);
+    var airWord = run.air >= 60 ? 'Fresh' : run.air >= F.airLow ? 'Thinning' : 'Stale';
+    setMeter('mtAir', run.air, Math.round(run.air) + ' · ' + airWord + (run.supply + F.leak >= F.burn ? ', rising' : ', falling'), run.air < F.airLow);
+    var gustWord = dr <= 0.05 ? 'Still' : dr < 0.7 ? 'Light draft' : dr <= 1 ? 'Strong draft' : 'Dangerous';
+    setMeter('mtGust', Math.min(100, dr * 66.7), gustWord, dr > 1);
+    var left = (Sim.NIGHT_TICKS - run.t) / Sim.TICK_HZ;
+    setMeter('mtDawn', prog * 100, mmss(left) + ' · ' + nightClock(run.t), false);
+    setMini('mFlame', run.flame, Math.round(run.flame), run.flame < 50);
+    setMini('mAir', run.air, Math.round(run.air), run.air < F.airLow);
+    setMini('mGust', Math.min(100, dr * 66.7), gustWord, dr > 1);
+    setMini('mDawn', prog * 100, mmss(left), false);
+    // weather
+    $('needle').setAttribute('transform', 'rotate(' + w.dir + ')');
+    $('windWord').textContent = obs.label + ' from the ' + Sim.compassName(w.dir);
+    $('windSub').textContent = w.gust > 0.05 ? 'A gust is hitting the house.' : (T.label + ' storm');
+    var fcHtml = obs.forecasts.slice(0, 3).map(function (f) {
+      return '<li class="' + f.type + (f.active ? ' now' : '') + '">' + esc(Sim.forecastText(f)) + '</li>';
+    }).join('');
+    $('forecast').innerHTML = fcHtml || '<li class="calm">No changes forecast right now.</li>';
+    var top = obs.forecasts[0];
+    $('mFc').textContent = top ? Sim.forecastText(top) : obs.label + ' from the ' + Sim.compassName(w.dir) + '.';
+    $('mFc').className = 'fc' + (top && top.type === 'gust' ? ' gust' : '');
+    // forecasts: announce + log once each
+    obs.forecasts.forEach(function (f) {
+      var key = f.type + (f.inTicks + run.t) + '-' + run.seed;
+      if (!seenForecasts[key] && !f.active) {
+        seenForecasts[key] = 1;
+        var txt = Sim.forecastText(f);
+        sess.addLog(txt, 'forecast');
+        say(txt, f.type === 'gust' && f.category === 'strong gust');
+      }
+    });
+    // plan
+    var rd = Sim.roomDrafts(run.house, run.open, w.dir, w.total);
+    Object.keys(draftEls).forEach(function (rid) { draftEls[rid].setAttribute('opacity', Math.min(0.55, rd[rid] / tol * 0.35).toFixed(3)); });
+    var gl = $('planGlow'); gl.setAttribute('r', ((1.2 + 1.6 * run.flame / 100) * U).toFixed(1)); gl.setAttribute('opacity', st === 'out' ? 0 : 1);
+    $('planFlame').setAttribute('opacity', st === 'out' ? 0.15 : 1);
+    var sinceToggle = function (id) { return run.t - run.lastToggle[id]; };
+    Sim.allOpenings(run.house).forEach(function (id) {
+      var o = Sim.openingById(run.house, id), isOpen = run.open[id], el = opEls[id], li = listEls[id];
+      var e = o.a ? null : obs.exposure[id];
+      var exLabel = e === null ? '' : Sim.exposureLabel(e);
+      var stateTxt = isOpen ? 'Open' : 'Closed';
+      if (el) {
+        el.closed.style.display = isOpen ? 'none' : '';
+        el.opened.style.display = isOpen ? '' : 'none';
+        if (el.inflow) { el.inflow.style.display = isOpen && e > 0.05 ? '' : 'none'; el.inflow.setAttribute('class', 'inflow' + (e >= 0.85 ? ' hard' : '')); }
+        el.g.setAttribute('aria-pressed', String(isOpen));
+        el.g.setAttribute('aria-label', (o.a ? o.name : roomName(run.house, o.room) + ' — ' + openingName(run.house, o)) + ' — ' + stateTxt + (exLabel ? ', ' + exLabel.toLowerCase() : ''));
+      }
+      if (li) {
+        li.b.setAttribute('aria-pressed', String(isOpen));
+        li.st.textContent = stateTxt;
+        li.ex.textContent = exLabel ? exLabel + (e > 0.05 ? ' — faces the wind' : '') : (o.a ? 'Interior door' : '');
+        li.ex.className = 'ex' + (exLabel === 'Windward' ? ' windward' : '');
+        li.b.disabled = run.status !== 'running';
+        li.b.setAttribute('aria-label', (o.a ? o.name : roomName(run.house, o.room) + ' — ' + openingName(run.house, o)) + ' — ' + stateTxt + (exLabel ? ', ' + exLabel.toLowerCase() : ''));
+      }
+    });
+    // wind arrows (outside, on the windward side, pointing into the house)
+    var hw = run.house.w * U, hh = run.house.h * U, rad = w.dir * Math.PI / 180;
+    var ax = hw / 2 + Math.sin(rad) * (hw / 2 + 1.15 * U), ay = hh / 2 - Math.cos(rad) * (hh / 2 + 1.15 * U);
+    var arrows = [], len = 16 + 22 * Math.min(1.4, w.total);
+    for (var i = 0; i < 3; i++) {
+      var off = (i - 1) * 0.9 * U;
+      arrows.push('<path class="windarrow' + (w.gust > 0.05 ? ' gust' : '') + '" d="M' + off + ' ' + (-len / 2) + ' L' + off + ' ' + (len / 2) + ' M' + (off - 7) + ' ' + (len / 2 - 9) + ' L' + off + ' ' + (len / 2) + ' L' + (off + 7) + ' ' + (len / 2 - 9) + '"/>');
+    }
+    $('windG').innerHTML = '<g transform="translate(' + ax.toFixed(1) + ',' + ay.toFixed(1) + ') rotate(' + w.dir + ')">' + arrows.join('') + '</g>';
+    // state announcements
+    if (lastState !== st) {
+      if (lastState !== null && st !== 'out') {
+        var worse = ['stable', 'disturbed', 'threatened', 'critical'].indexOf(st) > ['stable', 'disturbed', 'threatened', 'critical'].indexOf(lastState);
+        sess.addLog('Flame ' + STATE_TEXT[st][0].toLowerCase() + '.', worse ? 'warn' : 'info');
+        if (worse && (st === 'threatened' || st === 'critical')) say('Flame ' + STATE_TEXT[st][0].toLowerCase() + '.', st === 'critical');
+        else if (!worse) say('Flame ' + STATE_TEXT[st][0].toLowerCase() + '.');
+      }
+      lastState = st;
+    }
+    if (audio && sess.state.prefs.sound) audio.setWind(meta.paused || run.status !== 'running' ? 0 : w.total);
+    renderLog();
+    renderDev();
+  }
+
+  function renderLog() {
+    var L = sess.state.log;
+    if (L.length === lastLogLen) return;
+    lastLogLen = L.length;
+    $('log').innerHTML = L.slice().reverse().map(function (e) {
+      return '<li><time>' + nightClock(e.t) + '</time>' + esc(e.text) + '</li>';
+    }).join('') || '<li class="note">Nothing yet.</li>';
+  }
+
+  function renderDev() {
+    if (!DEV) return;
+    var run = sess.state.run, el = $('dev');
+    el.hidden = false;
+    el.textContent = run ? 'dev: tier ' + run.tier + ' seed ' + run.seed + ' tick ' + run.t + ' draft ' + run.draft.toFixed(3) + ' supply ' + run.supply.toFixed(3) + ' hash ' + Sim.hashRun(run) + ' speed ' + speed + '×' : 'dev mode';
+  }
+
+  // ----------------------------------------------------------- loop
+  var rafId = null, lastFrame = 0, acc = 0, speed = 1, nextFlash = 0;
+  function loop(ts) {
+    rafId = null;
+    var run = sess.state.run;
+    if (!run || run.status !== 'running' || sess.state.meta.paused) { acc = 0; return; }
+    var dt = lastFrame ? ts - lastFrame : 0; lastFrame = ts;
+    var fs = SessionLib.frameSteps(acc, dt * speed, TICK_MS, 8 * speed);
+    acc = fs.acc;
+    for (var i = 0; i < fs.steps; i++) {
+      var stt = sess.tick();
+      if (stt !== 'running') { render(true); onEnd(); return; }
+    }
+    if (fs.steps) render();
+    decorative(ts, run);
+    ensureLoop();
+  }
+  function ensureLoop() { if (rafId === null) { rafId = requestAnimationFrame(loop); } }
+  function startLoop() { lastFrame = 0; acc = 0; ensureLoop(); }
+
+  // Lightning and thunder are decorative only (not seeded, never affect play).
+  function decorative(ts, run) {
+    if (!nextFlash) nextFlash = ts + 6000 + Math.random() * 9000;
+    if (ts < nextFlash) return;
+    nextFlash = ts + (run.tier === 'gold' ? 5000 : 9000) + Math.random() * 10000;
+    if (!reduced()) { var f = $('flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); }
+    setTimeout(function () { sfx('thunder'); }, 400 + Math.random() * 1200);
+  }
+
+  // ----------------------------------------------------------- run lifecycle
+  function beginRun(tier, mode, seed) {
+    closeAll();
+    sess.newRun(tier, mode, seed);
+    seenForecasts = {}; lastState = null; lastLogLen = -1;
+    planBuiltFor = null;
+    speed = DEV && mode === 'practice' ? parseInt($('speedIn').value, 10) || 1 : 1;
+    var T = Sim.TIERS[tier];
+    sess.addLog((mode === 'practice' ? 'Practice night' : 'Ranked night') + ': ' + T.label + ', ' + sess.state.run.house.name + '. The candle is lit.', 'info');
+    render(true);
+    say('Night begins. ' + T.label + '. The candle is in the ' + roomName(sess.state.run.house, sess.state.run.house.candle) + '.');
+    startLoop();
+  }
+
+  function togglePause() {
+    var meta = sess.state.meta;
+    if (!meta || !sess.state.run || sess.state.run.status !== 'running') return;
+    if (meta.paused) doResume(); else doPause('player');
+  }
+  function doPause(reason) {
+    if (sess.pause(reason)) {
+      sess.addLog(reason === 'hidden' ? 'Paused automatically (page hidden).' : 'Paused.', 'info');
+      $('pauseText').textContent = reason === 'hidden' ? 'The game paused while the page was hidden. The storm waits for you.' :
+        reason === 'restored' ? 'Your night is waiting where you left it.' : 'The storm waits for you.';
+      render(true);
+      openDlg('dPause');
+    }
+  }
+  function doResume() {
+    if (sess.resume()) { closeDlg('dPause'); sess.addLog('Resumed.', 'info'); render(true); startLoop(); say('Resumed.'); }
+  }
+
+  function onEnd() {
+    var run = sess.state.run, rec = sess.state.lastRecord || sess.finalize();
+    var T = Sim.TIERS[run.tier];
+    var won = run.status === 'won';
+    sess.addLog(won ? 'Dawn. The flame survives.' : 'The flame went out.', won ? 'info' : 'warn');
+    sess.persist();
+    renderLog();
+    sfx(won ? 'dawn' : 'out');
+    $('dResultH').textContent = won ? 'Dawn has come. The flame survives.' : 'The last candle has gone dark.';
+    $('resultWhy').textContent = won ? T.label + ' — ' + T.night + ', survived.' : causeText(run);
+    var b = [];
+    var sc = rec.scoreParts;
+    if (won) {
+      b.push('<p><b>Score ' + sc.score + '</b> / 100' + (rec.practice ? ' (practice — not recorded)' : '') + '</p>');
+      b.push('<table class="scoretbl"><tbody>' +
+        '<tr><td>Flame stability (35)</td><td>' + (35 * sc.parts.stability).toFixed(1) + '</td></tr>' +
+        '<tr><td>Calm candle room (25)</td><td>' + (25 * sc.parts.calm).toFixed(1) + '</td></tr>' +
+        '<tr><td>Healthy air (15)</td><td>' + (15 * sc.parts.air).toFixed(1) + '</td></tr>' +
+        '<tr><td>Never critical (15)</td><td>' + (15 * sc.parts.critical).toFixed(1) + '</td></tr>' +
+        '<tr><td>Efficient moves (10): ' + sc.actions + ' moves, ' + sc.allowance + ' free</td><td>' + (10 * sc.parts.efficiency).toFixed(1) + '</td></tr>' +
+        '</tbody></table>');
+    } else {
+      b.push('<p class="note">Survived ' + mmss(run.endedAt / Sim.TICK_HZ) + ' of 5:00. No seal is awarded for a night the flame does not survive.' + (rec.practice ? ' Practice — not recorded.' : '') + '</p>');
+    }
+    if (!rec.practice) {
+      if (rec.newSeal) b.push('<p>' + sealSVG(run.tier, true) + ' <b>' + T.label + ' seal earned.</b> Gamortal No. 001 now holds a ' + T.label + ' key or better.</p>');
+      if (rec.newBest) b.push('<p><b>New personal best</b> for ' + T.label + '.</p>');
+      (rec.newAchievements || []).forEach(function (id) {
+        var a = KR.CATALOG['001'].achievements.filter(function (x) { return x.id === id; })[0];
+        if (a) b.push('<p>Achievement: <b>' + esc(a.name) + '</b> — ' + esc(a.desc) + '</p>');
+      });
+    }
+    $('resultBody').innerHTML = b.join('');
+    var btns = ['<button class="btn primary" type="button" data-act="again">' + (won ? 'Play ' + T.label + ' again' : 'Try again') + '</button>'];
+    if (rec.practice) btns.push('<button class="btn" type="button" data-act="same">Replay storm ' + run.seed + '</button>');
+    if (won && run.tier !== 'gold') btns.push('<button class="btn" type="button" data-act="harder">Try ' + (run.tier === 'bronze' ? 'Silver' : 'Gold') + '</button>');
+    btns.push('<button class="btn" type="button" data-act="choose">Choose a night</button>', '<button class="btn" type="button" data-act="keyring">Keyring</button>');
+    $('resultBtns').innerHTML = btns.join('');
+    say(won ? 'Dawn has come. The flame survives.' : 'The last candle has gone dark. ' + causeText(run), true);
+    openDlg('dResult');
+  }
+
+  function causeText(run) {
+    if (run.cause === 'air') return 'The fresh air ran out — the house was sealed too tightly for too long.';
+    // find the opening that sent the most draft to the candle on the final tick
+    var w = Sim.windAt(run.weather, run.endedAt - 1), best = null, bv = 0;
+    run.house.exterior.forEach(function (o) {
+      if (!run.open[o.id]) return;
+      var only = {}; Sim.allOpenings(run.house).forEach(function (id) { only[id] = run.house.doors.some(function (d) { return d.id === id; }) ? run.open[id] : id === o.id; });
+      var v = Sim.evalConfig(run.house, only, w.dir, w.total).draft;
+      if (v > bv) { bv = v; best = o; }
+    });
+    return best ? 'A ' + (w.gust > 0.05 ? 'gust' : 'draft') + ' from the ' + Sim.compassName(w.dir) + ' came through the open ' + roomName(run.house, best.room).toLowerCase() + ' ' + openingName(run.house, best).toLowerCase() + ' and reached the candle.' : 'A draft reached the candle.';
+  }
+
+  $('resultBtns').addEventListener('click', function (e) {
+    var act = e.target && e.target.getAttribute('data-act'); if (!act) return;
+    var run = sess.state.run, mode = sess.state.meta ? sess.state.meta.mode : 'ranked';
+    if (act === 'again') beginRun(run.tier, mode, mode === 'practice' ? null : undefined);
+    else if (act === 'same') beginRun(run.tier, 'practice', run.seed);
+    else if (act === 'harder') beginRun(run.tier === 'bronze' ? 'silver' : 'gold', mode);
+    else if (act === 'choose') { closeDlg('dResult'); openStart(); }
+    else if (act === 'keyring') { closeDlg('dResult'); openKeyring(); }
+  });
+
+  // ----------------------------------------------------------- dialogs
+  function openDlg(id) { var d = $(id); if (!d.open) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); } }
+  function closeDlg(id) { var d = $(id); if (d.open) { if (d.close) d.close(); else d.removeAttribute('open'); } }
+  function closeAll() { ['dStart', 'dPause', 'dResult', 'dTut', 'dHow', 'dKeyring'].forEach(closeDlg); }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (b) {
+    b.addEventListener('click', function () { var d = b.closest('dialog'); if (d) closeDlg(d.id); });
+  });
+  // Esc on the pause dialog must not silently resume: keep it open.
+  $('dPause').addEventListener('cancel', function (e) { e.preventDefault(); });
+
+  var pick = { tier: 'bronze', mode: 'ranked' };
+  function openStart() {
+    var run = sess.state.run;
+    if (run && run.status === 'running' && !sess.state.meta.paused) doPause('player');
+    pick.tier = sess.state.prefs.lastTier || 'bronze';
+    var kr = KR.load(guarded).keyring, g = kr.games['001'];
+    $('tierPick').innerHTML = ['bronze', 'silver', 'gold'].map(function (t) {
+      var T = Sim.TIERS[t], H = Sim.HOUSES[T.house], tr = g && g.tiers[t];
+      var blurb = { bronze: 'Small house, gentle winds, long warnings.', silver: 'More rooms, stronger winds, faster turns.', gold: 'A manor, unpredictable storms, short warnings.' }[t];
+      var rec = tr && tr.won ? ' Best ' + tr.bestScore + '.' : '';
+      return '<button type="button" class="tier" role="radio" data-tier="' + t + '" aria-checked="' + (t === pick.tier) + '">' + sealSVG(t, !!(tr && tr.won)) +
+        '<span><b>' + T.label + ' — ' + T.night + '</b><span>' + H.name + ': ' + H.rooms.length + ' rooms. ' + blurb + rec + '</span></span></button>';
+    }).join('');
+    updateModeUI();
+    if (sess.state.meta && sess.state.meta.paused) closeDlg('dPause');
+    openDlg('dStart');
+  }
+  function updateModeUI() {
+    Array.prototype.forEach.call($('modePick').querySelectorAll('[data-mode]'), function (b) { b.setAttribute('aria-checked', String(b.getAttribute('data-mode') === pick.mode)); });
+    $('seedRow').hidden = pick.mode !== 'practice';
+    $('speedRow').hidden = !(DEV && pick.mode === 'practice');
+    $('modeNote').textContent = pick.mode === 'ranked' ? 'Ranked nights use a random verified storm and can earn seals, best scores and achievements.' : 'Practice nights never touch your records. Enter a storm number to replay a specific storm.';
+  }
+  $('tierPick').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tier]'); if (!b) return;
+    pick.tier = b.getAttribute('data-tier');
+    Array.prototype.forEach.call($('tierPick').querySelectorAll('[data-tier]'), function (x) { x.setAttribute('aria-checked', String(x === b)); });
+  });
+  $('modePick').addEventListener('click', function (e) { var b = e.target.closest('[data-mode]'); if (!b) return; pick.mode = b.getAttribute('data-mode'); updateModeUI(); });
+  $('bGo').addEventListener('click', function () {
+    var seed = null;
+    if (pick.mode === 'practice' && $('seedIn').value !== '') {
+      seed = Number($('seedIn').value);
+      if (!Sim.isValidSeed(seed)) { $('modeNote').textContent = 'Storm numbers are whole numbers from 1 to 4294967295.'; $('seedIn').focus(); return; }
+    }
+    var go = function () { beginRun(pick.tier, pick.mode, seed); };
+    if (!sess.state.prefs.tutorialSeen) { showTutorial(go); closeDlg('dStart'); }
+    else go();
+  });
+  // abandon any paused run only when a new one actually starts (beginRun replaces it)
+  $('dStart').addEventListener('close', function () {
+    var run = sess.state.run;
+    if (run && run.status === 'running' && sess.state.meta.paused && !$('dTut').open) openDlg('dPause');
+  });
+
+  // tutorial (never awards anything; it only explains)
+  var TUT = [
+    ['The candle', 'One candle burns in the house. Keep it lit for five minutes, from nightfall to dawn.'],
+    ['Doors and windows', 'Tap any door or window on the plan, or use the list below it. Every window shows whether it is Windward (facing the wind), Angled, or Sheltered.'],
+    ['Two dangers', 'Open windows facing the wind let gusts in, and drafts travel through open doors. But a sealed house runs out of fresh air. Open sheltered windows to breathe; close windward ones before gusts.'],
+    ['Watch the forecast', 'Warnings appear before the wind turns and before gusts strike. When the wind turns, yesterday’s sheltered window can become today’s danger. Pause any time with P.']
+  ];
+  var tutI = 0, tutDone = null;
+  function showTutorial(done) { tutI = 0; tutDone = done; drawTut(); openDlg('dTut'); }
+  function drawTut() { $('tutBody').innerHTML = '<h3>' + esc(TUT[tutI][0]) + '</h3><p>' + esc(TUT[tutI][1]) + '</p><p class="note">' + (tutI + 1) + ' of ' + TUT.length + '</p>'; $('bTutNext').textContent = tutI === TUT.length - 1 ? 'Light the candle' : 'Next'; }
+  function endTut() { sess.setPref('tutorialSeen', true); closeDlg('dTut'); var d = tutDone; tutDone = null; if (d) d(); }
+  $('bTutNext').addEventListener('click', function () { if (tutI < TUT.length - 1) { tutI++; drawTut(); } else endTut(); });
+  $('bTutSkip').addEventListener('click', endTut);
+  $('dTut').addEventListener('cancel', function (e) { e.preventDefault(); endTut(); });
+
+  // ----------------------------------------------------------- keyring panel
+  function openKeyring() { drawKeyring(); $('krMsg').textContent = ''; $('krText').hidden = true; $('pasteRow').hidden = true; openDlg('dKeyring'); }
+  function drawKeyring() {
+    var L = KR.load(guarded), kr = L.keyring, g = kr.games['001'];
+    var html = [];
+    if (L.status === 'corrupt') html.push('<p class="msg">Stored keyring data could not be read. It will be backed up before anything new is saved.</p>');
+    if (storage._memory) html.push('<p class="msg">This browser is blocking storage, so records will last only until you close the page.</p>');
+    html.push('<div class="slots">');
+    for (var i = 1; i <= 31; i++) {
+      var id = ('00' + i).slice(-3), cat = KR.CATALOG[id], gg = kr.games[id], hk = KR.highestKey(gg);
+      if (cat) {
+        var achN = gg ? Object.keys(gg.achievements).length : 0;
+        html.push('<div class="slot"><span class="n">No. ' + id + '</span><b>' + esc(cat.title) + '</b>' + (hk ? sealSVG(hk, true) + '<span>' + hk.charAt(0).toUpperCase() + hk.slice(1) + ' key</span>' : '<span>No key yet</span>') + '<span>' + achN + ' of ' + cat.achievements.length + ' achievements</span>' + (cat.published ? '<a href="' + cat.path + '">Play</a>' : '') + '</div>');
+      } else {
+        html.push('<div class="slot reserved" aria-label="Slot ' + id + ', reserved"><span class="n">No. ' + id + '</span><span>Reserved</span>' + (hk ? '<span>' + hk + ' key</span>' : '') + '</div>');
+      }
+    }
+    html.push('</div><h3>Last Candle records</h3><table class="scoretbl"><tbody><tr><td><b>Tier</b></td><td><b>Seal · best · won / lost</b></td></tr>');
+    ['bronze', 'silver', 'gold'].forEach(function (t) {
+      var tr = g ? g.tiers[t] : KR.emptyGame('001').tiers[t];
+      html.push('<tr><td>' + Sim.TIERS[t].label + '</td><td>' + (tr.won ? 'Sealed' : 'Not yet') + ' · ' + (tr.bestScore === null ? '—' : tr.bestScore) + ' · ' + tr.wins + ' / ' + tr.losses + '</td></tr>');
+    });
+    html.push('</tbody></table><h3>Achievements</h3><ul class="ach">');
+    KR.CATALOG['001'].achievements.forEach(function (a) {
+      var at = g && g.achievements[a.id];
+      html.push('<li class="' + (at ? 'got' : '') + '"><b>' + esc(a.name) + '</b>' + (at ? ' — earned ' + esc(at.slice(0, 10)) : '') + '<br>' + esc(a.desc) + '</li>');
+    });
+    html.push('</ul>');
+    $('krBody').innerHTML = html.join('');
+  }
+  $('bKeyring').addEventListener('click', openKeyring);
+  $('bExport').addEventListener('click', function () {
+    var text = KR.exportText(guarded);
+    try {
+      var blob = new Blob([text], { type: 'application/json' }), a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'doorquests-gamortal-keyring.json'; document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      $('krMsg').textContent = 'Backup downloaded.';
+    } catch (e) { $('krText').hidden = false; $('krText').value = text; $('krMsg').textContent = 'Download unavailable here — copy the text below instead.'; }
+  });
+  $('bCopy').addEventListener('click', function () { $('krText').hidden = false; $('pasteRow').hidden = false; $('krText').value = KR.exportText(guarded); $('krText').select(); $('krMsg').textContent = 'Copy this text to keep a backup, or paste a backup here and choose Import pasted text.'; });
+  function doImport(text) {
+    var r = KR.importText(guarded, text);
+    $('krMsg').textContent = r.ok ? 'Imported and merged. Earned keys are never downgraded.' : 'Import refused: ' + r.error + '. Nothing was changed.';
+    drawKeyring();
+  }
+  $('bPasteImport').addEventListener('click', function () { doImport($('krText').value); });
+  $('fileIn').addEventListener('change', function () {
+    var f = this.files && this.files[0]; this.value = '';
+    if (!f) return;
+    if (f.size > KR.MAX_IMPORT_BYTES) { $('krMsg').textContent = 'Import refused: file too large (limit 64 KB). Nothing was changed.'; return; }
+    var rd = new FileReader(); rd.onload = function () { doImport(String(rd.result)); }; rd.onerror = function () { $('krMsg').textContent = 'Could not read that file.'; }; rd.readAsText(f);
+  });
+  function twoStep(btn, label, confirmLabel, action) {
+    var armed = false, timer = null;
+    btn.addEventListener('click', function () {
+      if (!armed) { armed = true; btn.textContent = confirmLabel; $('krMsg').textContent = 'Press again within 5 seconds to confirm. This cannot be undone.'; timer = setTimeout(function () { armed = false; btn.textContent = label; $('krMsg').textContent = ''; }, 5000); return; }
+      clearTimeout(timer); armed = false; btn.textContent = label; action(); drawKeyring();
+    });
+  }
+  twoStep($('bResetGame'), 'Reset Last Candle records', 'Confirm: reset Last Candle', function () { KR.resetGame(guarded, '001'); $('krMsg').textContent = 'Last Candle records reset.'; });
+  twoStep($('bResetAll'), 'Reset all Gamortal records', 'Confirm: reset every Gamortal key', function () { KR.resetAll(guarded); $('krMsg').textContent = 'All Gamortal records reset.'; });
+
+  // ----------------------------------------------------------- toolbar
+  $('bNew').addEventListener('click', openStart);
+  $('bPause').addEventListener('click', togglePause);
+  $('mPause').addEventListener('click', togglePause);
+  $('bResume').addEventListener('click', doResume);
+  $('bAbandon').addEventListener('click', function () { closeDlg('dPause'); sess.abandon(); planBuiltFor = null; $('plan').innerHTML = ''; $('rooms').innerHTML = ''; $('forecast').innerHTML = ''; render(true); openStart(); });
+  $('bRestart').addEventListener('click', function () {
+    var run = sess.state.run; if (!run) return;
+    var mode = sess.state.meta.mode;
+    if (run.status === 'running' && !window.confirm('Restart this night? ' + (mode === 'ranked' ? 'An unfinished ranked night is not recorded, and a new storm is chosen.' : 'The same storm starts again.'))) return;
+    beginRun(run.tier, mode, mode === 'practice' ? run.seed : undefined);
+  });
+  $('bHow').addEventListener('click', function () { openDlg('dHow'); });
+  $('bSound').addEventListener('click', function () { sess.setPref('sound', !sess.state.prefs.sound); applySound(); });
+  $('bMotion').addEventListener('click', function () { sess.setPref('motion', reduced() ? 'full' : 'reduced'); applyMotion(); });
+  if (mq.addEventListener) mq.addEventListener('change', applyMotion);
+  $('logBox').addEventListener('toggle', function () { sess.setPref('logOpen', $('logBox').open); });
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'p' || e.key === 'P') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      var tag = (e.target && e.target.tagName) || ''; if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      togglePause();
+    }
+  });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) doPause('hidden'); });
+  window.addEventListener('pagehide', function () { sess.persist(); });
+
+  // ----------------------------------------------------------- boot
+  var status = sess.load();
+  applyMotion(); applySound();
+  $('logBox').open = !!sess.state.prefs.logOpen;
+  if (sess.state.run) {
+    planBuiltFor = null; render(true);
+    var r = sess.state.run;
+    // seed the "already announced" set so a reload does not re-announce old forecasts
+    Sim.forecastsAt(r.weather, r.t).forEach(function (f) { seenForecasts[f.type + (f.inTicks + r.t) + '-' + r.seed] = 1; });
+    lastState = Sim.flameState(r.flame, r.status);
+    if (r.status === 'running') { $('pauseText').textContent = 'Your night is waiting where you left it.'; openDlg('dPause'); }
+    else onEnd();
+  } else {
+    render(true);
+    if (sess.state.restoreNote) say(sess.state.restoreNote);
+    openStart();
+    if (sess.state.restoreNote) $('modeNote').textContent = sess.state.restoreNote;
+  }
+  if (DEV) { $('dev').hidden = false; renderDev(); self.__lc = { sess: sess, Sim: Sim, KR: KR }; }
+})();
+
+</script>
+<!-- Cloudflare Web Analytics -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3f72232588414cf087bd7c4ed5e4ddaa"}'></script>
+<!-- End Cloudflare Web Analytics -->
+</body>
+</html>
