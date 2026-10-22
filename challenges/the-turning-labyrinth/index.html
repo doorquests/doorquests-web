@@ -1,0 +1,1163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Turning Labyrinth | DoorQuests Chaortals</title>
+<meta name="robots" content="noindex,nofollow">
+<!-- PROTOTYPE: noindex until the Founder accepts. Switch to index,follow at publication. -->
+<meta name="description" content="Chaortal No. 29, The Turning Labyrinth: beneath an imagined chamber at Knossos, guide an explorer across concentric stone rings that turn after every step, then gather three tokens before the gate will open.">
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap">
+<style>
+/* Layout: the descent beneath an imagined chamber at Knossos (torchlit stair, then the ring chamber). Below it, the labyrinth
+   beside the controls, "The Labyrinth in Words" and Ariadne's Thread (the route). Verb: ROTATE. One step, then the rings turn. */
+:root{
+  --bg:#f2ebe0; --panel:#fbf7f0; --panel2:#ebe1d0; --ink:#211a14; --muted:#5d5246; --line:#d8c8ae;
+  --accent:#8a2a1c; --accent-ink:#fbf2e6; --good:#2f5d2c; --bad:#9a2a22; --focus:#c2410c;
+  --bronze:#8f5528; --silver:#666d76; --goldtier:#9a7410; --brass:#b98a3c; --lapis:#2c4a8a; --minoan:#a8321f;
+  --display:"Cinzel",Georgia,serif; --body:"Source Serif 4",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#130f0c; --panel:#1e1813; --panel2:#17120e; --ink:#efe6d8; --muted:#c2b4a0; --line:#3d3228;
+  --accent:#f0a48e; --accent-ink:#1c0d08; --good:#9ad39a; --bad:#f0907c; --focus:#ffb37a;
+  --bronze:#d08a52; --silver:#bcc3cb; --goldtier:#e8c44d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#130f0c; --panel:#1e1813; --panel2:#17120e; --ink:#efe6d8; --muted:#c2b4a0; --line:#3d3228;
+  --accent:#f0a48e; --accent-ink:#1c0d08; --good:#9ad39a; --bad:#f0907c; --focus:#ffb37a;
+  --bronze:#d08a52; --silver:#bcc3cb; --goldtier:#e8c44d; color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.5;
+  padding:max(18px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(56px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.brand{margin:0 0 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font:600 .82rem/1.4 var(--body);letter-spacing:.06em;color:var(--muted)}
+.brand img{width:30px;height:30px}
+.brand a{color:inherit;text-decoration:none}.brand a:hover{text-decoration:underline}
+.proto{display:inline-block;margin-left:auto;padding:2px 8px;border:1px dashed var(--bad);border-radius:999px;color:var(--bad);font:700 .72rem var(--body);letter-spacing:.06em}
+
+/* ---------- THE CHAMBER ---------- */
+.hall{position:relative;border-radius:16px;overflow:hidden;color:#fbf2e6;border:1px solid #2a120c;background:#2b1a14}
+.scene{position:relative}
+.scene svg{display:block;width:100%;height:auto}
+.scenehead{position:absolute;left:0;top:0;padding:16px 28px 26px 20px;pointer-events:none;max-width:58%;background:radial-gradient(ellipse at 0 0,rgba(30,12,8,.85) 0%,rgba(30,12,8,.5) 55%,rgba(30,12,8,0) 80%)}
+.hall .pre{margin:0;font:700 .76rem/1.35 var(--body);letter-spacing:.08em;color:#fff1dc;text-shadow:0 1px 4px rgba(0,0,0,.85)}
+.hall h1{margin:2px 0 0;font:700 clamp(1.8rem,4.4vw,3rem)/1.05 var(--display);color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.7);letter-spacing:.03em}
+.verb{display:inline-block;margin-top:8px;font:700 .84rem var(--body);letter-spacing:.32em;color:#fff1dc;border:1px solid var(--brass);border-radius:3px;padding:4px 8px 3px 12px;background:rgba(40,16,10,.55)}
+@media (max-width:700px){.scenehead{position:relative;max-width:none;padding:14px 16px 6px;background:#2b1a14}}
+.place{margin:0;padding:8px 18px;font:600 1rem var(--body);color:#fbf2e6;background:#22140f;border-top:1px solid #5a2a1c}
+.flicker{animation:flicker 2.4s ease-in-out infinite alternate}
+@keyframes flicker{from{opacity:.55}to{opacity:1}}
+html.rm .flicker{animation:none}
+.room{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:16px;padding:16px;align-items:start;background:linear-gradient(180deg,#2b1a14,#22140f)}
+@media (max-width:980px){.room{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){.room{padding:10px 6px;gap:10px}}
+.slab{position:relative;border-radius:12px;padding:14px;color:#211a14;background:linear-gradient(180deg,#fbf5ea,#efe2ca);box-shadow:inset 0 0 0 2px #b98a3c,0 10px 22px rgba(0,0,0,.45);min-width:0}
+@media (max-width:560px){.slab{padding:10px 8px}}
+.slab h2{margin:0 0 6px;font:700 1.1rem var(--display);color:#8a2a1c;letter-spacing:.04em}
+.slab h3{margin:12px 0 4px;font:700 .8rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:#3a2a1e}
+.note{color:var(--muted);font-size:.97rem;margin:8px 0 0}
+.slab .note{color:#5d5246}
+.kind{display:inline-block;font:700 .64rem var(--body);letter-spacing:.08em;border-radius:4px;padding:2px 6px;margin:0 4px;vertical-align:middle;text-transform:uppercase}
+.kind.free{background:#e4efe0;color:#2f5d2c;border:1px solid #2f5d2c}
+.kind.graded{background:#f6e2db;color:#8a3824;border:1px solid #8a3824}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tool{border:1px solid #6a4a2a;background:#fffaf0;color:#211a14;border-radius:8px;padding:6px 12px;min-height:44px;min-width:44px;cursor:pointer;font:700 .92rem var(--body)}
+.tool:hover:not(:disabled){background:#fff}
+.tool:disabled{opacity:.45;cursor:not-allowed}
+.tool.warn{border-color:#9a2a22;color:#9a2a22}
+
+/* the labyrinth */
+.boardwrap{display:grid;justify-items:center}
+#board{width:100%;max-width:560px;border-radius:50%;outline-offset:6px}
+#board svg{display:block;width:100%;height:auto;overflow:visible}
+.ringg{transition:transform .6s cubic-bezier(.4,.1,.3,1)}
+html.rm .ringg{transition:none}
+.cellp{cursor:default}
+.cellp.dest{cursor:pointer;fill:rgba(255,176,40,.6);stroke:#c2410c;stroke-width:3;animation:pulse 1.4s ease-in-out infinite alternate}
+@keyframes pulse{from{fill-opacity:.45}to{fill-opacity:.85}}
+html.rm .cellp.dest{animation:none}
+.cellp.dest:focus-visible{outline:none;stroke:#c2410c;stroke-width:4}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:6px 0 0;font:600 .9rem var(--body);color:#3a2a1e}
+.status{margin:8px 0 0;padding:7px 10px;border-radius:6px;background:rgba(138,42,28,.06);border:1px solid #b98a3c;font:600 .97rem/1.45 var(--body)}
+.preview{display:flex;gap:8px;align-items:center;margin-top:8px;font:600 .95rem var(--body);min-height:44px}
+.preview{cursor:pointer}
+.preview input{flex:0 0 26px;width:26px;height:26px;margin:0;accent-color:#8a2a1c;cursor:pointer}
+
+/* controls */
+.counter{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline;padding:8px 12px;border-radius:8px;background:#3a1a12;color:#fbf2e6;border:1px solid #b98a3c}
+.counter b{font:700 2rem/1 var(--display);color:#ffd98a}
+.counter span{font:600 .9rem var(--body)}
+.turnrule{margin:8px 0 0;padding:8px 10px;border-radius:8px;background:#fff8ea;border:1px dashed #b98a3c;font:600 .95rem/1.45 var(--body)}
+.moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 4px}
+.moves button{min-height:56px;border:2px solid #6a4a2a;border-radius:10px;background:#fffaf0;font:700 1rem var(--body);cursor:pointer;color:#211a14;display:grid;gap:0;justify-items:center;padding:4px}
+.moves button small{font:600 .74rem var(--body);color:#5d5246}
+.moves button[data-ok="true"]{border-color:#2f5d2c;background:#f1f8ec}
+.moves button[data-ok="false"]{border-style:dashed;opacity:.7}
+.words{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fffdf6;border:1px solid #d8c49a;font-size:.95rem}
+.words h3{margin:0 0 4px}
+.words ul{margin:4px 0 0;padding-left:1.2em}
+.words .lm{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.words .lm button{min-height:44px;border:1px solid #2f5d2c;border-radius:8px;background:#f1f8ec;cursor:pointer;font:600 .9rem var(--body);padding:4px 10px;color:#211a14}
+.thread{list-style:none;margin:0;padding:0;display:grid;gap:3px;max-height:240px;overflow:auto;font-size:.92rem}
+.thread li{padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.5);border-left:3px solid #b98a3c}
+.thread li.lastmv{border-left-color:#8a2a1c;background:#f8e9e2}
+.verdict{border-radius:6px;padding:8px 10px;margin:8px 0}
+.verdict.good{border:2px solid #2f5d2c;background:#eef6ea}
+.meters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px;font:600 .95rem var(--body);margin-top:10px}
+.meters div{display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted #b98a3c;padding:2px 0}
+.tokens{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tok{display:flex;gap:6px;align-items:center;padding:4px 10px;border-radius:999px;border:1px solid #b98a3c;font:700 .85rem var(--body);background:#fffaf0}
+.tok.have{background:#f6e6b8;border-color:#9a7410}
+.msg{margin:0 16px 14px;padding:9px 12px;border-radius:8px;background:rgba(251,247,240,.97);border:1px solid #9c8a66;color:#211a14}
+.msg:empty{display:none}
+.msg.bad{border-color:#9a2a22;background:#fbecea}
+.msg.good{border-color:#2f5d2c;background:#eef6ea}
+.msg.info{border-color:#2c4a8a;background:#eaf0fa}
+.hallfoot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:0 16px 14px;font:600 .92rem var(--body);color:#f1dfcf;background:#22140f}
+kbd{font:600 .8rem var(--body);border:1px solid #9c8a66;border-bottom-width:2px;border-radius:4px;padding:0 5px;background:rgba(255,255,255,.1);color:inherit}
+.chip2{font:700 .74rem var(--body);letter-spacing:.06em;border:1px solid var(--brass);background:rgba(255,255,255,.08);color:#fbf2e6;border-radius:999px;padding:3px 12px;cursor:pointer;min-height:44px}
+
+/* ---------- below ---------- */
+.story{margin:14px 0 0;padding:10px 16px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:6px;font:italic 1.05rem/1.6 var(--body)}
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 4px}
+.tierbtn{display:grid;gap:2px;text-align:left;background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:6px;padding:9px 12px;cursor:pointer;color:var(--ink);min-height:44px}
+.tierbtn[data-t="bronze"]{border-top-color:var(--bronze)}.tierbtn[data-t="silver"]{border-top-color:var(--silver)}.tierbtn[data-t="gold"]{border-top-color:var(--goldtier)}
+.tierbtn[aria-pressed="true"]{background:var(--panel2);box-shadow:inset 0 0 0 2px var(--accent)}
+.tierbtn b{font:700 1.04rem var(--body)}
+.tierbtn span{font:400 .92rem var(--body);color:var(--muted)}
+.tierbtn .st{color:var(--good);font-weight:700}
+@media (max-width:560px){.tierbtn{padding:7px 8px}.tierbtn span.aim{display:none}}
+.brief{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+.brief h2{margin:0 0 4px;font:700 1.35rem var(--display);color:var(--accent)}
+.brief p{margin:0}
+.rule{margin-top:8px!important;padding:8px 12px;border-left:4px solid var(--accent);background:var(--panel2);border-radius:4px}
+.rule ul{margin:4px 0 0;padding-left:1.3em}
+.scoring{margin-top:6px!important;font-size:.97rem;color:var(--muted)}
+.card2{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+.card2 h2{margin:0 0 8px;font:700 .84rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--panel2);border-radius:6px;padding:8px 14px;cursor:pointer;font:700 .9rem var(--body);min-height:44px;color:var(--ink)}
+a.btn{color:inherit;text-decoration:none;display:inline-block}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.hints{display:grid;gap:8px}
+.hint{background:var(--panel2);border-left:4px solid var(--accent);border-radius:4px;padding:8px 12px}
+.hint b{font:700 .74rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);display:block}
+.hintrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+details.card2{margin-top:14px}
+details.card2 summary{cursor:pointer;font:700 .84rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-height:44px;display:flex;align-items:center;gap:6px;list-style:none}
+details.card2 summary::-webkit-details-marker{display:none}
+details.card2 summary::before{content:"▸";font-size:1rem}details.card2[open] summary::before{content:"▾"}
+details.card2 ul{margin:8px 0 0;padding-left:1.2em}
+details.card2 p{margin:8px 0 0}
+.src{font-size:.94rem}
+
+/* Ariadne's Thread workspace */
+.nbk{margin-top:14px;border-radius:8px;border:1px solid #b98a3c;color:#211a14;background:linear-gradient(180deg,#f8f1e1,#ecdfc2)}
+.nbk summary{cursor:pointer;padding:12px 16px;font:700 1.2rem var(--display);color:#8a2a1c;list-style:none;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;min-height:44px}
+.nbk summary::-webkit-details-marker{display:none}
+.nbk summary small{font:600 .95rem var(--body);color:#4a3e28}
+.nbk .inner{padding:0 16px 16px;display:grid;gap:16px}
+.nbk h3{margin:0 0 4px;font:700 .8rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:#8a2a1c}
+.nbk .fine{margin:0;font-size:.97rem;color:#3e3628}
+.dedrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.dedrow input{flex:1 1 220px;min-width:0;border:1px solid #c2a77a;border-radius:4px;padding:6px 10px;background:#fffdf6;color:#211a14;min-height:44px}
+.dedrow .btn{background:#fffdf6;border-color:#c2a77a;color:#211a14}
+.cmp{padding:8px 12px;border-radius:6px;background:#fffdf6;border:1px solid #c2a77a;font:600 .97rem var(--body)}
+.dqt-intro{margin:0 0 6px;font-style:italic}
+.dqt-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 10px;font:600 .95rem var(--body)}
+.dqt-leg{display:inline-flex;gap:6px;align-items:center}
+.dqt-leg kbd{font:600 .74rem var(--body);border:1px solid #c2a77a;border-radius:3px;padding:0 4px;background:#fffdf6;color:#211a14}
+.dqt-boards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.dqt-board{overflow-x:auto}
+.dqt-board h4{margin:0;font:700 .8rem var(--body);letter-spacing:.06em;color:#8a2a1c}
+.dqt-help{margin:2px 0 6px;font-size:.97rem;color:#3e3628}
+.dqt-table{border-collapse:collapse;font-size:.88rem}
+.dqt-table th{font-weight:400;text-align:left;padding:2px 6px;font-family:var(--body)}
+.dqt-table td{text-align:center;padding:1px 2px}
+.dqt-cell{width:44px;height:44px;border:1px solid #c2a77a;border-radius:4px;background:#fffdf6;cursor:pointer;font:700 1rem var(--body);color:#6a6a5a;padding:0}
+.dqt-cell[data-s="y"]{color:#2f5d2c;background:#e4efe0;border-color:#2f5d2c}
+.dqt-cell[data-s="x"]{color:#9a2a22;background:#f6e2db;border-color:#9a2a22}
+.dqt-cell[data-s="q"]{color:#7a5a10;background:#f6ecd0;border-color:#a77b26}
+.dqt-sym{display:inline-grid;place-items:center;width:22px;height:20px;border:1px solid #c2a77a;border-radius:3px;background:#fffdf6}
+.dqt-sym[data-s="y"]{color:#2f5d2c}.dqt-sym[data-s="x"]{color:#9a2a22}.dqt-sym[data-s="q"]{color:#7a5a10}
+.dqt-cell:focus-visible{outline:3px solid #c2410c;outline-offset:1px}
+.dqt-notes-label{display:block;margin:12px 0 4px;font:700 .8rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:#8a2a1c}
+.dqt-notes{width:100%;min-height:100px;resize:vertical;border:1px solid #c2a77a;border-radius:4px;background:#fffdf6;color:#211a14;padding:8px 10px;font:italic 1.02rem/1.6 var(--body)}
+.dqt-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.dqt-foot .btn{background:#fffdf6;border-color:#c2a77a;color:#211a14}
+.dqt-msg{font-size:.97rem;color:#3e3628}
+.dqt-log{margin:0;padding-left:1.3em;display:grid;gap:6px}
+.dqt-log li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;align-items:center}
+.dqt-log-t{grid-column:1/-1;font-size:.98rem}
+.dqt-log-n{min-height:44px;border:1px solid #c2a77a;border-radius:4px;padding:4px 8px;background:#fffdf6;color:#211a14;min-width:0}
+.dqt-log-x{border:0;background:none;font-size:1.2rem;cursor:pointer;color:#3e3628;min-width:44px;min-height:44px}
+
+/* award, keyring, footer */
+.award{margin-top:14px;border:2px solid var(--accent);border-radius:10px;padding:16px;background:var(--panel);display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:640px){.award{grid-template-columns:minmax(0,1fr);text-align:center}.award .emb{margin:0 auto}}
+.award h2{margin:0 0 4px;font:700 1.5rem var(--display);color:var(--accent)}
+.award .emb{width:100%;max-width:220px;height:auto;border-radius:10px;background:#f4ecd8}
+.seal{transform-origin:110px 110px;animation:sealin .6s cubic-bezier(.2,.9,.3,1.3) both}
+@keyframes sealin{from{transform:scale(1.6);opacity:0}to{transform:scale(1);opacity:1}}
+html.rm .seal{animation:none}
+.award p{margin:6px 0}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+@media (max-width:640px){.tags{justify-content:center}}
+.tag2{font:700 .72rem var(--body);letter-spacing:.06em;border:1px solid var(--line);border-radius:999px;padding:4px 10px 2px}
+.tag2.hf{border-color:var(--good);color:var(--good)}.tag2.up{border-color:var(--accent);color:var(--accent)}.tag2.ma{border-color:var(--goldtier);color:var(--goldtier)}
+.explain{background:var(--panel2);border-radius:6px;padding:10px 12px;font-size:1rem;text-align:left;overflow-x:auto}
+.explain ol,.explain ul{margin:6px 0 0;padding-left:1.4em}
+.ending{background:linear-gradient(180deg,#3a1a12,#22140f);color:#fbf3e6;border-radius:8px;padding:12px 16px;margin-top:10px;text-align:left;font:400 1.06rem/1.7 var(--body);border:1px solid var(--brass)}
+.ending p{margin:6px 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+@media (max-width:640px){.actions{justify-content:center}}
+.ring2{margin-top:22px}
+.ring2 h2{font:700 1.35rem var(--display);margin:0 0 4px;color:var(--ink);text-transform:none;letter-spacing:0}
+.kslots{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-top:10px}
+.kslot{border:1px dashed var(--line);border-radius:6px;padding:8px;min-height:84px;display:grid;align-content:start;gap:2px;background:var(--panel)}
+.kslot.has{border-style:solid}
+.kslot.has.bronze{border-color:var(--bronze)}.kslot.has.silver{border-color:var(--silver)}.kslot.has.gold{border-color:var(--goldtier)}
+.kslot .n{font:700 .7rem var(--body);letter-spacing:.06em;color:var(--muted)}
+.kslot .t{font-size:.93rem;line-height:1.25}
+.kslot .k{font:700 .7rem var(--body);letter-spacing:.04em}
+.tablewrap3{overflow-x:auto;margin-top:10px}
+.stats{width:100%;border-collapse:collapse;font-size:.96rem}
+.stats th,.stats td{border:1px solid var(--line);padding:5px 8px;text-align:left}
+.stats th{font:700 .72rem var(--body);letter-spacing:.06em;color:var(--muted);background:var(--panel2)}
+@media (max-width:560px){.stats{font-size:.8rem}.stats th,.stats td{padding:4px 5px}}
+.ringtools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+footer{margin-top:28px;padding-top:12px;border-top:1px solid var(--line);font-size:.96rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between}
+footer a{color:var(--accent)}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;min-height:44px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="brand"><img src="/assets/doorquests-icon.svg" alt=""><span><a href="https://doorquests.com/">DoorQuests</a> · Chaortals · Chaortal No. 29 · <i>Choose Your Path. Find the Truth. Unlock the Impossible.</i></span><span class="proto">Prototype · not published</span></p>
+
+  <section class="hall" id="hall" aria-labelledby="hallTitle">
+    <div class="scene">
+      <div class="scenehead"><p class="pre">Chaortal No. 29 · An imagined ring chamber beneath Knossos, Minoan Crete · Planning ahead</p><h1 id="hallTitle">The Turning Labyrinth</h1><span class="verb" aria-hidden="true">ROTATE</span></div>
+      <div id="scene"></div>
+    </div>
+    <p class="place" id="place"></p>
+    <div class="room">
+      <div class="slab" aria-labelledby="labTitle">
+        <h2 id="labTitle"></h2>
+        <p class="note" id="goalText" style="margin:0 0 6px"></p>
+        <div class="boardwrap"><div id="board" tabindex="0" role="group" aria-labelledby="labTitle" aria-describedby="keysHelp2"></div></div>
+        <p class="legend" aria-hidden="true"><span>● the explorer</span><span>▬ wall · gap = doorway</span><span>◆ α marks each turning ring</span><span>✦ legal next cell</span></p>
+        <p class="sr" id="keysHelp2">With this labyrinth focused: right arrow clockwise, left arrow counterclockwise, up arrow outward, down arrow inward.</p>
+        <label class="preview"><input type="checkbox" id="previewBox"> Preview the next turn (where the turning rings' doorways will face after your next step)</label>
+        <p class="status" id="workNow" aria-live="polite"></p>
+      </div>
+      <div class="slab" aria-labelledby="ctlTitle">
+        <h2 id="ctlTitle">Step</h2>
+        <div class="counter" id="counter" aria-live="polite"></div>
+        <p class="turnrule" id="turnRule"></p>
+        <div class="moves" role="group" aria-label="Move the explorer one cell">
+          <button type="button" data-dir="ccw" id="mvCcw"></button><button type="button" data-dir="cw" id="mvCw"></button>
+          <button type="button" data-dir="in" id="mvIn"></button><button type="button" data-dir="out" id="mvOut"></button>
+        </div>
+        <div class="row" style="justify-content:center"><button type="button" class="tool" id="undoBtn">Undo the last step</button><button type="button" class="tool warn" id="resetBtn2">Reset the chamber</button></div>
+        <div class="tokens" id="tokens"></div>
+        <div id="verdict"></div>
+        <section class="words" aria-labelledby="wordsTitle"><h3 id="wordsTitle">The Labyrinth in Words</h3><div id="words"></div></section>
+        <h3>Ariadne's Thread <span style="text-transform:none;font-weight:400;letter-spacing:0">(your route)</span></h3>
+        <p class="note" style="margin:0 0 4px">Every step, and where the turning rings stood after it. Undone steps leave the thread.</p>
+        <ol class="thread" id="thread" aria-label="Ariadne's Thread: your route"></ol>
+        <div class="meters" id="meters"></div>
+      </div>
+    </div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div class="hallfoot"><span id="keysHelp"></span><button class="chip2" id="soundBtn" type="button"></button></div>
+  </section>
+
+  <p class="story">An explorer descends a torchlit stair beneath an imagined ceremonial chamber at Knossos. The floor below is a great disc of concentric stone rings around a bronze pillar, and somewhere in the dark a mechanism waits. The Keeper of the Labyrinth raises a lamp: “Every step changes the path. You must remember not only where the walls stand, but where they will stand next.”</p>
+  <nav class="tiers" aria-label="Choose a commission" id="tiers"></nav>
+  <div class="brief"><h2 id="briefTitle"></h2><p id="briefText"></p><div class="rule" id="briefRule"></div><p class="scoring" id="briefScore"></p></div>
+
+  <details class="nbk" id="nbBox">
+    <summary>Ariadne's Thread · workspace <small>Optional · free · never knows the answer</small></summary>
+    <div class="inner">
+      <p class="fine">Your private planning space. Nothing here moves the explorer or the rings, and nothing here is checked.</p>
+      <div><h3 id="gridsTitle">Ring position ledger, passage alignment notes</h3><div id="nb"></div></div>
+      <div><h3>Movement hypotheses</h3><p class="fine">Write down a route you want to try, in your own words. Completed escapes are added automatically.</p><div id="log"></div>
+        <div class="dedrow"><label class="sr" for="hypIn">Write a hypothesis</label><input id="hypIn" type="text" maxlength="200" placeholder="e.g. wait one step in ring 1, then outward when α faces sector 3"><button class="btn" id="hypBtn" type="button">Record hypothesis</button></div></div>
+    </div>
+  </details>
+
+  <section class="card2" style="margin-top:14px" aria-labelledby="hintsTitle">
+    <h2 id="hintsTitle">The Keeper's counsel (hints)</h2>
+    <div class="hints" id="hints"></div>
+    <div class="hintrow" style="margin-top:8px"><button class="btn" id="hintBtn" type="button"></button><span class="note" style="margin:0">Three pieces of counsel per commission. Each costs 12 points, shown before you ask.</span></div>
+  </section>
+
+  <details class="card2" id="howBox">
+    <summary>How to play: rings, sectors, doorways, the order of every step, tokens, controls, scoring</summary>
+    <ul id="rulesList"></ul>
+  </details>
+
+  <details class="card2" id="histBox">
+    <summary>A note on Knossos, the myth of the Labyrinth, and what is fiction here</summary>
+    <p><b>Archaeology.</b> Knossos, near Heraklion in Crete, is the largest Bronze Age palace site of the Minoan civilisation. Its great palace complex, with courtyards, light wells, storerooms and painted plaster walls, flourished in the second millennium BC. It was excavated from 1900 by Arthur Evans, whose concrete reconstructions (including the red columns that taper downward) still shape how visitors see the site; the British School at Athens continues research there. Bulls, bull-leaping scenes and the double axe (labrys) appear in Minoan art and cult.</p>
+    <p><b>Myth.</b> Much later Greek stories tell of King Minos, the Minotaur kept in a Labyrinth built by Daedalus, Theseus who killed it, and Ariadne, whose thread led him out. Some have linked the word “labyrinth” with the labrys and the sprawling palace itself, but that connection is debated, and no Labyrinth of the myth has been found. Ariadne's thread is a mythological motif.</p>
+    <p><b>What is fiction.</b> The rotating ring chamber, its mechanism, the Keeper, the explorer, the three tokens (the Bronze Bull, the Double Axe and the Spiral Seal) and the three commissions are invented for this game. No mechanically turning labyrinth beneath Knossos is known, and none is claimed; the tokens are gameplay objects, not artefacts.</p>
+    <p class="src">Sources: Ashmolean Museum, “Myths of the Labyrinth”; British School at Athens, “Knossos Research Centre”; Hellenic Heritage, “Knossos”. Full addresses are in the game's documentation.</p>
+  </details>
+
+  <section id="award" hidden></section>
+
+  <section class="ring2 card2" aria-labelledby="ringTitle">
+    <h2 id="ringTitle">Your DoorQuests Keyring</h2>
+    <p class="note" style="margin:0">One key per Chaortal, upgraded Bronze → Silver → Gold. Saved in this browser only. Export it to keep it safe or move it.</p>
+    <div class="tablewrap3"><table class="stats" id="stats"></table></div>
+    <div class="kslots" id="kslots"></div>
+    <div class="ringtools">
+      <button class="btn" id="exportBtn" type="button">Export Keyring</button>
+      <label class="btn" for="importFile" style="display:inline-block">Import Keyring</label>
+      <input type="file" id="importFile" accept="application/json,.json" class="sr">
+      <button class="btn danger" id="resetBtn" type="button">Reset progress</button>
+      <span id="ringMsg" class="note" role="status" aria-live="polite" style="margin:0"></span>
+    </div>
+  </section>
+
+  <footer>
+    <span><a href="https://doorquests.com/">DoorQuests</a> · Chaortals · Chaortal No. 29 · Created by The Axiom Continuum · The turning labyrinth is fiction; Knossos is archaeology; the Labyrinth of Minos is myth</span>
+    <span><button class="linkbtn" id="motionBtn" type="button"></button></span>
+  </footer>
+</div>
+
+<script>
+/* DoorQuests Keyring v1.1 · shared achievement store for all 31 Chaortals.
+   v1.1 adds optional per-tier `achievements` (e.g. Deduction Mastery). Storage schema stays 1: records
+   without the field load unchanged, and Keyring v1.0 ignores the field, so files move safely both ways.
+   Canonical source: chaortals/shared/keyring.js. Inlined into each door's index.html at build time,
+   so every door stays a single standalone file while sharing one implementation.
+   Browser-local and best-effort: for personal enjoyment, not a tamper-proof credential. */
+var DQKeyring = (function () {
+  "use strict";
+  var STORE = "dq-chaortals-keyring-v1", SCHEMA = 1, TIERS = ["bronze", "silver", "gold"];
+  var DOORS = [
+    ["01","The Door of Three Keys","DEDUCE"],["02","The Clockwork Latch","ENGAGE"],["03","The Room That Changed","NOTICE"],
+    ["04","The Mirror Gate","REFLECT"],["05","The Cistern Valve","MEASURE"],["06","The Ferryman's Lock","PLAN"],
+    ["07","The Lantern Bridge","ESCORT"],["08","The Tumbler Lock","PROBE"],["09","The Switchboard Door","TOGGLE"],
+    ["10","The Cipher Disk","DECODE"],["11","The Shatranj Gallery","TRAVERSE"],["12","The Lens Cradles","TRANSFER"],
+    ["13","The Ringing Chamber","CHIME"],["14","The Jacquard Card","REVEAL"],["15","The Alhambra Arch","FIT"],
+    ["16","The Observatory Stair","CONTINUE"],["17","The Fortune Booth","CHOOSE"],["18","The Telegraph Tower","ENCODE"],
+    ["19","The Star Compass","ORIENT"],["20","The Mint Warden's Scale","WEIGH"],["21","The Two Wardens","ASK"],
+    ["22","The Calendar Door","RECKON"],["23","The Rule Keeper","INFER"],["24","The Hundred Shutters","PASS"],
+    ["25","The Self-Counting Ledger","BALANCE"],["26","The Masked Line","STRATEGIZE"],["27","The Seven Seals","ARRANGE"],
+    ["28","The Scroll Cases","SLIDE"],["29","The Turning Labyrinth","ROTATE"],["30","The Shadow Stage","CAST"],
+    ["31","The Impossible Door","UNLOCK"]
+  ].map(function (d) { return { id: d[0], title: d[1], verb: d[2] }; });
+  var DOOR_IDS = DOORS.map(function (d) { return d.id; });
+
+  function empty() { return { schema: SCHEMA, app: "doorquests-chaortals", updated: null, doors: {} }; }
+  function isInt(n, lo, hi) { return typeof n === "number" && Number.isInteger(n) && n >= lo && n <= hi; }
+  function isTime(v) { return v === null || (typeof v === "string" && v.length <= 40 && !isNaN(Date.parse(v))); }
+  var ACH_ID = /^[a-z][a-z0-9-]{1,31}$/, ACH_MAX = 8;
+  /* Achievements: { "deduction-mastery": { at: ISO time | null } }. Returns a clean copy or null if invalid. */
+  function cleanAch(a) {
+    if (a == null) return {};
+    if (typeof a !== "object" || Array.isArray(a)) return null;
+    var ids = Object.keys(a), out = {};
+    if (ids.length > ACH_MAX) return null;
+    for (var i = 0; i < ids.length; i++) {
+      var v = a[ids[i]];
+      if (!ACH_ID.test(ids[i]) || !v || typeof v !== "object" || Array.isArray(v) || !isTime(v.at == null ? null : v.at)) return null;
+      out[ids[i]] = { at: v.at == null ? null : v.at };
+    }
+    return out;
+  }
+
+  /* Validates one tier record; returns a clean copy or null. Unknown fields are dropped. */
+  function cleanTier(t) {
+    if (!t || typeof t !== "object" || Array.isArray(t)) return null;
+    var out = {
+      solved: t.solved === true,
+      best: t.best == null ? null : t.best,
+      hintFree: t.hintFree === true,
+      solves: t.solves == null ? 0 : t.solves,
+      attempts: t.attempts == null ? 0 : t.attempts,
+      fewestHints: t.fewestHints == null ? null : t.fewestHints,
+      firstSolved: t.firstSolved == null ? null : t.firstSolved,
+      lastPlayed: t.lastPlayed == null ? null : t.lastPlayed,
+      achievements: cleanAch(t.achievements)
+    };
+    if (out.achievements === null) return null;
+    if (!out.solved && Object.keys(out.achievements).length) return null;
+    if (out.best !== null && !isInt(out.best, 0, 100)) return null;
+    if (out.fewestHints !== null && !isInt(out.fewestHints, 0, 3)) return null;
+    if (!isInt(out.solves, 0, 1e6) || !isInt(out.attempts, 0, 1e6)) return null;
+    if (!isTime(out.firstSolved) || !isTime(out.lastPlayed)) return null;
+    if (out.solved && out.best === null) return null;
+    if (!out.solved && (out.best !== null || out.hintFree)) return null;
+    return out;
+  }
+  /* Validates a whole envelope (from storage or an import); returns a clean copy or null. */
+  function clean(env) {
+    if (!env || typeof env !== "object" || Array.isArray(env) || env.schema !== SCHEMA) return null;
+    if (!env.doors || typeof env.doors !== "object" || Array.isArray(env.doors)) return null;
+    var out = empty(); out.updated = isTime(env.updated || null) ? (env.updated || null) : null;
+    var ids = Object.keys(env.doors);
+    if (ids.length > DOOR_IDS.length) return null;
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i], d = env.doors[id];
+      if (DOOR_IDS.indexOf(id) < 0 || !d || typeof d !== "object" || !d.tiers || typeof d.tiers !== "object") return null;
+      var tiers = {};
+      for (var k in d.tiers) {
+        if (!Object.prototype.hasOwnProperty.call(d.tiers, k)) continue;
+        if (TIERS.indexOf(k) < 0) return null;
+        var c = cleanTier(d.tiers[k]); if (!c) return null; tiers[k] = c;
+      }
+      out.doors[id] = { tiers: tiers };
+    }
+    return out;
+  }
+  function load() {
+    try { var raw = localStorage.getItem(STORE); if (!raw) return empty(); return clean(JSON.parse(raw)) || empty(); }
+    catch (e) { return empty(); }
+  }
+  function save(env) {
+    env.updated = new Date().toISOString();
+    try { localStorage.setItem(STORE, JSON.stringify(env)); return true; } catch (e) { return false; }
+  }
+  function tierRec(env, door, tier) {
+    if (DOOR_IDS.indexOf(door) < 0 || TIERS.indexOf(tier) < 0) throw new Error("Unknown door or tier");
+    env.doors[door] = env.doors[door] || { tiers: {} };
+    return env.doors[door].tiers[tier] = env.doors[door].tiers[tier] ||
+      { solved: false, best: null, hintFree: false, solves: 0, attempts: 0, fewestHints: null, firstSolved: null, lastPlayed: null, achievements: {} };
+  }
+
+  /* Count one submitted attempt (correct or not). */
+  function noteAttempt(door, tier) {
+    var env = load(), t = tierRec(env, door, tier);
+    t.attempts++; t.lastPlayed = new Date().toISOString(); save(env);
+  }
+  /* Record a solve. `earned` lists achievement ids this run qualified for (judged by the door, never retroactively).
+     Returns what changed, for the award screen. */
+  function recordSolve(door, tier, score, hintsUsed, earned) {
+    if (!isInt(score, 0, 100) || !isInt(hintsUsed, 0, 3)) throw new Error("Bad score");
+    earned = (earned || []).filter(function (id) { return ACH_ID.test(id); });
+    var env = load(), before = highest(door, env), t = tierRec(env, door, tier), now = new Date().toISOString();
+    var firstTier = !t.solved, newBest = t.best === null || score > t.best, newHintFree = hintsUsed === 0 && !t.hintFree;
+    t.solved = true; t.solves++; t.lastPlayed = now; if (!t.firstSolved) t.firstSolved = now;
+    if (newBest) t.best = score;
+    if (hintsUsed === 0) t.hintFree = true;
+    t.fewestHints = t.fewestHints === null ? hintsUsed : Math.min(t.fewestHints, hintsUsed);
+    t.achievements = t.achievements || {};
+    var newAch = earned.filter(function (id) { return !t.achievements[id]; });
+    newAch.forEach(function (id) { if (Object.keys(t.achievements).length < ACH_MAX) t.achievements[id] = { at: now }; });
+    save(env);
+    var after = highest(door, env);
+    return { firstTier: firstTier, newBest: newBest, newHintFree: newHintFree, best: t.best, earned: earned, newAchievements: newAch, keyBefore: before, keyAfter: after, upgraded: before !== after };
+  }
+  function highest(door, env) {
+    env = env || load(); var d = env.doors[door]; if (!d) return null;
+    for (var i = TIERS.length - 1; i >= 0; i--) if (d.tiers[TIERS[i]] && d.tiers[TIERS[i]].solved) return TIERS[i];
+    return null;
+  }
+  function tier(door, t) { var env = load(); return (env.doors[door] && env.doors[door].tiers[t]) || null; }
+  function summary() {
+    var env = load();
+    return DOORS.map(function (d) {
+      var rec = env.doors[d.id] || { tiers: {} };
+      return { id: d.id, title: d.title, verb: d.verb, key: highest(d.id, env), tiers: rec.tiers };
+    });
+  }
+
+  /* Export / import (JSON). Import validates fully, then merges without ever downgrading. */
+  function exportText() { return JSON.stringify(load(), null, 2); }
+  function mergeAch(a, b) {
+    var out = {};
+    Object.keys(a).concat(Object.keys(b)).forEach(function (id) {
+      var x = a[id] && a[id].at, y = b[id] && b[id].at;
+      out[id] = { at: !x ? (y || null) : !y ? x : (x < y ? x : y) };
+    });
+    return out;
+  }
+  function hasAch(door, t, id) { var r = tier(door, t); return !!(r && r.achievements && r.achievements[id]); }
+  function mergeTier(a, b) {
+    if (!a) return b; if (!b) return a;
+    var minT = function (x, y) { return !x ? y : !y ? x : (x < y ? x : y); };
+    var maxT = function (x, y) { return !x ? y : !y ? x : (x > y ? x : y); };
+    return {
+      solved: a.solved || b.solved,
+      best: a.best === null ? b.best : b.best === null ? a.best : Math.max(a.best, b.best),
+      hintFree: a.hintFree || b.hintFree,
+      solves: Math.max(a.solves, b.solves),
+      attempts: Math.max(a.attempts, b.attempts),
+      fewestHints: a.fewestHints === null ? b.fewestHints : b.fewestHints === null ? a.fewestHints : Math.min(a.fewestHints, b.fewestHints),
+      firstSolved: minT(a.firstSolved, b.firstSolved),
+      lastPlayed: maxT(a.lastPlayed, b.lastPlayed),
+      achievements: mergeAch(a.achievements || {}, b.achievements || {})
+    };
+  }
+  function importText(text) {
+    if (typeof text !== "string" || text.length > 200000) return { ok: false, error: "That file is too large to be a Keyring." };
+    var parsed; try { parsed = JSON.parse(text); } catch (e) { return { ok: false, error: "That file isn't valid JSON." }; }
+    var inc = clean(parsed); if (!inc) return { ok: false, error: "That file isn't a valid DoorQuests Keyring (schema 1). Nothing was changed." };
+    var env = load(), added = 0;
+    Object.keys(inc.doors).forEach(function (id) {
+      env.doors[id] = env.doors[id] || { tiers: {} };
+      Object.keys(inc.doors[id].tiers).forEach(function (t) {
+        var had = env.doors[id].tiers[t] && env.doors[id].tiers[t].solved;
+        env.doors[id].tiers[t] = mergeTier(env.doors[id].tiers[t], inc.doors[id].tiers[t]);
+        if (!had && env.doors[id].tiers[t].solved) added++;
+      });
+    });
+    save(env);
+    return { ok: true, added: added };
+  }
+  function reset() { try { localStorage.removeItem(STORE); } catch (e) {} }
+
+  return { DOORS: DOORS, TIERS: TIERS, STORE: STORE, load: load, clean: clean, noteAttempt: noteAttempt, recordSolve: recordSolve,
+           highest: highest, tier: tier, hasAch: hasAch, summary: summary, exportText: exportText, importText: importText, reset: reset };
+})();
+if (typeof module !== "undefined") module.exports = DQKeyring;
+
+</script>
+<script>
+/* DoorQuests Reasoning Toolkit v1.1 · optional, door-configurable thinking aids for Chaortals.
+   v1.1 adds the Log tool (first used by No. 02 for the Mechanic's Workbench). The Notebook is unchanged.
+   Canonical source: chaortals/shared/toolkit.js, inlined into each door's index.html at build time.
+
+   Principles (from the Chaortal #01 playtest refinement, October 17, 2026):
+   - Optional and free: using it never changes a score.
+   - It never knows the answer. The toolkit receives only labels (rows, columns, notes), never puzzle
+     rules or solutions, so it cannot validate, hint or leak. Doors must not pass solver data into it.
+   - Each door chooses the tools that fit its discipline. v1 ships the Notebook: "list" boards (mark
+     items), "grid" boards (mark pairs of items, e.g. key × lock) and free notes. Future doors can add
+     tools (e.g. a tally, a sketch pad, a move log) alongside the Notebook under the same rules.
+
+   Storage: one key per door, e.g. "dq-chaortal-01-notebook-v1":
+   { schema: 1, tiers: { bronze: { marks: { "<board>:<row>[:<col>]": "<stateId>" }, notes: "" }, ... } }
+   Only non-default marks are stored. On load every mark is checked against the door's current
+   configuration and anything unknown is dropped. */
+var DQToolkit = (function () {
+  "use strict";
+  var DEFAULT_STATES = [
+    { id: "u", sym: "·", label: "Uncertain", key: "u" },
+    { id: "p", sym: "✓", label: "Possible", key: "p" },
+    { id: "x", sym: "✗", label: "Impossible", key: "x" }
+  ];
+  var NOTES_MAX = 2000;
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+
+  function Notebook(opts) {
+    var states = opts.states || DEFAULT_STATES, stateIds = states.map(function (s) { return s.id; }), dflt = states[0].id;
+    var tiers = opts.tiers, el = opts.mount, KEY = opts.storageKey, armed = false;
+
+    function validKeys(tier) {
+      var cfg = opts.config(tier), keys = {};
+      cfg.boards.forEach(function (b) {
+        b.rows.forEach(function (r) {
+          if (b.type === "grid") b.cols.forEach(function (c) { keys[b.id + ":" + r.id + ":" + c.id] = 1; });
+          else keys[b.id + ":" + r.id] = 1;
+        });
+      });
+      return keys;
+    }
+    function empty() { var o = { schema: 1, tiers: {} }; tiers.forEach(function (t) { o.tiers[t] = { marks: {}, notes: "" }; }); return o; }
+    function load() {
+      var data = empty();
+      try {
+        var raw = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (!raw || raw.schema !== 1 || !raw.tiers || typeof raw.tiers !== "object") return data;
+        tiers.forEach(function (t) {
+          var src = raw.tiers[t]; if (!src || typeof src !== "object") return;
+          var ok = validKeys(t);
+          if (src.marks && typeof src.marks === "object" && !Array.isArray(src.marks))
+            Object.keys(src.marks).forEach(function (k) { var v = src.marks[k]; if (ok[k] && stateIds.indexOf(v) > 0) data.tiers[t].marks[k] = v; });
+          if (typeof src.notes === "string") data.tiers[t].notes = src.notes.slice(0, NOTES_MAX);
+        });
+      } catch (e) {}
+      return data;
+    }
+    var D = load();
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} }
+    function get(tier, k) { return D.tiers[tier].marks[k] || dflt; }
+    function set(tier, k, v) { if (v === dflt) delete D.tiers[tier].marks[k]; else D.tiers[tier].marks[k] = v; save(); }
+    function stateOf(id) { return states.filter(function (s) { return s.id === id; })[0]; }
+    function next(id) { return stateIds[(stateIds.indexOf(id) + 1) % stateIds.length]; }
+
+    function cellBtn(tier, k, label) {
+      var s = stateOf(get(tier, k));
+      return '<button type="button" class="dqt-cell" data-k="' + esc(k) + '" data-s="' + s.id + '" tabindex="-1" aria-label="' + esc(label + ": " + s.label) +
+        '"><span aria-hidden="true">' + s.sym + "</span></button>";
+    }
+    function render() {
+      var tier = opts.getTier(), cfg = opts.config(tier), T = D.tiers[tier];
+      var legend = states.map(function (s) { return '<span class="dqt-leg"><span class="dqt-sym" data-s="' + s.id + '" aria-hidden="true">' + s.sym + "</span>" + esc(s.label) + " <kbd>" + s.key.toUpperCase() + "</kbd></span>"; }).join("");
+      var boards = cfg.boards.map(function (b) {
+        var head = b.type === "grid" ? "<tr><td></td>" + b.cols.map(function (c) { return '<th scope="col">' + esc(c.label) + "</th>"; }).join("") + "</tr>" : "";
+        var rows = b.rows.map(function (r) {
+          var cells = b.type === "grid"
+            ? b.cols.map(function (c) { return "<td>" + cellBtn(tier, b.id + ":" + r.id + ":" + c.id, r.label + ", " + c.label) + "</td>"; }).join("")
+            : "<td>" + cellBtn(tier, b.id + ":" + r.id, r.label) + "</td>";
+          return '<tr><th scope="row">' + esc(r.label) + "</th>" + cells + "</tr>";
+        }).join("");
+        return '<div class="dqt-board"><h4 id="dqt-' + b.id + '">' + esc(b.title) + "</h4>" + (b.help ? '<p class="dqt-help">' + esc(b.help) + "</p>" : "") +
+          '<table class="dqt-table dqt-' + b.type + '" role="grid" aria-labelledby="dqt-' + b.id + '" data-board="' + b.id + '">' + head + rows + "</table></div>";
+      }).join("");
+      el.innerHTML = '<p class="dqt-intro">' + esc(cfg.intro) + '</p><p class="dqt-legend">' + legend + "</p>" +
+        '<div class="dqt-boards">' + boards + "</div>" +
+        '<label class="dqt-notes-label" for="dqt-notes">' + esc(cfg.notesLabel || "Your notes") + "</label>" +
+        '<textarea id="dqt-notes" class="dqt-notes" maxlength="' + NOTES_MAX + '" rows="4" placeholder="' + esc(cfg.notesPlaceholder || "") + '">' + esc(T.notes) + "</textarea>" +
+        '<div class="dqt-foot"><button type="button" class="btn dqt-clear">Clear this page</button><span class="dqt-msg" role="status" aria-live="polite"></span></div>';
+      // roving tabindex: first cell of each board is tabbable
+      el.querySelectorAll(".dqt-table").forEach(function (tb) { var f = tb.querySelector(".dqt-cell"); if (f) f.tabIndex = 0; });
+      el.querySelectorAll(".dqt-cell").forEach(function (b) {
+        b.onclick = function () { apply(b, next(b.dataset.s)); };
+        b.onkeydown = function (e) {
+          var k = e.key.toLowerCase(), st = states.filter(function (s) { return s.key === k; })[0];
+          if (st && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); apply(b, st.id); return; }
+          var dir = { arrowup: [-1, 0], arrowdown: [1, 0], arrowleft: [0, -1], arrowright: [0, 1] }[k]; if (!dir) return;
+          e.preventDefault();
+          var td = b.parentElement, tr = td.parentElement, tb = tr.closest("table");
+          var rows = [].slice.call(tb.querySelectorAll("tr")).filter(function (r) { return r.querySelector(".dqt-cell"); });
+          var ri = rows.indexOf(tr), ci = [].slice.call(tr.querySelectorAll(".dqt-cell")).indexOf(b);
+          var nr = rows[Math.max(0, Math.min(rows.length - 1, ri + dir[0]))], cs = nr.querySelectorAll(".dqt-cell");
+          var nb = cs[Math.max(0, Math.min(cs.length - 1, ci + dir[1]))];
+          if (nb) { tb.querySelectorAll(".dqt-cell").forEach(function (x) { x.tabIndex = -1; }); nb.tabIndex = 0; nb.focus(); }
+        };
+      });
+      var ta = el.querySelector(".dqt-notes");
+      ta.oninput = function () { D.tiers[opts.getTier()].notes = ta.value.slice(0, NOTES_MAX); save(); };
+      var clr = el.querySelector(".dqt-clear"), msg = el.querySelector(".dqt-msg");
+      clr.onclick = function () {
+        if (!armed) { armed = true; clr.textContent = "Clear every mark and note on this page?"; msg.textContent = "Press again to clear. Only this tier's page is affected."; return; }
+        armed = false; clearTier(opts.getTier()); render(); el.querySelector(".dqt-msg").textContent = "Page cleared.";
+      };
+      clr.onblur = function () { if (armed) { armed = false; clr.textContent = "Clear this page"; msg.textContent = ""; } };
+    }
+    function apply(btn, v) {
+      var tier = opts.getTier(), k = btn.dataset.k; set(tier, k, v);
+      var s = stateOf(v); btn.dataset.s = v; btn.querySelector("span").textContent = s.sym;
+      btn.setAttribute("aria-label", btn.getAttribute("aria-label").replace(/: [^:]+$/, ": " + s.label));
+      btn.closest("table").querySelectorAll(".dqt-cell").forEach(function (x) { x.tabIndex = -1; }); btn.tabIndex = 0;
+    }
+    function clearTier(t) { D.tiers[t] = { marks: {}, notes: "" }; save(); }
+    function clearAll() { D = empty(); try { localStorage.removeItem(KEY); } catch (e) {} }
+    return { render: render, clearTier: clearTier, clearAll: clearAll, data: function () { return JSON.parse(JSON.stringify(D)); } };
+  }
+
+
+  /* Log (v1.1): a per-tier list of short text entries the door records (e.g. "Run 3: …") plus the player's own
+     one-line notes on any entry. The door supplies only display text, never rules or answers.
+     Storage: { schema: 1, tiers: { <tier>: [ { t: "<text>", n: "<player note>", at: ISO } ] } }, newest first. */
+  var LOG_MAX = 60, TEXT_MAX = 240, NOTE_MAX = 160;
+  function Log(opts) {
+    var tiers = opts.tiers, el = opts.mount, KEY = opts.storageKey, armed = false;
+    function empty() { var o = { schema: 1, tiers: {} }; tiers.forEach(function (t) { o.tiers[t] = []; }); return o; }
+    function load() {
+      var d = empty();
+      try {
+        var raw = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (!raw || raw.schema !== 1 || !raw.tiers) return d;
+        tiers.forEach(function (t) {
+          var list = raw.tiers[t]; if (!Array.isArray(list)) return;
+          d.tiers[t] = list.filter(function (e) { return e && typeof e.t === "string"; }).slice(0, LOG_MAX).map(function (e) {
+            return { t: e.t.slice(0, TEXT_MAX), n: typeof e.n === "string" ? e.n.slice(0, NOTE_MAX) : "", at: typeof e.at === "string" ? e.at.slice(0, 40) : null };
+          });
+        });
+      } catch (e) {}
+      return d;
+    }
+    var D = load();
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} }
+    function add(text) {
+      var t = opts.getTier(); D.tiers[t].unshift({ t: String(text).slice(0, TEXT_MAX), n: "", at: new Date().toISOString() });
+      D.tiers[t] = D.tiers[t].slice(0, LOG_MAX); save(); render();
+    }
+    function render() {
+      var t = opts.getTier(), list = D.tiers[t];
+      el.innerHTML = '<p class="dqt-help">' + esc(opts.intro || "") + "</p>" +
+        (list.length ? '<ol class="dqt-log">' + list.map(function (e, i) {
+          return '<li><span class="dqt-log-t">' + esc(e.t) + '</span><label class="sr" for="dqt-ln-' + i + '">Your note on this entry</label>' +
+            '<input id="dqt-ln-' + i + '" class="dqt-log-n" data-i="' + i + '" maxlength="' + NOTE_MAX + '" placeholder="Add a note…" value="' + esc(e.n) + '">' +
+            '<button type="button" class="dqt-log-x" data-i="' + i + '" aria-label="Delete this entry">×</button></li>';
+        }).join("") + "</ol>" : '<p class="dqt-help"><i>' + esc(opts.emptyText || "Nothing recorded yet.") + "</i></p>") +
+        '<div class="dqt-foot"><button type="button" class="btn dqt-log-clear"' + (list.length ? "" : " disabled") + '>Clear this log</button><span class="dqt-msg" role="status" aria-live="polite"></span></div>';
+      el.querySelectorAll(".dqt-log-n").forEach(function (inp) { inp.oninput = function () { D.tiers[opts.getTier()][+inp.dataset.i].n = inp.value.slice(0, NOTE_MAX); save(); }; });
+      el.querySelectorAll(".dqt-log-x").forEach(function (b) { b.onclick = function () { D.tiers[opts.getTier()].splice(+b.dataset.i, 1); save(); render(); }; });
+      var clr = el.querySelector(".dqt-log-clear"), msg = el.querySelector(".dqt-msg");
+      clr.onclick = function () {
+        if (!armed) { armed = true; clr.textContent = "Clear every entry in this tier's log?"; msg.textContent = "Press again to clear."; return; }
+        armed = false; D.tiers[opts.getTier()] = []; save(); render();
+      };
+      clr.onblur = function () { if (armed) { armed = false; clr.textContent = "Clear this log"; msg.textContent = ""; } };
+    }
+    function clearAll() { D = empty(); try { localStorage.removeItem(KEY); } catch (e) {} }
+    return { add: add, render: render, clearAll: clearAll, data: function () { return JSON.parse(JSON.stringify(D)); } };
+  }
+
+  /* Achievement standard. Each door declares its mastery achievements as plain criteria over a finished
+     run, so different disciplines can define mastery differently (fewest moves, no hints, etc.).
+     A run object is supplied by the door: e.g. { solved, hints, wrong, moves, reviews }.
+     Achievements are judged only at the moment of a successful solve, never from past records. */
+  function judge(defs, run) {
+    if (!run || run.solved !== true) return [];
+    return defs.filter(function (d) { return d.test(run); }).map(function (d) { return d.id; });
+  }
+
+  return { Notebook: Notebook, Log: Log, judge: judge, DEFAULT_STATES: DEFAULT_STATES };
+})();
+if (typeof module !== "undefined") module.exports = DQToolkit;
+
+</script>
+<script>
+/* Chaortal 29 · The Turning Labyrinth · state machine (ROTATE · planning ahead).
+   GEOMETRY. The floor is R concentric rings around a fixed central pillar, ring 1 innermost, each divided into N equal cells.
+   World sectors are numbered 0 … N − 1 clockwise from the top. Each ring carries its own cells, numbered 0 … N − 1 clockwise
+   in the ring's own frame, and has an orientation o (0 … N − 1): ring cell k lies in world sector (k + o) mod N.
+   PASSAGES (all in the ring's own frame, so they turn with the ring):
+     walls[k]  the boundary between ring cells k and k + 1 (mod N): "." open, "|" wall;
+     inner[k]  the inner edge of ring cell k: "o" doorway, "#" wall;
+     outer[k]  the outer edge of ring cell k: "o" doorway, "#" wall.
+   A step between two rings needs BOTH doorways open: the outer doorway of the inner cell and the inner doorway of the outer
+   cell that faces it at that moment. Ring 1's inner edges face the pillar (always walls). The fixed outer boundary is solid
+   except for one exit gate at world sector E.
+   ONE STEP (the only transition):
+     1. the explorer asks to go clockwise, counterclockwise, inward or outward;
+     2. the move is checked against the CURRENT orientations; an illegal request changes nothing at all;
+     3. the explorer moves to the neighbouring cell (or out through the gate);
+     4. the move counter rises by one;
+     5. every turning ring rotates by its stated amount (+1 = one sector clockwise, −1 = one sector counterclockwise);
+        the explorer and every uncollected token ride on their cells;
+     6. a token on the explorer's cell is collected (it stays collected);
+     7. the commission is won if the explorer has passed through the gate (Gold: only possible with all three tokens).
+   The exit gate is sealed in Gold until all three tokens are held: asking to pass it earlier is refused like a wall. */
+var LABY = (function () {
+  "use strict";
+  var DIRS = ["cw", "ccw", "in", "out"], DIR_WORDS = { cw: "clockwise", ccw: "counterclockwise", in: "inward", out: "outward" };
+  var CELL_NAMES = ["α", "β", "γ", "δ", "ε", "ζ", "η", "θ", "ι", "κ", "λ", "μ"];
+  /* the published chambers (chosen by tools/design-turning-labyrinth.js; never generated at runtime) */
+  var TIERS = {
+    bronze: { name: "The First Turning", minSteps: 11, n: 8, exit: 3, start: { ring: 1, cell: 7 }, tokens: [],
+      rings: [{ rot: 0, o0: 0, walls: "...||.|.", inner: "########", outer: "###ooooo" },
+        { rot: 1, o0: 6, walls: "|....|||", inner: "##o##oo#", outer: "##o#o#o#" },
+        { rot: 0, o0: 0, walls: "||.|.|..", inner: "#oo####o", outer: "#o#o#o##" }] },
+    silver: { name: "The Counterturning Rings", minSteps: 20, n: 8, exit: 2, start: { ring: 1, cell: 4 }, tokens: [],
+      rings: [{ rot: 0, o0: 0, walls: "|.|..|.|", inner: "########", outer: "##ooo#oo" },
+        { rot: 1, o0: 3, walls: ".||..|..", inner: "####ooo#", outer: "o##o#ooo" },
+        { rot: -1, o0: 6, walls: "|||.||..", inner: "###oo##o", outer: "o#####o#" },
+        { rot: 0, o0: 0, walls: "||......", inner: "###oo##o", outer: "o#oo###o" }] },
+    gold: { name: "The Three Tokens", minSteps: 36, n: 8, exit: 6, start: { ring: 1, cell: 4 },
+      tokens: [{ name: "Bronze Bull", ring: 2, cell: 0 }, { name: "Double Axe", ring: 3, cell: 7 }, { name: "Spiral Seal", ring: 4, cell: 4 }],
+      rings: [{ rot: 0, o0: 0, walls: ".|..|.||", inner: "########", outer: "####o###" },
+        { rot: 1, o0: 0, walls: "|||.|.||", inner: "oo##o###", outer: "ooo#o#oo" },
+        { rot: -1, o0: 6, walls: "...||.|.", inner: "##o#o#o#", outer: "##o##oo#" },
+        { rot: 0, o0: 0, walls: "..|..|.|", inner: "###o##oo", outer: "######o#" }] } };
+
+  function mod(a, n) { return ((a % n) + n) % n; }
+  function start(T) { return { r: T.start.ring, k: T.start.cell, o: T.rings.map(function (g) { return g.o0; }), mask: 0, out: false }; }
+  function sectorOf(T, s, r, k) { return mod(k + s.o[r - 1], T.n); }
+  function cellAt(T, s, r, sector) { return mod(sector - s.o[r - 1], T.n); }
+  function full(T) { return (1 << T.tokens.length) - 1; }
+  function copy(s) { return { r: s.r, k: s.k, o: s.o.slice(), mask: s.mask, out: s.out }; }
+  /* where a step would go, judged on the current orientations: { ok, to: {r, k} | "exit", why } */
+  function target(T, s, dir) {
+    if (s.out) return { ok: false, why: "The explorer has already left the labyrinth." };
+    var g = T.rings[s.r - 1], N = T.n, k = s.k, R = T.rings.length, sec = sectorOf(T, s, s.r, k);
+    if (dir === "cw") return g.walls[k] === "." ? { ok: true, to: { r: s.r, k: mod(k + 1, N) } } : { ok: false, why: "A wall stands on the clockwise side of this cell." };
+    if (dir === "ccw") return g.walls[mod(k - 1, N)] === "." ? { ok: true, to: { r: s.r, k: mod(k - 1, N) } } : { ok: false, why: "A wall stands on the counterclockwise side of this cell." };
+    if (dir === "out") {
+      if (g.outer[k] !== "o") return { ok: false, why: "The outer side of this cell is a solid wall." };
+      if (s.r === R) { if (sec !== T.exit) return { ok: false, why: "This doorway faces the solid outer boundary; the gate is in sector " + T.exit + "." };
+        if (T.tokens.length && s.mask !== full(T)) return { ok: false, why: "The gate is sealed until all three tokens are collected.", sealed: true };
+        return { ok: true, to: "exit" }; }
+      var k2 = cellAt(T, s, s.r + 1, sec); return T.rings[s.r].inner[k2] === "o" ? { ok: true, to: { r: s.r + 1, k: k2 } } : { ok: false, why: "This doorway is open, but the next ring out turns a wall towards it now: the openings are not aligned.", misaligned: true }; }
+    if (dir === "in") {
+      if (s.r === 1) return { ok: false, why: "The central pillar lies inward: there is no way in." };
+      if (g.inner[k] !== "o") return { ok: false, why: "The inner side of this cell is a solid wall." };
+      var k3 = cellAt(T, s, s.r - 1, sec); return T.rings[s.r - 2].outer[k3] === "o" ? { ok: true, to: { r: s.r - 1, k: k3 } } : { ok: false, why: "This doorway is open, but the next ring in turns a wall towards it now: the openings are not aligned.", misaligned: true }; }
+    return { ok: false, why: "Unknown direction." }; }
+  /* the authoritative transition: returns { ok, state, why, events } and never changes its input */
+  function step(T, s, dir) {
+    var t = target(T, s, dir); if (!t.ok) return { ok: false, state: s, why: t.why, sealed: !!t.sealed, misaligned: !!t.misaligned, events: [] };
+    var n = copy(s), ev = [];
+    if (t.to === "exit") { n.out = true; ev.push("exit"); } else { n.r = t.to.r; n.k = t.to.k; }
+    T.rings.forEach(function (g, i) { if (g.rot) n.o[i] = mod(n.o[i] + g.rot, T.n); });
+    if (!n.out) T.tokens.forEach(function (tk, i) { if (!(n.mask & (1 << i)) && tk.ring === n.r && tk.cell === n.k) { n.mask |= 1 << i; ev.push("token:" + i); } });
+    return { ok: true, state: n, events: ev }; }
+  function legal(T, s) { return DIRS.filter(function (d) { return target(T, s, d).ok; }); }
+  function isWin(T, s) { return s.out && (!T.tokens.length || s.mask === full(T)); }
+  function replay(T, route) { var s = start(T); for (var i = 0; i < route.length; i++) { if (DIRS.indexOf(route[i]) < 0) return null; var r = step(T, s, route[i]); if (!r.ok) return null; s = r.state; } return s; }
+  function key(s) { return s.out ? "X" + s.mask : s.r + ":" + s.k + ":" + s.o.join(",") + ":" + s.mask; }
+  function same(a, b) { return key(a) === key(b); }
+  /* breadth-first search over complete states (cell, every orientation, token mask), for the award's replay */
+  function shortest(T) { var s0 = start(T), seen = {}, q = [s0], par = [-1], via = [null], d = [0], h = 0; seen[key(s0)] = 1;
+    while (h < q.length) { var s = q[h], i = h++;
+      for (var j = 0; j < DIRS.length; j++) { var r = step(T, s, DIRS[j]); if (!r.ok) continue; var kk = key(r.state); if (seen[kk]) continue; seen[kk] = 1;
+        q.push(r.state); par.push(i); via.push(DIRS[j]); d.push(d[i] + 1);
+        if (isWin(T, r.state)) { var route = [], x = q.length - 1; while (x > 0) { route.unshift(via[x]); x = par[x]; } return { min: d[q.length - 1], reached: q.length, expanded: h, route: route }; } } }
+    return { min: -1, reached: q.length, expanded: h, route: null }; }
+  function cellName(r, k) { return "ring " + r + ", cell " + CELL_NAMES[k]; }
+
+  /* scoring, hints, achievements */
+  var HINT_COST = 12, WRONG_COST = 8, FLOOR = 40;
+  function score(run) { return Math.max(FLOOR, 100 - HINT_COST * run.hints - WRONG_COST * run.wrong); }
+  var HINTS = {
+    bronze: ["The ring turns after each successful movement.", "The passage you enter may change position with you.", "Before stepping onto the ring, imagine where that cell will face after the turn."],
+    silver: ["The inner and outer rings do not turn together.", "An opening between them depends on both rings' current orientations.", "Try planning two moves ahead, accounting for both directions of rotation."],
+    gold: ["The exit is not the only destination.", "Each token remains collected, even as the labyrinth changes.", "Plan how to approach the remaining tokens from more than one ring orientation before heading for the exit."] };
+  /* meaningful planning: at least two entries in Ariadne's Thread workspace for the tier (ledger or register marks, hypotheses) */
+  function explored(run) { return run.sketch >= 2; }
+  var ACHIEVEMENTS = [
+    { id: "experimental-thinker", name: "Experimental Thinker", test: function (r) { return r.firstCompletion && r.tier !== "gold" && r.hints === 0 && r.wrong === 0 && r.explored; } },
+    { id: "master-of-the-turning-labyrinth", name: "Master of the Turning Labyrinth", test: function (r) { return r.firstCompletion && r.tier === "gold" && r.hints === 0 && r.wrong === 0 && r.explored; } }];
+
+  return { DIRS: DIRS, DIR_WORDS: DIR_WORDS, CELL_NAMES: CELL_NAMES, TIERS: TIERS, mod: mod, start: start, sectorOf: sectorOf, cellAt: cellAt, full: full, target: target, step: step, legal: legal,
+    isWin: isWin, replay: replay, key: key, same: same, shortest: shortest, cellName: cellName, HINT_COST: HINT_COST, WRONG_COST: WRONG_COST, score: score, HINTS: HINTS, explored: explored, ACHIEVEMENTS: ACHIEVEMENTS };
+})();
+if (typeof module !== "undefined") module.exports = LABY;
+
+</script>
+<script>
+(function () {
+  "use strict";
+  var E = LABY, K = DQKeyring, DOOR = "29", STATE_KEY = "dq-chaortal-29-v1", ORDER = ["bronze", "silver", "gold"];
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var plural = function (n, a, b) { return n + " " + (n === 1 ? a : b); };
+  var TNAME = { bronze: "Bronze", silver: "Silver", gold: "Gold" }, MAX_ROUTE = 3000;
+  var TT = function (t) { return E.TIERS[t || S.tier]; };
+  var SEC = function (s) { return s + 1; };          // sectors are shown 1 … N, numbered clockwise from the top
+  var CN = E.CELL_NAMES, DW = E.DIR_WORDS;
+
+  /* ---------- persistence ----------
+     run: { hints, wrong, solved, score, practice, earned, route [directions] (Ariadne's Thread), state {r, k, o [per ring], mask, out},
+            made (steps taken in this run, including undone ones), last (message) | null } */
+  function freshRun(t) { return { hints: 0, wrong: 0, solved: false, score: null, practice: false, earned: [], route: [], state: E.start(TT(t)), made: 0, last: null }; }
+  function freshState() { var s = { schema: 1, tier: "bronze", motion: null, sound: false, preview: false, play: {} }; ORDER.forEach(function (t) { s.play[t] = freshRun(t); }); return s; }
+  var isInt = function (n, lo, hi) { return Number.isInteger(n) && n >= lo && n <= hi; };
+  function sameKeys(o, keys) { return !!o && typeof o === "object" && !Array.isArray(o) && Object.keys(o).sort().join() === keys.slice().sort().join(); }
+  /* A saved run is accepted only if every field has its exact shape and range, and replaying the saved route from the starting
+     state, one legal step at a time with every rotation, gives exactly the saved state (cell, every orientation, token mask);
+     a run is solved exactly when that state is a win. */
+  function validRun(t, r) {
+    var T = TT(t), st = r && r.state;
+    if (!sameKeys(r, ["hints", "wrong", "solved", "score", "practice", "earned", "route", "state", "made", "last"])) return false;
+    if (!isInt(r.hints, 0, 3) || r.wrong !== 0 || typeof r.solved !== "boolean" || typeof r.practice !== "boolean") return false;
+    if (!Array.isArray(r.earned) || r.earned.length > 4 || !r.earned.every(function (x) { return typeof x === "string" && /^[a-z-]{2,40}$/.test(x); })) return false;
+    if (r.score !== null && !isInt(r.score, 40, 100)) return false;
+    if (!Array.isArray(r.route) || r.route.length > MAX_ROUTE || !r.route.every(function (d) { return E.DIRS.indexOf(d) >= 0; }) || !isInt(r.made, r.route.length, 1e7)) return false;
+    if (!sameKeys(st, ["r", "k", "o", "mask", "out"]) || !isInt(st.r, 1, T.rings.length) || !isInt(st.k, 0, T.n - 1) || typeof st.out !== "boolean" || !isInt(st.mask, 0, E.full(T)) ||
+      !Array.isArray(st.o) || st.o.length !== T.rings.length || !st.o.every(function (x, i) { return isInt(x, 0, T.n - 1) && (T.rings[i].rot || x === T.rings[i].o0); })) return false;
+    var end = E.replay(T, r.route); if (!end || !E.same(end, st) || end.r !== st.r || end.k !== st.k) return false;
+    if (!(r.last === null || (typeof r.last === "string" && r.last.length <= 2000))) return false;
+    if (r.solved !== E.isWin(T, st)) return false;
+    if (r.solved ? r.score === null : r.score !== null) return false;
+    return true; }
+  function loadState() {
+    try { var s = JSON.parse(localStorage.getItem(STATE_KEY) || "null");
+      if (sameKeys(s, ["schema", "tier", "motion", "sound", "preview", "play"]) && s.schema === 1 && ORDER.indexOf(s.tier) >= 0 && (s.motion === null || typeof s.motion === "boolean") && typeof s.sound === "boolean" && typeof s.preview === "boolean" &&
+        sameKeys(s.play, ORDER) && ORDER.every(function (t) { return validRun(t, s.play[t]); })) return s;
+    } catch (e) {}
+    return freshState(); }
+  function saveState() { try { localStorage.setItem(STATE_KEY, JSON.stringify(S)); } catch (e) {} }
+  var S = loadState(); saveState();
+  var run = function () { return S.play[S.tier]; };
+  var cur = function () { return run().state; };
+
+  /* ---------- words ---------- */
+  function ringWord(T, r) { var g = T.rings[r - 1]; return g.rot > 0 ? "turns one sector clockwise after every step" : g.rot < 0 ? "turns one sector counterclockwise after every step" : "is fixed"; }
+  function ringName(T, r) { var g = T.rings[r - 1], turning = T.rings.filter(function (x) { return x.rot; }).length;
+    return "ring " + r + (g.rot ? " (" + (turning > 1 ? (g.rot > 0 ? "the inner turning ring, clockwise" : "the outer turning ring, counterclockwise") : "the turning ring, clockwise") + ")" : ""); }
+  function where(T, s) { return s.out ? "outside the labyrinth" : "in ring " + s.r + ", cell " + CN[s.k] + " (sector " + SEC(E.sectorOf(T, s, s.r, s.k)) + ")"; }
+  function destWords(T, s, d) { var t = E.target(T, s, d); if (!t.ok) return null; if (t.to === "exit") return "through the gate in sector " + SEC(T.exit);
+    return "to ring " + t.to.r + ", cell " + CN[t.to.k] + " (sector " + SEC(E.sectorOf(T, s, t.to.r, t.to.k)) + ")"; }
+  function turnRuleText(T) { var parts = T.rings.map(function (g, i) { return g.rot ? "ring " + (i + 1) + " turns one sector " + (g.rot > 0 ? "clockwise ↻" : "counterclockwise ↺") : null; }).filter(Boolean);
+    return "After every successful step, " + parts.join(" and ") + ". You and any token ride with the cell you stand on. The other rings are fixed. A refused step turns nothing."; }
+
+  /* ---------- the chamber scene ---------- */
+  function sceneLabel() { return { bronze: "A torchlit stair descends between red Minoan columns that taper downward, under a frieze of running spirals, into a dark chamber whose floor is a great disc of stone rings around a bronze pillar.",
+    silver: "The second chamber: more lamps, a frieze of bulls and double axes, and two of the floor rings marked with arrows turning in opposite directions.",
+    gold: "The third chamber: three tokens glow softly on the turning floor, a bull carved over the sealed gate." }[S.tier]; }
+  function renderScene() {
+    var t = S.tier, r = run(), h = '<svg viewBox="0 0 1200 280" role="img" aria-label="' + esc(sceneLabel()) + '"><defs><radialGradient id="lamp"><stop offset="0" stop-color="#ffd27a" stop-opacity=".9"/><stop offset="1" stop-color="#ff9a3a" stop-opacity="0"/></radialGradient></defs>';
+    h += '<rect width="1200" height="280" fill="#2b1a14"/><rect y="20" width="1200" height="26" fill="#e9dcc2"/>';
+    for (var i = 0; i < 40; i++) h += '<path d="M' + (i * 30 + 15) + ' 33 m-8 0 a8 8 0 1 1 8 8 a5 5 0 1 1 -5 -5" fill="none" stroke="' + (i % 2 ? "#2c4a8a" : "#a8321f") + '" stroke-width="2.5"/>';
+    [80, 300, 900, 1120].forEach(function (x) { h += '<path d="M' + (x - 22) + ' 60 L' + (x + 22) + ' 60 L' + (x + 14) + ' 250 L' + (x - 14) + ' 250Z" fill="#a8321f"/><rect x="' + (x - 30) + '" y="48" width="60" height="16" rx="6" fill="#1d1d1d"/><rect x="' + (x - 26) + '" y="250" width="52" height="10" fill="#1d1d1d"/>'; });
+    [190, 1010].forEach(function (x) { h += '<circle cx="' + x + '" cy="120" r="70" fill="url(#lamp)" class="flicker"/><path d="M' + x + ' 104 q8 10 0 18 q-8 -8 0 -18z" fill="#ffcf6a" class="flicker"/><rect x="' + (x - 6) + '" y="122" width="12" height="18" fill="#b98a3c"/>'; });
+    if (t !== "bronze") { h += '<path d="M560 70 q20 -14 40 0 q8 -6 14 2 l-10 14 q-14 12 -34 8 q-14 0 -18 -12z" fill="#e9dcc2" opacity=".85"/><path d="M548 66 q-10 -10 -4 -18 M624 66 q10 -10 4 -18" stroke="#e9dcc2" stroke-width="5" fill="none"/>'; }
+    h += '<ellipse cx="600" cy="225" rx="300" ry="48" fill="#4a3426" stroke="#b98a3c" stroke-width="4"/>';
+    for (var q = 1; q <= 3; q++) h += '<ellipse cx="600" cy="225" rx="' + (300 - q * 64) + '" ry="' + (48 - q * 10) + '" fill="none" stroke="#2b1a14" stroke-width="4"/>';
+    h += '<ellipse cx="600" cy="225" rx="60" ry="12" fill="#b98a3c"/>';
+    if (t === "gold") [470, 640, 760].forEach(function (x, k) { h += '<circle cx="' + x + '" cy="' + (220 + (k % 2) * 10) + '" r="12" fill="#ffd98a" class="flicker"/>'; });
+    if (r.solved) h += '<circle cx="1140" cy="240" r="26" fill="#a8321f"/><text x="1140" y="249" text-anchor="middle" font-size="24" fill="#fbf2e6">✓</text>';
+    $("scene").innerHTML = h + "</svg>";
+    $("place").textContent = { bronze: "The first chamber · Bronze · The First Turning", silver: "The second chamber · Silver · The Counterturning Rings", gold: "The third chamber · Gold · The Three Tokens" }[t]; }
+
+  /* ---------- the labyrinth (SVG) ---------- */
+  var ICON = {
+    0: '<path d="M-9 -2 q-6 -8 -2 -13 q2 6 6 8 h10 q4 -2 6 -8 q4 5 -2 13 q0 10 -9 12 q-9 -2 -9 -12z" fill="#b8742a" stroke="#4a2a10" stroke-width="1.5"/>',
+    1: '<path d="M0 -12 v24" stroke="#4a2a10" stroke-width="2.5"/><path d="M0 -8 q-12 -4 -12 4 q0 8 12 4z M0 -8 q12 -4 12 4 q0 8 -12 4z" fill="#d9b25a" stroke="#4a2a10" stroke-width="1.5"/>',
+    2: '<circle r="11" fill="#2c4a8a" stroke="#d9b25a" stroke-width="2"/><path d="M0 0 m-1 0 a1 1 0 1 1 2 0 a3 3 0 1 1 -5 0 a5 5 0 1 1 8 0 a7 7 0 1 1 -11 0" fill="none" stroke="#f4e6c4" stroke-width="1.6"/>' };
+  var ang = null, timers = [];
+  function setAngles() { var T = TT(), s = cur(); ang = T.rings.map(function (g, i) { return s.o[i] * 360 / T.n; }); }
+  function pt(rad, deg) { var a = deg * Math.PI / 180; return [(rad * Math.sin(a)).toFixed(2), (-rad * Math.cos(a)).toFixed(2)]; }
+  function arc(rad, a0, a1) { var p0 = pt(rad, a0), p1 = pt(rad, a1); return "M" + p0[0] + " " + p0[1] + " A" + rad + " " + rad + " 0 " + (a1 - a0 > 180 ? 1 : 0) + " 1 " + p1[0] + " " + p1[1]; }
+  function sectorPath(r0, r1, a0, a1) { var p0 = pt(r1, a0), p1 = pt(r1, a1), p2 = pt(r0, a1), p3 = pt(r0, a0);
+    return "M" + p0[0] + " " + p0[1] + " A" + r1 + " " + r1 + " 0 0 1 " + p1[0] + " " + p1[1] + " L" + p2[0] + " " + p2[1] + " A" + r0 + " " + r0 + " 0 0 0 " + p3[0] + " " + p3[1] + "Z"; }
+  function radii(T, r) { var w = 140 / T.rings.length; return [40 + (r - 1) * w, 40 + r * w]; }
+  function renderBoard(opts) {
+    opts = opts || {}; var T = TT(), s = opts.state || cur(), N = T.n, step = 360 / N, half = step / 2, R = T.rings.length, done = run().solved;
+    var A = opts.angles || ang, dests = {}; if (!opts.noDest && !done && !s.out) E.DIRS.forEach(function (d) { var t = E.target(T, s, d); if (t.ok && t.to !== "exit") dests[t.to.r + ":" + t.to.k] = d; });
+    var h = '<svg viewBox="-240 -240 480 480" role="img" aria-label="' + esc("The labyrinth from above. " + describe(T, s)) + '">';
+    h += '<circle r="196" fill="#2b1a14"/><circle r="186" fill="#4a3426"/>';
+    for (var r = 1; r <= R; r++) { var g = T.rings[r - 1], rr = radii(T, r), base = g.rot > 0 ? "#cdbfa0" : g.rot < 0 ? "#d6b39a" : "#e3d6bc";
+      h += '<g class="ringg" data-ring="' + r + '" style="transform:rotate(' + A[r - 1] + 'deg)">';
+      for (var k = 0; k < N; k++) { var a0 = k * step - half, a1 = k * step + half, dd = dests[r + ":" + k], isMe = !s.out && s.r === r && s.k === k;
+        h += '<path class="cellp' + (dd ? " dest" : "") + '" d="' + sectorPath(rr[0] + 1, rr[1] - 1, a0, a1) + '" fill="' + (k % 2 ? base : shade(base)) + '"' + (dd ? ' data-dir="' + dd + '" tabindex="0" role="button" aria-label="' + esc("Step " + DW[dd] + " " + destWords(T, s, dd)) + '"' : ' aria-hidden="true"') + "/>";
+        var c = pt((rr[0] + rr[1]) / 2, k * step);
+        if (!isMe) h += '<text x="' + c[0] + '" y="' + c[1] + '" text-anchor="middle" dominant-baseline="central" font-size="' + (dd ? 13 : 11) + '" font-weight="' + (dd ? 700 : 400) + '" fill="' + (dd ? "#7a1e0a" : "#5d4a36") + '" aria-hidden="true" style="pointer-events:none">' + (dd ? "✦" : "") + CN[k] + "</text>"; }
+      for (var k2 = 0; k2 < N; k2++) { var wa = k2 * step + half, q0 = pt(rr[0], wa), q1 = pt(rr[1], wa);
+        h += g.walls[k2] === "|" ? '<line x1="' + q0[0] + '" y1="' + q0[1] + '" x2="' + q1[0] + '" y2="' + q1[1] + '" stroke="#2a1a10" stroke-width="5" stroke-linecap="round"/>' : "";
+        var b0 = k2 * step - half, b1 = k2 * step + half;
+        if (g.inner[k2] === "#") h += '<path d="' + arc(rr[0] + 2, b0, b1) + '" stroke="#2a1a10" stroke-width="5" fill="none"/>';
+        else h += '<path d="' + arc(rr[0] + 2, b0 + 4, b1 - 4) + '" stroke="#f6e7b8" stroke-width="2" stroke-dasharray="2 3" fill="none"/>';
+        if (g.outer[k2] === "#") h += '<path d="' + arc(rr[1] - 2, b0, b1) + '" stroke="#2a1a10" stroke-width="5" fill="none"/>';
+        else h += '<path d="' + arc(rr[1] - 2, b0 + 4, b1 - 4) + '" stroke="#f6e7b8" stroke-width="2" stroke-dasharray="2 3" fill="none"/>'; }
+      if (g.rot) { var m = pt(rr[1] - 7, 0); h += '<path d="M' + m[0] + ' ' + (+m[1] - 5) + ' l6 9 h-12z" fill="#a8321f" aria-hidden="true"/><text x="' + m[0] + '" y="' + (+m[1] + 14) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#a8321f" aria-hidden="true">' + (g.rot > 0 ? "↻" : "↺") + "</text>"; }
+      T.tokens.forEach(function (tk, i) { if (tk.ring !== r || (s.mask & (1 << i))) return; var c2 = pt((rr[0] + rr[1]) / 2, tk.cell * step); h += '<g transform="translate(' + c2[0] + " " + c2[1] + ')" aria-hidden="true"><circle r="14" fill="#ffe7a0" opacity=".55" class="flicker"/>' + ICON[i] + "</g>"; });
+      if (!s.out && s.r === r) { var me = pt((rr[0] + rr[1]) / 2, s.k * step); h += '<g transform="translate(' + me[0] + " " + me[1] + ')" aria-hidden="true"><circle r="11" fill="#a8321f" stroke="#fff3d6" stroke-width="3"/><circle r="4" fill="#fff3d6"/></g>'; }
+      h += "</g>"; }
+    // the preview of the turning rings after the next step (doorway positions only)
+    if (S.preview && !done && !s.out) T.rings.forEach(function (g, i) { if (!g.rot) return; var rr = radii(T, i + 1), no = E.mod(s.o[i] + g.rot, N);
+      for (var k = 0; k < N; k++) { var cA = (k + no) * step; if (g.inner[k] === "o" && i > 0) h += '<path d="' + arc(rr[0] + 2, cA - half + 6, cA + half - 6) + '" stroke="#5aa0ff" stroke-width="3" fill="none" opacity=".9" aria-hidden="true"/>';
+        if (g.outer[k] === "o") h += '<path d="' + arc(rr[1] - 2, cA - half + 6, cA + half - 6) + '" stroke="#5aa0ff" stroke-width="3" fill="none" opacity=".9" aria-hidden="true"/>'; } });
+    h += '<circle r="38" fill="#b98a3c" stroke="#5a3a1a" stroke-width="4"/><path d="M0 -16 v32 M-14 -8 q-6 8 0 16 q6 -8 14 -8 q8 0 14 8 q6 -8 0 -16 q-6 8 -14 8 q-8 0 -14 -8z" fill="#7a5222" stroke="#5a3a1a" stroke-width="2" aria-hidden="true"/>';
+    var ro = radii(T, R)[1], ea0 = T.exit * step - half, ea1 = T.exit * step + half;
+    h += '<path d="' + arc(ro + 5, ea1, ea0 + 360) + '" stroke="#1a100a" stroke-width="10" fill="none"/>';
+    var sealed = T.tokens.length && s.mask !== E.full(T);
+    h += '<path d="' + arc(ro + 5, ea0 + 2, ea1 - 2) + '" stroke="' + (sealed ? "#9a7410" : "#ffd98a") + '" stroke-width="' + (sealed ? 10 : 4) + '" stroke-dasharray="' + (sealed ? "3 3" : "none") + '" fill="none"/>';
+    var lp = pt(ro + 16, T.exit * step), anc = +lp[0] > 60 ? "start" : +lp[0] < -60 ? "end" : "middle"; if (anc === "middle") lp = pt(ro + 30, T.exit * step); h += '<text x="' + lp[0] + '" y="' + lp[1] + '" text-anchor="' + anc + '" dominant-baseline="central" font-size="13" font-weight="700" fill="' + (sealed ? "#7a5a10" : "#8a2a1c") + '" aria-hidden="true">' + (sealed ? "SEALED" : "EXIT " + SEC(T.exit)) + "</text>";
+    for (var sct = 0; sct < N; sct++) { if (sct === T.exit) continue; var np = pt(ro + 30, sct * step); h += '<text x="' + np[0] + '" y="' + np[1] + '" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#5d4a36" aria-hidden="true">' + SEC(sct) + "</text>"; }
+    if (s.out) { var gp = pt(ro + 4, T.exit * step); h += '<g transform="translate(' + gp[0] + " " + gp[1] + ')" aria-hidden="true"><circle r="12" fill="#a8321f" stroke="#fff3d6" stroke-width="3"/><circle r="4" fill="#fff3d6"/></g>'; }
+    $("board").innerHTML = h + "</svg>";
+    $("board").querySelectorAll(".cellp.dest").forEach(function (p) { p.onclick = function () { tryStep(p.dataset.dir); }; p.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tryStep(p.dataset.dir); } }; }); }
+  function shade(hex) { var n = parseInt(hex.slice(1), 16), f = function (x) { return Math.max(0, x - 14); }; return "#" + [f(n >> 16), f((n >> 8) & 255), f(n & 255)].map(function (x) { return ("0" + x.toString(16)).slice(-2); }).join(""); }
+  function describe(T, s) { var parts = ["You are " + where(T, s) + "."];
+    T.rings.forEach(function (g, i) { if (g.rot) parts.push("Turning ring " + (i + 1) + ": its cell α faces sector " + SEC(s.o[i]) + "."); });
+    return parts.join(" "); }
+
+  /* ---------- one step: the only way the state changes ---------- */
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function tryStep(dir) {
+    var T = TT(), r = run(), s = r.state;
+    if (r.solved) { say("This commission is complete. Use “Play again (practice)” to walk it again.", "info"); return false; }
+    var res = E.step(T, s, dir);
+    if (!res.ok) { say("No step taken: " + DW[dir] + " is impossible here. " + res.why + " Nothing turned; the step count stays at " + r.route.length + ".", res.sealed ? "info" : "bad"); blip(140, .12, .03, "square"); renderControls(); return false; }
+    var before = ang.slice(); r.route.push(dir); r.state = res.state; r.made++; r.last = null; resetArmed2 = false;
+    T.rings.forEach(function (g, i) { if (g.rot) ang[i] += g.rot * 360 / T.n; });
+    var got = res.events.filter(function (e) { return /^token:/.test(e); }).map(function (e) { return T.tokens[+e.slice(6)].name; });
+    var turned = T.rings.map(function (g, i) { return g.rot ? "ring " + (i + 1) + " turned one sector " + (g.rot > 0 ? "clockwise" : "counterclockwise") : null; }).filter(Boolean).join(" and ");
+    saveState(); rumble();
+    say("Step " + r.route.length + ": " + DW[dir] + (res.state.out ? " through the gate." : " to ring " + res.state.r + ", cell " + CN[res.state.k] + ". Then " + turned + (T.rings[res.state.r - 1].rot ? ", carrying you to sector " : "; you stand in sector ") + SEC(E.sectorOf(T, res.state, res.state.r, res.state.k)) + ".") +
+      (got.length ? " You collected the " + got.join(" and ") + " (" + plural(countBits(res.state.mask), "token", "tokens") + " of " + T.tokens.length + ")." : "") +
+      (T.tokens.length && res.state.mask === E.full(T) && got.length ? " The gate in sector " + SEC(T.exit) + " is now open." : ""), got.length ? "good" : "");
+    if (got.length) [523, 659].forEach(function (f, i) { setTimeout(function () { blip(f, .3, .04, "sine"); }, i * 120); });
+    clearTimers();
+    if (motionOK()) { renderBoard({ angles: before, noDest: true }); renderControls();
+      timers.push(setTimeout(function () { var gs = $("board").querySelectorAll(".ringg"); gs.forEach(function (g) { var i = +g.dataset.ring - 1; g.style.transform = "rotate(" + ang[i] + "deg)"; }); }, 230));
+      timers.push(setTimeout(function () { renderBoard(); }, 900)); }
+    else { renderBoard(); renderControls(); }
+    if (E.isWin(T, res.state)) complete();
+    return true; }
+  function countBits(m) { var c = 0; while (m) { c += m & 1; m >>= 1; } return c; }
+  function recording() { return !run().practice && !(K.tier(DOOR, S.tier) || {}).solved; }
+  function sketchCount() { var c = 0; try { c += Object.keys(nb.data().tiers[S.tier].marks).length; } catch (e) {} try { c += log.data().tiers[S.tier].filter(function (x) { return /^Hypothesis: /.test(x.t); }).length; } catch (e) {} return c; }
+  /* Escaping completes the commission automatically: one graded attempt and one completion in the recorded run. A sealed gate is
+     refused like a wall (no penalty, no attempt). Practice runs, and runs on a tier the Keyring already shows as solved, record nothing. */
+  function complete() {
+    var t = S.tier, T = TT(), r = run(); if (r.solved) return;
+    var first = recording(), explored = E.explored({ sketch: sketchCount() });
+    if (first) K.noteAttempt(DOOR, t);
+    r.solved = true; r.score = E.score(r); r.practice = !first;
+    var earned = DQToolkit.judge(E.ACHIEVEMENTS, { tier: t, solved: true, firstCompletion: first, hints: r.hints, wrong: r.wrong, explored: explored });
+    r.earned = earned.slice(0, 4); var res = first ? K.recordSolve(DOOR, t, r.score, r.hints, earned) : null;
+    saveState(); log.add("Escaped in " + plural(r.route.length, "step", "steps") + " (" + TNAME[t] + (res ? ", score " + r.score : ", practice") + ").");
+    [392, 494, 587, 784].forEach(function (f, i) { setTimeout(function () { blip(f, .6, .04, "sine"); }, i * 170); });
+    say(QUOTE[t] + (first && !r.hints && !explored ? " (No achievement this time: it needs at least two entries in Ariadne's Thread workspace for this commission before the escape.)" : ""), "good");
+    renderAll(); showAward(res); }
+  var QUOTE = { bronze: "“You have learned that the passage moves even when the destination does not.”", silver: "“Two motions may oppose one another, yet together they reveal a passage.”", gold: "“The labyrinth did not ask you to remember one path. It asked you to understand how all paths change.”" };
+
+  /* ---------- controls ---------- */
+  var resetArmed2 = false;
+  function renderControls() {
+    var T = TT(), r = run(), s = r.state, done = r.solved;
+    $("counter").innerHTML = "<span>Steps</span><b>" + r.route.length + "</b>" + (T.tokens.length ? "<span>Tokens " + countBits(s.mask) + " of " + T.tokens.length + "</span>" : "") + "<span>Exit: sector " + SEC(T.exit) + "</span>";
+    $("turnRule").textContent = turnRuleText(T);
+    var ICONS = { cw: "↻", ccw: "↺", in: "◎ ↓", out: "↑ ◎" };
+    E.DIRS.forEach(function (d) { var b = document.querySelector('.moves [data-dir="' + d + '"]'), t = E.target(T, s, d), w = { cw: "Clockwise", ccw: "Counterclockwise", in: "Inward", out: "Outward" }[d];
+      b.dataset.ok = t.ok && !done; b.disabled = done;
+      b.innerHTML = '<span aria-hidden="true">' + ICONS[d] + "</span> " + w + "<small>" + esc(done ? "—" : t.ok ? destWords(T, s, d) : (t.sealed ? "the gate is sealed" : t.misaligned ? "blocked: openings not aligned" : "blocked")) + "</small>";
+      b.setAttribute("aria-label", "Step " + DW[d] + (done ? "" : t.ok ? ", " + destWords(T, s, d) : ", not possible: " + t.why)); });
+    $("undoBtn").disabled = !r.route.length || done; $("resetBtn2").disabled = !r.route.length || done; $("resetBtn2").textContent = resetArmed2 ? "Really reset? Press again" : "Reset the chamber";
+    $("tokens").innerHTML = T.tokens.map(function (tk, i) { var have = !!(s.mask & (1 << i)); return '<span class="tok' + (have ? " have" : "") + '"><svg width="22" height="22" viewBox="-13 -13 26 26" aria-hidden="true">' + ICON[i] + "</svg>" + esc(tk.name) + ": " + (have ? "collected ✓" : "not yet") + "</span>"; }).join("");
+    $("verdict").innerHTML = done ? '<div class="verdict good">Escaped in ' + plural(r.route.length, "step", "steps") + ".</div>" : "";
+    // the Labyrinth in Words
+    var lm = E.DIRS.filter(function (d) { return E.target(T, s, d).ok; }), bl = E.DIRS.filter(function (d) { return !E.target(T, s, d).ok; });
+    var w = "<p style=\"margin:0\"><b>Where you are:</b> " + esc(where(T, s).replace(/^in /, "")) + (s.out ? "." : ". " + esc(ringName(T, s.r)).replace(/^r/, "R") + " " + ringWord(T, s.r) + ".") + "</p>";
+    w += "<ul>" + T.rings.map(function (g, i) { return g.rot ? "<li>Ring " + (i + 1) + " (" + (g.rot > 0 ? "clockwise ↻" : "counterclockwise ↺") + "): its cell α faces sector " + SEC(s.o[i]) + "; after the next step, sector " + SEC(E.mod(s.o[i] + g.rot, T.n)) + ".</li>" : ""; }).join("") + "</ul>";
+    if (!done && !s.out) { w += "<p style=\"margin:6px 0 0\"><b>Possible steps now:</b></p>" + (lm.length ? '<div class="lm">' + lm.map(function (d) { return '<button type="button" data-step="' + d + '">' + esc(DW[d].replace(/^./, function (c) { return c.toUpperCase(); }) + " " + destWords(T, s, d)) + "</button>"; }).join("") + "</div>" : "<p>None.</p>");
+      w += "<ul>" + bl.map(function (d) { return "<li>" + DW[d].replace(/^./, function (c) { return c.toUpperCase(); }) + ": " + esc(E.target(T, s, d).why) + "</li>"; }).join("") + "</ul>"; }
+    if (T.tokens.length) w += "<p style=\"margin:6px 0 0\"><b>Tokens:</b> " + T.tokens.map(function (tk, i) { var have = s.mask & (1 << i); return esc(tk.name) + (have ? " collected" : " on ring " + tk.ring + ", cell " + CN[tk.cell] + " (now sector " + SEC(E.sectorOf(T, s, tk.ring, tk.cell)) + ")"); }).join("; ") + ".</p>";
+    w += "<p style=\"margin:6px 0 0\"><b>Exit:</b> the gate in sector " + SEC(T.exit) + " of the outer boundary, reached by stepping outward from ring " + T.rings.length + (T.tokens.length ? (s.mask === E.full(T) ? "; it is open." : "; it is sealed until all three tokens are collected.") : ".") + "</p>";
+    $("words").innerHTML = w; $("words").querySelectorAll("[data-step]").forEach(function (b) { b.onclick = function () { var d = b.dataset.step; tryStep(d); refocus('#words [data-step="' + d + '"]') || refocus("#words button") || refocus("#undoBtn"); }; });
+    // Ariadne's Thread (the route)
+    var st = E.start(T), lines = r.route.map(function (d, i) { st = E.step(T, st, d).state; return '<li' + (i === r.route.length - 1 ? ' class="lastmv"' : "") + ">Step " + (i + 1) + " — " + DW[d] + " → " + (st.out ? "through the gate" : "ring " + st.r + ", cell " + CN[st.k] + ", now sector " + SEC(E.sectorOf(T, st, st.r, st.k))) + T.rings.map(function (g, j) { return g.rot ? " · ring " + (j + 1) + " α at " + SEC(st.o[j]) : ""; }).join("") + "</li>"; });
+    $("thread").innerHTML = lines.length ? lines.join("") : "<li>No steps yet.</li>"; var th = $("thread"); th.scrollTop = th.scrollHeight;
+    $("workNow").textContent = "Steps: " + r.route.length + ". " + describe(T, s) + (T.tokens.length ? " Tokens: " + countBits(s.mask) + " of 3." : "");
+    renderMeters(); }
+  function renderMeters() { var r = run(); $("meters").innerHTML = "<div>Counsel taken <b>" + r.hints + "</b></div><div>Score <b>" + (r.solved ? r.score : E.score(r)) + "</b></div><div>Steps taken (incl. undone) <b>" + r.made + "</b></div><div>Workspace entries <b>" + sketchCount() + "</b></div>"; }
+  document.querySelectorAll(".moves [data-dir]").forEach(function (b) { b.onclick = function () { tryStep(b.dataset.dir); refocus('.moves [data-dir="' + b.dataset.dir + '"]'); }; });
+  $("board").onkeydown = function (e) { if (e.target !== $("board")) return; var d = { ArrowRight: "cw", ArrowLeft: "ccw", ArrowUp: "out", ArrowDown: "in" }[e.key]; if (!d) return; e.preventDefault(); tryStep(d); };
+  $("undoBtn").onclick = function () { var r = run(), T = TT(); if (!r.route.length || r.solved) return;
+    var last = r.route.pop(); r.state = E.replay(T, r.route); r.last = null; resetArmed2 = false; clearTimers();
+    T.rings.forEach(function (g, i) { if (g.rot) ang[i] -= g.rot * 360 / T.n; }); saveState();
+    say("Undone: the " + DW[last] + " step. The rings turned back; you are " + where(T, r.state) + ". Steps: " + r.route.length + ".", "info"); renderBoard(); renderControls(); refocus("#undoBtn"); };
+  $("resetBtn2").onclick = function () { var r = run(); if (!r.route.length || r.solved) return;
+    if (r.route.length >= 5 && !resetArmed2) { resetArmed2 = true; renderControls(); say("Press again to return the chamber to its starting state.", "info"); return; }
+    resetArmed2 = false; r.route = []; r.state = E.start(TT()); r.last = null; clearTimers(); setAngles(); saveState(); say("The chamber is back in its starting state. Steps: 0.", "info"); renderBoard(); renderControls(); refocus("#resetBtn2"); };
+  $("resetBtn2").onblur = function () { if (resetArmed2) { resetArmed2 = false; renderControls(); } };
+  $("previewBox").onchange = function () { S.preview = $("previewBox").checked; saveState(); renderBoard(); };
+
+  /* ---------- award ---------- */
+  function emblem(t) { return '<svg class="emb" viewBox="0 0 220 220" aria-hidden="true"><rect width="220" height="220" fill="#f4ecd8"/><g class="seal">' + [80, 62, 44].map(function (rr, i) { return '<circle cx="110" cy="100" r="' + rr + '" fill="' + ["#a8321f", "#e9dcc2", "#2c4a8a"][i] + '" stroke="#b98a3c" stroke-width="4"/>'; }).join("") + '<circle cx="110" cy="100" r="22" fill="#b98a3c"/><text x="110" y="200" text-anchor="middle" font-family="Cinzel, serif" font-size="16" font-weight="700" fill="#8a2a1c">' + TNAME[t].toUpperCase() + " SEAL</text></g></svg>"; }
+  function story(t) {
+    if (t === "bronze") return "<p>The explorer steps through the gate as the ring grinds round behind. “You have learned that the passage moves even when the destination does not.”</p>";
+    if (t === "silver") return "<p>The two rings turn against each other one last time, and the gate stands open. “Two motions may oppose one another, yet together they reveal a passage.”</p>";
+    return "<p>The Bronze Bull, the Double Axe and the Spiral Seal rest in the explorer's satchel. The gate opens and the mechanism comes to rest. “The labyrinth did not ask you to remember one path. It asked you to understand how all paths change.” And then: “You have learned the secret of the labyrinth. It is not the walls that defeat us, but the paths we fail to imagine.”</p>"; }
+  function awardHtml(res) {
+    var t = S.tier, r = run(), T = TT(), next = ORDER[ORDER.indexOf(t) + 1], tags = [];
+    if (res) { if (r.hints === 0) tags.push('<span class="tag2 hf">★ Unaided</span>');
+      if (r.earned.indexOf("experimental-thinker") >= 0) tags.push('<span class="tag2 ma">✧ Experimental Thinker</span>');
+      if (r.earned.indexOf("master-of-the-turning-labyrinth") >= 0) tags.push('<span class="tag2 ma">✦ Master of the Turning Labyrinth</span>');
+      tags.push('<span class="tag2 up">' + (res.upgraded ? "Key upgraded to " + res.keyAfter : "Recorded") + "</span>"); }
+    else if (r.practice) tags.push('<span class="tag2">Practice run · record unchanged</span>');
+    var why = "<p><b>Your route.</b> " + plural(r.route.length, "step", "steps") + "; Ariadne's Thread lists them. The shortest possible route for this chamber is " + T.minSteps + " steps" + (r.route.length === T.minSteps ? ", and yours matches it." : ". Any route that escapes earns the seal; the shortest is shown here only for interest.") + "</p>" +
+      "<p><b>How the shortest route is known.</b> A breadth-first search lists every complete state (the explorer's cell, every ring's orientation" + (T.tokens.length ? ", and which tokens are held" : "") + ") reachable in one step, then in two, and so on, never visiting a state twice. The first escape appears at depth " + T.minSteps + ", after every state at smaller depths has been examined. The game's independent verifier repeats the search with its own code.</p>" +
+      '<p><button type="button" class="btn" id="showRoute">Show one shortest route (this page searches now)</button></p><div id="routeOut"></div>';
+    return emblem(t) + '<div><h2 id="awardTitle" tabindex="-1">' + T.name + "</h2><p><b>" + TNAME[t] + " seal</b> · Chaortal No. 29 · The Turning Labyrinth</p><div class=\"tags\">" + tags.join("") + "</div>" +
+      "<p>Escaped in " + plural(r.route.length, "step", "steps") + " · " + plural(r.hints, "hint", "hints") + " · score <b>" + r.score + "</b>" + (res ? " · recorded on your Keyring" : r.practice ? " · practice" : "") + "</p>" +
+      '<div class="ending">' + story(t) + '</div><details class="explain" style="margin-top:10px" open><summary style="cursor:pointer;font-weight:700;min-height:44px">The route and the proof</summary>' + why + "</details>" +
+      '<div class="actions">' + (next ? '<button class="btn primary" type="button" data-go="' + next + '">On to ' + TNAME[next] + "</button>" : "") + '<button class="btn" type="button" data-again="1">Play again (practice)</button><a class="btn" href="#ringTitle">See your Keyring</a><a class="btn" href="https://doorquests.com/">DoorQuests home</a></div></div>'; }
+  function bindAward(a) { a.querySelectorAll("[data-go]").forEach(function (b) { b.onclick = function () { switchTier(b.dataset.go); window.scrollTo({ top: 0, behavior: motionOK() ? "smooth" : "auto" }); }; });
+    var ag = a.querySelector("[data-again]"); if (ag) ag.onclick = function () { practice(); window.scrollTo({ top: 0, behavior: motionOK() ? "smooth" : "auto" }); };
+    var sr = a.querySelector("#showRoute"); if (sr) sr.onclick = function () { var T = TT(), t0 = Date.now(), res = E.shortest(T), ms = Date.now() - t0, st = E.start(T);
+      $("routeOut").innerHTML = "<p>This page's breadth-first search examined " + res.expanded.toLocaleString("en") + " states and found the minimum: <b>" + res.min + "</b> steps (" + ms + " ms).</p><ol>" +
+        res.route.map(function (d) { st = E.step(T, st, d).state; return "<li>" + DW[d] + " → " + esc(st.out ? "through the gate" : "ring " + st.r + ", cell " + CN[st.k]) + "</li>"; }).join("") + "</ol>"; sr.disabled = true; }; }
+  function showAward(res) { var a = $("award"); a.hidden = false; a.className = "award"; a.dataset.t = S.tier; a.innerHTML = awardHtml(res); bindAward(a); $("awardTitle").focus(); }
+  function practice() { var t = S.tier, r = freshRun(t); r.practice = true; S.play[t] = r; clearTimers(); setAngles(); saveState(); say("A fresh chamber for practice. Your recorded result stays on the Keyring.", "info"); renderAll(); }
+
+  /* ---------- tiers, brief, hints, rules ---------- */
+  var TEXT = {
+    bronze: { title: "Bronze · The First Turning", intro: "Three rings of eight cells. The middle ring turns one sector clockwise after every step you take; the inner and outer rings are fixed. Start in the inner ring and leave through the gate in the outer wall.",
+      rule: "Reach the gate (sector 4) by stepping outward from the outer ring when an open doorway faces it. You win the moment you pass the gate." },
+    silver: { title: "Silver · The Counterturning Rings", intro: "Four rings of eight cells. After every step, ring 2 turns one sector clockwise and ring 3 one sector counterclockwise; rings 1 and 4 are fixed. Doorways between rings 2 and 3 meet only when both orientations agree.",
+      rule: "Reach the gate (sector 3) from the outer ring." },
+    gold: { title: "Gold · The Three Tokens", intro: "The counterturning rings again, with three tokens resting on cells of rings 2, 3 and 4. Tokens ride with their cells; step onto a token's cell to collect it. It stays collected.",
+      rule: "Collect the Bronze Bull, the Double Axe and the Spiral Seal, in any order, then leave through the gate (sector 7). The gate is sealed until all three are held: trying it earlier is refused, with no penalty." } };
+  function switchTier(t) { S.tier = t; resetArmed2 = false; clearTimers(); setAngles(); saveState(); say(""); renderAll(); }
+  function renderTiers() {
+    $("tiers").innerHTML = ORDER.map(function (t) { var rec = K.tier(DOOR, t), nm = TEXT[t].title.split(" · "), aim = { bronze: "one turning ring", silver: "two rings, opposite turns", gold: "three tokens, then the gate" }[t];
+      var st = rec && rec.solved ? '<span class="st">✓ Seal earned · best ' + rec.best + (K.hasAch(DOOR, t, "master-of-the-turning-labyrinth") ? " · ✦ master" : K.hasAch(DOOR, t, "experimental-thinker") ? " · ✧ thinker" : "") + "</span>" : "<span>" + (t === "bronze" ? "Begin here" : "Open to try") + "</span>";
+      return '<button type="button" class="tierbtn" data-t="' + t + '" aria-pressed="' + (S.tier === t) + '"><b>' + nm[0] + " · " + nm[1] + '</b><span class="aim">' + aim + "</span>" + st + "</button>"; }).join("");
+    $("tiers").querySelectorAll(".tierbtn").forEach(function (b) { b.onclick = function () { switchTier(b.dataset.t); var h = $("hall"); if (h.getBoundingClientRect().top < 0) h.scrollIntoView({ block: "start", behavior: motionOK() ? "smooth" : "auto" }); }; }); }
+  var HL = ["A nudge", "A closer look", "A worked step"];
+  function renderHints() { var r = run(), list = E.HINTS[S.tier];
+    $("hints").innerHTML = r.hints ? list.slice(0, r.hints).map(function (h, i) { return '<div class="hint"><b>' + HL[i] + "</b>" + esc(h) + "</div>"; }).join("") : '<p class="note" style="margin:0">No counsel taken.</p>';
+    var b = $("hintBtn"); if (r.hints >= 3) { b.textContent = "All three pieces of counsel taken"; b.disabled = true; } else { b.textContent = "Ask for counsel " + (r.hints + 1) + ": " + HL[r.hints] + " (−" + E.HINT_COST + ")"; b.disabled = r.solved; } }
+  function renderRules() {
+    var r = ["<b>The floor.</b> Concentric rings around a fixed bronze pillar, ring 1 innermost. Each ring has eight cells, named α to θ clockwise in the ring's own frame. The chamber's eight sectors are numbered 1 to 8 clockwise from the top. A turning ring carries a red marker on its cell α.",
+      "<b>Walls and doorways</b> belong to the cells and turn with their ring. A step to the next cell along a ring needs no wall between them. A step between rings needs <i>both</i> doorways open: the one in your cell and the one in the cell facing it in the next ring at that moment.",
+      "<b>The four steps.</b> Clockwise and counterclockwise move you one cell along your ring; inward and outward move you to the facing cell of the next ring. These are your steps, not ring turns: you never turn a ring yourself.",
+      "<b>The order of every step.</b> (1) Your step is checked against the rings as they stand now. (2) If it is possible you move, and the step count rises by one. (3) Then every turning ring turns one sector in its own direction, carrying you, and any token, with the cell you stand on. (4) A token on your cell is collected. (5) Passing the gate wins. An impossible step changes nothing: no movement, no turning, no count, no score change; you are told why.",
+      "<b>Bronze</b>: ring 2 turns clockwise. <b>Silver and Gold</b>: ring 2 turns clockwise and ring 3 counterclockwise; rings 1 and 4 are fixed.",
+      "<b>Tokens (Gold).</b> Each rests on a cell and rides with it. It is collected when you stand on its cell after a step, and stays collected. The gate opens only with all three; until then, stepping through it is refused, with no penalty.",
+      "<b>Free, and graded.</b> <span class=\"kind free\">free</span> Steps, undo, reset, the preview, the workspace. <span class=\"kind graded\">graded</span> Escaping completes the commission automatically. There is no penalty for impossible steps or a sealed gate.",
+      "<b>Controls.</b> The four step buttons; the highlighted cells on the board (press or tap); the buttons in “The Labyrinth in Words”; or, with the board focused, → clockwise, ← counterclockwise, ↑ outward, ↓ inward. Undo restores everything, including a token collected by the step. Reset returns the chamber to its start (after five steps it asks twice).",
+      "<b>Scoring.</b> 100, less 12 per piece of counsel; the lowest score is 40. Steps never cost points. No timer. Your first escape in each tier is recorded on the Keyring as one graded attempt and one completion. Later plays are practice.",
+      "<b>Achievements.</b> ✧ Experimental Thinker: a first Bronze or Silver escape with no counsel, after at least two entries in Ariadne's Thread workspace for that commission (ledger, alignment or token marks, or recorded hypotheses). ✦ Master of the Turning Labyrinth: the same in Gold.",
+      "<b>Motion and sound.</b> With reduced motion the rings jump to their new places; every turn is also written out. Sound is off by default. Nothing depends on colour alone."];
+    $("rulesList").innerHTML = r.map(function (x) { return "<li>" + x + "</li>"; }).join(""); }
+
+  /* ---------- Ariadne's Thread workspace ---------- */
+  var NB_STATES = [{ id: "u", sym: "·", label: "No note", key: "u" }, { id: "y", sym: "✓", label: "Yes (your note)", key: "y" }, { id: "x", sym: "✕", label: "No (your note)", key: "x" }, { id: "q", sym: "?", label: "Maybe", key: "q" }];
+  function nbConfig(t) { var T = TT(t), sec = [], boards = [];
+    for (var i = 0; i < T.n; i++) sec.push({ id: "s" + i, label: String(SEC(i)) });
+    var turns = [0, 1, 2, 3, 4, 5].map(function (k) { return { id: "t" + k, label: k ? "+" + k + " step" + (k > 1 ? "s" : "") : "now" }; });
+    T.rings.forEach(function (g, i) { if (g.rot) boards.push({ id: "led" + i, type: "grid", title: "Ring position ledger · ring " + (i + 1) + " (" + (g.rot > 0 ? "↻" : "↺") + ")", help: "Mark the sector its cell α will face.", rows: turns, cols: sec }); });
+    boards.push({ id: "align", type: "grid", title: "Passage alignment notes", help: "Mark sectors where you expect a way between rings to line up.", rows: turns.slice(1), cols: sec });
+    if (T.tokens.length) boards.push({ id: "tok", type: "grid", title: "Token register", help: "Your plan for each token.", rows: T.tokens.map(function (tk, i) { return { id: "k" + i, label: tk.name }; }), cols: [{ id: "next", label: "Fetch next" }, { id: "path", label: "Path found" }, { id: "held", label: "Held" }] });
+    return { intro: "✓ yes, ✕ no, ? maybe: your own notes, never checked.", boards: boards, notesLabel: "Free notes", notesPlaceholder: "e.g. the doorway out of ring 2 at α meets ring 3 every second step …" }; }
+  var nb = DQToolkit.Notebook({ mount: $("nb"), storageKey: "dq-chaortal-29-notebook-v1", tiers: ORDER, getTier: function () { return S.tier; }, config: nbConfig, states: NB_STATES });
+  function makeLog() { return DQToolkit.Log({ mount: $("log"), storageKey: "dq-chaortal-29-log-v1", tiers: ORDER, getTier: function () { return S.tier; }, intro: "", emptyText: "Nothing recorded yet." }); }
+  var log = makeLog();
+  function addHyp() { var v = $("hypIn").value.trim(); if (!v) return; log.add("Hypothesis: " + v.slice(0, 200)); $("hypIn").value = ""; log.render(); renderMeters(); }
+  $("hypBtn").onclick = addHyp; $("hypIn").onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); addHyp(); } };
+  ["nb", "log"].forEach(function (id) { $(id).addEventListener("click", function () { setTimeout(renderMeters, 0); }); $(id).addEventListener("keydown", function () { setTimeout(renderMeters, 0); }); });
+
+  /* ---------- keyring ---------- */
+  function renderRing() {
+    var rows = ORDER.map(function (t) { var r = K.tier(DOOR, t);
+      return "<tr><th scope=\"row\">" + TNAME[t] + "</th><td>" + (r && r.solved ? "Earned" + (r.hintFree ? " ★" : "") : "—") + "</td><td>" + (r && r.best !== null ? r.best : "—") + "</td><td>" + (r && r.fewestHints !== null ? r.fewestHints : "—") + "</td><td>" + [K.hasAch(DOOR, t, "experimental-thinker") ? "✧ Experimental Thinker" : "", K.hasAch(DOOR, t, "master-of-the-turning-labyrinth") ? "✦ Master of the Turning Labyrinth" : ""].filter(Boolean).join(" · ") + "</td><td>" + (r ? r.attempts : 0) + "</td><td>" + (r ? r.solves : 0) + "</td></tr>"; }).join("");
+    $("stats").innerHTML = '<caption class="sr">This door, by tier</caption><thead><tr><th scope="col">This door</th><th scope="col">Status</th><th scope="col">Recorded score</th><th scope="col">Hints</th><th scope="col">Achievements</th><th scope="col">Graded attempts</th><th scope="col">Completions</th></tr></thead><tbody>' + rows + "</tbody>";
+    $("kslots").innerHTML = K.summary().map(function (d) {
+      var hf = d.key && d.tiers[d.key] && d.tiers[d.key].hintFree, mc = K.TIERS.filter(function (t) { return d.tiers[t] && d.tiers[t].achievements && Object.keys(d.tiers[t].achievements).length; }).length;
+      return '<div class="kslot' + (d.key ? " has " + d.key : "") + '"><span class="n">No. ' + d.id + " · " + d.verb + '</span><span class="t">' + esc(d.title) + "</span>" +
+        (d.key ? '<span class="k">' + d.key + " key" + (hf ? " ★" : "") + "</span>" + (mc ? '<span class="k" style="color:var(--accent)">Mastery ×' + mc + "</span>" : "") : '<span class="k" style="color:var(--muted)">' + (d.id === DOOR ? "Not yet earned" : "Locked") + "</span>") + "</div>"; }).join(""); }
+  $("exportBtn").onclick = function () { var blob = new Blob([K.exportText()], { type: "application/json" }), a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "doorquests-keyring.json"; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 0); $("ringMsg").textContent = "Keyring exported."; };
+  $("importFile").onchange = function () { var f = this.files && this.files[0], input = this; if (!f) return;
+    if (f.size > 200000) { $("ringMsg").textContent = "That file is too large to be a Keyring."; this.value = ""; return; }
+    f.text().then(function (txt) { var r = K.importText(txt); $("ringMsg").textContent = r.ok ? "Keyring imported. " + (r.added ? r.added + " new tier" + (r.added > 1 ? "s" : "") + " added; " : "") + "nothing was downgraded." : r.error; input.value = ""; renderAll(); }); };
+  var resetArmed = false;
+  $("resetBtn").onclick = function () {
+    if (!resetArmed) { resetArmed = true; $("resetBtn").textContent = "Really erase every key? Press again"; $("ringMsg").textContent = "This erases all Chaortal keys and achievements in this browser, plus this door's chambers, routes and workspace."; return; }
+    resetArmed = false; K.reset(); nb.clearAll(); log.clearAll(); log = makeLog(); S = freshState(); clearTimers(); setAngles(); saveState(); say(""); $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = "Progress erased."; renderAll(); };
+  $("resetBtn").onblur = function () { if (resetArmed) { resetArmed = false; $("resetBtn").textContent = "Reset progress"; $("ringMsg").textContent = ""; } };
+
+  /* ---------- prefs, sound, messages ---------- */
+  var actx = null;
+  function audio() { if (!S.sound) return null; try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } return actx; }
+  function blip(freq, dur, vol, type) { var a = audio(); if (!a) return; var o = a.createOscillator(), g = a.createGain(); o.type = type || "sine"; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, a.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur); o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + dur); }
+  function rumble() { blip(55, .7, .06, "sawtooth"); blip(82, .5, .03, "triangle"); }
+  function motionOK() { return S.motion === null ? !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) : S.motion; }
+  function applyPrefs() { document.documentElement.classList.toggle("rm", !motionOK()); $("motionBtn").textContent = motionOK() ? "Reduce motion" : "Allow motion";
+    $("soundBtn").textContent = "Sound: " + (S.sound ? "on" : "off"); $("soundBtn").setAttribute("aria-pressed", S.sound); $("previewBox").checked = S.preview; }
+  $("motionBtn").onclick = function () { S.motion = !motionOK(); saveState(); applyPrefs(); };
+  $("soundBtn").onclick = function () { S.sound = !S.sound; saveState(); applyPrefs(); };
+  function say(text, cls) { var m = $("msg"); m.textContent = text; m.className = "msg" + (cls ? " " + cls : ""); }
+  function refocus(s2) { var el = document.querySelector(s2); if (el) { el.focus(); return true; } return false; }
+  function renderAll() {
+    var r = run(), t = S.tier, T = TT();
+    $("briefTitle").textContent = TEXT[t].title; $("briefText").textContent = TEXT[t].intro; $("briefRule").textContent = TEXT[t].rule;
+    $("briefScore").textContent = "Scoring: 100, less 12 per piece of counsel. Steps, impossible steps, the sealed gate, undo, reset and the workspace are free. Your first escape is recorded.";
+    $("labTitle").textContent = { bronze: "The first chamber", silver: "The second chamber", gold: "The third chamber" }[t];
+    $("goalText").textContent = (T.tokens.length ? "Collect the three tokens, then leave" : "Leave") + " through the gate in sector " + SEC(T.exit) + " by stepping outward from ring " + T.rings.length + " when an open doorway faces it.";
+    $("keysHelp").innerHTML = "Keyboard: the step buttons, or focus the labyrinth: <kbd>→</kbd> clockwise · <kbd>←</kbd> counterclockwise · <kbd>↑</kbd> outward · <kbd>↓</kbd> inward";
+    renderScene(); renderTiers(); renderBoard(); renderControls(); renderHints(); renderRules(); renderRing(); nb.render(); log.render(); renderMeters();
+    var a = $("award"); if (r.solved) { if (a.hidden || a.dataset.t !== t) { a.hidden = false; a.className = "award"; a.dataset.t = t; a.innerHTML = awardHtml(null); bindAward(a); } } else { a.hidden = true; a.innerHTML = ""; a.dataset.t = ""; } }
+  $("hintBtn").onclick = function () { var r = run(); if (r.solved || r.hints >= 3) return; r.hints++; saveState(); log.add("Took counsel " + r.hints + "."); renderHints(); renderMeters(); };
+  setAngles(); applyPrefs(); renderAll();
+  window.__lab = { S: function () { return JSON.parse(JSON.stringify(S)); }, E: E, K: K, angles: function () { return ang.slice(); } }; // test hook (read-only)
+})();
+</script>
+<!-- Cloudflare Web Analytics -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3f72232588414cf087bd7c4ed5e4ddaa"}'></script>
+<!-- End Cloudflare Web Analytics -->
+</body>
+</html>
