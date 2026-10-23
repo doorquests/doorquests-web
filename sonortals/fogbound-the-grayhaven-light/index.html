@@ -1,0 +1,2997 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fogbound: The Grayhaven Light | DoorQuests Sonortals (Prototype)</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Sonortal No. 001 — Fogbound: The Grayhaven Light. Keep the lighthouse on a fog-bound night: listen for vessels, aim the beam and signal them home. Prototype for Founder playtest.">
+<meta name="theme-color" content="#0d151c">
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<style>
+:root {
+  --night: #0d151c;
+  --slate: #121d26;
+  --sea: #172631;
+  --sea-2: #1e3240;
+  --fog: #b9c6cc;
+  --fog-dim: #7f9099;
+  --brass: #d4a24c;
+  --brass-2: #f0c879;
+  --brass-dim: #8a6a33;
+  --ivory: #efe7d6;
+  --ivory-dim: #c2bba9;
+  --rock: #8b8f92;
+  --channel: #79c9b6;
+  --danger: #ff9a7a;
+  --ok: #9fd8a8;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --r: 10px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  min-height: 100vh;
+  font-family: var(--sans);
+  color: var(--ivory);
+  background: radial-gradient(120% 80% at 50% 110%, #24394a 0%, var(--slate) 45%, var(--night) 100%) fixed;
+  background-color: var(--night);
+  line-height: 1.45;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+a { color: var(--brass-2); }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--brass-2); outline-offset: 2px; }
+.sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+[hidden] { display: none !important; }
+
+/* drifting fog (decorative) */
+.fogl { position: fixed; inset: -20%; pointer-events: none; z-index: 0; opacity: .16;
+  background: radial-gradient(40% 25% at 30% 40%, #cfd9de 0%, transparent 70%), radial-gradient(35% 22% at 75% 60%, #cfd9de 0%, transparent 70%);
+  animation: drift 60s linear infinite alternate; }
+.fogl.b { opacity: .1; animation-duration: 90s; animation-direction: alternate-reverse; }
+@keyframes drift { from { transform: translateX(-6%); } to { transform: translateX(6%); } }
+.reduced .fogl { animation: none; }
+
+.wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 12px 16px 40px; }
+header.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 6px 0 4px; }
+.brand { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.home { font-family: var(--serif); font-weight: 700; font-size: 1.1rem; text-decoration: none; color: var(--brass-2); }
+.coll { color: var(--fog); font-size: .9rem; letter-spacing: .08em; text-transform: uppercase; }
+.proto { margin-left: auto; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: #1a1206; background: var(--brass-2); border-radius: 999px; padding: 4px 10px; }
+
+.title { text-align: center; padding: 10px 0 8px; }
+.title .no { display: block; color: var(--fog); letter-spacing: .14em; text-transform: uppercase; font-size: .8rem; }
+.title h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(1.6rem, 5vw, 2.6rem); margin: 4px 0 2px; color: var(--ivory);
+  text-shadow: 0 0 24px rgba(240, 200, 121, .25); }
+.title .credit { color: var(--ivory-dim); font-size: .9rem; margin: 0; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 14px;
+  border-radius: var(--r); border: 1px solid #3a4f5c; background: #1b2c38; color: var(--ivory); cursor: pointer; text-decoration: none; }
+.btn:hover { border-color: var(--brass-dim); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.gold { background: linear-gradient(180deg, #e6b860, #b8862f); color: #1b1305; border-color: #f0c879; font-weight: 700; }
+.btn.ghost { background: transparent; }
+.btn.small { min-height: 36px; padding: 4px 10px; font-size: .9rem; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+.card { background: rgba(18, 29, 38, .86); border: 1px solid #2b3f4b; border-radius: 14px; padding: 16px; }
+
+/* start view */
+#startView { max-width: 820px; margin: 0 auto; display: grid; gap: 14px; }
+#startView .lede { font-family: var(--serif); font-size: 1.12rem; color: var(--ivory); margin: 0; }
+fieldset { border: 1px solid #2b3f4b; border-radius: 12px; margin: 0; padding: 10px 12px 12px; }
+legend { padding: 0 6px; color: var(--fog); font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; }
+.tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tier { position: relative; }
+.tier input { position: absolute; opacity: 0; inset: 0; }
+.tier label { display: block; height: 100%; padding: 10px; border: 1px solid #34505f; border-radius: 10px; cursor: pointer; background: #15242e; min-height: 44px; }
+.tier input:checked + label { border-color: var(--brass-2); box-shadow: inset 0 0 0 1px var(--brass-2); background: #1f2f39; }
+.tier input:focus-visible + label { outline: 3px solid var(--brass-2); outline-offset: 2px; }
+.tier .tn { font-weight: 700; display: block; }
+.tier .tt { font-size: .85rem; color: var(--ivory-dim); display: block; }
+.tier .tk { font-size: .78rem; color: var(--brass-2); display: block; margin-top: 4px; }
+.watch { display: grid; gap: 8px; grid-template-columns: 1fr; }
+.watch .opt { display: flex; gap: 8px; align-items: center; min-height: 44px; }
+.watch input[type=radio] { width: 20px; height: 20px; accent-color: var(--brass); }
+.watch input[type=text] { width: 9ch; min-height: 40px; background: #0f1a22; border: 1px solid #3a4f5c; border-radius: 8px; padding: 4px 8px; }
+.begin { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+.begin .btn { min-height: 56px; font-size: 1.05rem; }
+.begin small { display: block; font-size: .8rem; font-weight: 400; opacity: .85; }
+.note { color: var(--ivory-dim); font-size: .88rem; margin: 0; }
+.notice { border-left: 3px solid var(--brass); padding: 6px 10px; background: rgba(212, 162, 76, .08); border-radius: 0 8px 8px 0; font-size: .9rem; }
+
+/* game view */
+.hud { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; padding: 8px 10px;
+  background: rgba(13, 21, 28, .92); border: 1px solid #2b3f4b; border-radius: 12px; margin-bottom: 10px; backdrop-filter: blur(4px); }
+.hud .it { font-size: .88rem; color: var(--ivory-dim); white-space: nowrap; }
+.hud .it b { color: var(--ivory); font-weight: 600; }
+.hud .grow { flex: 1; }
+.pill { display: inline-block; border-radius: 999px; padding: 1px 8px; border: 1px solid #3a4f5c; font-size: .8rem; }
+.pill.on { border-color: var(--channel); color: var(--channel); }
+.pill.warn { border-color: var(--danger); color: var(--danger); }
+
+.board { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); grid-template-areas: "left panel" "log panel"; gap: 12px; align-items: start; }
+.board > .left { grid-area: left; }
+.board > .panel { grid-area: panel; }
+.board > .log { grid-area: log; margin-top: 0; }
+.chartBox { position: relative; background: radial-gradient(100% 100% at 50% 100%, #203645 0%, #142430 60%, #101c25 100%);
+  border: 1px solid #2b3f4b; border-radius: 14px; overflow: hidden; }
+#chart { display: block; width: 100%; height: auto; touch-action: manipulation; }
+.chartBox.gusting::after { content: ""; position: absolute; inset: 0; background: rgba(200, 212, 218, .14); pointer-events: none; }
+.caps { min-height: 3.2em; padding: 6px 10px; border-top: 1px solid #2b3f4b; font-size: .9rem; color: var(--fog); background: rgba(10, 17, 22, .6); }
+.caps p { margin: 0; }
+.caps p:first-child { color: var(--ivory); }
+
+.panel { display: grid; gap: 10px; }
+.panel h2 { font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: var(--fog); margin: 0 0 6px; font-weight: 600; }
+.dial { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 3px; }
+.dial button { min-height: 50px; padding: 2px 0; border-radius: 8px; border: 1px solid #34505f; background: #15242e; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.dial button .sn { font-size: .72rem; font-weight: 700; }
+.dial button .ck { font-size: .66rem; color: var(--ivory-dim); }
+.dial button.chan .ck { color: var(--channel); }
+.dial button[aria-pressed=true] { background: linear-gradient(180deg, #3a2f18, #241d10); border-color: var(--brass-2); box-shadow: 0 0 12px rgba(240, 200, 121, .35); }
+.dial button.moving { border-style: dashed; }
+.turn { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; margin-top: 6px; align-items: center; }
+.turn .bear { text-align: center; font-size: .9rem; color: var(--ivory-dim); min-width: 9ch; }
+.targets { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; align-items: center; }
+.targets .none { color: var(--ivory-dim); font-size: .9rem; }
+.chip { display: inline-flex; gap: 6px; align-items: center; min-height: 40px; padding: 4px 10px; border-radius: 999px; border: 1px solid #3a4f5c; background: #15242e; cursor: pointer; }
+.chip[aria-checked=true] { border-color: var(--brass-2); background: #2a2414; }
+.chip .g { font-family: var(--mono); font-weight: 700; color: var(--brass-2); }
+.signals { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.signals button { min-height: 58px; text-align: left; padding: 6px 10px; display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; }
+.signals .k { grid-row: span 2; font-family: var(--mono); font-size: .8rem; color: var(--fog); border: 1px solid #3a4f5c; border-radius: 6px; padding: 2px 6px; }
+.signals .l { font-weight: 700; }
+.signals .p { color: var(--brass-2); font-size: 1rem; letter-spacing: .12em; }
+.lampstate { font-size: .85rem; color: var(--ivory-dim); min-height: 1.3em; }
+.tools { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.hint { margin-top: 10px; padding: 8px 12px; border: 1px dashed var(--brass-dim); border-radius: 10px; color: var(--ivory); background: rgba(212, 162, 76, .07); font-size: .95rem; }
+.hint b { color: var(--brass-2); }
+
+.contacts table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.contacts th, .contacts td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #24343f; vertical-align: top; }
+.contacts th { color: var(--fog); font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; }
+.contacts .lit { color: var(--brass-2); }
+
+details.log { margin-top: 10px; }
+details.log summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--fog); }
+#log { margin: 0; padding: 0 0 0 1.2em; max-height: 260px; overflow: auto; font-size: .88rem; color: var(--ivory-dim); }
+#log li { margin: 2px 0; }
+#log li.bad { color: var(--danger); }
+#log li.good { color: var(--ok); }
+#log .tm { font-family: var(--mono); color: var(--fog-dim); margin-right: 6px; }
+
+/* chart svg */
+.sea-sector { fill: transparent; cursor: pointer; }
+.sea-sector:hover { fill: rgba(240, 200, 121, .05); }
+.sector-line { stroke: rgba(185, 198, 204, .12); stroke-width: .3; }
+.ring { fill: none; stroke: rgba(185, 198, 204, .22); stroke-width: .35; }
+.ring.reach { stroke: var(--brass); stroke-dasharray: 2 1.6; stroke-width: .45; opacity: .8; }
+.ring.near { stroke: rgba(255, 154, 122, .55); stroke-dasharray: .8 1.2; }
+.ringlab { fill: var(--fog-dim); font-size: 3px; font-family: var(--sans); }
+.slab { fill: var(--fog); font-size: 3.6px; font-family: var(--sans); text-anchor: middle; }
+.rocks path { fill: #4a4f53; stroke: #9aa0a4; stroke-width: .3; }
+.chanmark { fill: var(--channel); }
+.chanarc { fill: none; stroke: var(--channel); stroke-width: .9; stroke-dasharray: 2 1; }
+.chanlab { fill: var(--channel); font-size: 2.6px; text-anchor: middle; font-family: var(--sans); font-weight: 700; }
+.rocklab { fill: #9aa0a4; font-size: 2.3px; text-anchor: middle; font-family: var(--sans); }
+#beam { transition: transform .3s linear; transform-origin: 0 0; }
+.reduced #beam { transition: none; }
+#beamWedge { fill: url(#beamGrad); }
+#beam.sig #beamWedge { animation: none; }
+.lamp { fill: var(--brass-2); }
+.tower { fill: #e9e1cf; stroke: #6a5a3a; stroke-width: .3; }
+.ripple circle { fill: none; stroke: var(--fog); }
+.ripple.far circle { stroke-dasharray: 1 1; stroke-width: .35; opacity: .55; }
+.ripple.mid circle { stroke-width: .5; opacity: .8; }
+.ripple.near circle { stroke-width: .7; }
+.ripple.danger circle { stroke: var(--danger); stroke-width: .8; }
+.ripple.masked { opacity: .55; }
+.ripple.old { opacity: .3; }
+.ripple text { fill: var(--ivory); font-size: 3px; font-family: var(--mono); font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
+.ripple .lbl { fill: var(--fog); font-size: 2.4px; font-family: var(--sans); font-weight: 400; }
+.ripple .pulse { animation: pulse 1.6s ease-out 1 forwards; }
+.reduced .ripple .pulse { animation: none; opacity: 0; }
+@keyframes pulse { from { r: 2; opacity: .9; } to { r: 9; opacity: 0; } }
+.boat path { fill: var(--brass-2); stroke: #3a2c12; stroke-width: .3; }
+.boat text { fill: var(--brass-2); font-size: 2.6px; font-family: var(--sans); font-weight: 700; text-anchor: middle; }
+.boat.ghost { opacity: .35; }
+.flash-again { animation: again .8s ease-out 1; }
+@keyframes again { 0% { opacity: 1; } 50% { opacity: .3; } 100% { opacity: 1; } }
+
+/* dialogs */
+dialog { max-width: min(680px, calc(100vw - 24px)); width: 100%; border: 1px solid #3a4f5c; border-radius: 16px; background: #13202a; color: var(--ivory); padding: 18px; }
+dialog::backdrop { background: rgba(5, 9, 12, .7); }
+dialog h2 { font-family: var(--serif); margin: 0 0 8px; font-weight: 600; }
+dialog .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.big { font-size: 2.4rem; font-family: var(--serif); color: var(--brass-2); line-height: 1; }
+.result { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.outcomes { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 4px; }
+.outcomes li { padding: 4px 8px; border-radius: 8px; background: #172631; font-size: .92rem; }
+.outcomes .tag { font-family: var(--mono); font-size: .78rem; border: 1px solid #3a4f5c; border-radius: 6px; padding: 0 5px; margin-right: 6px; }
+.outcomes .ok .tag { border-color: var(--ok); color: var(--ok); }
+.outcomes .bad .tag { border-color: var(--danger); color: var(--danger); }
+.breakdown { font-size: .9rem; color: var(--ivory-dim); }
+.breakdown td { padding: 2px 10px 2px 0; }
+.primer section { display: none; }
+.primer section.on { display: block; }
+.primer .steps { color: var(--fog); font-size: .85rem; }
+.primer ul { padding-left: 1.2em; }
+.primer table { border-collapse: collapse; font-size: .9rem; width: 100%; }
+.primer td, .primer th { border-bottom: 1px solid #24343f; padding: 4px 6px; text-align: left; vertical-align: top; }
+
+.keyring { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; max-height: 60vh; overflow: auto; padding: 2px; }
+.slot { border: 1px solid #34505f; border-radius: 10px; padding: 8px; font-size: .82rem; min-height: 76px; background: #15242e; }
+.slot.reserved { border-style: dashed; background: transparent; color: var(--ivory-dim); }
+.slot .sid { font-family: var(--mono); font-size: .78rem; color: var(--fog); }
+.slot.active { grid-column: span 2; border-color: var(--brass-dim); }
+.keys { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.key { display: inline-flex; gap: 4px; align-items: center; border: 1px solid #3a4f5c; border-radius: 6px; padding: 2px 6px; font-size: .78rem; }
+.key.got { border-color: var(--brass-2); color: var(--brass-2); }
+.key.got::before { content: "✦"; }
+.key.not::before { content: "○"; color: var(--fog-dim); }
+
+.settings label { display: flex; gap: 10px; align-items: center; min-height: 44px; }
+.settings input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--brass); }
+.settings input[type=range] { width: 100%; accent-color: var(--brass); }
+.settings .desc { color: var(--ivory-dim); font-size: .85rem; margin: -6px 0 6px 30px; }
+
+footer.foot { text-align: center; color: var(--fog-dim); font-size: .85rem; margin-top: 26px; }
+footer.foot .tag { font-family: var(--serif); color: var(--ivory-dim); font-size: 1rem; }
+#dev { margin-top: 10px; font-family: var(--mono); font-size: .78rem; color: var(--fog); }
+
+@media (max-width: 860px) {
+  .board { grid-template-columns: minmax(0, 1fr); grid-template-areas: "left" "panel" "log"; }
+  .begin { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .wrap { padding: 8px 10px 30px; }
+  .tiers { grid-template-columns: minmax(0, 1fr); }
+  .dial { gap: 2px; }
+  .dial button .ck { font-size: .58rem; }
+  .signals button { min-height: 54px; padding: 4px 8px; }
+  .hud .it.opt { display: none; }
+  .hud { position: static; }
+  .proto { margin-left: 0; }
+  .slab { font-size: 6px; }
+  .ringlab, .rocklab { font-size: 4.2px; }
+  .chanlab { font-size: 4.4px; }
+  .ripple .lbl, .boat text { font-size: 4.2px; }
+  .ripple text { font-size: 4.6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fogl { animation: none; }
+}
+
+</style>
+</head>
+<body>
+<div class="fogl" aria-hidden="true"></div>
+<div class="fogl b" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <a class="home" href="https://doorquests.com/">DoorQuests</a>
+      <span class="coll">Sonortals · Listen</span>
+    </div>
+    <span class="proto" id="protoBadge">Prototype — Founder Playtest</span>
+  </header>
+
+  <section class="title">
+    <span class="no">Sonortal No. 001</span>
+    <h1>Fogbound: The Grayhaven Light</h1>
+    <p class="credit">Created by The Axiom Continuum</p>
+  </section>
+
+  <!-- ========== START ========== -->
+  <main id="startView" class="card">
+    <p class="lede">Fog has swallowed the harbor. You keep Grayhaven Light. Vessels are out there — you can hear them before you can see them. Find each one, read where it is heading, and signal it safely into the channel before it reaches the rocks.</p>
+    <div id="startNotice" class="notice" hidden></div>
+    <div id="resumeBox" class="notice" hidden>
+      <p id="resumeText" style="margin:0 0 8px"></p>
+      <div class="row"><button class="btn gold" id="btnResume" type="button">Resume this watch</button><button class="btn ghost" id="btnDiscard" type="button">Discard it</button></div>
+    </div>
+
+    <fieldset>
+      <legend>Choose the night</legend>
+      <div class="tiers" role="radiogroup" aria-label="Difficulty">
+        <div class="tier"><input type="radio" name="tier" id="tierBronze" value="bronze" checked><label for="tierBronze"><span class="tn">Bronze</span><span class="tt">Learn the light — 4 vessels, one channel, coaching on.</span><span class="tk" id="tkBronze"></span></label></div>
+        <div class="tier"><input type="radio" name="tier" id="tierSilver" value="silver"><label for="tierSilver"><span class="tn">Silver</span><span class="tt">Work the harbor — 7 vessels, drifting boats, a crowded channel.</span><span class="tk" id="tkSilver"></span></label></div>
+        <div class="tier"><input type="radio" name="tier" id="tierGold" value="gold"><label for="tierGold"><span class="tn">Gold</span><span class="tt">Keep the harbor alive — 10 vessels, two channels, thick fog, gusts.</span><span class="tk" id="tkGold"></span></label></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="watch">
+      <legend>Which harbor</legend>
+      <div class="opt"><input type="radio" name="watch" id="wTonight" value="tonight" checked><label for="wTonight">Tonight’s watch <span class="note" id="tonightSeed"></span></label></div>
+      <div class="opt"><input type="radio" name="watch" id="wNew" value="new"><label for="wNew">A new harbor (random)</label></div>
+      <div class="opt"><input type="radio" name="watch" id="wSeed" value="seed"><label for="wSeed">Harbor number</label>
+        <input type="text" id="seedInput" inputmode="numeric" pattern="[0-9]*" maxlength="6" aria-label="Harbor number, 1 to 999999" placeholder="123456"></div>
+      <p class="note">Every harbor is checked before you play: each vessel can be saved by careful, human-paced keeping.</p>
+    </fieldset>
+
+    <div class="begin">
+      <button class="btn gold" id="btnListen" type="button">Begin listening<small>Turns sound on. Headphones are optional.</small></button>
+      <button class="btn" id="btnSight" type="button">Play in Sight Mode<small>No sound needed. Every sound is shown.</small></button>
+    </div>
+    <p class="note" id="audioNote">Sound starts only when you choose “Begin listening”. You can switch between sound and Sight Mode at any time; scoring is the same either way.</p>
+    <div class="row">
+      <button class="btn" id="btnPrimer" type="button">Keeper’s primer (how to play)</button>
+      <button class="btn" id="btnKeyring" type="button">Sonortals Keyring</button>
+      <button class="btn" id="btnSettings" type="button">Settings</button>
+    </div>
+  </main>
+
+  <!-- ========== GAME ========== -->
+  <main id="gameView" hidden>
+    <div class="hud" id="hud">
+      <span class="it"><b id="hTier">Bronze</b> · harbor <b id="hSeed">0</b></span>
+      <span class="it">Watch <b id="hTime">0:00</b></span>
+      <span class="it">Home <b id="hHome">0</b> · Lost <b id="hLost">0</b> · At sea <b id="hSea">0</b> · Due <b id="hDue">0</b></span>
+      <span class="grow"></span>
+      <span class="it opt">Sound <span class="pill" id="hSound">off</span></span>
+      <button class="btn small" id="btnSoundToggle" type="button">Sound on</button>
+      <button class="btn small" id="btnCuesToggle" type="button" aria-pressed="false">Sight cues</button>
+      <button class="btn small" id="btnPause" type="button">Pause</button>
+    </div>
+    <div id="audioWarn" class="notice" hidden></div>
+
+    <div class="board">
+      <div class="left">
+        <div class="chartBox" id="chartBox">
+          <svg id="chart" viewBox="-100 -101 200 109" role="img" aria-labelledby="chartTitle chartDesc">
+            <title id="chartTitle">Fog chart of Grayhaven harbor</title>
+            <desc id="chartDesc">The lighthouse is at the bottom centre. Nine bearings fan out from west to east. The coast line near the lighthouse shows rocks and the safe channel. Use the bearing buttons to aim the beam.</desc>
+            <defs>
+              <radialGradient id="beamGrad" cx="0" cy="0" r="92" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#ffe7a8" stop-opacity=".75"/>
+                <stop offset=".55" stop-color="#f0c879" stop-opacity=".28"/>
+                <stop offset="1" stop-color="#f0c879" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <g id="gSectors"></g>
+            <g id="gRings"></g>
+            <g id="beam"><path id="beamWedge" d=""/></g>
+            <g id="gCoast"></g>
+            <g id="gRipples"></g>
+            <g id="gBoats"></g>
+            <g id="gLamp"></g>
+          </svg>
+          <div class="caps" id="caps" aria-hidden="true" hidden></div>
+        </div>
+        <div id="hint" class="hint" hidden></div>
+      </div>
+
+      <div class="panel">
+        <div class="card">
+          <h2 id="dialLabel">Aim the beam</h2>
+          <div class="dial" id="dial" role="group" aria-labelledby="dialLabel"></div>
+          <div class="turn">
+            <button class="btn" id="btnLeft" type="button" aria-label="Turn the beam one bearing west">◀ West</button>
+            <span class="bear" id="bearNow" aria-live="off">N</span>
+            <button class="btn" id="btnRight" type="button" aria-label="Turn the beam one bearing east">East ▶</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2 id="targetLabel">In the beam</h2>
+          <div class="targets" id="targets" role="radiogroup" aria-labelledby="targetLabel"></div>
+        </div>
+        <div class="card">
+          <h2 id="sigLabel">Signal</h2>
+          <div class="signals" id="signals" role="group" aria-labelledby="sigLabel"></div>
+          <div class="lampstate" id="lampState"></div>
+        </div>
+        <div class="tools">
+          <button class="btn small" id="btnAgain" type="button" title="Key R">Again (R)</button>
+          <button class="btn small" id="btnReport" type="button" title="Key C">Report (C)</button>
+          <button class="btn small" id="btnPrimer2" type="button">Primer</button>
+          <button class="btn small" id="btnSettings2" type="button">Settings</button>
+        </div>
+        <p class="note" id="reportOut" hidden></p>
+        <div class="card contacts" id="contactsBox" hidden>
+          <h2>Contacts (from the latest sounds)</h2>
+          <table><thead><tr><th>Vessel</th><th>Bearing</th><th>Distance</th><th>Status</th></tr></thead><tbody id="contacts"></tbody></table>
+        </div>
+      </div>
+      <details class="log" id="logBox">
+        <summary>Keeper’s log (all events, newest first)</summary>
+        <ol id="log" reversed></ol>
+      </details>
+    </div>
+
+    <div id="dev" hidden></div>
+  </main>
+
+  <div id="live" class="sr" aria-live="polite" aria-atomic="true"></div>
+
+  <footer class="foot">
+    <p class="tag">Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+    <p>DoorQuests Sonortals · Created by The Axiom Continuum · <a href="https://doorquests.com/">Return to DoorQuests</a></p>
+    <p>A work of fiction. The sounds, directions and distances here are a game simulation, not guidance for real navigation.</p>
+  </footer>
+</div>
+
+<!-- ========== DIALOGS ========== -->
+<dialog id="dPause" aria-labelledby="dPauseT">
+  <h2 id="dPauseT">Watch paused</h2>
+  <p id="pauseWhy">The harbor waits for you. Nothing moves while you are away.</p>
+  <div class="acts">
+    <button class="btn gold" id="btnResumeGame" type="button">Resume</button>
+    <button class="btn" id="btnRestart" type="button">Restart this harbor</button>
+    <button class="btn ghost" id="btnAbandon" type="button">Leave the watch</button>
+  </div>
+</dialog>
+
+<dialog id="dEnd" aria-labelledby="dEndT">
+  <h2 id="dEndT">Dawn at Grayhaven</h2>
+  <div class="result">
+    <div><div class="big" id="endScore">0</div><div class="note">score</div></div>
+    <div><p id="endVerdict" style="margin:0;font-weight:700"></p><p id="endKey" class="note" style="margin:4px 0 0"></p></div>
+  </div>
+  <ul class="outcomes" id="endList"></ul>
+  <table class="breakdown"><tbody id="endBreak"></tbody></table>
+  <p class="note" id="endNotes"></p>
+  <div class="acts">
+    <button class="btn gold" id="btnAgainNew" type="button">Another harbor</button>
+    <button class="btn" id="btnSameSeed" type="button">Retry this harbor</button>
+    <button class="btn" id="btnNextTier" type="button">Next tier</button>
+    <button class="btn" id="btnEndKeyring" type="button">Keyring</button>
+    <button class="btn ghost" id="btnEndClose" type="button">Close</button>
+  </div>
+</dialog>
+
+<dialog id="dPrimer" aria-labelledby="dPrimerT" class="primer">
+  <h2 id="dPrimerT">The keeper’s primer</h2>
+  <p class="steps" id="primerStep">Page 1 of 5</p>
+  <section class="on">
+    <h3>The harbor</h3>
+    <p>The chart fans out from your lighthouse at the bottom. Nine bearings run from <b>West</b> on the left to <b>East</b> on the right. Close to the lamp is the coast: most bearings end on <b>rocks</b>; the <b>channel</b> (marked with buoys and its name) is the only safe way in. Gold harbors have two channels.</p>
+    <p>Vessels come in from the fog and head straight for the coast. A vessel that reaches the coast on a channel bearing is home. On any other bearing it runs aground.</p>
+  </section>
+  <section>
+    <h3>Hearing a vessel</h3>
+    <table><thead><tr><th>Sound</th><th>Vessel</th><th>Notes</th></tr></thead><tbody>
+      <tr><td>Bell, two strokes</td><td>Fishing smack</td><td>Slow</td></tr>
+      <tr><td>Long low horn</td><td>Steam trawler</td><td>Steady speed</td></tr>
+      <tr><td>Two-tone reed horn</td><td>Sailing ketch</td><td>Slow (Silver and Gold)</td></tr>
+      <tr><td>Putt-putt engine</td><td>Motor launch</td><td>Fast (Silver and Gold)</td></tr>
+    </tbody></table>
+    <p><b>Distance</b>: nearer vessels are louder, clearer (less muffled) and sound more often. <b>Direction</b>: in stereo, left is west and right is east. With one speaker, one earbud or no sound, turn on <b>Sight cues</b>: each sound appears as a ripple on the chart and a caption, from the very same event.</p>
+  </section>
+  <section>
+    <h3>The beam</h3>
+    <p>Aim the beam with the bearing buttons, the ◀ ▶ buttons, the arrow keys or by tapping the chart. When the beam rests on a vessel that is <b>within the light’s reach</b> (the dashed brass ring), you <b>sight</b> her: she appears on the chart, a bright shimmer joins her sound, and her name appears under “In the beam”. The beam works the same in every mode — it is the sure way to find a bearing.</p>
+    <p>A vessel beyond the reach can be heard but cannot see your light yet.</p>
+  </section>
+  <section>
+    <h3>Orders</h3>
+    <ul>
+      <li><b>Steady</b> (▬): hold this bearing. Right for a vessel already on a channel bearing.</li>
+      <li><b>Steer West</b> (• ▬) / <b>Steer East</b> (▬ •): turn to the nearest channel on that side, then hold it. Turning takes about 3½ seconds per bearing, and she moves in more slowly while turning.</li>
+      <li><b>Heave To</b> (• • •): stop for a few seconds. Turning carries on. Each vessel will heave to twice at most.</li>
+    </ul>
+    <p>An order goes to the vessel picked under “In the beam” (the nearest, unless you pick another). She answers in her own voice: two short calls mean “understood”; one falling note means “unable”. The log tells you whether the order was sound.</p>
+  </section>
+  <section>
+    <h3>Hazards and keeping score</h3>
+    <ul>
+      <li><b>Drift</b> (Silver, Gold): an unguided vessel may slide sideways, one bearing every 10–12 seconds. Listen to her move. Any order from you stops the drift.</li>
+      <li><b>One at a time</b>: a channel takes a few seconds to clear after each arrival. A vessel that enters while it is in use scrapes the one ahead. Heave one of them to.</li>
+      <li><b>Gusts</b> (Gold): a few seconds of wind muffle every sound. Nothing is hidden: captions and ripples carry on.</li>
+    </ul>
+    <p>Each vessel: guided home 10, home without your help 6, scraped 3, aground 0. Unsound orders cost 2, “unable” or refused orders 1, unanswered signals 1 (at most 5). <b>The light is kept</b> — and the tier key earned — when every vessel is home undamaged. Pausing, replaying sounds, captions and Sight Mode never change the score.</p>
+  </section>
+  <div class="acts">
+    <button class="btn" id="primerPrev" type="button">Back</button>
+    <button class="btn gold" id="primerNext" type="button">Next</button>
+    <button class="btn ghost" id="primerClose" type="button">Close</button>
+  </div>
+</dialog>
+
+<dialog id="dKeyring" aria-labelledby="dKeyringT">
+  <h2 id="dKeyringT">Sonortals Keyring</h2>
+  <p class="note">One key per tier for each Sonortal. Only No. 001 can be played in this prototype. Prototype records are kept in this browser only.</p>
+  <div id="krNotice" class="notice" hidden></div>
+  <div class="keyring" id="keyringGrid"></div>
+  <div class="acts">
+    <button class="btn ghost" id="btnKrReset" type="button">Reset No. 001 records</button>
+    <button class="btn gold" id="btnKrClose" type="button">Close</button>
+  </div>
+</dialog>
+
+<dialog id="dSettings" aria-labelledby="dSettingsT" class="settings">
+  <h2 id="dSettingsT">Settings</h2>
+  <label><input type="checkbox" id="setSound"> Sound</label>
+  <p class="desc">Sound starts only after you turn it on here or choose “Begin listening”.</p>
+  <label for="setVolume">Volume</label>
+  <input type="range" id="setVolume" min="0" max="100" step="5" value="50">
+  <label><input type="checkbox" id="setAmb" checked> Sea and wind ambience</label>
+  <label><input type="checkbox" id="setCues"> Sight cues (ripples, captions and contact list)</label>
+  <p class="desc">Shows every vessel sound on the chart. On by default in Sight Mode.</p>
+  <label><input type="checkbox" id="setMono"> Mono sound</label>
+  <p class="desc">For one earbud or a single speaker. Left/right is removed, so turn on Sight cues for direction, or find bearings with the beam.</p>
+  <label><input type="checkbox" id="setHints"> Coaching hints</label>
+  <p class="desc">On by default in Bronze. Hints never change the score.</p>
+  <label><input type="checkbox" id="setMotion"> Reduce motion</label>
+  <div class="acts"><button class="btn gold" id="btnSetClose" type="button">Done</button></div>
+</dialog>
+
+<script>
+/* ---- src/sim.js ---- */
+/* Fogbound: The Grayhaven Light — deterministic simulation (Sonortal 001).
+ *
+ * Everything that decides the game lives here: harbor generation, vessel
+ * motion, the lamp, orders, outcomes and scoring. No DOM, no audio, no clock,
+ * no Math.random. All positions and speeds are integers (milli-units), so the
+ * same seed, tier and action timeline give the same result in every engine.
+ *
+ * Units
+ *   tick      100 ms of game time
+ *   p         bearing position in milli-sectors, 0 (west) .. 8000 (east)
+ *   r         range in milli-cables from the lamp; landfall at r <= 1000
+ *   speed     milli-cables per tick
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.FogSim = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  var SIM_VERSION = '1.0.0';
+  var TICK_MS = 100;
+  var SECTORS = 9;
+  var SECTOR_NAMES = ['W', 'WNW', 'NW', 'NNW', 'N', 'NNE', 'NE', 'ENE', 'E'];
+  var SECTOR_WORDS = ['west', 'west-northwest', 'northwest', 'north-northwest', 'north',
+    'north-northeast', 'northeast', 'east-northeast', 'east'];
+  var HEAR = 9000;      // vessels are first heard here
+  var NEAR = 3000;      // "close" band
+  var DANGER = 2000;    // "very close" band
+  var SHOAL = 1000;     // landfall line
+  var SIGNAL_TICKS = 15; // lamp flashes a pattern for 1.5 s
+  var ACK_TICKS = 8;     // skipper answers 0.8 s after seeing it
+  var BEAM_STEP = 3;     // beam turns one bearing per 0.3 s
+  var MAX_TICKS = 6000;  // hard stop: 10 minutes of game time
+  var SEED_MAX = 999999;
+  var ORDERS = ['steady', 'west', 'east', 'hold'];
+
+  var TYPES = {
+    bell:   { family: 'bell',   label: 'Bell',      craft: 'fishing smack', cue: 40 },
+    horn:   { family: 'horn',   label: 'Horn',      craft: 'steam trawler', cue: 50 },
+    reed:   { family: 'reed',   label: 'Reed horn', craft: 'sailing ketch', cue: 45 },
+    engine: { family: 'engine', label: 'Engine',    craft: 'motor launch',  cue: 30 }
+  };
+  var TYPE_ORDER = ['bell', 'horn', 'reed', 'engine'];
+
+  var NAMES = {
+    bell: ['Kittiwake', 'Marigold', 'Bonny Jean', 'Wren', 'Halcyon', 'Sea Pink', 'Puffin', 'Little Mercy'],
+    horn: ['Stalwart', 'Morning Haul', 'Brackenridge', 'Steadfast', 'Ocean Thrift', 'Lowland Pride'],
+    reed: ['Curlew', 'Saltmarsh', 'Greylag', 'Tern', 'Sorrel', 'Whimbrel'],
+    engine: ['Swift', 'Dart', 'Skipjack', 'Pilot Seven', 'Merlin', 'Spindrift']
+  };
+  var ROCK_NAMES = ['Gull Ledge', 'the Teeth', 'Black Skerry', "Widow's Reef", 'Low Shoal',
+    'Cormorant Rocks', 'Kettle Bank', 'the Grinders', "Saint Bride's Reef", 'Seal Stones', 'the Knuckles'];
+  var CHANNEL_NAMES = ['Grayhaven Channel', 'Mill Cove Cut'];
+
+  /* Tier rules. Every number the game uses is here and in the spec. */
+  var TIERS = {
+    bronze: {
+      id: 'bronze', index: 0, name: 'Bronze', title: 'Learn the light',
+      vessels: 4, firstSpawn: 30, gapMin: 320, gapMax: 400,
+      channels: 1, channelSet: [3, 4, 5],
+      reach: 7000, turn: 30, hold: 80, holdsPerVessel: 2, busy: 60,
+      driftChance: 0, driftMin: 0, driftMax: 0,
+      types: ['bell', 'horn'], engineMax: 0,
+      speed: { bell: 10, horn: 13, reed: 11, engine: 16 },
+      maxInReach: 2, gusts: 0, teach: true
+    },
+    silver: {
+      id: 'silver', index: 1, name: 'Silver', title: 'Work the harbor',
+      vessels: 7, firstSpawn: 30, gapMin: 170, gapMax: 250,
+      channels: 1, channelSet: [2, 3, 4, 5, 6],
+      reach: 6000, turn: 28, hold: 70, holdsPerVessel: 2, busy: 80,
+      driftChance: 0.3, driftMin: 8, driftMax: 8,
+      types: ['bell', 'horn', 'reed', 'engine'], engineMax: 2,
+      speed: { bell: 10, horn: 13, reed: 11, engine: 18 },
+      maxInReach: 3, gusts: 0, teach: false
+    },
+    gold: {
+      id: 'gold', index: 2, name: 'Gold', title: 'Keep the harbor alive',
+      vessels: 10, firstSpawn: 30, gapMin: 100, gapMax: 170,
+      channels: 2, channelSet: null,
+      reach: 5000, turn: 28, hold: 60, holdsPerVessel: 2, busy: 80,
+      driftChance: 0.5, driftMin: 8, driftMax: 10,
+      types: ['bell', 'horn', 'reed', 'engine'], engineMax: 3,
+      speed: { bell: 11, horn: 14, reed: 12, engine: 20 },
+      maxInReach: 4, gusts: 4, teach: false
+    }
+  };
+  var TIER_IDS = ['bronze', 'silver', 'gold'];
+
+  // Human-paced limits used by the fairness oracle when it validates a harbor.
+  // A harbor is accepted only if BOTH keepers keep the light: a prompt one
+  // (acts 2 s after a vessel is within reach, one action per second) and a
+  // slow one (4 s, one action per 2.5 s).
+  var ORACLE = { react: 20, think: 10 };
+  var ORACLE_SLOW = { react: 40, think: 25 };
+
+  /* ---------- small helpers ---------- */
+  function sectorOf(p) { var s = Math.round(p / 1000); return s < 0 ? 0 : s > 8 ? 8 : s; }
+  function bandOf(r, reach) {
+    if (r > reach) return 'far';
+    if (r > NEAR) return 'mid';
+    if (r > DANGER) return 'near';
+    return 'danger';
+  }
+  function validSeed(s) { return typeof s === 'number' && isFinite(s) && Math.floor(s) === s && s >= 1 && s <= SEED_MAX; }
+  function mix(a, b, c) {
+    var h = 2166136261 >>> 0;
+    var parts = [a >>> 0, b >>> 0, c >>> 0];
+    for (var i = 0; i < 3; i++) {
+      h = Math.imul(h ^ parts[i], 16777619) >>> 0;
+      h = Math.imul(h ^ (h >>> 13), 2246822507) >>> 0;
+    }
+    return (h ^ (h >>> 16)) >>> 0;
+  }
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function randInt(R, lo, hi) { return lo + Math.floor(R() * (hi - lo + 1)); }
+  function shuffle(R, arr) { for (var i = arr.length - 1; i > 0; i--) { var j = Math.floor(R() * (i + 1)); var t = arr[i]; arr[i] = arr[j]; arr[j] = t; } return arr; }
+  function dateSeed(y, m, d) { return (mix(y, m * 100 + d, 77) % SEED_MAX) + 1; }
+
+  /* ---------- harbor generation ---------- */
+  function buildCandidate(seed, tier, attempt) {
+    var T = TIERS[tier];
+    var R = rng(mix(seed, T.index + 1, attempt));
+    var channels;
+    if (T.channels === 1) channels = [T.channelSet[Math.floor(R() * T.channelSet.length)]];
+    else {
+      var a = randInt(R, 1, 4), b = randInt(R, a + 3, 7);
+      channels = [a, b];
+    }
+    var rocks = shuffle(R, ROCK_NAMES.slice());
+    var coast = [], ri = 0;
+    for (var s = 0; s < SECTORS; s++) {
+      var ci = channels.indexOf(s);
+      coast.push(ci >= 0 ? { kind: 'channel', name: CHANNEL_NAMES[ci] } : { kind: 'rocks', name: rocks[ri++] });
+    }
+    var used = { bell: 0, horn: 0, reed: 0, engine: 0 };
+    var pools = {};
+    TYPE_ORDER.forEach(function (k) { pools[k] = shuffle(R, NAMES[k].slice()); });
+    var vessels = [], t = T.firstSpawn;
+    for (var i = 0; i < T.vessels; i++) {
+      if (i > 0) t += randInt(R, T.gapMin, T.gapMax);
+      var type;
+      if (T.teach && i === 0) type = 'bell';
+      else if (T.teach && i === 1) type = 'horn';
+      else {
+        var choices = T.types.filter(function (k) { return k !== 'engine' || used.engine < T.engineMax; });
+        type = choices[Math.floor(R() * choices.length)];
+      }
+      var sector;
+      var offs = [];
+      for (var q = 0; q < SECTORS; q++) if (channels.indexOf(q) < 0) offs.push(q);
+      if (T.teach && i === 0) {
+        // First Bronze vessel: two bearings off the channel, to teach steering.
+        var c0 = channels[0];
+        sector = R() < 0.5 ? c0 - 2 : c0 + 2;
+      } else if (T.teach && i === 1) {
+        sector = channels[0]; // Second Bronze vessel: on the channel, to teach Steady.
+      } else if (R() < 0.18) {
+        sector = channels[Math.floor(R() * channels.length)];
+      } else {
+        sector = offs[Math.floor(R() * offs.length)];
+      }
+      var drift = 0;
+      if (T.driftChance > 0 && R() < T.driftChance) {
+        var mag = randInt(R, T.driftMin, T.driftMax);
+        var dir = R() < 0.5 ? -1 : 1;
+        if (sector <= 1) dir = 1;
+        if (sector >= 7) dir = -1;
+        drift = dir * mag;
+      }
+      var name = pools[type][used[type] % pools[type].length];
+      vessels.push({
+        id: 'v' + (i + 1), name: name, type: type, voice: used[type] % 3,
+        spawn: t, p0: sector * 1000, drift: drift, speed: T.speed[type],
+        cueOffset: randInt(R, 0, TYPES[type].cue - 1)
+      });
+      used[type]++;
+    }
+    var gusts = [];
+    if (T.gusts) {
+      var span = t + 300;
+      for (var g = 0; g < T.gusts; g++) {
+        var start = Math.floor(span * (g + 0.5) / T.gusts) + randInt(R, -60, 60);
+        gusts.push([Math.max(60, start), Math.max(60, start) + randInt(R, 40, 60)]);
+      }
+    }
+    return { simVersion: SIM_VERSION, seed: seed, tier: tier, attempt: attempt, channels: channels, coast: coast, vessels: vessels, gusts: gusts };
+  }
+
+  // Validate a candidate harbor with the human-paced oracles.
+  function judge(m) {
+    var a = judgeWith(m, ORACLE);
+    if (!a.ok) return a;
+    var b = judgeWith(m, ORACLE_SLOW);
+    if (!b.ok) return b;
+    return a;
+  }
+  function judgeWith(m, cfg) {
+    var T = TIERS[m.tier];
+    var st = start(m);
+    var mem = { next: 0 };
+    var reachSince = {};
+    var maxIn = 0;
+    while (!st.over && st.tick < MAX_TICKS) {
+      var view = truthView(st, reachSince);
+      var a = decide(view, T, mem, cfg);
+      var evs = step(st, a ? [a] : []);
+      var inReach = 0;
+      for (var i = 0; i < st.vessels.length; i++) {
+        var v = st.vessels[i];
+        if (v.status === 'active' && v.r <= T.reach) { inReach++; if (reachSince[v.id] === undefined) reachSince[v.id] = st.tick; }
+      }
+      if (inReach > maxIn) maxIn = inReach;
+      void evs;
+    }
+    var sc = score(st);
+    return { ok: st.over && sc.keptLight && maxIn <= T.maxInReach, keptLight: sc.keptLight, maxInReach: maxIn, ticks: st.tick, score: sc.score };
+  }
+
+  var MAX_ATTEMPTS = 60;
+  var missionCache = {};
+  function createMission(seed, tier) {
+    if (!validSeed(seed)) throw new Error('invalid seed');
+    if (!TIERS[tier]) throw new Error('invalid tier');
+    var key = tier + ':' + seed;
+    if (missionCache[key]) return JSON.parse(missionCache[key]);
+    for (var attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      var m = buildCandidate(seed, tier, attempt);
+      var j = judge(m);
+      if (j.ok) {
+        m.oracle = { ticks: j.ticks, score: j.score, maxInReach: j.maxInReach };
+        var s = JSON.stringify(m);
+        missionCache[key] = s;
+        return JSON.parse(s);
+      }
+    }
+    throw new Error('no fair harbor found for seed ' + seed + ' (' + tier + ')');
+  }
+
+  /* ---------- state ---------- */
+  function newState(m) {
+    var T = TIERS[m.tier];
+    return {
+      simVersion: SIM_VERSION, seed: m.seed, tier: m.tier, tick: 0, over: false,
+      beam: { pos: 4, target: 4, nextMove: 0 },
+      lamp: { code: null, target: null, sector: null, start: 0, deliver: 0, recipient: null, reason: null },
+      acks: [],
+      channelBusy: m.channels.map(function () { return -1; }),
+      gust: false,
+      vessels: m.vessels.map(function (s) {
+        return {
+          id: s.id, name: s.name, type: s.type, voice: s.voice,
+          status: 'pending', p: s.p0, r: HEAR, speed: s.speed, slow: Math.floor(s.speed * 3 / 5),
+          drift: s.drift, ack: false, order: null, target: null, holdUntil: 0, holdsUsed: 0,
+          sighted: false, band: 'far', nextCue: 0, landedAt: null, landedSector: null,
+          orders: [], tooLate: false, everUnsound: false
+        };
+      }),
+      stats: { unsound: 0, unable: 0, refused: 0, empty: 0, signals: 0, rejected: 0 },
+      channels: m.channels.slice(), coast: m.coast, gusts: m.gusts, reach: T.reach
+    };
+  }
+
+  function isChannel(st, s) { return st.channels.indexOf(s) >= 0; }
+
+  /* One tick of vessel motion. Shared by the simulation and its predictions. */
+  function moveVessel(v, T, t) {
+    var holding = v.holdUntil > t;
+    var inward;
+    if (v.order === 'steer') {
+      var d = v.target - v.p;
+      var stepv = Math.min(Math.abs(d), T.turn);
+      v.p += d > 0 ? stepv : -stepv;
+      if (v.p === v.target) v.order = 'steady';
+      inward = holding ? 0 : v.slow;
+    } else {
+      if (!v.ack && v.drift !== 0) {
+        v.p += v.drift;
+        if (v.p <= 0) { v.p = 0; v.drift = 0; }
+        if (v.p >= 8000) { v.p = 8000; v.drift = 0; }
+      }
+      inward = holding ? 0 : v.speed;
+    }
+    v.r -= inward;
+  }
+
+  function predict(v, T, tick) {
+    var c = { p: v.p, r: v.r, order: v.order, target: v.target, drift: v.ack ? 0 : v.drift, ack: v.ack,
+      holdUntil: v.holdUntil, speed: v.speed, slow: v.slow };
+    var t = tick;
+    while (c.r > SHOAL && t - tick < 4000) { t++; moveVessel(c, T, t); }
+    return { tick: t, sector: sectorOf(c.p) };
+  }
+
+  function nearestChannelInDir(st, s, dir) {
+    var best = null;
+    for (var i = 0; i < st.channels.length; i++) {
+      var c = st.channels[i];
+      if ((dir < 0 && c < s) || (dir > 0 && c > s)) {
+        if (best === null || Math.abs(c - s) < Math.abs(best - s)) best = c;
+      }
+    }
+    return best;
+  }
+
+  function applyOrder(st, v, code, t, events) {
+    var T = TIERS[st.tier];
+    var s = sectorOf(v.p);
+    var ev = { t: t, kind: 'ack', vessel: v.id, name: v.name, vtype: v.type, voice: v.voice, code: code, sector: s };
+    if (code === 'steady') {
+      v.ack = true; v.drift = 0; v.order = 'steady'; v.target = null;
+      if (isChannel(st, s)) ev.verdict = 'sound';
+      else { ev.verdict = 'unsound'; st.stats.unsound++; v.everUnsound = true; }
+      ev.landfall = s;
+    } else if (code === 'west' || code === 'east') {
+      var c = nearestChannelInDir(st, s, code === 'west' ? -1 : 1);
+      if (c === null) {
+        ev.verdict = 'unable'; st.stats.unable++;
+      } else {
+        v.ack = true; v.drift = 0; v.order = 'steer'; v.target = c * 1000;
+        var pr = predict(v, T, t);
+        ev.verdict = pr.sector === c ? 'sound' : 'too-late';
+        if (ev.verdict === 'too-late') v.tooLate = true;
+        ev.landfall = c;
+      }
+    } else if (code === 'hold') {
+      if (v.holdsUsed >= T.holdsPerVessel) { ev.verdict = 'refused'; st.stats.refused++; }
+      else {
+        v.holdsUsed++; v.holdUntil = t + T.hold; v.ack = true; v.drift = 0;
+        ev.verdict = 'sound';
+        ev.holdsLeft = T.holdsPerVessel - v.holdsUsed;
+        ev.landfall = predict(v, T, t).sector;
+      }
+    }
+    v.orders.push([t, code, ev.verdict]);
+    events.push(ev);
+  }
+
+  /* Advance exactly one tick. actions: [{type:'aim', arg:0..8} | {type:'signal', arg:order}] */
+  function step(st, actions) {
+    var events = [];
+    if (st.over) return events;
+    var T = TIERS[st.tier];
+    var t = ++st.tick;
+    var i, v;
+
+    // 1. player actions
+    for (i = 0; actions && i < actions.length; i++) {
+      var a = actions[i];
+      var signalling = st.lamp.code !== null;
+      if (a.type === 'aim') {
+        if (typeof a.arg !== 'number' || a.arg < 0 || a.arg > 8 || Math.floor(a.arg) !== a.arg) { st.stats.rejected++; events.push({ t: t, kind: 'reject', reason: 'bad-action' }); continue; }
+        if (signalling) { st.stats.rejected++; events.push({ t: t, kind: 'reject', reason: 'lamp-busy' }); continue; }
+        if (st.beam.target !== a.arg) {
+          if (st.beam.pos === st.beam.target) st.beam.nextMove = t;
+          st.beam.target = a.arg;
+          events.push({ t: t, kind: 'aim', sector: a.arg });
+        }
+      } else if (a.type === 'signal') {
+        var sig = parseSignal(a.arg, st);
+        if (!sig) { st.stats.rejected++; events.push({ t: t, kind: 'reject', reason: 'bad-action' }); continue; }
+        if (signalling) { st.stats.rejected++; events.push({ t: t, kind: 'reject', reason: 'lamp-busy' }); continue; }
+        if (st.beam.pos !== st.beam.target) { st.stats.rejected++; events.push({ t: t, kind: 'reject', reason: 'beam-moving' }); continue; }
+        // The vessel that will read the order is fixed when the lamp starts: the named
+        // target, or else the nearest vessel in the beam within reach. Once she has
+        // seen the signal begin she reads all of it, even if she turns out of the beam.
+        var pick = pickRecipient(st, T, sig.target, st.beam.pos);
+        st.lamp = { code: sig.code, target: sig.target, sector: st.beam.pos, start: t, deliver: t + SIGNAL_TICKS,
+          recipient: pick.vessel, reason: pick.reason };
+        st.stats.signals++;
+        events.push({ t: t, kind: 'lamp', code: sig.code, target: sig.target, sector: st.beam.pos });
+      } else {
+        st.stats.rejected++; events.push({ t: t, kind: 'reject', reason: 'bad-action' });
+      }
+    }
+
+    // 2. signal delivery
+    if (st.lamp.code !== null && st.lamp.deliver === t) {
+      var got = st.lamp.recipient ? findVessel(st, st.lamp.recipient) : null;
+      if (got && got.status !== 'active') got = null;
+      if (!got) {
+        st.stats.empty++;
+        events.push({ t: t, kind: 'no-answer', code: st.lamp.code, sector: st.lamp.sector, target: st.lamp.target,
+          reason: st.lamp.recipient ? 'landed' : st.lamp.reason });
+      } else {
+        st.acks.push({ at: t + ACK_TICKS, vessel: got.id, code: st.lamp.code });
+        events.push({ t: t, kind: 'seen', code: st.lamp.code, sector: st.lamp.sector, vessel: got.id });
+      }
+      st.lamp = { code: null, target: null, sector: null, start: 0, deliver: 0, recipient: null, reason: null };
+    }
+
+    // 3. acknowledgements (and their effects)
+    var keep = [];
+    for (i = 0; i < st.acks.length; i++) {
+      var k = st.acks[i];
+      if (k.at !== t) { keep.push(k); continue; }
+      v = findVessel(st, k.vessel);
+      if (v && v.status === 'active') applyOrder(st, v, k.code, t, events);
+    }
+    st.acks = keep;
+
+    // 4. beam
+    if (st.beam.pos !== st.beam.target && t >= st.beam.nextMove) {
+      st.beam.pos += st.beam.target > st.beam.pos ? 1 : -1;
+      st.beam.nextMove = t + BEAM_STEP;
+      events.push({ t: t, kind: 'beam', sector: st.beam.pos, settled: st.beam.pos === st.beam.target });
+    }
+
+    // 5. spawns
+    for (i = 0; i < st.vessels.length; i++) {
+      v = st.vessels[i];
+      var spec = specOf(st, i);
+      if (v.status === 'pending' && spec.spawn === t) {
+        v.status = 'active';
+        v.nextCue = t + spec.cueOffset;
+        events.push(cueEvent(st, v, t, 'contact'));
+      }
+    }
+
+    // 6. motion and landfall
+    for (i = 0; i < st.vessels.length; i++) {
+      v = st.vessels[i];
+      if (v.status !== 'active') continue;
+      moveVessel(v, T, t);
+      if (v.r <= SHOAL) {
+        var s = sectorOf(v.p);
+        v.landedAt = t; v.landedSector = s; v.sighted = false;
+        if (isChannel(st, s)) {
+          var ci = st.channels.indexOf(s);
+          if (st.channelBusy[ci] > t) { v.status = 'scraped'; events.push({ t: t, kind: 'scrape', vessel: v.id, name: v.name, vtype: v.type, voice: v.voice, sector: s }); }
+          else { v.status = 'home'; events.push({ t: t, kind: 'arrive', vessel: v.id, name: v.name, vtype: v.type, voice: v.voice, sector: s, guided: v.ack }); }
+          st.channelBusy[ci] = t + T.busy;
+        } else {
+          v.status = 'aground';
+          events.push({ t: t, kind: 'aground', vessel: v.id, name: v.name, vtype: v.type, voice: v.voice, sector: s });
+        }
+        continue;
+      }
+      var b = bandOf(v.r, T.reach);
+      if (b !== v.band) { v.band = b; events.push({ t: t, kind: 'band', vessel: v.id, band: b, sector: sectorOf(v.p) }); }
+    }
+
+    // 7. sighting: the beam rests on a bearing and a vessel is within the light's reach
+    for (i = 0; i < st.vessels.length; i++) {
+      v = st.vessels[i];
+      var lit = v.status === 'active' && sectorOf(v.p) === st.beam.pos && v.r <= T.reach;
+      if (lit && !v.sighted) { v.sighted = true; events.push(cueEvent(st, v, t, 'sighted')); }
+      else if (!lit && v.sighted) { v.sighted = false; if (v.status === 'active') events.push({ t: t, kind: 'unsighted', vessel: v.id }); }
+    }
+
+    // 8. gusts (Gold masking)
+    var g = false;
+    for (i = 0; i < st.gusts.length; i++) if (t >= st.gusts[i][0] && t < st.gusts[i][1]) g = true;
+    if (g !== st.gust) { st.gust = g; events.push({ t: t, kind: g ? 'gust-start' : 'gust-end' }); }
+
+    // 9. sound cues
+    for (i = 0; i < st.vessels.length; i++) {
+      v = st.vessels[i];
+      if (v.status !== 'active' || t < v.nextCue) continue;
+      events.push(cueEvent(st, v, t, 'cue'));
+      var iv = TYPES[v.type].cue;
+      if (v.r <= NEAR) iv = Math.floor(iv * 3 / 5);
+      v.nextCue = t + iv;
+    }
+
+    // 10. channel bell while a channel is in use
+    // (the busy state is part of the cue for arrivals; reported as an event when it clears)
+    for (i = 0; i < st.channelBusy.length; i++) {
+      if (st.channelBusy[i] === t) events.push({ t: t, kind: 'channel-clear', sector: st.channels[i] });
+    }
+
+    // 11. end of the watch
+    var open = false;
+    for (i = 0; i < st.vessels.length; i++) if (st.vessels[i].status === 'pending' || st.vessels[i].status === 'active') open = true;
+    if (!open || t >= MAX_TICKS) {
+      st.over = true;
+      if (open) for (i = 0; i < st.vessels.length; i++) {
+        v = st.vessels[i];
+        if (v.status === 'pending' || v.status === 'active') v.status = 'aground';
+      }
+      var sc = score(st);
+      events.push({ t: t, kind: 'end', keptLight: sc.keptLight, score: sc.score });
+    }
+    return events;
+  }
+
+  function pickRecipient(st, T, target, sector) {
+    var got = null, far = false, moved = false;
+    for (var i = 0; i < st.vessels.length; i++) {
+      var v = st.vessels[i];
+      if (v.status !== 'active') continue;
+      var inBeam = sectorOf(v.p) === sector;
+      if (target) {
+        if (v.id !== target) continue;
+        if (!inBeam) moved = true; else if (v.r > T.reach) far = true; else got = v;
+      } else if (inBeam) {
+        if (v.r > T.reach) far = true; else if (!got || v.r < got.r) got = v;
+      }
+    }
+    return { vessel: got ? got.id : null, reason: got ? null : far ? 'early' : moved ? 'moved' : 'empty' };
+  }
+
+  // Signal argument: "steady" or "steady@v3" (order addressed to a named vessel).
+  var SIGNAL_RE = /^(steady|west|east|hold)(?:@(v[0-9]{1,2}))?$/;
+  function parseSignal(arg, st) {
+    if (typeof arg !== 'string') return null;
+    var mm = SIGNAL_RE.exec(arg);
+    if (!mm) return null;
+    if (mm[2] && st && !findVessel(st, mm[2])) return null;
+    return { code: mm[1], target: mm[2] || null };
+  }
+
+  function findVessel(st, id) { for (var i = 0; i < st.vessels.length; i++) if (st.vessels[i].id === id) return st.vessels[i]; return null; }
+  function specOf(st, i) { return st._m.vessels[i]; }
+
+  function cueEvent(st, v, t, kind) {
+    return {
+      t: t, kind: kind, vessel: v.id, name: v.name, vtype: v.type, voice: v.voice,
+      p: v.p, r: v.r, sector: sectorOf(v.p), band: bandOf(v.r, st.reach),
+      sighted: v.sighted, masked: st.gust, ack: v.ack, holding: v.holdUntil > t
+    };
+  }
+
+  /* ---------- scoring ---------- */
+  var POINTS = { guided: 10, unaided: 6, scraped: 3, aground: 0 };
+  function score(st) {
+    var n = st.vessels.length, pts = 0, home = 0, guided = 0, unaided = 0, scraped = 0, aground = 0, open = 0;
+    for (var i = 0; i < n; i++) {
+      var v = st.vessels[i];
+      if (v.status === 'home') { home++; if (v.ack) { guided++; pts += POINTS.guided; } else { unaided++; pts += POINTS.unaided; } }
+      else if (v.status === 'scraped') { scraped++; pts += POINTS.scraped; }
+      else if (v.status === 'aground') aground++;
+      else open++;
+    }
+    var base = Math.round(100 * pts / (10 * n));
+    var emptyPen = Math.min(5, st.stats.empty);
+    var penalties = 2 * st.stats.unsound + st.stats.unable + st.stats.refused + emptyPen;
+    var total = Math.max(0, base - penalties);
+    return {
+      vessels: n, home: home, guided: guided, unaided: unaided, scraped: scraped, aground: aground, open: open,
+      base: base, penalties: penalties,
+      penaltyDetail: { unsound: st.stats.unsound, unable: st.stats.unable, refused: st.stats.refused, empty: st.stats.empty, emptyCounted: emptyPen },
+      score: total, keptLight: open === 0 && aground === 0 && scraped === 0, perfect: total === 100
+    };
+  }
+
+  /* ---------- sessions, replay and hashing ---------- */
+  function attach(st, m) { Object.defineProperty(st, '_m', { value: m, enumerable: false, writable: true }); return st; }
+  function start(m) { return attach(newState(m), m); }
+
+  function hash(st) {
+    var parts = [st.tick, st.beam.pos, st.beam.target, st.lamp.code, st.lamp.target, st.lamp.recipient, st.over ? 1 : 0, st.channelBusy.join(',')];
+    st.vessels.forEach(function (v) { parts.push(v.id, v.status, v.p, v.r, v.order, v.target, v.holdUntil, v.holdsUsed, v.ack ? 1 : 0, v.drift); });
+    var s = parts.join('|'), h = 2166136261 >>> 0;
+    for (var i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0;
+    return ('00000000' + h.toString(16)).slice(-8);
+  }
+
+  /* Replay an action log [[tick, type, arg], ...] up to a tick (or to the end). */
+  function replay(m, log, untilTick) {
+    var st = start(m), j = 0, evs = [];
+    var stop = untilTick === undefined ? MAX_TICKS : untilTick;
+    while (!st.over && st.tick < stop) {
+      var acts = [];
+      while (j < log.length && log[j][0] === st.tick + 1) { acts.push({ type: log[j][1], arg: log[j][2] }); j++; }
+      while (j < log.length && log[j][0] <= st.tick) j++; // skip stale entries
+      var e = step(st, acts);
+      for (var k = 0; k < e.length; k++) evs.push(e[k]);
+    }
+    return { state: st, events: evs };
+  }
+
+  function validateLog(log) {
+    if (!Array.isArray(log) || log.length > 20000) return false;
+    var last = 0;
+    for (var i = 0; i < log.length; i++) {
+      var e = log[i];
+      if (!Array.isArray(e) || e.length !== 3) return false;
+      if (typeof e[0] !== 'number' || Math.floor(e[0]) !== e[0] || e[0] < 1 || e[0] > MAX_TICKS || e[0] < last) return false;
+      last = e[0];
+      if (e[1] === 'aim') { if (typeof e[2] !== 'number' || Math.floor(e[2]) !== e[2] || e[2] < 0 || e[2] > 8) return false; }
+      else if (e[1] === 'signal') { if (!parseSignal(e[2], null)) return false; }
+      else return false;
+    }
+    return true;
+  }
+
+  /* ---------- planning (used by the fairness oracle and by test strategies) ---------- */
+  // A view is what a player would know: vessel positions (true or estimated),
+  // the lamp, and the published rules. truthView() uses the real state.
+  function truthView(st, reachSince) {
+    return {
+      tick: st.tick, beam: st.beam.pos, beamTarget: st.beam.target, lampBusy: st.lamp.code !== null || st.acks.length > 0,
+      channels: st.channels, channelBusy: st.channelBusy.slice(), tier: st.tier,
+      vessels: st.vessels.filter(function (v) { return v.status === 'active'; }).map(function (v) {
+        return { id: v.id, p: v.p, r: v.r, speed: v.speed, slow: v.slow, drift: v.ack ? 0 : v.drift, ack: v.ack, order: v.order,
+          target: v.target, holdUntil: v.holdUntil, holdsUsed: v.holdsUsed,
+          inReachSince: reachSince && reachSince[v.id] !== undefined ? reachSince[v.id] : (v.r <= TIERS[st.tier].reach ? st.tick : null) };
+      })
+    };
+  }
+
+  function decide(view, T, mem, cfg) {
+    if (view.lampBusy || view.beam !== view.beamTarget) return null;
+    if (view.tick < mem.next) return null;
+    var chans = view.channels;
+    function isChan(s) { return chans.indexOf(s) >= 0; }
+    var preds = {}, i, v;
+    for (i = 0; i < view.vessels.length; i++) { v = view.vessels[i]; preds[v.id] = predict(v, T, view.tick); }
+    // predicted channel conflicts
+    var arr = view.vessels.filter(function (x) { return isChan(preds[x.id].sector); })
+      .sort(function (a, b) { return preds[a.id].tick - preds[b.id].tick; });
+    var last = {}, conflicted = {};
+    for (i = 0; i < chans.length; i++) last[chans[i]] = view.channelBusy[i] - T.busy;
+    for (i = 0; i < arr.length; i++) {
+      var pa = preds[arr[i].id], prev = last[pa.sector];
+      if (pa.tick < prev + T.busy + (cfg.margin || 3)) conflicted[arr[i].id] = true;
+      last[pa.sector] = Math.max(prev, pa.tick);
+    }
+    var best = null;
+    for (i = 0; i < view.vessels.length; i++) {
+      v = view.vessels[i];
+      if (v.r > T.reach || v.inReachSince === null || view.tick - v.inReachSince < cfg.react) continue;
+      var s = sectorOf(v.p), pr = preds[v.id], order = null;
+      var canHold = v.holdsUsed < T.holdsPerVessel && v.holdUntil <= view.tick;
+      if (isChan(pr.sector)) {
+        if (conflicted[v.id]) {
+          if (canHold) order = 'hold';
+          else {
+            var alt = null;
+            for (var c = 0; c < chans.length; c++) if (chans[c] !== pr.sector) alt = chans[c];
+            if (alt !== null && v.order !== 'steer') order = alt < s ? 'west' : 'east';
+          }
+        } else if (!v.ack) {
+          order = isChan(s) ? 'steady' : (pr.sector < s ? 'west' : 'east');
+        }
+      } else {
+        if (v.ack && v.order === 'steer') { if (canHold) order = 'hold'; }
+        else if (isChan(s)) order = 'steady';
+        else {
+          var bestC = null;
+          for (var cc = 0; cc < chans.length; cc++) if (bestC === null || Math.abs(chans[cc] - s) < Math.abs(bestC - s)) bestC = chans[cc];
+          order = bestC < s ? 'west' : 'east';
+        }
+      }
+      if (!order) continue;
+      var slack = pr.tick - view.tick;
+      if (order === 'steady' && v.drift !== 0) {
+        var edge = (s + (v.drift > 0 ? 0.5 : -0.5)) * 1000;
+        slack = Math.min(slack, Math.floor(Math.abs(edge - v.p) / Math.abs(v.drift)));
+      }
+      if (best === null || slack < best.slack) best = { v: v, s: s, order: order, slack: slack };
+    }
+    if (!best) return null;
+    if (view.beam !== best.s) { mem.next = view.tick + cfg.think; return { type: 'aim', arg: best.s }; }
+    mem.next = view.tick + cfg.think;
+    return { type: 'signal', arg: best.order + '@' + best.v.id };
+  }
+
+  return {
+    SIM_VERSION: SIM_VERSION, TICK_MS: TICK_MS, SECTORS: SECTORS, SECTOR_NAMES: SECTOR_NAMES, SECTOR_WORDS: SECTOR_WORDS,
+    HEAR: HEAR, NEAR: NEAR, DANGER: DANGER, SHOAL: SHOAL, SIGNAL_TICKS: SIGNAL_TICKS, ACK_TICKS: ACK_TICKS,
+    BEAM_STEP: BEAM_STEP, MAX_TICKS: MAX_TICKS, SEED_MAX: SEED_MAX, ORDERS: ORDERS, TYPES: TYPES, TYPE_ORDER: TYPE_ORDER,
+    TIERS: TIERS, TIER_IDS: TIER_IDS, POINTS: POINTS, ORACLE: ORACLE, ORACLE_SLOW: ORACLE_SLOW, MAX_ATTEMPTS: MAX_ATTEMPTS,
+    sectorOf: sectorOf, bandOf: bandOf, validSeed: validSeed, dateSeed: dateSeed, mix: mix,
+    buildCandidate: buildCandidate, judge: judge, createMission: createMission, start: start, step: step,
+    score: score, hash: hash, replay: replay, validateLog: validateLog, predict: predict,
+    truthView: truthView, decide: decide, findVessel: findVessel, parseSignal: parseSignal
+  };
+});
+
+/* ---- src/kernel.js ---- */
+/* Sonortals Audio Kernel — "one event, several renderings".
+ *
+ * The simulation emits structured events. This module turns each event into
+ *   audioOf(ev)   -> parameters for the sound renderer (browser-only engine)
+ *   visualOf(ev)  -> parameters for the sound map / Sight Mode
+ *   describe(ev)  -> a caption / log line
+ *   announceOf(ev)-> a paced screen-reader announcement (or null)
+ * All four are pure functions of the same event, so they can be checked in
+ * Node for equivalence (decodeAudio and decodeVisual recover the same facts).
+ * Nothing here changes game state.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(root.FogSim || require('./sim.js'));
+  else root.SonKernel = factory(root.FogSim);
+})(typeof self !== 'undefined' ? self : this, function (Sim) {
+  'use strict';
+
+  var KERNEL_VERSION = '1.0.0';
+  var VOICE_PITCH = [1, 0.89, 1.12];
+  var CODES = {
+    steady: { label: 'Steady', pattern: '▬', patternWords: 'one long', help: 'Hold your present bearing.' },
+    west:   { label: 'Steer West', pattern: '• ▬', patternWords: 'short, long', help: 'Turn west to the nearest channel on that side.' },
+    east:   { label: 'Steer East', pattern: '▬ •', patternWords: 'long, short', help: 'Turn east to the nearest channel on that side.' },
+    hold:   { label: 'Heave To', pattern: '• • •', patternWords: 'three short', help: 'Stop and wait. Turning continues. Two per vessel.' }
+  };
+  // Lamp signal timings in seconds: [start, duration] pairs, within the 1.5 s signal.
+  var PATTERNS = {
+    steady: [[0, 1.1]],
+    west: [[0, 0.25], [0.45, 0.9]],
+    east: [[0, 0.9], [1.1, 0.25]],
+    hold: [[0, 0.25], [0.4, 0.25], [0.8, 0.25]]
+  };
+  var BAND_WORDS = { far: 'faint, beyond the light', mid: 'clear, within the light', near: 'close', danger: 'very close, nearing the shoals' };
+  var BAND_SHORT = { far: 'faint', mid: 'clear', near: 'close', danger: 'very close' };
+  var GLYPH = { bell: 'B', horn: 'H', reed: 'R', engine: 'E' };
+
+  function clamp(x, lo, hi) { return x < lo ? lo : x > hi ? hi : x; }
+  function nearness(r) { return clamp((Sim.HEAR - r) / (Sim.HEAR - Sim.SHOAL), 0, 1); }
+  function angleOf(p) { return -90 + 22.5 * p / 1000; }
+
+  /* ---- audio parameters ---- */
+  // Distance is carried by three mono-safe cues (loudness, muffling, repetition
+  // rate) plus stereo position when available. Bearing is never carried by
+  // loudness or pitch.
+  function audioOf(ev, opts) {
+    opts = opts || {};
+    var cueKinds = { cue: 1, contact: 1, sighted: 1 };
+    if (!cueKinds[ev.kind]) return otherAudio(ev, opts);
+    var n = nearness(ev.r);
+    var gain = 0.16 + 0.84 * n;
+    var cutoff = 650 + 4350 * Math.pow(n, 1.5);
+    if (ev.band === 'far') cutoff = Math.min(cutoff, 1100);
+    if (ev.masked) { gain *= 0.55; cutoff *= 0.6; }
+    var pan = opts.mono ? 0 : clamp((ev.p - 4000) / 4000, -1, 1) * 0.9;
+    return {
+      kind: 'vessel', family: ev.vtype, voice: ev.voice, pitch: VOICE_PITCH[ev.voice] || 1,
+      pan: pan, gain: gain, cutoff: cutoff, lit: !!ev.sighted || ev.kind === 'sighted',
+      glint: ev.kind === 'sighted', urgent: ev.band === 'danger', band: ev.band, masked: !!ev.masked, mono: !!opts.mono
+    };
+  }
+  function otherAudio(ev, opts) {
+    var pan = function (s) { return opts.mono ? 0 : clamp((s - 4) / 4, -1, 1) * 0.9; };
+    switch (ev.kind) {
+      case 'lamp': return { kind: 'lamp', code: ev.code, pattern: PATTERNS[ev.code], pan: pan(ev.sector) };
+      case 'ack': return { kind: 'ack', family: ev.vtype, voice: ev.voice, pitch: VOICE_PITCH[ev.voice] || 1,
+        positive: ev.verdict === 'sound' || ev.verdict === 'unsound' || ev.verdict === 'too-late', pan: pan(ev.sector) };
+      case 'no-answer': return { kind: 'silence-thud', pan: pan(ev.sector) };
+      case 'arrive': return { kind: 'arrive', pan: pan(ev.sector) };
+      case 'scrape': return { kind: 'scrape', pan: pan(ev.sector) };
+      case 'aground': return { kind: 'aground', pan: pan(ev.sector) };
+      case 'beam': return { kind: 'tick', pan: pan(ev.sector), settled: ev.settled };
+      case 'gust-start': return { kind: 'gust', on: true };
+      case 'gust-end': return { kind: 'gust', on: false };
+      case 'reject': return { kind: 'reject' };
+      case 'end': return { kind: 'end', kept: ev.keptLight };
+      default: return null;
+    }
+  }
+
+  /* ---- visual parameters (sound map and Sight Mode) ---- */
+  function visualOf(ev) {
+    if (!(ev.kind === 'cue' || ev.kind === 'contact' || ev.kind === 'sighted')) return null;
+    var T = Sim.TYPES[ev.vtype];
+    return {
+      id: ev.vessel, glyph: GLYPH[ev.vtype], family: ev.vtype, typeLabel: T.label, craft: T.craft, name: ev.name,
+      voice: ev.voice, voiceMark: ['', '′', '″'][ev.voice] || '',
+      angleDeg: angleOf(ev.p), rangeCables: Math.round(ev.r / 10) / 100,
+      sector: ev.sector, sectorName: Sim.SECTOR_NAMES[ev.sector], band: ev.band, bandWord: BAND_SHORT[ev.band],
+      ring: { far: 1, mid: 2, near: 3, danger: 4 }[ev.band], lit: !!ev.sighted || ev.kind === 'sighted',
+      masked: !!ev.masked, urgent: ev.band === 'danger', isNew: ev.kind === 'contact', t: ev.t
+    };
+  }
+
+  /* ---- equivalence decoders (tests only) ---- */
+  function bandFromGain(g, masked, cutoff) {
+    var un = masked ? g / 0.55 : g;
+    var n = (un - 0.16) / 0.84;
+    var r = Sim.HEAR - n * (Sim.HEAR - Sim.SHOAL);
+    return r;
+  }
+  function decodeAudio(a, reach) {
+    var r = bandFromGain(a.gain, a.masked);
+    var p = a.mono ? null : 4000 + (a.pan / 0.9) * 4000;
+    return {
+      family: a.family, voice: VOICE_PITCH.indexOf(a.pitch),
+      sector: p === null ? null : Sim.sectorOf(Math.round(p)),
+      band: Sim.bandOf(Math.round(r), reach), lit: a.lit, masked: a.masked
+    };
+  }
+  function decodeVisual(v, reach) {
+    var fam = null;
+    for (var k in GLYPH) if (GLYPH[k] === v.glyph) fam = k;
+    var p = (v.angleDeg + 90) / 22.5 * 1000;
+    return {
+      family: fam, voice: ['', '′', '″'].indexOf(v.voiceMark),
+      sector: Sim.sectorOf(Math.round(p)), band: v.band, // drawn as the ripple's ring style
+      lit: v.lit, masked: v.masked
+    };
+  }
+
+  /* ---- captions ---- */
+  function vesselName(mission, id) {
+    for (var i = 0; i < mission.vessels.length; i++) if (mission.vessels[i].id === id) return mission.vessels[i];
+    return null;
+  }
+  function coastName(mission, s) { return mission.coast[s] ? mission.coast[s].name : '?'; }
+  function sectorWord(s) { return Sim.SECTOR_WORDS[s] + ' (' + Sim.SECTOR_NAMES[s] + ')'; }
+
+  function describe(ev, mission) {
+    var v = ev.vessel ? vesselName(mission, ev.vessel) : null;
+    var nm = v ? v.name : '';
+    var T = v ? Sim.TYPES[v.type] : null;
+    switch (ev.kind) {
+      case 'contact':
+        return 'New contact: ' + art(T.label.toLowerCase()) + ' to the ' + sectorWord(ev.sector) + ', ' + BAND_WORDS[ev.band] + ' — the ' + T.craft + ' ' + nm + '.';
+      case 'cue':
+        return T.label + ' · ' + nm + ' · ' + Sim.SECTOR_NAMES[ev.sector] + ' · ' + BAND_SHORT[ev.band] + (ev.masked ? ' (through the wind)' : '') + (ev.sighted ? ' · in the beam' : '');
+      case 'sighted':
+        return 'Sighted in the beam: ' + nm + ' (' + T.craft + '), ' + Sim.SECTOR_NAMES[ev.sector] + ', ' + (Math.round(ev.r / 100) / 10) + ' cables.';
+      case 'lamp':
+        var to = ev.target ? vesselName(mission, ev.target) : null;
+        return 'Lamp signals ' + CODES[ev.code].label.toUpperCase() + ' (' + CODES[ev.code].pattern + ') to ' + Sim.SECTOR_NAMES[ev.sector] + (to ? ', for ' + to.name : '') + '.';
+      case 'ack': return ackText(ev, mission, nm);
+      case 'no-answer':
+        if (ev.reason === 'early') return 'No answer. The vessel on ' + Sim.SECTOR_NAMES[ev.sector] + ' is still beyond the light’s reach — too early.';
+        if (ev.reason === 'moved') return 'No answer. ' + (ev.target ? vesselName(mission, ev.target).name : 'The vessel') + ' was not in the beam when the signal began.';
+        if (ev.reason === 'landed') return 'No answer. ' + (ev.target ? vesselName(mission, ev.target).name : 'The vessel') + ' reached the coast before the signal finished.';
+        return 'No answer. No vessel within the light’s reach on ' + Sim.SECTOR_NAMES[ev.sector] + '.';
+      case 'arrive':
+        return ev.guided ? nm + ' is safe in ' + coastName(mission, ev.sector) + '.' : nm + ' found ' + coastName(mission, ev.sector) + ' without your light — safe, but unguided.';
+      case 'scrape':
+        return nm + ' entered ' + coastName(mission, ev.sector) + ' while it was still in use and scraped the vessel ahead. Home, but damaged.';
+      case 'aground':
+        return nm + ' has run aground on ' + coastName(mission, ev.sector) + '. Her crew wade ashore safely; the boat is lost.';
+      case 'band':
+        if (ev.band === 'mid') return nm + ' is now within the light’s reach.';
+        if (ev.band === 'near') return nm + ' is close — under 3 cables.';
+        if (ev.band === 'danger') return nm + ' is very close — under 2 cables, nearing the shoals.';
+        return null;
+      case 'gust-start': return 'A gust of wind — every sound is muffled for a few seconds.';
+      case 'gust-end': return 'The gust passes.';
+      case 'channel-clear': return coastName(mission, ev.sector) + ' is clear again.';
+      case 'reject':
+        if (ev.reason === 'lamp-busy') return 'The lamp is still signalling.';
+        if (ev.reason === 'beam-moving') return 'Wait for the beam to settle before signalling.';
+        return 'That action is not available.';
+      case 'end':
+        return ev.keptLight ? 'Dawn. Every vessel is home. The light was kept.' : 'Dawn. The watch is over.';
+      default: return null;
+    }
+  }
+  function art(w) { return (/^[aeiou]/.test(w) ? 'an ' : 'a ') + w; }
+
+  function ackText(ev, mission, nm) {
+    var dest = ev.landfall !== undefined ? coastName(mission, ev.landfall) : '';
+    switch (ev.code) {
+      case 'steady':
+        return ev.verdict === 'sound' ? nm + ' answers: steady on ' + dest + '.'
+          : nm + ' answers: steady — but that bearing leads onto ' + dest + '. This order will not bring her home.';
+      case 'west': case 'east':
+        if (ev.verdict === 'unable') return nm + ' answers UNABLE: there is no channel to the ' + ev.code + ' of her.';
+        if (ev.verdict === 'too-late') return nm + ' answers: steering ' + ev.code + ' for ' + dest + ' — but she cannot turn in time. Heave her to while she turns.';
+        return nm + ' answers: steering ' + ev.code + ' for ' + dest + '.';
+      case 'hold':
+        if (ev.verdict === 'refused') return nm + ' answers: we have waited twice already — no more.';
+        return nm + ' heaves to (' + ev.holdsLeft + ' hold' + (ev.holdsLeft === 1 ? '' : 's') + ' left). Her course still leads to ' + dest + '.';
+    }
+    return null;
+  }
+
+  /* ---- screen-reader pacing ---- */
+  // priority 3 = must announce, 2 = announce if the queue allows, 1 = log only.
+  function announceOf(ev, mission) {
+    var p = 1;
+    switch (ev.kind) {
+      case 'aground': case 'scrape': case 'end': p = 3; break;
+      case 'ack': p = ev.verdict === 'sound' ? 2 : 3; break;
+      case 'no-answer': case 'arrive': case 'sighted': case 'contact': case 'reject': p = 2; break;
+      case 'band': p = ev.band === 'danger' ? 2 : 1; break;
+      default: p = 1;
+    }
+    if (p < 2) return null;
+    var text = describe(ev, mission);
+    return text ? { text: text, priority: p } : null;
+  }
+
+  /* A paced announcer: at most one message per `gapMs`; a full queue drops
+   * the lowest-priority, oldest message first. Clock is injected for tests. */
+  function createAnnouncer(out, gapMs, maxQueue) {
+    var q = [], lastAt = -1e9;
+    gapMs = gapMs || 2500; maxQueue = maxQueue || 3;
+    return {
+      push: function (a) {
+        if (!a) return;
+        q.push(a);
+        while (q.length > maxQueue) {
+          var worst = 0;
+          for (var i = 1; i < q.length; i++) if (q[i].priority < q[worst].priority) worst = i;
+          q.splice(worst, 1);
+        }
+      },
+      pump: function (now) {
+        if (!q.length || now - lastAt < gapMs) return null;
+        var bi = 0;
+        for (var i = 1; i < q.length; i++) if (q[i].priority > q[bi].priority) bi = i;
+        var a = q.splice(bi, 1)[0];
+        lastAt = now;
+        out(a.text);
+        return a.text;
+      },
+      clear: function () { q = []; },
+      size: function () { return q.length; }
+    };
+  }
+
+  /* A simple synchronous event bus. Renderers subscribe; the app publishes. */
+  function createBus() {
+    var subs = [];
+    return {
+      on: function (fn) { subs.push(fn); return function () { subs = subs.filter(function (f) { return f !== fn; }); }; },
+      emit: function (ev, meta) { for (var i = 0; i < subs.length; i++) { try { subs[i](ev, meta); } catch (e) { if (typeof console !== 'undefined') console.error(e); } } }
+    };
+  }
+
+  return {
+    KERNEL_VERSION: KERNEL_VERSION, CODES: CODES, PATTERNS: PATTERNS, BAND_WORDS: BAND_WORDS, BAND_SHORT: BAND_SHORT, GLYPH: GLYPH,
+    VOICE_PITCH: VOICE_PITCH, audioOf: audioOf, visualOf: visualOf, decodeAudio: decodeAudio, decodeVisual: decodeVisual,
+    describe: describe, announceOf: announceOf, createAnnouncer: createAnnouncer, createBus: createBus, angleOf: angleOf, nearness: nearness
+  };
+});
+
+/* ---- src/keyring.js ---- */
+/* DoorQuests Sonortals Keyring — 31-slot collection record (prototype).
+ *
+ * Storage key  dq-sonortals-keyring-v1   (backup: dq-sonortals-keyring-v1-backup)
+ * Every storage call goes through guardKey(), which only admits keys that
+ * start with "dq-sonortal". Chaortal (dq-chaortal*) and Gamortal (dq-gamortal*)
+ * records can never be read, written or removed by this module.
+ *
+ * Key model: one key per tier per Sonortal (Bronze, Silver, Gold). A key is
+ * earned the first time a mission at that tier ends with the light kept
+ * (every vessel home, none aground or damaged). Keys are never revoked.
+ * Best score is tracked separately and does not affect keys.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.SonKeyring = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  var KEYRING_VERSION = '1.0.0';
+  var STORAGE_KEY = 'dq-sonortals-keyring-v1';
+  var BACKUP_KEY = 'dq-sonortals-keyring-v1-backup';
+  var SCHEMA = 'dq-sonortals-keyring';
+  var SCHEMA_VERSION = 1;
+  var COLLECTION = 'sonortals';
+  var PREFIX = 'dq-sonortal';
+  var TIERS = ['bronze', 'silver', 'gold'];
+  var MAX_RUN_IDS = 60;
+  var SLOT_RE = /^SON-(0[0-2][0-9]|03[01])$/;
+  var ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
+  var RUN_RE = /^[a-z0-9:-]{1,64}$/;
+
+  /* The registry is data. Activating a future Sonortal = changing its status to
+   * "active" and giving it a title, path and tier list (see keyring schema doc).
+   * Reserved slots carry no title, mechanics, dates or achievements. */
+  function defaultRegistry() {
+    var reg = [];
+    for (var n = 1; n <= 31; n++) {
+      var id = 'SON-' + ('00' + n).slice(-3);
+      if (n === 1) reg.push({ id: id, number: 1, status: 'active', title: 'Fogbound: The Grayhaven Light',
+        path: '/sonortals/fogbound-the-grayhaven-light/', tiers: TIERS.slice() });
+      else reg.push({ id: id, number: n, status: 'reserved' });
+    }
+    return reg;
+  }
+
+  function guardKey(key) {
+    if (typeof key !== 'string' || key.indexOf(PREFIX) !== 0) throw new Error('Sonortals Keyring refused storage key: ' + key);
+    return key;
+  }
+
+  /* Wraps a Storage-like object. All failures are caught and reported; a
+   * refused (non-Sonortal) key is a programming error and is re-thrown. */
+  function guardedStore(storage) {
+    var ok = !!storage;
+    function wrap(fn, fallback) {
+      return function () {
+        try { return fn.apply(null, arguments); }
+        catch (e) { if (/refused/.test(e.message)) throw e; ok = false; return fallback; }
+      };
+    }
+    return {
+      get: wrap(function (k) { return storage.getItem(guardKey(k)); }, null),
+      set: wrap(function (k, v) { storage.setItem(guardKey(k), v); return true; }, false),
+      del: wrap(function (k) { storage.removeItem(guardKey(k)); return true; }, false),
+      healthy: function () { return ok; }
+    };
+  }
+
+  function memoryStorage() {
+    var m = {};
+    return {
+      getItem: function (k) { return Object.prototype.hasOwnProperty.call(m, k) ? m[k] : null; },
+      setItem: function (k, v) { m[k] = String(v); },
+      removeItem: function (k) { delete m[k]; },
+      _dump: function () { return m; }
+    };
+  }
+
+  function emptyTier() { return { key: false, keyAt: null, completions: 0, kept: 0, bestScore: null, bestAt: null, perfect: false }; }
+  function emptySlot() { return { tiers: { bronze: emptyTier(), silver: emptyTier(), gold: emptyTier() }, runs: [] }; }
+  function empty(now) { return { schema: SCHEMA, version: SCHEMA_VERSION, collection: COLLECTION, createdAt: now || null, updatedAt: now || null, slots: {} }; }
+
+  function isInt(v, lo, hi) { return typeof v === 'number' && isFinite(v) && Math.floor(v) === v && v >= lo && v <= hi; }
+  function isIso(v) { return v === null || (typeof v === 'string' && ISO_RE.test(v) && !isNaN(Date.parse(v))); }
+
+  /* Strict validation of a current-version object. Returns {ok, value|error}. */
+  function validate(obj) {
+    function fail(m) { return { ok: false, error: m }; }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return fail('not an object');
+    if (obj.schema !== SCHEMA) return fail('schema mismatch');
+    if (obj.version !== SCHEMA_VERSION) return fail('unsupported version');
+    if (obj.collection !== COLLECTION) return fail('wrong collection');
+    if (!isIso(obj.createdAt === undefined ? null : obj.createdAt) || !isIso(obj.updatedAt === undefined ? null : obj.updatedAt)) return fail('bad timestamps');
+    if (!obj.slots || typeof obj.slots !== 'object' || Array.isArray(obj.slots)) return fail('slots missing');
+    var out = empty(null);
+    out.createdAt = obj.createdAt || null; out.updatedAt = obj.updatedAt || null;
+    var ids = Object.keys(obj.slots);
+    if (ids.length > 31) return fail('too many slots');
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i], s = obj.slots[id];
+      if (!SLOT_RE.test(id) || id === 'SON-000') return fail('bad slot id ' + id);
+      if (!s || typeof s !== 'object' || Array.isArray(s) || !s.tiers || typeof s.tiers !== 'object') return fail('bad slot ' + id);
+      var ns = emptySlot();
+      for (var k in s.tiers) if (Object.prototype.hasOwnProperty.call(s.tiers, k) && TIERS.indexOf(k) < 0) return fail('unknown tier ' + k);
+      for (var t = 0; t < TIERS.length; t++) {
+        var tr = s.tiers[TIERS[t]];
+        if (tr === undefined) continue;
+        if (!tr || typeof tr !== 'object' || Array.isArray(tr)) return fail('bad tier');
+        var nt = emptyTier();
+        if (typeof tr.key !== 'boolean') return fail('bad key flag');
+        nt.key = tr.key;
+        if (!isIso(tr.keyAt === undefined ? null : tr.keyAt)) return fail('bad keyAt');
+        nt.keyAt = tr.keyAt || null;
+        if (!isInt(tr.completions, 0, 1e6) || !isInt(tr.kept, 0, 1e6)) return fail('bad counts');
+        nt.completions = tr.completions; nt.kept = tr.kept;
+        if (tr.bestScore !== null && tr.bestScore !== undefined && !isInt(tr.bestScore, 0, 100)) return fail('bad bestScore');
+        nt.bestScore = tr.bestScore === undefined ? null : tr.bestScore;
+        if (!isIso(tr.bestAt === undefined ? null : tr.bestAt)) return fail('bad bestAt');
+        nt.bestAt = tr.bestAt || null;
+        nt.perfect = tr.perfect === true;
+        // contradictions
+        if (nt.kept > nt.completions) return fail('kept exceeds completions');
+        if (nt.key && nt.kept < 1) return fail('key without a kept light');
+        if (!nt.key && nt.kept > 0) return fail('kept light without key');
+        if (nt.perfect && nt.bestScore !== 100) return fail('perfect without a 100 score');
+        if (nt.bestScore !== null && nt.completions < 1) return fail('score without completion');
+        ns.tiers[TIERS[t]] = nt;
+      }
+      if (s.runs !== undefined) {
+        if (!Array.isArray(s.runs) || s.runs.length > MAX_RUN_IDS) return fail('bad runs');
+        for (var r = 0; r < s.runs.length; r++) if (typeof s.runs[r] !== 'string' || !RUN_RE.test(s.runs[r])) return fail('bad run id');
+        ns.runs = s.runs.slice();
+      }
+      out.slots[id] = ns;
+    }
+    return { ok: true, value: out };
+  }
+
+  /* Migrations: from version N to N+1. Version 0 is the unreleased draft
+   * format {format:'sonortals-draft', keys:{'001':['bronze',...]}, best:{'001':{bronze:72}}}.
+   * It never shipped; it exists so the upgrade path is exercised by tests. */
+  var MIGRATIONS = {
+    0: function (old, now) {
+      var out = empty(now);
+      var keys = old.keys || {}, best = old.best || {};
+      var nums = {};
+      Object.keys(keys).forEach(function (n) { nums[n] = 1; });
+      Object.keys(best).forEach(function (n) { nums[n] = 1; });
+      Object.keys(nums).forEach(function (n) {
+        if (!/^(0[0-2][0-9]|03[01])$/.test(n) || n === '000') throw new Error('bad draft slot');
+        var slot = emptySlot();
+        TIERS.forEach(function (t) {
+          var has = Array.isArray(keys[n]) && keys[n].indexOf(t) >= 0;
+          var b = best[n] && best[n][t];
+          if (b !== undefined && !isInt(b, 0, 100)) throw new Error('bad draft score');
+          if (has) { slot.tiers[t].key = true; slot.tiers[t].kept = 1; slot.tiers[t].keyAt = null; }
+          if (b !== undefined) { slot.tiers[t].bestScore = b; slot.tiers[t].perfect = b === 100; }
+          if (has || b !== undefined) slot.tiers[t].completions = Math.max(1, slot.tiers[t].kept);
+        });
+        out.slots['SON-' + n] = slot;
+      });
+      out.version = 1;
+      return out;
+    }
+  };
+  function detectVersion(obj) {
+    if (obj && obj.format === 'sonortals-draft' && obj.version === undefined) return 0;
+    if (obj && obj.schema === SCHEMA && typeof obj.version === 'number') return obj.version;
+    return -1;
+  }
+  function migrate(obj, now) {
+    var v = detectVersion(obj);
+    if (v < 0) return { ok: false, error: 'unrecognised data' };
+    if (v > SCHEMA_VERSION) return { ok: false, error: 'newer version', newer: true };
+    var cur = obj, from = v;
+    try { while (v < SCHEMA_VERSION) { cur = MIGRATIONS[v](cur, now); v++; } }
+    catch (e) { return { ok: false, error: 'migration failed: ' + e.message }; }
+    var val = validate(cur);
+    if (!val.ok) return val;
+    return { ok: true, value: val.value, migratedFrom: from === SCHEMA_VERSION ? null : from };
+  }
+
+  function createKeyring(storage, opts) {
+    opts = opts || {};
+    var registry = opts.registry || defaultRegistry();
+    var nowFn = opts.now || function () { return new Date().toISOString(); };
+    var store = guardedStore(storage || memoryStorage());
+    var data = null, notice = null, readOnly = false;
+
+    function slotInfo(id) { for (var i = 0; i < registry.length; i++) if (registry[i].id === id) return registry[i]; return null; }
+
+    function load() {
+      notice = null; readOnly = false;
+      var raw = store.get(STORAGE_KEY);
+      if (!store.healthy()) { data = empty(nowFn()); notice = 'Browser storage is unavailable. Keys earned now will last only until this page closes.'; return data; }
+      if (raw === null) { data = empty(nowFn()); return data; }
+      var parsed = null;
+      try { parsed = JSON.parse(raw); } catch (e) { parsed = undefined; }
+      var res = parsed === undefined ? { ok: false, error: 'unreadable' } : migrate(parsed, nowFn());
+      if (res.ok) {
+        data = res.value;
+        if (res.migratedFrom !== null && res.migratedFrom !== undefined) {
+          store.set(BACKUP_KEY, raw);
+          save();
+          notice = 'Your Sonortals Keyring was upgraded to the current format. A copy of the old data was kept.';
+        }
+        return data;
+      }
+      if (res.newer) {
+        // Saved by a newer build: never overwrite it. Run read-only with an empty view.
+        data = empty(nowFn()); readOnly = true;
+        notice = 'This Keyring was saved by a newer version of the game. It was left untouched; keys earned here will not be saved.';
+        return data;
+      }
+      // corrupt: keep the raw text in the backup key, start fresh, and say so
+      store.set(BACKUP_KEY, raw);
+      data = empty(nowFn());
+      notice = 'Your saved Sonortals Keyring could not be read (' + res.error + '). It was set aside and a fresh Keyring started.';
+      save();
+      return data;
+    }
+
+    function save() {
+      if (readOnly) return false;
+      data.updatedAt = nowFn();
+      var ok = store.set(STORAGE_KEY, JSON.stringify(data));
+      if (!ok) notice = 'Progress could not be saved to this browser. Keys earned now will last only until this page closes.';
+      return ok;
+    }
+
+    function getSlot(id) { return data.slots[id] || emptySlot(); }
+
+    /* Record a finished mission. result: {runId, score (0..100), keptLight, perfect}
+     * Returns {recorded, duplicate, newKey, newBest}. Unfinished missions are
+     * never recorded; reserved slots can never be awarded. */
+    function recordCompletion(id, tier, result) {
+      if (!data) load();
+      var info = slotInfo(id);
+      if (!info || info.status !== 'active') return { recorded: false, error: 'slot not active' };
+      if ((info.tiers || []).indexOf(tier) < 0) return { recorded: false, error: 'tier not available' };
+      if (!result || typeof result.runId !== 'string' || !RUN_RE.test(result.runId)) return { recorded: false, error: 'bad run id' };
+      if (!isInt(result.score, 0, 100)) return { recorded: false, error: 'bad score' };
+      var slot = data.slots[id] || (data.slots[id] = emptySlot());
+      if (slot.runs.indexOf(result.runId) >= 0) return { recorded: false, duplicate: true };
+      var tr = slot.tiers[tier], now = nowFn();
+      var out = { recorded: true, duplicate: false, newKey: false, newBest: false };
+      tr.completions++;
+      if (result.keptLight === true) {
+        tr.kept++;
+        if (!tr.key) { tr.key = true; tr.keyAt = now; out.newKey = true; }
+      }
+      if (tr.bestScore === null || result.score > tr.bestScore) { tr.bestScore = result.score; tr.bestAt = now; out.newBest = true; }
+      if (result.score === 100 && result.keptLight === true) tr.perfect = true;
+      slot.runs.push(result.runId);
+      if (slot.runs.length > MAX_RUN_IDS) slot.runs = slot.runs.slice(-MAX_RUN_IDS);
+      save();
+      return out;
+    }
+
+    function resetSlot(id) {
+      if (!data) load();
+      if (!slotInfo(id)) return false;
+      delete data.slots[id];
+      return save();
+    }
+
+    return {
+      load: load, save: save, recordCompletion: recordCompletion, resetSlot: resetSlot,
+      slot: function (id) { if (!data) load(); return JSON.parse(JSON.stringify(getSlot(id))); },
+      registry: function () { return registry.map(function (r) { return JSON.parse(JSON.stringify(r)); }); },
+      data: function () { if (!data) load(); return JSON.parse(JSON.stringify(data)); },
+      notice: function () { return notice; },
+      readOnly: function () { return readOnly; },
+      healthy: function () { return store.healthy(); },
+      keysHeld: function () {
+        if (!data) load();
+        var n = 0;
+        registry.forEach(function (r) { if (r.status === 'active' && data.slots[r.id]) TIERS.forEach(function (t) { if (data.slots[r.id].tiers[t].key) n++; }); });
+        return n;
+      }
+    };
+  }
+
+  return {
+    KEYRING_VERSION: KEYRING_VERSION, STORAGE_KEY: STORAGE_KEY, BACKUP_KEY: BACKUP_KEY, SCHEMA: SCHEMA, SCHEMA_VERSION: SCHEMA_VERSION,
+    PREFIX: PREFIX, TIERS: TIERS, MAX_RUN_IDS: MAX_RUN_IDS, defaultRegistry: defaultRegistry, guardKey: guardKey, guardedStore: guardedStore,
+    memoryStorage: memoryStorage, validate: validate, migrate: migrate, detectVersion: detectVersion, empty: empty, createKeyring: createKeyring
+  };
+});
+
+/* ---- src/audio.js ---- */
+/* Sonortals Audio Kernel — browser sound renderer (Web Audio API).
+ *
+ * Turns kernel audio parameters into synthesized sound. No samples, no
+ * network, no microphone. Game logic never waits on this module: if audio is
+ * unavailable, every call is a harmless no-op.
+ *
+ * Output chain: voices -> master gain (user volume) -> compressor/limiter -> out.
+ */
+(function (root) {
+  'use strict';
+
+  var MAX_VOICES = 28;
+  var BELL_PARTIALS = [[1, 1, 1.6], [2.0, 0.45, 1.0], [2.76, 0.32, 0.7], [4.07, 0.16, 0.4]];
+
+  function create(options) {
+    options = options || {};
+    var ctx = null, master = null, comp = null, out = null, ambBus = null, sfxBus = null;
+    var noiseBuf = null, brownBuf = null;
+    var amb = null;
+    var volume = typeof options.volume === 'number' ? options.volume : 0.5;
+    var muted = false, ambienceOn = options.ambience !== false;
+    var voices = 0, dropped = 0;
+    var listeners = [];
+    var status = 'off';
+
+    function setStatus(s) { status = s; listeners.forEach(function (fn) { try { fn(s); } catch (e) { /* ignore */ } }); }
+
+    function supported() { return !!(root.AudioContext || root.webkitAudioContext); }
+
+    /* Must be called from a user gesture (click, tap or key). */
+    function start(existing) {
+      if (ctx) { return resume(); }
+      try {
+        if (existing) ctx = existing;
+        else {
+          var AC = root.AudioContext || root.webkitAudioContext;
+          if (!AC) { setStatus('unsupported'); return Promise.resolve(false); }
+          try { ctx = new AC({ latencyHint: 'interactive' }); } catch (e) { ctx = new AC(); }
+        }
+        build();
+        if (ctx.addEventListener) ctx.addEventListener('statechange', onState);
+        else ctx.onstatechange = onState;
+        onState();
+        var p = ctx.resume ? ctx.resume() : null;
+        return Promise.resolve(p).then(function () { onState(); return ctx.state === 'running'; }, function () { onState(); return false; });
+      } catch (e) {
+        ctx = null; setStatus('failed');
+        return Promise.resolve(false);
+      }
+    }
+
+    function onState() {
+      if (!ctx) return;
+      var s = ctx.state; // 'running' | 'suspended' | 'interrupted' (WebKit) | 'closed'
+      setStatus(s === 'running' ? 'running' : s === 'interrupted' ? 'interrupted' : s === 'closed' ? 'failed' : 'suspended');
+    }
+
+    function build() {
+      master = ctx.createGain();
+      master.gain.value = muted ? 0 : volume;
+      comp = ctx.createDynamicsCompressor();
+      setParam(comp.threshold, -16); setParam(comp.knee, 6); setParam(comp.ratio, 12);
+      setParam(comp.attack, 0.003); setParam(comp.release, 0.25);
+      out = ctx.createGain(); out.gain.value = 0.9;
+      master.connect(comp); comp.connect(out); out.connect(ctx.destination);
+      sfxBus = ctx.createGain(); sfxBus.gain.value = 1; sfxBus.connect(master);
+      ambBus = ctx.createGain(); ambBus.gain.value = ambienceOn ? 1 : 0; ambBus.connect(master);
+      var len = Math.floor(ctx.sampleRate * 2);
+      noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+      brownBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+      var w = noiseBuf.getChannelData(0), b = brownBuf.getChannelData(0), last = 0;
+      var seed = 12345;
+      for (var i = 0; i < len; i++) {
+        seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+        var x = seed / 0x3fffffff - 1;
+        w[i] = x;
+        last = (last + 0.02 * x) / 1.02;
+        b[i] = last * 3.5;
+      }
+    }
+    function setParam(p, v) { if (p) p.value = v; }
+
+    function resume() {
+      if (!ctx) return Promise.resolve(false);
+      var p = ctx.resume ? ctx.resume() : null;
+      return Promise.resolve(p).then(function () { onState(); return ctx.state === 'running'; }, function () { onState(); return false; });
+    }
+    function suspend() {
+      if (!ctx || !ctx.suspend) return Promise.resolve();
+      return Promise.resolve(ctx.suspend()).then(onState, onState);
+    }
+
+    function setVolume(v) {
+      volume = Math.max(0, Math.min(1, v));
+      if (master && ctx) master.gain.setTargetAtTime(muted ? 0 : volume, ctx.currentTime, 0.05);
+    }
+    function setMuted(m) {
+      muted = !!m;
+      if (master && ctx) master.gain.setTargetAtTime(muted ? 0 : volume, ctx.currentTime, 0.05);
+    }
+    function setAmbience(on) {
+      ambienceOn = !!on;
+      if (ambBus && ctx) ambBus.gain.setTargetAtTime(ambienceOn ? 1 : 0, ctx.currentTime, 0.3);
+    }
+
+    /* ---- building blocks ---- */
+    function now() { return ctx.currentTime + 0.03; }
+    function chain(pan, gain, cutoff) {
+      // returns {input, nodes[]} : input -> lowpass -> gain -> panner -> sfxBus
+      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cutoff || 8000; lp.Q.value = 0.5;
+      var g = ctx.createGain(); g.gain.value = gain;
+      var last = g, nodes = [lp, g];
+      lp.connect(g);
+      if (ctx.createStereoPanner) {
+        var p = ctx.createStereoPanner(); p.pan.value = pan || 0; g.connect(p); last = p; nodes.push(p);
+      }
+      last.connect(sfxBus);
+      return { input: lp, nodes: nodes };
+    }
+    function finish(srcs, nodes, endAt) {
+      voices++;
+      var done = false;
+      function cleanup() {
+        if (done) return; done = true; voices--;
+        srcs.concat(nodes).forEach(function (n) { try { n.disconnect(); } catch (e) { /* ignore */ } });
+      }
+      var lastSrc = srcs[srcs.length - 1];
+      lastSrc.onended = cleanup;
+      // safety net in case onended never fires (suspended context)
+      setTimeout(cleanup, Math.max(0, (endAt - ctx.currentTime) * 1000) + 4000);
+    }
+    function env(g, t0, a, hold, rel, peak) {
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(peak, t0 + a);
+      g.gain.setValueAtTime(peak, t0 + a + hold);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + a + hold + rel);
+    }
+    function osc(type, f, t0, t1, dest, peak, a, hold, rel) {
+      var o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t0);
+      var g = ctx.createGain(); g.gain.value = 0;
+      o.connect(g); g.connect(dest);
+      env(g, t0, a, hold, rel, peak);
+      o.start(t0); o.stop(t1);
+      return { src: o, nodes: [g] };
+    }
+    function noise(t0, t1, dest, peak, a, hold, rel, filterType, freq, q, brown) {
+      var s = ctx.createBufferSource(); s.buffer = brown ? brownBuf : noiseBuf; s.loop = true;
+      var f = ctx.createBiquadFilter(); f.type = filterType || 'bandpass'; f.frequency.value = freq || 800; f.Q.value = q || 1;
+      var g = ctx.createGain(); g.gain.value = 0;
+      s.connect(f); f.connect(g); g.connect(dest);
+      env(g, t0, a, hold, rel, peak);
+      s.start(t0); s.stop(t1);
+      return { src: s, nodes: [f, g] };
+    }
+    function bellStrike(f0, t0, dest, level, decayScale) {
+      var parts = [];
+      BELL_PARTIALS.forEach(function (p) {
+        var d = p[2] * (decayScale || 1);
+        parts.push(osc('sine', f0 * p[0], t0, t0 + d + 0.1, dest, level * p[1], 0.004, 0, d));
+      });
+      return parts;
+    }
+    function collect(list) {
+      var srcs = [], nodes = [];
+      list.forEach(function (x) { if (Array.isArray(x)) x.forEach(function (y) { srcs.push(y.src); nodes = nodes.concat(y.nodes); }); else { srcs.push(x.src); nodes = nodes.concat(x.nodes); } });
+      return { srcs: srcs, nodes: nodes };
+    }
+
+    /* ---- vessel voices ---- */
+    function vesselSound(a, t0, dest, scale) {
+      var parts = [], end = t0, k = a.pitch, L = scale || 1;
+      switch (a.family) {
+        case 'bell':
+          parts.push(bellStrike(620 * k, t0, dest, 0.42 * L));
+          parts.push(bellStrike(620 * k, t0 + 0.34, dest, 0.36 * L));
+          end = t0 + 2.1; break;
+        case 'horn':
+          parts.push(osc('sawtooth', 205 * k, t0, t0 + 1.75, dest, 0.20 * L, 0.09, 1.25, 0.3));
+          parts.push(osc('sawtooth', 205 * k * 1.004, t0, t0 + 1.75, dest, 0.14 * L, 0.11, 1.2, 0.3));
+          parts.push(osc('square', 410 * k, t0, t0 + 1.75, dest, 0.04 * L, 0.1, 1.2, 0.3));
+          end = t0 + 1.8; break;
+        case 'reed':
+          parts.push(osc('square', 560 * k, t0, t0 + 0.5, dest, 0.10 * L, 0.03, 0.36, 0.08));
+          parts.push(osc('square', 440 * k, t0 + 0.5, t0 + 1.1, dest, 0.10 * L, 0.03, 0.44, 0.1));
+          parts.push(osc('triangle', 1120 * k, t0, t0 + 0.5, dest, 0.05 * L, 0.03, 0.36, 0.08));
+          parts.push(osc('triangle', 880 * k, t0 + 0.5, t0 + 1.1, dest, 0.05 * L, 0.03, 0.44, 0.1));
+          end = t0 + 1.15; break;
+        case 'engine':
+          for (var i = 0; i < 9; i++) {
+            var ti = t0 + i * 0.14;
+            parts.push(noise(ti, ti + 0.13, dest, 0.42 * L, 0.01, 0.03, 0.08, 'bandpass', 760 * k, 1.6));
+            parts.push(osc('square', 190 * k, ti, ti + 0.13, dest, 0.05 * L, 0.01, 0.03, 0.08));
+          }
+          end = t0 + 1.35; break;
+      }
+      return { parts: parts, end: end };
+    }
+
+    function playVessel(a) {
+      var t0 = now();
+      var ch = chain(a.pan, a.gain, a.urgent ? Math.min(9000, a.cutoff * 1.25) : a.cutoff);
+      var v = vesselSound(a, t0, ch.input, 1);
+      var parts = v.parts, end = v.end;
+      if (a.lit) {
+        // in the beam: a soft high shimmer on top, so a sighted vessel is audibly distinct
+        parts.push(osc('sine', 1480 * a.pitch, t0 + 0.05, t0 + 0.9, ch.input, 0.05, 0.05, 0.2, 0.55));
+      }
+      if (a.glint) {
+        parts.push(osc('sine', 1320, t0, t0 + 0.5, ch.input, 0.09, 0.01, 0.05, 0.4));
+        parts.push(osc('sine', 1760, t0 + 0.12, t0 + 0.7, ch.input, 0.08, 0.01, 0.05, 0.45));
+      }
+      var c = collect(parts);
+      finish(c.srcs, ch.nodes.concat(c.nodes), end);
+    }
+
+    function playLamp(a) {
+      var t0 = now(), parts = [];
+      var ch = chain(0, 0.9, 2200);
+      a.pattern.forEach(function (seg) {
+        var s = t0 + seg[0], d = seg[1];
+        parts.push(osc('sawtooth', 262, s, s + d + 0.15, ch.input, 0.17, 0.04, Math.max(0.01, d - 0.1), 0.1));
+        parts.push(osc('sawtooth', 196, s, s + d + 0.15, ch.input, 0.12, 0.05, Math.max(0.01, d - 0.1), 0.1));
+      });
+      var c = collect(parts);
+      finish(c.srcs, ch.nodes.concat(c.nodes), t0 + 1.7);
+    }
+
+    function playAck(a) {
+      var t0 = now(), parts = [];
+      var ch = chain(a.pan, 0.8, 4000);
+      if (a.positive) {
+        // two short answers in the vessel's own voice
+        for (var i = 0; i < 2; i++) {
+          var s = t0 + i * 0.3;
+          if (a.family === 'bell') parts.push(bellStrike(620 * a.pitch, s, ch.input, 0.3, 0.35));
+          else if (a.family === 'engine') parts.push(noise(s, s + 0.2, ch.input, 0.3, 0.01, 0.08, 0.08, 'bandpass', 700 * a.pitch, 2));
+          else parts.push(osc(a.family === 'horn' ? 'sawtooth' : 'square', (a.family === 'horn' ? 205 : 560) * a.pitch, s, s + 0.25, ch.input, a.family === 'horn' ? 0.2 : 0.1, 0.02, 0.12, 0.08));
+        }
+      } else {
+        // "unable": one falling note
+        var o = osc('triangle', 520, t0, t0 + 0.8, ch.input, 0.16, 0.02, 0.4, 0.3);
+        o.src.frequency.exponentialRampToValueAtTime(300, t0 + 0.7);
+        parts.push(o);
+      }
+      var c = collect(parts);
+      finish(c.srcs, ch.nodes.concat(c.nodes), t0 + 1.4);
+    }
+
+    function playSimple(a) {
+      var t0 = now(), parts = [], end = t0 + 1;
+      var ch = chain(a.pan || 0, 1, 6000);
+      switch (a.kind) {
+        case 'arrive':
+          parts.push(bellStrike(392, t0, ch.input, 0.3, 1.4));
+          parts.push(osc('sine', 494, t0 + 0.25, t0 + 1.6, ch.input, 0.06, 0.05, 0.3, 1.0));
+          end = t0 + 2.4; break;
+        case 'scrape':
+          parts.push(noise(t0, t0 + 0.6, ch.input, 0.22, 0.02, 0.25, 0.3, 'bandpass', 1300, 1.5));
+          end = t0 + 0.7; break;
+        case 'aground':
+          var o = osc('sine', 120, t0, t0 + 0.8, ch.input, 0.32, 0.01, 0.05, 0.6);
+          o.src.frequency.exponentialRampToValueAtTime(60, t0 + 0.6);
+          parts.push(o);
+          parts.push(noise(t0 + 0.02, t0 + 0.9, ch.input, 0.18, 0.02, 0.2, 0.55, 'lowpass', 900, 0.7));
+          end = t0 + 1; break;
+        case 'silence-thud':
+          parts.push(osc('sine', 220, t0, t0 + 0.3, ch.input, 0.1, 0.01, 0.02, 0.2)); end = t0 + 0.3; break;
+        case 'tick':
+          parts.push(noise(t0, t0 + 0.05, ch.input, a.settled ? 0.05 : 0.03, 0.002, 0.005, 0.03, 'bandpass', 2400, 3)); end = t0 + 0.06; break;
+        case 'reject':
+          parts.push(osc('triangle', 300, t0, t0 + 0.25, ch.input, 0.08, 0.01, 0.05, 0.15));
+          parts.push(osc('triangle', 250, t0 + 0.15, t0 + 0.45, ch.input, 0.08, 0.01, 0.05, 0.2)); end = t0 + 0.45; break;
+        case 'end':
+          var notes = a.kept ? [523.25, 659.25, 783.99] : [392, 329.63];
+          notes.forEach(function (f, i) { parts.push(bellStrike(f, t0 + i * 0.35, ch.input, 0.2, 1.1)); });
+          end = t0 + 2.6; break;
+        default: return;
+      }
+      var c = collect(parts);
+      finish(c.srcs, ch.nodes.concat(c.nodes), end);
+    }
+
+    /* ---- ambience: sea wash and wind (never louder than a distant cue) ---- */
+    function startAmbience(tier) {
+      if (!ctx || amb) return;
+      var sea = ctx.createBufferSource(); sea.buffer = brownBuf; sea.loop = true;
+      var seaF = ctx.createBiquadFilter(); seaF.type = 'lowpass'; seaF.frequency.value = 520;
+      var seaG = ctx.createGain(); seaG.gain.value = 0.07;
+      var lfo = ctx.createOscillator(); lfo.frequency.value = 0.09;
+      var lfoG = ctx.createGain(); lfoG.gain.value = 0.035;
+      lfo.connect(lfoG); lfoG.connect(seaG.gain);
+      sea.connect(seaF); seaF.connect(seaG); seaG.connect(ambBus);
+      var wind = ctx.createBufferSource(); wind.buffer = noiseBuf; wind.loop = true;
+      var windF = ctx.createBiquadFilter(); windF.type = 'bandpass'; windF.frequency.value = 650; windF.Q.value = 0.8;
+      var windG = ctx.createGain(); windG.gain.value = tier === 'gold' ? 0.03 : tier === 'silver' ? 0.022 : 0.012;
+      var lfo2 = ctx.createOscillator(); lfo2.frequency.value = 0.05;
+      var lfo2G = ctx.createGain(); lfo2G.gain.value = 180;
+      lfo2.connect(lfo2G); lfo2G.connect(windF.frequency);
+      wind.connect(windF); windF.connect(windG); windG.connect(ambBus);
+      var t = ctx.currentTime + 0.05;
+      sea.start(t); lfo.start(t); wind.start(t); lfo2.start(t);
+      amb = { srcs: [sea, lfo, wind, lfo2], nodes: [seaF, seaG, lfoG, windF, windG, lfo2G], windG: windG, base: windG.gain.value };
+    }
+    function stopAmbience() {
+      if (!amb) return;
+      amb.srcs.forEach(function (s) { try { s.stop(); } catch (e) { /* ignore */ } });
+      amb.srcs.concat(amb.nodes).forEach(function (n) { try { n.disconnect(); } catch (e) { /* ignore */ } });
+      amb = null;
+    }
+    function gust(on) {
+      if (!amb || !ctx) return;
+      amb.windG.gain.setTargetAtTime(on ? amb.base * 3.2 : amb.base, ctx.currentTime, on ? 0.6 : 1.2);
+    }
+
+    /* Render one kernel audio parameter object. */
+    function render(a) {
+      if (!ctx || !a || (status !== 'running' && !options.offline)) return false;
+      if (a.kind === 'gust') { gust(a.on); return true; }
+      if (voices >= MAX_VOICES) { dropped++; return false; }
+      switch (a.kind) {
+        case 'vessel': playVessel(a); break;
+        case 'lamp': playLamp(a); break;
+        case 'ack': playAck(a); break;
+        default: playSimple(a);
+      }
+      return true;
+    }
+
+    return {
+      supported: supported, start: start, resume: resume, suspend: suspend, render: render,
+      setVolume: setVolume, setMuted: setMuted, setAmbience: setAmbience,
+      startAmbience: startAmbience, stopAmbience: stopAmbience,
+      status: function () { return status; }, onStatus: function (fn) { listeners.push(fn); },
+      voices: function () { return voices; }, dropped: function () { return dropped; },
+      context: function () { return ctx; }, volume: function () { return volume; }
+    };
+  }
+
+  root.SonAudio = { create: create, MAX_VOICES: MAX_VOICES };
+})(typeof self !== 'undefined' ? self : this);
+
+/* ---- src/app.js ---- */
+/* Fogbound: The Grayhaven Light — page controller.
+ * Wires the simulation (FogSim), the kernel renderers (SonKernel), the sound
+ * engine (SonAudio) and the Keyring (SonKeyring) to the page. The page never
+ * changes game state except by queueing player actions for the next tick.
+ */
+(function () {
+  'use strict';
+  var Sim = self.FogSim, K = self.SonKernel, A = self.SonAudio, KR = self.SonKeyring;
+  var SLOT = 'SON-001';
+  var WATCH_KEY = 'dq-sonortal-001-watch-v1';
+  var PREFS_KEY = 'dq-sonortal-001-prefs-v1';
+  var DEV = /[?&]dev=1\b/.test(location.search);
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var reducedMQ = self.matchMedia ? self.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function sv(tag, attrs) { var e = document.createElementNS(SVGNS, tag); if (attrs) for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  function fmtTime(tick) { var s = Math.floor(tick / 10); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  /* ---------- storage, prefs, keyring ---------- */
+  var rawStorage = null;
+  try { var pk = 'dq-sonortal-probe'; localStorage.setItem(KR.guardKey(pk), '1'); localStorage.removeItem(KR.guardKey(pk)); rawStorage = localStorage; } catch (e) { rawStorage = null; }
+  var store = KR.guardedStore(rawStorage || KR.memoryStorage());
+  var keyring = KR.createKeyring(rawStorage || KR.memoryStorage());
+  keyring.load();
+
+  var prefs = { volume: 0.5, ambience: true, cues: false, mono: false, hints: null, motion: null };
+  try {
+    var pr = JSON.parse(store.get(PREFS_KEY) || 'null');
+    if (pr && typeof pr === 'object') {
+      if (typeof pr.volume === 'number' && pr.volume >= 0 && pr.volume <= 1) prefs.volume = pr.volume;
+      ['ambience', 'cues', 'mono'].forEach(function (k) { if (typeof pr[k] === 'boolean') prefs[k] = pr[k]; });
+      if (pr.hints === null || typeof pr.hints === 'boolean') prefs.hints = pr.hints;
+      if (pr.motion === null || typeof pr.motion === 'boolean') prefs.motion = pr.motion;
+    }
+  } catch (e) { /* defaults */ }
+  var soundWanted = false; // never persisted: sound always starts from a fresh user action
+  function savePrefs() { store.set(PREFS_KEY, JSON.stringify(prefs)); }
+  function reduced() { return prefs.motion === null ? !!reducedMQ.matches : prefs.motion; }
+  function hintsOn() { return prefs.hints === null ? (G && G.tier === 'bronze') : prefs.hints; }
+  function applyMotion() { document.body.classList.toggle('reduced', reduced()); }
+
+  /* ---------- audio engine ---------- */
+  var engine = A.create({ volume: prefs.volume, ambience: prefs.ambience });
+  var audioRan = false, selfSuspend = false;
+  engine.onStatus(function (s) {
+    if (s === 'running') { audioRan = true; selfSuspend = false; }
+    updateSoundUI();
+    if (soundWanted && audioRan && !selfSuspend && (s === 'suspended' || s === 'interrupted') && G && !G.paused && !G.st.over) {
+      pauseGame('Sound was interrupted by your device. Choose Resume to carry on — sound restarts when you do.');
+    }
+  });
+  function startSound() {
+    soundWanted = true;
+    if (!engine.supported()) { soundWanted = false; soundFailed('This browser cannot play Web Audio. Sight cues are on so you can keep playing.'); return; }
+    engine.setVolume(prefs.volume); engine.setMuted(false);
+    engine.start().then(function (ok) {
+      if (!ok && engine.status() !== 'running') soundFailed('The browser has not allowed sound yet. Choose “Sound on” again, or play with Sight cues (now on).');
+      else { $('audioWarn').hidden = true; if (G) engine.startAmbience(G.tier); }
+      updateSoundUI();
+    });
+    updateSoundUI();
+  }
+  function stopSound() {
+    soundWanted = false; selfSuspend = true;
+    engine.stopAmbience(); engine.suspend();
+    updateSoundUI();
+  }
+  function soundFailed(msg) {
+    var w = $('audioWarn'); w.textContent = msg; w.hidden = false;
+    setCues(true);
+    say(msg, 3);
+  }
+  function updateSoundUI() {
+    var s = engine.status(), pill = $('hSound');
+    var txt = !soundWanted ? 'off' : s === 'running' ? 'on' : s === 'unsupported' ? 'unavailable' : s === 'failed' ? 'failed' : 'waiting';
+    pill.textContent = txt;
+    pill.className = 'pill' + (txt === 'on' ? ' on' : soundWanted && txt !== 'on' ? ' warn' : '');
+    $('btnSoundToggle').textContent = soundWanted ? 'Sound off' : 'Sound on';
+    $('setSound').checked = soundWanted;
+  }
+
+  /* ---------- kernel wiring ---------- */
+  var bus = K.createBus();
+  var announcer = K.createAnnouncer(function (text) { var l = $('live'); l.textContent = ''; setTimeout(function () { l.textContent = text; }, 30); }, 2500, 3);
+  function say(text, pri) { announcer.push({ text: text, priority: pri || 2 }); }
+
+  var G = null; // current watch
+  var tickHooks = []; // development/test hooks only (registered with ?dev=1)
+  var lastSoundTick = {};
+
+  // (a) sound
+  bus.on(function (ev) {
+    if (!soundWanted || engine.status() !== 'running') return;
+    if (ev.kind === 'cue' || ev.kind === 'contact' || ev.kind === 'sighted') {
+      if (lastSoundTick[ev.vessel] === ev.t) return; // one vessel sound per tick
+      lastSoundTick[ev.vessel] = ev.t;
+    }
+    if (ev.kind === 'beam' && !ev.settled) return;
+    var a = K.audioOf(ev, { mono: prefs.mono });
+    if (a) engine.render(a);
+  });
+  // (b) sound map, captions and contact list
+  bus.on(function (ev) {
+    if (!G) return;
+    var vis = K.visualOf(ev);
+    if (vis) {
+      var c = G.contacts[ev.vessel] || (G.contacts[ev.vessel] = { hist: [] });
+      c.hist.push(vis); if (c.hist.length > 2) c.hist.shift();
+      c.ev = ev;
+      G.lastCue = ev;
+      G.mapDirty = true;
+    }
+    if (ev.kind === 'ack') {
+      var cc = G.contacts[ev.vessel] || (G.contacts[ev.vessel] = { hist: [] });
+      cc.status = statusText(ev);
+    }
+    if (ev.kind === 'arrive' || ev.kind === 'aground' || ev.kind === 'scrape') { G.mapDirty = true; }
+    if (ev.kind === 'gust-start' || ev.kind === 'gust-end') $('chartBox').classList.toggle('gusting', ev.kind === 'gust-start');
+    var text = captionWorthy(ev) ? K.describe(ev, G.mission) : null;
+    if (text) { G.caps.unshift(text); if (G.caps.length > 3) G.caps.length = 3; G.capsDirty = true; }
+  });
+  // (c) keeper's log
+  bus.on(function (ev) {
+    if (!G) return;
+    var skip = { cue: 1, beam: 1, unsighted: 1, aim: 1 };
+    if (skip[ev.kind]) return;
+    var text = K.describe(ev, G.mission);
+    if (!text) return;
+    var cls = '';
+    if (ev.kind === 'aground' || ev.kind === 'scrape' || (ev.kind === 'ack' && ev.verdict !== 'sound') || ev.kind === 'no-answer') cls = 'bad';
+    if (ev.kind === 'arrive' || (ev.kind === 'end' && ev.keptLight)) cls = 'good';
+    var li = el('li', cls ? { class: cls } : null);
+    li.appendChild(el('span', { class: 'tm' }, fmtTime(ev.t)));
+    li.appendChild(document.createTextNode(text));
+    var log = $('log');
+    log.insertBefore(li, log.firstChild);
+    while (log.children.length > 250) log.removeChild(log.lastChild);
+  });
+  // (d) paced screen-reader announcements
+  bus.on(function (ev) { if (G) announcer.push(K.announceOf(ev, G.mission)); });
+
+  function captionWorthy(ev) {
+    var k = { cue: 1, contact: 1, sighted: 1, ack: 1, 'no-answer': 1, arrive: 1, aground: 1, scrape: 1, 'gust-start': 1, reject: 1 };
+    return !!k[ev.kind];
+  }
+  function statusText(ev) {
+    var dest = ev.landfall !== undefined ? G.mission.coast[ev.landfall].name : '';
+    if (ev.code === 'steady') return ev.verdict === 'sound' ? 'Steady → ' + dest : 'Steady → ' + dest + ' (rocks!)';
+    if (ev.code === 'west' || ev.code === 'east') {
+      if (ev.verdict === 'unable') return 'Unable (no channel ' + ev.code + ')';
+      return 'Steering ' + ev.code + ' → ' + dest + (ev.verdict === 'too-late' ? ' (too late!)' : '');
+    }
+    if (ev.code === 'hold') return ev.verdict === 'refused' ? 'Refused to wait' : 'Hove to → ' + dest;
+    return '';
+  }
+
+  /* ---------- chart geometry ---------- */
+  function dispAngle(p) { return (-80 + 20 * p / 1000) * Math.PI / 180; }
+  function rad(r) { return 22 + Math.max(0, Math.min(8000, r - 1000)) / 8000 * 70; }
+  function xy(p, r) { var a = dispAngle(p), R = rad(r); return [R * Math.sin(a), -R * Math.cos(a)]; }
+  function arcPt(deg, R) { var a = deg * Math.PI / 180; return [R * Math.sin(a), -R * Math.cos(a)]; }
+  function f(n) { return Math.round(n * 100) / 100; }
+  function wedge(d0, d1, r0, r1) {
+    var a = arcPt(d0, r1), b = arcPt(d1, r1), c = arcPt(d1, r0), d = arcPt(d0, r0);
+    return 'M' + f(d[0]) + ' ' + f(d[1]) + 'L' + f(a[0]) + ' ' + f(a[1]) + 'A' + r1 + ' ' + r1 + ' 0 0 1 ' + f(b[0]) + ' ' + f(b[1]) +
+      'L' + f(c[0]) + ' ' + f(c[1]) + 'A' + r0 + ' ' + r0 + ' 0 0 0 ' + f(d[0]) + ' ' + f(d[1]) + 'Z';
+  }
+
+  function buildChart(m) {
+    var gS = $('gSectors'), gR = $('gRings'), gC = $('gCoast'), gL = $('gLamp');
+    [gS, gR, gC, gL, $('gRipples'), $('gBoats')].forEach(function (g) { while (g.firstChild) g.removeChild(g.firstChild); });
+    for (var s = 0; s < 9; s++) {
+      var c = -80 + 20 * s;
+      var w = sv('path', { d: wedge(c - 10, c + 10, 9, 92), class: 'sea-sector', 'data-s': s });
+      w.addEventListener('click', (function (ss) { return function () { aim(ss); }; })(s));
+      gS.appendChild(w);
+      var e = arcPt(c - 10, 22), e2 = arcPt(c - 10, 92);
+      gS.appendChild(sv('line', { x1: f(e[0]), y1: f(e[1]), x2: f(e2[0]), y2: f(e2[1]), class: 'sector-line' }));
+      var lp = arcPt(c, 96.5);
+      var t = sv('text', { x: f(lp[0]), y: f(lp[1] + 1.2), class: 'slab' }); t.textContent = Sim.SECTOR_NAMES[s]; gS.appendChild(t);
+    }
+    var T = Sim.TIERS[m.tier];
+    [[T.reach, 'reach', 'light’s reach'], [3000, 'near', '3 cables'], [2000, 'near', '2'], [9000, '', '']].forEach(function (q) {
+      var R = rad(q[0]);
+      var a = arcPt(-90, R), b = arcPt(90, R);
+      gR.appendChild(sv('path', { d: 'M' + f(a[0]) + ' ' + f(a[1]) + 'A' + R + ' ' + R + ' 0 0 1 ' + f(b[0]) + ' ' + f(b[1]), class: 'ring ' + q[1] }));
+      if (q[2]) { var tl = sv('text', { x: f(R + 1), y: 5, class: 'ringlab' }); tl.textContent = q[2]; gR.appendChild(tl); }
+    });
+    for (s = 0; s < 9; s++) {
+      var cc = -80 + 20 * s, co = m.coast[s];
+      if (co.kind === 'rocks') {
+        var g = sv('g', { class: 'rocks' });
+        [[-6, 19.5], [-1, 17.5], [4, 20], [7, 16.5]].forEach(function (o, i) {
+          var p = arcPt(cc + o[0], o[1]);
+          var k = 1.4 + (i % 2) * 0.6;
+          g.appendChild(sv('path', { d: 'M' + f(p[0] - k) + ' ' + f(p[1] + k * .7) + 'L' + f(p[0] - k * .3) + ' ' + f(p[1] - k) + 'L' + f(p[0] + k * .4) + ' ' + f(p[1] - k * .4) + 'L' + f(p[0] + k) + ' ' + f(p[1] + k * .7) + 'Z' }));
+        });
+        gC.appendChild(g);
+      } else {
+        [-8, 8].forEach(function (o) { var p = arcPt(cc + o, 20); gC.appendChild(sv('circle', { cx: f(p[0]), cy: f(p[1]), r: 1.2, class: 'chanmark' })); });
+        var lp2 = arcPt(cc, 26.2);
+        var tx = sv('text', { x: f(lp2[0]), y: f(lp2[1] + 1), class: 'chanlab' }); tx.textContent = co.name.replace(' Channel', '').replace(' Cut', ''); gC.appendChild(tx);
+        var q0 = arcPt(cc - 8, 21), q1 = arcPt(cc + 8, 21);
+        gC.appendChild(sv('path', { d: 'M' + f(q0[0]) + ' ' + f(q0[1]) + 'A21 21 0 0 1 ' + f(q1[0]) + ' ' + f(q1[1]), class: 'chanarc' }));
+      }
+    }
+    gL.appendChild(sv('path', { d: 'M-3 6 L-1.8 -3 L1.8 -3 L3 6 Z', class: 'tower' }));
+    gL.appendChild(sv('circle', { cx: 0, cy: -4, r: 2, class: 'lamp' }));
+    var a0 = arcPt(-10, 92), a1 = arcPt(10, 92);
+    $('beamWedge').setAttribute('d', 'M0 -4 L' + f(a0[0]) + ' ' + f(a0[1]) + ' A92 92 0 0 1 ' + f(a1[0]) + ' ' + f(a1[1]) + ' Z');
+  }
+
+  function buildDial(m) {
+    var d = $('dial'); while (d.firstChild) d.removeChild(d.firstChild);
+    for (var s = 0; s < 9; s++) {
+      var co = m.coast[s];
+      var b = el('button', { type: 'button', 'data-s': s, 'aria-pressed': 'false', class: co.kind === 'channel' ? 'chan' : '',
+        'aria-label': 'Aim at ' + Sim.SECTOR_WORDS[s] + '. Coast: ' + co.name + (co.kind === 'channel' ? ', the channel.' : ', rocks.'),
+        title: co.name });
+      b.appendChild(el('span', { class: 'sn' }, Sim.SECTOR_NAMES[s]));
+      b.appendChild(el('span', { class: 'ck' }, co.kind === 'channel' ? 'Chan.' : 'Rocks'));
+      b.addEventListener('click', (function (ss) { return function () { aim(ss); }; })(s));
+      d.appendChild(b);
+    }
+  }
+
+  function buildSignals() {
+    var box = $('signals'); while (box.firstChild) box.removeChild(box.firstChild);
+    Sim.ORDERS.forEach(function (code, i) {
+      var c = K.CODES[code];
+      var b = el('button', { type: 'button', class: 'btn', 'data-code': code, 'aria-label': c.label + ', pattern ' + c.patternWords + '. ' + c.help + ' Key ' + (i + 1) + '.' });
+      b.appendChild(el('span', { class: 'k' }, String(i + 1)));
+      b.appendChild(el('span', { class: 'l' }, c.label));
+      b.appendChild(el('span', { class: 'p' }, c.pattern));
+      b.addEventListener('click', function () { signal(code); });
+      box.appendChild(b);
+    });
+  }
+
+  /* ---------- the watch ---------- */
+  function newRunId(tier, seed) { return 'fog-' + tier + '-' + seed + '-' + Date.now().toString(36); }
+
+  function beginWatch(tier, seed, opts) {
+    opts = opts || {};
+    var m;
+    try { m = Sim.createMission(seed, tier); }
+    catch (e) { showStartNotice('That harbor could not be charted (' + e.message + '). Try another number.'); return false; }
+    G = {
+      mission: m, st: Sim.start(m), tier: tier, seed: seed, log: opts.log || [], queue: [], runId: opts.runId || newRunId(tier, seed),
+      startedAt: opts.startedAt || new Date().toISOString(), paused: true, recorded: false,
+      contacts: {}, caps: [], lastCue: null, target: null, mapDirty: true, capsDirty: true, lastSave: 0, ghosts: {}
+    };
+    lastSoundTick = {}; lastTargetsKey = ''; lastBeamRender = null;
+    if (opts.log && opts.log.length || opts.tick) {
+      var rep = Sim.replay(m, opts.log || [], opts.tick || 0);
+      G.st = rep.state;
+      // rebuild what the renderers know, without sound or announcements
+      rep.events.forEach(function (ev) {
+        var vis = K.visualOf(ev);
+        if (vis) { var c = G.contacts[ev.vessel] || (G.contacts[ev.vessel] = { hist: [] }); c.hist.push(vis); if (c.hist.length > 2) c.hist.shift(); c.ev = ev; G.lastCue = ev; }
+        if (ev.kind === 'ack') { var cc = G.contacts[ev.vessel] || (G.contacts[ev.vessel] = { hist: [] }); cc.status = statusText(ev); }
+      });
+      var log = $('log'); while (log.firstChild) log.removeChild(log.firstChild);
+      rep.events.forEach(function (ev) { if (ev.kind !== 'cue' && ev.kind !== 'beam' && ev.kind !== 'unsighted' && ev.kind !== 'aim') { var t = K.describe(ev, m); if (t) { var li = el('li'); li.appendChild(el('span', { class: 'tm' }, fmtTime(ev.t))); li.appendChild(document.createTextNode(t)); log.insertBefore(li, log.firstChild); } } });
+    } else {
+      var lg = $('log'); while (lg.firstChild) lg.removeChild(lg.firstChild);
+    }
+    buildChart(m); buildDial(m); buildSignals();
+    $('hTier').textContent = Sim.TIERS[tier].name;
+    $('hSeed').textContent = String(seed);
+    $('startView').hidden = true; $('gameView').hidden = false;
+    $('chartBox').classList.toggle('gusting', G.st.gust);
+    applyCues();
+    renderAll(true);
+    if (soundWanted && engine.status() === 'running') engine.startAmbience(tier);
+    return true;
+  }
+
+  function act(type, arg) {
+    if (!G || G.st.over) return;
+    G.uiDirty = true;
+    if (G.paused) { say('The watch is paused.', 2); return; }
+    G.queue.push({ type: type, arg: arg });
+  }
+  // The bearing the beam is heading for, counting a turn queued for the next tick.
+  function aimTarget() {
+    for (var i = G.queue.length - 1; i >= 0; i--) if (G.queue[i].type === 'aim') return G.queue[i].arg;
+    return G.st.beam.target;
+  }
+  function aim(s) {
+    if (!G) return;
+    s = Math.max(0, Math.min(8, s));
+    var tgt = aimTarget();
+    if (tgt === s) return;
+    G.target = null;
+    act('aim', s);
+  }
+  function signal(code) {
+    if (!G) return;
+    var t = G.target;
+    var lit = sightedInBeam();
+    if (t && !lit.some(function (v) { return v.id === t; })) t = null;
+    act('signal', code + (t ? '@' + t : ''));
+  }
+  function sightedInBeam() {
+    if (!G) return [];
+    return G.st.vessels.filter(function (v) { return v.status === 'active' && v.sighted; }).sort(function (a, b) { return a.r - b.r; });
+  }
+
+  function tickOnce() {
+    var acts = G.queue.splice(0);
+    for (var i = 0; i < acts.length; i++) G.log.push([G.st.tick + 1, acts[i].type, acts[i].arg]);
+    var evs = Sim.step(G.st, acts);
+    for (var j = 0; j < evs.length; j++) bus.emit(evs[j]);
+    for (var h = 0; h < tickHooks.length; h++) tickHooks[h](G, evs);
+    if (G.st.tick - G.lastSave >= 20) saveWatch();
+    if (G.st.over) onEnd();
+  }
+
+  function saveWatch() {
+    if (!G) return;
+    G.lastSave = G.st.tick;
+    if (G.st.over) { store.del(WATCH_KEY); return; }
+    store.set(WATCH_KEY, JSON.stringify({ v: 1, simVersion: Sim.SIM_VERSION, tier: G.tier, seed: G.seed, runId: G.runId, startedAt: G.startedAt, tick: G.st.tick, log: G.log }));
+  }
+  function readWatch() {
+    var raw = store.get(WATCH_KEY);
+    if (!raw) return null;
+    try {
+      var w = JSON.parse(raw);
+      if (!w || w.v !== 1 || w.simVersion !== Sim.SIM_VERSION || !Sim.TIERS[w.tier] || !Sim.validSeed(w.seed)) throw new Error('bad');
+      if (typeof w.tick !== 'number' || w.tick < 0 || w.tick > Sim.MAX_TICKS || Math.floor(w.tick) !== w.tick || !Sim.validateLog(w.log)) throw new Error('bad');
+      if (typeof w.runId !== 'string' || !/^[a-z0-9:-]{1,64}$/.test(w.runId)) throw new Error('bad');
+      return w;
+    } catch (e) {
+      store.del(WATCH_KEY);
+      showStartNotice('A saved watch could not be read and was cleared.');
+      return null;
+    }
+  }
+
+  /* ---------- main loop ---------- */
+  var lastTs = null, acc = 0, speed = 1;
+  function frame(ts) {
+    if (lastTs === null) lastTs = ts;
+    var dt = Math.min(ts - lastTs, 250);
+    lastTs = ts;
+    var n = 0;
+    if (G && !G.paused && !G.st.over) {
+      acc += dt * speed;
+      while (acc >= Sim.TICK_MS && n < 40 && !G.st.over) { acc -= Sim.TICK_MS; tickOnce(); n++; }
+      if (n >= 40) acc = 0;
+    } else acc = 0;
+    if (G && (n > 0 || G.uiDirty)) { G.uiDirty = false; renderAll(false); }
+    announcer.pump(ts);
+    requestAnimationFrame(frame);
+  }
+
+  function runGame() {
+    if (!G) return;
+    G.paused = false; acc = 0;
+    if (soundWanted) { engine.resume().then(function () { if (G) engine.startAmbience(G.tier); }); }
+    updatePauseUI();
+  }
+  function pauseGame(why) {
+    if (!G || G.st.over) return;
+    G.paused = true;
+    saveWatch();
+    $('pauseWhy').textContent = why || 'The harbor waits for you. Nothing moves while you are away.';
+    var d = $('dPause'); if (!d.open) d.showModal();
+    updatePauseUI();
+  }
+  function updatePauseUI() { $('btnPause').textContent = G && G.paused ? 'Resume' : 'Pause'; if (G) G.uiDirty = true; }
+
+  /* ---------- rendering ---------- */
+  var lastBeamRender = null;
+  function renderAll(force) {
+    var st = G.st, m = G.mission, T = Sim.TIERS[st.tier];
+    // HUD
+    var home = 0, dmg = 0, lost = 0, sea = 0, due = 0;
+    st.vessels.forEach(function (v) {
+      if (v.status === 'home') home++; else if (v.status === 'scraped') { home++; dmg++; } else if (v.status === 'aground') lost++;
+      else if (v.status === 'active') sea++; else due++;
+    });
+    $('hTime').textContent = fmtTime(st.tick);
+    $('hHome').textContent = home + (dmg ? ' (' + dmg + ' damaged)' : '');
+    $('hLost').textContent = lost; $('hSea').textContent = sea; $('hDue').textContent = due;
+    // beam
+    var bkey = st.beam.pos + ':' + st.beam.target + ':' + (st.lamp.code || '');
+    if (force || bkey !== lastBeamRender) {
+      lastBeamRender = bkey;
+      $('beam').style.transform = 'rotate(' + (-80 + 20 * st.beam.pos) + 'deg)';
+      var btns = $('dial').children;
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].setAttribute('aria-pressed', i === st.beam.target ? 'true' : 'false');
+        btns[i].classList.toggle('moving', i === st.beam.target && st.beam.pos !== st.beam.target);
+      }
+      $('bearNow').textContent = Sim.SECTOR_NAMES[st.beam.pos] + (st.beam.pos !== st.beam.target ? ' → ' + Sim.SECTOR_NAMES[st.beam.target] : '');
+    }
+    // lamp
+    var ls = $('lampState');
+    var lampTxt = st.lamp.code ? 'Signalling ' + K.CODES[st.lamp.code].label.toUpperCase() + ' ' + K.CODES[st.lamp.code].pattern + ' …'
+      : st.acks.length ? 'Waiting for an answer …' : st.beam.pos !== st.beam.target ? 'Beam turning …' : 'Lamp ready.';
+    if (ls.textContent !== lampTxt) ls.textContent = lampTxt;
+    lampFlash(st);
+    var busy = !!st.lamp.code || st.beam.pos !== st.beam.target || G.paused || st.over;
+    var sb = $('signals').children;
+    for (var j = 0; j < sb.length; j++) sb[j].disabled = busy;
+    renderTargets();
+    renderBoats(st, T);
+    if (G.mapDirty || force) { renderRipples(); G.mapDirty = false; renderContacts(); }
+    if (G.capsDirty || force) { renderCaps(); G.capsDirty = false; }
+    renderHint(st, T, m);
+    if (DEV) $('dev').textContent = 'tick ' + st.tick + ' · hash ' + Sim.hash(st) + ' · speed ' + speed + '× · voices ' + engine.voices() + ' · seed ' + G.seed + ' · attempt ' + m.attempt;
+  }
+
+  var flashTimer = null, flashFor = null;
+  function lampFlash(st) {
+    var beam = $('beam');
+    if (!st.lamp.code) { beam.style.opacity = ''; flashFor = null; return; }
+    if (reduced()) { beam.style.opacity = ''; return; }
+    var key = st.lamp.start;
+    if (flashFor === key) return;
+    flashFor = key;
+    var pat = K.PATTERNS[st.lamp.code], t0 = performance.now();
+    if (flashTimer) cancelAnimationFrame(flashTimer);
+    (function loop() {
+      var tt = (performance.now() - t0) / 1000 * speed, on = false;
+      for (var i = 0; i < pat.length; i++) if (tt >= pat[i][0] && tt < pat[i][0] + pat[i][1]) on = true;
+      beam.style.opacity = on ? '1' : '.5';
+      if (tt < 1.6 && flashFor === key) flashTimer = requestAnimationFrame(loop); else beam.style.opacity = '';
+    })();
+  }
+
+  var lastTargetsKey = '';
+  function renderTargets() {
+    var lit = sightedInBeam();
+    if (G.target && !lit.some(function (v) { return v.id === G.target; })) G.target = null;
+    var key = lit.map(function (v) { return v.id + ':' + Math.round(v.r / 100); }).join(',') + '|' + G.target;
+    if (key === lastTargetsKey) return;
+    lastTargetsKey = key;
+    var box = $('targets'); while (box.firstChild) box.removeChild(box.firstChild);
+    if (!lit.length) { box.appendChild(el('span', { class: 'none' }, 'No vessel in the beam within the light’s reach.')); return; }
+    lit.forEach(function (v, i) {
+      var sel = G.target ? G.target === v.id : i === 0;
+      var b = el('button', { type: 'button', class: 'chip', role: 'radio', 'aria-checked': sel ? 'true' : 'false',
+        'aria-label': v.name + ', ' + Sim.TYPES[v.type].craft + ', ' + (Math.round(v.r / 100) / 10) + ' cables' + (i === 0 ? ', nearest' : '') });
+      b.appendChild(el('span', { class: 'g' }, K.GLYPH[v.type]));
+      b.appendChild(el('span', null, v.name + ' · ' + (Math.round(v.r / 100) / 10) + ' cb'));
+      b.addEventListener('click', function () { G.target = v.id; lastTargetsKey = ''; G.uiDirty = true; });
+      box.appendChild(b);
+    });
+  }
+
+  function renderBoats(st) {
+    var g = $('gBoats');
+    while (g.firstChild) g.removeChild(g.firstChild);
+    st.vessels.forEach(function (v) {
+      if (v.status !== 'active') { delete G.ghosts[v.id]; return; }
+      var pos = null, ghost = false;
+      if (v.sighted) { pos = { p: v.p, r: v.r }; G.ghosts[v.id] = pos; }
+      else if (G.ghosts[v.id]) { pos = G.ghosts[v.id]; ghost = true; }
+      if (!pos) return;
+      var q = xy(pos.p, pos.r);
+      var grp = sv('g', { class: 'boat' + (ghost ? ' ghost' : ''), transform: 'translate(' + f(q[0]) + ' ' + f(q[1]) + ')' });
+      grp.appendChild(sv('path', { d: 'M-2.4 -0.6 L2.4 -0.6 L1.6 1.2 L-1.6 1.2 Z M-0.2 -0.6 L-0.2 -3.4 L1.6 -0.9 Z' }));
+      var t = sv('text', { x: 0, y: 4.2 }); t.textContent = v.name + (ghost ? ' (last seen)' : ''); grp.appendChild(t);
+      g.appendChild(grp);
+    });
+  }
+
+  function renderRipples() {
+    var g = $('gRipples');
+    while (g.firstChild) g.removeChild(g.firstChild);
+    if (!prefs.cues) return;
+    Object.keys(G.contacts).forEach(function (id) {
+      var c = G.contacts[id], v = Sim.findVessel(G.st, id);
+      if (!v || v.status !== 'active' || !c.hist.length) return;
+      c.hist.forEach(function (h, i) {
+        var old = i < c.hist.length - 1;
+        var p = (h.angleDeg + 90) / 22.5 * 1000;
+        var q = xy(p, h.rangeCables * 1000);
+        var grp = sv('g', { class: 'ripple ' + h.band + (h.masked ? ' masked' : '') + (old ? ' old' : ''), transform: 'translate(' + f(q[0]) + ' ' + f(q[1]) + ')', 'data-id': id });
+        grp.appendChild(sv('circle', { r: 2.6 }));
+        if (h.band === 'danger') grp.appendChild(sv('circle', { r: 3.6 }));
+        if (!old) {
+          if (!reduced()) grp.appendChild(sv('circle', { r: 2, class: 'pulse' }));
+          var t = sv('text', { x: 0, y: 0.2 }); t.textContent = h.glyph + h.voiceMark; grp.appendChild(t);
+          if (!v.sighted) { var l = sv('text', { x: 0, y: 5.2, class: 'lbl' }); l.textContent = h.name; grp.appendChild(l); }
+        }
+        g.appendChild(grp);
+      });
+    });
+  }
+
+  function renderCaps() {
+    var box = $('caps');
+    while (box.firstChild) box.removeChild(box.firstChild);
+    G.caps.forEach(function (c) { box.appendChild(el('p', null, c)); });
+  }
+
+  function renderContacts() {
+    var tb = $('contacts'); while (tb.firstChild) tb.removeChild(tb.firstChild);
+    var rows = contactRows();
+    if (!rows.length) { var tr0 = el('tr'); tr0.appendChild(el('td', { colspan: '4' }, 'No vessels heard yet.')); tb.appendChild(tr0); return; }
+    rows.forEach(function (r) {
+      var tr = el('tr', r.lit ? { class: 'lit' } : null);
+      tr.appendChild(el('td', null, r.glyph + ' ' + r.name));
+      tr.appendChild(el('td', null, r.bearing));
+      tr.appendChild(el('td', null, r.dist));
+      tr.appendChild(el('td', null, r.status));
+      tb.appendChild(tr);
+    });
+  }
+  function contactRows() {
+    var out = [];
+    Object.keys(G.contacts).forEach(function (id) {
+      var c = G.contacts[id], v = Sim.findVessel(G.st, id);
+      if (!v || v.status !== 'active' || !c.hist.length) return;
+      var h = c.hist[c.hist.length - 1], prev = c.hist.length > 1 ? c.hist[0] : null;
+      out.push({
+        id: id, r: h.rangeCables, glyph: h.glyph + h.voiceMark, name: h.name + ' (' + h.typeLabel.toLowerCase() + ')',
+        bearing: h.sectorName + (prev && prev.sector !== h.sector ? ' (was ' + prev.sectorName + ')' : ''),
+        dist: cap(h.bandWord) + ', ' + h.rangeCables.toFixed(1) + ' cb' + (h.masked ? ' (wind)' : ''),
+        status: (c.status || 'No orders yet') + (v.sighted ? ' · in the beam' : ''), lit: v.sighted, sector: h.sector, band: h.band
+      });
+    });
+    out.sort(function (a, b) { return a.r - b.r; });
+    return out;
+  }
+
+  function renderHint(st, T, m) {
+    var box = $('hint');
+    if (!hintsOn() || st.over) { if (!box.hidden) box.hidden = true; return; }
+    var txt = hintText(st, T, m);
+    if (box.textContent !== txt) box.textContent = txt;
+    box.hidden = !txt;
+  }
+  function coarse(s) { return s <= 2 ? 'to your left (west)' : s >= 6 ? 'to your right (east)' : s === 4 ? 'straight ahead (north)' : s < 4 ? 'ahead, a little left' : 'ahead, a little right'; }
+  function hintText(st, T, m) {
+    var act = st.vessels.filter(function (v) { return v.status === 'active'; }).sort(function (a, b) { return a.r - b.r; });
+    if (!act.length) {
+      if (st.vessels.every(function (v) { return v.status === 'pending'; })) return 'Listen. The first vessel will sound soon. Sight cues (top bar) show each sound on the chart.';
+      return 'Quiet water for now. Another vessel is due.';
+    }
+    var v = null;
+    for (var i = 0; i < act.length; i++) if (!act[i].ack || (act[i].order === 'steer' && act[i].tooLate)) { v = act[i]; break; }
+    if (!v) return 'Every vessel at sea has your orders. Listen for the next one.';
+    var s = Sim.sectorOf(v.p), co = m.coast[s], type = Sim.TYPES[v.type].label.toLowerCase();
+    if (v.r > T.reach) return 'A ' + type + ' ' + coarse(s) + ': the ' + Sim.TYPES[v.type].craft + ' ' + v.name + '. She is still beyond the light’s reach — turn the beam toward her and wait.';
+    if (st.beam.target !== s) return v.name + ' is within reach, ' + coarse(s) + '. Rest the beam on her bearing to sight her.';
+    if (!v.sighted) return 'Hold the beam steady on ' + Sim.SECTOR_NAMES[s] + '.';
+    if (v.ack && v.tooLate) return v.name + ' cannot turn in time. Send Heave To so she stops while she turns.';
+    if (co.kind === 'channel') return v.name + ' is on the channel bearing. Send Steady to guide her in.';
+    var best = null; st.channels.forEach(function (c) { if (best === null || Math.abs(c - s) < Math.abs(best - s)) best = c; });
+    return v.name + ' is heading for ' + co.name + '. The channel lies to the ' + (best < s ? 'west' : 'east') + ': send Steer ' + (best < s ? 'West' : 'East') + '.';
+  }
+
+  /* ---------- report and listen again ---------- */
+  function report() {
+    if (!G) return;
+    var rows = contactRows(), st = G.st;
+    var parts = ['Beam on ' + Sim.SECTOR_WORDS[st.beam.pos] + '.'];
+    if (!rows.length) parts.push('No vessels at sea.');
+    rows.forEach(function (r) { parts.push(r.name + ': ' + r.bearing + ', ' + r.dist + ', ' + r.status + '.'); });
+    var home = st.vessels.filter(function (v) { return v.status === 'home' || v.status === 'scraped'; }).length;
+    var due = st.vessels.filter(function (v) { return v.status === 'pending'; }).length;
+    parts.push(home + ' home, ' + due + ' still due.');
+    announcer.clear();
+    say(parts.join(' '), 3);
+    var out = $('reportOut');
+    out.textContent = 'Report at ' + fmtTime(st.tick) + ': ' + parts.join(' ');
+    out.hidden = false;
+    clearTimeout(report.timer);
+    report.timer = setTimeout(function () { out.hidden = true; }, 15000);
+  }
+  function listenAgain() {
+    if (!G) return;
+    var ev = null;
+    if (G.target && G.contacts[G.target]) ev = G.contacts[G.target].ev;
+    else { var lit = sightedInBeam(); if (lit.length && G.contacts[lit[0].id]) ev = G.contacts[lit[0].id].ev; }
+    if (!ev) ev = G.lastCue;
+    if (!ev) { say('Nothing to hear again yet.', 3); return; }
+    if (soundWanted && engine.status() === 'running') engine.render(K.audioOf(ev, { mono: prefs.mono }));
+    var text = 'Again: ' + K.describe({ t: ev.t, kind: 'cue', vessel: ev.vessel, vtype: ev.vtype, sector: ev.sector, band: ev.band, masked: ev.masked, sighted: ev.sighted }, G.mission) + ' (heard at ' + fmtTime(ev.t) + ')';
+    say(text, 3);
+    if (prefs.cues) {
+      G.caps.unshift(text); if (G.caps.length > 3) G.caps.length = 3; G.capsDirty = true;
+      var nodes = document.querySelectorAll('#gRipples [data-id="' + ev.vessel + '"]');
+      var node = nodes.length ? nodes[nodes.length - 1] : null;
+      if (node && !reduced()) { node.classList.remove('flash-again'); void node.getBBox(); node.classList.add('flash-again'); }
+    }
+  }
+
+  /* ---------- end of the watch ---------- */
+  function onEnd() {
+    if (!G || G.endShown) return;
+    G.endShown = true;
+    var sc = Sim.score(G.st);
+    var rec = { recorded: false };
+    if (!G.recorded) {
+      rec = keyring.recordCompletion(SLOT, G.tier, { runId: G.runId, score: sc.score, keptLight: sc.keptLight, perfect: sc.perfect });
+      G.recorded = true;
+    }
+    store.del(WATCH_KEY);
+    showEnd(sc, rec);
+  }
+
+  function showEnd(sc, rec) {
+    var st = G.st, m = G.mission;
+    $('endScore').textContent = sc.score;
+    $('endVerdict').textContent = sc.keptLight ? 'The light was kept. Every vessel is home.' : sc.aground ? 'The harbor survived, but ' + sc.aground + ' vessel' + (sc.aground > 1 ? 's' : '') + ' ran aground.' : 'Every vessel reached harbor, but ' + sc.scraped + ' arrived damaged.';
+    var keyTxt = '';
+    if (rec && rec.newKey) keyTxt = '✦ ' + Sim.TIERS[G.tier].name + ' key earned for your Sonortals Keyring.';
+    else if (sc.keptLight) keyTxt = 'You already hold the ' + Sim.TIERS[G.tier].name + ' key.';
+    else keyTxt = 'Keep the light — every vessel home undamaged — to earn the ' + Sim.TIERS[G.tier].name + ' key.';
+    if (rec && rec.newBest) keyTxt += ' New best score for this tier.';
+    if (keyring.notice()) keyTxt += ' ' + keyring.notice();
+    $('endKey').textContent = keyTxt;
+    var ul = $('endList'); while (ul.firstChild) ul.removeChild(ul.firstChild);
+    st.vessels.forEach(function (v) {
+      var tag, cls, line;
+      var place = v.landedSector !== null ? m.coast[v.landedSector].name : '';
+      if (v.status === 'home') { cls = 'ok'; tag = v.ack ? 'GUIDED' : 'UNAIDED'; line = 'reached ' + place + (v.ack ? '' : ' on her own'); }
+      else if (v.status === 'scraped') { cls = 'bad'; tag = 'DAMAGED'; line = 'scraped another vessel in ' + place; }
+      else { cls = 'bad'; tag = 'AGROUND'; line = 'ran aground on ' + place; }
+      var notes = [];
+      if (v.orders.some(function (o) { return o[1] === 'hold' && o[2] === 'sound'; })) notes.push('hove to');
+      if (v.tooLate && v.status === 'home') notes.push('saved after a late turn');
+      if (v.everUnsound) notes.push('was given an unsound order');
+      var li = el('li', { class: cls });
+      li.appendChild(el('span', { class: 'tag' }, tag));
+      li.appendChild(document.createTextNode(v.name + ' (' + Sim.TYPES[v.type].craft + ') ' + line + (notes.length ? ' — ' + notes.join(', ') : '') + '.'));
+      ul.appendChild(li);
+    });
+    var tb = $('endBreak'); while (tb.firstChild) tb.removeChild(tb.firstChild);
+    var pd = sc.penaltyDetail;
+    [['Vessels guided home (10 each)', sc.guided], ['Home without your light (6 each)', sc.unaided], ['Damaged in the channel (3 each)', sc.scraped], ['Aground (0)', sc.aground],
+      ['Harbor score', sc.base + ' / 100'], ['Unsound orders (−2 each)', pd.unsound], ['Unable / refused orders (−1 each)', pd.unable + pd.refused],
+      ['Unanswered signals (−1 each, max 5)', pd.empty], ['Final score', sc.score]].forEach(function (r) {
+      var tr = el('tr'); tr.appendChild(el('td', null, r[0])); tr.appendChild(el('td', null, String(r[1]))); tb.appendChild(tr);
+    });
+    $('endNotes').textContent = 'Harbor ' + G.seed + ' · ' + Sim.TIERS[G.tier].name + ' · watch length ' + fmtTime(st.tick) + '. Mode does not affect the score.';
+    $('btnNextTier').hidden = G.tier === 'gold';
+    var d = $('dEnd'); if (!d.open) d.showModal();
+    say('Dawn. ' + $('endVerdict').textContent + ' Score ' + sc.score + '. ' + keyTxt, 3);
+    refreshStartKeys();
+  }
+
+  /* ---------- start view ---------- */
+  function today() { var d = new Date(); return Sim.dateSeed(d.getFullYear(), d.getMonth() + 1, d.getDate()); }
+  function chosenTier() { var r = document.querySelector('input[name=tier]:checked'); return r ? r.value : 'bronze'; }
+  function chosenSeed() {
+    var w = document.querySelector('input[name=watch]:checked').value;
+    if (w === 'tonight') return today();
+    if (w === 'new') return 1 + Math.floor(Math.random() * Sim.SEED_MAX);
+    var n = Number($('seedInput').value.trim());
+    if (!Sim.validSeed(n)) return null;
+    return n;
+  }
+  function showStartNotice(msg) { var n = $('startNotice'); n.textContent = msg; n.hidden = !msg; }
+  function refreshStartKeys() {
+    var slot = keyring.slot(SLOT);
+    [['bronze', 'tkBronze'], ['silver', 'tkSilver'], ['gold', 'tkGold']].forEach(function (p) {
+      var t = slot.tiers[p[0]];
+      $(p[1]).textContent = (t.key ? '✦ Key held' : '○ No key yet') + (t.bestScore !== null ? ' · best ' + t.bestScore : '');
+    });
+    $('tonightSeed').textContent = '(harbor ' + today() + ')';
+  }
+
+  function startFromMenu(mode) {
+    var seed = chosenSeed();
+    if (seed === null) { showStartNotice('Harbor numbers run from 1 to 999999.'); $('seedInput').focus(); return; }
+    var tier = chosenTier();
+    if (mode === 'listen') { startSound(); }
+    else { if (soundWanted) stopSound(); setCues(true); }
+    showStartNotice('Charting the harbor …');
+    setTimeout(function () {
+      store.del(WATCH_KEY);
+      if (beginWatch(tier, seed)) {
+        showStartNotice('');
+        runGame();
+        var first = $('dial').children[G.st.beam.target]; if (first) first.focus();
+      }
+    }, 20);
+  }
+
+  function leaveToStart() {
+    if (G && !G.st.over) saveWatch();
+    G = null;
+    engine.stopAmbience();
+    $('gameView').hidden = true; $('startView').hidden = false;
+    refreshStartKeys(); checkResume();
+  }
+
+  function checkResume() {
+    var w = readWatch();
+    var box = $('resumeBox');
+    if (!w) { box.hidden = true; return; }
+    $('resumeText').textContent = 'You left a watch unfinished: ' + Sim.TIERS[w.tier].name + ', harbor ' + w.seed + ', at ' + fmtTime(w.tick) + '. It will resume paused, exactly where you left it.';
+    box.hidden = false;
+  }
+
+  /* ---------- settings and cues ---------- */
+  function setCues(on) { prefs.cues = !!on; savePrefs(); applyCues(); if (G) G.uiDirty = true; }
+  function applyCues() {
+    $('caps').hidden = !prefs.cues;
+    $('contactsBox').hidden = !prefs.cues;
+    $('btnCuesToggle').setAttribute('aria-pressed', prefs.cues ? 'true' : 'false');
+    $('btnCuesToggle').textContent = prefs.cues ? 'Sight cues ✓' : 'Sight cues';
+    $('setCues').checked = prefs.cues;
+    if (G) { G.mapDirty = true; G.capsDirty = true; }
+  }
+  function openSettings() {
+    $('setSound').checked = soundWanted; $('setVolume').value = Math.round(prefs.volume * 100); $('setAmb').checked = prefs.ambience;
+    $('setCues').checked = prefs.cues; $('setMono').checked = prefs.mono; $('setHints').checked = hintsOn(); $('setMotion').checked = reduced();
+    $('dSettings').showModal();
+  }
+
+  /* ---------- keyring view ---------- */
+  function openKeyring() {
+    var grid = $('keyringGrid'); while (grid.firstChild) grid.removeChild(grid.firstChild);
+    var n = keyring.notice(); $('krNotice').textContent = n || ''; $('krNotice').hidden = !n;
+    keyring.registry().forEach(function (r) {
+      var d = el('div', { class: 'slot ' + (r.status === 'active' ? 'active' : 'reserved') });
+      d.appendChild(el('div', { class: 'sid' }, r.id));
+      if (r.status === 'active') {
+        d.appendChild(el('div', { style: 'font-weight:700' }, 'No. ' + ('00' + r.number).slice(-3) + ' — ' + r.title));
+        var slot = keyring.slot(r.id), keys = el('div', { class: 'keys' });
+        r.tiers.forEach(function (t) {
+          var tr = slot.tiers[t];
+          var k = el('span', { class: 'key ' + (tr.key ? 'got' : 'not') }, cap(t) + (tr.key ? ' key' : ': not yet') + (tr.bestScore !== null ? ' · best ' + tr.bestScore : '') + (tr.perfect ? ' · perfect' : ''));
+          keys.appendChild(k);
+        });
+        d.appendChild(keys);
+        var tot = r.tiers.reduce(function (a, t) { return a + slot.tiers[t].completions; }, 0);
+        d.appendChild(el('div', { class: 'note' }, tot + ' watch' + (tot === 1 ? '' : 'es') + ' finished'));
+      } else {
+        d.appendChild(el('div', null, 'Coming soon'));
+        d.appendChild(el('div', { class: 'note' }, 'Not yet available'));
+      }
+      grid.appendChild(d);
+    });
+    resetArmed = false; $('btnKrReset').textContent = 'Reset No. 001 records';
+    var dlg = $('dKeyring'); if (!dlg.open) dlg.showModal();
+  }
+  var resetArmed = false;
+
+  /* ---------- primer ---------- */
+  var primerPage = 0;
+  function showPrimer(i) {
+    var secs = document.querySelectorAll('#dPrimer section');
+    primerPage = Math.max(0, Math.min(secs.length - 1, i));
+    for (var k = 0; k < secs.length; k++) secs[k].classList.toggle('on', k === primerPage);
+    $('primerStep').textContent = 'Page ' + (primerPage + 1) + ' of ' + secs.length;
+    $('primerPrev').disabled = primerPage === 0;
+    $('primerNext').textContent = primerPage === secs.length - 1 ? 'Done' : 'Next';
+  }
+  function openPrimer() {
+    if (G && !G.paused && !G.st.over) pauseGameQuiet();
+    showPrimer(0); $('dPrimer').showModal();
+  }
+  function pauseGameQuiet() { if (G) { G.paused = true; saveWatch(); updatePauseUI(); G.resumeAfterDialog = true; } }
+  function resumeAfterDialog() { if (G && G.resumeAfterDialog && !G.st.over) { G.resumeAfterDialog = false; pauseGame(); } }
+
+  /* ---------- events ---------- */
+  function bind() {
+    $('btnListen').addEventListener('click', function () { startFromMenu('listen'); });
+    $('btnSight').addEventListener('click', function () { startFromMenu('sight'); });
+    $('btnPrimer').addEventListener('click', openPrimer);
+    $('btnPrimer2').addEventListener('click', openPrimer);
+    $('btnKeyring').addEventListener('click', openKeyring);
+    $('btnSettings').addEventListener('click', openSettings);
+    $('btnSettings2').addEventListener('click', function () { if (G && !G.paused && !G.st.over) pauseGameQuiet(); openSettings(); });
+    $('seedInput').addEventListener('focus', function () { $('wSeed').checked = true; });
+    $('btnResume').addEventListener('click', function () {
+      var w = readWatch(); if (!w) { checkResume(); return; }
+      if (beginWatch(w.tier, w.seed, { log: w.log, tick: w.tick, runId: w.runId, startedAt: w.startedAt })) {
+        if (G.st.over) { onEnd(); return; }
+        pauseGame('Your watch was restored exactly where you left it, paused. Choose Resume when you are ready. Sound is off after a reload: turn it on from the top bar if you want to listen.');
+      }
+    });
+    $('btnDiscard').addEventListener('click', function () { store.del(WATCH_KEY); checkResume(); });
+
+    $('btnSoundToggle').addEventListener('click', function () { if (soundWanted) stopSound(); else startSound(); });
+    $('btnCuesToggle').addEventListener('click', function () { setCues(!prefs.cues); });
+    $('btnPause').addEventListener('click', function () { if (!G) return; if (G.paused) { var d = $('dPause'); if (d.open) d.close(); runGame(); } else pauseGame(); });
+    $('btnResumeGame').addEventListener('click', function () { $('dPause').close(); runGame(); });
+    $('btnRestart').addEventListener('click', function () {
+      var t = G.tier, s = G.seed; $('dPause').close(); store.del(WATCH_KEY);
+      if (beginWatch(t, s)) runGame();
+    });
+    $('btnAbandon').addEventListener('click', function () { $('dPause').close(); store.del(WATCH_KEY); G = null; leaveToStart(); });
+    $('dPause').addEventListener('cancel', function (e) { e.preventDefault(); $('dPause').close(); runGame(); });
+
+    $('btnLeft').addEventListener('click', function () { if (G) aim(aimTarget() - 1); });
+    $('btnRight').addEventListener('click', function () { if (G) aim(aimTarget() + 1); });
+    $('btnAgain').addEventListener('click', listenAgain);
+    $('btnReport').addEventListener('click', report);
+
+    $('btnAgainNew').addEventListener('click', function () { var t = G.tier; $('dEnd').close(); var s = 1 + Math.floor(Math.random() * Sim.SEED_MAX); if (beginWatch(t, s)) runGame(); });
+    $('btnSameSeed').addEventListener('click', function () { var t = G.tier, s = G.seed; $('dEnd').close(); if (beginWatch(t, s)) runGame(); });
+    $('btnNextTier').addEventListener('click', function () { var t = G.tier === 'bronze' ? 'silver' : 'gold'; $('dEnd').close(); var s = today(); if (beginWatch(t, s)) runGame(); });
+    $('btnEndKeyring').addEventListener('click', openKeyring);
+    $('btnEndClose').addEventListener('click', function () { $('dEnd').close(); leaveToStart(); });
+    $('dEnd').addEventListener('cancel', function (e) { e.preventDefault(); $('dEnd').close(); leaveToStart(); });
+
+    $('btnKrClose').addEventListener('click', function () { $('dKeyring').close(); });
+    $('btnKrReset').addEventListener('click', function () {
+      if (!resetArmed) { resetArmed = true; $('btnKrReset').textContent = 'Press again to erase No. 001 keys and scores'; return; }
+      keyring.resetSlot(SLOT); resetArmed = false; openKeyring(); refreshStartKeys(); say('Records for Sonortal No. 001 were reset.', 3);
+    });
+
+    $('primerPrev').addEventListener('click', function () { showPrimer(primerPage - 1); });
+    $('primerNext').addEventListener('click', function () { var n = document.querySelectorAll('#dPrimer section').length; if (primerPage >= n - 1) { $('dPrimer').close(); } else showPrimer(primerPage + 1); });
+    $('primerClose').addEventListener('click', function () { $('dPrimer').close(); });
+    $('dPrimer').addEventListener('close', resumeAfterDialog);
+
+    $('setSound').addEventListener('change', function () { if (this.checked) startSound(); else stopSound(); });
+    $('setVolume').addEventListener('input', function () { prefs.volume = Number(this.value) / 100; engine.setVolume(prefs.volume); savePrefs(); });
+    $('setAmb').addEventListener('change', function () { prefs.ambience = this.checked; engine.setAmbience(prefs.ambience); savePrefs(); });
+    $('setCues').addEventListener('change', function () { setCues(this.checked); });
+    $('setMono').addEventListener('change', function () { prefs.mono = this.checked; savePrefs(); });
+    $('setHints').addEventListener('change', function () { prefs.hints = this.checked; savePrefs(); });
+    $('setMotion').addEventListener('change', function () { prefs.motion = this.checked; savePrefs(); applyMotion(); });
+    $('btnSetClose').addEventListener('click', function () { $('dSettings').close(); });
+    $('dSettings').addEventListener('close', resumeAfterDialog);
+    if (reducedMQ.addEventListener) reducedMQ.addEventListener('change', applyMotion);
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        if (G && !G.paused && !G.st.over) pauseGame('The watch paused while the page was hidden. Choose Resume to carry on.');
+        if (soundWanted) { selfSuspend = true; engine.suspend(); }
+      }
+    });
+    self.addEventListener('pagehide', function () { if (G && !G.st.over) saveWatch(); });
+
+    document.addEventListener('keydown', function (e) {
+      if (!G || $('gameView').hidden) return;
+      if (document.querySelector('dialog[open]')) return;
+      var tag = (e.target && e.target.tagName) || '';
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      var k = e.key;
+      if (k === 'ArrowLeft') { aim(aimTarget() - 1); e.preventDefault(); }
+      else if (k === 'ArrowRight') { aim(aimTarget() + 1); e.preventDefault(); }
+      else if (k >= '1' && k <= '4') { signal(Sim.ORDERS[Number(k) - 1]); e.preventDefault(); }
+      else if (k === 'r' || k === 'R') { listenAgain(); e.preventDefault(); }
+      else if (k === 'c' || k === 'C') { report(); e.preventDefault(); }
+      else if (k === 't' || k === 'T') {
+        var lit = sightedInBeam();
+        if (lit.length > 1) {
+          var i = 0; for (var q = 0; q < lit.length; q++) if (lit[q].id === G.target) i = q;
+          G.target = lit[(i + 1) % lit.length].id; lastTargetsKey = ''; G.uiDirty = true;
+          say('Signal target: ' + Sim.findVessel(G.st, G.target).name, 3);
+        }
+        e.preventDefault();
+      }
+      else if (k === 'p' || k === 'P' || k === 'Escape') { if (!G.paused) pauseGame(); e.preventDefault(); }
+    });
+  }
+
+  /* ---------- dev hooks (only with ?dev=1) ---------- */
+  function devSetup() {
+    var box = $('dev'); box.hidden = false;
+    var sel = el('select', { 'aria-label': 'Speed (development only)' });
+    [1, 2, 4, 8, 16].forEach(function (s) { var o = el('option', { value: s }, s + '×'); sel.appendChild(o); });
+    sel.addEventListener('change', function () { speed = Number(this.value); });
+    box.parentNode.insertBefore(sel, box);
+    self.__fog = {
+      get G() { return G; }, Sim: Sim, K: K, KR: KR, engine: engine, keyring: keyring, store: store,
+      setSpeed: function (s) { speed = s; }, act: act, aim: aim, signal: signal, pause: pauseGame, run: runGame,
+      onTick: function (fn) { tickHooks.push(fn); }, onEvent: function (fn) { return bus.on(fn); },
+      begin: beginWatch, startSound: startSound, stopSound: stopSound, setCues: setCues, prefs: prefs, soundWanted: function () { return soundWanted; }
+    };
+  }
+
+  /* ---------- boot ---------- */
+  bind();
+  applyMotion();
+  applyCues();
+  updateSoundUI();
+  refreshStartKeys();
+  checkResume();
+  if (keyring.notice()) showStartNotice(keyring.notice());
+  if (!rawStorage) showStartNotice('This browser is not saving data for this page, so keys and an unfinished watch will be lost when you leave.');
+  if (DEV) devSetup();
+  requestAnimationFrame(frame);
+})();
+
+</script>
+<!-- Cloudflare Web Analytics -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3f72232588414cf087bd7c4ed5e4ddaa"}'></script>
+<!-- End Cloudflare Web Analytics -->
+</body>
+</html>
