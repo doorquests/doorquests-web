@@ -1,0 +1,2521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Lost Property Office at Hollin Cross (Prototype) | DoorQuests Mystortals</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Mystortals No. 001. Night shift. Lost property. Nothing interesting has been handed in for years. An original interactive experience from DoorQuests. Prototype for Founder playtest.">
+<meta name="theme-color" content="#0b1020">
+<link rel="icon" type="image/svg+xml" href="/assets/doorquests-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Jost:wght@400;500;600&display=swap">
+<style>
+:root {
+  --night: #0b1020; --deep: #121a2c; --panel: #182136; --panel-2: #1f2a42; --raise: #26324d;
+  --line: rgba(201, 162, 74, .28); --line-2: rgba(201, 162, 74, .55);
+  --brass: #c9a24a; --brass-2: #e8c983; --ivory: #f3e8d0; --ivory-dim: #cfc4ad; --mist: #b3bccc;
+  --paper: #efe3c8; --paper-2: #e4d4b0; --ink: #2e2418; --ink-dim: #65553f;
+  --lav: #bb9de1; --lav-deep: #7c57b2; --ok: #a6dca0; --err: #ffc59a; --wool: #6f9a52;
+  --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --ui: "Jost", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --handf: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --r: 12px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body { min-height: 100vh; font-family: var(--ui); font-size: 16px; line-height: 1.55; color: var(--ivory); overflow-x: hidden;
+  background: radial-gradient(120% 60% at 50% -10%, #2a2a3e 0%, #141a2b 45%, var(--night) 100%) no-repeat; background-color: var(--night); }
+body.large { font-size: 18.5px; }
+a { color: var(--brass-2); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--brass-2); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 12px; top: -60px; background: var(--brass); color: var(--night); padding: 8px 14px; border-radius: 8px; z-index: 60; font-weight: 600; }
+.skip:focus { top: 10px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.15; margin: 0 0 .5em; color: var(--ivory); }
+h2 { font-size: 1.75rem; } h3 { font-size: 1.3rem; }
+p { margin: 0 0 .8em; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 48px; }
+
+/* header */
+header.top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 0; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+.home { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); font-size: 1.25rem; text-decoration: none; color: var(--ivory); }
+.home svg { width: 18px; height: 26px; }
+.proto { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--night); background: var(--lav); padding: 3px 10px; border-radius: 999px; font-weight: 600; }
+.tools { margin-left: auto; display: flex; flex-wrap: wrap; gap: 6px; }
+.tools button { background: transparent; border: 1px solid var(--line-2); border-radius: 999px; padding: 6px 12px; min-height: 40px; cursor: pointer; font-size: .92rem; }
+.tools button:hover { background: rgba(201, 162, 74, .12); }
+.tools button[aria-pressed="true"] { background: rgba(201, 162, 74, .22); }
+
+/* buttons */
+button { cursor: pointer; border-radius: 10px; border: 1px solid var(--line-2); background: var(--panel-2); padding: 9px 14px; min-height: 44px; color: var(--ivory); }
+button:hover:not(:disabled) { border-color: var(--brass-2); }
+button.primary, button.big, .btnrow button, .looks button, .asks button, .btncol button, .dlg-actions button, .matchrow button, #actionRow button {
+  border-radius: 10px; border: 1px solid var(--line-2); background: var(--panel-2); padding: 9px 14px; min-height: 44px; }
+button.primary { background: linear-gradient(180deg, #d8b562, #b38a35); color: #1c1408; border-color: #e8c983; font-weight: 600; }
+button.primary:hover { filter: brightness(1.06); }
+button.big { font-size: 1.08rem; padding: 12px 20px; }
+button.quiet { background: transparent; }
+button.danger { background: #4a2420; border-color: #c66; }
+button.small { min-height: 36px; padding: 5px 10px; font-size: .9rem; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+button.linkish { background: none; border: none; padding: 0; min-height: 0; color: var(--brass-2); text-decoration: underline; text-underline-offset: 3px; font-weight: 500; text-align: left; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; align-items: center; }
+.btncol { display: flex; flex-direction: column; gap: 8px; }
+.note { color: var(--mist); font-size: .93rem; }
+.dim { color: var(--mist); }
+.ok { color: var(--ok); } .err { color: var(--err); }
+.hand { font-family: var(--handf); font-style: italic; font-weight: 600; letter-spacing: .01em; }
+
+/* title */
+#screen-title { display: grid; gap: 22px; align-items: center; }
+@media (min-width: 860px) { #screen-title { grid-template-columns: 1.05fr 1fr; padding-top: 18px; } }
+.hero svg { width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--line); display: block; }
+.kicker { color: var(--lav); letter-spacing: .14em; text-transform: uppercase; font-size: .82rem; font-weight: 600; margin-bottom: .6em; }
+#screen-title h1 { font-size: clamp(2.1rem, 6vw, 3.4rem); margin-bottom: .3em; }
+.hookline { font-family: var(--display); font-style: italic; font-size: 1.45rem; color: var(--brass-2); }
+
+/* office */
+.statusbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 10px 14px; background: var(--deep); border: 1px solid var(--line); border-radius: var(--r); margin-bottom: 14px; }
+.clock, #clock { font-family: var(--display); font-size: 1.6rem; color: var(--brass-2); font-variant-numeric: tabular-nums; }
+.place { color: var(--mist); }
+#prompt { flex: 1 1 280px; margin: 0; }
+#actionRow { display: flex; gap: 8px; flex-wrap: wrap; }
+.desk { display: grid; gap: 16px; }
+@media (max-width: 899px) { .desk { display: flex; flex-direction: column; } .workarea { order: -1; } #tabpanel[hidden] + * { display: none; } }
+@media (min-width: 900px) { .desk { grid-template-columns: minmax(320px, 5fr) 7fr; align-items: start; } #counter { position: sticky; top: 12px; } }
+.panel, #counter, #tabpanel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: -1px; }
+.tabs [role="tab"] { background: var(--deep); border: 1px solid var(--line); border-bottom: none; border-radius: 10px 10px 0 0; padding: 9px 16px; min-height: 44px; color: var(--mist); }
+.tabs [role="tab"][aria-selected="true"] { background: var(--panel); color: var(--ivory); border-color: var(--line-2); font-weight: 600; }
+#tabpanel { border-top-left-radius: 0; }
+.art { background: radial-gradient(80% 90% at 50% 40%, #3a3a46 0%, #23283a 70%); border-radius: 10px; border: 1px solid var(--line); margin: 6px 0 10px; }
+.art svg { display: block; width: 100%; height: auto; max-height: 240px; }
+.art.small { width: 72px; flex: 0 0 72px; margin: 0; }
+.art.small svg { max-height: 54px; }
+.label-strip { background: var(--paper-2); color: var(--ink); padding: 7px 12px; border-radius: 4px; font-size: .95rem; box-shadow: 0 1px 0 rgba(0,0,0,.4); }
+.lbl { font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-dim); margin-right: 4px; }
+.slip .lbl, .bi-info .lbl { color: inherit; opacity: .75; }
+.looks { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.looks button.seen { border-color: var(--ok); color: var(--ok); }
+.noticed { margin: 6px 0 12px; padding-left: 20px; }
+.noticed li { margin-bottom: 3px; }
+fieldset { border: 1px solid var(--line); border-radius: 10px; margin: 0 0 12px; padding: 8px 12px 10px; }
+legend { padding: 0 6px; color: var(--brass-2); font-weight: 500; }
+.radio { display: flex; align-items: flex-start; gap: 8px; padding: 4px 0; }
+.radio input { width: 22px; height: 22px; margin: 2px 0 0; flex: 0 0 22px; accent-color: var(--brass); }
+.radio label { cursor: pointer; }
+.radio.wide label { display: flex; flex-direction: column; }
+.radio.wide small { color: var(--mist); font-size: .88rem; }
+.shelfpick { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 520px) { .shelfpick { grid-template-columns: 1fr 1fr; column-gap: 12px; } .shelfpick legend { grid-column: 1 / -1; } }
+.tagpreview { margin: 6px 0 12px; }
+.tag { display: inline-block; position: relative; background: var(--paper); color: var(--ink); padding: 6px 14px 6px 26px; font-size: 1.12rem; border-radius: 3px 8px 8px 3px; box-shadow: 0 2px 6px rgba(0,0,0,.35); transform: rotate(-1deg); }
+.tag::before { content: ""; position: absolute; left: 9px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--panel); box-shadow: inset 0 0 0 1.5px #9a8a6a; }
+.tag.small { font-size: .98rem; padding: 2px 10px 2px 22px; }
+.shelf { border-bottom: 1px dashed var(--line); padding: 10px 0; }
+.shelf:last-child { border-bottom: none; }
+.shelf-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.shelf-items li { display: flex; align-items: center; gap: 10px; }
+.si-text { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.pin { font-size: .78rem; border: 1px solid var(--lav); color: var(--lav); border-radius: 999px; padding: 1px 8px; }
+.memory { background: rgba(187, 157, 225, .08); border: 1px solid rgba(187, 157, 225, .4); border-radius: 10px; padding: 10px 12px; margin: 6px 0 10px; }
+.slip { background: var(--paper); color: var(--ink); border-radius: 6px; padding: 12px 14px; margin: 0 0 12px; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+.slip h3 { color: var(--ink); font-size: 1.15rem; }
+.slip.advance { background: #f3e7cb; outline: 2px dashed rgba(124, 87, 178, .5); outline-offset: -6px; }
+.slip .hand { font-size: 1.12rem; }
+.slip select, .bi select, .matchrow select { background: #fff8e6; color: var(--ink); border: 1px solid #a8916a; border-radius: 8px; padding: 8px; min-height: 44px; max-width: 100%; }
+.bi select, .matchrow select { background: var(--deep); color: var(--ivory); border-color: var(--line-2); }
+.slip .matchrow select { background: #fff8e6; color: var(--ink); }
+.slip .ok { color: #2f6a2a; } .slip .err { color: #8a3a12; }
+.want { margin: 0 0 8px; padding-left: 20px; }
+.matchrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 6px 0; }
+.stamp { display: inline-block; border: 3px double #7a2a2a; color: #7a2a2a; padding: 2px 10px; font-weight: 600; letter-spacing: .08em; transform: rotate(-3deg); }
+.line { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 6px; counter-reset: st; }
+.line li { display: grid; grid-template-columns: 1fr; padding: 6px 10px 6px 30px; position: relative; background: var(--deep); border-radius: 8px; }
+.line li::before { content: ""; position: absolute; left: 12px; top: 14px; width: 10px; height: 10px; border-radius: 50%; background: var(--brass); }
+.line li span { color: var(--brass-2); font-variant-numeric: tabular-nums; font-size: .92rem; }
+.line li small { color: var(--mist); }
+@media (min-width: 1000px) { .line { grid-template-columns: repeat(6, 1fr); } .line li { padding: 26px 8px 8px; } .line li::before { left: 50%; top: 9px; margin-left: -5px; } .line li { text-align: center; } }
+.board-items { display: grid; gap: 10px; margin: 12px 0; }
+@media (min-width: 700px) { .board-items { grid-template-columns: 1fr 1fr; } }
+.bi { background: var(--deep); margin: 0; }
+.bi .art.small { float: right; margin-left: 8px; }
+.bi-info p { font-size: .9rem; margin-bottom: .4em; }
+.hint { background: rgba(201, 162, 74, .1); border-left: 3px solid var(--brass); padding: 8px 12px; border-radius: 4px; }
+.checkres { background: var(--deep); border-radius: 10px; padding: 10px 14px; margin-top: 10px; }
+.checkres ul { padding-left: 4px; list-style: none; margin: 0; }
+.progress progress { width: 100%; height: 14px; accent-color: var(--brass); }
+.transcript { background: var(--paper); color: var(--ink); border-radius: 6px; padding: 12px 14px 12px 32px; min-height: 80px; }
+.transcript li { margin-bottom: 8px; }
+.transcript .cap { font-style: italic; color: var(--ink-dim); }
+.transcript .dim { color: var(--ink-dim); list-style: none; margin-left: -18px; }
+.phono svg { max-height: 200px; }
+.why li { margin-bottom: 6px; }
+
+/* dawn */
+.hatch svg { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); margin-bottom: 16px; }
+.dawn-cols { display: grid; gap: 16px; }
+@media (min-width: 900px) { .dawn-cols { grid-template-columns: 5fr 6fr; align-items: start; } }
+.people { display: grid; gap: 12px; }
+.person { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; }
+.asks { display: flex; flex-direction: column; gap: 6px; }
+.asks button { text-align: left; }
+.asks button.asked { opacity: .55; }
+.mabel-ask { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.talk { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; }
+.talklog { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; max-height: 70vh; overflow: auto; }
+.talklog .q, .mabel-ask .q { color: var(--brass-2); font-weight: 500; }
+form.decide { background: var(--deep); border: 1px solid var(--line-2); border-radius: var(--r); padding: 16px; margin-top: 18px; }
+
+/* end */
+#screen-end { max-width: 760px; margin: 0 auto; }
+.epi h3 { color: var(--brass-2); font-family: var(--display); font-variant-numeric: tabular-nums; }
+.epi p { font-size: 1.06rem; }
+.ledger-inline { margin: 20px 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 14px; }
+.ledger-inline summary { cursor: pointer; font-weight: 500; min-height: 32px; }
+.shiftledger { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 4px; }
+.shiftledger .when { color: var(--brass-2); font-variant-numeric: tabular-nums; display: inline-block; min-width: 3.4em; }
+
+/* dialog */
+dialog { border: 1px solid var(--line-2); border-radius: 16px; background: var(--panel); color: var(--ivory); padding: 0; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 40px); overflow: auto; box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+dialog.wide { width: min(820px, calc(100vw - 32px)); }
+dialog::backdrop { background: rgba(5, 8, 16, .72); }
+.dlg-body { padding: 20px 20px 16px; }
+.dlg-body > p { font-size: 1.04rem; }
+.dlg-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.doc.paper, .oldledger table { background: var(--paper); color: var(--ink); border-radius: 6px; padding: 12px 14px; }
+.bighand { font-size: 1.8rem; }
+.oldledger table { width: 100%; border-collapse: collapse; }
+.oldledger td { border-bottom: 1px solid #c9b78f; padding: 6px 8px; vertical-align: top; }
+.oldledger th { text-align: left; padding: 4px 8px; color: var(--ink-dim); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
+.oldledger .hand { font-size: 1.08rem; }
+textarea { width: 100%; background: var(--deep); border: 1px solid var(--line-2); border-radius: 8px; padding: 8px; font-family: ui-monospace, Menlo, monospace; font-size: .8rem; }
+.kr { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.kr li { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; padding: 6px 10px; border-radius: 8px; background: var(--deep); }
+.kr li.active { border: 1px solid var(--lav); flex-direction: column; align-items: stretch; }
+.kr .num { font-variant-numeric: tabular-nums; color: var(--lav); font-weight: 600; }
+.kr .reserved { color: var(--mist); }
+.marks { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 4px; }
+.marks li { background: none; padding: 0; }
+.marks .sym { color: var(--lav); margin-right: 4px; }
+.marks .locked { color: var(--mist); }
+.help fieldset { margin-top: 10px; }
+#toast { position: fixed; left: 50%; top: 14px; transform: translateX(-50%); background: var(--lav); color: #140c22; padding: 10px 16px; border-radius: 999px; font-weight: 600; z-index: 70; box-shadow: 0 6px 20px rgba(0,0,0,.4); max-width: calc(100vw - 32px); }
+footer.foot { border-top: 1px solid var(--line); margin-top: 30px; padding-top: 14px; color: var(--mist); font-size: .88rem; display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: space-between; }
+
+/* motion: gentle and optional */
+@media (prefers-reduced-motion: no-preference) {
+  body:not(.reduce-motion) .hero .rain { animation: fall 1.6s linear infinite; }
+  body:not(.reduce-motion) .phono.playing .phono-drum { animation: spin .5s linear infinite; transform-box: fill-box; transform-origin: center; }
+  body:not(.reduce-motion) dialog[open] { animation: rise .25s ease-out; }
+}
+body.full-motion .hero .rain { animation: fall 1.6s linear infinite; }
+body.full-motion .phono.playing .phono-drum { animation: spin .5s linear infinite; transform-box: fill-box; transform-origin: center; }
+body.reduce-motion *, body.reduce-motion *::before { animation: none !important; transition: none !important; }
+@keyframes fall { from { transform: translateY(-10px); opacity: 0; } 30% { opacity: .8; } to { transform: translateY(24px); opacity: 0; } }
+@keyframes spin { 0% { opacity: 1; } 50% { opacity: .75; } 100% { opacity: 1; } }
+@keyframes rise { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (forced-colors: active) { .tag, .slip, .label-strip, .transcript { border: 1px solid CanvasText; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the experience</a>
+<div class="wrap">
+  <header class="top">
+    <a class="home" href="/" aria-label="DoorQuests home (your shift is saved)"><svg viewBox="0 0 22 30" aria-hidden="true"><path d="M1 29V11a10 10 0 0 1 20 0v18z" fill="none" stroke="#c9a24a" stroke-width="1.6"/><path d="M5 29V12a6 6 0 0 1 12 0v17z" fill="#bb9de1" opacity=".3"/><circle cx="14" cy="18" r="1.4" fill="#c9a24a"/></svg>DoorQuests</a>
+    <span class="proto">Prototype — Founder playtest</span>
+    <nav class="tools" aria-label="Tools">
+      <button type="button" id="btnLedger">Shift ledger</button>
+      <button type="button" id="btnPapers">Office papers</button>
+      <button type="button" id="btnKeyring">Keyring</button>
+      <button type="button" id="btnHelp">How to play</button>
+      <button type="button" id="btnSound" aria-pressed="false">Sound: off</button>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1">
+    <section id="screen-title" aria-labelledby="titleH"></section>
+    <section id="screen-office" hidden aria-label="The Lost Property Office">
+      <div class="statusbar"><span id="clock" aria-label="Time"></span><span class="place"><span id="modeLine">Night shift</span> · Lost Property, Hollin Cross</span><p id="prompt" aria-live="polite"></p><div id="actionRow"></div></div>
+      <div class="desk">
+        <section id="counter" aria-labelledby="counterH"></section>
+        <div class="workarea">
+          <div class="tabs" id="tabs" role="tablist" aria-label="Office"></div>
+          <div id="tabpanel" role="tabpanel" tabindex="0"></div>
+        </div>
+      </div>
+    </section>
+    <section id="screen-dawn" hidden aria-labelledby="dawnH"></section>
+    <section id="screen-end" hidden aria-labelledby="endH"></section>
+  </main>
+  <footer class="foot">
+    <span>DoorQuests · Mystortals No. 001 · Created by The Axiom Continuum</span>
+    <span><a href="/">Back to DoorQuests</a> · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></span>
+  </footer>
+</div>
+<div id="live" class="sr" aria-live="polite" aria-atomic="true"></div>
+<div id="toast" role="status" hidden></div>
+<dialog id="dlg"></dialog>
+<script>
+(function () {
+/* ---- engine.js ---- */
+/* Hollin Cross engine. Pure and deterministic: state = replay(seed, actions).
+   No DOM, storage, clock or network access. apply() never mutates its input. */
+var HCEngine = (function () {
+  'use strict';
+  var VERSION = '1.0.0';
+
+  /* ---------- deterministic helpers ---------- */
+  function strHash(s) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return h >>> 0;
+  }
+  function mulberry32(a) {
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function canon(o) {
+    if (o === null || typeof o !== 'object') return JSON.stringify(o);
+    if (Array.isArray(o)) return '[' + o.map(canon).join(',') + ']';
+    return '{' + Object.keys(o).sort().map(function (k) { return JSON.stringify(k) + ':' + canon(o[k]); }).join(',') + '}';
+  }
+  function hash(state) {
+    var s = canon(state), h1 = 0x811c9dc5, h2 = 0x9747b28c;
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charCodeAt(i);
+      h1 ^= c; h1 = Math.imul(h1, 0x01000193) >>> 0;
+      h2 ^= c; h2 = Math.imul(h2, 0x5bd1e995) >>> 0; h2 ^= h2 >>> 13;
+    }
+    return ('00000000' + (h1 >>> 0).toString(16)).slice(-8) + ('00000000' + (h2 >>> 0).toString(16)).slice(-8);
+  }
+  var SEED_RE = /^HC-[0-9]{4}$/;
+
+  /* ---------- the world ---------- */
+  var SHELVES = [
+    { id: 'A', name: 'Umbrellas & sticks' },
+    { id: 'B', name: 'Hats, gloves & scarves' },
+    { id: 'C', name: 'Bags & cases' },
+    { id: 'D', name: 'Books & papers' },
+    { id: 'E', name: 'Personal effects & curios' }
+  ];
+  var STATIONS = [
+    { id: 'portavel', name: 'Port Avel', time: 'dep 21.40', note: 'Booking office.' },
+    { id: 'brindle', name: 'Brindle', time: 'arr 22.26 · dep 22.28', note: 'Footbridge. Booking office.' },
+    { id: 'sallow', name: 'Sallow Halt', time: '23.31', note: 'Request stop. Signal box on the platform.' },
+    { id: 'cawdry', name: 'Cawdry Junction', time: 'arr 00.15 · dep 00.35', note: 'Change here. Refreshment room open.' },
+    { id: 'ludd', name: 'Ludd Bridge', time: '01.52', note: 'Footbridge. Unstaffed at night.' },
+    { id: 'hollin', name: 'Hollin Cross', time: 'arr 02.40', note: 'Terminus. Lost Property Office.' }
+  ];
+  var NOT_HERS = 'none';
+
+  /* d = detail. distinct: may be written on a tag. link: 'mh' | 'wool' joins items to the pattern. */
+  function D(id, zone, text, tag, o) { o = o || {}; return { id: id, zone: zone, text: text, tag: tag, distinct: o.distinct !== false, link: o.link || null, hidden: !!o.hidden }; }
+
+  var ITEMS = {
+    /* ordinary arrivals (seeded) */
+    U1: { kind: 'umbrella', art: 'umbrella', look: { canopy: '#2b3d63', handle: 'bamboo' }, name: 'Gentleman’s umbrella', shelf: 'A',
+      label: 'From the 21.15 local, compartment D.',
+      details: [D('navy', 'The canopy', 'Navy cotton canopy, quite dry.', 'navy canopy'),
+        D('bamboo', 'The handle', 'A bamboo crook handle.', 'bamboo crook'),
+        D('jw', 'The tie band', 'J.W. inked on the tie band.', 'J.W. on band')] },
+    U2: { kind: 'umbrella', art: 'umbrella', look: { canopy: '#1d1d22', handle: 'whangee' }, name: 'Black umbrella, slender', shelf: 'A',
+      label: 'From the 20.40 from Cawdry, luggage rack.',
+      details: [D('black', 'The canopy', 'Black silk canopy, still wet.', 'black silk'),
+        D('silver', 'The handle', 'A whangee cane handle with a silver collar, engraved A.D.', 'silver collar, A.D.'),
+        D('rib', 'The ribs', 'One rib is bent back on itself.', 'bent rib')] },
+    U3: { kind: 'umbrella', art: 'umbrella', look: { canopy: '#26262b', handle: 'bamboo' }, name: 'Black umbrella, stout', shelf: 'A',
+      label: 'Booking hall, Hollin Cross, 21.50.',
+      details: [D('black', 'The canopy', 'Black cotton canopy, faded at the seams.', 'black cotton'),
+        D('bamboo', 'The handle', 'A bamboo crook handle, the varnish worn.', 'bamboo crook'),
+        D('rib', 'The ribs', 'One rib is bent, and tied up with string.', 'bent rib, string')] },
+    H1: { kind: 'hat', art: 'hat', look: { felt: '#7b7f86', band: '#22242a', feather: true }, name: 'Grey trilby', shelf: 'B',
+      label: 'From the 21.15 local, under a seat.',
+      details: [D('grey', 'The felt', 'Grey felt, a little dusty.', 'grey felt'),
+        D('feather', 'The band', 'A black band with a small speckled feather.', 'feather in band'),
+        D('maker', 'Inside', 'Maker’s label: Dunn & Co., Cawdry. Size 7.', 'Dunn & Co.')] },
+    H2: { kind: 'hat', art: 'hat', look: { felt: '#6a4a33', band: '#3b2a1e', feather: false }, name: 'Brown trilby', shelf: 'B',
+      label: 'From the 21.15 local, under a seat.',
+      details: [D('brown', 'The felt', 'Brown felt, rain-spotted.', 'brown felt'),
+        D('busticket', 'The band', 'A bus ticket tucked into the band: Brindle to Ewe Wood.', 'bus ticket in band'),
+        D('maker', 'Inside', 'Maker’s label: Pell’s Hatters, Brindle. Size 7⅛.', 'Pell’s, Brindle')] },
+    B1: { kind: 'book', art: 'book', look: { cloth: '#6b2f2a' }, name: 'Library book', shelf: 'D',
+      label: 'From the 20.40 from Cawdry, seat 3.',
+      details: [D('title', 'The spine', '“The Cotton Road”, a novel.', 'The Cotton Road'),
+        D('library', 'Inside the cover', 'Brindle Lending Library. Due back 20 November.', 'Brindle Library'),
+        D('bookmark', 'The pages', 'A tram ticket marks page 112.', 'tram ticket at p.112')] },
+    B2: { kind: 'book', art: 'book', look: { cloth: '#1f3b2f' }, name: 'Hymn book', shelf: 'D',
+      label: 'Waiting room, Hollin Cross, 21.30.',
+      details: [D('hymnal', 'The cover', 'A small black hymn book, gilt edges.', 'hymn book'),
+        D('poole', 'The flyleaf', 'E. Poole, Ewe Wood Chapel, written on the flyleaf.', 'E. Poole'),
+        D('fern', 'The pages', 'A pressed fern at the evening hymns.', 'pressed fern')] },
+    C1: { kind: 'case', art: 'case', look: { leather: '#3f2a1c' }, name: 'Attaché case', shelf: 'C',
+      label: 'From the 20.40 from Cawdry, first class.',
+      details: [D('rks', 'The lid', 'R.K.S. in worn gilt on the lid.', 'R.K.S. in gilt'),
+        D('combo', 'The lock', 'A three-number combination lock. Locked.', 'combination lock'),
+        D('scuff', 'The corners', 'Brass corners, one badly scuffed.', 'scuffed corner')] },
+    C2: { kind: 'carpetbag', art: 'carpetbag', look: { cloth: '#7a3b3b' }, name: 'Carpet bag', shelf: 'C',
+      label: 'Booking hall, Hollin Cross, 21.40.',
+      details: [D('roses', 'The cloth', 'Carpet cloth, a pattern of red roses.', 'red roses'),
+        D('sock', 'Inside', 'Knitting needles and half a grey sock.', 'half a grey sock'),
+        D('clasp', 'The clasp', 'The clasp is mended with a hairpin.', 'hairpin clasp')] },
+    E1: { kind: 'mouse', art: 'mouse', look: {}, name: 'Clockwork mouse', shelf: 'E',
+      label: 'From the 21.15 local, under a seat.',
+      details: [D('blue', 'The paint', 'Tin, painted blue, with pink ears.', 'blue tin mouse'),
+        D('nokey', 'Underneath', 'The winding key is missing.', 'no key'),
+        D('name', 'The base', 'SALLY scratched on the base.', 'SALLY on base')] },
+    E2: { kind: 'teeth', art: 'teeth', look: {}, name: 'Cocoa tin (contents: teeth)', shelf: 'E',
+      label: 'Gentlemen’s waiting room, Hollin Cross, 21.45.',
+      details: [D('upper', 'Open it', 'An upper set of false teeth, wrapped in a handkerchief.', 'upper set'),
+        D('tin', 'The tin', 'A cocoa tin with a dented lid.', 'dented cocoa tin'),
+        D('hanky', 'The handkerchief', 'The handkerchief is monogrammed H.L.', 'H.L. handkerchief')] },
+    /* fixed ordinary arrival with a misleading resemblance */
+    COSY: { kind: 'cosy', art: 'cosy', look: {}, name: 'Tea cosy', shelf: 'E',
+      label: 'Ladies’ waiting room, Hollin Cross. Handed in by the cleaner.',
+      details: [D('wool', 'The knitting', 'Knitted in green wool, with a bobble on top.', 'green wool', { link: 'wool' }),
+        D('finder', 'The finder’s note', 'Found on the ladies’ waiting room table at 21.30, when I did the floor. — Mrs Bright, cleaner.', 'found 21.30', { distinct: false }),
+        D('darned', 'The bobble', 'The bobble has been darned twice.', 'darned bobble')] },
+    /* the traveller's things */
+    T1: { kind: 'glove', art: 'glove', look: {}, name: 'Lady’s glove', shelf: 'B', traveller: true, station: 'brindle',
+      label: 'Forwarded from Brindle by the 22.50 goods.',
+      details: [D('kid', 'The leather', 'Brown kid, left hand, soft with years of wear.', 'brown kid, left'),
+        D('lining', 'Turn back the cuff', 'Lined with green wool, hand-knitted.', 'green wool lining', { link: 'wool' }),
+        D('mh', 'The cuff', 'M.H. worked into the cuff in green thread.', 'M.H. in cuff', { link: 'mh' }),
+        D('finder', 'The finder’s note', 'On the footbridge steps, wet from the rain. — R. Bligh, porter, Brindle.', 'footbridge steps', { distinct: false })] },
+    T2: { kind: 'box', art: 'box', look: {}, name: 'Little walnut box', shelf: 'E', traveller: true, station: 'cawdry',
+      label: 'Forwarded from Cawdry Junction, 00.55.',
+      details: [D('walnut', 'The box', 'A walnut sewing box with a tiny brass lock. Locked.', 'walnut, locked'),
+        D('plate', 'The lid', 'A small brass plate, engraved M.H.', 'M.H. on plate', { link: 'mh' }),
+        D('cord', 'The cord', 'Tied round twice with green wool.', 'green wool cord', { link: 'wool' }),
+        D('finder', 'The finder’s note', 'Left on a table in the refreshment room, in the wait for the connection. — D. Mayhew, refreshment room.', 'refreshment room', { distinct: false }),
+        D('cards', 'Inside', 'Six button cards, each with a pencilled line.', 'six button cards', { hidden: true })] },
+    T3: { kind: 'ticket', art: 'ticket', look: {}, name: 'Railway ticket', shelf: 'D', traveller: true, station: 'sallow',
+      label: 'Forwarded from Cawdry Junction, 01.40. Handed to the guard of the pick-up goods by a signalman.',
+      details: [D('route', 'The face', 'PORT AVEL to HOLLIN CROSS, third class. The return half — never punched.', 'Port Avel–Hollin, return'),
+        D('date', 'The back', 'Dated on the back by the dating press: 14 NO 13.', 'dated 14 NO 13'),
+        D('pencil', 'Turn it over', 'M.H. in pencil, very small, in one corner.', 'M.H. in pencil', { link: 'mh' }),
+        D('finder', 'The finder’s note', 'On the bench by my box, after the up mail stopped by request for a lady. She got down, sat a minute, and got back on. — the signalman.', 'by the signal box', { distinct: false })] },
+    T4: { kind: 'timetable', art: 'timetable', look: {}, name: 'Pocket timetable', shelf: 'D', traveller: true, station: 'portavel',
+      label: 'Came in with the 03.30 parcels from Port Avel.',
+      details: [D('cover', 'The cover', '“Summer Service, 1913.” M.H. inked on the cover.', '1913, M.H. on cover', { link: 'mh' }),
+        D('heather', 'Between the pages', 'A sprig of pressed heather.', 'pressed heather'),
+        D('circled', 'The Hollin Cross page', 'The 7.10 arrival at Hollin Cross is circled in pencil.', '7.10 circled'),
+        D('finder', 'The finder’s note', 'Left at my window by a lady buying a single to Hollin Cross for the night mail. — booking clerk, Port Avel.', 'ticket window', { distinct: false })] },
+    T5: { kind: 'key', art: 'key', look: {}, name: 'Small brass key', shelf: 'E', traveller: true, station: 'ludd',
+      label: 'Forwarded from Ludd Bridge by the milk train, 04.40.',
+      details: [D('small', 'The key', 'Small and brass — too small for any door.', 'small brass key'),
+        D('loop', 'The loop', 'On a loop of green wool.', 'green wool loop', { link: 'wool' }),
+        D('finder', 'The finder’s note', 'Hung on the footbridge rail. Nobody about. — guard, milk train.', 'footbridge rail', { distinct: false })] },
+    T6: { kind: 'cylinder', art: 'cylinder', look: {}, name: 'Cardboard tube', shelf: 'E', traveller: true, station: 'hollin',
+      label: 'Platform 1, Hollin Cross. Brought in by J. Pell, night porter.',
+      details: [D('tubelabel', 'The label', 'In a lady’s hand: “For F. — Hollin Cross.”', '“For F.”'),
+        D('tie', 'The lid', 'The lid is tied down with green wool.', 'green wool tie', { link: 'wool' }),
+        D('wax', 'Inside the tube', 'A brown wax phonograph cylinder. Pencilled on the rim: Cawdry Fair, 1913.', 'wax cylinder, 1913'),
+        D('finder', 'The finder’s note', 'On the bench under the canopy, platform 1, when I swept at five. — Joss.', 'platform 1 bench', { distinct: false })] }
+  };
+  var TRAVELLER = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'];
+
+  /* claim slips: descriptors name detail ids that must all be true of the item */
+  var SLIPS = {
+    'S-U1': { item: 'U1', who: 'Mr J. Wheeler, Ewe Wood', want: [['navy', 'navy canopy'], ['bamboo', 'bamboo crook handle'], ['jw', 'initials J.W.']] },
+    'S-U2': { item: 'U2', who: 'Miss A. Dunstan, Cawdry', want: [['black', 'black canopy'], ['silver', 'silver collar on the handle'], ['rib', 'one bent rib']] },
+    'S-U3': { item: 'U3', who: 'Mr P. Gorringe, Hollin', want: [['black', 'black canopy'], ['bamboo', 'bamboo crook handle'], ['rib', 'one bent rib']] },
+    'S-B1': { item: 'B1', who: 'Mrs T. Nye, Brindle', want: [['title', '“The Cotton Road”'], ['library', 'Brindle Library'], ['bookmark', 'a tram ticket for a bookmark']] },
+    'S-B2': { item: 'B2', who: 'Miss E. Poole, Ewe Wood', want: [['hymnal', 'small hymn book'], ['poole', 'name on the flyleaf'], ['fern', 'a pressed fern']] },
+    'S-C1': { item: 'C1', who: 'Mr R. K. Sefton, Cawdry', want: [['rks', 'R.K.S. on the lid'], ['combo', 'combination lock'], ['scuff', 'one scuffed corner']] },
+    'S-C2': { item: 'C2', who: 'Mrs M. Gill, Hollin', want: [['roses', 'red roses carpet bag'], ['sock', 'knitting inside'], ['clasp', 'clasp mended with a hairpin']] },
+    'S-E1': { item: 'E1', who: 'Master T. Hobb (per his mother), Ludd', want: [['blue', 'blue tin mouse'], ['nokey', 'key missing'], ['name', 'SALLY on the base']] },
+    'S-E2': { item: 'E2', who: 'Mr H. Lamb, Brindle', want: [['upper', 'teeth, upper'], ['tin', 'in a cocoa tin'], ['hanky', 'handkerchief marked H.L.']] },
+    'S-ADV': { item: 'T1', who: '(to call at first light)', advance: true, dated: '15 November 1952',
+      want: [['kid', 'lady’s glove, brown kid, left hand'], ['lining', 'lined with green wool'], ['mh', 'M.H. worked in the cuff']] }
+  };
+
+  function itemDetail(id, did) {
+    var it = ITEMS[id]; if (!it) return null;
+    for (var i = 0; i < it.details.length; i++) if (it.details[i].id === did) return it.details[i];
+    return null;
+  }
+  function hasDetail(id, did) { return !!itemDetail(id, did); }
+
+  /* ---------- seeded picks and the night's schedule ---------- */
+  function picksFor(seed) {
+    var r = mulberry32(strHash(seed));
+    var ums = ['U1', 'U2', 'U3'];
+    var drop = Math.floor(r() * 3); ums.splice(drop, 1);
+    if (r() < 0.5) ums.reverse();
+    var hat = r() < 0.5 ? 'H1' : 'H2';
+    var book = r() < 0.5 ? 'B1' : 'B2';
+    var bag = r() < 0.5 ? 'C1' : 'C2';
+    var cur = r() < 0.5 ? 'E1' : 'E2';
+    var umTarget = r() < 0.5 ? ums[0] : ums[1];
+    var third = r() < 0.5 ? bag : cur;
+    return { ums: ums, hat: hat, book: book, bag: bag, cur: cur, slips: ['S-' + umTarget, 'S-' + book, 'S-' + third] };
+  }
+  /* each event: time (minutes after 22:00), items arriving at the counter, slips into the tray, a scene key */
+  function scheduleFor(p) {
+    return [
+      { at: 0, item: p.ums[0], scene: 'begin' },
+      { at: 10, item: p.hat, slip: p.slips[0] },
+      { at: 20, item: p.ums[1], slip: 'S-ADV', scene: 'advance' },
+      { at: 45, item: p.book, slip: p.slips[1] },
+      { at: 65, item: 'T1', scene: 'glove' },
+      { at: 90, item: p.bag, slip: p.slips[2] },
+      { at: 170, item: 'T2', scene: 'box' },
+      { at: 185, item: 'COSY', scene: 'cosy' },
+      { at: 205, item: p.cur },
+      { at: 250, item: 'T3', scene: 'ticket' },
+      { at: 340, item: 'T4', scene: 'timetable' },
+      { at: 425, item: 'T5', scene: 'key' },
+      { at: 435, item: 'T6', scene: 'cylinder' }
+    ];
+  }
+
+  /* ---------- state ---------- */
+  function blank(seed) {
+    return { v: 1, seed: seed, mode: null, short: false, trace: null, phase: 'new', clock: 0, ev: 0,
+      counter: null, arrived: [], items: {}, slips: {}, slipOrder: [], picks: null,
+      pattern: false, boxOpen: false, heard: false, boardSolved: false, lastCheck: null, hints: 0,
+      revealed: false, ledgerFound: false, ledgerRead: false,
+      dawn: { asked: { frank: [], david: [], joss: [], mabel: [] }, davidHere: false, metMabel: false, promise: null },
+      decision: null, outcome: null, log: [], n: 0 };
+  }
+  function create(seed) {
+    if (typeof seed !== 'string' || !SEED_RE.test(seed)) throw new Error('bad seed');
+    return blank(seed);
+  }
+  function itemState() { return { noticed: [], tag: null, shelf: null, pinned: false, station: null }; }
+  function noticed(s, id, did) { return !!(s.items[id] && s.items[id].noticed.indexOf(did) >= 0); }
+  function linkNoticed(s, id) {
+    var it = ITEMS[id], st = s.items[id]; if (!it || !st) return null;
+    for (var i = 0; i < it.details.length; i++) { var d = it.details[i]; if (d.link && st.noticed.indexOf(d.id) >= 0) return d.link; }
+    return null;
+  }
+  function shelved(s, id) { return !!(s.items[id] && s.items[id].shelf); }
+  function arriveEvent(s, e) {
+    s.clock = e.at;
+    if (e.item) { s.items[e.item] = itemState(); s.arrived.push(e.item); s.counter = e.item; s.log.push({ k: 'arrive', id: e.item, at: e.at }); }
+    if (e.slip) { s.slips[e.slip] = { matched: null, tries: 0 }; s.slipOrder.push(e.slip); s.log.push({ k: 'slip', id: e.slip, at: e.at }); }
+    s.ev++;
+  }
+  function schedule(s) { return scheduleFor(s.picks); }
+  function nextEvent(s) { var sc = schedule(s); return s.ev < sc.length ? sc[s.ev] : null; }
+
+  /* pattern: the same link mark noticed on two different items */
+  function checkPattern(s, events) {
+    if (s.pattern) return;
+    var byLink = { mh: [], wool: [] };
+    s.arrived.forEach(function (id) {
+      var it = ITEMS[id];
+      it.details.forEach(function (d) { if (d.link && noticed(s, id, d.id) && byLink[d.link].indexOf(id) < 0) byLink[d.link].push(id); });
+    });
+    var pair = byLink.mh.length >= 2 ? ['mh', byLink.mh] : (byLink.wool.length >= 2 ? ['wool', byLink.wool] : null);
+    if (!pair) return;
+    s.pattern = true;
+    pair[1].slice(0, 2).forEach(function (id) { s.items[id].pinned = true; });
+    s.log.push({ k: 'pattern', link: pair[0], ids: pair[1].slice(0, 2), at: s.clock });
+    events.push({ k: 'pattern', link: pair[0], ids: pair[1].slice(0, 2) });
+  }
+
+  function boardResult(s) {
+    var rows = [], pinned = s.arrived.filter(function (id) { return s.items[id].pinned; });
+    pinned.forEach(function (id) {
+      var it = ITEMS[id], st = s.items[id];
+      var truth = it.traveller ? it.station : NOT_HERS;
+      rows.push({ id: id, placed: st.station, ok: st.station === truth });
+    });
+    var missing = TRAVELLER.filter(function (id) { return !(s.items[id] && s.items[id].pinned); });
+    var solved = missing.length === 0 && rows.every(function (r) { return r.ok; });
+    return { rows: rows, missing: missing, solved: solved };
+  }
+
+  /* ---------- dawn outcome ---------- */
+  function outcomeOf(s, d) {
+    var met = s.dawn.metMabel, promised = s.dawn.promise === 'yes';
+    var frankStays = d.frank !== 'claim';
+    var meet = d.frank === 'tell' ? 'waitingroom' : (d.frank === 'show' ? 'platform' : null);
+    var broke = met && promised && (d.frank === 'tell' || d.david === 'tell');
+    var sig = [d.things, frankStays ? 'stays' : 'goes', d.david === 'tell' ? 'davidtold' : 'davidnot'].join('|');
+    return { things: d.things, frank: d.frank, david: d.david, ledger: d.ledger || null, frankStays: frankStays, meet: meet,
+      met: met, promised: promised, broke: broke, boxOpen: s.boxOpen, sig: sig };
+  }
+
+  /* ---------- actions ---------- */
+  function fail(msg) { return { ok: false, error: msg }; }
+  function apply(state, action) {
+    if (!state || typeof state !== 'object' || state.v !== 1) return fail('no state');
+    if (!action || typeof action !== 'object' || typeof action.t !== 'string') return fail('bad action');
+    var s = clone(state), ev = [], a = action, it, st;
+    var r = (function () {
+      switch (a.t) {
+        case 'begin': {
+          if (s.phase !== 'new') return 'already begun';
+          if (a.mode !== 'first' && a.mode !== 'return') return 'bad mode';
+          s.mode = a.mode; s.picks = picksFor(s.seed);
+          if (a.mode === 'return') {
+            if (!a.trace || typeof a.trace !== 'object' || !a.trace.tags || typeof a.trace.tags !== 'object') return 'return shift needs a trace';
+            var tr = { tags: {} };
+            for (var ti = 0; ti < TRAVELLER.length; ti++) {
+              var tid = TRAVELLER[ti], dv = a.trace.tags[tid];
+              var dd = itemDetail(tid, dv);
+              if (!dd || !dd.distinct || dd.hidden) return 'bad trace';
+              tr.tags[tid] = dv;
+            }
+            s.trace = tr; s.short = !!a.short;
+          } else if (a.short) return 'short shifts are for returning';
+          s.phase = 'shift';
+          if (s.short) {
+            /* everything already handed in and filed as last time */
+            var sc = schedule(s);
+            sc.forEach(function (e) { arriveEvent(s, e); });
+            s.counter = null;
+            s.arrived.forEach(function (id) {
+              var iti = ITEMS[id], sti = s.items[id];
+              var dv2 = iti.traveller ? s.trace.tags[id] : iti.details.filter(function (x) { return x.distinct && !x.hidden; })[0].id;
+              sti.noticed.push(dv2);
+              iti.details.forEach(function (x) { if (x.id === 'finder') sti.noticed.push('finder'); });
+              if (iti.traveller) iti.details.forEach(function (x) { if (x.link && sti.noticed.indexOf(x.id) < 0) sti.noticed.push(x.id); });
+              sti.tag = dv2; sti.shelf = iti.shelf;
+              if (iti.traveller) { sti.pinned = true; sti.station = iti.station; }
+            });
+            s.slipOrder.forEach(function (sid) { if (!SLIPS[sid].advance) s.slips[sid].matched = SLIPS[sid].item; });
+            s.pattern = true; s.boardSolved = true; s.clock = 440;
+            s.log.push({ k: 'short', at: s.clock });
+          } else {
+            arriveEvent(s, schedule(s)[0]);
+          }
+          ev.push({ k: 'entered' });
+          return null;
+        }
+        case 'look': {
+          if (s.phase !== 'shift' && s.phase !== 'dawn') return 'not now';
+          st = s.items[a.item]; it = ITEMS[a.item];
+          if (!st || !it) return 'no such item here';
+          var d = itemDetail(a.item, a.detail);
+          if (!d) return 'no such detail';
+          if (d.hidden && !(a.item === 'T2' && s.boxOpen)) return 'cannot see that yet';
+          if (st.noticed.indexOf(d.id) < 0) { st.noticed.push(d.id); s.log.push({ k: 'look', id: a.item, d: d.id, at: s.clock }); }
+          checkPattern(s, ev);
+          return null;
+        }
+        case 'tag': {
+          if (s.phase !== 'shift') return 'not now';
+          if (s.counter !== a.item) return 'that is not on the counter';
+          it = ITEMS[a.item]; st = s.items[a.item];
+          var td = itemDetail(a.item, a.detail);
+          if (!td || !td.distinct || td.hidden) return 'choose a distinguishing detail';
+          if (st.noticed.indexOf(td.id) < 0) return 'look at it first';
+          if (!SHELVES.some(function (x) { return x.id === a.shelf; })) return 'no such shelf';
+          if (a.shelf !== it.shelf) { ev.push({ k: 'wrongShelf', want: it.shelf }); return 'wrong shelf'; }
+          st.tag = td.id; st.shelf = a.shelf; s.counter = null;
+          s.log.push({ k: 'tag', id: a.item, d: td.id, shelf: a.shelf, at: s.clock });
+          ev.push({ k: 'shelved', id: a.item });
+          return null;
+        }
+        case 'next': {
+          if (s.phase !== 'shift') return 'not now';
+          if (s.counter) return 'the counter is not clear';
+          var ne = nextEvent(s);
+          if (!ne) return 'nothing more is due';
+          arriveEvent(s, ne);
+          if (ne.scene) ev.push({ k: 'scene', id: ne.scene });
+          /* the porter notices what the clerk may not have */
+          var tShelved = TRAVELLER.filter(function (id) { return shelved(s, id); }).length;
+          if (!s.pattern && tShelved >= 2) ev.push({ k: 'nudge' });
+          return null;
+        }
+        case 'match': {
+          if (s.phase !== 'shift' && s.phase !== 'dawn') return 'not now';
+          var sl = s.slips[a.slip], def = SLIPS[a.slip];
+          if (!sl || !def) return 'no such slip';
+          if (sl.matched) return 'already matched';
+          if (!shelved(s, a.item)) return 'shelve it first';
+          sl.tries++;
+          var miss = null;
+          for (var wi = 0; wi < def.want.length; wi++) { if (!hasDetail(a.item, def.want[wi][0]) || ITEMS[a.item].kind !== ITEMS[def.item].kind) { miss = def.want[wi]; break; } }
+          if (!miss && a.item !== def.item) miss = def.want[0];
+          if (miss) {
+            s.log.push({ k: 'nomatch', slip: a.slip, id: a.item, at: s.clock });
+            ev.push({ k: 'nomatch', slip: a.slip, id: a.item, want: miss[1] });
+            return null;
+          }
+          sl.matched = a.item;
+          s.log.push({ k: 'match', slip: a.slip, id: a.item, at: s.clock });
+          ev.push({ k: 'match', slip: a.slip, id: a.item });
+          return null;
+        }
+        case 'pin': {
+          if (s.phase !== 'shift') return 'not now';
+          if (!s.pattern) return 'there is no board yet';
+          st = s.items[a.item]; if (!st || !shelved(s, a.item)) return 'shelve it first';
+          if (!linkNoticed(s, a.item)) return 'nothing you have noticed links it to the others';
+          if (st.pinned) return 'already pinned';
+          st.pinned = true; s.log.push({ k: 'pin', id: a.item, at: s.clock });
+          return null;
+        }
+        case 'unpin': {
+          if (s.phase !== 'shift') return 'not now';
+          st = s.items[a.item]; if (!st || !st.pinned) return 'not pinned';
+          if (s.boardSolved) return 'the board is settled';
+          st.pinned = false; st.station = null; s.log.push({ k: 'unpin', id: a.item, at: s.clock });
+          return null;
+        }
+        case 'place': {
+          if (s.phase !== 'shift') return 'not now';
+          st = s.items[a.item]; if (!st || !st.pinned) return 'not on the board';
+          if (s.boardSolved) return 'the board is settled';
+          var okSt = a.station === null || a.station === NOT_HERS || STATIONS.some(function (x) { return x.id === a.station; });
+          if (!okSt) return 'no such stop';
+          st.station = a.station;
+          return null;
+        }
+        case 'check': {
+          if (s.phase !== 'shift') return 'not now';
+          if (!s.pattern) return 'there is no board yet';
+          if (s.boardSolved) return 'the board is settled';
+          var br = boardResult(s);
+          s.lastCheck = { rows: br.rows, missing: br.missing };
+          s.log.push({ k: 'check', ok: br.solved, wrong: br.rows.filter(function (x) { return !x.ok; }).length, missing: br.missing.length, at: s.clock });
+          if (br.solved) { s.boardSolved = true; ev.push({ k: 'boardSolved' }); }
+          return null;
+        }
+        case 'hint': {
+          if (s.phase !== 'shift' || !s.pattern || s.boardSolved) return 'not now';
+          s.hints++; s.log.push({ k: 'hint', at: s.clock });
+          return null;
+        }
+        case 'openBox': {
+          if (s.phase !== 'shift' && s.phase !== 'dawn') return 'not now';
+          if (!s.items.T2 || !s.items.T5) return 'you have nothing to open it with';
+          if (!shelved(s, 'T2') || !shelved(s, 'T5')) return 'shelve them first';
+          if (s.boxOpen) return 'already open';
+          s.boxOpen = true;
+          if (s.items.T2.noticed.indexOf('cards') < 0) s.items.T2.noticed.push('cards');
+          s.log.push({ k: 'openBox', at: s.clock });
+          ev.push({ k: 'boxOpen' });
+          return null;
+        }
+        case 'heard': {
+          if (s.phase !== 'shift' && s.phase !== 'dawn') return 'not now';
+          if (!s.items.T6 || !shelved(s, 'T6')) return 'there is nothing to play';
+          if (a.how !== 'played' && a.how !== 'read') return 'bad how';
+          if (!s.heard) { s.heard = true; s.log.push({ k: 'heard', how: a.how, at: s.clock }); ev.push({ k: 'heard' }); }
+          return null;
+        }
+        case 'reveal': {
+          if (s.phase !== 'shift') return 'not now';
+          if (!s.boardSolved) return 'the board is not settled';
+          if (!s.heard) return 'you have not heard it';
+          if (s.counter) return 'the counter is not clear';
+          s.revealed = true; s.phase = 'dawn'; s.clock = 485;
+          s.log.push({ k: 'reveal', at: s.clock });
+          ev.push({ k: 'unveiled' });
+          return null;
+        }
+        case 'findLedger': {
+          if (s.mode !== 'return') return 'nothing there';
+          if (s.phase !== 'shift' && s.phase !== 'dawn') return 'not now';
+          if (s.ledgerFound) return 'already found';
+          s.ledgerFound = true; s.log.push({ k: 'ledgerFound', at: s.clock });
+          return null;
+        }
+        case 'readLedger': {
+          if (!s.ledgerFound) return 'nothing to read';
+          if (!s.ledgerRead) { s.ledgerRead = true; s.log.push({ k: 'ledgerRead', at: s.clock }); ev.push({ k: 'ledgerRead' }); }
+          return null;
+        }
+        case 'ask': {
+          if (s.phase !== 'dawn') return 'not now';
+          var who = a.who, topics = TOPICS[who];
+          if (!topics) return 'no one by that name';
+          if (who === 'david' && !s.dawn.davidHere) return 'he is not here yet';
+          if (who === 'mabel' && !s.dawn.metMabel) return 'you have not looked in';
+          var tp = topics.filter(function (x) { return x.id === a.topic; })[0];
+          if (!tp) return 'no such question';
+          if (tp.needs && !tp.needs(s)) return 'not yet';
+          if (s.dawn.asked[who].indexOf(a.topic) < 0) { s.dawn.asked[who].push(a.topic); s.log.push({ k: 'ask', who: who, topic: a.topic, at: s.clock }); s.clock += 2; }
+          if (who === 'frank' && !s.dawn.davidHere && s.dawn.asked.frank.length >= 2) { s.dawn.davidHere = true; s.clock = Math.max(s.clock, 500); s.log.push({ k: 'davidArrives', at: s.clock }); ev.push({ k: 'scene', id: 'david' }); }
+          return null;
+        }
+        case 'door': {
+          if (s.phase !== 'dawn') return 'not now';
+          if (s.dawn.davidHere) return 'no one else is at the door';
+          s.dawn.davidHere = true; s.clock = Math.max(s.clock, 500); s.log.push({ k: 'davidArrives', at: s.clock }); ev.push({ k: 'scene', id: 'david' });
+          return null;
+        }
+        case 'visitMabel': {
+          if (s.phase !== 'dawn') return 'not now';
+          if (s.dawn.metMabel) return 'already';
+          s.dawn.metMabel = true; s.clock += 6; s.log.push({ k: 'metMabel', at: s.clock });
+          ev.push({ k: 'scene', id: 'mabel' });
+          return null;
+        }
+        case 'promise': {
+          if (s.phase !== 'dawn' || !s.dawn.metMabel) return 'not now';
+          if (s.dawn.promise) return 'already answered';
+          if (a.answer !== 'yes' && a.answer !== 'no') return 'bad answer';
+          s.dawn.promise = a.answer; s.log.push({ k: 'promise', answer: a.answer, at: s.clock });
+          ev.push({ k: 'explored' });
+          return null;
+        }
+        case 'decide': {
+          if (s.phase !== 'dawn') return 'not now';
+          if (!s.dawn.davidHere) return 'not everyone is here';
+          if (s.dawn.metMabel && !s.dawn.promise) return 'she is waiting for your answer';
+          var dch = { things: a.things, frank: a.frank, david: a.david, ledger: a.ledger || null };
+          if (['frank', 'david', 'hold'].indexOf(dch.things) < 0) return 'choose what happens to her things';
+          if (['claim', 'show', 'tell'].indexOf(dch.frank) < 0) return 'choose what Frank is told';
+          if (['claim', 'tell'].indexOf(dch.david) < 0) return 'choose what David is told';
+          if (s.ledgerRead) { if (['give', 'close', 'leave'].indexOf(dch.ledger) < 0) return 'choose what becomes of the ledger'; }
+          else if (dch.ledger !== null) return 'there is no ledger';
+          s.decision = dch; s.outcome = outcomeOf(s, dch); s.phase = 'done'; s.clock = 530;
+          s.log.push({ k: 'decide', d: dch, at: s.clock });
+          ev.push({ k: 'finished', sig: s.outcome.sig });
+          return null;
+        }
+        default: return 'unknown action';
+      }
+    })();
+    if (r) return { ok: false, error: r, events: ev };
+    s.n++;
+    return { ok: true, state: s, events: ev };
+  }
+
+  var TOPICS = {
+    frank: [{ id: 'how' }, { id: 'who' }, { id: 'why' }, { id: 'hand' }, { id: 'glove' }, { id: 'ledger', needs: function (s) { return s.ledgerRead; } }],
+    david: [{ id: 'how' }, { id: 'worry' }, { id: 'things' }, { id: 'cylinder' }],
+    joss: [{ id: 'lady' }, { id: 'stove' }, { id: 'trains' }],
+    mabel: [{ id: 'why' }, { id: 'frank' }, { id: 'david' }, { id: 'then' }]
+  };
+
+  function replay(seed, actions) {
+    var s = create(seed);
+    if (!Array.isArray(actions)) throw new Error('bad log');
+    for (var i = 0; i < actions.length; i++) {
+      var r = apply(s, actions[i]);
+      if (!r.ok) throw new Error('replay failed at ' + i + ': ' + r.error);
+      s = r.state;
+    }
+    return s;
+  }
+  /* actions that change state but are refused should never be logged; app logs only ok actions */
+
+  function prompt(s) {
+    if (s.phase === 'shift') {
+      if (s.counter) {
+        var st = s.items[s.counter], it = ITEMS[s.counter];
+        var any = it.details.some(function (d) { return d.distinct && !d.hidden && st.noticed.indexOf(d.id) >= 0; });
+        return any ? 'tag' : 'look';
+      }
+      if (nextEvent(s)) return 'next';
+      if (!s.boardSolved) return 'board';
+      if (!s.heard) return 'listen';
+      return 'reveal';
+    }
+    if (s.phase === 'dawn') return s.dawn.davidHere ? 'decide' : 'talk';
+    return s.phase;
+  }
+
+  return {
+    VERSION: VERSION, SHELVES: SHELVES, STATIONS: STATIONS, NOT_HERS: NOT_HERS, ITEMS: ITEMS, SLIPS: SLIPS, TRAVELLER: TRAVELLER, TOPICS: TOPICS,
+    create: create, apply: apply, replay: replay, hash: hash, picksFor: picksFor, scheduleFor: scheduleFor,
+    nextEvent: nextEvent, boardResult: boardResult, linkNoticed: linkNoticed, itemDetail: itemDetail, prompt: prompt,
+    seedOk: function (x) { return typeof x === 'string' && SEED_RE.test(x); }, strHash: strHash, mulberry32: mulberry32
+  };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = HCEngine;
+
+/* ---- story.js ---- */
+/* Hollin Cross words. Read-only derivations from engine state; no DOM. */
+var HCStory = (function () {
+  'use strict';
+  var E = HCEngine;
+
+  function clock(mins) {
+    var m = (22 * 60 + mins) % 1440, h = Math.floor(m / 60), mm = m % 60;
+    return (h < 10 ? '0' : '') + h + '.' + (mm < 10 ? '0' : '') + mm;
+  }
+  function itemName(id) { return E.ITEMS[id] ? E.ITEMS[id].name : id; }
+  function stationName(id) {
+    if (id === E.NOT_HERS) return 'Not on her journey';
+    for (var i = 0; i < E.STATIONS.length; i++) if (E.STATIONS[i].id === id) return E.STATIONS[i].name;
+    return '—';
+  }
+
+  var TITLE = 'The Lost Property Office at Hollin Cross';
+  var HOOK = 'Night shift. Lost property. Nothing interesting has been handed in for years.';
+
+  /* ---------- documents on the office wall ---------- */
+  var DOCS = {
+    timetable: { title: 'Timetable: the night up mail', lines: [
+      'Port Avel to Hollin Cross, every night.',
+      'Port Avel — dep 21.40. Booking office.',
+      'Brindle — arr 22.26, dep 22.28. Footbridge. Booking office.',
+      'Sallow Halt — 23.31. Request stop. Signal box on the platform.',
+      'Cawdry Junction — arr 00.15, dep 00.35. Change here. Refreshment room open.',
+      'Ludd Bridge — 01.52. Footbridge. Unstaffed at night.',
+      'Hollin Cross — arr 02.40. Terminus.',
+      'Morning: 06.58 Hollin Cross to Port Avel (connects with the boat). 07.10 arrival from Port Avel, first up train. 08.05 to Port Avel.',
+      'Anything found on the line is forwarded to Lost Property, Hollin Cross, by the next train going.'] },
+    orders: { title: 'Standing Orders, Lost Property Office', lines: [
+      '1. All property handed in is to be examined, tagged in the Office Hand with one distinguishing mark, and shelved by class.',
+      '2. Property is released to the owner, or to a person bearing the owner’s written authority, on signature.',
+      '3. Advance claims may be lodged for property believed lost on the line. They confer no right of release by themselves.',
+      '4. Property unclaimed after three months is sent to the District Office.',
+      '5. Where these orders are silent, the clerk is to use judgment, and record that judgment in the ledger.'] },
+    hand: { title: 'The Office Hand', lines: [
+      'A card in a brass frame by the desk, the ink gone brown:',
+      'ALL TAGS AND SLIPS TO BE WRITTEN IN THIS HAND, SO THAT ANY CLERK MAY READ ANY OTHER’S.',
+      'Below, a model alphabet: a looped capital H, a seven with a bar through it, and the words “Hollin Cross 7”.',
+      'Signed: F.T., 1919.',
+      'You learned this hand from this card in your first week. Every tag you write tonight is in it.'], hand: 'Hollin Cross 7' }
+  };
+
+  var SHELF_HELP = 'Shelves: A umbrellas and sticks; B hats, gloves and scarves; C bags and cases; D books and papers; E personal effects and curios.';
+
+  /* ---------- scenes ---------- */
+  var SCENES = {
+    begin: { title: '22.00 · Lost Property, Hollin Cross', paras: [
+      'The day clerk has gone home. This is your first night alone in the office: a counter, a hatch onto the booking hall, five long shelves and a stove that only works if you talk to it.',
+      'Rain on the window. On the platform, the last local ticks as it cools.',
+      'Joss Pell, the night porter, sets the first arrival on your counter and goes back out into the wet. “Nothing exciting,” he says. “There never is.”',
+      'Look it over, write a tag in the office hand, and shelve it. That’s the job.'] },
+    advance: { title: '22.20 · The night-letter box', paras: [
+      'Something drops through the night-letter box: a claim slip, folded once.',
+      'You open it and stop. It is written in your handwriting. The looped H. The barred seven. You would know it anywhere.',
+      'You did not write it. It is dated tomorrow, the fifteenth of November. It claims a lady’s glove: brown kid, left hand, lined with green wool, M.H. worked in the cuff. Claimant: to call at first light.',
+      'Nothing like it has been handed in. You put it in the tray with the others.'] },
+    glove: { title: '23.05 · From the Brindle goods', paras: [
+      'Joss comes in dripping. “Goods from Brindle dropped this off. Lady’s glove.”',
+      'He puts it on the counter. You don’t need to look at the slip in the tray again.',
+      'You look anyway.'] },
+    box: { title: '00.50 · From Cawdry Junction', paras: [
+      'A little walnut box, sent on from Cawdry Junction. Locked. Joss turns it over in his big hands. “Someone’ll miss this.”'] },
+    cosy: { title: '01.05 · The cleaner, on her way home', paras: [
+      'Mrs Bright the cleaner puts her head round the door with a tea cosy. “From the ladies’ waiting room. Found it when I did the floor at half past nine. Goodnight, dear.”'] },
+    ticket: { title: '02.10 · The pick-up goods', paras: [
+      'The guard of the pick-up goods hands in a railway ticket with a note pinned to it, from a signalman somewhere up the line.'] },
+    timetable: { title: '03.40 · The Port Avel parcels', paras: [
+      'Joss brings in the Port Avel parcels, and one small thing loose among them.',
+      '“I’ve lit the stove in the ladies’ room,” he says. “Someone off the 2.40, waiting on the morning train. Didn’t want tea.”'] },
+    key: { title: '05.05 · The milk train', paras: [
+      'The milk train from Ludd Bridge clanks in. Its guard hands in a key so small it fits in the crease of his palm.'] },
+    cylinder: { title: '05.15 · Platform 1', paras: [
+      'Joss comes in with a cardboard tube. “On the bench under the canopy. Found it when I swept at five.”',
+      'He nods at the curtain to the back room. “There’s a machine for these through there. Mr Tilley’s old phonograph. He had this office thirty-odd years — retired last month. Whenever a cylinder got handed in, he’d play it, to find out whose it was.”'] },
+    nudgemh: { title: 'Joss', paras: [ '“Funny,” says Joss, from the doorway. “That’s twice tonight with letters on. M-something. And the green wool — you see that?”', 'He goes before you can answer. Her things are on the shelves. You could look again.'] },
+    pattern: { title: 'The same hand', paras: [] },
+    boardSolved: { title: 'One at every stop', paras: [
+      'Port Avel. Brindle. Sallow Halt. Cawdry Junction. Ludd Bridge. Hollin Cross.',
+      'One thing at every stop the night mail made. They came to your counter all out of order — Brindle first, Port Avel near the end — but they were left in order, one stop at a time.',
+      'Nobody drops one thing at every station. Each one was set down.'] },
+    boxOpen: { title: 'Inside the walnut box', paras: [
+      'The little key turns. Inside, on a bed of tissue, six button cards. Each has one button sewn on, and a line in pencil:',
+      'Port Avel. Where you bought my thread. May.',
+      'Brindle. The footbridge, in the rain. June.',
+      'Sallow. The bench, the day of the picnic. July.',
+      'Cawdry. The band played it twice. August.',
+      'Ludd Bridge. Where you cut our letters in the rail. September.',
+      'Hollin Cross. The 7.10. 14 November.',
+      'The last card has no button. Just the four small holes where one would go.'] },
+    reveal: { title: 'What the night was for', paras: [] },
+    dawn: { title: '06.05 · First light', paras: [
+      'Grey light in the booking hall. The rain has stopped. Somewhere a blackbird is trying it out.',
+      'A tap at the hatch. An old man in a good travelling coat, a suitcase at his feet labelled for the boat. He takes off his hat.',
+      '“Tilley,” he says. “Frank Tilley. I had this desk before you. I put a claim through the box last night — I believe you’ll have a glove for me.”'] },
+    david: { title: '06.20 · The station yard', paras: [
+      'A bakery van pulls into the yard and stops with its engine ticking. The young man who climbs out has plainly driven all night.',
+      'He looks at Frank, at your hatch, at the shelves behind you. “David Cole. Port Avel. I’m told my mother’s things were sent here.”',
+      'Frank looks at him for a long moment, and says nothing.'] },
+    mabel: { title: 'The ladies’ waiting room', paras: [
+      'The ladies’ waiting room is warm. The stove ticks.',
+      'A woman of about sixty sits upright on the bench nearest it, in a grey coat, her hat on her knee. Her left hand is bare.',
+      'She looks at the Lost Property band on your sleeve and very nearly smiles. “You’ll be the new clerk. Then they all reached you. Good.”'] },
+    ledgerFound: { title: 'Behind your old tag', paras: [] },
+    returnStart: { title: 'Another night shift', paras: [] }
+  };
+
+  function patternScene(s, link) {
+    var p = link === 'mh'
+      ? ['M.H. again. You check, and there it is on the other one too: the same two letters, the same small, careful hand.']
+      : ['Green wool again. The same soft, home-spun green, on two things that came in hours apart from different stations.'];
+    p.push('You clear a space on the corkboard by the door and pin up both forwarding labels. If anything else of hers comes in, it goes here.');
+    p.push('The Board is open. Pin anything else that belongs with these, and work out where along the line each was left.');
+    return { title: 'The same hand', paras: p };
+  }
+
+  function revealScene(s) {
+    var p = [
+      'Six stops, six things. She set them down one by one, at Port Avel, Brindle, Sallow, Cawdry, Ludd Bridge and here, knowing that everything left on the line comes to Hollin Cross in the end.',
+      'The voice on the cylinder is Frank Tilley’s, in 1913: the man who kept this office for thirty-odd years. The card by your desk, the office hand you learned in your first week, is signed F.T., 1919.',
+      'The slip that came through the box at twenty past ten isn’t in your hand. It’s in his.',
+      'Her ticket was for Port Avel to Hollin Cross, the fourteenth of November 1913. The return half was never used. Her timetable has the 7.10 circled.'];
+    if (s.boxOpen) p.push('Her button cards name the same six stops, one memory each. The last one says Hollin Cross, the 7.10, the fourteenth of November. It has no button.');
+    p.push('Tonight is the fourteenth of November. The 7.10 still runs. And Joss lit the stove in the ladies’ waiting room for someone off the 2.40.');
+    p.push('At first light, someone will come to collect.');
+    return { title: 'What the night was for', paras: p };
+  }
+
+  function returnScene(s) {
+    var tags = s.trace.tags, lines = [];
+    lines.push(s.short
+      ? 'The office is as you left it. Every shelf is full, every tag in the office hand. The night’s things are already pinned to the board.'
+      : 'The same rain. The same stove. The same counter, waiting.');
+    lines.push('But the shelves remember. Your tags from last time are still on the hooks, in your hand: ');
+    E.TRAVELLER.forEach(function (id) { var d = E.itemDetail(id, tags[id]); lines.push('“' + itemName(id) + ': ' + d.tag + '.”'); });
+    lines.push('Behind the hook on shelf D, where you hung your tag for her 1913 ticket, something has been pushed to the back of the shelf. You could look.');
+    return { title: s.short ? 'A short shift' : 'Another night shift', paras: lines };
+  }
+
+  var LEDGER = {
+    title: 'Advance Claims, Hollin Cross. Volume 3.',
+    intro: 'A narrow ledger bound in green cloth, its spine split. Most of its claims are crossed through, met or lapsed. One is not.',
+    pages: [
+      ['20 Jun 1913', 'Received: one glove, right hand, brown kid, green wool lining. Brindle footbridge. Owner known to the clerk. Kept on the mantelpiece. F.T.'],
+      ['14 Nov 1913', 'Advance claim, lodged by F. Tilley, clerk: anything belonging to Miss M. Hartigan of Port Avel, handed in on the line. To be kept open. F.T.'],
+      ['14 Nov 1914', 'Nothing handed in. Claim kept open. F.T.'],
+      ['14 Nov 1915', 'Clerk away. Claim kept open on his behalf. E. Varley, relief.'],
+      ['14 Nov 1919', 'Back. Wrote out the office hand for the new boys. Nothing handed in. F.T.'],
+      ['14 Nov 1926', 'Heard she is married. Claim kept open. It costs nothing. F.T.'],
+      ['14 Nov 1938', 'Nothing handed in. F.T.'],
+      ['14 Nov 1949', 'Nothing handed in. F.T.'],
+      ['14 Oct 1952', 'Retiring. Leaving this claim open. Whoever has the desk: if anything of hers ever comes in, you’ll know it by the green wool. F.T.']
+    ]
+  };
+
+  /* ---------- the cylinder ---------- */
+  var RECORDING = { length: 68, cues: [
+    { t: 0, cap: 'Hiss. A click. Behind it, faint, a brass band.' },
+    { t: 3, who: 'A young man', text: 'Is it going? The man says it’s going. Right.' },
+    { t: 7, who: 'Frank Tilley', text: 'Mabel. It’s Frank. Frank Tilley — as if you knew another. I’m at the fair at Cawdry. They’ve a machine here that keeps your voice, a penny a go, and I thought, if I can’t say it to your face, I’ll say it to wax.' },
+    { t: 19, cap: 'The band reaches the end of its tune, and starts it again.' },
+    { t: 22, who: 'Frank Tilley', text: 'They’ve made me clerk at Hollin Cross. Lost Property. Everything that’s left on the line comes to me in the end — gloves, umbrellas, the lot. So I’ve a desk now, and a wage, and a room over the coal office. That’s enough to ask you properly.' },
+    { t: 36, who: 'Frank Tilley', text: 'The fourteenth of November. The seven-ten into Hollin Cross. I’ll be on the platform when it comes in. If you’re on it, I’ll know your answer. And if you’re not —' },
+    { t: 47, cap: 'A long pause. The band, nearer.' },
+    { t: 51, who: 'Frank Tilley', text: '— if you’re not, I’ll know that too. And I won’t ask again. I promise you that. I won’t ever make you say no.' },
+    { t: 60, who: 'Frank Tilley', text: 'That’s all. The man’s waving. That’s my penny.' },
+    { t: 64, cap: 'A click. Hiss, and then nothing.' }
+  ] };
+
+  /* ---------- dawn talk ---------- */
+  var TALK = {
+    frank: {
+      name: 'Frank Tilley', topics: {
+        how: { q: 'How did you know a glove would be handed in?', a: [
+          '“This came yesterday.” He lays a telegram on the counter:',
+          'F TILLEY ROSE COTTAGE HOLLIN = LEAVING THEM ON THE LINE TONIGHT STOP THEY WILL COME TO YOU AS EVERYTHING DOES STOP M =',
+          '“Everything left on the line comes to Hollin Cross. So I put an advance claim through the box, the way I’d tell any member of the public. Habit.”'] },
+        who: { q: 'Who is M.H.?', a: [
+          '“Mabel Hartigan. Mrs Cole, these many years. Widowed, I heard.” He says it plainly, the way he’d read an old entry back.',
+          '“We were young in 1913. I asked her a question, and she didn’t come.”'] },
+        why: { q: 'Why tonight?', a: [
+          '“I sail today. My daughter’s in Ontario. The 06.58 to Port Avel meets the boat.” He looks at the clock.',
+          '“I think she’s sending back everything I ever gave her, so it’s all square before I go. That would be like her. She was always tidy.”'] },
+        hand: { q: 'The slip is in my handwriting.', a: [
+          '“It’s in the office hand. I wrote that card out in 1919, so the new boys’ tags would all look alike. Any clerk can read any other’s.”',
+          'A small smile. “It does give people a turn, the first time they see a slip they didn’t write.”'] },
+        glove: { q: 'You said you’d have a glove for me. Do you have anything of hers?', a: [
+          'From his coat pocket he takes a lady’s glove: brown kid, right hand, lined with green wool.',
+          '“She dropped this one on the footbridge at Brindle, the summer of 1913. It came to this office, the way things do. I kept it on the mantelpiece. I’d like them to be a pair again, if that’s allowed.”'] },
+        ledger: { q: 'Show him the advance-claims ledger.', a: [
+          'He goes very still.',
+          '“I’d forgotten I left that open,” he says, which is not true.'] }
+      } },
+    david: {
+      name: 'David Cole', topics: {
+        how: { q: 'How did you know to come here?', a: [
+          '“Mrs Ames next door telephoned at midnight. Mum had gone out with a bag and left this on the dresser.” A note in a firm hand: Gone to keep an appointment. Don’t fuss. M.',
+          '“So naturally I fussed. I borrowed the bakery van and asked at every station on the line. They all said something had been handed in and sent on here.”'] },
+        worry: { q: 'Is your mother well?', a: [
+          '“She’s sharp as a tack. That isn’t it.” He rubs his face. “Since Dad died she’s been giving things away. His watch. Her mother’s brooch. She won’t say why.”',
+          '“She’s nearly sixty. It’s November. She went out without her gloves.”'] },
+        things: { q: 'What would you do with her things?', a: [
+          '“Keep them for her. That box was her mother’s. Those things have been in the dresser drawer my whole life.”',
+          '“If she wants to give them away, she can do it when she’s home and rested and sure.”'] },
+        cylinder: { q: 'Do you know what’s on the cylinder?', a: [
+          '“She never played it. We never had a machine. She said it was from before — before Dad.”',
+          '“I always supposed it was a song.”'] }
+      } },
+    joss: {
+      name: 'Joss Pell', topics: {
+        lady: { q: 'The lady off the 2.40 — is she still here?', a: [
+          '“Still in the ladies’ room. Asked me what time the 7.10 comes in. Seven-ten, I said. She laughed at that.”'] },
+        stove: { q: 'Did she say anything else?', a: [
+          '“Only not to fuss. There’s a lot of that about tonight.”'] },
+        trains: { q: 'What’s running this morning?', a: [
+          '“06.58 down to Port Avel, for the boat. 07.10 in from Port Avel, first of the day. Then the 08.05 back down.”'] }
+      } },
+    mabel: {
+      name: 'Mabel Cole', topics: {
+        why: { q: 'Why leave them all along the line?', a: [
+          '“I left each one where it belonged. The haberdasher’s at Port Avel, where he bought me thread. The footbridge at Brindle. The bench at Sallow. The band at Cawdry. Ludd Bridge, where he cut our letters in the rail. And here.”',
+          'She smooths the hat on her knee. “Everything on the line comes to Hollin Cross. He told me that once.”'] },
+        frank: { q: 'Do you know Frank Tilley is here?', a: [
+          '“I read in the railway magazine that he’d retired, and that he sails for his daughter’s today.”',
+          '“He said he’d never ask again, and he never did. Thirty-nine years. So if anyone’s to ask, it had better be me. I’m not asking him to stay. I’m only keeping an appointment I missed.”'] },
+        david: { q: 'Your son is at the hatch.', a: [
+          '“David. He’ll have driven all night.” Something softens. “He thinks I’ve gone peculiar since his father died, giving things away. Perhaps I have.”',
+          '“He’s a good boy. He’ll find me soon enough.”'] },
+        then: { q: 'Why didn’t you come in 1913?', a: [
+          '“My father was ill that week. Then he was better, and by then I’d talked myself out of it. I was nineteen and frightened of being happy.”',
+          '“I married a kind man in 1917. I don’t regret him. I regret the 7.10.”'] }
+      } }
+  };
+  var MABEL_ASK = [
+    '“I’ll ask you one thing, since you’re the clerk.”',
+    '“Don’t tell Frank I’m here. If he’s on the platform at ten past seven, I’ll know. If he’s caught his train, I’ll know that too. And David — not yet. Let me have my ten past seven.”'];
+  var MABEL_REPLY = {
+    yes: ['“Thank you.” She turns back to the stove.'],
+    no: ['“No. I suppose you can’t.” She doesn’t seem to hold it against you.']
+  };
+
+  /* ---------- the decision ---------- */
+  function choices(s) {
+    var met = s.dawn.metMabel;
+    var q = [
+      { id: 'things', legend: 'Her things: the glove, the box, the ticket, the timetable, the key and the cylinder', opts: [
+        { v: 'frank', label: 'Release them to Frank Tilley', note: 'Taking her telegram as written authority under Standing Order 2. It is signed only “M”.' },
+        { v: 'david', label: 'Release them to David Cole, her son', note: 'As next of kin, on your judgment under Standing Order 5. He has no written authority either.' },
+        { v: 'hold', label: 'Hold them for Mrs Cole herself', note: 'Standing Order 2, strictly: only the owner, or her written authority.' }] },
+      { id: 'frank', legend: 'What Frank is told', opts: [
+        { v: 'claim', label: 'Only what his claim requires', note: 'He is told what you are doing with her things, and nothing more.' },
+        { v: 'show', label: s.boxOpen ? 'Show him what she left: the circled 7.10 and the button cards' : 'Show him what she left: the circled 7.10 in her timetable', note: met ? 'You would not be telling him she is here. He can read it for himself.' : 'He can read it for himself.' },
+        { v: 'tell', label: met ? 'Tell him she is in the ladies’ waiting room' : 'Tell him a lady off the 2.40 is waiting in the ladies’ room', note: met ? (s.dawn.promise === 'yes' ? 'She asked you not to, and you gave your word.' : 'She asked you not to. You did not promise.') : 'Joss told you so at 03.40.' }] },
+      { id: 'david', legend: 'What David is told', opts: [
+        { v: 'claim', label: 'Only what the claim requires', note: 'He is told what you are doing with her things.' },
+        { v: 'tell', label: met ? 'Tell him where his mother is' : 'Tell him a lady off the 2.40 is waiting in the ladies’ room', note: met ? (s.dawn.promise === 'yes' ? 'She asked you to let her have her ten past seven, and you gave your word.' : 'She asked you not to yet. You did not promise.') : 'Joss told you so at 03.40.' }] }
+    ];
+    if (s.ledgerRead) q.push({ id: 'ledger', legend: 'Frank’s old claim, still open in the ledger', opts: [
+      { v: 'give', label: 'Give him the ledger', note: 'It is his claim. Let him close it, or not.' },
+      { v: 'close', label: 'Close the claim yourself, in the office hand', note: 'It is the office’s ledger, and you have the desk now.' },
+      { v: 'leave', label: 'Leave it on the shelf, open', note: 'It costs nothing.' }] });
+    return q;
+  }
+
+  /* ---------- what happened ---------- */
+  function epilogue(o) {
+    var sec = [], p;
+    /* 06.58 */
+    p = [];
+    if (o.frank === 'claim') {
+      p.push('At 06.58 the boat train pulled out for Port Avel. Frank Tilley had a corner seat' + (o.things === 'frank' ? ', her things in a brown-paper parcel on his knee, the walnut box on top.' : ', his own right glove in his coat pocket, and nothing of hers.'));
+      p.push('Joss waved him off. “Thirty-nine years in that office,” he said, “and he never once missed a train.”');
+    } else if (o.frank === 'show') {
+      p.push('Frank read the circled timetable twice' + (o.boxOpen ? ', and then the last button card, the one with no button.' : '.') + ' He looked at the date on the station clock, and then at the clock itself.');
+      p.push('At 06.58 the boat train pulled out for Port Avel without him. He stood on platform 1 with his hat in his hands, facing the other way.');
+    } else {
+      p.push('Frank did not wait for anything. He crossed the booking hall to the ladies’ waiting room, knocked once, and went in.');
+      p.push('At 06.58 the boat train left for Port Avel without him. Nobody in the waiting room seemed to hear it go.');
+    }
+    sec.push({ h: '06.58', p: p });
+    /* before 07.10: David */
+    p = [];
+    if (o.david === 'tell') {
+      if (o.frank === 'tell') p.push('David followed him across a minute later. You could not hear what was said in that small warm room, and you did not try.');
+      else if (o.frank === 'show') p.push('David went straight to the waiting room. A few minutes before seven he came out with his mother on his arm, and she stood with him at the far end of the platform, not explaining.');
+      else p.push('David went straight to the waiting room. When he came out with his mother on his arm, she let him hold it.');
+    } else {
+      p.push('David waited in the booking hall with his hat on his knee, watching the door to the street, as if she would come in from the town.');
+    }
+    sec.push({ h: 'Meanwhile', p: p });
+    /* 07.10 */
+    p = [];
+    if (o.frank === 'claim') {
+      p.push('At 07.10 the first up train ran in from Port Avel. A woman in a grey coat ' + (o.david === 'tell' ? 'stepped away from her son' : 'came out of the ladies’ waiting room') + ' and walked to the edge of platform 1 as the doors opened, as if she had just stepped off it.');
+      p.push('She watched every passenger go by. Then the train went on, and she was still standing there.');
+      if (o.things === 'frank') p.push('Joss told her a gentleman had collected her things at the hatch and caught the 06.58. “Then he has them,” she said, and sat down on the bench where she had left the tube.');
+      if (o.things === 'david') p.push(o.david === 'tell' ? 'David carried the walnut box back to the van. She did not ask for it.' : 'David saw her through the booking-hall window and came running with the box under his arm. “Mum. I’ve got your things. All of them.” She looked at the box for a long time before she took his arm.');
+      if (o.things === 'hold') p.push('At 07.40 she came to your hatch and asked, very politely, whether anything had been handed in. You told her what you were holding for her, and why.');
+    } else if (o.frank === 'show') {
+      p.push('At 07.10 the first up train ran in from Port Avel. A woman in a grey coat ' + (o.david === 'tell' ? 'left her son at the far end of the platform' : 'came out of the ladies’ waiting room') + ' and stood by the doors as they opened, as if she had just stepped off it, thirty-nine years late.');
+      p.push('Frank was there. You were too far away to hear what either of them said first. Joss, who was nearer, said afterwards that neither of them said anything for some time.');
+      if (o.david === 'claim') p.push('David saw it all through the booking-hall window: his mother, and a man he had never met, and the way she put her hand on his sleeve.');
+      if (o.met && o.promised && o.david !== 'tell') p.push('You had not told him she was there. You had only let him read.');
+    } else {
+      p.push('When the 7.10 ran in from Port Avel, the two of them came out of the waiting room and stood on the platform to meet it anyway. “We had an appointment,” Mabel told Joss, as if that explained everything.');
+      if (o.broke) p.push('She looked across at your hatch once. You had told him, when she asked you not to and you had given your word. She did not say what she thought of that, and you did not ask.');
+      else if (o.met) p.push('She looked across at your hatch once. She had asked you not to tell him, and you had not promised. She did not seem surprised.');
+    }
+    if (o.david === 'tell' && o.frank !== 'tell' && o.met) p.push(o.promised ? 'You had given her your word, and told David anyway. She had her ten past seven with her son beside her.' : 'She had asked for her ten past seven alone. You had not promised it, and she did not have it.');
+    sec.push({ h: '07.10', p: p });
+    /* afterwards */
+    p = [];
+    if (o.things === 'frank') {
+      if (o.frankStays) {
+        p.push('That afternoon Mabel signed the release herself, under her own telegram, in a hand you had not seen before.');
+        p.push('A telegram went to Ontario at 08.15: DELAYED STOP ALL WELL STOP LETTER FOLLOWS. Whether Frank sailed the next week, or ever, is not recorded here.');
+        p.push('David shook Frank’s hand on the platform before he drove his mother home. Whether he understood whose hand he was shaking, she did not say.');
+      } else {
+        p.push('In the new year a card came from Ontario, addressed to The Clerk, Lost Property, Hollin Cross. It said: Arrived safely, all of it. Thank you for doing it properly. F.T.');
+        p.push('Mr D. Cole wrote to the District Office about his mother’s property being released on a telegram signed only “M”. You were asked to explain in writing. Your ledger entry was the explanation, and the matter went no further.');
+        p.push('Mabel went home with David in the bakery van. She left no message for the office.');
+      }
+    } else if (o.things === 'david') {
+      if (o.frankStays) {
+        p.push('On the platform Mabel took the walnut box back from her son, opened it, and gave Frank the last button card, the one without a button. David kept the rest for her, which was what he had come to do.');
+        p.push('Frank’s advance claim stayed on file, unmet. Under Standing Order 3 it never gave him any right to them, and he did not seem to want one.');
+      } else {
+        p.push('David drove his mother home in the bakery van, the box and the tube in a string bag between them on the seat.');
+        p.push('Frank’s advance claim stayed on file, unmet. Whether the cylinder was ever played in that house, and whose voice anyone expected to hear, nobody wrote to say.');
+      }
+    } else {
+      if (o.frankStays) {
+        p.push('At 07.40 Mabel came to the hatch with Frank beside her. She signed for her things in her own hand. Then, without opening it, she gave the tube to Frank.');
+        p.push('David waited by the door and said nothing at all, which Joss said was the kindest thing he saw all morning.');
+      } else {
+        p.push('Mabel signed for her things in her own hand. Then she asked for brown paper and string, and an address in Ontario, which Joss happened to know.');
+        p.push('You wrote the address on the parcel in the office hand, and it went down on the 09.20. David carried her bag to the van. He didn’t ask who the parcel was for.');
+      }
+    }
+    if (o.ledger === 'give') p.push(o.frankStays ? 'You gave Frank his old ledger. He turned back to November 1913 and wrote under his own first entry, in the office hand: Property received. Claim closed. F.T.' : 'You gave Frank his old ledger through the carriage window as the 06.58 began to move. “I’ll close it on the boat,” he said.');
+    if (o.ledger === 'close') p.push('When they had gone you opened the ledger at 14 November 1913 and wrote under Frank’s first entry, in the office hand: 15 Nov 1952. Property handed in and dealt with as recorded. Claim closed. Then your initials, which look a great deal like his.');
+    if (o.ledger === 'leave') p.push('You put the ledger back behind shelf D, where it had been all along, with its claim still open. It costs nothing.');
+    sec.push({ h: 'Afterwards', p: p });
+    /* uncertainty */
+    p = [];
+    if (o.frank === 'claim') { p.push('Whether Frank would have stayed, if he had known.'); p.push('Whether Mabel was sorry or relieved when the platform emptied.'); }
+    if (o.frank === 'show') { p.push('Whether Frank stayed because of what he read, or because of the date.'); p.push('Whether thirty-nine years was too long, or exactly long enough.'); }
+    if (o.frank === 'tell') { p.push('What Mabel would have done at ten past seven if no one had knocked.'); p.push('Whether a meeting arranged by the clerk counts as an appointment kept.'); }
+    if (o.things === 'frank') p.push('Whether “you”, in her telegram, meant Frank, or the office.');
+    if (o.things === 'david') p.push('Whether David was keeping her things safe, or keeping them from her.');
+    if (o.things === 'hold') p.push('Whether holding them was caution, or kindness, or both.');
+    if (o.david === 'claim') p.push('What David will make of it, when she tells him. If she does.');
+    sec.push({ h: 'What the ledger cannot say', p: p, list: true });
+    sec.push({ h: '', p: ['You wrote it all down in the office hand. Then the day clerk came in, and it was morning.'] });
+    return sec;
+  }
+
+  /* ---------- prompts ---------- */
+  function promptText(s) {
+    var k = E.prompt(s), id = s.counter;
+    if (k === 'look') return 'Look the ' + itemName(id).toLowerCase() + ' over: choose something to look at more closely.';
+    if (k === 'tag') return 'Write its tag: pick one distinguishing mark you’ve noticed and the right shelf, then shelve it.';
+    if (k === 'next') { var ne = E.nextEvent(s); return 'The counter is clear. Ring for the next arrival when you’re ready (due ' + clock(ne.at) + ').'; }
+    if (k === 'board') return s.pattern ? 'Everything is in for the night. Pin all of her things to the Board, set each where it was left, and check it.' : 'That seems to be everything for the night. Look again at the things on the shelves: what do some of them share?';
+    if (k === 'listen') return 'One thing left: the cylinder. Mr Tilley’s old phonograph is through the curtain, in the Machine tab.';
+    if (k === 'reveal') return 'You know where everything was left, and what the cylinder says.';
+    if (k === 'talk') return 'Frank Tilley is at the hatch. Ask what you need to ask.';
+    if (k === 'decide') return 'When you’re ready, decide what happens to her things, and what each of them is told.';
+    return '';
+  }
+
+  var HINTS = {
+    T1: 'Joss: “The glove? The Brindle porter found it on their footbridge, and sent it from Brindle. Read his note.”',
+    T2: 'Joss: “A refreshment room, and a wait for a connection. Look at the timetable: where does the mail stop long enough for that?”',
+    T3: 'Joss: “The ticket came via Cawdry, but that’s only where the goods dropped it. Read the signalman’s note: the train stopped by request. Which stop is a request stop?”',
+    T4: 'Joss: “Left at a ticket window, where she bought her ticket for the night mail. Which way did it come in?”',
+    T5: 'Joss: “A footbridge, and the milk train. Read the label: where was it sent from?”',
+    T6: 'Joss: “I found that one myself. Platform 1. Here.”',
+    COSY: 'Joss: “The tea cosy? Mrs Bright found it at half past nine. When did the night mail leave Port Avel?”',
+    missing: 'Joss: “You’ve not pinned everything of hers yet. Green wool, or those letters: look at each of her things for one or the other.”'
+  };
+  var WHY = {
+    T1: 'The Brindle porter found it on the footbridge steps and sent it from Brindle.',
+    T2: 'Left in a refreshment room during the wait for a connection: Cawdry Junction, where the mail waits twenty minutes.',
+    T3: 'Sent on via Cawdry, but found by a signal box after the train stopped by request. Only Sallow Halt is a request stop.',
+    T4: 'Left at the ticket window where she bought her single for the night mail, and sent from Port Avel.',
+    T5: 'Hung on a footbridge rail, and sent by the milk train from Ludd Bridge.',
+    T6: 'Found by Joss on platform 1, here at Hollin Cross.',
+    COSY: 'Found at 21.30 in the waiting room here, before the night mail had even left Port Avel at 21.40. It can’t be hers.'
+  };
+  function hintFor(s) {
+    var br = E.boardResult(s);
+    if (br.missing.length) return HINTS.missing;
+    var wrong = br.rows.filter(function (r) { return !r.ok; })[0];
+    return wrong ? HINTS[wrong.id] : 'Joss: “Looks right to me. Check it.”';
+  }
+
+  /* ---------- the private ledger of the shift ---------- */
+  function shiftLedger(s) {
+    var out = [];
+    s.log.forEach(function (e) {
+      var t = clock(e.at), d;
+      switch (e.k) {
+        case 'arrive': out.push([t, itemName(e.id) + ' handed in.']); break;
+        case 'slip': out.push([t, E.SLIPS[e.id].advance ? 'An advance claim slip came through the night-letter box.' : 'Claim slip received: ' + E.SLIPS[e.id].who + '.']); break;
+        case 'tag': d = E.itemDetail(e.id, e.d); out.push([t, 'Tagged ' + itemName(e.id).toLowerCase() + ': “' + d.tag + '”. Shelf ' + e.shelf + '.']); break;
+        case 'match': out.push([t, 'Matched ' + (E.SLIPS[e.slip].advance ? 'the advance claim' : E.SLIPS[e.slip].who + '’s slip') + ' to the ' + itemName(e.id).toLowerCase() + '.']); break;
+        case 'nomatch': out.push([t, 'Compared a slip with the ' + itemName(e.id).toLowerCase() + ': not a match.']); break;
+        case 'pattern': out.push([t, 'Started a board for her things: ' + e.ids.map(function (i) { return itemName(i).toLowerCase(); }).join(' and ') + '.']); break;
+        case 'pin': out.push([t, 'Pinned the ' + itemName(e.id).toLowerCase() + ' to the board.']); break;
+        case 'unpin': out.push([t, 'Took the ' + itemName(e.id).toLowerCase() + ' off the board.']); break;
+        case 'check': out.push([t, e.ok ? 'Checked the board: one thing at every stop.' : 'Checked the board: not settled yet.']); break;
+        case 'hint': out.push([t, 'Asked Joss what he thought.']); break;
+        case 'openBox': out.push([t, 'Opened the walnut box with the brass key.']); break;
+        case 'heard': out.push([t, e.how === 'played' ? 'Played the cylinder on Mr Tilley’s phonograph.' : 'Read the cylinder through, line by line.']); break;
+        case 'reveal': out.push([t, 'Put it together.']); break;
+        case 'short': out.push([t, 'A short shift: everything already handed in and filed.']); break;
+        case 'ledgerFound': out.push([t, 'Found an old ledger behind shelf D.']); break;
+        case 'ledgerRead': out.push([t, 'Read Frank Tilley’s advance-claims ledger.']); break;
+        case 'davidArrives': out.push([t, 'David Cole arrived from Port Avel.']); break;
+        case 'ask': out.push([t, 'Asked ' + TALK[e.who].name + ': “' + TALK[e.who].topics[e.topic].q + '”']); break;
+        case 'metMabel': out.push([t, 'Looked in on the ladies’ waiting room.']); break;
+        case 'promise': out.push([t, e.answer === 'yes' ? 'Promised Mabel Cole to keep her confidence.' : 'Told Mabel Cole you could not promise.']); break;
+        case 'decide': out.push([t, decisionLine(e.d, s)]); break;
+      }
+    });
+    return out;
+  }
+  function decisionLine(d, s) {
+    var q = choices(s), parts = [];
+    q.forEach(function (qq) { var o = qq.opts.filter(function (x) { return x.v === d[qq.id]; })[0]; if (o) parts.push(o.label); });
+    return 'Decided: ' + parts.join('; ') + '.';
+  }
+
+  /* ---------- the Keyring ---------- */
+  var MARKS = [
+    { id: 'entered', name: 'Entered', earned: 'You took the night shift at Hollin Cross.' },
+    { id: 'unveiled', name: 'Unveiled', earned: 'You saw what the night was for.' },
+    { id: 'explored', name: 'Explored', earned: 'You looked in where no slip sent you.' },
+    { id: 'returned', name: 'Returned', earned: 'You came back, and the office remembered.' }
+  ];
+
+  return { clock: clock, itemName: itemName, stationName: stationName, TITLE: TITLE, HOOK: HOOK, DOCS: DOCS, SHELF_HELP: SHELF_HELP,
+    SCENES: SCENES, patternScene: patternScene, revealScene: revealScene, returnScene: returnScene, LEDGER: LEDGER, RECORDING: RECORDING,
+    TALK: TALK, MABEL_ASK: MABEL_ASK, MABEL_REPLY: MABEL_REPLY, choices: choices, epilogue: epilogue, promptText: promptText,
+    hintFor: hintFor, WHY: WHY, shiftLedger: shiftLedger, MARKS: MARKS };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = HCStory;
+
+/* ---- persist.js ---- */
+/* Hollin Cross storage. Every key passes guardKey(); nothing outside the Mystortals namespace is read or written.
+   Client-side storage is a convenience, not a secure record of awards. */
+var HCStore = (function () {
+  'use strict';
+  var E = HCEngine;
+  var PREFIX = 'dq-mystortal';
+  var KEYS = { keyring: 'dq-mystortals-keyring-v1', run: 'dq-mystortal-001-v1', prefs: 'dq-mystortal-001-prefs-v1' };
+  var SCHEMA = 1;
+  var MARK_IDS = ['entered', 'unveiled', 'explored', 'returned'];
+  var MAX_FINISHED = 12, MAX_ACTIONS = 4000;
+
+  function guardKey(k) {
+    if (typeof k !== 'string' || k.indexOf(PREFIX) !== 0) throw new Error('storage key outside namespace: ' + k);
+    return k;
+  }
+  function registry() {
+    var out = [];
+    for (var i = 1; i <= 31; i++) {
+      var n = (i < 10 ? '00' : '0') + i;
+      out.push(i === 1
+        ? { id: 'MYS-001', number: n, status: 'active', title: 'The Lost Property Office at Hollin Cross', marks: MARK_IDS.slice() }
+        : { id: 'MYS-' + n, number: n, status: 'reserved' });
+    }
+    return out;
+  }
+  function slotActive(n) { var r = registry(); for (var i = 0; i < r.length; i++) if (r[i].number === n) return r[i].status === 'active'; return false; }
+
+  function make(storage) {
+    var mem = {}, notices = [], usingMemory = false, readOnly = false;
+    function rawGet(k) {
+      guardKey(k);
+      if (!usingMemory) { try { var v = storage.getItem(k); return v; } catch (e) { usingMemory = true; notices.push('memory'); } }
+      return Object.prototype.hasOwnProperty.call(mem, k) ? mem[k] : null;
+    }
+    function rawSet(k, v) {
+      guardKey(k);
+      if (readOnly && (k === KEYS.keyring)) return false;
+      if (!usingMemory) { try { storage.setItem(k, v); return true; } catch (e) { usingMemory = true; notices.push('memory'); } }
+      mem[k] = v; return true;
+    }
+    function rawDel(k) {
+      guardKey(k);
+      if (!usingMemory) { try { storage.removeItem(k); return; } catch (e) { usingMemory = true; notices.push('memory'); } }
+      delete mem[k];
+    }
+    if (!storage) { usingMemory = true; notices.push('memory'); }
+    function parse(k) {
+      var raw = rawGet(k);
+      if (raw === null || raw === undefined) return { empty: true };
+      try { return { val: JSON.parse(raw), raw: raw }; } catch (e) { return { bad: true, raw: raw }; }
+    }
+    function setAside(k, raw, why) { rawSet(k + '-backup', raw); notices.push(why); }
+
+    /* ----- Keyring ----- */
+    function emptyKeyring() { return { schema: SCHEMA, collection: 'mystortals', slots: {} }; }
+    function cleanMarks(m) {
+      var out = {};
+      if (!m || typeof m !== 'object' || Array.isArray(m)) return out;
+      MARK_IDS.forEach(function (id) {
+        var x = m[id];
+        if (x && typeof x === 'object' && typeof x.ev === 'string' && x.ev.length <= 80) {
+          var at = Math.floor(Number(x.at)); if (!isFinite(at) || at < 0) at = 0;
+          out[id] = { at: Math.min(at, 8.64e15), ev: x.ev };
+        }
+      });
+      return out;
+    }
+    function loadKeyring() {
+      var p = parse(KEYS.keyring);
+      if (p.empty) return emptyKeyring();
+      if (p.bad) { setAside(KEYS.keyring, p.raw, 'keyring-corrupt'); var k0 = emptyKeyring(); rawSet(KEYS.keyring, JSON.stringify(k0)); return k0; }
+      var v = p.val;
+      if (!v || typeof v !== 'object' || Array.isArray(v) || v.collection !== 'mystortals' || typeof v.schema !== 'number') {
+        setAside(KEYS.keyring, p.raw, 'keyring-corrupt'); var k1 = emptyKeyring(); rawSet(KEYS.keyring, JSON.stringify(k1)); return k1;
+      }
+      if (v.schema > SCHEMA) { readOnly = true; notices.push('keyring-newer'); }
+      var out = emptyKeyring(); out.schema = v.schema > SCHEMA ? v.schema : SCHEMA;
+      var slots = (v.slots && typeof v.slots === 'object' && !Array.isArray(v.slots)) ? v.slots : {};
+      Object.keys(slots).forEach(function (n) {
+        if (!/^0(0[1-9]|[12][0-9]|3[01])$/.test(n)) return;           /* only 001..031 */
+        if (n === '001') { out.slots[n] = { marks: cleanMarks(slots[n] && slots[n].marks) }; return; }
+        /* reserved: kept untouched for a future build, never shown, never awarded */
+        if (slots[n] && typeof slots[n] === 'object') out.slots[n] = slots[n];
+      });
+      return out;
+    }
+    function saveKeyring(k) { return rawSet(KEYS.keyring, JSON.stringify(k)); }
+    function marksOf(k, n) {
+      if (!slotActive(n)) return {};
+      return (k.slots[n] && k.slots[n].marks) ? k.slots[n].marks : {};
+    }
+
+    /* ----- runs ----- */
+    function emptyRun() { return { schema: SCHEMA, current: null, finished: [] }; }
+    function validRunRecord(r) {
+      if (!r || typeof r !== 'object' || !E.seedOk(r.seed) || !Array.isArray(r.actions) || r.actions.length > MAX_ACTIONS) return null;
+      try { var st = E.replay(r.seed, r.actions); return st; } catch (e) { return null; }
+    }
+    function loadRun() {
+      var p = parse(KEYS.run);
+      if (p.empty) return { run: emptyRun(), states: { current: null, finished: [] } };
+      if (p.bad || !p.val || typeof p.val !== 'object' || p.val.schema !== SCHEMA) {
+        if (p.val && typeof p.val === 'object' && typeof p.val.schema === 'number' && p.val.schema > SCHEMA) { notices.push('run-newer'); return { run: emptyRun(), states: { current: null, finished: [] }, newer: true }; }
+        setAside(KEYS.run, p.raw, 'run-corrupt'); rawSet(KEYS.run, JSON.stringify(emptyRun()));
+        return { run: emptyRun(), states: { current: null, finished: [] } };
+      }
+      var v = p.val, run = emptyRun(), states = { current: null, finished: [] }, dropped = 0;
+      if (v.current) {
+        var cs = validRunRecord(v.current);
+        if (cs && cs.phase !== 'done') { run.current = { seed: v.current.seed, actions: v.current.actions }; states.current = cs; }
+        else if (cs && cs.phase === 'done') { /* a finished run left as current: move it */ run.finished.push({ seed: v.current.seed, actions: v.current.actions }); states.finished.push(cs); }
+        else dropped++;
+      }
+      (Array.isArray(v.finished) ? v.finished : []).slice(0, MAX_FINISHED).forEach(function (f) {
+        var fs = validRunRecord(f);
+        if (fs && fs.phase === 'done') { run.finished.push({ seed: f.seed, actions: f.actions }); states.finished.push(fs); } else dropped++;
+      });
+      if (dropped) { setAside(KEYS.run, p.raw, 'run-partial'); rawSet(KEYS.run, JSON.stringify(run)); }
+      return { run: run, states: states };
+    }
+    function saveRun(run) { return rawSet(KEYS.run, JSON.stringify(run)); }
+
+    /* ----- prefs ----- */
+    function loadPrefs() {
+      var p = parse(KEYS.prefs), d = { sound: false, motion: 'system', large: false };
+      if (p.empty || p.bad || !p.val || typeof p.val !== 'object') return d;
+      return { sound: p.val.sound === true, motion: ['system', 'reduce', 'full'].indexOf(p.val.motion) >= 0 ? p.val.motion : 'system', large: p.val.large === true };
+    }
+    function savePrefs(pr) { return rawSet(KEYS.prefs, JSON.stringify({ sound: !!pr.sound, motion: pr.motion, large: !!pr.large })); }
+
+    /* ----- awards: each rule checks replayed engine state, not the caller's word ----- */
+    var RULES = {
+      entered: function (st) { return !!st && st.phase !== 'new'; },
+      unveiled: function (st) { return !!st && st.revealed === true && st.boardSolved === true && st.heard === true; },
+      explored: function (st) { return !!st && st.dawn && st.dawn.metMabel === true && !!st.dawn.promise; },
+      returned: function (st, finishedStates) {
+        if (st && st.mode === 'return' && st.ledgerRead === true) return true;
+        var sigs = {};
+        (finishedStates || []).forEach(function (f) { if (f.outcome) sigs[f.outcome.sig] = 1; });
+        return Object.keys(sigs).length >= 2;
+      }
+    };
+    function award(k, n, mark, ev, st, finishedStates) {
+      if (readOnly) return { ok: false, why: 'read-only' };
+      if (n !== '001' || !slotActive(n)) return { ok: false, why: 'slot' };
+      if (MARK_IDS.indexOf(mark) < 0) return { ok: false, why: 'mark' };
+      if (typeof ev !== 'string' || !ev || ev.length > 80) return { ok: false, why: 'ev' };
+      if (!RULES[mark](st, finishedStates)) return { ok: false, why: 'rule' };
+      if (!k.slots['001']) k.slots['001'] = { marks: {} };
+      if (k.slots['001'].marks[mark]) return { ok: true, fresh: false };
+      k.slots['001'].marks[mark] = { at: Date.now(), ev: ev };
+      saveKeyring(k);
+      return { ok: true, fresh: true };
+    }
+
+    function clearShift(run) { run.current = null; saveRun(run); }
+    function clearFinished(run) { run.finished = []; run.current = null; saveRun(run); }
+    function clearKeyring() { if (readOnly) return false; saveKeyring(emptyKeyring()); return true; }
+
+    return {
+      KEYS: KEYS, registry: registry, guardKey: guardKey, loadKeyring: loadKeyring, saveKeyring: saveKeyring, marksOf: marksOf,
+      loadRun: loadRun, saveRun: saveRun, loadPrefs: loadPrefs, savePrefs: savePrefs, award: award, clearShift: clearShift,
+      clearFinished: clearFinished, clearKeyring: clearKeyring, MAX_FINISHED: MAX_FINISHED,
+      notices: function () { var n = notices.slice(); notices.length = 0; return n; },
+      usingMemory: function () { return usingMemory; }, readOnly: function () { return readOnly; }
+    };
+  }
+  return { make: make, registry: registry, guardKey: guardKey, KEYS: KEYS, MARK_IDS: MARK_IDS };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = HCStore;
+
+/* ---- audio.js ---- */
+/* Hollin Cross sound. Synthesised with Web Audio; nothing is fetched. Silent until the visitor turns sound on.
+   No clue depends on sound: every sound has a caption or visual equivalent. */
+var HCAudio = (function () {
+  'use strict';
+  var ctx = null, master = null, on = false, rain = null, phono = null;
+  function ensure() {
+    if (ctx) return true;
+    var AC = (typeof window !== 'undefined') && (window.AudioContext || window.webkitAudioContext);
+    if (!AC) return false;
+    try { ctx = new AC(); master = ctx.createGain(); master.gain.value = 0.7; master.connect(ctx.destination); return true; } catch (e) { ctx = null; return false; }
+  }
+  function noiseBuffer(secs, brown) {
+    var n = Math.floor(ctx.sampleRate * secs), b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0), last = 0;
+    for (var i = 0; i < n; i++) {
+      var w = Math.random() * 2 - 1;
+      if (brown) { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.2; } else d[i] = w;
+    }
+    return b;
+  }
+  function startRain() {
+    if (!ctx || rain) return;
+    var src = ctx.createBufferSource(); src.buffer = noiseBuffer(4, true); src.loop = true;
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+    var g = ctx.createGain(); g.gain.value = 0.0001; g.gain.linearRampToValueAtTime(0.16, ctx.currentTime + 2);
+    src.connect(lp); lp.connect(g); g.connect(master); src.start();
+    var drip = setInterval(function () { if (on && Math.random() < 0.5) blip(1800 + Math.random() * 1600, 0.025, 0.05); }, 700);
+    rain = { src: src, g: g, drip: drip };
+  }
+  function stopRain() {
+    if (!rain) return;
+    try { rain.g.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.6); rain.src.stop(ctx.currentTime + 0.7); } catch (e) {}
+    clearInterval(rain.drip); rain = null;
+  }
+  function blip(freq, dur, vol, type) {
+    if (!ctx || !on) return;
+    var o = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime;
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function thump() {
+    if (!ctx || !on) return;
+    var src = ctx.createBufferSource(); src.buffer = noiseBuffer(0.12, false);
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 420;
+    var g = ctx.createGain(), t = ctx.currentTime; g.gain.setValueAtTime(0.9, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+    src.connect(lp); lp.connect(g); g.connect(master); src.start(t);
+  }
+  var SFX = {
+    stamp: function () { thump(); },
+    bell: function () { blip(1318, 1.4, 0.18); blip(1975, 0.9, 0.06); },
+    paper: function () { blip(5200, 0.05, 0.02, 'triangle'); },
+    click: function () { blip(900, 0.04, 0.05, 'square'); },
+    whistle: function () { blip(1480, 0.6, 0.06, 'triangle'); }
+  };
+
+  /* phonograph: crackle, hiss, a distant band, and a murmur shaped like speech during spoken cues */
+  function phonoStart(cues, offset) {
+    phonoStop();
+    if (!ctx || !on) return;
+    var t0 = ctx.currentTime - offset;
+    var hiss = ctx.createBufferSource(); hiss.buffer = noiseBuffer(3, false); hiss.loop = true;
+    var hp = ctx.createBiquadFilter(); hp.type = 'bandpass'; hp.frequency.value = 3200; hp.Q.value = 0.6;
+    var hg = ctx.createGain(); hg.gain.value = 0.05;
+    hiss.connect(hp); hp.connect(hg); hg.connect(master); hiss.start();
+    var voice = ctx.createBufferSource(); voice.buffer = noiseBuffer(3, true); voice.loop = true;
+    var f1 = ctx.createBiquadFilter(); f1.type = 'bandpass'; f1.frequency.value = 620; f1.Q.value = 3;
+    var vg = ctx.createGain(); vg.gain.value = 0.0001;
+    voice.connect(f1); f1.connect(vg); vg.connect(master); voice.start();
+    var band = ctx.createOscillator(); band.type = 'triangle'; band.frequency.value = 196;
+    var bg = ctx.createGain(); bg.gain.value = 0.012; band.connect(bg); bg.connect(master); band.start();
+    var notes = [196, 220, 247, 262, 247, 220, 196, 165];
+    for (var k = 0; k < 140; k++) { var tt = t0 + k * 0.5; if (tt > ctx.currentTime) band.frequency.setValueAtTime(notes[k % notes.length], tt); }
+    for (var i = 0; i < cues.length; i++) {
+      var c = cues[i]; if (!c.text) continue;
+      var start = t0 + c.t, end = t0 + ((cues[i + 1] && cues[i + 1].t) || c.t + 6) - 0.4;
+      var syl = Math.max(4, Math.round(c.text.length / 4));
+      for (var j = 0; j < syl; j++) {
+        var st = start + (end - start) * j / syl; if (st < ctx.currentTime) continue;
+        vg.gain.setValueAtTime(0.0001, st);
+        vg.gain.linearRampToValueAtTime(0.22 + 0.1 * Math.sin(j), st + 0.06);
+        vg.gain.linearRampToValueAtTime(0.0001, st + (end - start) / syl * 0.85);
+        f1.frequency.setValueAtTime(520 + (j % 5) * 70, st);
+      }
+    }
+    var crack = setInterval(function () { if (on && Math.random() < 0.6) blip(200 + Math.random() * 3000, 0.01, 0.06, 'square'); }, 90);
+    phono = { nodes: [hiss, voice, band], crack: crack };
+  }
+  function phonoStop() {
+    if (!phono) return;
+    phono.nodes.forEach(function (n) { try { n.stop(); } catch (e) {} });
+    clearInterval(phono.crack); phono = null;
+  }
+
+  return {
+    available: function () { return !!((typeof window !== 'undefined') && (window.AudioContext || window.webkitAudioContext)); },
+    setOn: function (v) {
+      on = !!v;
+      if (on) { if (!ensure()) { on = false; return false; } try { ctx.resume(); } catch (e) {} startRain(); }
+      else { stopRain(); phonoStop(); }
+      return on;
+    },
+    isOn: function () { return on; },
+    sfx: function (name) { try { if (on && SFX[name]) SFX[name](); } catch (e) {} },
+    phonoStart: function (cues, offset) { try { phonoStart(cues, offset || 0); } catch (e) {} },
+    phonoStop: function () { try { phonoStop(); } catch (e) {} }
+  };
+})();
+
+/* ---- art.js ---- */
+/* Hollin Cross drawings: fixed SVG built only from constants in this file and the engine's item table. */
+var HCArt = (function () {
+  'use strict';
+  var INK = '#3a2c1e', PAPER = '#efe3c8', BRASS = '#c9a24a', WOOL = '#6f9a52', WOOL2 = '#557c3d';
+  function svg(vb, body) { return '<svg viewBox="' + vb + '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' + body + '</svg>'; }
+  function shadow(cx, cy, rx) { return '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="6" fill="#000" opacity=".25"/>'; }
+
+  var DRAW = {
+    umbrella: function (l) {
+      var handle = l.handle === 'whangee'
+        ? '<path d="M60 128 L82 96" stroke="#b08a52" stroke-width="7" stroke-linecap="round"/><rect x="78" y="92" width="10" height="8" rx="2" transform="rotate(-55 83 96)" fill="#cfd3d8"/>'
+        : '<path d="M82 96 L66 120 q-8 12 -20 6 q-10 -6 -2 -16" fill="none" stroke="#caa165" stroke-width="7" stroke-linecap="round"/><path d="M75 106 l5 4 M69 115 l5 4" stroke="#8a6a3c" stroke-width="2"/>';
+      return svg('0 0 240 160', shadow(130, 140, 80) +
+        '<path d="M86 94 L196 20 L204 28 L96 104 Z" fill="' + l.canopy + '" stroke="#0d0d10" stroke-width="1.5"/>' +
+        '<path d="M100 92 L190 30 M110 96 L198 34" stroke="#ffffff" stroke-opacity=".12" stroke-width="2"/>' +
+        '<path d="M150 58 l10 8" stroke="#fff" stroke-opacity=".25" stroke-width="5" stroke-linecap="round"/>' +
+        '<path d="M200 24 L214 14" stroke="' + BRASS + '" stroke-width="4" stroke-linecap="round"/>' + handle);
+    },
+    hat: function (l) {
+      return svg('0 0 240 160', shadow(120, 138, 92) +
+        '<ellipse cx="120" cy="118" rx="96" ry="22" fill="' + l.felt + '" stroke="#1b1b1e" stroke-width="1.5"/>' +
+        '<path d="M66 116 q-2 -60 26 -72 q28 -10 56 0 q28 12 26 72 Z" fill="' + l.felt + '" stroke="#1b1b1e" stroke-width="1.5"/>' +
+        '<path d="M100 50 q20 14 40 0" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="3"/>' +
+        '<path d="M68 100 q52 14 104 0 l0 12 q-52 14 -104 0 Z" fill="' + l.band + '"/>' +
+        (l.feather ? '<path d="M150 100 q22 -30 34 -42 q-6 22 -26 44 Z" fill="#c9b38a" stroke="#6b5a3c"/><path d="M152 100 l26 -36" stroke="#6b5a3c"/>' : '<rect x="140" y="96" width="22" height="10" rx="1" fill="#e8d9b5" transform="rotate(-6 151 101)"/>'));
+    },
+    book: function (l) {
+      return svg('0 0 240 160', shadow(120, 140, 80) +
+        '<path d="M50 40 L170 26 L196 116 L76 130 Z" fill="#efe6cf" stroke="#9a8a6a"/>' +
+        '<path d="M44 36 L166 22 L192 112 L70 126 Z" fill="' + l.cloth + '" stroke="#1d120e" stroke-width="1.5"/>' +
+        '<path d="M44 36 L70 126" stroke="#000" stroke-opacity=".35" stroke-width="8"/>' +
+        '<rect x="96" y="60" width="54" height="20" rx="2" fill="none" stroke="' + BRASS + '" stroke-opacity=".7" transform="rotate(-8 123 70)"/>');
+    },
+    case: function () {
+      return svg('0 0 240 160', shadow(120, 142, 92) +
+        '<path d="M96 44 q24 -20 48 0" fill="none" stroke="#2a1c12" stroke-width="7"/>' +
+        '<rect x="30" y="46" width="180" height="88" rx="8" fill="#4a3220" stroke="#1c120a" stroke-width="2"/>' +
+        '<path d="M30 70 H210" stroke="#1c120a" stroke-width="2"/>' +
+        '<g fill="' + BRASS + '"><rect x="30" y="46" width="14" height="14" rx="3"/><rect x="196" y="46" width="14" height="14" rx="3"/><rect x="30" y="120" width="14" height="14" rx="3"/><rect x="196" y="120" width="14" height="14" rx="3" opacity=".6"/>' +
+        '<rect x="106" y="62" width="28" height="16" rx="3"/></g><g fill="#2a1c12" font-family="serif" font-size="7"><text x="110" y="73">3 7 1</text></g>' +
+        '<text x="60" y="104" fill="' + BRASS + '" font-family="Georgia,serif" font-size="14" opacity=".75">R.K.S.</text>');
+    },
+    carpetbag: function () {
+      var roses = ''; for (var i = 0; i < 9; i++) { var x = 62 + (i % 3) * 48, y = 70 + Math.floor(i / 3) * 24; roses += '<circle cx="' + x + '" cy="' + y + '" r="7" fill="#c44b4b"/><circle cx="' + x + '" cy="' + y + '" r="3" fill="#7a1f24"/><path d="M' + (x + 6) + ' ' + (y + 4) + ' q8 2 10 -4" stroke="#3f6b3a" stroke-width="2" fill="none"/>'; }
+      return svg('0 0 240 160', shadow(120, 142, 86) +
+        '<path d="M86 50 q34 -34 68 0" fill="none" stroke="#3b2414" stroke-width="7"/>' +
+        '<path d="M40 56 H200 L188 136 H52 Z" fill="#8a4646" stroke="#3b1c1c" stroke-width="2"/>' + roses +
+        '<rect x="40" y="50" width="160" height="10" rx="3" fill="#5a3a24"/><path d="M118 52 l6 -6 l6 6" stroke="#ddd" stroke-width="2" fill="none"/>');
+    },
+    mouse: function () {
+      return svg('0 0 240 160', shadow(118, 132, 66) +
+        '<path d="M60 120 q0 -54 60 -54 q48 0 64 40 l12 14 Z" fill="#4f7fb8" stroke="#22344d" stroke-width="2"/>' +
+        '<circle cx="168" cy="72" r="14" fill="#e9a3b4" stroke="#22344d" stroke-width="2"/><circle cx="182" cy="104" r="3" fill="#111"/>' +
+        '<circle cx="196" cy="118" r="4" fill="#e9a3b4"/><path d="M60 118 q-30 -4 -34 -28" fill="none" stroke="#7a7a7a" stroke-width="3"/>' +
+        '<circle cx="92" cy="124" r="9" fill="#888" stroke="#333"/><circle cx="150" cy="124" r="9" fill="#888" stroke="#333"/>' +
+        '<path d="M100 84 q20 -10 40 0" stroke="#fff" stroke-opacity=".3" stroke-width="4" fill="none"/>');
+    },
+    teeth: function () {
+      return svg('0 0 240 160', shadow(120, 142, 70) +
+        '<rect x="70" y="50" width="100" height="86" rx="6" fill="#6b3d22" stroke="#2c170c" stroke-width="2"/>' +
+        '<ellipse cx="120" cy="50" rx="50" ry="10" fill="#8b5a33" stroke="#2c170c" stroke-width="2"/>' +
+        '<text x="90" y="98" fill="#f0d9a8" font-family="Georgia,serif" font-size="16" font-style="italic">Cocoa</text>' +
+        '<path d="M150 46 q20 -26 50 -12 q-10 14 -40 22 Z" fill="#f4f1ea" stroke="#999"/>' +
+        '<path d="M86 46 q8 -6 14 -2" stroke="#2c170c" stroke-width="2" fill="none"/>');
+    },
+    cosy: function () {
+      var rows = ''; for (var i = 0; i < 6; i++) rows += '<path d="M' + (52 + i * 4) + ' ' + (122 - i * 14) + ' Q120 ' + (112 - i * 14 - 6) + ' ' + (188 - i * 4) + ' ' + (122 - i * 14) + '" fill="none" stroke="' + WOOL2 + '" stroke-width="3" stroke-dasharray="4 3"/>';
+      return svg('0 0 240 160', shadow(120, 136, 80) +
+        '<path d="M44 130 q-4 -94 76 -96 q80 2 76 96 Z" fill="' + WOOL + '" stroke="#2f4a22" stroke-width="2"/>' + rows +
+        '<circle cx="120" cy="30" r="12" fill="' + WOOL2 + '" stroke="#2f4a22" stroke-width="2"/>');
+    },
+    glove: function () {
+      return svg('0 0 240 160', shadow(124, 142, 72) +
+        '<path d="M88 136 L84 96 q-20 -6 -26 -26 q-4 -10 6 -10 q10 2 20 18 L82 40 q0 -10 9 -10 q9 0 9 10 l2 34 l2 -44 q0 -10 9 -10 q9 0 9 10 l0 44 l4 -38 q1 -9 9 -8 q9 1 8 10 l-4 42 l8 -28 q3 -8 10 -6 q8 3 5 11 l-12 46 l-4 30 Z" fill="#8a5a35" stroke="#3a2412" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M86 124 H162 L160 138 H88 Z" fill="' + WOOL + '" stroke="#2f4a22" stroke-width="1.5"/>' +
+        '<text x="106" y="118" fill="' + WOOL + '" font-family="Georgia,serif" font-size="11" font-style="italic">M.H.</text>');
+    },
+    box: function (l) {
+      var open = l && l.open;
+      var cards = open ? (function () { var c = ''; for (var i = 0; i < 6; i++) c += '<rect x="' + (54 + i * 22) + '" y="' + (46 + (i % 2) * 4) + '" width="18" height="26" fill="' + PAPER + '" stroke="#8a7a5a"/>' + (i < 5 ? '<circle cx="' + (63 + i * 22) + '" cy="' + (57 + (i % 2) * 4) + '" r="4" fill="' + ['#2b3d63', '#7a3b3b', '#c9a24a', '#3f6b3a', '#5a4a6a'][i] + '"/>' : '<g fill="#8a7a5a"><circle cx="171" cy="59" r="1"/><circle cx="175" cy="59" r="1"/><circle cx="171" cy="63" r="1"/><circle cx="175" cy="63" r="1"/></g>'); return c; })() : '';
+      return svg('0 0 240 160', shadow(120, 142, 86) +
+        '<rect x="40" y="70" width="160" height="66" rx="5" fill="#6a4026" stroke="#2a170b" stroke-width="2"/>' +
+        (open ? '<path d="M40 70 L60 22 H220 L200 70 Z" fill="#7a4a2c" stroke="#2a170b" stroke-width="2"/>' + cards
+              : '<rect x="36" y="56" width="168" height="20" rx="4" fill="#7a4a2c" stroke="#2a170b" stroke-width="2"/>' +
+                '<rect x="104" y="60" width="32" height="12" rx="2" fill="' + BRASS + '"/><text x="110" y="70" font-family="Georgia,serif" font-size="9" fill="#3a2c1e">M.H.</text>' +
+                '<path d="M40 64 Q120 60 200 64 M40 68 Q120 72 200 68" stroke="' + WOOL + '" stroke-width="3" fill="none"/>') +
+        '<rect x="114" y="92" width="12" height="14" rx="2" fill="' + BRASS + '"/><circle cx="120" cy="98" r="2" fill="#2a170b"/>' +
+        '<path d="M60 100 q60 8 120 0" stroke="#000" stroke-opacity=".18" stroke-width="2" fill="none"/>');
+    },
+    ticket: function () {
+      return svg('0 0 240 160', shadow(120, 132, 80) +
+        '<rect x="48" y="44" width="144" height="82" rx="4" fill="#d9c27e" stroke="#7a6a3a" stroke-width="1.5"/>' +
+        '<path d="M120 44 V126" stroke="#7a6a3a" stroke-dasharray="4 3"/>' +
+        '<g font-family="Georgia,serif" fill="#3a2c1e"><text x="56" y="62" font-size="9">PORT AVEL</text><text x="64" y="78" font-size="8">to</text><text x="56" y="92" font-size="9">HOLLIN CROSS</text><text x="62" y="114" font-size="12">3rd</text>' +
+        '<text x="128" y="62" font-size="9">RETURN</text><text x="128" y="80" font-size="8">HOLLIN CROSS</text><text x="128" y="92" font-size="8">to PORT AVEL</text><text x="136" y="114" font-size="12">3rd</text></g>' +
+        '<circle cx="104" cy="58" r="3" fill="none" stroke="' + WOOL + '" stroke-width="2"/><path d="M104 61 q-30 40 -70 52" stroke="' + WOOL + '" stroke-width="2" fill="none"/>');
+    },
+    timetable: function () {
+      return svg('0 0 240 160', shadow(120, 136, 70) +
+        '<rect x="70" y="30" width="100" height="100" rx="3" fill="#b8c9b0" stroke="#4a5a44" stroke-width="2"/>' +
+        '<g font-family="Georgia,serif" fill="#2c3a28" text-anchor="middle"><text x="120" y="56" font-size="10">SUMMER</text><text x="120" y="70" font-size="10">SERVICE</text><text x="120" y="90" font-size="16">1913</text><text x="120" y="118" font-size="9" font-style="italic">M.H.</text></g>' +
+        '<path d="M158 34 q24 -24 30 -6 M172 26 q8 -12 14 0 M160 40 l26 -22" stroke="#8a5aa0" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+        '<g fill="#b07ac4"><circle cx="186" cy="20" r="3"/><circle cx="180" cy="26" r="3"/><circle cx="190" cy="28" r="2.5"/></g>');
+    },
+    key: function () {
+      return svg('0 0 240 160', shadow(120, 128, 46) +
+        '<path d="M70 60 q-20 -30 30 -40 q50 -6 40 30" fill="none" stroke="' + WOOL + '" stroke-width="3"/>' +
+        '<circle cx="132" cy="74" r="13" fill="none" stroke="' + BRASS + '" stroke-width="6"/>' +
+        '<path d="M120 84 L84 118 M96 106 l8 8 M90 112 l6 6" stroke="' + BRASS + '" stroke-width="6" stroke-linecap="round"/>');
+    },
+    cylinder: function () {
+      return svg('0 0 240 160', shadow(120, 140, 86) +
+        '<rect x="40" y="74" width="120" height="44" rx="4" fill="#c9b48a" stroke="#6a5a3a" stroke-width="2"/>' +
+        '<ellipse cx="160" cy="96" rx="8" ry="22" fill="#b09a6e" stroke="#6a5a3a" stroke-width="2"/>' +
+        '<rect x="66" y="84" width="58" height="24" fill="' + PAPER + '" stroke="#8a7a5a"/><text x="74" y="100" font-family="Georgia,serif" font-style="italic" font-size="11" fill="#3a2c1e">For F.</text>' +
+        '<path d="M152 74 q10 22 0 44" stroke="' + WOOL + '" stroke-width="3" fill="none"/>' +
+        '<rect x="176" y="70" width="34" height="52" rx="3" fill="#6b3f1f" stroke="#2a170b" stroke-width="2"/>' +
+        '<g stroke="#4a2a12"><path d="M176 80 h34 M176 88 h34 M176 96 h34 M176 104 h34 M176 112 h34"/></g>');
+    }
+  };
+
+  function item(id, opts) {
+    var it = HCEngine.ITEMS[id]; if (!it) return '';
+    var look = {}; for (var k in it.look) look[k] = it.look[k];
+    if (opts && opts.open) look.open = true;
+    return DRAW[it.art](look);
+  }
+
+  function hero() {
+    var drops = ''; for (var i = 0; i < 26; i++) { var x = 140 + (i * 37) % 180, y = 30 + (i * 53) % 150; drops += '<path d="M' + x + ' ' + y + ' l-3 12" stroke="#9fb3d6" stroke-opacity=".5" stroke-width="1.5" class="rain"/>'; }
+    return svg('0 0 480 300',
+      '<rect width="480" height="300" fill="#121726"/>' +
+      '<path d="M130 290 V60 q0 -44 100 -44 q100 0 100 44 V290 Z" fill="#1b2438" stroke="#c9a24a" stroke-width="3"/>' +
+      '<path d="M146 290 V66 q0 -34 84 -34 q84 0 84 34 V290 Z" fill="#26324d"/>' + drops +
+      '<path d="M230 32 V290 M146 160 H314" stroke="#c9a24a" stroke-width="3"/>' +
+      '<circle cx="230" cy="96" r="16" fill="#efe3c8" opacity=".9"/><path d="M230 86 v10 l7 4" stroke="#3a2c1e" stroke-width="2" fill="none"/>' +
+      '<rect x="20" y="210" width="440" height="90" fill="#2a1d14"/><rect x="20" y="206" width="440" height="8" fill="#5a3e28"/>' +
+      '<g transform="translate(70 168)"><path d="M0 40 L14 0 H34 L48 40 Z" fill="#c9a24a" opacity=".85"/><path d="M8 40 h32" stroke="#3a2c1e" stroke-width="3"/>' +
+      '<ellipse cx="24" cy="46" rx="60" ry="22" fill="#ffd27a" opacity=".12"/></g>' +
+      '<g transform="translate(360 182)"><path d="M0 24 a18 18 0 0 1 36 0 Z" fill="#c9a24a"/><rect x="-4" y="24" width="44" height="5" rx="2" fill="#8a6a2c"/><circle cx="18" cy="4" r="3" fill="#c9a24a"/></g>' +
+      '<g transform="translate(250 196) rotate(-6)"><rect width="74" height="34" rx="2" fill="#efe3c8"/><circle cx="10" cy="17" r="3" fill="#2a1d14"/><path d="M10 17 q-14 -20 -30 -10" stroke="#9a7a3a" fill="none"/><text x="20" y="22" font-family="Georgia,serif" font-style="italic" font-size="11" fill="#3a2c1e">Lost? 7</text></g>');
+  }
+  function phonograph() {
+    return svg('0 0 240 160', shadow(110, 146, 90) +
+      '<rect x="30" y="96" width="140" height="44" rx="4" fill="#5a3a22" stroke="#24150a" stroke-width="2"/>' +
+      '<rect x="58" y="80" width="90" height="18" rx="9" fill="#6b3f1f" stroke="#24150a" stroke-width="2" class="phono-drum"/>' +
+      '<path d="M148 86 L182 60 L220 20 q8 40 -20 70 Z" fill="' + BRASS + '" stroke="#6a5a2a" stroke-width="2"/>' +
+      '<path d="M140 88 L160 76" stroke="#2a2a2a" stroke-width="3"/><circle cx="46" cy="118" r="6" fill="' + BRASS + '"/><path d="M30 118 h-12" stroke="' + BRASS + '" stroke-width="4"/>');
+  }
+  function hatch() {
+    return svg('0 0 480 220',
+      '<rect x="-400" width="1280" height="220" fill="#1a2030"/>' +
+      '<rect x="60" y="30" width="360" height="150" rx="6" fill="#d9c9a3" opacity=".18"/>' +
+      '<path d="M60 30 h360 v150 h-360 Z" fill="none" stroke="#c9a24a" stroke-width="4"/>' +
+      '<path d="M240 30 v150" stroke="#c9a24a" stroke-width="2" opacity=".5"/>' +
+      '<rect x="40" y="180" width="400" height="16" fill="#5a3e28"/>' +
+      '<circle cx="380" cy="70" r="26" fill="#ffe2a8" opacity=".35"/>' +
+      '<g fill="#0d1018" opacity=".85"><circle cx="170" cy="96" r="18"/><path d="M140 180 q0 -60 30 -64 q30 4 30 64 Z"/><rect x="146" y="74" width="48" height="8" rx="3"/></g>' +
+      '<text x="250" y="60" font-family="Georgia,serif" font-style="italic" font-size="13" fill="#efe3c8" opacity=".8">LOST PROPERTY</text>');
+  }
+  return { item: item, hero: hero, phonograph: phonograph, hatch: hatch };
+})();
+
+/* ---- app.js ---- */
+/* Hollin Cross app: screens, controls and dialogs. All words are set with textContent;
+   innerHTML is used only for the fixed drawings in art.js. */
+(function () {
+  'use strict';
+  var E = HCEngine, T = HCStory, ART = HCArt, SND = HCAudio, STORE = HCStore;
+  var DEV = /[?&]dev=1(&|$)/.test(location.search);
+  var store, K, RUN, ST = null, FIN = [], PREFS, ENDSTATE = null, NEWER = false;
+  var U = { tab: null, tagDraft: {}, msg: {}, slipSel: {}, slipMsg: {}, hint: null, ph: { t: 0, playing: false, full: false, timer: null, shown: 0 }, examine: null, decision: {}, lastFocus: null };
+  var wideMQ = window.matchMedia ? window.matchMedia('(min-width: 900px)') : { matches: true, addListener: function () {} };
+
+  /* ---------- tiny DOM helpers ---------- */
+  function $(id) { return document.getElementById(id); }
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      var v = attrs[k]; if (v === null || v === undefined || v === false) continue;
+      if (k === 'text') el.textContent = v;
+      else if (k === 'cls') el.className = v;
+      else if (k === 'on') { for (var ev in v) el.addEventListener(ev, v[ev]); }
+      else if (k === 'svg') el.innerHTML = v;
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (var i = 2; i < arguments.length; i++) add(el, arguments[i]);
+    return el;
+  }
+  function add(el, c) {
+    if (c === null || c === undefined || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { add(el, x); }); return; }
+    el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  }
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); return el; }
+  function btn(label, fn, attrs) { attrs = attrs || {}; attrs.type = 'button'; attrs.on = { click: fn }; attrs.text = label; if (!attrs['data-k']) attrs['data-k'] = attrs.id || label; return h('button', attrs); }
+  function focusKey() { var a = document.activeElement; return a && a.getAttribute ? (a.getAttribute('data-k') || (a.id ? '#' + a.id : null)) : null; }
+  function refocus(k, root) {
+    if (!k) return;
+    var el = k.charAt(0) === '#' ? document.getElementById(k.slice(1)) : null;
+    if (!el) { var all = (root || document).querySelectorAll('[data-k]'); for (var i = 0; i < all.length; i++) if (all[i].getAttribute('data-k') === k) { el = all[i]; break; } }
+    if (el && !el.disabled && el.offsetParent !== null) el.focus();
+  }
+  var liveT = null;
+  function announce(msg) { var l = $('live'); clearTimeout(liveT); l.textContent = ''; liveT = setTimeout(function () { l.textContent = msg; }, 60); }
+  function safeStorage() { try { var s = window.localStorage; var k = 'dq-mystortal-probe'; s.setItem(k, '1'); s.removeItem(k); return s; } catch (e) { return null; } }
+  function hand(text) { return h('span', { cls: 'hand', text: text }); }
+
+  /* ---------- dialogs: one native <dialog>, a queue of scenes ---------- */
+  var queue = [], dlgOpen = false;
+  function openDialog(spec) { queue.push(spec); if (!dlgOpen) showNext(); }
+  function showNext() {
+    var d = $('dlg'), spec = queue.shift();
+    if (!spec) { dlgOpen = false; restoreFocus(); return; }
+    if (!dlgOpen) U.lastFocus = document.activeElement;
+    dlgOpen = true;
+    fillDialog(spec);
+    if (!d.open) { try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } }
+    var f = d.querySelector('[data-autofocus]') || d.querySelector('button, [href], input, select, textarea');
+    if (f) f.focus();
+  }
+  function fillDialog(spec) {
+    var d = $('dlg'); clear(d); d.className = spec.wide ? 'wide' : '';
+    d.onclose = null;
+    d.setAttribute('aria-labelledby', 'dlgTitle');
+    var body = h('div', { cls: 'dlg-body' });
+    body.appendChild(h('h2', { id: 'dlgTitle', text: spec.title || '' }));
+    (spec.paras || []).forEach(function (p) { body.appendChild(h('p', { text: p })); });
+    if (spec.node) body.appendChild(typeof spec.node === 'function' ? spec.node() : spec.node);
+    var acts = h('div', { cls: 'dlg-actions' });
+    (spec.actions || [{ label: 'Continue', primary: true }]).forEach(function (a, i) {
+      acts.appendChild(btn(a.label, function () { closeDialog(); if (a.fn) a.fn(); }, { cls: a.primary ? 'primary' : (a.danger ? 'danger' : ''), 'data-autofocus': i === 0 ? true : null }));
+    });
+    body.appendChild(acts);
+    d.appendChild(body);
+    d.oncancel = function (ev) { ev.preventDefault(); if (spec.noEscape) return; closeDialog(); if (spec.onCancel) spec.onCancel(); };
+    U.dlgSpec = spec;
+  }
+  function refreshDialog() { if (dlgOpen && U.dlgSpec && U.dlgSpec.live) { var fk = focusKey(), y = $('dlg').scrollTop; fillDialog(U.dlgSpec); $('dlg').scrollTop = y; refocus(fk, $('dlg')); if (!$('dlg').contains(document.activeElement)) { var f = $('dlg').querySelector('button'); if (f) f.focus(); } } }
+  function closeDialog() { var d = $('dlg'); U.dlgSpec = null; if (queue.length) { showNext(); return; } try { d.close(); } catch (e) { d.removeAttribute('open'); } dlgOpen = false; restoreFocus(); }
+  function restoreFocus() {
+    var f = U.lastFocus; U.lastFocus = null;
+    if (f && document.body.contains(f) && !f.disabled && f.offsetParent !== null) { f.focus(); return; }
+    var hd = document.querySelector('main section:not([hidden]) h2, main section:not([hidden]) h1'); if (hd) { hd.setAttribute('tabindex', '-1'); hd.focus(); }
+  }
+  function confirmBox(title, paras, yes, fn, danger) {
+    openDialog({ title: title, paras: paras, actions: [{ label: 'Cancel' }, { label: yes, primary: !danger, danger: danger, fn: fn }] });
+  }
+
+  /* ---------- persistence ---------- */
+  function save() { store.saveRun(RUN); }
+  function savePrefs() { store.savePrefs(PREFS); }
+  function showNotices() {
+    var n = store.notices(), msgs = [];
+    if (n.indexOf('memory') >= 0) msgs.push('This browser isn’t letting the page save. You can play, but your shift and Keyring will be forgotten when you leave.');
+    if (n.indexOf('keyring-corrupt') >= 0) msgs.push('Your Mystortals Keyring couldn’t be read, so a fresh one was started. The unreadable copy was kept to one side.');
+    if (n.indexOf('keyring-newer') >= 0) msgs.push('Your Keyring was saved by a newer version of this page. It is shown here but left untouched.');
+    if (n.indexOf('run-corrupt') >= 0 || n.indexOf('run-partial') >= 0) msgs.push('Part of your saved shift couldn’t be replayed, so it was set aside safely. Anything that could be restored has been.');
+    if (n.indexOf('run-newer') >= 0) msgs.push('Your saved shift was made by a newer version of this page, so it has been left untouched.');
+    if (msgs.length) openDialog({ title: 'A note about saving', paras: msgs });
+  }
+
+  /* ---------- awards ---------- */
+  function awardMark(mark, ev, st) {
+    var r = store.award(K, '001', mark, ev, st, FIN);
+    if (r.ok && r.fresh) {
+      var m = T.MARKS.filter(function (x) { return x.id === mark; })[0];
+      announce('Keyring: ' + m.name + '. ' + m.earned);
+      toast('Mystortals Keyring · ' + m.name);
+    }
+  }
+  var toastT;
+  function toast(text) { var t = $('toast'); t.textContent = text; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 4200); }
+
+  /* ---------- acting on the engine ---------- */
+  function act(a) {
+    if (!ST) return { ok: false };
+    var r = E.apply(ST, a);
+    if (!r.ok) { handleRefusal(a, r); render(); return r; }
+    ST = r.state; RUN.current.actions.push(a);
+    var done = ST.phase === 'done';
+    if (done) finishRun(); else save();
+    handleEvents(r.events, a);
+    render();
+    refreshDialog();
+    return r;
+  }
+  function handleRefusal(a, r) {
+    var msg = refusalText(a, r);
+    if (a.t === 'tag') U.msg.tag = msg;
+    announce(msg);
+  }
+  function refusalText(a, r) {
+    if (a.t === 'tag' && r.error === 'wrong shelf') {
+      var it = E.ITEMS[a.item], sh = E.SHELVES.filter(function (x) { return x.id === it.shelf; })[0];
+      return 'Standing Order 1: shelve by class. This belongs on shelf ' + sh.id + ' (' + sh.name.toLowerCase() + ').';
+    }
+    var map = { 'look at it first': 'Look at that detail first.', 'choose a distinguishing detail': 'Choose a distinguishing mark you’ve noticed.', 'no such shelf': 'Choose a shelf.',
+      'nothing you have noticed links it to the others': 'Nothing you’ve noticed yet links this to her other things.', 'shelve it first': 'Shelve it first.' };
+    return map[r.error] || ('Not now: ' + r.error + '.');
+  }
+  function handleEvents(evs, a) {
+    evs.forEach(function (e) {
+      switch (e.k) {
+        case 'entered':
+          awardMark('entered', 'begin-' + ST.seed, ST);
+          openDialog(ST.mode === 'return' ? T.returnScene(ST) : T.SCENES.begin);
+          SND.sfx('bell');
+          break;
+        case 'scene': {
+          var sc = T.SCENES[e.id];
+          if (sc) openDialog(sc);
+          SND.sfx(e.id === 'advance' ? 'paper' : 'bell');
+          break;
+        }
+        case 'nudge': openDialog(T.SCENES.nudgemh); break;
+        case 'shelved': SND.sfx('stamp'); U.tagDraft = {}; U.msg.tag = null; announce(T.itemName(e.id) + ' tagged and shelved.'); break;
+        case 'pattern': openDialog(T.patternScene(ST, e.link)); break;
+        case 'boardSolved': {
+          var paras = T.SCENES.boardSolved.paras.slice();
+          openDialog({ title: T.SCENES.boardSolved.title, paras: paras, node: h('ul', { cls: 'why' }, E.TRAVELLER.map(function (id) { return h('li', null, h('strong', { text: T.stationName(E.ITEMS[id].station) + ': ' }), T.itemName(id) + '. ' + T.WHY[id]); })) });
+          SND.sfx('stamp');
+          break;
+        }
+        case 'boxOpen': openDialog(T.SCENES.boxOpen); break;
+        case 'heard': announce('You have heard the cylinder through.'); break;
+        case 'unveiled':
+          awardMark('unveiled', 'reveal-' + ST.seed, ST);
+          stopPhono();
+          openDialog(T.revealScene(ST));
+          openDialog(T.SCENES.dawn);
+          break;
+        case 'explored': awardMark('explored', 'mabel-' + ST.seed, ST); break;
+        case 'ledgerRead': awardMark('returned', 'ledger-' + ST.seed, ST); break;
+        case 'match': SND.sfx('stamp'); U.slipMsg[e.slip] = { ok: true, text: E.SLIPS[e.slip].advance ? 'Matched in every particular. Claimant: to call at first light.' : 'Matched. Stamped “ready for collection”.' }; announce(U.slipMsg[e.slip].text); break;
+        case 'nomatch': U.slipMsg[e.slip] = { ok: false, text: 'Not a match: the slip asks for ' + e.want + ', and the ' + T.itemName(e.id).toLowerCase() + ' doesn’t have it.' }; announce(U.slipMsg[e.slip].text); break;
+      }
+    });
+  }
+  function finishRun() {
+    FIN.push(ST);
+    RUN.finished.push({ seed: RUN.current.seed, actions: RUN.current.actions });
+    while (RUN.finished.length > 12) { RUN.finished.shift(); FIN.shift(); }
+    RUN.current = null; save();
+    ENDSTATE = ST;
+    awardMark('returned', 'outcome-' + ST.outcome.sig, ST);
+    ST = null;
+    stopPhono();
+  }
+  function startShift(mode, short) {
+    var seed = 'HC-' + ('0000' + Math.floor(Math.random() * 10000)).slice(-4);
+    var a = { t: 'begin', mode: mode };
+    if (mode === 'return') {
+      var last = FIN[FIN.length - 1]; if (!last) return;
+      var tags = {}; E.TRAVELLER.forEach(function (id) { tags[id] = last.items[id].tag; });
+      a.trace = { tags: tags }; if (short) a.short = true;
+    }
+    ST = E.create(seed); RUN.current = { seed: seed, actions: [] }; ENDSTATE = null; U.atTitle = false;
+    U.tab = null; U.tagDraft = {}; U.msg = {}; U.slipMsg = {}; U.slipSel = {}; U.hint = null; U.decision = {}; resetPhono();
+    act(a);
+  }
+  function abandonShift() { RUN.current = null; ST = null; save(); render(); }
+
+  /* ---------- rendering ---------- */
+  function show(id) { ['screen-title', 'screen-office', 'screen-dawn', 'screen-end'].forEach(function (s) { $(s).hidden = s !== id; }); }
+  function render() {
+    var fk = focusKey(), inDlg = dlgOpen && $('dlg').contains(document.activeElement);
+    renderInner();
+    if (fk && !inDlg && (!document.activeElement || document.activeElement === document.body)) refocus(fk, $('main'));
+  }
+  function renderInner() {
+    document.body.classList.toggle('large', !!PREFS.large);
+    document.body.classList.toggle('reduce-motion', PREFS.motion === 'reduce');
+    document.body.classList.toggle('full-motion', PREFS.motion === 'full');
+    $('btnSound').setAttribute('aria-pressed', SND.isOn() ? 'true' : 'false');
+    $('btnSound').textContent = SND.isOn() ? 'Sound: on' : 'Sound: off';
+    if (ENDSTATE) { show('screen-end'); renderEnd(); return; }
+    if (!ST || U.atTitle) { show('screen-title'); renderTitle(); return; }
+    if (ST.phase === 'shift') { show('screen-office'); renderOffice(); return; }
+    if (ST.phase === 'dawn') { show('screen-dawn'); renderDawn(); return; }
+  }
+
+  /* title */
+  function renderTitle() {
+    var s = clear($('screen-title'));
+    s.appendChild(h('div', { cls: 'hero', role: 'img', 'aria-label': 'A rain-streaked arched window over a lamplit counter with a brass bell and a paper tag.', svg: ART.hero() }));
+    var box = h('div', { cls: 'title-copy' });
+    box.appendChild(h('p', { cls: 'kicker', text: 'Mystortals · No. 001 · Unknown' }));
+    box.appendChild(h('h1', { id: 'titleH', text: T.TITLE }));
+    box.appendChild(h('p', { cls: 'hookline', text: T.HOOK }));
+    var row = h('div', { cls: 'btnrow' });
+    if (ST && U.atTitle) {
+      row.appendChild(btn('Continue your shift (' + T.clock(ST.clock) + ')', function () { U.atTitle = false; render(); }, { cls: 'primary big', id: 'btnContinue' }));
+    }
+    if (NEWER) box.appendChild(h('p', { cls: 'note', text: 'A shift saved by a newer version of this page is being left untouched.' }));
+    function guarded(fn) { return function () { if (ST) confirmBox('Leave your shift?', ['Starting a new shift clears the one in progress. Finished shifts and your Keyring are kept.'], 'Start a new shift', fn, true); else fn(); }; }
+    var pc = ST ? '' : 'primary ';
+    if (FIN.length === 0) {
+      row.appendChild(btn('Begin the night shift', guarded(function () { startShift('first'); }), { cls: pc + 'big', id: 'btnBegin' }));
+    } else {
+      row.appendChild(btn('Begin a return shift', guarded(function () { startShift('return', false); }), { cls: pc + 'big', id: 'btnBeginReturn' }));
+      row.appendChild(btn('A short return shift', guarded(function () { startShift('return', true); }), { cls: 'big', id: 'btnBeginShort' }));
+      row.appendChild(btn('Start over as a first shift', guarded(function () { startShift('first'); }), { cls: 'quiet', id: 'btnBeginFirst' }));
+    }
+    box.appendChild(row);
+    if (FIN.length) box.appendChild(h('p', { cls: 'note', text: 'A short return shift skips the ordinary arrivals: everything is already handed in and filed as you left it.' }));
+    box.appendChild(h('p', { cls: 'note', text: 'About 25 to 35 minutes. No timers, no reflexes. Your shift saves as you go, on this device only. Sound is off until you turn it on.' }));
+    box.appendChild(h('p', { cls: 'note', text: 'What you’ll find first: a railway lost-property counter at night. You examine what’s handed in, write a tag, and shelve it.' }));
+    s.appendChild(box);
+  }
+
+  /* office */
+  function isWide() { return !!wideMQ.matches; }
+  function tabs() {
+    var t = [];
+    if (!isWide()) t.push({ id: 'counter', label: 'Counter' });
+    t.push({ id: 'shelves', label: 'Shelves' }, { id: 'slips', label: 'Slips (' + ST.slipOrder.filter(function (x) { return !ST.slips[x].matched; }).length + ')' });
+    if (ST.pattern) t.push({ id: 'board', label: 'Board' });
+    if (ST.items.T6 && ST.items.T6.shelf) t.push({ id: 'machine', label: 'Machine' });
+    return t;
+  }
+  function renderOffice() {
+    $('clock').textContent = T.clock(ST.clock);
+    $('modeLine').textContent = ST.mode === 'return' ? (ST.short ? 'A short return shift' : 'A return shift') : 'Night shift';
+    $('prompt').textContent = T.promptText(ST);
+    var ar = clear($('actionRow')), pk = E.prompt(ST);
+    if (pk === 'next') ar.appendChild(btn('Ring for the next arrival', function () { act({ t: 'next' }); U.tab = isWide() ? U.tab : 'counter'; }, { cls: 'primary', id: 'btnNext' }));
+    if (pk === 'reveal') ar.appendChild(btn('Put it together', function () { act({ t: 'reveal' }); }, { cls: 'primary', id: 'btnReveal' }));
+    if (pk === 'listen') ar.appendChild(btn('Go to the Machine', function () { setTab('machine'); }, { id: 'btnGoMachine' }));
+    if (pk === 'board' && ST.pattern) ar.appendChild(btn('Go to the Board', function () { setTab('board'); }, { id: 'btnGoBoard' }));
+    var list = tabs(), ids = list.map(function (x) { return x.id; });
+    if (!U.tab || ids.indexOf(U.tab) < 0) U.tab = isWide() ? 'shelves' : 'counter';
+    var tl = clear($('tabs'));
+    list.forEach(function (t) {
+      var b = h('button', { type: 'button', role: 'tab', id: 'tab-' + t.id, 'aria-selected': U.tab === t.id ? 'true' : 'false', 'aria-controls': 'tabpanel', tabindex: U.tab === t.id ? '0' : '-1', text: t.label,
+        on: { click: function () { setTab(t.id); }, keydown: tabKey } });
+      tl.appendChild(b);
+    });
+    var c = $('counter');
+    c.hidden = !isWide() && U.tab !== 'counter';
+    renderCounter(c);
+    var p = clear($('tabpanel'));
+    p.hidden = !isWide() && U.tab === 'counter';
+    p.setAttribute('aria-labelledby', 'tab-' + U.tab);
+    if (U.tab === 'shelves') renderShelves(p);
+    if (U.tab === 'slips') renderSlips(p);
+    if (U.tab === 'board') renderBoard(p);
+    if (U.tab === 'machine') renderMachine(p);
+  }
+  function setTab(id) { U.tab = id; render(); var b = $('tab-' + id); if (b) b.focus(); }
+  function tabKey(e) {
+    var list = tabs().map(function (x) { return x.id; }), i = list.indexOf(U.tab);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); setTab(list[(i + (e.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length]); }
+    if (e.key === 'Home') { e.preventDefault(); setTab(list[0]); }
+    if (e.key === 'End') { e.preventDefault(); setTab(list[list.length - 1]); }
+  }
+
+  function lookButtons(id, onDone) {
+    var it = E.ITEMS[id], st = ST.items[id], g = h('div', { cls: 'looks', role: 'group', 'aria-label': 'Look closer' });
+    it.details.forEach(function (d) {
+      if (d.hidden && !(id === 'T2' && ST.boxOpen)) return;
+      var seen = st.noticed.indexOf(d.id) >= 0;
+      g.appendChild(btn((seen ? '✓ ' : '') + d.zone, function () { act({ t: 'look', item: id, detail: d.id }); if (onDone) onDone(); }, { cls: seen ? 'look seen' : 'look', 'aria-pressed': seen ? 'true' : 'false', 'data-k': 'look-' + id + '-' + d.id }));
+    });
+    return g;
+  }
+  function noticedList(id) {
+    var it = E.ITEMS[id], st = ST.items[id];
+    var ul = h('ul', { cls: 'noticed', 'aria-label': 'What you’ve noticed' });
+    it.details.forEach(function (d) { if (st.noticed.indexOf(d.id) >= 0) ul.appendChild(h('li', { text: d.text })); });
+    if (!ul.firstChild) ul.appendChild(h('li', { cls: 'dim', text: 'Nothing yet. Choose something above to look at.' }));
+    return ul;
+  }
+  function itemArt(id, small) {
+    var open = id === 'T2' && ST && ST.boxOpen;
+    return h('div', { cls: small ? 'art small' : 'art', role: 'img', 'aria-label': 'Drawing: ' + T.itemName(id) + (open ? ', open' : ''), svg: ART.item(id, { open: open }) });
+  }
+  function renderCounter(c) {
+    clear(c);
+    c.appendChild(h('h2', { id: 'counterH', text: 'The counter' }));
+    var id = ST.counter;
+    if (!id) {
+      c.appendChild(h('p', { cls: 'dim', text: 'The counter is clear.' }));
+      if (E.nextEvent(ST)) c.appendChild(btn('Ring for the next arrival', function () { act({ t: 'next' }); }, { cls: 'primary', id: 'btnNext2' }));
+      else c.appendChild(h('p', { text: T.promptText(ST) }));
+      c.appendChild(h('p', { cls: 'note', text: T.SHELF_HELP }));
+      return;
+    }
+    var it = E.ITEMS[id], st = ST.items[id];
+    c.appendChild(h('h3', { text: it.name }));
+    c.appendChild(itemArt(id));
+    c.appendChild(h('p', { cls: 'label-strip' }, h('span', { cls: 'lbl', text: 'Forwarding label ' }), it.label));
+    c.appendChild(lookButtons(id));
+    c.appendChild(noticedList(id));
+    /* the tag */
+    var dr = U.tagDraft; if (dr.item !== id) { U.tagDraft = dr = { item: id, detail: null, shelf: null }; }
+    var marks = it.details.filter(function (d) { return d.distinct && !d.hidden && st.noticed.indexOf(d.id) >= 0; });
+    var form = h('form', { cls: 'tagform', on: { submit: function (e) { e.preventDefault(); submitTag(); } } });
+    var f1 = h('fieldset', null, h('legend', { text: 'Distinguishing mark for the tag' }));
+    if (!marks.length) f1.appendChild(h('p', { cls: 'dim', text: 'Look closer first: a tag needs one mark that tells this apart.' }));
+    marks.forEach(function (d) {
+      var rid = 'mk-' + d.id;
+      f1.appendChild(h('div', { cls: 'radio' }, h('input', { type: 'radio', name: 'mark', id: rid, value: d.id, checked: dr.detail === d.id, on: { change: function () { dr.detail = d.id; U.msg.tag = null; render(); var x = $(rid); if (x) x.focus(); } } }), h('label', { 'for': rid, text: d.tag })));
+    });
+    var f2 = h('fieldset', { cls: 'shelfpick' }, h('legend', { text: 'Shelf' }));
+    E.SHELVES.forEach(function (sh) {
+      var rid = 'sh-' + sh.id;
+      f2.appendChild(h('div', { cls: 'radio' }, h('input', { type: 'radio', name: 'shelf', id: rid, value: sh.id, checked: dr.shelf === sh.id, on: { change: function () { dr.shelf = sh.id; U.msg.tag = null; render(); var x = $(rid); if (x) x.focus(); } } }), h('label', { 'for': rid, text: sh.id + ' · ' + sh.name })));
+    });
+    form.appendChild(f1); form.appendChild(f2);
+    var d0 = dr.detail ? E.itemDetail(id, dr.detail) : null;
+    form.appendChild(h('div', { cls: 'tagpreview', 'aria-label': 'Your tag' }, h('span', { cls: 'tag' }, hand(it.name + (d0 ? ' — ' + d0.tag : ' — …') + (dr.shelf ? '  · ' + dr.shelf : '')))));
+    if (U.msg.tag) form.appendChild(h('p', { cls: 'err', role: 'alert', text: U.msg.tag }));
+    form.appendChild(h('button', { type: 'submit', cls: 'primary', id: 'btnTag', text: 'Write the tag and shelve it' }));
+    c.appendChild(form);
+  }
+  function submitTag() {
+    var dr = U.tagDraft;
+    if (!dr.detail) { U.msg.tag = 'Choose a distinguishing mark you’ve noticed.'; render(); announce(U.msg.tag); return; }
+    if (!dr.shelf) { U.msg.tag = 'Choose a shelf.'; render(); announce(U.msg.tag); return; }
+    var wasCounter = document.activeElement && $('counter').contains(document.activeElement);
+    act({ t: 'tag', item: dr.item, detail: dr.detail, shelf: dr.shelf });
+    if (wasCounter && !ST.counter) { var n = $('btnNext') || $('btnNext2'); if (n) n.focus(); }
+  }
+
+  function renderShelves(p) {
+    p.appendChild(h('h2', { text: 'The shelves' }));
+    E.SHELVES.forEach(function (sh) {
+      var ids = ST.arrived.filter(function (id) { return ST.items[id].shelf === sh.id; });
+      var sec = h('section', { cls: 'shelf', 'aria-label': 'Shelf ' + sh.id + ', ' + sh.name });
+      sec.appendChild(h('h3', { text: 'Shelf ' + sh.id + ' · ' + sh.name }));
+      if (ST.mode === 'return' && sh.id === 'D') {
+        var old = E.itemDetail('T3', ST.trace.tags.T3);
+        var box = h('div', { cls: 'memory' }, h('p', null, 'Your tag from last time still hangs on the end hook: ', hand('“Railway ticket — ' + old.tag + '”')));
+        if (!ST.ledgerFound) box.appendChild(btn('Look behind it', function () { act({ t: 'findLedger' }); openLedger(); }, { id: 'btnFindLedger' }));
+        else box.appendChild(btn(ST.ledgerRead ? 'Read the old ledger again' : 'Read the old ledger', function () { openLedger(); }, { id: 'btnLedgerRead' }));
+        sec.appendChild(box);
+      }
+      if (!ids.length) sec.appendChild(h('p', { cls: 'dim', text: 'Empty.' }));
+      else {
+        var ul = h('ul', { cls: 'shelf-items' });
+        ids.forEach(function (id) {
+          var st = ST.items[id], d = E.itemDetail(id, st.tag);
+          ul.appendChild(h('li', null, itemArt(id, true), h('div', { cls: 'si-text' },
+            btn(T.itemName(id), function () { openExamine(id); }, { cls: 'linkish', 'aria-label': 'Examine ' + T.itemName(id) }),
+            h('span', { cls: 'tag small' }, hand(d ? d.tag : '')),
+            st.pinned ? h('span', { cls: 'pin', text: 'On the board' }) : null)));
+        });
+        sec.appendChild(ul);
+      }
+      p.appendChild(sec);
+    });
+  }
+  function openExamine(id) {
+    U.examine = id;
+    openDialog({ title: T.itemName(id), live: true, wide: true, node: function () { return examineNode(id); }, actions: [{ label: 'Done' }] });
+  }
+  function examineNode(id) {
+    var it = E.ITEMS[id], st = ST && ST.items[id];
+    var wrap = h('div', { cls: 'examine' });
+    if (!st) return wrap;
+    wrap.appendChild(itemArt(id));
+    wrap.appendChild(h('p', { cls: 'label-strip' }, h('span', { cls: 'lbl', text: 'Forwarding label ' }), it.label));
+    var d = E.itemDetail(id, st.tag);
+    if (d) wrap.appendChild(h('p', null, 'Your tag: ', h('span', { cls: 'tag small' }, hand(d.tag)), ' · shelf ' + st.shelf));
+    wrap.appendChild(lookButtons(id));
+    wrap.appendChild(noticedList(id));
+    var acts = h('div', { cls: 'btnrow' });
+    if (ST.phase === 'shift' && ST.pattern && !st.pinned && !ST.boardSolved) {
+      var ln = E.linkNoticed(ST, id);
+      acts.appendChild(btn('Pin it to the board', function () { act({ t: 'pin', item: id }); }, { disabled: ln ? null : true, id: 'btnPin' }));
+      if (!ln) acts.appendChild(h('p', { cls: 'note', text: 'Pin it only if something you’ve noticed links it to her other things.' }));
+    }
+    if (ST.phase === 'shift' && st.pinned && !ST.boardSolved) acts.appendChild(btn('Take it off the board', function () { act({ t: 'unpin', item: id }); }));
+    if ((id === 'T2' || id === 'T5') && !ST.boxOpen && ST.items.T2 && ST.items.T5 && ST.items.T2.shelf && ST.items.T5.shelf) acts.appendChild(btn('Try the little key in the box', function () { act({ t: 'openBox' }); }, { id: 'btnOpenBox' }));
+    if (id === 'T6' && ST.phase === 'shift') acts.appendChild(btn('Take it to the Machine', function () { closeDialog(); setTab('machine'); }));
+    wrap.appendChild(acts);
+    return wrap;
+  }
+
+  function renderSlips(p) {
+    p.appendChild(h('h2', { text: 'Claim slips' }));
+    p.appendChild(h('p', { cls: 'note', text: 'Match a slip to something on the shelves when every particular agrees.' }));
+    var shelvedIds = ST.arrived.filter(function (id) { return ST.items[id].shelf; });
+    ST.slipOrder.forEach(function (sid) {
+      var def = E.SLIPS[sid], sl = ST.slips[sid];
+      var card = h('article', { cls: 'slip' + (def.advance ? ' advance' : ''), 'aria-label': def.advance ? 'Advance claim slip' : 'Claim slip from ' + def.who });
+      card.appendChild(h('h3', { text: def.advance ? 'Advance claim · dated ' + def.dated : 'Claim slip' }));
+      card.appendChild(h('p', null, h('span', { cls: 'lbl', text: 'Claimant ' }), hand(def.who)));
+      card.appendChild(h('p', { cls: 'lbl', text: 'Describes' }));
+      card.appendChild(h('ul', { cls: 'want' }, def.want.map(function (w) { return h('li', null, hand(w[1])); })));
+      if (sl.matched) card.appendChild(h('p', { cls: 'stamp', text: 'MATCHED · ' + T.itemName(sl.matched) }));
+      else {
+        var sel = h('select', { id: 'sel-' + sid, on: { change: function (e) { U.slipSel[sid] = e.target.value; } } });
+        sel.appendChild(h('option', { value: '', text: 'Choose something shelved…' }));
+        shelvedIds.forEach(function (id) { var o = h('option', { value: id, text: T.itemName(id) + ' (shelf ' + ST.items[id].shelf + ')' }); if (U.slipSel[sid] === id) o.selected = true; sel.appendChild(o); });
+        card.appendChild(h('div', { cls: 'matchrow' }, h('label', { 'for': 'sel-' + sid, text: 'Match to' }), sel,
+          btn('Match', function () { var v = U.slipSel[sid]; if (!v) { U.slipMsg[sid] = { ok: false, text: 'Choose something from the shelves first.' }; render(); return; } act({ t: 'match', slip: sid, item: v }); }, { id: 'btnMatch-' + sid })));
+      }
+      var m = U.slipMsg[sid];
+      if (m) card.appendChild(h('p', { cls: m.ok ? 'ok' : 'err', text: m.text }));
+      p.appendChild(card);
+    });
+  }
+
+  function renderBoard(p) {
+    p.appendChild(h('h2', { text: 'The board' }));
+    p.appendChild(h('p', { cls: 'note', text: 'Pin her things here, and set each at the stop where it was left. Use the finder’s notes, the forwarding labels and the timetable. Nothing is final until you check, and you can change anything.' }));
+    var line = h('ol', { cls: 'line', 'aria-label': 'The night up mail, stop by stop' });
+    E.STATIONS.forEach(function (s) { line.appendChild(h('li', null, h('strong', { text: s.name }), h('span', { text: s.time }), h('small', { text: s.note }))); });
+    p.appendChild(line);
+    p.appendChild(btn('Read the timetable', function () { openDoc('timetable'); }, { cls: 'quiet' }));
+    var pinned = ST.arrived.filter(function (id) { return ST.items[id].pinned; });
+    var grid = h('div', { cls: 'board-items' });
+    pinned.forEach(function (id) {
+      var st = ST.items[id], it = E.ITEMS[id];
+      var fs = h('fieldset', { cls: 'bi' }, h('legend', { text: it.name }));
+      fs.appendChild(itemArt(id, true));
+      var finder = E.itemDetail(id, 'finder');
+      var info = h('div', { cls: 'bi-info' });
+      info.appendChild(h('p', null, h('span', { cls: 'lbl', text: 'Label ' }), it.label));
+      if (finder && st.noticed.indexOf('finder') >= 0) info.appendChild(h('p', null, h('span', { cls: 'lbl', text: 'Finder ' }), finder.text));
+      else if (finder) info.appendChild(btn('Read the finder’s note', function () { act({ t: 'look', item: id, detail: 'finder' }); }, { cls: 'look' }));
+      fs.appendChild(info);
+      var sid = 'place-' + id;
+      var sel = h('select', { id: sid, disabled: ST.boardSolved ? true : null, on: { change: function (e) { act({ t: 'place', item: id, station: e.target.value || null }); var x = $(sid); if (x) x.focus(); } } });
+      sel.appendChild(h('option', { value: '', text: 'Not placed yet' }));
+      E.STATIONS.forEach(function (s) { var o = h('option', { value: s.id, text: s.name }); if (st.station === s.id) o.selected = true; sel.appendChild(o); });
+      var on = h('option', { value: E.NOT_HERS, text: 'Not on her journey' }); if (st.station === E.NOT_HERS) on.selected = true; sel.appendChild(on);
+      fs.appendChild(h('div', { cls: 'matchrow' }, h('label', { 'for': sid, text: 'Left at' }), sel));
+      if (!ST.boardSolved) fs.appendChild(btn('Take off the board', function () { act({ t: 'unpin', item: id }); }, { cls: 'quiet small' }));
+      grid.appendChild(fs);
+    });
+    p.appendChild(grid);
+    var stray = ST.arrived.filter(function (id) { return !ST.items[id].pinned && ST.items[id].shelf && E.linkNoticed(ST, id); });
+    if (stray.length && !ST.boardSolved) {
+      p.appendChild(h('p', { cls: 'note', text: 'On the shelves, with something you’ve noticed that might link them: ' }));
+      p.appendChild(h('div', { cls: 'btnrow' }, stray.map(function (id) { return btn('Pin the ' + T.itemName(id).toLowerCase(), function () { act({ t: 'pin', item: id }); }); })));
+    }
+    if (!ST.boardSolved) {
+      p.appendChild(h('div', { cls: 'btnrow' },
+        btn('Check the board', function () { act({ t: 'check' }); var r = ST.lastCheck; if (r && !ST.boardSolved) announce(checkSummary(r)); }, { cls: 'primary', id: 'btnCheck' }),
+        btn('Ask Joss what he thinks', function () { act({ t: 'hint' }); U.hint = T.hintFor(ST); render(); announce(U.hint); }, { id: 'btnHint' })));
+      if (U.hint) p.appendChild(h('p', { cls: 'hint', text: U.hint }));
+    }
+    var lc = ST.lastCheck;
+    if (lc && !ST.boardSolved) {
+      var res = h('div', { cls: 'checkres', role: 'status' });
+      res.appendChild(h('h3', { text: 'Last check' }));
+      res.appendChild(h('p', { text: checkSummary(lc) }));
+      var ul = h('ul');
+      lc.rows.forEach(function (r) {
+        var moved = ST.items[r.id] && ST.items[r.id].station !== r.placed;
+        ul.appendChild(h('li', { cls: r.ok ? 'ok' : 'err' }, (r.ok ? '✓ ' : '✗ ') + T.itemName(r.id) + ' at ' + T.stationName(r.placed) + ': ' + (r.ok ? 'supported.' : 'doesn’t fit yet. Check its finder’s note and label against the timetable.') + (moved ? ' (Moved since.)' : '')));
+      });
+      res.appendChild(ul);
+      p.appendChild(res);
+    }
+    if (ST.boardSolved) p.appendChild(h('p', { cls: 'ok', text: 'Settled: one thing at every stop.' }));
+  }
+  function checkSummary(lc) {
+    var wrong = lc.rows.filter(function (r) { return !r.ok; }).length;
+    var parts = [];
+    if (wrong) parts.push(wrong + (wrong === 1 ? ' placing doesn’t fit' : ' placings don’t fit'));
+    if (lc.missing.length) parts.push(lc.missing.length === 1 ? 'something of hers isn’t on the board yet' : lc.missing.length + ' things of hers aren’t on the board yet');
+    return parts.length ? 'Not settled: ' + parts.join(', and ') + '.' : 'Settled.';
+  }
+
+  /* the phonograph */
+  function resetPhono() { stopPhono(); U.ph = { t: 0, playing: false, full: false, timer: null, shown: 0 }; }
+  function stopPhono() { if (U.ph && U.ph.timer) { clearInterval(U.ph.timer); U.ph.timer = null; } if (U.ph) U.ph.playing = false; SND.phonoStop(); }
+  function playPhono() {
+    var ph = U.ph, R = T.RECORDING;
+    if (ph.t >= R.length) ph.t = 0;
+    ph.playing = true; SND.phonoStart(R.cues, ph.t); SND.sfx('click');
+    var last = Date.now();
+    ph.timer = setInterval(function () {
+      var now = Date.now(); ph.t += (now - last) / 1000; last = now;
+      if (ph.t >= R.length) { ph.t = R.length; stopPhono(); if (ST && !ST.heard) act({ t: 'heard', how: 'played' }); }
+      updatePhono();
+    }, 250);
+    renderMachineIfOpen();
+  }
+  function renderMachineIfOpen() { if (ST && ST.phase === 'shift' && U.tab === 'machine') { var y = window.scrollY; render(); window.scrollTo(0, y); var b = $('btnPlay'); if (b && document.activeElement === document.body) b.focus(); } }
+  function updatePhono() {
+    var bar = $('phBar'), R = T.RECORDING; if (!bar) return;
+    bar.value = Math.round(U.ph.t); bar.setAttribute('aria-valuetext', Math.round(U.ph.t) + ' of ' + R.length + ' seconds');
+    var n = R.cues.filter(function (c) { return c.t <= U.ph.t; }).length;
+    if (n !== U.ph.shown && !U.ph.full) { U.ph.shown = n; fillTranscript(); }
+    var pb = $('btnPlay'); if (pb && !U.ph.playing) { var had = document.activeElement === pb; renderMachineIfOpen(); var pb2 = $('btnPlay'); if (had && pb2) pb2.focus(); }
+  }
+  function fillTranscript() {
+    var ol = $('phLines'); if (!ol) return; clear(ol);
+    var R = T.RECORDING, cues = U.ph.full ? R.cues : R.cues.filter(function (c) { return c.t <= U.ph.t; });
+    cues.forEach(function (c) {
+      ol.appendChild(c.cap ? h('li', { cls: 'cap', text: '[' + c.cap + ']' }) : h('li', null, h('strong', { text: c.who + ': ' }), c.text));
+    });
+    if (!cues.length) ol.appendChild(h('li', { cls: 'dim', text: 'Nothing yet. Press play, or read it through.' }));
+  }
+  function renderMachine(p) {
+    var R = T.RECORDING;
+    p.appendChild(h('h2', { text: 'Mr Tilley’s phonograph' }));
+    p.appendChild(h('div', { cls: 'art phono' + (U.ph.playing ? ' playing' : ''), role: 'img', 'aria-label': 'An old cylinder phonograph with a brass horn.', svg: ART.phonograph() }));
+    p.appendChild(h('p', { cls: 'note', text: 'A card on the lid, in the office hand: “For identifying cylinders handed in. F.T.” Everything it plays is written out below as it plays, so you can follow with the sound off.' }));
+    var row = h('div', { cls: 'btnrow' });
+    row.appendChild(btn(U.ph.playing ? 'Pause' : (U.ph.t > 0 && U.ph.t < R.length ? 'Resume' : 'Play the cylinder'), function () { if (U.ph.playing) { stopPhono(); renderMachineIfOpen(); } else playPhono(); }, { cls: 'primary', id: 'btnPlay' }));
+    row.appendChild(btn('Start again', function () { stopPhono(); U.ph.t = 0; U.ph.shown = 0; playPhono(); }, { id: 'btnRestart' }));
+    row.appendChild(btn(U.ph.full ? 'Show it as it plays' : 'Read the whole transcript', function () { U.ph.full = !U.ph.full; if (U.ph.full && ST && !ST.heard) act({ t: 'heard', how: 'read' }); else renderMachineIfOpen(); }, { id: 'btnTranscript' }));
+    p.appendChild(row);
+    var bar = h('progress', { id: 'phBar', max: String(R.length), value: String(Math.round(U.ph.t)), 'aria-label': 'Playback' });
+    p.appendChild(h('div', { cls: 'progress' }, bar));
+    p.appendChild(h('p', { cls: 'note', text: 'Recording: brown wax, about a minute. Speaker named where the recording names him.' }));
+    p.appendChild(h('ol', { id: 'phLines', cls: 'transcript', 'aria-live': 'polite', 'aria-label': 'Transcript' }));
+    fillTranscript();
+    if (ST.heard) p.appendChild(h('p', { cls: 'ok', text: 'You’ve heard it through.' }));
+  }
+
+  /* dawn */
+  function renderDawn() {
+    var s = clear($('screen-dawn'));
+    s.appendChild(h('div', { cls: 'statusbar' }, h('span', { cls: 'clock', text: T.clock(ST.clock) }), h('span', { cls: 'place', text: 'The hatch at first light' })));
+    s.appendChild(h('h2', { id: 'dawnH', text: 'First light at the hatch' }));
+    s.appendChild(h('div', { cls: 'hatch', role: 'img', 'aria-label': 'Grey morning light through the Lost Property hatch; a man in a travelling coat waits on the far side.', svg: ART.hatch() }));
+    var cols = h('div', { cls: 'dawn-cols' });
+    var people = h('div', { cls: 'people' });
+    people.appendChild(personCard('frank', 'At the hatch, a suitcase at his feet labelled for the boat.'));
+    if (ST.dawn.davidHere) people.appendChild(personCard('david', 'Just in from the yard, still in his driving coat.'));
+    else people.appendChild(h('div', { cls: 'person' }, h('h3', { text: 'The station yard' }), h('p', { cls: 'dim', text: 'An engine is idling somewhere outside.' }), btn('See who’s at the door', function () { act({ t: 'door' }); }, { id: 'btnDoor' })));
+    people.appendChild(personCard('joss', 'Leaning on his broom by the booking-hall door.'));
+    if (!ST.dawn.metMabel) people.appendChild(h('div', { cls: 'person' }, h('h3', { text: 'The ladies’ waiting room' }), h('p', { cls: 'dim', text: 'Across the booking hall. A thread of smoke from its stove chimney.' }), btn('Look in on the ladies’ waiting room', function () { act({ t: 'visitMabel' }); }, { id: 'btnMabel' })));
+    else people.appendChild(mabelCard());
+    cols.appendChild(people);
+    var talk = h('section', { cls: 'talk', 'aria-labelledby': 'talkH' }, h('h3', { id: 'talkH', text: 'What has been said' }));
+    var log = h('ol', { cls: 'talklog', 'aria-live': 'polite' });
+    ST.log.forEach(function (e) {
+      if (e.k !== 'ask') return;
+      var tp = T.TALK[e.who].topics[e.topic];
+      log.appendChild(h('li', null, h('p', { cls: 'q', text: 'You: ' + tp.q }), tp.a.map(function (x) { return h('p', { text: x }); })));
+    });
+    if (!log.firstChild) log.appendChild(h('li', { cls: 'dim', text: 'Nothing yet.' }));
+    talk.appendChild(log);
+    cols.appendChild(talk);
+    s.appendChild(cols);
+    s.appendChild(decisionForm());
+  }
+  function personCard(who, status) {
+    var P = T.TALK[who], card = h('div', { cls: 'person' }, h('h3', { text: P.name }), h('p', { cls: 'dim', text: status }));
+    var g = h('div', { cls: 'asks' });
+    E.TOPICS[who].forEach(function (tp) {
+      if (tp.needs && !tp.needs(ST)) return;
+      var asked = ST.dawn.asked[who].indexOf(tp.id) >= 0;
+      g.appendChild(btn(P.topics[tp.id].q, function () { act({ t: 'ask', who: who, topic: tp.id }); }, { cls: asked ? 'ask asked' : 'ask', disabled: asked ? true : null, 'aria-label': (asked ? 'Asked: ' : 'Ask ' + P.name + ': ') + P.topics[tp.id].q }));
+    });
+    card.appendChild(g);
+    return card;
+  }
+  function mabelCard() {
+    var card = personCard('mabel', 'On the bench by the stove, her hat on her knee.');
+    var box = h('div', { cls: 'mabel-ask' });
+    T.MABEL_ASK.forEach(function (x) { box.appendChild(h('p', { text: x })); });
+    if (!ST.dawn.promise) {
+      box.appendChild(h('div', { cls: 'btnrow' },
+        btn('“I’ll keep your confidence.”', function () { act({ t: 'promise', answer: 'yes' }); }, { id: 'btnPromiseYes' }),
+        btn('“I can’t promise that.”', function () { act({ t: 'promise', answer: 'no' }); }, { id: 'btnPromiseNo' })));
+    } else {
+      box.appendChild(h('p', { cls: 'q', text: ST.dawn.promise === 'yes' ? 'You: “I’ll keep your confidence.”' : 'You: “I can’t promise that.”' }));
+      T.MABEL_REPLY[ST.dawn.promise].forEach(function (x) { box.appendChild(h('p', { text: x })); });
+    }
+    card.appendChild(box);
+    return card;
+  }
+  function decisionForm() {
+    var ready = ST.dawn.davidHere && (!ST.dawn.metMabel || ST.dawn.promise);
+    var f = h('form', { cls: 'decide', id: 'decideForm', on: { submit: function (e) { e.preventDefault(); submitDecision(); } } });
+    f.appendChild(h('h3', { text: 'Your decision' }));
+    f.appendChild(h('p', { cls: 'note', text: 'Nothing here is final until you confirm. There is no correct answer, only what you do and what follows.' }));
+    if (!ready) f.appendChild(h('p', { cls: 'dim', text: !ST.dawn.davidHere ? 'Not everyone who will come has come yet.' : 'Mrs Cole is waiting for your answer.' }));
+    T.choices(ST).forEach(function (q) {
+      var fs = h('fieldset', { disabled: ready ? null : true }, h('legend', { text: q.legend }));
+      q.opts.forEach(function (o) {
+        var rid = 'dc-' + q.id + '-' + o.v;
+        fs.appendChild(h('div', { cls: 'radio wide' }, h('input', { type: 'radio', name: 'dc-' + q.id, id: rid, value: o.v, checked: U.decision[q.id] === o.v, on: { change: function () { U.decision[q.id] = o.v; } } }),
+          h('label', { 'for': rid }, h('span', { text: o.label }), h('small', { text: o.note }))));
+      });
+      f.appendChild(fs);
+    });
+    if (U.msg.decide) f.appendChild(h('p', { cls: 'err', role: 'alert', text: U.msg.decide }));
+    f.appendChild(h('button', { type: 'submit', cls: 'primary', id: 'btnDecide', disabled: ready ? null : true, text: 'Decide' }));
+    return f;
+  }
+  function submitDecision() {
+    var q = T.choices(ST), missing = q.filter(function (x) { return !U.decision[x.id]; });
+    if (missing.length) { U.msg.decide = 'Choose an answer for: ' + missing.map(function (x) { return x.legend.split(':')[0].toLowerCase(); }).join('; ') + '.'; render(); announce(U.msg.decide); return; }
+    U.msg.decide = null;
+    var lines = q.map(function (x) { var o = x.opts.filter(function (y) { return y.v === U.decision[x.id]; })[0]; return x.legend.split(':')[0] + ': ' + o.label + '.'; });
+    confirmBox('Is this what you’ll do?', lines, 'Yes, do it', function () {
+      var a = { t: 'decide', things: U.decision.things, frank: U.decision.frank, david: U.decision.david };
+      if (ST.ledgerRead) a.ledger = U.decision.ledger;
+      act(a);
+    });
+  }
+
+  /* end */
+  function renderEnd() {
+    var s = clear($('screen-end')), st = ENDSTATE;
+    s.appendChild(h('h2', { id: 'endH', text: 'Morning' }));
+    T.epilogue(st.outcome).forEach(function (sec) {
+      var el = h('section', { cls: 'epi' });
+      if (sec.h) el.appendChild(h('h3', { text: sec.h }));
+      if (sec.list) el.appendChild(h('ul', null, sec.p.map(function (x) { return h('li', { text: x }); })));
+      else sec.p.forEach(function (x) { el.appendChild(h('p', { text: x })); });
+      s.appendChild(el);
+    });
+    var det = h('details', { cls: 'ledger-inline' }, h('summary', { text: 'Your shift ledger' }));
+    det.appendChild(ledgerList(st));
+    s.appendChild(det);
+    var marks = STORE.MARK_IDS.filter(function (m) { return store.marksOf(K, '001')[m]; }).map(function (m) { return T.MARKS.filter(function (x) { return x.id === m; })[0].name; });
+    s.appendChild(h('p', { cls: 'note', text: 'Your Mystortals Keyring for this door: ' + (marks.length ? marks.join(', ') : 'nothing yet') + '. Marks record what you explored, never what you chose.' }));
+    var row = h('div', { cls: 'btnrow' });
+    row.appendChild(btn('Begin a return shift', function () { startShift('return', false); }, { cls: 'primary', id: 'btnReturn' }));
+    row.appendChild(btn('A short return shift', function () { startShift('return', true); }, { id: 'btnShort' }));
+    row.appendChild(btn('Back to the door', function () { ENDSTATE = null; render(); }, { cls: 'quiet' }));
+    s.appendChild(row);
+    s.appendChild(h('p', { cls: 'note', text: 'A return shift is the same night again. The shelves will remember how you filed, and there is more on them than you saw. A short return shift skips straight past the ordinary arrivals.' }));
+  }
+  function ledgerList(st) {
+    var ol = h('ol', { cls: 'shiftledger' });
+    T.shiftLedger(st).forEach(function (r) { ol.appendChild(h('li', null, h('span', { cls: 'when', text: r[0] }), ' ', r[1])); });
+    return ol;
+  }
+
+  /* ---------- header dialogs ---------- */
+  function openLedger() {
+    if (!ST || !ST.ledgerFound) return;
+    var L = T.LEDGER;
+    openDialog({ title: L.title, wide: true, node: function () {
+      var w = h('div', { cls: 'oldledger' }, h('p', { text: L.intro }));
+      var tbl = h('table', null, h('caption', { cls: 'sr', text: 'Ledger entries' }), h('thead', null, h('tr', null, h('th', { scope: 'col', text: 'Date' }), h('th', { scope: 'col', text: 'Entry' }))));
+      var tb = h('tbody'); L.pages.forEach(function (pg) { tb.appendChild(h('tr', null, h('td', null, hand(pg[0])), h('td', null, hand(pg[1])))); });
+      tbl.appendChild(tb); w.appendChild(tbl); return w;
+    }, actions: [{ label: 'Put it down', fn: function () { if (ST && !ST.ledgerRead) act({ t: 'readLedger' }); } }], onCancel: function () { if (ST && !ST.ledgerRead) act({ t: 'readLedger' }); } });
+  }
+  function openDoc(id) {
+    var d = T.DOCS[id];
+    openDialog({ title: d.title, node: h('div', { cls: 'doc paper' }, d.lines.map(function (x) { return h('p', { text: x }); }), d.hand ? h('p', { cls: 'bighand' }, hand(d.hand)) : null) });
+  }
+  function openPapers() {
+    var items = [['timetable', 'The timetable'], ['orders', 'Standing Orders'], ['hand', 'The office hand card']];
+    openDialog({ title: 'Office papers', node: function () {
+      var w = h('div', { cls: 'btncol' });
+      items.forEach(function (x) { w.appendChild(btn(x[1], function () { closeDialog(); openDoc(x[0]); })); });
+      if (ST && ST.ledgerFound) w.appendChild(btn('Frank Tilley’s old ledger', function () { closeDialog(); openLedger(); }));
+      return w;
+    }, actions: [{ label: 'Close' }] });
+  }
+  function openShiftLedger() {
+    var st = ST || ENDSTATE;
+    openDialog({ title: 'Shift ledger', wide: true, node: function () {
+      var w = h('div');
+      if (!st) { w.appendChild(h('p', { text: 'No shift yet tonight.' })); return w; }
+      w.appendChild(h('p', { cls: 'note', text: 'A private record of your shift. It is kept on this device only and never graded.' }));
+      w.appendChild(ledgerList(st));
+      var rec = JSON.stringify({ build: E.VERSION, seed: st.seed, actions: (ST ? RUN.current.actions : RUN.finished[RUN.finished.length - 1].actions), hash: E.hash(st) });
+      var det = h('details', null, h('summary', { text: 'Shift record, for replaying or auditing' }));
+      var ta = h('textarea', { id: 'recordText', readonly: true, rows: '4', 'aria-label': 'Shift record' }); ta.value = rec;
+      det.appendChild(h('p', { cls: 'note', text: 'The seed and every action, in order. Replaying them gives the same state and the same hash.' }));
+      det.appendChild(ta);
+      det.appendChild(btn('Copy the record', function () { ta.select(); try { if (navigator.clipboard) navigator.clipboard.writeText(rec); else document.execCommand('copy'); announce('Copied.'); } catch (e) { announce('Select the text and copy it.'); } }));
+      w.appendChild(det);
+      return w;
+    }, actions: [{ label: 'Close' }] });
+  }
+  function openKeyring() {
+    openDialog({ title: 'Mystortals Keyring', wide: true, node: function () {
+      var w = h('div', { cls: 'keyring' });
+      w.appendChild(h('p', { cls: 'note', text: 'Thirty-one positions, one for each Mystortal. Marks note what you explored. They are not scores, and they say nothing about what you chose.' }));
+      var ol = h('ol', { cls: 'kr' });
+      var marks = store.marksOf(K, '001');
+      STORE.registry().forEach(function (r) {
+        if (r.status === 'active') {
+          var li = h('li', { cls: 'active' }, h('span', { cls: 'num', text: r.number }), h('strong', { text: r.title }));
+          var ml = h('ul', { cls: 'marks' });
+          T.MARKS.forEach(function (m) { var got = !!marks[m.id]; ml.appendChild(h('li', { cls: got ? 'got' : 'locked' }, h('span', { cls: 'sym', 'aria-hidden': 'true', text: got ? '◆' : '◇' }), h('span', { text: m.name + ': ' + (got ? m.earned : 'Not yet found.') }))); });
+          li.appendChild(ml); ol.appendChild(li);
+        } else ol.appendChild(h('li', { cls: 'reserved' }, h('span', { cls: 'num', text: r.number }), h('span', { text: 'Reserved' })));
+      });
+      w.appendChild(ol);
+      if (store.readOnly()) w.appendChild(h('p', { cls: 'note', text: 'Saved by a newer version: shown, not changed.' }));
+      return w;
+    }, actions: [{ label: 'Close' }, { label: 'Clear the Keyring…', danger: true, fn: function () { confirmBox('Clear the Keyring?', ['This erases your Mystortals marks on this device. Your shifts are not affected. This cannot be undone.'], 'Clear the Keyring', function () { if (store.clearKeyring()) { K = store.loadKeyring(); announce('Keyring cleared.'); } render(); }, true); } }] });
+  }
+  function openHelp() {
+    openDialog({ title: 'How to play · Accessibility', wide: true, node: function () {
+      var w = h('div', { cls: 'help' });
+      [ 'You are the night clerk at a small railway lost-property office. Things are handed in through the night. For each one: look it over, write a tag with one distinguishing mark, and shelve it on the right shelf.',
+        'Claim slips arrive in the tray. Match a slip to a shelved item when every particular agrees. Mistakes are harmless: you are told what doesn’t match.',
+        'Ring for the next arrival whenever the counter is clear. Time only moves when you do. Nothing is timed.',
+        'If other things open up as the night goes on, they work the same way: every control is a button, a choice or a list, and everything can be changed until you confirm it.',
+        'Controls: Tab and Shift+Tab move between controls; Enter or Space presses buttons; arrow keys move within the tabs and choices; Escape closes a window.',
+        'Sound is off by default. Nothing you need depends on hearing: anything played is written out as it plays, with descriptions of sounds in brackets.',
+        'Your shift saves as you go, on this device only. Nothing is sent anywhere. No names or personal details are asked for.',
+        'Content note: themes of old regret and family worry. No violence, nothing frightening.'
+      ].forEach(function (x) { w.appendChild(h('p', { text: x })); });
+      var set = h('fieldset', null, h('legend', { text: 'Settings' }));
+      var cbS = h('input', { type: 'checkbox', id: 'setSound', checked: SND.isOn() ? true : null, disabled: SND.available() ? null : true, on: { change: function (e) { setSound(e.target.checked); } } });
+      set.appendChild(h('div', { cls: 'radio' }, cbS, h('label', { 'for': 'setSound', text: SND.available() ? 'Sound (rain, stamps, the phonograph)' : 'Sound is not available in this browser' })));
+      var cbL = h('input', { type: 'checkbox', id: 'setLarge', checked: PREFS.large ? true : null, on: { change: function (e) { PREFS.large = e.target.checked; savePrefs(); render(); } } });
+      set.appendChild(h('div', { cls: 'radio' }, cbL, h('label', { 'for': 'setLarge', text: 'Larger text' })));
+      var sel = h('select', { id: 'setMotion', on: { change: function (e) { PREFS.motion = e.target.value; savePrefs(); render(); } } },
+        [['system', 'Follow my system setting'], ['reduce', 'Reduce motion'], ['full', 'Allow gentle motion']].map(function (o) { var op = h('option', { value: o[0], text: o[1] }); if (PREFS.motion === o[0]) op.selected = true; return op; }));
+      set.appendChild(h('div', { cls: 'matchrow' }, h('label', { 'for': 'setMotion', text: 'Motion' }), sel));
+      w.appendChild(set);
+      var rs = h('fieldset', null, h('legend', { text: 'Starting again' }));
+      rs.appendChild(btn('Abandon this shift…', function () { closeDialog(); confirmBox('Abandon this shift?', ['Your current shift will be cleared. Finished shifts and your Keyring are kept.'], 'Abandon the shift', function () { abandonShift(); }, true); }, { disabled: ST ? null : true }));
+      rs.appendChild(btn('Forget finished shifts…', function () { closeDialog(); confirmBox('Forget finished shifts?', ['This clears your finished shifts, so the next shift will be a first shift again. Your Keyring is kept.'], 'Forget them', function () { store.clearFinished(RUN); FIN = []; ST = null; ENDSTATE = null; render(); }, true); }, { disabled: RUN.finished.length ? null : true }));
+      w.appendChild(rs);
+      return w;
+    }, actions: [{ label: 'Close' }] });
+  }
+  function setSound(v) { var r = SND.setOn(v); PREFS.sound = r; savePrefs(); render(); announce(r ? 'Sound on.' : 'Sound off.'); }
+
+  /* ---------- boot ---------- */
+  function boot() {
+    store = STORE.make(safeStorage());
+    PREFS = store.loadPrefs();
+    PREFS.sound = false; /* never autoplay: sound waits for a click each visit */
+    K = store.loadKeyring();
+    var lr = store.loadRun(); RUN = lr.run; ST = lr.states.current; FIN = lr.states.finished; NEWER = !!lr.newer;
+    U.atTitle = !!ST;
+    $('btnLedger').addEventListener('click', openShiftLedger);
+    $('btnPapers').addEventListener('click', openPapers);
+    $('btnKeyring').addEventListener('click', openKeyring);
+    $('btnHelp').addEventListener('click', openHelp);
+    $('btnSound').addEventListener('click', function () { setSound(!SND.isOn()); });
+    if (wideMQ.addEventListener) wideMQ.addEventListener('change', function () { if (ST) render(); }); else wideMQ.addListener(function () { if (ST) render(); });
+    if (!SND.available()) $('btnSound').hidden = true;
+    render();
+    showNotices();
+    if (ST) announce('Your shift is saved at ' + T.clock(ST.clock) + '. Continue it from the door.');
+    if (DEV) window.HCDev = Object.freeze({ state: function () { return ST ? JSON.parse(JSON.stringify(ST)) : null; }, end: function () { return ENDSTATE ? JSON.parse(JSON.stringify(ENDSTATE)) : null; }, hash: function () { return ST ? E.hash(ST) : (ENDSTATE ? E.hash(ENDSTATE) : null); }, actions: function () { return RUN.current ? RUN.current.actions.slice() : null; }, finished: function () { return RUN.finished.map(function (f) { return { seed: f.seed, actions: f.actions.slice() }; }); }, phono: function () { return { t: U.ph.t, playing: U.ph.playing }; } });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+
+})();
+</script>
+<!-- Cloudflare Web Analytics -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3f72232588414cf087bd7c4ed5e4ddaa"}'></script>
+<!-- End Cloudflare Web Analytics -->
+</body>
+</html>
