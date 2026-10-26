@@ -1,0 +1,1526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="doorquests:status" content="Prototype · Founder Playtest · Not Published">
+<meta name="description" content="Gamortal #004 · Threshold — match the shape, feel the rhythm, cross the threshold. A DoorQuests prototype for founder playtesting.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#090d2a">
+<title>Threshold | DoorQuests Gamortals</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23090d2a'/%3E%3Crect x='14' y='8' width='36' height='50' rx='3' fill='none' stroke='%23e7c35a' stroke-width='4'/%3E%3Cpath d='M22 40 L32 24 L42 40' fill='none' stroke='%23f6f1e4' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root {
+  --night: #090d2a; --indigo: #1a1550; --panel: #141b4a; --panel2: #1b235a; --line: #2c3772;
+  --gold: #e7c35a; --gold2: #f3d98a; --ivory: #f6f1e4; --dim: #c6c8de; --mute: #a3a8ca; --warn: #ffb27a; --ok: #9be39b;
+  --c-vertical: #f2c14e; --c-horizontal: #5fd8cb; --c-diagonal: #ff9ab4; --c-chevron: #b9a3ff;
+  --focus: 0 0 0 3px #090d2a, 0 0 0 5px #f3d98a;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { background: var(--night); }
+body { min-height: 100vh; min-height: 100dvh; color: var(--ivory); font: 16px/1.5 var(--sans); display: flex; flex-direction: column; overflow-x: hidden;
+  background: radial-gradient(1100px 700px at 50% -10%, #221a63 0%, var(--night) 62%) fixed, var(--night); }
+a { color: var(--gold2); }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 8px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--gold); color: #111; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 8px; }
+[hidden] { display: none !important; }
+.top { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid #231d66; background: rgba(9, 13, 42, .88); flex-wrap: wrap; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ivory); font: 600 18px/1 var(--serif); }
+.brand-door { width: 16px; height: 22px; border: 2px solid var(--gold); border-radius: 8px 8px 1px 1px; }
+.crumb { color: var(--dim); font-size: 14px; display: inline-flex; gap: 6px; }
+.crumb-col { color: var(--gold2); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; align-self: center; }
+.badge { margin-left: auto; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px dashed var(--warn); color: var(--warn); }
+main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+.btn { appearance: none; border: 1px solid #3c3f94; background: var(--panel2); color: var(--ivory); border-radius: 10px; padding: 10px 16px; font: 600 15px/1.2 var(--sans); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
+.btn:hover { border-color: var(--gold); }
+.btn-primary { background: linear-gradient(#f0d27a, #d9ac3e); color: #1b1606; border-color: #f3d98a; }
+.btn-quiet { background: transparent; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn.confirming { background: #5a2a1a; border-color: var(--warn); color: #ffe2cf; }
+.kbd { font: 600 11px/1 var(--sans); border: 1px solid currentColor; border-radius: 4px; padding: 2px 5px; opacity: .75; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.row.center { justify-content: center; }
+.stack { display: grid; gap: 8px; margin: 14px 0 0; }
+.note { min-height: 1.4em; color: var(--gold2); font-size: 14px; margin: 8px 0 0; }
+.muted { color: var(--mute); } .small { font-size: 13px; }
+
+.title-wrap { width: min(1100px, 100%); margin: 0 auto; padding: 22px 16px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 28px; align-items: center; }
+.title-art canvas { width: 100%; height: auto; display: block; border-radius: 16px; border: 1px solid #2f2a7a; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); background: #0b0f33; }
+.kicker { margin: 0 0 6px; color: var(--gold2); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+h1 { font: 600 clamp(40px, 6vw, 64px)/1 var(--serif); margin: 0 0 10px; letter-spacing: .01em; }
+.t-no { display: block; font: 700 14px/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.tagline { color: var(--gold2); font: italic 19px/1.4 var(--serif); margin: 0 0 16px; }
+.tiers { border: 0; padding: 0; margin: 0 0 12px; display: grid; gap: 8px; }
+.tiers legend { font: 600 14px/1 var(--sans); color: var(--gold2); margin-bottom: 8px; }
+.tier { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(20, 27, 74, .7); cursor: pointer; }
+.tier:has(input:checked) { border-color: var(--gold); background: rgba(42, 40, 110, .85); }
+.tier input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--gold); }
+.tier-medal { width: 22px; height: 22px; border-radius: 50%; }
+.tier-bronze .tier-medal { background: radial-gradient(circle at 35% 35%, #f0b37f, #a8642e); }
+.tier-silver .tier-medal { background: radial-gradient(circle at 35% 35%, #fff, #9aa4b8); }
+.tier-gold .tier-medal { background: radial-gradient(circle at 35% 35%, #fff0b0, #c8952a); }
+.tier-body { display: grid; gap: 2px; font-size: 14px; color: var(--dim); }
+.tier-body strong { color: var(--ivory); font-size: 15px; }
+.tier-goal { color: var(--gold2); font-size: 13px; }
+.title-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+/* ---------- game ---------- */
+body.playing { height: 100vh; height: 100dvh; overflow: hidden; }
+body.playing .foot { display: none; }
+body.playing .top { padding: 4px 12px; }
+.hud { position: relative; display: flex; align-items: center; gap: 6px 18px; padding: 8px 14px 10px; background: rgba(14, 16, 54, .94); border-bottom: 1px solid #231d66; flex-wrap: wrap; }
+.hud-stage { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.hud-stage-n { font: 700 13px/1 var(--sans); color: var(--gold); text-transform: uppercase; letter-spacing: .1em; }
+.hud-stage-t { font: 600 17px/1.2 var(--serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 38vw; }
+.hud-tier { font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.t-bronze { color: #d69257; } .t-silver { color: #cfd6e6; } .t-gold { color: #f2c14e; } .t-endless { color: #5fd8cb; }
+.hud-nums { display: flex; gap: 16px; align-items: baseline; }
+.hud-nums > span, .hud-stage { white-space: nowrap; }
+.k { color: var(--mute); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.v { font: 700 19px/1 var(--sans); font-variant-numeric: tabular-nums; }
+.mult { font: 700 14px/1 var(--sans); color: var(--gold2); }
+.hud-btns { margin-left: auto; display: flex; gap: 6px; }
+.ibtn { appearance: none; min-width: 44px; min-height: 44px; border-radius: 10px; border: 1px solid #3c3f94; background: var(--panel); color: var(--ivory); display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; cursor: pointer; font: 600 13px/1 var(--sans); }
+.ibtn[aria-pressed="false"] { color: var(--mute); }
+.progress { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255, 255, 255, .08); }
+.progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+
+.stage { position: relative; flex: 1; min-height: 240px; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; background: #070a22; }
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.next { position: absolute; right: 12px; top: 10px; display: flex; align-items: center; gap: 8px; background: rgba(9, 13, 42, .7); border: 1px solid #2f2a7a; border-radius: 12px; padding: 6px 10px; }
+.next-k { font-size: 11px; color: var(--mute); text-transform: uppercase; letter-spacing: .1em; }
+.next-list { display: flex; gap: 6px; }
+.next-item { display: grid; justify-items: center; gap: 2px; font-size: 10px; color: var(--mute); width: 40px; }
+.next-item svg { width: 30px; height: 30px; border: 1px solid #3c3f94; border-radius: 6px; background: #0e1240; }
+.next-item:first-child svg { border-color: var(--gold); width: 36px; height: 36px; }
+.beats { position: absolute; left: 12px; top: 14px; display: flex; gap: 8px; }
+.beats i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #5b5aa8; background: transparent; }
+.beats i.on { background: var(--gold); border-color: var(--gold2); box-shadow: 0 0 12px rgba(242, 193, 78, .8); }
+.beats i.door { border-color: var(--ivory); }
+.judge { position: absolute; left: 50%; top: 14%; transform: translateX(-50%); text-align: center; pointer-events: none; opacity: 0; transition: opacity .25s; }
+.judge.show { opacity: 1; transition: none; }
+#judge-t { display: block; font: 800 clamp(30px, 6vw, 54px)/1 var(--sans); letter-spacing: .08em; text-shadow: 0 2px 18px rgba(0, 0, 0, .7); }
+#judge-s { display: block; font: 600 15px/1.3 var(--sans); color: var(--ivory); text-shadow: 0 1px 8px #000; margin-top: 4px; }
+.j-perfect #judge-t { color: #ffd76a; } .j-great #judge-t { color: #9ff0ff; } .j-good #judge-t { color: #f6f1e4; } .j-miss #judge-t { color: #ffb27a; }
+.timing { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--mute); background: rgba(9, 13, 42, .6); padding: 4px 10px; border-radius: 999px; }
+.tbar { position: relative; width: 160px; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, .12); }
+.tz { position: absolute; left: 50%; top: -3px; width: 2px; height: 14px; background: var(--gold); transform: translateX(-1px); }
+.tbar b { position: absolute; top: -2px; width: 4px; height: 12px; border-radius: 2px; background: var(--ivory); left: 50%; transform: translateX(-2px); opacity: 0; }
+.overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(5, 6, 22, .74); padding: 16px; z-index: 5; overflow: auto; }
+.panel { width: min(460px, 100%); background: var(--panel); border: 1px solid #3c3f94; border-radius: 16px; padding: 18px 20px; box-shadow: 0 30px 80px rgba(0, 0, 0, .55); text-align: center; }
+.panel-wide { width: min(560px, 100%); }
+.panel h2 { margin: 2px 0 6px; font: 600 28px/1.2 var(--serif); color: var(--gold2); }
+.kick { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--mute); }
+.big-line { font-size: 18px; margin: 4px 0 10px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; margin: 8px 0; }
+.stat { background: #10164a; border: 1px solid #2c2f80; border-radius: 10px; padding: 8px; }
+.stat b { display: block; font: 700 20px/1.1 var(--sans); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--mute); }
+.shape-row { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
+.shape-row svg { width: 44px; height: 44px; background: #0e1240; border: 1px solid #3c3f94; border-radius: 8px; }
+
+.controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: rgba(14, 16, 54, .96); border-top: 1px solid #231d66; touch-action: manipulation; }
+.shapes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.shape-btn { appearance: none; min-height: 64px; border-radius: 12px; border: 2px solid #3c3f94; background: #11164a; color: var(--ivory); display: grid; grid-template-rows: 1fr auto auto; justify-items: center; align-items: center; padding: 6px 4px; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.shape-btn svg { width: 30px; height: 30px; }
+.sb-l { font: 700 13px/1.2 var(--sans); } .sb-k { font-size: 11px; color: var(--mute); }
+.shape-btn[aria-checked="true"] { border-color: var(--gold2); background: #2a2470; box-shadow: 0 0 0 2px rgba(243, 217, 138, .35) inset, 0 0 18px rgba(242, 193, 78, .35); }
+.shape-btn { position: relative; }
+.shape-btn[aria-checked="true"]::after { content: "✓"; position: absolute; top: 4px; right: 8px; color: var(--gold2); font: 800 14px/1 var(--sans); }
+.cross-btn { appearance: none; min-width: 150px; min-height: 64px; border-radius: 14px; border: 2px solid #f3d98a; background: linear-gradient(#f0d27a, #d9ac3e); color: #1b1606; font: 800 22px/1 var(--sans); letter-spacing: .1em; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.cross-btn:active, .cross-btn.flash { filter: brightness(1.2); transform: translateY(1px); }
+
+dialog { border: 1px solid #3c3f94; border-radius: 16px; background: var(--panel); color: var(--ivory); padding: 0; width: min(660px, calc(100% - 24px)); max-height: calc(100dvh - 32px); }
+dialog::backdrop { background: rgba(4, 5, 18, .72); }
+.dlg { padding: 18px 20px; }
+.dlg h2 { margin: 0 0 10px; font: 600 26px/1.2 var(--serif); color: var(--gold2); }
+.dlg h3 { margin: 16px 0 6px; font: 600 16px/1.2 var(--sans); color: var(--gold2); }
+.howto { padding-left: 20px; display: grid; gap: 8px; color: var(--dim); margin: 0; }
+.howto strong { color: var(--ivory); }
+.keys { border-collapse: collapse; width: 100%; font-size: 14px; }
+.keys th, .keys td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #262a70; }
+.keys th { color: var(--gold2); white-space: nowrap; }
+table.rec { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+table.rec th, table.rec td { padding: 6px; border-bottom: 1px solid #262a70; text-align: center; }
+table.rec th:first-child, table.rec td:first-child { text-align: left; }
+table.rec thead th { color: var(--gold2); }
+.medal { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+.medal.bronze { background: #6b3f1d; color: #ffd3ad; } .medal.silver { background: #4a5266; color: #f2f5fb; } .medal.gold { background: #6e5212; color: #ffe9a6; }
+.settings { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 0 0 12px; display: grid; gap: 8px; font-size: 14px; }
+.settings legend { color: var(--gold2); padding: 0 4px; }
+.settings label { display: flex; gap: 8px; align-items: center; min-height: 34px; }
+.settings input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--gold); }
+.settings input[type=range] { flex: 1; accent-color: var(--gold); min-width: 0; }
+.settings output { min-width: 60px; text-align: right; font-variant-numeric: tabular-nums; }
+select, .seed input { background: var(--panel2); color: var(--ivory); border: 1px solid #3c3f94; border-radius: 8px; padding: 6px 8px; font: inherit; min-height: 40px; }
+.seed { display: flex; gap: 10px; align-items: center; font-weight: 600; }
+.seed input { font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; width: 12em; }
+.calib { display: grid; gap: 6px; }
+.cal-viz { width: 64px; height: 64px; border-radius: 50%; border: 3px solid #5b5aa8; margin: 4px auto; display: grid; place-items: center; cursor: pointer; }
+.cal-viz i { width: 34px; height: 34px; border-radius: 50%; background: #2a2470; }
+.cal-viz.on i { background: var(--gold); box-shadow: 0 0 20px var(--gold); }
+.foot { padding: 14px 16px 18px; border-top: 1px solid #1d1960; color: var(--dim); font-size: 14px; text-align: center; }
+.foot p { margin: 4px 0; }
+
+@media (max-width: 860px) {
+  .title-wrap { grid-template-columns: 1fr; gap: 14px; padding-top: 12px; }
+  .ibtn-t { display: none; }
+  .hud-stage-t { max-width: 46vw; }
+}
+@media (max-width: 560px) {
+  body.playing .crumb, body.playing .brand-word { display: none; }
+  body.playing .top { flex-wrap: nowrap; }
+  .hud-stage-t { display: none; }
+  .hud { flex-wrap: nowrap; }
+  .hud-nums { gap: 10px; }
+  .k { font-size: 10px; letter-spacing: .03em; }
+  .hud-stage-n { font-size: 12px; }
+  .ibtn { padding: 0 6px; }
+  .next-item span { white-space: nowrap; font-size: 9px; }
+  .badge { font-size: 11px; }
+  .hud { gap: 4px 12px; padding: 6px 10px 9px; }
+  .hud-tier { display: none; }
+  .v { font-size: 17px; }
+  .controls { grid-template-columns: 1fr; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); }
+  .cross-btn { min-height: 60px; width: 100%; }
+  .shape-btn { min-height: 62px; }
+  .next-item { width: 32px; } .next-item svg { width: 26px; height: 26px; } .next-item:first-child svg { width: 32px; height: 32px; }
+  .tbar { width: 110px; }
+  .kbd { display: none; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  #scr-game { display: grid; grid-template-columns: minmax(0, 1fr) 250px; grid-template-rows: auto minmax(0, 1fr); }
+  #scr-game > .hud { grid-column: 1 / -1; padding: 4px 10px 8px; }
+  #scr-game > .stage { grid-column: 1; grid-row: 2; }
+  #scr-game > .controls { grid-column: 2; grid-row: 2; grid-template-columns: 1fr; align-content: center; border-top: 0; border-left: 1px solid #231d66; }
+  .shapes { grid-template-columns: 1fr 1fr; }
+  .shape-btn { min-height: 54px; }
+  .hud-tier, .crumb { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .judge { transition: none; } }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header class="top">
+  <a class="brand" href="https://doorquests.com/" aria-label="DoorQuests home (opens doorquests.com)"><span class="brand-door" aria-hidden="true"></span><span class="brand-word">DoorQuests</span></a>
+  <span class="crumb"><span class="crumb-col">Gamortal #004</span><span aria-hidden="true">·</span><span class="crumb-title">Threshold</span></span>
+  <span class="badge">Prototype · Founder Playtest · Not Published</span>
+</header>
+
+<main id="main">
+  <!-- =============================== TITLE =============================== -->
+  <section id="scr-title" class="screen" aria-labelledby="t-h">
+    <div class="title-wrap">
+      <div class="title-art" aria-hidden="true"><canvas id="title-cv" width="560" height="360"></canvas></div>
+      <div class="title-text">
+        <p class="kicker">DoorQuests · Gamortals — Interactive Games</p>
+        <h1 id="t-h"><span class="t-no">Gamortal #004</span>Threshold</h1>
+        <p class="tagline">Match the shape. Feel the rhythm. Cross the threshold.</p>
+        <fieldset class="tiers">
+          <legend>Choose your challenge</legend>
+          <label class="tier tier-bronze"><input type="radio" name="tier" value="bronze"><span class="tier-medal" aria-hidden="true"></span>
+            <span class="tier-body"><strong>Bronze — Threshold Apprentice</strong><span>Slower tempo, wide timing windows, fewer shapes early, four beats of warning.</span><span class="tier-goal" data-goal="bronze"></span></span></label>
+          <label class="tier tier-silver"><input type="radio" name="tier" value="silver" checked><span class="tier-medal" aria-hidden="true"></span>
+            <span class="tier-body"><strong>Silver — Threshold Runner</strong><span>Standard tempo and windows, all four shapes, occasional off-beat doors.</span><span class="tier-goal" data-goal="silver"></span></span></label>
+          <label class="tier tier-gold"><input type="radio" name="tier" value="gold"><span class="tier-medal" aria-hidden="true"></span>
+            <span class="tier-body"><strong>Gold — Threshold Master</strong><span>Faster tempo, narrow windows, longer and denser stages.</span><span class="tier-goal" data-goal="gold"></span></span></label>
+        </fieldset>
+        <div class="title-actions">
+          <button id="b-start" class="btn btn-primary" type="button">Start campaign</button>
+          <button id="b-continue" class="btn" type="button" hidden>Continue</button>
+          <button id="b-endless" class="btn" type="button">Endless mode</button>
+        </div>
+        <div class="title-actions">
+          <button id="b-howto" class="btn btn-quiet" type="button">How to play</button>
+          <button id="b-records" class="btn btn-quiet" type="button">Records</button>
+          <button id="b-settings" class="btn btn-quiet" type="button">Settings &amp; timing</button>
+          <button id="b-sound" class="btn btn-quiet" type="button" aria-pressed="true">Sound: on</button>
+          <a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a>
+        </div>
+        <p id="title-note" class="note" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================== GAME =============================== -->
+  <section id="scr-game" class="screen" hidden aria-label="Threshold game">
+    <div class="hud" role="group" aria-label="Status">
+      <div class="hud-stage"><span id="h-stage" class="hud-stage-n">Stage 1</span> <span id="h-stage-name" class="hud-stage-t">The First Pulse</span> <span id="h-tier" class="hud-tier">Silver</span></div>
+      <div class="hud-nums">
+        <span><span class="k">Score</span> <span id="h-score" class="v">0</span></span>
+        <span><span class="k">Combo</span> <span id="h-combo" class="v">0</span> <span id="h-mult" class="mult">×1</span></span>
+        <span id="h-lives-wrap" hidden><span class="k">Sparks</span> <span id="h-lives" class="v">5</span></span>
+      </div>
+      <div class="hud-btns">
+        <button id="g-pause" class="ibtn" type="button" aria-label="Pause (P or Esc)"><span aria-hidden="true">❚❚</span><span class="ibtn-t">Pause</span></button>
+        <button id="g-sound" class="ibtn" type="button" aria-pressed="true" aria-label="Sound on (M)"><span aria-hidden="true" id="g-sound-i">♪</span><span class="ibtn-t" id="g-sound-t">Sound</span></button>
+      </div>
+      <div class="progress" aria-hidden="true"><div id="h-prog" class="progress-bar"></div></div>
+    </div>
+
+    <div id="stage" class="stage">
+      <canvas id="cv" aria-hidden="true"></canvas>
+      <div class="next" aria-label="Upcoming doors"><span class="next-k">Next</span><div id="next-list" class="next-list"></div></div>
+      <div id="beats" class="beats" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div id="judge" class="judge" aria-hidden="true"><span id="judge-t"></span><span id="judge-s"></span></div>
+      <div id="timing" class="timing" aria-hidden="true"><span class="tl">early</span><div class="tbar"><i class="tz"></i><b id="tmark"></b></div><span class="tl">late</span></div>
+
+      <div id="ov-intro" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="intro-h">
+        <div class="panel">
+          <p class="kick" id="intro-k">Stage 1 of 5</p>
+          <h2 id="intro-h">The First Pulse</h2>
+          <p id="intro-p"></p>
+          <p id="intro-m" class="muted"></p>
+          <div id="intro-shapes" class="shape-row" aria-hidden="true"></div>
+          <div class="row center"><button id="intro-go" class="btn btn-primary" type="button">Begin <span class="kbd">Enter</span></button>
+            <button id="intro-quit" class="btn btn-quiet" type="button">Back to title</button></div>
+        </div>
+      </div>
+
+      <div id="ov-pause" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="pause-h">
+        <div class="panel">
+          <h2 id="pause-h">Paused</h2>
+          <p class="muted">When you resume, the corridor rewinds two beats so the next door is never a surprise.</p>
+          <div class="stack">
+            <button id="p-resume" class="btn btn-primary" type="button">Resume</button>
+            <button id="p-restart" class="btn" type="button">Restart this stage</button>
+            <button id="p-settings" class="btn btn-quiet" type="button">Settings &amp; timing</button>
+            <button id="p-howto" class="btn btn-quiet" type="button">How to play</button>
+            <button id="p-quit" class="btn btn-quiet" type="button">Quit to title</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="ov-result" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="res-h">
+        <div class="panel panel-wide">
+          <p class="kick" id="res-k">Stage 1 complete</p>
+          <h2 id="res-h">Stage cleared</h2>
+          <p id="res-line" class="big-line"></p>
+          <div id="res-stats" class="stats"></div>
+          <p id="res-note" class="muted"></p>
+          <div class="row center" id="res-btns"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls" role="group" aria-label="Shape and crossing controls">
+      <div class="shapes" role="radiogroup" aria-label="Your shape">
+        <button class="shape-btn" type="button" role="radio" data-shape="vertical" aria-checked="true"><svg viewBox="-1 -1 2 2" aria-hidden="true"></svg><span class="sb-l">Vertical</span><span class="sb-k">↑ W 1</span></button>
+        <button class="shape-btn" type="button" role="radio" data-shape="horizontal" aria-checked="false"><svg viewBox="-1 -1 2 2" aria-hidden="true"></svg><span class="sb-l">Horizontal</span><span class="sb-k">→ D 2</span></button>
+        <button class="shape-btn" type="button" role="radio" data-shape="diagonal" aria-checked="false"><svg viewBox="-1 -1 2 2" aria-hidden="true"></svg><span class="sb-l">Diagonal</span><span class="sb-k">← A 3</span></button>
+        <button class="shape-btn" type="button" role="radio" data-shape="chevron" aria-checked="false"><svg viewBox="-1 -1 2 2" aria-hidden="true"></svg><span class="sb-l">Chevron</span><span class="sb-k">↓ S 4</span></button>
+      </div>
+      <button id="cross" class="cross-btn" type="button">CROSS <span class="kbd">Space</span></button>
+    </div>
+    <p id="say" class="sr-only" role="status" aria-live="polite"></p>
+    <p id="say2" class="sr-only" role="alert"></p>
+  </section>
+</main>
+
+<!-- =============================== DIALOGS =============================== -->
+<dialog id="d-howto" aria-labelledby="howto-h"><div class="dlg">
+  <h2 id="howto-h">How to play</h2>
+  <ol class="howto">
+    <li><strong>Recognise.</strong> Each door has a shaped opening: <em>Vertical</em>, <em>Horizontal</em>, <em>Diagonal</em> or <em>Chevron</em>. The next shapes are also listed at the top right.</li>
+    <li><strong>Configure.</strong> Choose the same shape: arrow keys, W A S D, 1–4, or the shape buttons. You can change shape at any time; only the shape you hold <em>at the moment you cross</em> counts.</li>
+    <li><strong>Cross.</strong> Press <span class="kbd">Space</span> (or Enter, the CROSS button, or tap the corridor) when the door reaches the golden threshold frame. The shrinking ring and the beat dots count you in. The door always lands on the beat or, in later stages, exactly halfway between beats.</li>
+  </ol>
+  <h3>Judgement</h3>
+  <table class="keys" id="howto-win"></table>
+  <ul class="howto">
+    <li><strong>Wrong shape</strong> — right time, wrong shape: a miss.</li>
+    <li><strong>Too early</strong> — pressing just before a door's window counts as a miss for that door (so button-mashing never pays). Presses with no door nearby are simply ignored.</li>
+    <li><strong>Too late</strong> — no crossing before the window closes.</li>
+    <li>One press can judge only one door. A miss resets your combo.</li>
+  </ul>
+  <h3>Score</h3>
+  <p class="muted">Perfect 1,000 · Great 700 · Good 400 · Miss 0, multiplied by your combo: ×1 (1–4 in a row), ×2 (5–9), ×3 (10–19), ×4 (20+). Successful crossings add echo notes to the music; longer combos add layers.</p>
+  <h3>Keys</h3>
+  <table class="keys">
+    <tr><th scope="row">↑ W 1</th><td>Vertical</td></tr><tr><th scope="row">→ D 2</th><td>Horizontal</td></tr>
+    <tr><th scope="row">← A 3</th><td>Diagonal</td></tr><tr><th scope="row">↓ S 4</th><td>Chevron</td></tr>
+    <tr><th scope="row">Space · Enter</th><td>Cross</td></tr><tr><th scope="row">P · Esc</th><td>Pause</td></tr>
+    <tr><th scope="row">M</th><td>Sound on/off</td></tr><tr><th scope="row">R</th><td>Endless: restart instantly</td></tr>
+  </table>
+  <h3>Bronze, Silver, Gold</h3>
+  <div id="howto-tiers"></div>
+  <form method="dialog" class="row"><button class="btn btn-primary">Close</button></form>
+</div></dialog>
+
+<dialog id="d-records" aria-labelledby="rec-h"><div class="dlg">
+  <h2 id="rec-h">Records</h2>
+  <div id="rec-body"></div>
+  <p class="muted small">Kept only in this browser (key <code>doorquests.gamortal.004.threshold.v1</code>). Not connected to the shared DoorQuests Keyring.</p>
+  <div class="row"><button id="rec-reset" class="btn btn-quiet" type="button">Reset Threshold records</button><form method="dialog"><button class="btn btn-primary">Close</button></form></div>
+  <p id="rec-note" class="note" role="status" aria-live="polite"></p>
+</div></dialog>
+
+<dialog id="d-settings" aria-labelledby="set-h"><div class="dlg">
+  <h2 id="set-h">Settings &amp; timing</h2>
+  <fieldset class="settings"><legend>Sound and motion</legend>
+    <label><input type="checkbox" id="s-sound"> Sound</label>
+    <label>Volume <input type="range" id="s-vol" min="0" max="100" step="5"> <output id="s-vol-o"></output></label>
+    <label><input type="checkbox" id="s-shake"> Screen shake on misses</label>
+    <label>Motion <select id="s-motion"><option value="auto">Follow device setting</option><option value="full">Full</option><option value="reduced">Reduced</option></select></label>
+    <label><input type="checkbox" id="s-announce"> Announce every door to screen readers</label>
+  </fieldset>
+  <fieldset class="settings"><legend>Timing calibration</legend>
+    <p class="muted small">If your crossings feel consistently early or late (Bluetooth headphones, TV screens, slow touchscreens), adjust here. Both values are saved and can be reset to 0 at any time.</p>
+    <label>Input offset <input type="range" id="s-in" min="-200" max="200" step="5"> <output id="s-in-o"></output></label>
+    <label>Audio offset <input type="range" id="s-au" min="-200" max="200" step="5"> <output id="s-au-o"></output></label>
+    <p class="muted small"><strong>Input offset</strong>: positive if you tend to press late (your presses are judged as if this many ms earlier). <strong>Audio offset</strong>: positive plays the music earlier, to cancel speaker/headphone delay.</p>
+    <div class="calib">
+      <div id="cal-viz" class="cal-viz" aria-hidden="true"><i></i></div>
+      <p id="cal-msg" class="small" role="status" aria-live="polite">Tap test: press Start, then press Space (or tap the circle) on each of the 8 flashing beats.</p>
+      <div class="row"><button id="cal-go" class="btn" type="button">Start tap test</button><button id="cal-tap" class="btn btn-quiet" type="button" disabled>Tap</button><button id="cal-reset" class="btn btn-quiet" type="button">Reset offsets to 0</button></div>
+    </div>
+  </fieldset>
+  <form method="dialog" class="row"><button class="btn btn-primary">Done</button></form>
+</div></dialog>
+
+<dialog id="d-endless" aria-labelledby="end-h"><div class="dlg">
+  <h2 id="end-h">Endless mode</h2>
+  <p class="muted">An unending corridor from a <strong>seed</strong>: the same seed always builds the same doors, so you can replay or share a run. Tempo rises by 2 BPM every 8 doors (100 → 160). Silver timing windows. Five sparks; a miss costs one, every 25-door combo returns one.</p>
+  <label class="seed">Seed <input id="end-seed" type="text" maxlength="12" autocomplete="off" spellcheck="false" inputmode="latin" pattern="[A-Za-z0-9-]{1,12}"></label>
+  <div class="row"><button id="end-go" class="btn btn-primary" type="button">Run this seed</button><button id="end-new" class="btn" type="button">New random seed</button><form method="dialog"><button class="btn btn-quiet">Cancel</button></form></div>
+  <p id="end-note" class="note" role="status" aria-live="polite"></p>
+</div></dialog>
+
+<footer class="foot">
+  <p><strong>DoorQuests</strong> — <em>Choose Your Path. Find the Truth. Unlock the Impossible.</em></p>
+  <p>Gamortal #004 — Threshold · Created by The Axiom Continuum. · <a href="https://doorquests.com/">Return to DoorQuests</a></p>
+  <p class="small muted">Prototype · Founder Playtest · Not Published. All graphics are drawn in code and all music is synthesised in your browser. No accounts, no downloads, no tracking.</p>
+</footer>
+
+<script id="th-engine">
+/* Threshold — rhythm engine (Gamortal #004).
+   Pure and deterministic: no DOM, no clocks, no randomness except the seeded generator.
+   All times are in MILLISECONDS of GAME TIME (0 = start of the stage). The app supplies times;
+   the engine never reads a clock, so frame rate cannot change any judgement. */
+(function (root) {
+  'use strict';
+  var VERSION = '1.0.0';
+
+  /* ------------------------------------------------------------ shapes
+     A configuration is a set of luminous bars inside a square aperture (unit coords −1…1).
+     Matching is by identity of the configuration id — never by drawn pixels. */
+  var SHAPES = {
+    vertical:   { id: 'vertical',   name: 'Vertical',   key: 'ArrowUp',    alt: 'w', num: '1', segs: [[[0, -0.82], [0, 0.82]]] },
+    horizontal: { id: 'horizontal', name: 'Horizontal', key: 'ArrowRight', alt: 'd', num: '2', segs: [[[-0.82, 0], [0.82, 0]]] },
+    diagonal:   { id: 'diagonal',   name: 'Diagonal',   key: 'ArrowLeft',  alt: 'a', num: '3', segs: [[[-0.66, 0.66], [0.66, -0.66]]] },
+    chevron:    { id: 'chevron',    name: 'Chevron',    key: 'ArrowDown',  alt: 's', num: '4', segs: [[[-0.72, 0.42], [0, -0.42]], [[0, -0.42], [0.72, 0.42]]] }
+  };
+  var SHAPE_IDS = ['vertical', 'horizontal', 'diagonal', 'chevron'];
+
+  /* ------------------------------------------------------------ tiers */
+  var TIERS = {
+    bronze: { id: 'bronze', label: 'Bronze', title: 'Threshold Apprentice', approachBeats: 4,
+      win: { perfect: 60, great: 110, good: 180 }, early: 200, minChangeMs: 900, passAcc: 0.6, sync: 0, gapScale: 1.0 },
+    silver: { id: 'silver', label: 'Silver', title: 'Threshold Runner', approachBeats: 3,
+      win: { perfect: 45, great: 90, good: 150 }, early: 220, minChangeMs: 600, passAcc: 0.7, sync: 0.15, gapScale: 1.0 },
+    gold:   { id: 'gold', label: 'Gold', title: 'Threshold Master', approachBeats: 3,
+      win: { perfect: 35, great: 70, good: 120 }, early: 220, minChangeMs: 430, passAcc: 0.8, sync: 0.25, gapScale: 1.0 }
+  };
+  var TIER_IDS = ['bronze', 'silver', 'gold'];
+
+  /* ------------------------------------------------------------ scoring */
+  var POINTS = { perfect: 1000, great: 700, good: 400, miss: 0 };
+  function multiplierFor(combo) { return combo >= 20 ? 4 : combo >= 10 ? 3 : combo >= 5 ? 2 : 1; } // combo INCLUDING this hit
+
+  /* ------------------------------------------------------------ stages
+     gaps are in beats between consecutive door arrivals; one list per tier, cycled in order
+     by the seeded generator (picked, not random walk), so the chart is reproducible. */
+  var STAGES = [
+    { id: 1, name: 'The First Pulse', blurb: 'Two shapes, a slow steady pulse. Match, then cross on the beat.',
+      shapes: { bronze: ['vertical', 'horizontal'], silver: ['vertical', 'horizontal'], gold: ['vertical', 'horizontal'] },
+      bpm: { bronze: 80, silver: 92, gold: 104 }, doors: { bronze: 12, silver: 14, gold: 16 },
+      gaps: { bronze: [4], silver: [4, 4, 2], gold: [2, 4, 2, 2] }, mode: 'pairs', layer: 0 },
+    { id: 2, name: 'The Shifting Hall', blurb: 'All four shapes. Watch the next door and change shape early.',
+      shapes: { bronze: ['vertical', 'horizontal', 'diagonal'], silver: SHAPE_IDS, gold: SHAPE_IDS },
+      bpm: { bronze: 88, silver: 100, gold: 114 }, doors: { bronze: 14, silver: 18, gold: 20 },
+      gaps: { bronze: [4, 2, 4], silver: [2, 2, 4, 2], gold: [2, 1, 2, 2, 1, 2] }, mode: 'mixed', layer: 1 },
+    { id: 3, name: 'The Echo Passage', blurb: 'Doors come in echoes — a shape, then its echo one beat later. Learn the pattern, ride it.',
+      shapes: { bronze: SHAPE_IDS, silver: SHAPE_IDS, gold: SHAPE_IDS },
+      bpm: { bronze: 92, silver: 108, gold: 122 }, doors: { bronze: 14, silver: 18, gold: 22 },
+      gaps: { bronze: [2, 4], silver: [2, 3], gold: [2, 2, 3] }, mode: 'motif', layer: 2 },
+    { id: 4, name: 'The Fractured Corridor', blurb: 'Faster, alternating shapes and a few off-beat doors. The pattern is always shown in advance.',
+      shapes: { bronze: SHAPE_IDS, silver: SHAPE_IDS, gold: SHAPE_IDS },
+      bpm: { bronze: 96, silver: 114, gold: 130 }, doors: { bronze: 16, silver: 20, gold: 24 },
+      gaps: { bronze: [2, 2, 4], silver: [2, 1.5, 2, 2.5, 2], gold: [1.5, 2, 1, 2, 1.5, 2] }, mode: 'alternate', layer: 2 },
+    { id: 5, name: 'The Final Threshold', blurb: 'Everything you have learned, building to one last great door.',
+      shapes: { bronze: SHAPE_IDS, silver: SHAPE_IDS, gold: SHAPE_IDS },
+      bpm: { bronze: 100, silver: 120, gold: 138 }, doors: { bronze: 18, silver: 24, gold: 28 },
+      gaps: { bronze: [2, 4, 2], silver: [2, 2, 1.5, 2, 1], gold: [1.5, 1, 2, 1, 1.5, 1] }, mode: 'finale', layer: 3 }
+  ];
+  var LEAD_BEATS = 8; // count-in before the first door arrives (4 silent-ish beats + approach)
+
+  /* ------------------------------------------------------------ seeded PRNG */
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function hashStr(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+
+  /* ------------------------------------------------------------ chart generation
+     A chart is { bpm, beatMs, doors: [{ i, beat, t, shape, kind }], endT }.
+     Fairness rules enforced here (and re-checked by validateChart):
+       • doors never closer than 1 beat apart, except an off-beat "syncopated" door (≥ 0.5 beat) in Silver/Gold
+       • a CHANGE of shape is only allowed when the gap is ≥ the tier's minChangeMs; otherwise the shape repeats
+       • every door sits on a whole or half beat, so the pulse always predicts it */
+  function buildChart(stageIndex, tierId, opt) {
+    var st = STAGES[stageIndex], tier = TIERS[tierId];
+    var bpm = st.bpm[tierId], beatMs = 60000 / bpm;
+    var shapes = st.shapes[tierId].slice(), gaps = st.gaps[tierId], n = st.doors[tierId];
+    var rnd = mulberry32(hashStr('threshold|' + st.id + '|' + tierId + '|' + (opt && opt.seed || 'campaign')));
+    var doors = [], beat = LEAD_BEATS, prev = null, motif = null;
+    for (var i = 0; i < n; i++) {
+      if (i > 0) {
+        var g = gaps[(i - 1) % gaps.length] * tier.gapScale;
+        // occasional syncopation (Stage 4 and 5 only): an off-beat arrival, announced by the half-beat tick
+        if ((st.mode === 'alternate' || st.mode === 'finale') && tier.sync > 0 && g >= 2 && rnd() < tier.sync) g -= 0.5;
+        // finale: the last third tightens by half a beat where it can
+        if (st.mode === 'finale' && i > n * 0.66 && g >= 2 && tierId !== 'bronze') g -= 0.5;
+        beat += g;
+      }
+      var shape;
+      if (st.mode === 'pairs') shape = shapes[Math.floor(i / 2) % shapes.length];
+      else if (st.mode === 'motif') {
+        // motifs of 2 calls; each call is followed by its echo (same shape, 1 beat later)
+        if (i % 8 === 0) { motif = [shapes[Math.floor(rnd() * shapes.length)], shapes[Math.floor(rnd() * shapes.length)]]; if (motif[0] === motif[1]) motif[1] = shapes[(shapes.indexOf(motif[0]) + 1) % shapes.length]; }
+        shape = motif[Math.floor((i % 4) / 2)];
+      } else if (st.mode === 'alternate') {
+        if (i % 4 === 0) { var a = shapes[Math.floor(rnd() * shapes.length)], b = shapes[Math.floor(rnd() * shapes.length)]; if (a === b) b = shapes[(shapes.indexOf(a) + 2) % shapes.length]; motif = [a, b]; }
+        shape = motif[i % 2];
+      } else { // mixed / finale
+        shape = shapes[Math.floor(rnd() * shapes.length)];
+        if (prev && shape === prev && rnd() < 0.5) shape = shapes[(shapes.indexOf(prev) + 1 + Math.floor(rnd() * (shapes.length - 1))) % shapes.length];
+      }
+      // Echo Passage: odd doors are echoes, exactly 1 beat after their call, same shape
+      if (st.mode === 'motif' && i % 2 === 1) { beat = doors[i - 1].beat + 1; shape = doors[i - 1].shape; }
+      // shape-change feasibility
+      if (prev && shape !== prev && (beat - doors[i - 1].beat) * beatMs < tier.minChangeMs) shape = prev;
+      doors.push({ i: i, beat: beat, t: Math.round(beat * beatMs * 1000) / 1000, shape: shape, kind: (st.mode === 'motif' && i % 2 === 1) ? 'echo' : 'door' });
+      prev = shape;
+    }
+    if (st.id === 5) doors[n - 1].kind = 'final';
+    var last = doors[n - 1];
+    return { stage: st.id, name: st.name, tier: tierId, bpm: bpm, beatMs: beatMs, approachMs: tier.approachBeats * beatMs,
+      doors: doors, endT: last.t + 4 * beatMs, layer: st.layer, endless: false };
+  }
+
+  /* Endless: seeded, gradually faster, Silver windows. Generated in blocks so it never ends. */
+  function buildEndlessBlock(seed, fromIndex, count, prevDoor) {
+    var rnd = mulberry32(hashStr('threshold-endless|' + seed + '|' + Math.floor(fromIndex / 16)));
+    var out = [], prev = prevDoor ? prevDoor.shape : null, beatT = prevDoor ? prevDoor.t : null;
+    for (var k = 0; k < count; k++) {
+      var i = fromIndex + k, bpm = endlessBpm(i), beatMs = 60000 / bpm;
+      var gapOpts = i < 16 ? [2, 2, 4] : i < 48 ? [2, 1.5, 2, 2, 1] : [1, 1.5, 2, 1, 1.5, 2, 1];
+      var g = gapOpts[Math.floor(rnd() * gapOpts.length)];
+      var t = beatT === null ? LEAD_BEATS * beatMs : beatT + g * beatMs;
+      var shape = SHAPE_IDS[Math.floor(rnd() * 4)];
+      if (prev && shape !== prev && t - beatT < TIERS.silver.minChangeMs) shape = prev;
+      out.push({ i: i, t: Math.round(t * 1000) / 1000, shape: shape, kind: 'door', bpm: bpm });
+      prev = shape; beatT = t;
+    }
+    return out;
+  }
+  function endlessBpm(i) { return Math.min(160, 100 + 2 * Math.floor(i / 8)); }
+
+  function validateChart(ch, tierId) {
+    var tier = TIERS[tierId], issues = [];
+    for (var i = 1; i < ch.doors.length; i++) {
+      var a = ch.doors[i - 1], b = ch.doors[i], gap = b.t - a.t;
+      var beatMs = b.bpm ? 60000 / b.bpm : ch.beatMs;
+      if (gap < beatMs * 0.5 - 0.01) issues.push('door ' + i + ' closer than half a beat');
+      if (a.shape !== b.shape && gap < tier.minChangeMs - 0.01) issues.push('door ' + i + ' changes shape too soon (' + Math.round(gap) + ' ms)');
+      if (gap <= tier.win.good * 2) issues.push('door ' + i + ' windows overlap');
+      if (!ch.endless) { var hb = b.beat * 2; if (Math.abs(hb - Math.round(hb)) > 1e-9) issues.push('door ' + i + ' not on a whole or half beat'); }
+    }
+    if (!ch.endless && ch.doors[0].t < tier.approachBeats * ch.beatMs + 1000) issues.push('first door arrives before a full approach');
+    return issues;
+  }
+
+  /* ------------------------------------------------------------ session (judgement state machine)
+     Input model (documented to players):
+       • Press CROSS when the door reaches the threshold. The press is judged against the door's
+         scheduled time t:  d = pressTime − inputOffset − t.
+       • |d| ≤ perfect → Perfect · ≤ great → Great · ≤ good → Good (only if the SHAPE matches).
+       • Correct timing but wrong shape → Miss ("wrong shape").
+       • A press up to `early` ms BEFORE a door's Good window → Miss ("too early"). This stops button-mashing.
+       • No press by t + good → Miss ("no crossing" / "too late").
+       • A press with no door near is ignored (counted as a stray press, no penalty, no points).
+       • One press judges at most one door; each door is judged exactly once. */
+  function Session(chart, tierId, opt) {
+    opt = opt || {};
+    this.chart = chart; this.tier = TIERS[tierId]; this.tierId = tierId;
+    this.win = opt.win || this.tier.win; this.early = opt.early != null ? opt.early : this.tier.early;
+    this.shape = SHAPES[opt.startShape] ? opt.startShape : 'vertical';
+    this.next = 0;                 // index of the earliest unjudged door
+    this.judged = [];              // per-door judgement
+    this.score = 0; this.combo = 0; this.maxCombo = 0;
+    this.counts = { perfect: 0, great: 0, good: 0, miss: 0 };
+    this.missReasons = { shape: 0, early: 0, late: 0 };
+    this.stray = 0; this.lastPressT = -1e9;
+    this.lives = opt.lives || null; this.maxLives = opt.lives || null;
+    this.done = false; this.events = [];
+  }
+  Session.prototype.door = function (i) { return this.chart.doors[i]; };
+  Session.prototype.setShape = function (shape) { if (SHAPES[shape]) { this.shape = shape; return true; } return false; };
+
+  Session.prototype.cross = function (t) {
+    if (this.done) return null;
+    if (typeof t !== 'number' || !isFinite(t)) return null;
+    this.lastPressT = t;
+    var i = this.next, d = this.door(i);
+    if (!d) return null;
+    var dt = t - d.t;
+    if (dt > this.win.good) { // already past: settle it as late, then consider the following door
+      this.settle(t); return this.cross(t);
+    }
+    if (dt >= -this.win.good) return this.judge(i, dt, t, this.shape === d.shape ? null : 'shape');
+    if (dt >= -this.win.good - this.early) return this.judge(i, dt, t, 'early');
+    this.stray++; this.emit({ type: 'stray', t: t });
+    return null;
+  };
+
+  // Settle every door whose window has closed by time t (call each frame with t − latency allowance).
+  Session.prototype.settle = function (t) {
+    var out = [];
+    while (!this.done && this.door(this.next) && t > this.door(this.next).t + this.win.good) out.push(this.judge(this.next, null, t, 'late'));
+    return out;
+  };
+
+  Session.prototype.judge = function (i, dt, t, missReason) {
+    var d = this.door(i), res;
+    var ad = dt == null ? Infinity : Math.abs(dt);
+    if (missReason) res = 'miss';
+    else res = ad <= this.win.perfect ? 'perfect' : ad <= this.win.great ? 'great' : 'good';
+    var j = { i: i, t: d.t, at: t, dt: dt, result: res, reason: missReason, shape: d.shape, played: this.shape, kind: d.kind };
+    if (res === 'miss') {
+      this.combo = 0; this.counts.miss++; this.missReasons[missReason]++; j.points = 0; j.mult = 1;
+      if (this.lives !== null) { this.lives--; if (this.lives <= 0) this.done = true; }
+    } else {
+      this.combo++; if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+      j.mult = multiplierFor(this.combo); j.points = POINTS[res] * j.mult;
+      this.score += j.points; this.counts[res]++;
+      if (this.lives !== null && this.combo % 25 === 0 && this.lives < this.maxLives) { this.lives++; j.lifeUp = true; }
+    }
+    j.combo = this.combo; j.score = this.score;
+    this.judged[i] = j; this.next = i + 1;
+    if (!this.chart.endless && this.next >= this.chart.doors.length) this.done = true;
+    this.emit({ type: 'judge', j: j });
+    return j;
+  };
+  Session.prototype.emit = function (e) { if (this.events.length < 500) this.events.push(e); };
+  Session.prototype.lastJudgedT = function () { return this.next > 0 ? this.door(this.next - 1).t : -Infinity; };
+  Session.prototype.summary = function () {
+    var n = this.next, hits = this.counts.perfect + this.counts.great + this.counts.good;
+    return { doors: this.chart.endless ? n : this.chart.doors.length, judged: n, hits: hits, counts: Object.assign({}, this.counts),
+      missReasons: Object.assign({}, this.missReasons), accuracy: n ? hits / (this.chart.endless ? n : this.chart.doors.length) : 0,
+      score: this.score, maxCombo: this.maxCombo, stray: this.stray };
+  };
+  Session.prototype.passed = function () { return this.done && this.summary().accuracy >= this.tier.passAcc - 1e-12; };
+
+  /* ------------------------------------------------------------ helpers */
+  function maxScore(chart) { var s = 0; for (var i = 0; i < chart.doors.length; i++) s += POINTS.perfect * multiplierFor(i + 1); return s; }
+  function campaignMax(tierId) { var s = 0; for (var k = 0; k < STAGES.length; k++) s += maxScore(buildChart(k, tierId)); return s; }
+  // fraction of the approach travelled at time now (0 = appears, 1 = at the threshold)
+  function approach(door, now, approachMs) { return 1 - (door.t - now) / approachMs; }
+
+  var api = { VERSION: VERSION, SHAPES: SHAPES, SHAPE_IDS: SHAPE_IDS, TIERS: TIERS, TIER_IDS: TIER_IDS, POINTS: POINTS, STAGES: STAGES,
+    LEAD_BEATS: LEAD_BEATS, multiplierFor: multiplierFor, buildChart: buildChart, buildEndlessBlock: buildEndlessBlock, endlessBpm: endlessBpm,
+    validateChart: validateChart, Session: Session, maxScore: maxScore, campaignMax: campaignMax, approach: approach, mulberry32: mulberry32, hashStr: hashStr };
+  root.ThresholdEngine = api;
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script id="th-app">
+/* Threshold — clock, audio, rendering, input, screens and saved records.
+   TIMING MODEL (single source of truth):
+     gameTime(ms) = performance.now() − G.origin
+   • Every judgement uses the input event's own timestamp (event.timeStamp, same time base as
+     performance.now), converted to game time — never the frame in which it was noticed.
+   • Doors are settled as "too late" only when gameTime has passed t + good + LATENCY_GRACE, so an
+     input that arrives a frame late is still judged by when it happened.
+   • Music is scheduled ahead on the Web Audio clock by mapping game time to AudioContext time
+     (lookahead scheduler). Audio never drives judgement; it follows the same game clock.
+   • Pausing freezes game time. Resuming rewinds it two beats so the next door is never a surprise. */
+(function () {
+  'use strict';
+  var E = window.ThresholdEngine;
+  var DEV = /[?&]dev=1\b/.test(location.search);
+  var SAVE_KEY = 'doorquests.gamortal.004.threshold.v1';
+  var LATENCY_GRACE = 90;      // ms after a window closes before an absent press is settled as late
+  var SCHED_AHEAD = 160;       // ms of music scheduled ahead
+  var COLORS = { vertical: '#f2c14e', horizontal: '#5fd8cb', diagonal: '#ff9ab4', chevron: '#b9a3ff' };
+
+  function $(s) { return document.querySelector(s); }
+  function $all(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function el(t, a, x) { var e = document.createElement(t); if (a) for (var k in a) e.setAttribute(k, a[k]); if (x != null) e.textContent = x; return e; }
+  function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+  function nowIso() { return new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'); }
+  function pct(x) { return Math.round(x * 100) + '%'; }
+
+  /* ================================================================ storage */
+  var storageOk = true, mem = null, saveNotice = '';
+  function rawGet() { try { return localStorage.getItem(SAVE_KEY); } catch (e) { storageOk = false; return mem; } }
+  function rawSet(v) { try { localStorage.setItem(SAVE_KEY, v); } catch (e) { storageOk = false; mem = v; } }
+  function blankTier() { return { plays: 0, completed: false, completedAt: null, bestTotal: null, bestCombo: 0, bestAcc: 0, stageBest: [null, null, null, null, null] }; }
+  function blank() {
+    return { v: 1, prefs: { sound: true, volume: 70, shake: true, motion: 'auto', announce: false, inputOffset: 0, audioOffset: 0, tier: 'silver' },
+      records: { bronze: blankTier(), silver: blankTier(), gold: blankTier() },
+      endless: { unlocked: false, best: 0, bestCombo: 0, bestDoors: 0, bestSeed: null, runs: 0 },
+      achievements: {}, campaign: null };
+  }
+  var ACH = { 'first-perfect': 'First Perfect crossing', 'flawless': 'Flawless — clear a stage with no misses', 'combo-50': 'Fifty in a row', 'all-medals': 'Bronze, Silver and Gold medals' };
+  function isInt(v, a, b) { return typeof v === 'number' && isFinite(v) && Math.floor(v) === v && v >= a && v <= b; }
+  function isIso(v) { return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(v); }
+  var MAXT = {}; E.TIER_IDS.forEach(function (t) { MAXT[t] = { total: E.campaignMax(t), stages: E.STAGES.map(function (s, k) { return E.maxScore(E.buildChart(k, t)); }) }; });
+  function load() {
+    var s = blank(), raw = rawGet(), d;
+    if (!raw) return s;
+    if (raw.length > 100000) { saveNotice = 'Saved data was too large and was reset.'; return s; }
+    try { d = JSON.parse(raw); } catch (e) { saveNotice = 'Saved data could not be read and was reset.'; return s; }
+    if (!d || d.v !== 1) { saveNotice = 'Saved data was from an unknown version and was reset.'; return s; }
+    var p = d.prefs || {};
+    s.prefs.sound = p.sound !== false;
+    s.prefs.volume = isInt(p.volume, 0, 100) ? p.volume : 70;
+    s.prefs.shake = p.shake !== false;
+    s.prefs.motion = ['auto', 'full', 'reduced'].indexOf(p.motion) >= 0 ? p.motion : 'auto';
+    s.prefs.announce = p.announce === true;
+    s.prefs.inputOffset = isInt(p.inputOffset, -200, 200) ? p.inputOffset : 0;
+    s.prefs.audioOffset = isInt(p.audioOffset, -200, 200) ? p.audioOffset : 0;
+    s.prefs.tier = E.TIER_IDS.indexOf(p.tier) >= 0 ? p.tier : 'silver';
+    var bad = false;
+    E.TIER_IDS.forEach(function (t) {
+      var r = d.records && d.records[t]; if (!r) return;
+      var ok = isInt(r.plays, 0, 1e7) && typeof r.completed === 'boolean' && (r.completedAt === null || isIso(r.completedAt)) &&
+        (r.bestTotal === null || isInt(r.bestTotal, 0, MAXT[t].total)) && isInt(r.bestCombo, 0, 1000) && typeof r.bestAcc === 'number' && r.bestAcc >= 0 && r.bestAcc <= 1 &&
+        Array.isArray(r.stageBest) && r.stageBest.length === 5 && r.stageBest.every(function (v, k) { return v === null || isInt(v, 0, MAXT[t].stages[k]); });
+      if (ok && r.completed && r.bestTotal === null) ok = false;
+      if (!ok) { bad = true; return; }
+      s.records[t] = { plays: r.plays, completed: r.completed, completedAt: r.completedAt, bestTotal: r.bestTotal, bestCombo: r.bestCombo, bestAcc: r.bestAcc, stageBest: r.stageBest.slice() };
+    });
+    var en = d.endless;
+    if (en) {
+      if (typeof en.unlocked === 'boolean' && isInt(en.best, 0, 1e9) && isInt(en.bestCombo, 0, 1e6) && isInt(en.bestDoors, 0, 1e6) && isInt(en.runs, 0, 1e7) && (en.bestSeed === null || (typeof en.bestSeed === 'string' && /^[A-Z0-9-]{1,12}$/.test(en.bestSeed))))
+        s.endless = { unlocked: en.unlocked, best: en.best, bestCombo: en.bestCombo, bestDoors: en.bestDoors, bestSeed: en.bestSeed, runs: en.runs };
+      else bad = true;
+    }
+    // Endless is only unlocked by a completed campaign
+    if (s.endless.unlocked && !E.TIER_IDS.some(function (t) { return s.records[t].completed; })) { s.endless.unlocked = false; bad = true; }
+    if (d.achievements && typeof d.achievements === 'object') Object.keys(d.achievements).forEach(function (k) { if (ACH[k] && isIso(d.achievements[k])) s.achievements[k] = d.achievements[k]; });
+    var c = d.campaign;
+    if (c) {
+      if (E.TIER_IDS.indexOf(c.tier) >= 0 && isInt(c.stage, 1, 4) && Array.isArray(c.scores) && c.scores.length === c.stage &&
+        c.scores.every(function (v, k) { return isInt(v, 0, MAXT[c.tier].stages[k]); }) && isInt(c.maxCombo || 0, 0, 1000))
+        s.campaign = { tier: c.tier, stage: c.stage, scores: c.scores.slice(), maxCombo: c.maxCombo || 0, hits: isInt(c.hits, 0, 1000) ? c.hits : 0, doors: isInt(c.doors, 0, 1000) ? c.doors : 0 };
+      else saveNotice = 'An unfinished campaign could not be restored and was discarded.';
+    }
+    if (bad) saveNotice = 'Some saved records were invalid and were reset.';
+    return s;
+  }
+  var SAVE = null;
+  function persist() { rawSet(JSON.stringify(SAVE)); }
+  function award(k) { if (!SAVE.achievements[k]) { SAVE.achievements[k] = nowIso(); persist(); toastAch(ACH[k]); } }
+
+  /* ================================================================ motion */
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { var m = SAVE.prefs.motion; return m === 'reduced' || (m === 'auto' && mq && mq.matches); }
+
+  /* ================================================================ audio */
+  var AU = { ctx: null, master: null, bus: null, noiseBuf: null };
+  function audioInit() {
+    if (!SAVE.prefs.sound) return;
+    if (!AU.ctx) {
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      try {
+        AU.ctx = new AC({ latencyHint: 'interactive' });
+        AU.master = AU.ctx.createGain(); AU.master.connect(AU.ctx.destination);
+        var n = AU.ctx.sampleRate * 0.5; AU.noiseBuf = AU.ctx.createBuffer(1, n, AU.ctx.sampleRate);
+        var dd = AU.noiseBuf.getChannelData(0); for (var i = 0; i < n; i++) dd[i] = Math.random() * 2 - 1;
+      } catch (e) { AU.ctx = null; return; }
+    }
+    setVolume();
+    if (AU.ctx.state === 'suspended') AU.ctx.resume().catch(function () {});
+  }
+  function setVolume() { if (AU.master) AU.master.gain.value = SAVE.prefs.sound ? (SAVE.prefs.volume / 100) * 0.55 : 0; }
+  function newBus() {
+    killBus();
+    if (!AU.ctx) return;
+    AU.bus = AU.ctx.createGain(); AU.bus.gain.value = 1; AU.bus.connect(AU.master);
+  }
+  function killBus() { if (AU.bus) { try { AU.bus.gain.cancelScheduledValues(0); AU.bus.gain.value = 0; AU.bus.disconnect(); } catch (e) { /* ok */ } AU.bus = null; } }
+  function audioLatencyMs() { if (!AU.ctx) return 0; return ((AU.ctx.outputLatency || 0) + (AU.ctx.baseLatency || 0)) * 1000; }
+  // game time (ms) → AudioContext time (s), compensating device latency and the player's audio offset
+  function ctxTimeFor(gT) { return AU.ctx.currentTime + (gT - gameNow()) / 1000 - (audioLatencyMs() + SAVE.prefs.audioOffset) / 1000; }
+  function voice(when, freq, dur, type, vol, glide, dest) {
+    var c = AU.ctx; if (!c || !SAVE.prefs.sound) return;
+    var out = dest || AU.bus || AU.master; if (!out) return;
+    if (when < c.currentTime - 0.005) return;
+    when = Math.max(when, c.currentTime);
+    try {
+      var o = c.createOscillator(), g = c.createGain();
+      o.type = type || 'sine'; o.frequency.setValueAtTime(freq, when);
+      if (glide) o.frequency.exponentialRampToValueAtTime(glide, when + dur);
+      g.gain.setValueAtTime(0.0001, when); g.gain.exponentialRampToValueAtTime(vol, when + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+      o.connect(g); g.connect(out); o.start(when); o.stop(when + dur + 0.03);
+      o.onended = function () { o.disconnect(); g.disconnect(); };
+    } catch (e) { /* audio is optional */ }
+  }
+  function hiss(when, dur, hp, vol, dest) {
+    var c = AU.ctx; if (!c || !SAVE.prefs.sound || !AU.noiseBuf) return;
+    var out = dest || AU.bus || AU.master; if (!out) return;
+    if (when < c.currentTime - 0.005) return; when = Math.max(when, c.currentTime);
+    try {
+      var s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      s.buffer = AU.noiseBuf; f.type = 'highpass'; f.frequency.value = hp;
+      g.gain.setValueAtTime(vol, when); g.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+      s.connect(f); f.connect(g); g.connect(out); s.start(when); s.stop(when + dur + 0.02);
+      s.onended = function () { s.disconnect(); f.disconnect(); g.disconnect(); };
+    } catch (e) { /* optional */ }
+  }
+  // A minor pentatonic palette; chords per bar: Am – F – C – G (original progression, no borrowed melody)
+  var ROOTS = [110, 87.31, 130.81, 98];
+  var SHAPE_NOTE = { vertical: 440, horizontal: 523.25, diagonal: 659.25, chevron: 783.99 };
+  function musicLevel() { var c = G.session ? G.session.combo : 0; return c >= 20 ? 3 : c >= 10 ? 2 : c >= 5 ? 1 : 0; }
+  function scheduleBeat(beatIndex, gT, isHalf) {
+    var when = ctxTimeFor(gT), lvl = musicLevel(), bar = Math.floor(beatIndex / 4), inBar = ((beatIndex % 4) + 4) % 4;
+    if (isHalf) { // off-beat: hat (layer 1+) or the syncopation warning tick
+      if (lvl >= 1) hiss(when, 0.035, 7000, 0.05);
+      return;
+    }
+    voice(when, inBar === 0 ? 150 : 120, 0.14, 'sine', inBar === 0 ? 0.32 : 0.22, 48);        // pulse
+    if (lvl >= 2 && (inBar === 0 || inBar === 2)) voice(when, ROOTS[bar % 4], 0.42, 'triangle', 0.14);
+    if (lvl >= 3) { var r = ROOTS[bar % 4] * 4; [1, 1.2, 1.5, 2][inBar] && voice(when, r * [1, 1.2, 1.5, 2][inBar], 0.18, 'sine', 0.05); }
+    if (G.chart && G.chart.layer >= 3 && inBar === 0) voice(when, ROOTS[bar % 4] * 2, 1.6, 'sine', 0.04); // finale pad
+  }
+  function pump() {
+    if (!G.running || G.paused || !AU.ctx || !AU.bus || !SAVE.prefs.sound) return;
+    var now = gameNow(), horizon = now + SCHED_AHEAD;
+    while (true) {
+      var b = nextBeatAfter(G.schedT);
+      if (!b || b.t > horizon) break;
+      if (b.t >= now - 20) scheduleBeat(b.index, b.t, b.half);
+      // syncopation warning: a soft tick on a half beat where a door will land
+      G.schedT = b.t;
+    }
+  }
+  // Beat grid. Campaign: constant tempo. Endless: piecewise — each gap uses the next door's tempo.
+  function nextBeatAfter(t) {
+    var ch = G.chart; if (!ch) return null;
+    if (!ch.endless) {
+      var half = ch.beatMs / 2, k = Math.floor(t / half + 1e-6) + 1, bt = k * half;
+      if (bt > ch.endT) return null;
+      return { t: bt, index: Math.floor(k / 2), half: k % 2 === 1 };
+    }
+    var doors = ch.doors, i = 0;
+    while (i < doors.length && doors[i].t <= t + 1e-6) i++;
+    if (i >= doors.length) return null;
+    var prevT = i === 0 ? 0 : doors[i - 1].t, bm = 60000 / doors[i].bpm, hm = bm / 2;
+    var k2 = Math.floor((t - prevT) / hm + 1e-6) + 1, bt2 = prevT + k2 * hm;
+    if (bt2 > doors[i].t + 1e-6) bt2 = doors[i].t;
+    var whole = Math.abs(((bt2 - prevT) / bm) - Math.round((bt2 - prevT) / bm)) < 1e-6;
+    G.endlessBeat = (G.endlessBeat || 0);
+    return { t: bt2, index: Math.round(bt2 / bm), half: !whole };
+  }
+  // Echo motif: a correct crossing answers on the next half-beats, on the grid, fading.
+  function echo(j) {
+    if (!AU.ctx || !AU.bus) return;
+    var bm = G.chart.endless ? 60000 / G.chart.doors[j.i].bpm : G.chart.beatMs, f = SHAPE_NOTE[j.shape];
+    var gains = j.result === 'perfect' ? [0.12, 0.08, 0.05] : j.result === 'great' ? [0.09, 0.055, 0.03] : [0.06, 0.035];
+    gains.forEach(function (v, k) { voice(ctxTimeFor(j.t + bm / 2 * (k + 1)), f * (k === 1 ? 1.5 : 1), 0.22, 'triangle', v); });
+  }
+  function accent(j) {
+    if (!AU.ctx || !SAVE.prefs.sound) return;
+    var now = AU.ctx.currentTime, f = SHAPE_NOTE[j.shape] || 440;
+    if (j.result === 'perfect') { voice(now, f * 2, 0.35, 'sine', 0.16); voice(now + 0.005, f * 3, 0.25, 'sine', 0.07); hiss(now, 0.12, 9000, 0.06); }
+    else if (j.result === 'great') voice(now, f * 1.5, 0.25, 'sine', 0.12);
+    else if (j.result === 'good') voice(now, f, 0.2, 'triangle', 0.09);
+    else voice(now, 82, 0.22, 'sine', 0.16, 60); // soft, low — never harsh
+  }
+
+  /* ================================================================ state */
+  var G = { running: false, paused: false, phase: 'title', mode: null, tier: 'silver', stage: 0, chart: null, session: null, origin: 0, pausedAt: 0,
+    schedT: -1, anims: [], particles: [], shake: 0, lastJudge: null, seed: null };
+  function gameNow() { return G.paused ? G.pausedAt : performance.now() - G.origin; }
+  function eventGameTime(e) {
+    var ts = e && typeof e.timeStamp === 'number' ? e.timeStamp : NaN, pn = performance.now();
+    if (!(ts > 0) || Math.abs(ts - pn) > 2000) ts = pn; // guard against foreign time bases
+    return ts - G.origin;
+  }
+
+  /* ================================================================ canvas */
+  var cv = $('#cv'), ctx = cv.getContext('2d'), VW = 0, VH = 0, DPR = 1;
+  function resize() { var r = cv.getBoundingClientRect(); DPR = Math.min(window.devicePixelRatio || 1, 2.5, Math.sqrt(2.2e6 / Math.max(1, r.width * r.height))); /* cap backing pixels for steady frame rates */ VW = r.width; VH = r.height; cv.width = Math.max(1, Math.round(VW * DPR)); cv.height = Math.max(1, Math.round(VH * DPR)); }
+  function shapeStroke(g, shape, cx, cy, R, lw) {
+    var sh = E.SHAPES[shape]; g.lineCap = 'round'; g.lineJoin = 'round'; g.lineWidth = lw;
+    g.beginPath();
+    sh.segs.forEach(function (s) { g.moveTo(cx + s[0][0] * R, cy + s[0][1] * R); g.lineTo(cx + s[1][0] * R, cy + s[1][1] * R); });
+    g.stroke();
+  }
+  function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+
+  function geometry() {
+    var S = Math.min(VW * 0.6, (VH * 0.78) / 1.3);
+    return { cx: VW / 2, cy: VH * 0.52, S: S };
+  }
+  // door scale from approach progress p (0 = far, 1 = at the threshold, >1 = passing through)
+  function doorScale(p) { if (p <= 1) { var z = 1 + (1 - p) * 3.6; return 1 / z; } return 1 + (p - 1) * 4; }
+
+  function drawDoor(g, door, p, st, gm, animT) {
+    var s = gm.S * doorScale(p), w = s, h = s * 1.3, cx = gm.cx, cy = gm.cy + (1 - Math.min(1, doorScale(p))) * gm.S * -0.02;
+    var x = cx - w / 2, y = cy - h / 2;
+    var alpha = p < 0.06 ? p / 0.06 : 1;
+    if (st && st.k === 'pass') alpha = Math.max(0, 1 - animT / 0.45);
+    if (st && st.k === 'miss') alpha = Math.max(0, 1 - animT / 0.55);
+    if (alpha <= 0) return;
+    g.save(); g.globalAlpha = alpha;
+    var final = door.kind === 'final';
+    // frame
+    var fw = s * 0.07;
+    g.fillStyle = '#2a1f0a'; rr(g, x - fw, y - fw, w + fw * 2, h + fw * 2, s * 0.06); g.fill();
+    var grad = g.createLinearGradient(x, y - fw, x + w, y + h);
+    grad.addColorStop(0, final ? '#fff0b0' : '#f3d98a'); grad.addColorStop(0.5, final ? '#e7b93a' : '#c9a14a'); grad.addColorStop(1, '#8a6a22');
+    g.strokeStyle = grad; g.lineWidth = Math.max(1, fw * 0.6); rr(g, x - fw * 0.5, y - fw * 0.5, w + fw, h + fw, s * 0.05); g.stroke();
+    // panel(s): split into two leaves when opening
+    var open = st && st.k === 'pass' ? Math.min(1, animT / 0.18) : 0;
+    var miss = st && st.k === 'miss';
+    var pg = g.createLinearGradient(x, y, x, y + h);
+    pg.addColorStop(0, miss ? '#2a1830' : '#2a2378'); pg.addColorStop(1, miss ? '#160c1c' : '#14104a');
+    var leaf = (w / 2) * (1 - open * 0.92);
+    g.fillStyle = pg;
+    g.fillRect(x, y, leaf, h); g.fillRect(x + w - leaf, y, leaf, h);
+    if (open < 0.05) {
+      // engraving
+      g.strokeStyle = 'rgba(243,217,138,.35)'; g.lineWidth = Math.max(0.7, s * 0.008);
+      rr(g, x + w * 0.08, y + h * 0.06, w * 0.84, h * 0.88, s * 0.03); g.stroke();
+      [[0.14, 0.1], [0.86, 0.1], [0.14, 0.9], [0.86, 0.9]].forEach(function (c) { g.beginPath(); g.arc(x + w * c[0], y + h * c[1], s * 0.018, 0, 7); g.stroke(); });
+      if (door.kind === 'echo') { g.strokeStyle = 'rgba(95,216,203,.55)'; rr(g, x + w * 0.04, y + h * 0.03, w * 0.92, h * 0.94, s * 0.04); g.stroke(); }
+      // aperture: the shape cut through the door — light shining through
+      var R = s * 0.36, ac = COLORS[door.shape];
+      g.strokeStyle = 'rgba(0,0,0,.65)'; shapeStroke(g, door.shape, cx, cy, R, s * 0.14);
+      g.shadowColor = ac; g.shadowBlur = reduced() ? 0 : s * 0.12;
+      g.strokeStyle = miss ? '#5a4060' : ac; shapeStroke(g, door.shape, cx, cy, R, s * 0.11);
+      g.shadowBlur = 0;
+      g.strokeStyle = miss ? '#7a6080' : '#fff9e8'; shapeStroke(g, door.shape, cx, cy, R, s * 0.05);
+      if (final) { g.fillStyle = '#ffe9a6'; g.font = '700 ' + Math.max(8, s * 0.06) + 'px Georgia, serif'; g.textAlign = 'center'; g.fillText('THE FINAL THRESHOLD', cx, y + h * 0.95); }
+    } else {
+      // light pouring through the opening
+      var lg = g.createRadialGradient(cx, cy, 0, cx, cy, w * 0.8);
+      lg.addColorStop(0, 'rgba(255,240,190,' + (0.9 * (1 - animT / 0.45)) + ')'); lg.addColorStop(1, 'rgba(255,220,120,0)');
+      g.fillStyle = lg; g.fillRect(x + leaf, y, w - 2 * leaf, h);
+    }
+    if (miss) { g.strokeStyle = '#ffb27a'; g.lineWidth = s * 0.03; g.globalAlpha = alpha * 0.8; g.beginPath(); g.moveTo(cx - s * 0.2, cy - s * 0.2); g.lineTo(cx + s * 0.2, cy + s * 0.2); g.moveTo(cx + s * 0.2, cy - s * 0.2); g.lineTo(cx - s * 0.2, cy + s * 0.2); g.stroke(); }
+    g.restore();
+  }
+
+  function render() {
+    var g = ctx; g.setTransform(DPR, 0, 0, DPR, 0, 0);
+    var gm = geometry(), t = gameNow(), ch = G.chart, rm = reduced();
+    var sx = 0, sy = 0;
+    if (G.shake > 0 && SAVE.prefs.shake && !rm) { var a = G.shake; sx = (Math.random() - 0.5) * a; sy = (Math.random() - 0.5) * a; G.shake *= 0.85; if (G.shake < 0.3) G.shake = 0; }
+    g.save(); g.translate(sx, sy);
+    // background
+    var bg = g.createRadialGradient(gm.cx, gm.cy, 10, gm.cx, gm.cy, Math.max(VW, VH) * 0.8);
+    bg.addColorStop(0, '#2a2370'); bg.addColorStop(0.45, '#120f40'); bg.addColorStop(1, '#05061a');
+    g.fillStyle = bg; g.fillRect(-20, -20, VW + 40, VH + 40);
+    // corridor guide lines
+    g.strokeStyle = 'rgba(231,195,90,.18)'; g.lineWidth = 1;
+    var corners = [[0, 0], [VW, 0], [VW, VH], [0, VH], [VW * 0.25, VH], [VW * 0.75, VH], [VW * 0.25, 0], [VW * 0.75, 0]];
+    corners.forEach(function (c) { g.beginPath(); g.moveTo(gm.cx, gm.cy); g.lineTo(c[0], c[1]); g.stroke(); });
+    // receding frames move one step per beat — a visual metronome
+    if (ch) {
+      var bm = currentBeatMs(t), phase = rm ? 0 : ((t / bm) % 1 + 1) % 1;
+      for (var k = 7; k >= 0; k--) {
+        var p = 1 - (k + phase) / 7 * 0.98, sc = doorScale(Math.min(1, p)) * 1.55, w = gm.S * sc, h = w * 1.3;
+        g.strokeStyle = 'rgba(243,217,138,' + (0.05 + 0.22 * (1 - k / 8)) + ')'; g.lineWidth = 1 + 2 * sc;
+        g.strokeRect(gm.cx - w / 2, gm.cy - h / 2, w, h);
+      }
+    }
+    // threshold frame (crossing plane)
+    var tw = gm.S, th = gm.S * 1.3;
+    g.strokeStyle = 'rgba(243,217,138,.85)'; g.lineWidth = 3; g.setLineDash([12, 8]); g.strokeRect(gm.cx - tw / 2 - 10, gm.cy - th / 2 - 10, tw + 20, th + 20); g.setLineDash([]);
+    if (ch && G.session) {
+      // doors: far ones first
+      var sess = G.session, list = [];
+      for (var i = sess.next; i < ch.doors.length; i++) {
+        var d = ch.doors[i], am = approachMs(d), pp = 1 - (d.t - t) / am;
+        if (pp < 0) break;
+        list.push([d, pp]);
+      }
+      // judged doors still animating
+      var nowP = performance.now();
+      G.anims = G.anims.filter(function (an) { return nowP - an.at < 650; });
+      for (var li = list.length - 1; li >= 0; li--) drawDoor(g, list[li][0], list[li][1], null, gm, 0);
+      G.anims.forEach(function (an) { var at = (nowP - an.at) / 1000; var pp2 = an.k === 'pass' ? 1 + at * 1.2 : 1 + at * 0.6; drawDoor(g, an.door, pp2, an, gm, at); });
+      // beat ring for the next door
+      var nd = ch.doors[sess.next];
+      if (nd) {
+        var am2 = approachMs(nd), q = 1 - (nd.t - t) / am2;
+        if (q > 0 && q <= 1.05) {
+          var ringR = gm.S * 0.5 * (1 + 1.4 * (1 - Math.min(1, q)));
+          g.strokeStyle = 'rgba(246,241,228,' + (0.25 + 0.6 * Math.min(1, q)) + ')'; g.lineWidth = 3 + 3 * Math.min(1, q);
+          g.beginPath(); g.arc(gm.cx, gm.cy, ringR, 0, Math.PI * 2); g.stroke();
+          g.strokeStyle = 'rgba(243,217,138,.5)'; g.lineWidth = 2; g.beginPath(); g.arc(gm.cx, gm.cy, gm.S * 0.5, 0, Math.PI * 2); g.stroke();
+        }
+      }
+    }
+    // the player's configuration — always on top, same geometry/scale as an aperture at the threshold
+    if (G.session) {
+      var shape = G.session.shape, R2 = gm.S * 0.36, col = COLORS[shape];
+      // drawn translucent so the approaching door's opening stays readable behind it
+      g.save(); g.globalAlpha = 0.5;
+      g.shadowColor = col; g.shadowBlur = rm ? 0 : 14;
+      g.strokeStyle = col; shapeStroke(g, shape, gm.cx, gm.cy, R2, gm.S * 0.05);
+      g.restore(); g.shadowBlur = 0;
+      g.strokeStyle = 'rgba(255,255,255,.95)'; shapeStroke(g, shape, gm.cx, gm.cy, R2, gm.S * 0.014);
+      g.strokeStyle = col; g.lineWidth = 2; g.setLineDash([6, 6]);
+      E.SHAPES[shape].segs.forEach(function (sg) { var dx = sg[1][1] - sg[0][1], dy = -(sg[1][0] - sg[0][0]), L = Math.hypot(dx, dy) || 1, o = gm.S * 0.03 / L;
+        [-1, 1].forEach(function (k) { g.beginPath(); g.moveTo(gm.cx + sg[0][0] * R2 + dx * o * k, gm.cy + sg[0][1] * R2 + dy * o * k); g.lineTo(gm.cx + sg[1][0] * R2 + dx * o * k, gm.cy + sg[1][1] * R2 + dy * o * k); g.stroke(); }); });
+      g.setLineDash([]);
+    }
+    // particles
+    if (!rm) {
+      G.particles = G.particles.filter(function (pt) { return pt.life > 0; });
+      G.particles.forEach(function (pt) { pt.x += pt.vx; pt.y += pt.vy; pt.vy += 0.05; pt.life -= 1; g.globalAlpha = Math.max(0, pt.life / 40); g.fillStyle = pt.c; g.beginPath(); g.arc(pt.x, pt.y, pt.r, 0, 7); g.fill(); });
+      g.globalAlpha = 1;
+    }
+    // flash
+    if (G.flash && performance.now() - G.flash.at < 260) {
+      var fa = 1 - (performance.now() - G.flash.at) / 260;
+      g.fillStyle = G.flash.c.replace('A', String((rm ? 0.08 : 0.18) * fa)); g.fillRect(-20, -20, VW + 40, VH + 40);
+    }
+    g.restore();
+  }
+  function currentBeatMs(t) {
+    var ch = G.chart; if (!ch) return 600;
+    if (!ch.endless) return ch.beatMs;
+    var d = ch.doors[G.session ? Math.min(G.session.next, ch.doors.length - 1) : 0]; return 60000 / d.bpm;
+  }
+  function approachMs(d) { return G.chart.endless ? 3 * 60000 / d.bpm : G.chart.approachMs; }
+
+  /* ================================================================ HUD */
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function shapeSvg(svg, shape) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    E.SHAPES[shape].segs.forEach(function (s) {
+      var l = document.createElementNS(SVGNS, 'line');
+      l.setAttribute('x1', s[0][0] * 0.8); l.setAttribute('y1', s[0][1] * 0.8); l.setAttribute('x2', s[1][0] * 0.8); l.setAttribute('y2', s[1][1] * 0.8);
+      l.setAttribute('stroke', COLORS[shape]); l.setAttribute('stroke-width', '0.26'); l.setAttribute('stroke-linecap', 'round');
+      svg.appendChild(l);
+    });
+  }
+  function makeShapeSvg(shape) { var s = document.createElementNS(SVGNS, 'svg'); s.setAttribute('viewBox', '-1 -1 2 2'); s.setAttribute('aria-hidden', 'true'); shapeSvg(s, shape); return s; }
+  $all('.shape-btn').forEach(function (b) { shapeSvg(b.querySelector('svg'), b.dataset.shape); });
+
+  var lastNextKey = '';
+  function updateHud() {
+    var s = G.session, ch = G.chart; if (!s) return;
+    $('#h-score').textContent = fmt(s.score);
+    $('#h-combo').textContent = s.combo;
+    $('#h-mult').textContent = '×' + E.multiplierFor(Math.max(1, s.combo + 1));
+    if (G.mode === 'endless') { $('#h-lives').textContent = s.lives; $('#h-prog').style.width = '0%'; }
+    else $('#h-prog').style.width = (100 * s.next / ch.doors.length) + '%';
+    // next doors
+    var t = gameNow(), items = [];
+    for (var i = s.next; i < Math.min(ch.doors.length, s.next + 3); i++) items.push(ch.doors[i]);
+    var bm = currentBeatMs(t);
+    var key = items.map(function (d) { return d.i + d.shape + Math.max(0, Math.ceil((d.t - t) / bm)); }).join('|');
+    if (key !== lastNextKey) {
+      lastNextKey = key;
+      var nl = $('#next-list'); nl.innerHTML = '';
+      items.forEach(function (d) {
+        var it = el('div', { class: 'next-item' }); it.appendChild(makeShapeSvg(d.shape));
+        var beats = Math.max(0, Math.ceil((d.t - t) / bm));
+        it.appendChild(el('span', null, beats <= 0 ? 'now' : beats + (beats === 1 ? ' beat' : ' beats')));
+        it.setAttribute('title', E.SHAPES[d.shape].name); nl.appendChild(it);
+      });
+      nl.setAttribute('aria-label', items.map(function (d) { return E.SHAPES[d.shape].name; }).join(', '));
+    }
+    // beat dots
+    var bIdx = Math.floor(t / bm), inBar = ((bIdx % 4) + 4) % 4, frac = t / bm - bIdx;
+    var nd = ch.doors[s.next], doorBeat = nd ? Math.round(nd.t / bm) : -1;
+    $all('#beats i').forEach(function (d, k) {
+      d.classList.toggle('on', t >= 0 && k === inBar && frac < 0.35);
+      var thisBeat = bIdx - inBar + k; d.classList.toggle('door', thisBeat === doorBeat || thisBeat === doorBeat - 4);
+    });
+  }
+  function selectShapeUI(shape) { $all('.shape-btn').forEach(function (b) { b.setAttribute('aria-checked', b.dataset.shape === shape ? 'true' : 'false'); }); }
+
+  var judgeTimer = null;
+  var REASON = { shape: 'Wrong shape', early: 'Too early', late: 'Too late — no crossing' };
+  function showJudge(j) {
+    var box = $('#judge'); box.className = 'judge show j-' + j.result;
+    $('#judge-t').textContent = j.result.toUpperCase();
+    var sub;
+    if (j.result === 'miss') sub = REASON[j.reason] + (j.reason === 'shape' ? ' — needed ' + E.SHAPES[j.shape].name + ', you held ' + E.SHAPES[j.played].name : (j.played !== j.shape ? ' (and the shape was ' + E.SHAPES[j.played].name + ', needed ' + E.SHAPES[j.shape].name + ')' : ''));
+    else sub = '+' + fmt(j.points) + (j.mult > 1 ? '  (×' + j.mult + ')' : '') + (j.dt != null ? '  · ' + (Math.abs(j.dt) < 1 ? 'on the beat' : j.dt < 0 ? Math.round(-j.dt) + ' ms early' : Math.round(j.dt) + ' ms late') : '');
+    $('#judge-s').textContent = sub;
+    clearTimeout(judgeTimer); judgeTimer = setTimeout(function () { box.classList.remove('show'); }, 700);
+    var m = $('#tmark');
+    if (j.dt != null) { var w = G.session.win.good; m.style.left = (50 + 50 * clamp(j.dt / w, -1, 1)) + '%'; m.style.opacity = '1'; }
+    if (j.result === 'miss') say('Miss: ' + sub + '.', false);
+    else if (SAVE.prefs.announce) say(j.result + '.', false);
+  }
+  var sayT = null;
+  function say(m, urgent) { var n = urgent ? $('#say2') : $('#say'); n.textContent = ''; clearTimeout(sayT); sayT = setTimeout(function () { n.textContent = m; }, 20); }
+  function toastAch(text) { say('Achievement: ' + text, false); var n = $('#title-note'); if (n) n.textContent = 'Achievement unlocked: ' + text; }
+
+  /* ================================================================ game flow */
+  function startCampaign(tier, resume) {
+    G.mode = 'campaign'; G.tier = tier;
+    if (!resume || !SAVE.campaign || SAVE.campaign.tier !== tier) { SAVE.campaign = { tier: tier, stage: 0, scores: [], maxCombo: 0, hits: 0, doors: 0 }; SAVE.records[tier].plays++; }
+    SAVE.prefs.tier = tier; persist();
+    showScreen('game');
+    showIntro();
+  }
+  function showIntro() {
+    var k = SAVE.campaign.stage, st = E.STAGES[k], tier = E.TIERS[G.tier], ch = E.buildChart(k, G.tier);
+    G.phase = 'intro'; G.running = false;
+    G.chart = ch; G.session = null;
+    $('#intro-k').textContent = 'Stage ' + (k + 1) + ' of 5 · ' + tier.label;
+    $('#intro-h').textContent = st.name;
+    $('#intro-p').textContent = st.blurb;
+    $('#intro-m').textContent = ch.bpm + ' BPM · ' + ch.doors.length + ' doors · clear it by crossing at least ' + pct(tier.passAcc) + ' of them.';
+    var row = $('#intro-shapes'); row.innerHTML = ''; st.shapes[G.tier].forEach(function (s) { row.appendChild(makeShapeSvg(s)); });
+    setHudStatic(k);
+    $('#ov-intro').hidden = false; $('#ov-result').hidden = true; $('#ov-pause').hidden = true;
+    setTimeout(function () { $('#intro-go').focus(); }, 30);
+  }
+  function setHudStatic(k) {
+    $('#h-stage').textContent = G.mode === 'endless' ? 'Endless' : 'Stage ' + (k + 1);
+    $('#h-stage-name').textContent = G.mode === 'endless' ? 'Seed ' + G.seed : E.STAGES[k].name;
+    var ht = $('#h-tier'); ht.textContent = G.mode === 'endless' ? 'Endless' : E.TIERS[G.tier].label; ht.className = 'hud-tier t-' + (G.mode === 'endless' ? 'endless' : G.tier);
+    $('#h-lives-wrap').hidden = G.mode !== 'endless';
+  }
+  function beginPlay() {
+    audioInit();
+    $('#ov-intro').hidden = true; $('#ov-result').hidden = true;
+    G.anims = []; G.particles = []; G.flash = null; G.shake = 0; lastNextKey = '';
+    $('#tmark').style.opacity = '0';
+    var startShape = 'vertical';
+    if (G.mode === 'endless') {
+      G.chart = { endless: true, doors: E.buildEndlessBlock(G.seed, 0, 32, null), layer: 2, beatMs: 600 };
+      G.session = new E.Session(G.chart, 'silver', { lives: 5, startShape: startShape });
+    } else {
+      G.chart = E.buildChart(SAVE.campaign.stage, G.tier);
+      G.session = new E.Session(G.chart, G.tier, { startShape: startShape });
+    }
+    selectShapeUI(G.session.shape);
+    G.paused = false; G.running = true; G.phase = 'play';
+    G.origin = performance.now() + 60; // a breath before beat 0
+    G.schedT = -1;
+    newBus();
+    updateHud();
+    $('#stage').focus({ preventScroll: true });
+    say(G.mode === 'endless' ? 'Endless run, seed ' + G.seed + '. Five sparks.' : 'Stage ' + (SAVE.campaign.stage + 1) + ' begins. ' + G.chart.doors.length + ' doors. Count-in of ' + E.LEAD_BEATS + ' beats.', false);
+  }
+
+  function onJudged(j) {
+    var gm = geometry();
+    G.anims.push({ door: G.chart.doors[j.i], at: performance.now(), k: j.result === 'miss' ? 'miss' : 'pass' });
+    accent(j);
+    if (j.result !== 'miss') {
+      echo(j);
+      if (!reduced()) { var n = j.result === 'perfect' ? 26 : 12; for (var i = 0; i < n; i++) { var a = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 5; G.particles.push({ x: gm.cx, y: gm.cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: 1.5 + Math.random() * 2.5, life: 30 + Math.random() * 15, c: j.result === 'perfect' ? '#ffd76a' : COLORS[j.shape] }); } }
+      G.flash = { at: performance.now(), c: j.result === 'perfect' ? 'rgba(255,215,106,A)' : j.result === 'great' ? 'rgba(159,240,255,A)' : 'rgba(246,241,228,A)' };
+      if (j.result === 'perfect') award('first-perfect');
+      if (j.combo >= 50) award('combo-50');
+    } else if (SAVE.prefs.shake && !reduced()) { G.shake = 9; }
+    showJudge(j);
+    updateHud();
+  }
+
+  function frame() {
+    requestAnimationFrame(frame);
+    if ($('#scr-game').hidden) return;
+    if (G.phase === 'play' && !G.paused && G.session) {
+      var t = gameNow();
+      // settle doors whose window closed (with grace so a slightly late-delivered press still counts)
+      var off = SAVE.prefs.inputOffset;
+      G.session.settle(t - off - LATENCY_GRACE);
+      drainEvents();
+      // endless: extend the corridor ahead of the player
+      if (G.mode === 'endless' && G.chart.doors.length - G.session.next < 12) {
+        var last = G.chart.doors[G.chart.doors.length - 1];
+        Array.prototype.push.apply(G.chart.doors, E.buildEndlessBlock(G.seed, G.chart.doors.length, 16, last));
+      }
+      pump();
+      updateHud();
+      if (G.session.done) {
+        var endAt = G.mode === 'endless' ? (G.session.lastPressT > 0 ? t : t) : G.chart.doors[G.chart.doors.length - 1].t + G.chart.beatMs * 1.5;
+        if (G.mode === 'endless' || t > endAt) endRun();
+      }
+    }
+    if (G.chart) render();
+  }
+  function drainEvents() {
+    var ev = G.session.events; if (!ev.length) return;
+    G.session.events = [];
+    ev.forEach(function (e) { if (e.type === 'judge') onJudged(e.j); });
+  }
+
+  function doCross(e) {
+    if (G.phase !== 'play' || G.paused || !G.session) return;
+    var t = eventGameTime(e) - SAVE.prefs.inputOffset;
+    G.session.cross(t);
+    var b = $('#cross'); b.classList.add('flash'); setTimeout(function () { b.classList.remove('flash'); }, 90);
+    drainEvents();
+  }
+  function doShape(shape) {
+    if (!G.session || G.phase !== 'play' || G.paused) { selectShapeUI(shape); if (G.session) G.session.setShape(shape); return; }
+    if (G.session.setShape(shape)) selectShapeUI(shape);
+  }
+
+  function endRun() {
+    G.running = false; G.phase = 'result'; killBus();
+    var s = G.session.summary(), tier = G.tier;
+    var btns = $('#res-btns'); btns.innerHTML = '';
+    function btn(label, fn, primary) { var b = el('button', { type: 'button', class: 'btn' + (primary ? ' btn-primary' : '') }, label); b.addEventListener('click', fn); btns.appendChild(b); return b; }
+    var stats = $('#res-stats'); stats.innerHTML = '';
+    function stat(v, l) { var d = el('div', { class: 'stat' }); d.appendChild(el('b', null, v)); d.appendChild(el('span', null, l)); stats.appendChild(d); }
+    stat(fmt(s.score), 'score'); stat(String(s.maxCombo), 'best combo'); stat(pct(s.accuracy), 'crossed');
+    stat(String(s.counts.perfect), 'perfect'); stat(String(s.counts.great), 'great'); stat(String(s.counts.good), 'good'); stat(String(s.counts.miss), 'miss');
+    var mr = s.missReasons;
+    var note = s.counts.miss ? 'Misses: ' + mr.shape + ' wrong shape · ' + mr.early + ' too early · ' + mr.late + ' too late.' : '';
+    if (G.mode === 'endless') {
+      var en = SAVE.endless; en.runs++;
+      var nb = s.score > en.best;
+      if (nb) { en.best = s.score; en.bestSeed = G.seed; }
+      en.bestCombo = Math.max(en.bestCombo, s.maxCombo); en.bestDoors = Math.max(en.bestDoors, s.judged);
+      persist();
+      $('#res-k').textContent = 'Endless · seed ' + G.seed;
+      $('#res-h').textContent = nb ? 'New endless best!' : 'Out of sparks';
+      $('#res-line').textContent = s.judged + ' doors · reached ' + E.endlessBpm(Math.max(0, s.judged - 1)) + ' BPM';
+      $('#res-note').textContent = note + ' Endless best: ' + fmt(en.best) + (en.bestSeed ? ' (seed ' + en.bestSeed + ')' : '') + '.';
+      btn('Run again  (R)', function () { beginPlay(); }, true);
+      btn('New seed', function () { G.seed = randomSeed(); setHudStatic(0); beginPlay(); });
+      btn('Title', toTitle);
+    } else {
+      var c = SAVE.campaign, k = c.stage, rec = SAVE.records[tier];
+      var passed = s.accuracy >= E.TIERS[tier].passAcc - 1e-12;
+      rec.bestCombo = Math.max(rec.bestCombo, s.maxCombo);
+      if (passed && (rec.stageBest[k] === null || s.score > rec.stageBest[k])) rec.stageBest[k] = s.score;
+      if (passed && s.counts.miss === 0) award('flawless');
+      $('#res-k').textContent = 'Stage ' + (k + 1) + ' · ' + E.STAGES[k].name + ' · ' + E.TIERS[tier].label;
+      var max = MAXT[tier].stages[k];
+      if (passed) {
+        c.scores[k] = s.score; c.maxCombo = Math.max(c.maxCombo, s.maxCombo); c.hits += s.hits; c.doors += s.doors;
+        if (k === 4) {
+          // campaign complete
+          var total = c.scores.reduce(function (a, b) { return a + b; }, 0), acc = c.doors ? c.hits / c.doors : 0;
+          var first = !rec.completed;
+          rec.completed = true; if (!rec.completedAt) rec.completedAt = nowIso();
+          var nb2 = rec.bestTotal === null || total > rec.bestTotal; if (nb2) rec.bestTotal = total;
+          rec.bestAcc = Math.max(rec.bestAcc, acc);
+          var unlockedNow = !SAVE.endless.unlocked; SAVE.endless.unlocked = true;
+          if (E.TIER_IDS.every(function (t) { return SAVE.records[t].completed; })) award('all-medals');
+          SAVE.campaign = null; persist();
+          $('#res-h').textContent = E.TIERS[tier].label + ' medal — campaign complete!';
+          $('#res-line').textContent = 'Campaign total ' + fmt(total) + ' of a possible ' + fmt(MAXT[tier].total) + ' · ' + pct(acc) + ' of doors crossed';
+          $('#res-note').textContent = note + ' ' + (nb2 ? 'New personal best for ' + E.TIERS[tier].label + '. ' : 'Personal best: ' + fmt(rec.bestTotal) + '. ') + (first ? 'First ' + E.TIERS[tier].label + ' medal! ' : '') + (unlockedNow ? 'Endless mode is now unlocked.' : '');
+          btn('Endless mode', function () { openEndless(); }, true);
+          btn('Play campaign again', function () { startCampaign(tier, false); });
+          btn('Title', toTitle);
+          say('Campaign complete. ' + E.TIERS[tier].label + ' medal. Total ' + fmt(total) + '.', true);
+          return showResult();
+        }
+        c.stage = k + 1; persist();
+        $('#res-h').textContent = 'Stage cleared';
+        $('#res-line').textContent = fmt(s.score) + ' points (' + pct(s.score / max) + ' of maximum ' + fmt(max) + ')';
+        $('#res-note').textContent = note;
+        btn('Continue to stage ' + (k + 2), function () { showIntro(); }, true);
+        btn('Replay stage ' + (k + 1), function () { c.stage = k; c.scores.length = k; persist(); showIntro(); });
+        btn('Title', toTitle);
+        say('Stage cleared. ' + fmt(s.score) + ' points. ' + pct(s.accuracy) + ' crossed.', true);
+      } else {
+        persist();
+        $('#res-h').textContent = 'Not cleared';
+        $('#res-line').textContent = 'You crossed ' + pct(s.accuracy) + '. ' + E.TIERS[tier].label + ' needs ' + pct(E.TIERS[tier].passAcc) + '.';
+        $('#res-note').textContent = note + ' Your campaign is kept — try the stage again.';
+        btn('Try again', function () { showIntro(); }, true);
+        btn('Title', toTitle);
+        say('Stage not cleared. You crossed ' + pct(s.accuracy) + '.', true);
+      }
+    }
+    showResult();
+  }
+  function showResult() { $('#ov-result').hidden = false; setTimeout(function () { var b = $('#res-btns .btn'); if (b) b.focus(); }, 40); }
+
+  /* pause / resume */
+  function pause(reason) {
+    if (G.phase !== 'play' || G.paused) return;
+    G.pausedAt = gameNow(); G.paused = true; killBus();
+    $('#ov-pause').hidden = false;
+    setTimeout(function () { $('#p-resume').focus(); }, 30);
+    say('Paused' + (reason ? ' (' + reason + ')' : '') + '.', false);
+  }
+  function resume() {
+    if (!G.paused) return;
+    // rewind two beats so nothing arrives unannounced; judged doors stay judged
+    var bm = currentBeatMs(G.pausedAt), back = Math.min(2 * bm, Math.max(0, G.pausedAt + 2000));
+    var g = G.pausedAt - back;
+    G.paused = false; G.origin = performance.now() - g; G.schedT = g - 1;
+    $('#ov-pause').hidden = true; newBus();
+    $('#stage').focus({ preventScroll: true });
+    say('Resumed. Two beats to the next door at most.', false);
+  }
+
+  /* ================================================================ input */
+  var SHAPE_KEYS = { ArrowUp: 'vertical', w: 'vertical', W: 'vertical', '1': 'vertical', ArrowRight: 'horizontal', d: 'horizontal', D: 'horizontal', '2': 'horizontal',
+    ArrowLeft: 'diagonal', a: 'diagonal', A: 'diagonal', '3': 'diagonal', ArrowDown: 'chevron', s: 'chevron', S: 'chevron', '4': 'chevron' };
+  document.addEventListener('keydown', function (e) {
+    if (document.querySelector('dialog[open]')) { if (calib.on && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); calibTap(e); } return; }
+    var k = e.key;
+    if (!$('#scr-game').hidden) {
+      var tag = e.target && e.target.tagName;
+      if (G.phase === 'play' && !G.paused) {
+        if (SHAPE_KEYS[k]) { e.preventDefault(); doShape(SHAPE_KEYS[k]); return; }
+        if (k === ' ' || k === 'Enter' || k === 'Spacebar') { e.preventDefault(); if (!e.repeat) doCross(e); return; }
+        if (k === 'p' || k === 'P' || k === 'Escape') { e.preventDefault(); pause(); return; }
+        if (k === 'm' || k === 'M') { e.preventDefault(); toggleSound(); return; }
+        return;
+      }
+      if (G.paused && (k === 'p' || k === 'P' || k === 'Escape')) { e.preventDefault(); resume(); return; }
+      if (G.phase === 'intro' && (k === 'Enter' || k === ' ') && tag !== 'BUTTON') { e.preventDefault(); beginPlay(); return; }
+      if (G.phase === 'result' && G.mode === 'endless' && (k === 'r' || k === 'R')) { e.preventDefault(); beginPlay(); return; }
+      if (k === 'm' || k === 'M') { if (tag !== 'INPUT') { e.preventDefault(); toggleSound(); } }
+    }
+  });
+  // touch / mouse: pointerdown for immediacy, using the event's own timestamp
+  $('#cross').addEventListener('pointerdown', function (e) { e.preventDefault(); doCross(e); });
+  $('#cross').addEventListener('click', function (e) { if (e.detail === 0 && G.phase === 'play') { /* keyboard activation is handled by the global key handler */ } });
+  $('#stage').addEventListener('pointerdown', function (e) {
+    if (e.target.closest('.overlay')) return;
+    if (G.phase === 'play' && !G.paused) { e.preventDefault(); doCross(e); }
+  });
+  $('#stage').setAttribute('tabindex', '-1');
+  $all('.shape-btn').forEach(function (b) {
+    b.addEventListener('pointerdown', function (e) { e.preventDefault(); doShape(b.dataset.shape); });
+    b.addEventListener('click', function (e) { if (e.detail === 0 && !(G.phase === 'play' && !G.paused)) doShape(b.dataset.shape); });
+    b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  });
+  $('#cross').addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) pause('tab hidden'); });
+  window.addEventListener('blur', function () { pause('window lost focus'); });
+  window.addEventListener('resize', resize);
+  if (window.ResizeObserver) new ResizeObserver(resize).observe($('#stage'));
+
+  /* ================================================================ buttons & dialogs */
+  $('#intro-go').addEventListener('click', beginPlay);
+  $('#intro-quit').addEventListener('click', toTitle);
+  $('#g-pause').addEventListener('click', function () { pause(); });
+  $('#p-resume').addEventListener('click', resume);
+  $('#p-restart').addEventListener('click', function () { G.paused = false; $('#ov-pause').hidden = true; killBus(); if (G.mode === 'endless') beginPlay(); else showIntro(); });
+  $('#p-quit').addEventListener('click', function () { G.paused = false; $('#ov-pause').hidden = true; toTitle(); });
+  $('#p-settings').addEventListener('click', openSettings);
+  $('#p-howto').addEventListener('click', openHowto);
+  $('#g-sound').addEventListener('click', toggleSound);
+  $('#b-sound').addEventListener('click', toggleSound);
+  $('#b-howto').addEventListener('click', openHowto);
+  $('#b-records').addEventListener('click', openRecords);
+  $('#b-settings').addEventListener('click', openSettings);
+  $('#b-endless').addEventListener('click', function () {
+    if (!SAVE.endless.unlocked) { $('#title-note').textContent = 'Endless mode unlocks when you complete the five-stage campaign on any tier.'; return; }
+    openEndless();
+  });
+  function selectedTier() { var r = $('input[name=tier]:checked'); return r ? r.value : 'silver'; }
+  $all('input[name=tier]').forEach(function (r) { r.addEventListener('change', function () { SAVE.prefs.tier = this.value; persist(); }); });
+  $('#b-start').addEventListener('click', function () {
+    audioInit();
+    var tier = selectedTier(), b = this;
+    if (SAVE.campaign && !b.classList.contains('confirming')) {
+      b.classList.add('confirming'); b.textContent = 'Replace your ' + E.TIERS[SAVE.campaign.tier].label + ' campaign (stage ' + (SAVE.campaign.stage + 1) + ')? Press again';
+      setTimeout(function () { b.classList.remove('confirming'); b.textContent = 'Start campaign'; }, 4000);
+      return;
+    }
+    b.classList.remove('confirming'); b.textContent = 'Start campaign';
+    SAVE.campaign = null; startCampaign(tier, false);
+  });
+  $('#b-continue').addEventListener('click', function () { audioInit(); if (SAVE.campaign) startCampaign(SAVE.campaign.tier, true); });
+
+  function openDialog(d) { if (G.phase === 'play' && !G.paused) pause(); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+  $all('dialog').forEach(function (d) { d.addEventListener('close', function () { stopCalib(); if (!$('#scr-game').hidden && G.paused) $('#p-resume').focus(); }); });
+  function tierGoal(t) { return 'Medal: clear all five stages, crossing at least ' + pct(E.TIERS[t].passAcc) + ' of the doors in each. Maximum campaign score ' + fmt(MAXT[t].total) + '.'; }
+  function openHowto() {
+    var tb = $('#howto-win'); tb.innerHTML = '';
+    var hr = el('tr'); ['', 'Perfect', 'Great', 'Good', 'Early-miss zone'].forEach(function (x) { hr.appendChild(el('th', { scope: 'col' }, x)); }); tb.appendChild(hr);
+    E.TIER_IDS.forEach(function (t) { var w = E.TIERS[t].win, r = el('tr'); r.appendChild(el('th', { scope: 'row' }, E.TIERS[t].label)); ['±' + w.perfect + ' ms', '±' + w.great + ' ms', '±' + w.good + ' ms', w.early + ' ms before Good'].forEach(function (x) { r.appendChild(el('td', null, x)); }); tb.appendChild(r); });
+    var ht = $('#howto-tiers'); ht.innerHTML = '';
+    var ul = el('ul', { class: 'howto' });
+    E.TIER_IDS.forEach(function (t) { var T = E.TIERS[t], li = el('li'); li.appendChild(el('strong', null, T.label + ' — ' + T.title + '. '));
+      li.appendChild(document.createTextNode('Tempo ' + E.STAGES.map(function (s) { return s.bpm[t]; }).join(' → ') + ' BPM; doors visible ' + T.approachBeats + ' beats ahead; ' + E.STAGES.reduce(function (a, s) { return a + s.doors[t]; }, 0) + ' doors in all. ' + tierGoal(t)));
+      ul.appendChild(li); });
+    ht.appendChild(ul);
+    openDialog($('#d-howto'));
+  }
+  function openRecords() {
+    var b = $('#rec-body'); b.innerHTML = '';
+    var tb = el('table', { class: 'rec' }), th = el('thead'), tr = el('tr');
+    ['Tier', 'Medal', 'Best campaign', 'Best combo', 'Best accuracy', 'Campaigns started'].forEach(function (x) { tr.appendChild(el('th', { scope: 'col' }, x)); });
+    th.appendChild(tr); tb.appendChild(th); var body = el('tbody');
+    E.TIER_IDS.forEach(function (t) { var r = SAVE.records[t], row = el('tr'); row.appendChild(el('td', null, E.TIERS[t].label));
+      var mc = el('td'); if (r.completed) mc.appendChild(el('span', { class: 'medal ' + t }, E.TIERS[t].label)); else mc.textContent = 'Not yet'; row.appendChild(mc);
+      row.appendChild(el('td', null, r.bestTotal == null ? '—' : fmt(r.bestTotal) + ' / ' + fmt(MAXT[t].total)));
+      row.appendChild(el('td', null, String(r.bestCombo))); row.appendChild(el('td', null, r.completed ? pct(r.bestAcc) : '—')); row.appendChild(el('td', null, String(r.plays)));
+      body.appendChild(row); });
+    tb.appendChild(body); b.appendChild(tb);
+    b.appendChild(el('h3', null, 'Best stage scores'));
+    var t2 = el('table', { class: 'rec' }), h2 = el('tr'); h2.appendChild(el('th', { scope: 'col' }, 'Stage'));
+    E.TIER_IDS.forEach(function (t) { h2.appendChild(el('th', { scope: 'col' }, E.TIERS[t].label)); }); t2.appendChild(h2);
+    E.STAGES.forEach(function (s, k) { var r = el('tr'); r.appendChild(el('td', null, (k + 1) + '. ' + s.name)); E.TIER_IDS.forEach(function (t) { var v = SAVE.records[t].stageBest[k]; r.appendChild(el('td', null, v == null ? '—' : fmt(v))); }); t2.appendChild(r); });
+    b.appendChild(t2);
+    b.appendChild(el('h3', null, 'Endless'));
+    var en = SAVE.endless;
+    b.appendChild(el('p', null, en.unlocked ? 'Best ' + fmt(en.best) + (en.bestSeed ? ' (seed ' + en.bestSeed + ')' : '') + ' · best combo ' + en.bestCombo + ' · most doors ' + en.bestDoors + ' · runs ' + en.runs : 'Locked — complete the campaign on any tier.'));
+    b.appendChild(el('h3', null, 'Achievements'));
+    var ul = el('ul', { class: 'howto' }); Object.keys(ACH).forEach(function (k) { ul.appendChild(el('li', null, (SAVE.achievements[k] ? '✓ ' : '○ ') + ACH[k])); }); b.appendChild(ul);
+    if (!storageOk) b.appendChild(el('p', { class: 'note' }, 'Your browser is blocking storage: records last only until this page closes.'));
+    $('#rec-note').textContent = '';
+    openDialog($('#d-records'));
+  }
+  $('#rec-reset').addEventListener('click', function () {
+    var b = this;
+    if (!b.classList.contains('confirming')) { b.classList.add('confirming'); b.textContent = 'Press again to erase Threshold records'; setTimeout(function () { b.classList.remove('confirming'); b.textContent = 'Reset Threshold records'; }, 4000); return; }
+    b.classList.remove('confirming'); b.textContent = 'Reset Threshold records';
+    var prefs = SAVE.prefs; SAVE = blank(); SAVE.prefs = prefs; persist();
+    $('#d-records').close(); openRecords(); $('#rec-note').textContent = 'Threshold records were reset. Settings were kept; nothing else was touched.'; refreshTitle();
+  });
+  function openEndless() {
+    var inp = $('#end-seed'); if (!inp.value) inp.value = randomSeed();
+    $('#end-note').textContent = '';
+    if (G.phase === 'result') { $('#ov-result').hidden = true; }
+    openDialog($('#d-endless'));
+  }
+  function randomSeed() { var c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = 'TH-'; for (var i = 0; i < 5; i++) s += c[Math.floor(Math.random() * c.length)]; return s; }
+  $('#end-new').addEventListener('click', function () { $('#end-seed').value = randomSeed(); });
+  $('#end-go').addEventListener('click', function () {
+    var v = ($('#end-seed').value || '').trim().toUpperCase();
+    if (!/^[A-Z0-9-]{1,12}$/.test(v)) { $('#end-note').textContent = 'Seeds use letters, digits and hyphens (up to 12).'; return; }
+    if (!SAVE.endless.unlocked) { $('#end-note').textContent = 'Endless mode is locked.'; return; }
+    $('#d-endless').close();
+    audioInit();
+    G.mode = 'endless'; G.seed = v; G.tier = 'silver';
+    showScreen('game'); setHudStatic(0); beginPlay();
+  });
+
+  /* settings + calibration */
+  function syncSettings() {
+    var p = SAVE.prefs;
+    $('#s-sound').checked = p.sound; $('#s-vol').value = p.volume; $('#s-vol-o').textContent = p.volume + '%';
+    $('#s-shake').checked = p.shake; $('#s-motion').value = p.motion; $('#s-announce').checked = p.announce;
+    $('#s-in').value = p.inputOffset; $('#s-in-o').textContent = (p.inputOffset > 0 ? '+' : '') + p.inputOffset + ' ms';
+    $('#s-au').value = p.audioOffset; $('#s-au-o').textContent = (p.audioOffset > 0 ? '+' : '') + p.audioOffset + ' ms';
+  }
+  function openSettings() { syncSettings(); openDialog($('#d-settings')); }
+  $('#s-sound').addEventListener('change', function () { if (this.checked !== SAVE.prefs.sound) toggleSound(); });
+  $('#s-vol').addEventListener('input', function () { SAVE.prefs.volume = +this.value; setVolume(); syncSettings(); persist(); });
+  $('#s-shake').addEventListener('change', function () { SAVE.prefs.shake = this.checked; persist(); });
+  $('#s-motion').addEventListener('change', function () { SAVE.prefs.motion = this.value; persist(); });
+  $('#s-announce').addEventListener('change', function () { SAVE.prefs.announce = this.checked; persist(); });
+  $('#s-in').addEventListener('input', function () { SAVE.prefs.inputOffset = +this.value; syncSettings(); persist(); });
+  $('#s-au').addEventListener('input', function () { SAVE.prefs.audioOffset = +this.value; syncSettings(); persist(); });
+  $('#cal-reset').addEventListener('click', function () { SAVE.prefs.inputOffset = 0; SAVE.prefs.audioOffset = 0; persist(); syncSettings(); $('#cal-msg').textContent = 'Offsets reset to 0 ms.'; });
+  var calib = { on: false, t0: 0, beats: [], taps: [], raf: 0 };
+  $('#cal-go').addEventListener('click', function () {
+    audioInit();
+    var bm = 600, lead = 4; calib.on = true; calib.taps = []; calib.t0 = performance.now() + 400;
+    calib.beats = []; for (var i = 0; i < lead + 8; i++) calib.beats.push(calib.t0 + i * bm);
+    if (AU.ctx && SAVE.prefs.sound) calib.beats.forEach(function (bt, i) { voice(AU.ctx.currentTime + (bt - performance.now()) / 1000 - (audioLatencyMs() + SAVE.prefs.audioOffset) / 1000, i < lead ? 440 : 880, 0.08, 'sine', 0.2, null, AU.master); });
+    $('#cal-tap').disabled = false; $('#cal-msg').textContent = 'Listen and watch: 4 count-in beats, then tap on each of the next 8.';
+    var viz = $('#cal-viz');
+    (function loop() {
+      if (!calib.on) return; var n = performance.now();
+      viz.classList.toggle('on', calib.beats.some(function (b) { return n >= b && n < b + 110; }));
+      if (n > calib.beats[calib.beats.length - 1] + 500) return finishCalib(lead);
+      calib.raf = requestAnimationFrame(loop);
+    })();
+  });
+  function calibTap(e) { if (!calib.on) return; calib.taps.push(e && e.timeStamp > 0 && Math.abs(e.timeStamp - performance.now()) < 2000 ? e.timeStamp : performance.now()); }
+  $('#cal-tap').addEventListener('pointerdown', function (e) { e.preventDefault(); calibTap(e); });
+  $('#cal-viz').addEventListener('pointerdown', function (e) { e.preventDefault(); calibTap(e); });
+  function finishCalib(lead) {
+    calib.on = false; $('#cal-tap').disabled = true; $('#cal-viz').classList.remove('on');
+    var scored = calib.beats.slice(lead), errs = [];
+    calib.taps.forEach(function (tp) { var best = null; scored.forEach(function (b) { var d = tp - b; if (Math.abs(d) < 300 && (best === null || Math.abs(d) < Math.abs(best))) best = d; }); if (best !== null) errs.push(best); });
+    if (errs.length < 5) { $('#cal-msg').textContent = 'Only ' + errs.length + ' taps were close to a beat. Try again — tap with the flashes.'; return; }
+    errs.sort(function (a, b) { return a - b; });
+    var med = errs[Math.floor(errs.length / 2)], sugg = clamp(Math.round(med / 5) * 5, -200, 200);
+    var prev = SAVE.prefs.inputOffset;
+    SAVE.prefs.inputOffset = sugg; persist(); syncSettings();
+    $('#cal-msg').textContent = 'Your taps were ' + (med >= 0 ? Math.round(med) + ' ms late' : Math.round(-med) + ' ms early') + ' on average (' + errs.length + ' taps). Input offset set to ' + (sugg > 0 ? '+' : '') + sugg + ' ms (was ' + prev + ' ms). You can change or reset it above.';
+  }
+  function stopCalib() { calib.on = false; cancelAnimationFrame(calib.raf); }
+
+  function toggleSound() {
+    SAVE.prefs.sound = !SAVE.prefs.sound; persist();
+    if (SAVE.prefs.sound) { audioInit(); if (G.phase === 'play' && !G.paused) { newBus(); G.schedT = gameNow(); } } else { killBus(); }
+    setVolume(); syncSound();
+    say('Sound ' + (SAVE.prefs.sound ? 'on' : 'off') + '.', false);
+  }
+  function syncSound() {
+    var on = SAVE.prefs.sound;
+    ['#g-sound', '#b-sound'].forEach(function (id) { $(id).setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    $('#g-sound').setAttribute('aria-label', 'Sound ' + (on ? 'on' : 'off') + ' (M)');
+    $('#g-sound-i').textContent = on ? '♪' : '×'; $('#g-sound-t').textContent = on ? 'Sound' : 'Muted';
+    $('#b-sound').textContent = 'Sound: ' + (on ? 'on' : 'off');
+  }
+
+  /* screens */
+  function showScreen(n) { $('#scr-title').hidden = n !== 'title'; $('#scr-game').hidden = n !== 'game'; document.body.classList.toggle('playing', n === 'game'); if (n === 'game') setTimeout(resize, 0); }
+  function toTitle() {
+    killBus(); G.running = false; G.phase = 'title'; G.paused = false; G.session = null; G.chart = null;
+    $all('.overlay').forEach(function (o) { o.hidden = true; });
+    showScreen('title'); refreshTitle(); $('#b-start').focus();
+  }
+  function refreshTitle() {
+    $all('.tier-goal').forEach(function (s) { var t = s.dataset.goal, r = SAVE.records[t]; s.textContent = tierGoal(t) + (r.completed ? ' ✓ Medal held · best ' + fmt(r.bestTotal) : ''); });
+    var c = SAVE.campaign, cb = $('#b-continue');
+    if (c) { cb.hidden = false; cb.textContent = 'Continue ' + E.TIERS[c.tier].label + ' campaign · stage ' + (c.stage + 1); } else cb.hidden = true;
+    var eb = $('#b-endless'); eb.textContent = SAVE.endless.unlocked ? 'Endless mode' : 'Endless mode 🔒';
+    eb.setAttribute('aria-label', SAVE.endless.unlocked ? 'Endless mode' : 'Endless mode, locked until you complete the campaign on any tier');
+    $('#title-note').textContent = saveNotice || (storageOk ? '' : 'Your browser is blocking storage, so records will not be kept after you close this page.');
+  }
+
+  /* title art */
+  function drawTitle() {
+    var c = $('#title-cv'), g = c.getContext('2d'), W = c.width, H = c.height, cx = W / 2, cy = H * 0.52;
+    var bg = g.createRadialGradient(cx, cy, 10, cx, cy, W * 0.7); bg.addColorStop(0, '#2a2370'); bg.addColorStop(1, '#05061a'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    g.strokeStyle = 'rgba(231,195,90,.2)'; [[0, 0], [W, 0], [W, H], [0, H]].forEach(function (p) { g.beginPath(); g.moveTo(cx, cy); g.lineTo(p[0], p[1]); g.stroke(); });
+    var shapes = ['vertical', 'horizontal', 'diagonal', 'chevron'];
+    // four doors receding down the corridor, offset so each can be seen
+    for (var k = 3; k >= 0; k--) {
+      var s = 210 / (1 + k * 1.15), w = s, h = s * 1.3, ox = cx + (k - 1.5) * 64 * (k ? 1 : 0) - (k ? 0 : 0), oy = cy - k * 6;
+      if (k === 0) ox = cx - 130; if (k === 1) ox = cx + 40; if (k === 2) ox = cx + 150; if (k === 3) ox = cx + 225;
+      g.globalAlpha = 1 - k * 0.15;
+      g.fillStyle = '#211b6a'; g.strokeStyle = '#e7c35a'; g.lineWidth = Math.max(1, s * 0.04);
+      g.fillRect(ox - w / 2, oy - h / 2, w, h); g.strokeRect(ox - w / 2, oy - h / 2, w, h);
+      g.strokeStyle = COLORS[shapes[k]]; g.shadowColor = COLORS[shapes[k]]; g.shadowBlur = s * 0.1; shapeStroke(g, shapes[k], ox, oy, s * 0.36, s * 0.1); g.shadowBlur = 0;
+      g.strokeStyle = '#fff9e8'; shapeStroke(g, shapes[k], ox, oy, s * 0.36, s * 0.04);
+    }
+    g.globalAlpha = 1;
+    g.strokeStyle = 'rgba(246,241,228,.7)'; g.lineWidth = 3; g.beginPath(); g.arc(cx - 130, cy, 150, 0, Math.PI * 2); g.stroke();
+  }
+
+  /* ================================================================ boot */
+  SAVE = load(); if (saveNotice) persist();
+  var tr = document.querySelector('input[name=tier][value=' + SAVE.prefs.tier + ']'); if (tr) tr.checked = true;
+  syncSound(); drawTitle(); refreshTitle(); resize();
+  setInterval(function () { if (G.phase === 'play' && !G.paused) pump(); }, 25);
+  requestAnimationFrame(frame);
+  if (DEV) window.__th = { E: E, G: G, get SAVE() { return SAVE; }, gameNow: gameNow, saveKey: SAVE_KEY, beginPlay: beginPlay, toTitle: toTitle, pause: pause, resume: resume, startCampaign: startCampaign, persist: persist, MAXT: MAXT };
+})();
+
+</script>
+</body>
+</html>
