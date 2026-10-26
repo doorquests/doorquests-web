@@ -365,6 +365,12 @@ footer .legal-details{font-size:.84rem}
 .warden-result{margin-top:15px;padding:15px;border-left:3px solid var(--gold);background:#142845}
 .warden-result a{color:var(--gold);font-weight:700}
 @media(max-width:730px){.warden-panel{grid-template-columns:1fr}.warden-portrait{min-height:220px}.warden-portrait svg{max-height:210px}.nav{flex-wrap:wrap}}
+
+/* Six-door expandable galleries: preserves existing cards, filtering, and keyboard access. */
+.gallery-folded{display:none!important}
+.gallery-toggle{display:block;margin:24px auto 8px;padding:12px 22px;min-height:44px;border:1px solid #c7a36a;border-radius:999px;background:#211d47;color:#f3d98a;font:600 15px/1.3 system-ui,sans-serif;cursor:pointer}
+.gallery-toggle:hover{background:#302657;border-color:#f3d98a}
+.gallery-toggle:focus-visible{outline:3px solid #f3d98a;outline-offset:4px}
 </style>
 
 <header class="top">
@@ -1023,6 +1029,45 @@ footer .legal-details{font-size:.84rem}
 ['The Maillard Laboratory','/culinortals/the-maillard-laboratory/','explore','think','curiosity'],
 ['The Ship That Wasn’t','/philosortals/the-ship-that-wasnt/','explore','think','curiosity']
 ];function show(o){result.hidden=false;result.replaceChildren();const title=document.createElement('strong');title.textContent='Wortal recommends: '+o[0];const p=document.createElement('p');p.textContent='A door awaits. The choice to open it is yours.';const link=document.createElement('a');link.href=o[1];link.target='_blank';link.rel='noopener noreferrer';link.textContent='Open this door ↗';result.append(title,p,link);q.hidden=false;start.setAttribute('aria-expanded','true');result.scrollIntoView({block:'nearest',behavior:'smooth'})}start.addEventListener('click',()=>{q.hidden=!q.hidden;start.setAttribute('aria-expanded',String(!q.hidden));if(!q.hidden)q.scrollIntoView({block:'nearest',behavior:'smooth'})});document.getElementById('warden-surprise').addEventListener('click',()=>show(options[Math.floor(Math.random()*options.length)]));document.getElementById('warden-form').addEventListener('submit',e=>{e.preventDefault();const d=new FormData(e.currentTarget);const ranked=options.map((o,i)=>({o,i,score:(o[2]===d.get('kind')?5:0)+(o[3]===d.get('style')?3:0)+(o[4]===d.get('mood')?2:0)})).sort((a,b)=>b.score-a.score||a.i-b.i);show(ranked[0].o)})})();
+</script>
+
+<script>
+/* Keep six matching doors visible by default; filters still operate on all 31 items. */
+(function(){
+  'use strict';
+  var groups=[
+    {section:'stories',list:'#wall',name:'Doortals'},
+    {section:'cluortals',list:'#cluortals-wall',name:'Cluortals'},
+    {section:'chaortals',list:'.chaortals-wall',name:'Chaortals'},
+    {section:'games',list:'.gamortals-wall',name:'Gamortals'}
+  ];
+  groups.forEach(function(g){
+    var section=document.getElementById(g.section),list=section&&section.querySelector(g.list);
+    if(!list)return;
+    var open=false,button=document.createElement('button');
+    button.type='button';button.className='gallery-toggle';
+    if(!list.id)list.id='gallery-'+g.section+'-list';
+    button.setAttribute('aria-controls',list.id);
+    list.insertAdjacentElement('afterend',button);
+    function refresh(){
+      var matches=Array.prototype.filter.call(list.children,function(li){return li.tagName==='LI'&&!li.hidden;});
+      matches.forEach(function(li,i){li.classList.toggle('gallery-folded',!open&&i>=6);});
+      Array.prototype.forEach.call(list.children,function(li){if(li.hidden)li.classList.remove('gallery-folded');});
+      button.hidden=matches.length<=6;
+      button.setAttribute('aria-expanded',String(open));
+      button.textContent=open?'Show Fewer '+g.name:'View All '+matches.length+' '+g.name;
+    }
+    button.addEventListener('click',function(){open=!open;refresh();});
+    g.refresh=refresh;
+    refresh();
+  });
+  // Original Doortal and Cluortal filters can change which six doors match.
+  ['filters','clu-category-filters','clu-difficulty-filters'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el)el.addEventListener('click',function(){setTimeout(function(){groups.forEach(function(g){if(g.refresh)g.refresh();});},0);});
+  });
+  window.DQGalleryRefresh=function(){groups.forEach(function(g){if(g.refresh)g.refresh();});};
+})();
 </script>
 <!-- Cloudflare Web Analytics -->
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3f72232588414cf087bd7c4ed5e4ddaa"}'></script>
