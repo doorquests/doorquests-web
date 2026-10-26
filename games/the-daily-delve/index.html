@@ -1,0 +1,1551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="doorquests:status" content="Prototype · Founder Playtest · Not Published">
+<meta name="description" content="Gamortal #005 · The Daily Delve — ten floors, three doors, one journey. A shared daily dungeon. DoorQuests prototype for founder playtesting.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b0d26">
+<title>The Daily Delve | DoorQuests Gamortals</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0d26'/%3E%3Cpath d='M16 58V26a16 16 0 0 1 32 0v32z' fill='%23413523' stroke='%23e2b450' stroke-width='3'/%3E%3Cpath d='M22 58V44h20v14' fill='%2314100a'/%3E%3Ccircle cx='40' cy='40' r='2.5' fill='%23e2b450'/%3E%3C/svg%3E">
+<style>
+:root {
+  --night: #0b0d26; --indigo: #1b1a4d; --panel: #15183f; --panel2: #1d2150; --line: #2f3270;
+  --gold: #e2b450; --gold2: #f3d98a; --amber: #ffae4a; --stone: #4b4a55; --forest: #3f7d4a; --ivory: #f6f1e4; --dim: #c8c6d8; --mute: #a5a6c4;
+  --danger: #ff9a7a; --ok: #9be39b;
+  --focus: 0 0 0 3px #0b0d26, 0 0 0 5px #f3d98a;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { background: var(--night); }
+body { min-height: 100vh; min-height: 100dvh; color: var(--ivory); font: 16px/1.5 var(--sans); display: flex; flex-direction: column; overflow-x: hidden;
+  background: radial-gradient(1000px 600px at 50% -10%, #2a2160 0%, var(--night) 60%) fixed, var(--night); }
+a { color: var(--gold2); }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 8px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--gold); color: #111; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 8px; }
+[hidden] { display: none !important; }
+.top { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-bottom: 1px solid #262358; background: rgba(11, 13, 38, .9); flex-wrap: wrap; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ivory); font: 600 18px/1 var(--serif); }
+.brand-door { width: 16px; height: 22px; border: 2px solid var(--gold); border-radius: 8px 8px 1px 1px; }
+.crumb { color: var(--dim); font-size: 14px; display: inline-flex; gap: 6px; }
+.crumb-col { color: var(--gold2); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; align-self: center; }
+.badge { margin-left: auto; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px dashed var(--amber); color: var(--amber); }
+main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.btn { appearance: none; border: 1px solid #3c3f8f; background: var(--panel2); color: var(--ivory); border-radius: 10px; padding: 10px 16px; font: 600 15px/1.2 var(--sans); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
+.btn:hover:not([disabled]) { border-color: var(--gold); }
+.btn-primary { background: linear-gradient(#f0d27a, #d4a33a); color: #1b1606; border-color: #f3d98a; }
+.btn-quiet { background: transparent; }
+.btn-danger { border-color: var(--danger); color: #ffd9cc; background: #3a1c22; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+.stack { display: grid; gap: 8px; margin: 12px 0; }
+.stack form .btn { width: 100%; }
+.note { min-height: 1.3em; color: var(--gold2); font-size: 14px; margin: 6px 0 0; }
+.muted { color: var(--mute); } .small { font-size: 13px; }
+.k { color: var(--mute); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+
+/* ---------- title ---------- */
+.title-wrap { width: min(1100px, 100%); margin: 0 auto; padding: 22px 16px; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 28px; align-items: center; }
+.title-art svg { width: 100%; height: auto; display: block; border-radius: 16px; border: 1px solid #332c70; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
+.kicker { margin: 0 0 6px; color: var(--gold2); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+h1 { font: 600 clamp(36px, 5.5vw, 58px)/1.02 var(--serif); margin: 0 0 8px; }
+.t-no { display: block; font: 700 14px/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.tagline { color: var(--gold2); font: italic 20px/1.4 var(--serif); margin: 0 0 12px; }
+.daily { border: 1px solid #3a3480; border-radius: 12px; padding: 8px 12px; background: rgba(27, 26, 77, .6); margin-bottom: 12px; }
+.daily p { margin: 2px 0; }
+.daily strong { font: 700 20px/1.2 ui-monospace, Menlo, Consolas, monospace; color: var(--ivory); letter-spacing: .04em; }
+.tiers { border: 0; padding: 0; margin: 0 0 10px; display: grid; gap: 8px; }
+.tiers legend { font: 600 14px/1 var(--sans); color: var(--gold2); margin-bottom: 8px; }
+.tier { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: start; padding: 9px 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(21, 24, 63, .7); cursor: pointer; }
+.tier:has(input:checked) { border-color: var(--gold); background: rgba(46, 40, 104, .85); }
+.tier input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--gold); }
+.tier-medal { width: 22px; height: 22px; border-radius: 50%; }
+.tier-bronze .tier-medal { background: radial-gradient(circle at 35% 35%, #f0b37f, #a8642e); }
+.tier-silver .tier-medal { background: radial-gradient(circle at 35% 35%, #fff, #9aa4b8); }
+.tier-gold .tier-medal { background: radial-gradient(circle at 35% 35%, #fff0b0, #c8952a); }
+.tier-body { display: grid; gap: 2px; font-size: 14px; color: var(--dim); }
+.tier-body strong { color: var(--ivory); font-size: 15px; }
+.tier-stat { color: var(--gold2); font-size: 13px; }
+.first-note { font-size: 14px; color: var(--dim); margin: 4px 0; min-height: 1.2em; }
+.title-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+/* ---------- game ---------- */
+.hud { display: flex; align-items: center; gap: 6px 20px; padding: 8px 14px; background: rgba(15, 16, 48, .95); border-bottom: 1px solid #262358; flex-wrap: wrap; }
+.hud strong { font: 700 18px/1 var(--sans); font-variant-numeric: tabular-nums; }
+.fname { font: 600 16px/1.2 var(--serif); color: var(--gold2); margin-left: 4px; }
+.hud-hp { display: flex; align-items: center; gap: 8px; }
+.hpbar { display: inline-block; width: 90px; height: 10px; background: #3a1c22; border-radius: 5px; overflow: hidden; border: 1px solid #5a2c34; }
+.hpbar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #c94a4a, #ff8a6a); transition: width .3s; }
+.poison { font-size: 12px; color: #b6f59a; border: 1px solid #6aa84f; border-radius: 999px; padding: 1px 7px; }
+.poison::before { content: "☠ "; }
+.hud-btns { margin-left: auto; display: flex; gap: 6px; }
+.ibtn { appearance: none; min-width: 44px; min-height: 44px; border-radius: 10px; border: 1px solid #3c3f8f; background: var(--panel); color: var(--ivory); display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; cursor: pointer; font: 600 14px/1 var(--sans); }
+.ibtn[aria-pressed="false"] { color: var(--mute); }
+.play { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 300px; min-height: 0; }
+.scene { position: relative; overflow: auto; padding: 14px 16px 24px;
+  background:
+    radial-gradient(500px 280px at 50% 90%, rgba(255, 174, 74, .12), transparent 70%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .25) 0 2px, transparent 2px 46px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .18) 0 2px, transparent 2px 92px),
+    linear-gradient(#24223f, #17162d 70%, #100f20); }
+.mood, .doors, .encounter { position: relative; z-index: 1; }
+.mood { margin: 0 auto 10px; text-align: center; font: italic 16px/1.4 var(--serif); color: var(--dim); max-width: 46em; }
+.torch { position: absolute; top: 26px; width: 14px; height: 40px; background: linear-gradient(#5a3b1a, #2c1c0c); border-radius: 3px; }
+.torch::before { content: ""; position: absolute; left: -8px; top: -24px; width: 30px; height: 30px; border-radius: 50% 50% 45% 45%; background: radial-gradient(circle at 50% 70%, #fff3b0, #ffae4a 40%, rgba(255, 90, 20, .2) 70%, transparent 72%); animation: flick 1.6s infinite alternate; }
+.torch::after { content: ""; position: absolute; left: -60px; top: -70px; width: 134px; height: 134px; border-radius: 50%; background: radial-gradient(rgba(255, 174, 74, .22), transparent 70%); animation: glow 2.2s infinite alternate; pointer-events: none; }
+.torch-l { left: 14px; } .torch-r { right: 14px; }
+@keyframes flick { 0% { transform: scale(1) translateY(0); } 50% { transform: scale(1.08, .94) translateY(1px); } 100% { transform: scale(.95, 1.06) translateY(-1px); } }
+@keyframes glow { from { opacity: .75; } to { opacity: 1; } }
+.dust { position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(rgba(255, 230, 180, .5) 1px, transparent 1.5px), radial-gradient(rgba(255, 230, 180, .35) 1px, transparent 1.5px); background-size: 140px 160px, 210px 190px; background-position: 0 0, 60px 80px; animation: drift 30s linear infinite; opacity: .4; }
+@keyframes drift { to { background-position: 140px -160px, 270px -110px; } }
+body.reduce .torch::before, body.reduce .torch::after, body.reduce .dust { animation: none; }
+body.reduce .door-svg .leaf { transition: none !important; }
+
+.doors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; max-width: 920px; margin: 0 auto; position: relative; }
+.door { appearance: none; border: 0; background: none; color: inherit; padding: 0; cursor: pointer; display: grid; gap: 6px; justify-items: center; text-align: center; font: inherit; border-radius: 14px; }
+.door .door-svg { width: 100%; max-width: 240px; height: auto; display: block; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, .55)); transition: transform .2s; }
+.door:hover .door-svg, .door:focus-visible .door-svg { transform: translateY(-4px); }
+.door:focus-visible { box-shadow: var(--focus); }
+.door-svg .leaf { transition: transform .55s cubic-bezier(.3, .7, .3, 1); transform-origin: 30% 50%; transform-box: fill-box; }
+.door.opening .door-svg .leaf { transform: perspective(400px) rotateY(-75deg); }
+.door.dim { opacity: .35; transition: opacity .3s; }
+.door-label { font: 700 14px/1.2 var(--sans); color: var(--gold2); letter-spacing: .04em; }
+.door-crest { font: 600 15px/1.25 var(--serif); }
+.door-clue { font-size: 13px; color: var(--dim); min-height: 2.6em; max-width: 26ch; }
+.door-clue.silent { color: var(--mute); font-style: italic; }
+.door-reveal { font-size: 12px; color: #111; background: var(--gold2); border-radius: 999px; padding: 1px 8px; font-weight: 700; }
+
+.encounter { max-width: 760px; margin: 0 auto; background: rgba(16, 15, 40, .92); border: 1px solid #3c3a80; border-radius: 16px; padding: 16px 18px; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
+.enc-head { display: flex; gap: 14px; align-items: center; }
+.enc-head svg { width: 84px; height: 84px; flex: none; }
+.enc-head h2 { margin: 0; font: 600 24px/1.2 var(--serif); color: var(--gold2); }
+.enc-head p { margin: 2px 0 0; color: var(--dim); }
+.bars { display: grid; gap: 8px; margin: 12px 0; }
+.bar { display: grid; grid-template-columns: 110px 1fr 70px; gap: 8px; align-items: center; font-size: 14px; }
+.bar .track { height: 12px; border-radius: 6px; background: #2a2440; overflow: hidden; border: 1px solid #3c3a70; }
+.bar .fill { height: 100%; background: linear-gradient(90deg, #c94a4a, #ff8a6a); }
+.bar.foe .fill { background: linear-gradient(90deg, #7a5ad6, #b9a3ff); }
+.intent { border: 1px solid #5a4a9a; background: #1d1844; border-radius: 10px; padding: 8px 12px; margin: 8px 0; font-size: 15px; }
+.intent strong { color: var(--amber); }
+.actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }
+.act { appearance: none; border: 1px solid #4a4a9a; background: #1f2256; color: var(--ivory); border-radius: 12px; padding: 10px 12px; text-align: left; cursor: pointer; min-height: 56px; font: 600 15px/1.25 var(--sans); display: grid; gap: 2px; }
+.act small { font: 400 13px/1.3 var(--sans); color: var(--dim); }
+.act:hover:not([disabled]) { border-color: var(--gold); }
+.act[disabled] { opacity: .45; cursor: not-allowed; }
+.act.primary { background: linear-gradient(#3b2f6a, #2a2358); border-color: var(--gold); }
+.offers { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+.price { font-variant-numeric: tabular-nums; color: var(--gold2); }
+.flash-hit { animation: hit .35s; }
+@keyframes hit { 0% { background-color: rgba(255, 90, 90, .35); } 100% { background-color: transparent; } }
+body.reduce .flash-hit { animation: none; }
+
+.side { border-left: 1px solid #262358; background: rgba(13, 14, 40, .95); display: flex; flex-direction: column; min-height: 0; }
+.kit { padding: 10px 14px; border-bottom: 1px solid #262358; }
+.kit summary { cursor: pointer; font: 700 14px/1.4 var(--sans); color: var(--gold2); min-height: 32px; }
+.kit h3 { margin: 8px 0 4px; font: 700 12px/1 var(--sans); color: var(--mute); text-transform: uppercase; letter-spacing: .1em; }
+.kit ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 14px; }
+.kit li { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.kit li small { color: var(--mute); }
+.kit .use { appearance: none; border: 1px solid #4a4a9a; background: #1f2256; color: var(--ivory); border-radius: 8px; font: 600 12px/1 var(--sans); padding: 6px 8px; min-height: 32px; cursor: pointer; }
+.log { flex: 1; overflow: auto; padding: 10px 14px; }
+.log-h { margin: 0 0 6px; font: 700 14px/1.4 var(--sans); color: var(--gold2); }
+.log ol { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; color: var(--dim); }
+.log li:last-child { color: var(--ivory); }
+
+/* ---------- results ---------- */
+.result-wrap { width: min(900px, 100%); margin: 0 auto; padding: 22px 16px 30px; }
+.result-wrap h2 { font: 600 19px/1.2 var(--serif); color: var(--gold2); margin: 16px 0 6px; }
+.big-line { font-size: 18px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+.stat { background: #15183f; border: 1px solid #2f3270; border-radius: 10px; padding: 8px 10px; }
+.stat b { display: block; font: 700 20px/1.2 var(--sans); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--mute); }
+.r-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.route { margin: 0; padding-left: 22px; font-size: 14px; color: var(--dim); display: grid; gap: 2px; }
+.score-t { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+.score-t td { padding: 3px 6px; border-bottom: 1px solid #262a60; }
+.score-t td:last-child { text-align: right; }
+.score-t tr.tot td { font-weight: 700; border-top: 2px solid #3c3f8f; }
+.share pre { background: #0f1130; border: 1px solid #2f3270; border-radius: 10px; padding: 10px 12px; font: 14px/1.5 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; margin: 0; }
+
+dialog { border: 1px solid #3c3f8f; border-radius: 16px; background: var(--panel); color: var(--ivory); padding: 0; width: min(680px, calc(100% - 24px)); max-height: calc(100dvh - 32px); }
+dialog::backdrop { background: rgba(4, 4, 16, .72); }
+.dlg { padding: 18px 20px; }
+.dlg h2 { margin: 0 0 10px; font: 600 26px/1.2 var(--serif); color: var(--gold2); }
+.dlg h3 { margin: 16px 0 6px; font: 600 16px/1.2 var(--sans); color: var(--gold2); }
+.howto { padding-left: 20px; display: grid; gap: 6px; color: var(--dim); margin: 0; }
+.howto strong { color: var(--ivory); }
+.keys, table.rec { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+.keys th, .keys td, table.rec th, table.rec td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #262a60; }
+.keys th, table.rec thead th { color: var(--gold2); }
+.settings { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 8px; font-size: 14px; }
+.settings legend { color: var(--gold2); padding: 0 4px; }
+.settings label { display: flex; gap: 8px; align-items: center; min-height: 34px; }
+.settings input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--gold); }
+.settings input[type=range] { flex: 1; accent-color: var(--gold); }
+select { background: var(--panel2); color: var(--ivory); border: 1px solid #3c3f8f; border-radius: 8px; padding: 6px 8px; font: inherit; min-height: 40px; }
+.foot { padding: 14px 16px 18px; border-top: 1px solid #1f1d58; color: var(--dim); font-size: 14px; text-align: center; }
+.foot p { margin: 4px 0; }
+body.playing .foot { display: none; }
+
+@media (max-width: 900px) {
+  .title-wrap { grid-template-columns: 1fr; gap: 12px; padding-top: 12px; }
+  .title-art { max-width: 520px; }
+  .play { grid-template-columns: 1fr; }
+  .side { border-left: 0; border-top: 1px solid #262358; }
+  .log { max-height: 220px; }
+  .ibtn-t { display: none; }
+  .r-cols { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .crumb { display: none; }
+  .badge { font-size: 11px; margin-left: auto; }
+  .hud { gap: 4px 14px; padding: 6px 10px; }
+  .hud-seed { display: none; }
+  .fname { display: block; margin: 2px 0 0; font-size: 14px; }
+  .hpbar { width: 60px; }
+  .doors { gap: 6px; }
+  .door-clue { font-size: 12px; }
+  .door-crest { font-size: 13px; }
+  .scene { padding: 10px 8px 18px; }
+  .torch { display: none; }
+  .bar { grid-template-columns: 84px 1fr 60px; font-size: 13px; }
+  .enc-head svg { width: 64px; height: 64px; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header class="top">
+  <a class="brand" href="https://doorquests.com/" aria-label="DoorQuests home (opens doorquests.com)"><span class="brand-door" aria-hidden="true"></span><span class="brand-word">DoorQuests</span></a>
+  <span class="crumb"><span class="crumb-col">Gamortal #005</span><span aria-hidden="true">·</span><span>The Daily Delve</span></span>
+  <span class="badge">Prototype · Founder Playtest · Not Published</span>
+</header>
+
+<main id="main">
+  <!-- ============================ TITLE ============================ -->
+  <section id="scr-title" class="screen" aria-labelledby="t-h">
+    <div class="title-wrap">
+      <div class="title-art" aria-hidden="true" id="title-art"></div>
+      <div class="title-text">
+        <p class="kicker">DoorQuests · Gamortals — Interactive Games</p>
+        <h1 id="t-h"><span class="t-no">Gamortal #005</span>The Daily Delve</h1>
+        <p class="tagline">Ten floors. Three doors. One journey.</p>
+        <div class="daily" role="group" aria-label="Today's dungeon">
+          <p><span class="k">Today's dungeon (UTC)</span> <strong id="t-date">—</strong></p>
+          <p class="muted small" id="t-reset">New dungeon at 00:00 UTC.</p>
+          <p class="note" id="t-newday" role="status" aria-live="polite"></p>
+        </div>
+        <fieldset class="tiers"><legend>Choose your oath</legend>
+          <label class="tier tier-bronze"><input type="radio" name="tier" value="bronze"><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Bronze — Delver's Lantern</strong><span>More health, gentler foes and traps, cheaper supplies.</span><span class="tier-stat" data-t="bronze"></span></span></label>
+          <label class="tier tier-silver"><input type="radio" name="tier" value="silver" checked><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Silver — Delver's Trial</strong><span>The intended challenge. Scarcity matters.</span><span class="tier-stat" data-t="silver"></span></span></label>
+          <label class="tier tier-gold"><input type="radio" name="tier" value="gold"><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Gold — Delver's Oath</strong><span>Less health, stronger foes, deadlier traps, dearer goods.</span><span class="tier-stat" data-t="gold"></span></span></label>
+        </fieldset>
+        <p id="t-first" class="first-note"></p>
+        <div class="title-actions">
+          <button id="b-enter" class="btn btn-primary" type="button">Enter today's Delve</button>
+          <button id="b-replay" class="btn" type="button">Replay today's Delve (practice)</button>
+          <button id="b-continue" class="btn" type="button" hidden>Continue your run</button>
+        </div>
+        <div class="title-actions">
+          <button id="b-howto" class="btn btn-quiet" type="button">How to play</button>
+          <button id="b-records" class="btn btn-quiet" type="button">Records</button>
+          <button id="b-settings" class="btn btn-quiet" type="button">Sound &amp; settings</button>
+          <a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a>
+        </div>
+        <p id="t-note" class="note" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ GAME ============================ -->
+  <section id="scr-game" class="screen" hidden aria-label="The Daily Delve">
+    <div class="hud" role="group" aria-label="Your condition">
+      <div class="hud-floor"><span class="k">Floor</span> <strong id="h-floor">1/10</strong> <span id="h-fname" class="fname">The Entrance Hall</span></div>
+      <div class="hud-hp" aria-label="Health"><span class="k">Health</span> <strong id="h-hp">40/40</strong><span class="hpbar" aria-hidden="true"><i id="h-hpbar"></i></span><span id="h-poison" class="poison" hidden>Poisoned</span></div>
+      <div><span class="k">Gold</span> <strong id="h-gold">20</strong></div>
+      <div><span class="k">Score</span> <strong id="h-score">0</strong></div>
+      <div class="hud-seed"><span id="h-seed" class="small muted">2026-10-26 · Silver</span></div>
+      <div class="hud-btns">
+        <button id="g-menu" class="ibtn" type="button" aria-label="Menu (Esc)"><span aria-hidden="true">☰</span><span class="ibtn-t">Menu</span></button>
+        <button id="g-sound" class="ibtn" type="button" aria-pressed="true" aria-label="Sound on (M)"><span aria-hidden="true" id="g-sound-i">♪</span></button>
+      </div>
+    </div>
+
+    <div class="play">
+      <div class="scene" id="scene">
+        <div class="torch torch-l" aria-hidden="true"></div><div class="torch torch-r" aria-hidden="true"></div>
+        <div class="dust" aria-hidden="true"></div>
+        <p class="mood" id="mood"></p>
+        <div id="doors" class="doors" role="group" aria-label="Three doors — choose one"></div>
+        <div id="encounter" class="encounter" hidden></div>
+      </div>
+      <aside class="side" aria-label="Equipment and pack">
+        <details class="kit" id="kit" open>
+          <summary>Equipment &amp; pack</summary>
+          <div id="kit-body"></div>
+        </details>
+        <div class="log" aria-label="Journal"><h2 class="log-h">Journal</h2><ol id="log"></ol></div>
+      </aside>
+    </div>
+    <p id="say" class="sr-only" role="status" aria-live="polite"></p>
+  </section>
+
+  <!-- ============================ RESULTS ============================ -->
+  <section id="scr-result" class="screen" hidden aria-labelledby="r-h">
+    <div class="result-wrap">
+      <p class="kicker" id="r-k"></p>
+      <h1 id="r-h">Victory</h1>
+      <p id="r-line" class="big-line"></p>
+      <div id="r-stats" class="stats"></div>
+      <div class="r-cols">
+        <div><h2>Your route</h2><ol id="r-route" class="route"></ol></div>
+        <div><h2>How the score was made</h2><table class="score-t" id="r-score"></table></div>
+      </div>
+      <div><h2>Discoveries</h2><p id="r-disc" class="muted"></p></div>
+      <div class="share"><h2>Share your result</h2><pre id="r-share"></pre>
+        <div class="row"><button id="r-copy" class="btn btn-primary" type="button">Copy result</button><span id="r-copied" class="note" role="status" aria-live="polite"></span></div>
+        <p class="small muted">The summary contains no personal information. Scores are kept on this device only and are not verified — compare honestly with friends.</p></div>
+      <div class="row"><button id="r-replay" class="btn" type="button">Replay today's Delve</button><button id="r-title" class="btn btn-quiet" type="button">Return to title</button><a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a></div>
+    </div>
+  </section>
+</main>
+
+<!-- ============================ DIALOGS ============================ -->
+<dialog id="d-menu" aria-labelledby="menu-h"><div class="dlg">
+  <h2 id="menu-h">Menu</h2>
+  <p class="muted small">Your run is saved after every choice. You can close the page and continue later — the dungeon keeps its original date.</p>
+  <div class="stack">
+    <form method="dialog"><button class="btn btn-primary" value="close">Back to the dungeon</button></form>
+    <button id="m-howto" class="btn btn-quiet" type="button">How to play</button>
+    <button id="m-settings" class="btn btn-quiet" type="button">Sound &amp; settings</button>
+    <button id="m-title" class="btn btn-quiet" type="button">Save and return to title</button>
+    <button id="m-abandon" class="btn btn-danger" type="button">Abandon this run…</button>
+  </div>
+  <p id="m-note" class="note" role="status" aria-live="polite"></p>
+</div></dialog>
+
+<dialog id="d-howto" aria-labelledby="ht-h"><div class="dlg">
+  <h2 id="ht-h">How to play</h2>
+  <ol class="howto">
+    <li><strong>Choose a door.</strong> Each floor has three. Read the <em>crest</em> and listen at the door. Your choice is final once the door opens.</li>
+    <li><strong>Face what lies beyond:</strong> a fight, treasure, a trap, a merchant, a place to rest, or something stranger. From floor 4, treasure may be guarded — win the fight (or flee and lose the prize) before you choose.</li>
+    <li><strong>Descend.</strong> Ten floors end at the Heart Warden. On floor 10 the three doors are three ways to face it.</li>
+  </ol>
+  <h3>Clues</h3>
+  <p class="muted"><strong>Sounds never lie</strong> — if you hear something, it tells you what is there. Sometimes you hear nothing (on floor 1 you always hear; on floor 2, nine times in ten; deeper, about three times in five). <strong>Crests</strong> are hints, not promises. Measured from the dungeon generator over many days:</p>
+  <div id="ht-crests"></div>
+  <h3>Combat</h3>
+  <ul class="howto">
+    <li>Before you act you see what the enemy <strong>intends</strong> — Attack, Heavy blow (×1.8) or Guard — and the exact damage range you would take.</li>
+    <li><strong>Attack</strong>: your weapon range minus the enemy's armour (+3 armour while it guards). <strong>Defend</strong>: halve the damage you take this turn, and your next attack gains +2. <strong>Special</strong>: your weapon's technique, once per fight. <strong>Items</strong>: draughts, Fire Flasks, Smoke Vials.</li>
+    <li>Your armour reduces every hit (minimum 1). Each victory hardens you: <strong>+1 maximum health</strong> (+2 for elites).</li>
+    <li>Poison costs 1 health per combat turn and up to 2 when you descend (it never takes your last point). Rest at a spring, an Antidote or the Rootbound Talisman cures it.</li>
+  </ul>
+  <h3>Score</h3>
+  <table class="keys" id="ht-score"></table>
+  <h3>The daily dungeon</h3>
+  <p class="muted">Everyone playing on the same UTC date and tier meets exactly the same dungeon: the same doors, foes, prizes, prices and dice. Your choices change your journey, never the dungeon. The first run you finish (or abandon) each day is your <strong>first attempt</strong>; replays are practice and can only raise your <strong>personal best</strong>. The date comes from your device's clock — without a server the game cannot verify it, and local records are not tamper-proof.</p>
+  <h3>Keys</h3>
+  <p class="muted">1 2 3 or ← ↑ → open the left, centre or right door. Tab moves between buttons; Enter or Space presses. Esc opens the menu. M toggles sound.</p>
+  <div id="ht-tiers"></div>
+  <form method="dialog" class="row"><button class="btn btn-primary">Close</button></form>
+</div></dialog>
+
+<dialog id="d-records" aria-labelledby="rec-h"><div class="dlg">
+  <h2 id="rec-h">Records</h2>
+  <div id="rec-body"></div>
+  <p class="muted small">Stored only on this device (<code>doorquests.gamortal.005.the-daily-delve.v1</code>), the last 60 days. Not connected to the shared DoorQuests Keyring and not verified.</p>
+  <div class="row"><button id="rec-reset" class="btn btn-quiet" type="button">Erase Daily Delve records</button><form method="dialog"><button class="btn btn-primary">Close</button></form></div>
+  <p id="rec-note" class="note" role="status" aria-live="polite"></p>
+</div></dialog>
+
+<dialog id="d-settings" aria-labelledby="set-h"><div class="dlg">
+  <h2 id="set-h">Sound &amp; settings</h2>
+  <fieldset class="settings"><legend>Settings</legend>
+    <label><input type="checkbox" id="s-sound"> Sound</label>
+    <label>Volume <input type="range" id="s-vol" min="0" max="100" step="5"> <output id="s-vol-o"></output></label>
+    <label><input type="checkbox" id="s-ambient"> Torch crackle ambience</label>
+    <label>Motion <select id="s-motion"><option value="auto">Follow device setting</option><option value="full">Full</option><option value="reduced">Reduced</option></select></label>
+  </fieldset>
+  <form method="dialog" class="row"><button class="btn btn-primary">Done</button></form>
+</div></dialog>
+
+<dialog id="d-confirm" aria-labelledby="cf-h"><div class="dlg">
+  <h2 id="cf-h">Abandon this run?</h2>
+  <p id="cf-p" class="muted"></p>
+  <div class="row"><button id="cf-yes" class="btn btn-danger" type="button">Abandon run</button><form method="dialog"><button class="btn btn-primary" value="no">Keep delving</button></form></div>
+</div></dialog>
+
+<footer class="foot">
+  <p><strong>DoorQuests</strong> — <em>Choose Your Path. Find the Truth. Unlock the Impossible.</em></p>
+  <p>Gamortal #005 — The Daily Delve · Created by The Axiom Continuum. · <a href="https://doorquests.com/">Return to DoorQuests</a></p>
+  <p class="small muted">Prototype · Founder Playtest · Not Published. Art drawn in code, sounds synthesised in your browser. No accounts, no servers, no tracking. Plays offline once loaded.</p>
+</footer>
+
+<script id="dd-engine">
+/* The Daily Delve — deterministic game engine (Gamortal #005).
+   No DOM, no clocks, no Math.random. Every shared outcome is derived from a KEYED hash:
+     value = H(dailySeed | tier? | floor | door | encounter | decision | turn …)
+   so a player's route can never shift what lies behind any other door. */
+(function (root) {
+  'use strict';
+  var VERSION = 'V1', ENGINE = '1.0.0';
+
+  /* ================================================================ seeds */
+  function utcDate(ms) { var d = new Date(ms); return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0') + '-' + String(d.getUTCDate()).padStart(2, '0'); }
+  function msToNextUtcMidnight(ms) { var d = new Date(ms); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1) - ms; }
+  function isDate(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && utcDate(Date.parse(s + 'T00:00:00Z')) === s; }
+  function seedString(date) { return 'DOORQUESTS-DAILY-DELVE-' + date + '-' + VERSION; }
+  // FNV-1a then avalanche (murmur3 fmix32)
+  function h32(str) {
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b) >>> 0; h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35) >>> 0; h ^= h >>> 16;
+    return h >>> 0;
+  }
+  function stream(key) { var a = h32(key); return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function K() { return Array.prototype.join.call(arguments, '|'); }
+  function roll(key) { return stream(key)(); }                       // one value in [0,1) for a key
+  function rint(r, a, b) { return a + Math.floor(r() * (b - a + 1)); }
+  function pickW(r, table) { var t = 0, k; for (k in table) t += table[k]; var x = r() * t; for (k in table) { x -= table[k]; if (x < 0) return k; } return k; }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+
+  /* ================================================================ tiers */
+  var TIERS = {
+    bronze: { id: 'bronze', label: 'Bronze', title: "Delver's Lantern", hp: 44, gold: 20, potions: 2, enemyDmg: 0.75, enemyHp: 0.85, trapDmg: 0.6, price: 0.85, heal: 16, bossHp: 36, disarm: 15, restHeal: 0.5 },
+    silver: { id: 'silver', label: 'Silver', title: "Delver's Trial", hp: 36, gold: 15, potions: 2, enemyDmg: 0.9, enemyHp: 0.95, trapDmg: 1.0, price: 1.0, heal: 14, bossHp: 48, disarm: 0, restHeal: 0.4 },
+    gold:   { id: 'gold', label: 'Gold', title: "Delver's Oath", hp: 32, gold: 12, potions: 1, enemyDmg: 1.0, enemyHp: 1.05, trapDmg: 1.25, price: 1.15, heal: 12, bossHp: 50, disarm: -10, restHeal: 0.35 }
+  };
+  var TIER_IDS = ['bronze', 'silver', 'gold'];
+
+  /* ================================================================ data tables */
+  var FLOORS = [
+    null,
+    { n: 1, name: 'The Entrance Hall', mood: 'Torchlight spills across worn flagstones.', weights: { enemy: 3, treasure: 3, rest: 2, event: 1 }, rule: 'gentle', soundP: 1 },
+    { n: 2, name: 'The Whispering Gallery', mood: 'Every sound carries. Listen at the doors.', weights: { enemy: 3, treasure: 2, trap: 1, rest: 1, event: 2 }, soundP: 0.9 },
+    { n: 3, name: 'The Broken Armory', mood: 'Racks of rusted blades line the walls.', weights: { enemy: 3, treasure: 4, trap: 1, merchant: 1 }, rule: 'armory', soundP: 0.6 },
+    { n: 4, name: 'The Rootbound Passage', mood: 'Roots split the stone; the air smells of wet earth.', weights: { enemy: 3, rest: 3, trap: 2, treasure: 2, event: 1 }, soundP: 0.6 },
+    { n: 5, name: "The Merchant's Crossing", mood: 'Lanterns sway where old trade roads meet.', weights: { merchant: 3, enemy: 2, treasure: 2, event: 2 }, rule: 'merchant', soundP: 0.6 },
+    { n: 6, name: 'The Hall of Mechanisms', mood: 'Gears grind somewhere inside the walls.', weights: { trap: 5, enemy: 2, treasure: 2, rest: 1 }, rule: 'mechanisms', soundP: 0.6 },
+    { n: 7, name: 'The Forgotten Vault', mood: 'Gold glints in the dust. Something guards it.', weights: { treasure: 4, elite: 2, trap: 2, event: 2 }, rule: 'vault', soundP: 0.6 },
+    { n: 8, name: 'The Silent Barracks', mood: 'Rows of empty bunks. Not all of them empty.', weights: { enemy: 4, elite: 2, treasure: 2, rest: 1, merchant: 1 }, soundP: 0.6 },
+    { n: 9, name: 'The Last Sanctuary', mood: 'A quiet chamber before the deep. Prepare.', weights: { rest: 3, merchant: 3, treasure: 2, event: 1 }, rule: 'sanctuary', soundP: 0.75 },
+    { n: 10, name: 'The Heart Below', mood: 'Three ways into the Warden’s chamber. Choose how you face it.', rule: 'final', soundP: 1 }
+  ];
+  var TYPE_LABEL = { enemy: 'Combat', elite: 'Elite combat', treasure: 'Treasure', trap: 'Trap', merchant: 'Merchant', rest: 'Rest', event: 'Event', boss: 'The Warden' };
+
+  // Crest families. P(crest | encounter type) — the rule the generator follows.
+  var CRESTS = {
+    iron: { name: 'Iron Crest', desc: 'a scratched iron shield bolted to oak' },
+    gold: { name: 'Golden Sigil', desc: 'faded golden markings around a gilded panel' },
+    root: { name: 'Rooted Arch', desc: 'an arch wrapped in living roots' },
+    clock: { name: 'Clockwork Plate', desc: 'a brass plate of gears and rivets' },
+    lantern: { name: 'Merchant Lantern', desc: 'a plain door with a lantern hung beside it' }
+  };
+  var CREST_RULE = {
+    enemy:    { iron: 70, root: 15, clock: 15 },
+    elite:    { iron: 70, gold: 20, clock: 10 },
+    treasure: { gold: 65, iron: 15, clock: 10, root: 10 },
+    trap:     { clock: 60, gold: 25, root: 15 },
+    merchant: { lantern: 90, gold: 10 },
+    rest:     { root: 75, lantern: 15, gold: 10 },
+    event:    { gold: 30, root: 30, lantern: 20, clock: 20 }
+  };
+  // Sounds never lie: when present they describe the real encounter type.
+  var SOUNDS = {
+    enemy: ['claws scraping on stone', 'a low growl', 'heavy breathing', 'bones rattling'],
+    elite: ['a slow, heavy tread', 'armour creaking, pacing', 'a deep, patient breath'],
+    treasure: ['coins shifting in the dark', 'a faint metallic chime', 'utter stillness, and the smell of old brass'],
+    trap: ['a steady ticking', 'gears turning', 'a hiss of escaping air'],
+    merchant: ['someone humming and counting coins', 'a bell on a string', 'a kettle on a small fire'],
+    rest: ['running water', 'a crackling fire', 'soft birdsong, impossibly'],
+    event: ['a voice murmuring', 'pages turning', 'a faint, uneven knocking']
+  };
+
+  var WEAPONS = {
+    rusty:  { name: 'Rusty Sword', min: 4, max: 6, special: 'focus', value: 0 },
+    mace:   { name: 'Iron Mace', min: 4, max: 6, special: 'stun', value: 120 },
+    blade:  { name: "Knight's Blade", min: 5, max: 7, special: 'focus', value: 160 },
+    axe:    { name: 'Runed Axe', min: 4, max: 9, special: 'cleave', value: 180 },
+    spear:  { name: "Warden's Spear", min: 6, max: 8, special: 'pierce', value: 220 }
+  };
+  var SPECIALS = {
+    focus: { name: 'Focused Strike', text: 'Your attack deals +4 damage.' },
+    stun: { name: 'Stunning Blow', text: 'Normal damage, and the enemy loses its next action.' },
+    cleave: { name: 'Cleave', text: 'Your attack deals double damage.' },
+    pierce: { name: 'Piercing Thrust', text: 'Your attack ignores armour and deals +2 damage.' }
+  };
+  var ARMORS = {
+    none:    { name: 'Travelling Clothes', def: 0, value: 0 },
+    leather: { name: 'Leather Jerkin', def: 1, value: 100 },
+    chain:   { name: 'Chain Mail', def: 2, value: 160 },
+    plate:   { name: 'Warden Plate', def: 3, value: 240 }
+  };
+  var ITEMS = {
+    draught: { name: 'Healing Draught', text: 'Restore health.', value: 40, price: 14 },
+    flask:   { name: 'Fire Flask', text: '10 damage to an enemy, ignoring armour.', value: 50, price: 16 },
+    smoke:   { name: 'Smoke Vial', text: 'Escape a fight (not the Warden).', value: 40, price: 12 },
+    ward:    { name: 'Ward Charm', text: 'Completely negate one trap.', value: 50, price: 15 },
+    antidote:{ name: 'Antidote', text: 'Cure poison.', value: 25, price: 8 }
+  };
+  var RELICS = {
+    lantern: { name: 'Lantern of Insight', text: 'You always hear what lies behind every door.', value: 200, price: 40 },
+    heart:   { name: 'Iron Heart', text: '+6 maximum health (and heal 6).', value: 200, price: 36 },
+    coin:    { name: 'Coin Charm', text: '+25% gold from treasure and enemies.', value: 150, price: 30 },
+    thorn:   { name: 'Thorn Ring', text: 'Enemies take 1 damage whenever they hit you.', value: 150, price: 30 },
+    talisman:{ name: 'Rootbound Talisman', text: 'You cannot be poisoned.', value: 150, price: 28 },
+    kit:     { name: "Gearwright's Kit", text: '+25% chance to disarm traps.', value: 150, price: 30 },
+    sigil:   { name: "Warden's Bane", text: '+3 damage against the Warden.', value: 200, price: 34 }
+  };
+  // enemies: base (Silver) stats; band = floors
+  var ENEMIES = {
+    rats:     { name: 'Rat Swarm', band: 1, hp: 10, min: 2, max: 3, def: 0, gold: [4, 8], pattern: { attack: 8, heavy: 1, guard: 1 } },
+    sentry:   { name: 'Skeleton Sentry', band: 1, hp: 14, min: 2, max: 4, def: 1, gold: [5, 9], pattern: { attack: 6, heavy: 2, guard: 2 } },
+    spider:   { name: 'Cave Spider', band: 1, hp: 11, min: 2, max: 4, def: 0, gold: [3, 7], poison: true, pattern: { attack: 7, heavy: 2, guard: 1 } },
+    cutpurse: { name: 'Goblin Cutpurse', band: 1, hp: 12, min: 2, max: 5, def: 0, gold: [8, 14], pattern: { attack: 7, heavy: 2, guard: 1 } },
+    horror:   { name: 'Root Horror', band: 2, hp: 16, min: 3, max: 6, def: 0, gold: [7, 12], poison: true, pattern: { attack: 6, heavy: 2, guard: 2 } },
+    hound:    { name: 'Clockwork Hound', band: 2, hp: 15, min: 3, max: 6, def: 1, gold: [8, 13], pattern: { attack: 6, heavy: 3, guard: 1 } },
+    bandit:   { name: 'Bandit Captain', band: 2, hp: 18, min: 3, max: 7, def: 1, gold: [12, 18], pattern: { attack: 6, heavy: 2, guard: 2 } },
+    revenant: { name: 'Barracks Revenant', band: 3, hp: 21, min: 4, max: 7, def: 1, gold: [10, 16], pattern: { attack: 6, heavy: 2, guard: 2 } },
+    golem:    { name: 'Vault Golem', band: 3, hp: 24, min: 4, max: 8, def: 2, gold: [14, 20], pattern: { attack: 4, heavy: 3, guard: 3 } },
+    shade:    { name: 'Shade Duelist', band: 3, hp: 18, min: 4, max: 9, def: 1, gold: [10, 16], pattern: { attack: 7, heavy: 2, guard: 1 } },
+    warden:   { name: 'The Heart Warden', band: 4, hp: 42, min: 5, max: 8, def: 1, gold: [0, 0], pattern: { attack: 5, heavy: 3, guard: 2 } }
+  };
+  var TRAPS = {
+    blades: { name: 'Falling Blades', dmg: 7, chance: 55, text: 'A row of blades waits in the ceiling slot.' },
+    darts:  { name: 'Poison Darts', dmg: 4, poison: true, chance: 60, text: 'Tiny holes pepper the walls at waist height.' },
+    stairs: { name: 'Collapsing Stairs', dmg: 6, chance: 50, text: 'The steps ahead are cracked and hollow.' },
+    plate:  { name: 'Pressure Plate', dmg: 8, chance: 55, text: 'A loose flagstone sits beside a dark vent.' },
+    seal:   { name: 'Magical Seal', dmg: 5, goldLoss: 10, chance: 50, text: 'Runes glow along the threshold.' }
+  };
+  var EVENTS = {
+    traveler: { name: 'A Wounded Traveler', text: 'A traveler slumps against the wall, clutching a satchel.' },
+    cursed:   { name: 'A Cursed Chest', text: 'A chest bound in black chain hums with a cold light.' },
+    shrine:   { name: 'A Locked Shrine', text: 'A small shrine with a coin slot and a carved heart.' },
+    map:      { name: 'A Mysterious Map', text: 'A map of the next floor, inked in a hurried hand.' },
+    inscription: { name: 'An Inscription of the Deep', text: 'Words carved deep into the wall describe the Warden below.' },
+    fork:     { name: "The Gambler's Fork", text: 'Two paths: a narrow ledge glittering with coins, or a safe stair with a small purse.' }
+  };
+
+  /* ================================================================ dungeon generation (tier-independent structure) */
+  var SIDES = ['L', 'C', 'R'];
+  function genFloor(date, f) {
+    var S = seedString(date), fl = FLOORS[f], doors = [];
+    if (fl.rule === 'final') {
+      var appr = [['iron', 'gate'], ['root', 'roots'], ['gold', 'gold']];
+      for (var i = 0; i < 3; i++) doors.push({ side: SIDES[i], type: 'boss', crest: appr[i][0], approach: appr[i][1] });
+      return { n: f, name: fl.name, mood: fl.mood, doors: doors };
+    }
+    var types;
+    for (var attempt = 0; attempt < 50; attempt++) {
+      var r = stream(K(S, 'floor', f, 'types', attempt));
+      types = SIDES.map(function () { return pickW(r, fl.weights); });
+      if (validTypes(fl, types)) break;
+    }
+    // shuffle deterministically so rule-forced types do not always sit on the same side
+    var rs = stream(K(S, 'floor', f, 'order'));
+    for (var j = types.length - 1; j > 0; j--) { var k = Math.floor(rs() * (j + 1)), tmp = types[j]; types[j] = types[k]; types[k] = tmp; }
+    for (var d = 0; d < 3; d++) {
+      var side = SIDES[d], t = types[d];
+      var rc = stream(K(S, 'floor', f, 'door', side, 'clue'));
+      var crest = pickW(rc, CREST_RULE[t]);
+      var soundRoll = rc(), sIdx = Math.floor(rc() * SOUNDS[t].length);
+      doors.push({ side: side, type: t, crest: crest, soundRoll: soundRoll, sound: SOUNDS[t][sIdx], soundShown: soundRoll < fl.soundP, enc: genEncounter(date, f, side, t) });
+    }
+    // at most one guarded treasure per floor: a second treasure on the same floor is always unguarded
+    var seenGuard = false;
+    doors.forEach(function (dr) { if (dr.type === 'treasure' && dr.enc.guard) { if (seenGuard) dr.enc.guard = null; seenGuard = true; } });
+    return { n: f, name: fl.name, mood: fl.mood, doors: doors };
+  }
+  function validTypes(fl, t) {
+    var c = function (x) { return t.filter(function (y) { return y === x; }).length; };
+    var combat = c('enemy') + c('elite') + c('trap');
+    if (combat >= 3) return false;                         // every floor has at least one door that is not a fight or a trap
+    if (c('merchant') > 1 || c('rest') > 1 || c('elite') > 1) return false;
+    if (fl.rule === 'gentle' && (c('trap') || c('elite'))) return false;
+    if (fl.rule === 'merchant' && c('merchant') !== 1) return false;
+    if (fl.rule === 'sanctuary' && (c('rest') !== 1)) return false;
+    if (fl.rule === 'mechanisms' && c('trap') < 1) return false;
+    if (fl.rule === 'vault' && c('treasure') < 1) return false;
+    if (fl.rule === 'armory' && c('treasure') < 1) return false;
+    return true;
+  }
+  function bandFor(f) { return f <= 3 ? 1 : f <= 6 ? 2 : 3; }
+  function genEncounter(date, f, side, type) {
+    var S = seedString(date), r = stream(K(S, 'floor', f, 'door', side, 'enc'));
+    if (type === 'enemy' || type === 'elite') {
+      var band = bandFor(f) + (type === 'elite' && f < 7 ? 1 : 0);
+      var pool = Object.keys(ENEMIES).filter(function (k) { return ENEMIES[k].band === Math.min(3, band); });
+      return { enemy: pool[Math.floor(r() * pool.length)], elite: type === 'elite' };
+    }
+    if (type === 'treasure') {
+      var floorTier = f <= 3 ? 0 : f <= 6 ? 1 : 2;
+      var wpool = [['mace', 'axe'], ['blade', 'axe', 'mace'], ['spear', 'blade', 'axe']][floorTier];
+      var apool = [['leather'], ['leather', 'chain'], ['chain', 'plate']][floorTier];
+      var kinds = { weapon: 2, armor: 2, item: 3, relic: f >= 3 ? 2 : 1, gold: 2 };
+      if (FLOORS[f].rule === 'armory') { kinds.weapon = 4; kinds.armor = 4; }
+      if (FLOORS[f].rule === 'vault') { kinds.relic = 4; kinds.gold = 3; }
+      var offers = [], used = {};
+      while (offers.length < 2) {
+        var kd = pickW(r, kinds); if (used[kd] && kd !== 'item') continue; used[kd] = 1;
+        if (kd === 'weapon') offers.push({ k: 'weapon', id: wpool[Math.floor(r() * wpool.length)] });
+        else if (kd === 'armor') offers.push({ k: 'armor', id: apool[Math.floor(r() * apool.length)] });
+        else if (kd === 'item') { var it = ['draught', 'flask', 'smoke', 'ward', 'antidote', 'draught'][Math.floor(r() * 6)]; if (offers.some(function (o) { return o.k === 'item' && o.id === it; })) continue; offers.push({ k: 'item', id: it }); }
+        else if (kd === 'relic') { var rk = Object.keys(RELICS); offers.push({ k: 'relic', id: rk[Math.floor(r() * rk.length)] }); }
+        else offers.push({ k: 'gold', n: 12 + f * 3 + Math.floor(r() * 10) });
+      }
+      var gp = f < 4 ? 0 : FLOORS[f].rule === 'vault' ? 0.6 : 0.35, guarded = r() < gp;
+      var gpool = Object.keys(ENEMIES).filter(function (k) { return ENEMIES[k].band === bandFor(f); });
+      return { offers: offers, vault: FLOORS[f].rule === 'vault', guard: guarded ? gpool[Math.floor(r() * gpool.length)] : null };
+    }
+    if (type === 'trap') { var tk = Object.keys(TRAPS); return { trap: tk[Math.floor(r() * tk.length)] }; }
+    if (type === 'merchant') {
+      var pool2 = ['draught', 'draught', 'flask', 'smoke', 'ward', 'antidote'], stock = [];
+      var nItems = 3; while (stock.length < nItems) { var id = pool2[Math.floor(r() * pool2.length)]; if (stock.filter(function (s) { return s.id === id; }).length >= (id === 'draught' ? 2 : 1)) continue; stock.push({ k: 'item', id: id, roll: 0.9 + r() * 0.2 }); }
+      var rk2 = Object.keys(RELICS); stock.push({ k: 'relic', id: rk2[Math.floor(r() * rk2.length)], roll: 0.9 + r() * 0.2 });
+      var gearPool = f <= 4 ? [['weapon', 'mace'], ['armor', 'leather']] : [['weapon', 'blade'], ['weapon', 'axe'], ['armor', 'chain']];
+      var g = gearPool[Math.floor(r() * gearPool.length)]; stock.push({ k: g[0], id: g[1], roll: 0.9 + r() * 0.2 });
+      return { stock: stock };
+    }
+    if (type === 'rest') { var v = ['campfire', 'spring', 'shrine'][Math.floor(r() * 3)]; return { variant: v, find: r() < 0.5 ? { k: 'gold', n: 10 + Math.floor(r() * 11) } : { k: 'item', id: ['draught', 'ward', 'flask', 'antidote'][Math.floor(r() * 4)] } }; }
+    if (type === 'event') { var ek = Object.keys(EVENTS); if (f >= 9) ek = ek.filter(function (e) { return e !== 'map'; }); return { event: ek[Math.floor(r() * ek.length)], relic: Object.keys(RELICS)[Math.floor(r() * 7)] }; }
+    return {};
+  }
+  var _dunCache = {};
+  function genDungeon(date) {
+    if (_dunCache[date]) return _dunCache[date];
+    var floors = [null]; for (var f = 1; f <= 10; f++) floors.push(genFloor(date, f));
+    var dun = { date: date, seed: seedString(date), floors: floors };
+    _dunCache[date] = dun; var keys = Object.keys(_dunCache); if (keys.length > 64) delete _dunCache[keys[0]];
+    return dun;
+  }
+
+  /* ================================================================ run state */
+  function newRun(date, tierId, opts) {
+    var T = TIERS[tierId];
+    var st = {
+      v: ENGINE, date: date, tier: tierId, floor: 1, phase: 'doors', hp: T.hp, maxHp: T.hp, gold: T.gold,
+      weapon: 'rusty', armor: 'none', items: [], relics: [], poison: false, score: 0,
+      route: [], kills: 0, traps: 0, discoveries: [], scoreLog: [], revealNext: false, bossBonus: 0, bane: false,
+      enc: null, log: [], actions: [], ended: null, practice: !!(opts && opts.practice), turn: 0
+    };
+    for (var i = 0; i < T.potions; i++) st.items.push('draught');
+    return st;
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function tier(st) { return TIERS[st.tier]; }
+  function addScore(st, n, why) { if (n) { st.score += n; st.scoreLog.push([why, n]); } }
+  function say(st, msg) { st.log.push(msg); if (st.log.length > 60) st.log.shift(); }
+  function hasRelic(st, id) { return st.relics.indexOf(id) >= 0; }
+  function heal(st, n) { var before = st.hp; st.hp = Math.min(st.maxHp, st.hp + n); return st.hp - before; }
+  function hurt(st, n) { st.hp = Math.max(0, st.hp - n); if (st.hp <= 0) end(st, 'defeat'); }
+  function goldGain(st, n) { var g = hasRelic(st, 'coin') ? Math.round(n * 1.25) : n; st.gold += g; return g; }
+  function canCarry(st) { return st.items.length < 4; }
+  function end(st, how) { if (st.ended) return; st.ended = how; st.phase = 'ended'; }
+  function floorData(st) { return genDungeon(st.date).floors[st.floor]; }
+  function doorAt(st, side) { var fl = floorData(st); for (var i = 0; i < 3; i++) if (fl.doors[i].side === side) return fl.doors[i]; return null; }
+  function soundVisible(st, door) { return door.type === 'boss' || hasRelic(st, 'lantern') || door.soundShown || (st.revealNext === st.floor); }
+
+  // Public view of a floor's doors — only what the player may know
+  function doorView(st) {
+    var fl = floorData(st);
+    return fl.doors.map(function (d) {
+      var v = { side: d.side, crest: d.crest, crestName: CRESTS[d.crest].name, crestDesc: CRESTS[d.crest].desc };
+      if (d.type === 'boss') { v.approach = d.approach; v.sound = { gate: 'the Warden pacing behind an iron gate', roots: 'roots creaking around a wounded heart', gold: 'a golden seal humming, waiting for payment' }[d.approach]; v.revealed = 'boss'; }
+      else { v.sound = soundVisible(st, d) ? d.sound : null; if (st.revealNext === st.floor) v.revealed = d.type; }
+      return v;
+    });
+  }
+
+  /* ---------------------------------------------------------------- encounter instantiation (tier-scaled numbers) */
+  function enemyStats(st, enemyId, elite, f) {
+    var T = tier(st), E = ENEMIES[enemyId];
+    var hp = Math.round(E.hp * T.enemyHp * (elite ? 1.4 : 1) * (1 + 0.02 * (f - 1)));
+    if (enemyId === 'warden') hp = T.bossHp;
+    return { id: enemyId, name: (elite ? 'Elite ' : '') + E.name, hp: hp, maxHp: hp, min: Math.max(1, Math.round(E.min * T.enemyDmg) + (elite ? 1 : 0)), max: Math.max(1, Math.round(E.max * T.enemyDmg) + (elite ? 1 : 0)), def: E.def, poison: !!E.poison, elite: !!elite, boss: enemyId === 'warden' };
+  }
+  function price(st, stockItem) {
+    var base = stockItem.k === 'item' ? ITEMS[stockItem.id].price : stockItem.k === 'relic' ? RELICS[stockItem.id].price : stockItem.k === 'weapon' ? Math.round(WEAPONS[stockItem.id].value / 5) : Math.round(ARMORS[stockItem.id].value / 5);
+    return Math.max(1, Math.round(base * tier(st).price * stockItem.roll));
+  }
+  function trapChance(st, trapId) { return clamp(TRAPS[trapId].chance + tier(st).disarm + (hasRelic(st, 'kit') ? 25 : 0), 5, 95); }
+  function trapDamage(st, trapId) { return Math.max(1, Math.round(TRAPS[trapId].dmg * tier(st).trapDmg * (1 + 0.05 * (st.floor - 1)))); }
+
+  function openDoor(st, side) {
+    var d = doorAt(st, side); if (!d) return err('No such door.');
+    st.route.push(side);
+    var key = K(seedString(st.date), st.tier, 'floor', st.floor, 'door', side);
+    st.enc = { side: side, type: d.type, crest: d.crest, key: key, done: false };
+    var e = st.enc;
+    if (d.type === 'enemy' || d.type === 'elite') { e.foe = enemyStats(st, d.enc.enemy, d.enc.elite, st.floor); startFight(st); say(st, 'Behind the ' + CRESTS[d.crest].name + ': ' + e.foe.name + '!'); }
+    else if (d.type === 'boss') {
+      e.foe = enemyStats(st, 'warden', false, 10); e.approach = d.approach;
+      if (d.approach === 'roots') { e.foe.hp = Math.round(e.foe.hp * 0.75); if (!hasRelic(st, 'talisman')) st.poison = true; say(st, 'Roots have already wounded the Warden — and their thorns poison you as you pass.' + (hasRelic(st, 'talisman') ? ' Your talisman protects you.' : '')); }
+      if (d.approach === 'gold') { e.goldSeal = true; }
+      if (d.approach === 'gate') say(st, 'You push open the iron gate and face the Warden directly. Valour will be rewarded.');
+      if (d.approach !== 'gold') startFight(st);
+      else { e.sub = 'seal'; say(st, 'A golden seal bars the way. Paying it will weaken the Warden.'); }
+    }
+    else if (d.type === 'treasure') {
+      e.offers = d.enc.offers; e.vault = d.enc.vault;
+      if (d.enc.guard) { e.guarded = true; e.foe = enemyStats(st, d.enc.guard, false, st.floor); e.foe.hp = e.foe.maxHp = Math.round(e.foe.hp * 0.75); e.foe.name = e.foe.name + ' (guarding treasure)'; startFight(st); say(st, 'Treasure glitters — but ' + ENEMIES[d.enc.guard].name + ' guards it!'); }
+      else say(st, 'A treasure chamber. You may take one prize.');
+    }
+    else if (d.type === 'trap') { e.trap = d.enc.trap; say(st, TRAPS[e.trap].name + '! ' + TRAPS[e.trap].text); }
+    else if (d.type === 'merchant') { e.stock = d.enc.stock.map(function (s) { return { k: s.k, id: s.id, price: price(st, s), sold: false }; }); say(st, 'A travelling merchant spreads out her wares.'); }
+    else if (d.type === 'rest') { e.variant = d.enc.variant; e.find = d.enc.find; say(st, { campfire: 'A sheltered campfire.', spring: 'A clear spring bubbles from the rock.', shrine: 'A quiet shrine glows softly.' }[e.variant]); }
+    else if (d.type === 'event') { e.event = d.enc.event; e.relic = d.enc.relic; say(st, EVENTS[e.event].name + '. ' + EVENTS[e.event].text); }
+    st.phase = 'encounter';
+    return ok();
+  }
+
+  /* ---------------------------------------------------------------- combat
+     Each enemy turn's intent is derived from H(encounter key | 'intent' | turn) and SHOWN before you act.
+     Damage rolls derive from H(key | 'pdmg'|'edmg' | turn). Same state + same actions → same fight. */
+  function startFight(st) {
+    var e = st.enc; e.sub = 'fight'; e.turn = 1; e.defending = false; e.counter = false; e.stunned = false; e.specialUsed = false; e.intent = intentFor(st, 1);
+  }
+  function intentFor(st, turn) {
+    var e = st.enc, f = e.foe, E = ENEMIES[f.id], r = stream(K(e.key, 'intent', turn));
+    var pat = Object.assign({}, E.pattern);
+    if (f.boss && f.hp <= f.maxHp / 2) { pat.heavy += 2; pat.guard = Math.max(0, pat.guard - 1); }
+    if (turn === 1) pat.guard = 0; // nobody hides on the first turn
+    var kind = pickW(r, pat), base = enemyRange(st);
+    if (kind === 'heavy') return { kind: 'heavy', min: Math.round(base.min * 1.8), max: Math.round(base.max * 1.8) };
+    if (kind === 'guard') return { kind: 'guard', min: 0, max: 0 };
+    return { kind: 'attack', min: base.min, max: base.max };
+  }
+  function enemyRange(st) { var f = st.enc.foe, enr = f.boss && f.hp <= f.maxHp / 2 ? 2 : 0; return { min: f.min + enr, max: f.max + enr }; }
+  // what the player would take from an intent (after armour; defending halves, rounding down)
+  function incoming(st, intent, defending) {
+    var d = ARMORS[st.armor].def;
+    function one(x) { var v = Math.max(intent.kind === 'guard' ? 0 : 1, x - d); return defending ? Math.floor(v / 2) : v; }
+    return { min: intent.kind === 'guard' ? 0 : one(intent.min), max: intent.kind === 'guard' ? 0 : one(intent.max) };
+  }
+  function playerRange(st, special) {
+    var w = WEAPONS[st.weapon], f = st.enc.foe, sp = special ? w.special : null;
+    var guarding = st.enc.intent ? st.enc.intent.kind === 'guard' : f.guarding;
+    var armor = sp === 'pierce' ? 0 : (guarding ? f.def + 3 : f.def);
+    var bonus = (st.enc.counter ? 2 : 0) + (f.boss && st.bane ? 3 : 0) + (f.boss && hasRelic(st, 'sigil') ? 3 : 0) + (sp === 'focus' ? 4 : 0) + (sp === 'pierce' ? 2 : 0);
+    function dmg(x) { var v = Math.max(1, x + bonus - armor); return sp === 'cleave' ? v * 2 : v; }
+    return { min: dmg(w.min), max: dmg(w.max) };
+  }
+  function combatAction(st, a) {
+    var e = st.enc, f = e.foe, w = WEAPONS[st.weapon];
+    if (e.sub !== 'fight') return err('There is no fight here.');
+    var turn = e.turn, defending = false, usedSpecial = false;
+    f.guarding = e.intent.kind === 'guard';
+    if (a.t === 'attack' || a.t === 'special') {
+      if (a.t === 'special') { if (e.specialUsed) return err('Special already used this fight.'); e.specialUsed = true; usedSpecial = true; }
+      var range = playerRange(st, usedSpecial), r = stream(K(e.key, 'pdmg', turn));
+      var dmg = range.min + Math.floor(r() * (range.max - range.min + 1));
+      f.hp = Math.max(0, f.hp - dmg); e.counter = false;
+      say(st, (usedSpecial ? SPECIALS[w.special].name + ': ' : 'You strike for ') + dmg + (usedSpecial ? ' damage.' : '.') + (f.guarding ? ' (It was guarding.)' : ''));
+      if (usedSpecial && w.special === 'stun') e.stunned = true;
+    } else if (a.t === 'defend') {
+      defending = true; e.counter = true; say(st, 'You raise your guard. Your next attack gains +2.');
+    } else if (a.t === 'item') {
+      var idx = st.items.indexOf(a.item); if (idx < 0) return err('You do not have that item.');
+      if (a.item === 'draught') { st.items.splice(idx, 1); say(st, 'You drink a Healing Draught (+' + heal(st, tier(st).heal) + ').'); }
+      else if (a.item === 'flask') { st.items.splice(idx, 1); f.hp = Math.max(0, f.hp - 10); say(st, 'The Fire Flask bursts for 10.'); }
+      else if (a.item === 'antidote') { if (!st.poison) return err('You are not poisoned.'); st.items.splice(idx, 1); st.poison = false; say(st, 'The poison fades.'); }
+      else if (a.item === 'smoke') { if (f.boss) return err('There is no escaping the Warden.'); st.items.splice(idx, 1); say(st, 'You vanish in smoke and slip past.'); e.sub = 'done'; e.done = true; e.fled = true; return ok(); }
+      else return err('That cannot be used in a fight.');
+    } else return err('Unknown action.');
+    if (f.hp <= 0) return winFight(st);
+    // enemy acts
+    if (e.stunned) { e.stunned = false; say(st, f.name + ' is stunned and loses its action.'); }
+    else if (e.intent.kind === 'guard') { say(st, f.name + ' guards.'); }
+    else {
+      var inc = incoming(st, e.intent, defending), r2 = stream(K(e.key, 'edmg', turn));
+      var take = inc.min + Math.floor(r2() * (inc.max - inc.min + 1));
+      hurt(st, take);
+      say(st, f.name + (e.intent.kind === 'heavy' ? ' lands a heavy blow' : ' hits') + ' for ' + take + (defending ? ' (blocked half).' : '.'));
+      if (take > 0 && hasRelic(st, 'thorn')) { f.hp = Math.max(0, f.hp - 1); say(st, 'Thorns bite back for 1.'); }
+      if (take > 0 && f.poison && !hasRelic(st, 'talisman') && !st.poison) { st.poison = true; say(st, 'You are poisoned!'); }
+      if (st.ended) return ok();
+      if (f.hp <= 0) return winFight(st);
+    }
+    if (st.poison) { hurt(st, 1); say(st, 'Poison stings (−1).'); if (st.ended) return ok(); }
+    e.turn++; e.intent = intentFor(st, e.turn);
+    return ok();
+  }
+  function winFight(st) {
+    var e = st.enc, f = e.foe; e.sub = 'done'; e.done = true; e.won = true;
+    if (f.boss) {
+      st.kills++; addScore(st, 1000, 'Defeated the Heart Warden');
+      if (e.approach === 'gate') addScore(st, 600, 'Valour: faced the Warden through the iron gate');
+      say(st, 'The Heart Warden falls. The way to the surface opens.');
+      victory(st); return ok();
+    }
+    var E = ENEMIES[f.id], r = stream(K(e.key, 'loot'));
+    var g = goldGain(st, Math.round(rint(r, E.gold[0], E.gold[1]) * (f.elite ? 2 : 1)));
+    st.kills++; addScore(st, f.elite ? 500 : 250, 'Defeated ' + f.name);
+    var hard = f.elite ? 2 : 1; st.maxHp += hard; st.hp = Math.min(st.maxHp, st.hp + hard);
+    say(st, f.name + ' is defeated. You find ' + g + ' gold, and the fight hardens you: +' + hard + ' maximum health.');
+    if (f.elite) { var it = ['draught', 'flask', 'ward'][Math.floor(r() * 3)]; if (canCarry(st)) { st.items.push(it); say(st, 'It carried a ' + ITEMS[it].name + '.'); } st.discoveries.push('Elite: ' + f.name); }
+    if (e.type === 'treasure') { e.sub = 'loot'; e.done = false; e.won = true; say(st, 'The treasure is yours to choose.'); }
+    return ok();
+  }
+  function victory(st) {
+    addScore(st, 500, 'Floor 10 completed');
+    addScore(st, 2000, 'Dungeon completed');
+    addScore(st, st.hp * 20, 'Health remaining (' + st.hp + ' × 20)');
+    addScore(st, st.gold * 5, 'Gold remaining (' + st.gold + ' × 5)');
+    end(st, 'victory');
+  }
+
+  /* ---------------------------------------------------------------- non-combat */
+  function takeOffer(st, o) {
+    if (o.k === 'gold') { var g = goldGain(st, o.n); addScore(st, g * 2, 'Treasure: ' + g + ' gold'); say(st, 'You take ' + g + ' gold.'); return true; }
+    if (o.k === 'weapon') { st.weapon = o.id; addScore(st, WEAPONS[o.id].value, 'Treasure: ' + WEAPONS[o.id].name); say(st, 'You now wield the ' + WEAPONS[o.id].name + '.'); st.discoveries.push(WEAPONS[o.id].name); return true; }
+    if (o.k === 'armor') { st.armor = o.id; addScore(st, ARMORS[o.id].value, 'Treasure: ' + ARMORS[o.id].name); say(st, 'You put on the ' + ARMORS[o.id].name + '.'); st.discoveries.push(ARMORS[o.id].name); return true; }
+    if (o.k === 'item') { if (!canCarry(st)) return false; st.items.push(o.id); addScore(st, ITEMS[o.id].value, 'Treasure: ' + ITEMS[o.id].name); say(st, 'You pack a ' + ITEMS[o.id].name + '.'); return true; }
+    if (o.k === 'relic') { if (st.relics.length >= 3 || hasRelic(st, o.id)) return false; gainRelic(st, o.id); addScore(st, RELICS[o.id].value, 'Treasure: ' + RELICS[o.id].name); return true; }
+    return false;
+  }
+  function gainRelic(st, id) { st.relics.push(id); if (id === 'heart') { st.maxHp += 6; heal(st, 6); } if (id === 'talisman') st.poison = false; say(st, 'Relic gained: ' + RELICS[id].name + ' — ' + RELICS[id].text); st.discoveries.push(RELICS[id].name); }
+  function offerBlocked(st, o) {
+    if (o.k === 'item' && !canCarry(st)) return 'Your pack is full (4 items).';
+    if (o.k === 'relic' && st.relics.length >= 3) return 'You already carry three relics.';
+    if (o.k === 'relic' && hasRelic(st, o.id)) return 'You already have this relic.';
+    if (o.k === 'weapon' && st.weapon === o.id) return 'You already wield this.';
+    if (o.k === 'armor' && st.armor === o.id) return 'You already wear this.';
+    return null;
+  }
+
+  function act(st, a) {
+    if (!a || typeof a.t !== 'string') return err('Bad action.');
+    if (st.ended) return err('The run has ended.');
+    if (a.t === 'abandon') { say(st, 'You climb back to the surface.'); end(st, 'abandoned'); return ok(); }
+    if (a.t === 'use') return useItem(st, a.item);
+    if (st.phase === 'doors') { if (a.t !== 'open' || SIDES.indexOf(a.door) < 0) return err('Choose a door.'); return openDoor(st, a.door); }
+    if (st.phase === 'cleared') {
+      if (a.t !== 'descend') return err('Descend to continue.');
+      return descend(st);
+    }
+    var e = st.enc; if (!e) return err('No encounter.');
+    if (e.sub === 'fight') return finish(st, combatAction(st, a));
+    if (e.sub === 'seal') {
+      if (a.t === 'pay') { var cost = 30; if (st.gold < cost) return err('You need ' + cost + ' gold.'); st.gold -= cost; e.foe.def = 0; e.foe.hp = Math.round(e.foe.hp * 0.85); e.foe.maxHp = e.foe.hp; say(st, 'The seal drinks your gold. The Warden’s armour falls away and it staggers.'); startFight(st); return ok(); }
+      if (a.t === 'refuse') { say(st, 'You step past the humming seal and face the Warden as it is.'); startFight(st); return ok(); }
+      return err('Pay the seal or refuse.');
+    }
+    if (e.type === 'treasure') {
+      if (a.t === 'take') { var o = e.offers[a.i]; if (!o) return err('No such prize.'); var bl = offerBlocked(st, o); if (bl) return err(bl); takeOffer(st, o); e.done = true; e.took = a.i; if (e.vault && e.offers.length) { /* vault: the guardian stirs */ } return finish(st, ok()); }
+      if (a.t === 'leave') { say(st, 'You leave the treasure where it lies.'); e.done = true; return finish(st, ok()); }
+      return err('Take a prize or leave.');
+    }
+    if (e.type === 'trap') {
+      var tr = TRAPS[e.trap], dmg = trapDamage(st, e.trap);
+      if (a.t === 'ward') { var wi = st.items.indexOf('ward'); if (wi < 0) return err('You have no Ward Charm.'); st.items.splice(wi, 1); st.traps++; addScore(st, 100, 'Trap mitigated: ' + tr.name); say(st, 'The Ward Charm flares and the trap falls silent.'); e.done = true; return finish(st, ok()); }
+      if (a.t === 'disarm') {
+        var ch = trapChance(st, e.trap), r = roll(K(e.key, 'disarm'));
+        e.rolled = Math.floor(r * 100);
+        if (e.rolled < ch) { st.traps++; addScore(st, 100, 'Trap disarmed: ' + tr.name); var g = goldGain(st, 6 + st.floor); say(st, 'Disarmed! You salvage ' + g + ' gold from the mechanism.'); }
+        else { trapHit(st, tr, dmg); say(st, 'The disarm fails — ' + tr.name + ' strikes for ' + dmg + '.'); }
+        e.done = true; return finish(st, ok());
+      }
+      if (a.t === 'brace') { var half = Math.ceil(dmg / 2); trapHit(st, tr, half, true); say(st, 'You brace and push through, taking ' + half + '.'); e.done = true; return finish(st, ok()); }
+      return err('Disarm, brace, or use a Ward Charm.');
+    }
+    if (e.type === 'merchant') {
+      if (a.t === 'buy') {
+        var s = e.stock[a.i]; if (!s) return err('No such item.'); if (s.sold) return err('Already sold.');
+        if (st.gold < s.price) return err('Not enough gold.');
+        var b2 = offerBlocked(st, s); if (b2) return err(b2);
+        st.gold -= s.price; s.sold = true;
+        if (s.k === 'item') st.items.push(s.id); else if (s.k === 'relic') gainRelic(st, s.id); else if (s.k === 'weapon') st.weapon = s.id; else if (s.k === 'armor') st.armor = s.id;
+        say(st, 'Bought ' + nameOf(s) + ' for ' + s.price + ' gold.');
+        return ok();
+      }
+      if (a.t === 'leave') { say(st, 'The merchant packs up and bows.'); e.done = true; return finish(st, ok()); }
+      return err('Buy or leave.');
+    }
+    if (e.type === 'rest') {
+      var T = tier(st), vr = e.variant;
+      if (a.t === 'rest') { var amt = Math.round(st.maxHp * (vr === 'spring' ? T.restHeal + 0.1 : T.restHeal)); var hd = heal(st, amt); if (vr === 'spring') st.poison = false; say(st, 'You rest and recover ' + hd + ' health' + (vr === 'spring' ? ', and the spring washes away poison.' : '.')); e.done = true; return finish(st, ok()); }
+      if (a.t === 'search' && vr === 'campfire') { var fd = e.find; if (fd.k === 'gold') say(st, 'Searching the camp, you find ' + goldGain(st, fd.n) + ' gold.'); else if (canCarry(st)) { st.items.push(fd.id); say(st, 'Searching the camp, you find a ' + ITEMS[fd.id].name + '.'); } else say(st, 'You find a ' + ITEMS[fd.id].name + ' but cannot carry it.'); e.done = true; return finish(st, ok()); }
+      if (a.t === 'bless' && vr === 'shrine') { st.maxHp += 4; heal(st, 4); st.poison = false; say(st, 'The shrine strengthens you: +4 maximum health.'); e.done = true; return finish(st, ok()); }
+      return err('Choose how to rest.');
+    }
+    if (e.type === 'event') return finish(st, eventAction(st, a));
+    return err('Nothing to do.');
+  }
+  function trapHit(st, tr, dmg, braced) {
+    hurt(st, dmg);
+    if (tr.poison && !hasRelic(st, 'talisman') && !braced) { st.poison = true; say(st, 'You are poisoned!'); }
+    if (tr.goldLoss) { var l = Math.min(st.gold, tr.goldLoss); st.gold -= l; if (l) say(st, 'The seal burns away ' + l + ' gold.'); }
+  }
+  function nameOf(s) { return s.k === 'item' ? ITEMS[s.id].name : s.k === 'relic' ? RELICS[s.id].name : s.k === 'weapon' ? WEAPONS[s.id].name : s.k === 'armor' ? ARMORS[s.id].name : s.n + ' gold'; }
+  function eventAction(st, a) {
+    var e = st.enc, ev = e.event;
+    if (a.t === 'leave') { say(st, 'You move on.'); e.done = true; return ok(); }
+    if (ev === 'traveler') {
+      if (a.t === 'give') { var i = st.items.indexOf('draught'); if (i < 0) return err('You have no Healing Draught to give.'); if (st.relics.length >= 3 || hasRelic(st, e.relic)) return err('You could not carry their gift (relics full).'); st.items.splice(i, 1); say(st, 'Grateful, the traveler presses a relic into your hand.'); gainRelic(st, e.relic); addScore(st, 200, 'Helped the wounded traveler'); e.done = true; return ok(); }
+      if (a.t === 'gold') { if (st.gold < 10) return err('You need 10 gold.'); st.gold -= 10; addScore(st, 150, 'Helped the wounded traveler'); say(st, 'You leave 10 gold. The traveler blesses your road.'); heal(st, 4); e.done = true; return ok(); }
+    }
+    if (ev === 'cursed' && a.t === 'open') { var g = goldGain(st, 30 + st.floor * 2); st.maxHp = Math.max(8, st.maxHp - 4); st.hp = Math.min(st.hp, st.maxHp); addScore(st, g * 2, 'Cursed chest: ' + g + ' gold'); say(st, 'You take ' + g + ' gold. The curse saps you: −4 maximum health.'); st.discoveries.push('Opened a cursed chest'); e.done = true; return ok(); }
+    if (ev === 'shrine' && a.t === 'pay') { if (st.gold < 15) return err('You need 15 gold.'); st.gold -= 15; st.maxHp += 5; heal(st, 5); say(st, 'The shrine accepts your coins: +5 maximum health.'); e.done = true; return ok(); }
+    if (ev === 'map') {
+      if (a.t === 'study') { st.revealNext = st.floor + 1; say(st, 'You memorise the map: the next floor’s doors will be revealed.'); st.discoveries.push('Studied a map of floor ' + (st.floor + 1)); e.done = true; return ok(); }
+      if (a.t === 'sell') { goldGain(st, 12); say(st, 'You keep the map to sell later: +12 gold.'); e.done = true; return ok(); }
+    }
+    if (ev === 'inscription' && a.t === 'read') { st.bane = true; say(st, 'You learn the Warden’s weak point: +3 damage against it.'); st.discoveries.push('Read the inscription of the deep'); e.done = true; return ok(); }
+    if (ev === 'fork') {
+      if (a.t === 'ledge') { var r = roll(K(e.key, 'ledge')); if (r < 0.5) { var g2 = goldGain(st, 35); addScore(st, 70, "Gambler's Fork: the ledge held"); say(st, 'The ledge holds — you scoop up ' + g2 + ' gold.'); } else { hurt(st, 8); say(st, 'The ledge crumbles! You fall and take 8 damage.'); } e.done = true; return ok(); }
+      if (a.t === 'stair') { goldGain(st, 10); say(st, 'You take the safe stair and the small purse.'); e.done = true; return ok(); }
+    }
+    return err('Choose an option.');
+  }
+  function useItem(st, id) {
+    if (st.phase === 'encounter' && st.enc && st.enc.sub === 'fight') return finish(st, combatAction(st, { t: 'item', item: id }));
+    var i = st.items.indexOf(id); if (i < 0) return err('You do not have that item.');
+    if (id === 'draught') { if (st.hp >= st.maxHp) return err('You are already at full health.'); st.items.splice(i, 1); say(st, 'You drink a Healing Draught (+' + heal(st, tier(st).heal) + ').'); return ok(); }
+    if (id === 'antidote') { if (!st.poison) return err('You are not poisoned.'); st.items.splice(i, 1); st.poison = false; say(st, 'The poison fades.'); return ok(); }
+    return err('That item is used in a fight or at a trap.');
+  }
+  function finish(st, res) {
+    if (!res.ok) return res;
+    if (st.ended) return res;
+    if (st.enc && st.enc.done) { st.phase = 'cleared'; }
+    return res;
+  }
+  function descend(st) {
+    if (st.floor >= 10) return err('This is the deepest floor.');
+    addScore(st, 500, 'Floor ' + st.floor + ' completed');
+    st.floor++; st.enc = null; st.phase = 'doors';
+    if (st.poison) { var p = Math.min(2, st.hp - 1); if (p > 0) { st.hp -= p; say(st, 'Poison burns as you descend (−' + p + ').'); } }
+    say(st, 'Floor ' + st.floor + ': ' + FLOORS[st.floor].name + '. ' + FLOORS[st.floor].mood);
+    return ok();
+  }
+  function ok() { return { ok: true }; }
+  function err(m) { return { ok: false, error: m }; }
+
+  // Apply an action to a COPY; the original is unchanged if the action is invalid.
+  function step(st, a) {
+    var s = clone(st), res = act(s, a);
+    if (!res.ok) return { ok: false, error: res.error, state: st };
+    s.actions.push(a);
+    return { ok: true, state: s };
+  }
+  // Rebuild a run purely from (date, tier, actions). This is how saved runs are restored.
+  function replay(date, tierId, actions, opts) {
+    if (!isDate(date) || !TIERS[tierId] || !Array.isArray(actions) || actions.length > 2000) return null;
+    var s = newRun(date, tierId, opts);
+    for (var i = 0; i < actions.length; i++) {
+      var a = actions[i];
+      if (!a || typeof a !== 'object' || typeof a.t !== 'string' || JSON.stringify(a).length > 80) return null;
+      var r = act(s, a); if (!r.ok) return null;
+      s.actions.push(a);
+    }
+    return s;
+  }
+
+  function resultSummary(st) {
+    var how = st.ended === 'victory' ? 'Cleared Floor 10' : st.ended === 'defeat' ? 'Fell on Floor ' + st.floor : st.ended === 'abandoned' ? 'Left on Floor ' + st.floor : 'In progress';
+    return ['THE DAILY DELVE', st.date + ' · ' + TIERS[st.tier].label.toUpperCase() + (st.practice ? ' · PRACTICE' : ''), 'Result: ' + how, 'Score: ' + st.score.toLocaleString('en-US'),
+      'Health Remaining: ' + st.hp + '/' + st.maxHp, 'Gold Remaining: ' + st.gold, 'Route: ' + st.route.join('–'), 'Seed Version: ' + VERSION].join('\n');
+  }
+
+  // Empirical crest reliability, computed from the generator itself (shown in How to Play).
+  function crestStats(days) {
+    var counts = {}, base = Date.UTC(2026, 0, 1);
+    for (var i = 0; i < days; i++) {
+      var dun = genDungeon(utcDate(base + i * 86400000));
+      for (var f = 1; f <= 9; f++) dun.floors[f].doors.forEach(function (d) { var c = counts[d.crest] = counts[d.crest] || { n: 0 }; c.n++; c[d.type] = (c[d.type] || 0) + 1; });
+    }
+    return counts;
+  }
+
+  var api = { VERSION: VERSION, ENGINE: ENGINE, TIERS: TIERS, TIER_IDS: TIER_IDS, FLOORS: FLOORS, CRESTS: CRESTS, CREST_RULE: CREST_RULE, SOUNDS: SOUNDS, WEAPONS: WEAPONS, ARMORS: ARMORS, ITEMS: ITEMS, RELICS: RELICS,
+    ENEMIES: ENEMIES, TRAPS: TRAPS, EVENTS: EVENTS, SPECIALS: SPECIALS, TYPE_LABEL: TYPE_LABEL,
+    utcDate: utcDate, msToNextUtcMidnight: msToNextUtcMidnight, isDate: isDate, seedString: seedString, h32: h32, stream: stream, genDungeon: genDungeon, genFloor: genFloor,
+    newRun: newRun, step: step, replay: replay, doorView: doorView, incoming: incoming, playerRange: playerRange, trapChance: trapChance, trapDamage: trapDamage, offerBlocked: offerBlocked,
+    _act: act, _clone: clone,
+    resultSummary: resultSummary, crestStats: crestStats, nameOf: nameOf, enemyRange: enemyRange };
+  root.DelveEngine = api;
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script id="dd-app">
+/* The Daily Delve — interface, art, sound and local records.
+   All game rules live in DelveEngine. A run is saved as (date, tier, practice, actions) and restored by
+   REPLAYING those actions through the engine — so a refresh can never duplicate a reward, and a damaged
+   save simply fails to replay and is discarded. */
+(function () {
+  'use strict';
+  var E = window.DelveEngine;
+  var DEV = /[?&]dev=1\b/.test(location.search);
+  var KEY = 'doorquests.gamortal.005.the-daily-delve.v1';
+  var MAX_DAYS = 60;
+  var nowOffset = 0; // dev/test only: shift the clock to test UTC rollover
+  function now() { return Date.now() + nowOffset; }
+  function $(s) { return document.querySelector(s); }
+  function $all(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
+  function el(t, a, x) { var e = document.createElement(t); if (a) for (var k in a) { if (k === 'class') e.className = a[k]; else e.setAttribute(k, a[k]); } if (x != null) e.textContent = x; return e; }
+  function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  var SIDE_NAME = { L: 'Left', C: 'Centre', R: 'Right' };
+
+  /* ================================================================ storage */
+  var storageOk = true, mem = null, notice = '';
+  function rawGet() { try { return localStorage.getItem(KEY); } catch (e) { storageOk = false; return mem; } }
+  function rawSet(v) { try { localStorage.setItem(KEY, v); } catch (e) { storageOk = false; mem = v; } }
+  function blank() { var t = {}; E.TIER_IDS.forEach(function (k) { t[k] = { runs: 0, victories: 0, deepest: 0, bestScore: 0, bestDate: null }; }); return { v: 1, prefs: { sound: true, volume: 60, ambient: false, motion: 'auto', tier: 'silver' }, days: {}, tiers: t, run: null }; }
+  function isInt(v, a, b) { return typeof v === 'number' && isFinite(v) && Math.floor(v) === v && v >= a && v <= b; }
+  var RESULTS = ['victory', 'defeat', 'abandoned'];
+  function validEntry(x) { return x && isInt(x.score, 0, 1e6) && RESULTS.indexOf(x.result) >= 0 && isInt(x.floor, 1, 10) && typeof x.route === 'string' && /^[LCR–-]{0,40}$/.test(x.route); }
+  function load() {
+    var s = blank(), raw = rawGet(), d;
+    if (!raw) return s;
+    if (raw.length > 150000) { notice = 'Saved data was too large and was reset.'; return s; }
+    try { d = JSON.parse(raw); } catch (e) { notice = 'Saved data could not be read and was reset.'; return s; }
+    if (!d || d.v !== 1) { notice = 'Saved data was from an unknown version and was reset.'; return s; }
+    var p = d.prefs || {};
+    s.prefs.sound = p.sound !== false; s.prefs.volume = isInt(p.volume, 0, 100) ? p.volume : 60; s.prefs.ambient = p.ambient === true;
+    s.prefs.motion = ['auto', 'full', 'reduced'].indexOf(p.motion) >= 0 ? p.motion : 'auto'; s.prefs.tier = E.TIER_IDS.indexOf(p.tier) >= 0 ? p.tier : 'silver';
+    var bad = 0;
+    if (d.days && typeof d.days === 'object') Object.keys(d.days).forEach(function (k) {
+      var m = /^(\d{4}-\d{2}-\d{2})\|(bronze|silver|gold)$/.exec(k), v = d.days[k];
+      if (!m || !E.isDate(m[1]) || !v || !isInt(v.runs, 0, 1e5) || (v.first !== null && !validEntry(v.first)) || (v.best !== null && !validEntry(v.best)) || (v.first && (!v.best || v.best.score < v.first.score))) { bad++; return; }
+      s.days[k] = { first: v.first, best: v.best, runs: v.runs };
+    });
+    if (d.tiers) E.TIER_IDS.forEach(function (t) { var v = d.tiers[t]; if (!v) return; if (isInt(v.runs, 0, 1e6) && isInt(v.victories, 0, 1e6) && v.victories <= v.runs && isInt(v.deepest, 0, 10) && isInt(v.bestScore, 0, 1e6) && (v.bestDate === null || E.isDate(v.bestDate))) s.tiers[t] = v; else bad++; });
+    if (d.run) {
+      var r = d.run, st = r && E.isDate(r.date) && E.TIERS[r.tier] && Array.isArray(r.actions) ? E.replay(r.date, r.tier, r.actions, { practice: !!r.practice }) : null;
+      if (st && !st.ended) s.run = { date: r.date, tier: r.tier, practice: !!r.practice, actions: r.actions };
+      else notice = 'Your saved run could not be restored (it may be damaged). You can start a fresh run.';
+    }
+    if (bad) notice = 'Some saved records were invalid and were removed.';
+    prune(s);
+    return s;
+  }
+  function prune(s) { var ks = Object.keys(s.days).sort(function (a, b) { return a < b ? 1 : -1; }); var dates = []; ks.forEach(function (k) { var dt = k.slice(0, 10); if (dates.indexOf(dt) < 0) dates.push(dt); }); ks.forEach(function (k) { if (dates.indexOf(k.slice(0, 10)) >= MAX_DAYS) delete s.days[k]; }); }
+  var SAVE = null;
+  function persist() { rawSet(JSON.stringify(SAVE)); }
+
+  /* ================================================================ motion & audio */
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { var m = SAVE.prefs.motion; return m === 'reduced' || (m === 'auto' && mq && mq.matches); }
+  function applyMotion() { document.body.classList.toggle('reduce', reduced()); }
+  var AU = { ctx: null, master: null, amb: null };
+  function audioInit() {
+    if (!SAVE.prefs.sound) return;
+    if (!AU.ctx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; try { AU.ctx = new AC(); AU.master = AU.ctx.createGain(); AU.master.connect(AU.ctx.destination); } catch (e) { AU.ctx = null; return; } }
+    AU.master.gain.value = SAVE.prefs.sound ? SAVE.prefs.volume / 100 * 0.5 : 0;
+    if (AU.ctx.state === 'suspended') AU.ctx.resume().catch(function () {});
+    ambient();
+  }
+  function tone(f, d, type, v, w, glide) {
+    var c = AU.ctx; if (!c || !SAVE.prefs.sound) return;
+    try { var t = c.currentTime + (w || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (glide) o.frequency.exponentialRampToValueAtTime(glide, t + d);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g); g.connect(AU.master); o.start(t); o.stop(t + d + 0.03); o.onended = function () { o.disconnect(); g.disconnect(); }; } catch (e) { /* optional */ }
+  }
+  function noise(d, f, q, v, w, type) {
+    var c = AU.ctx; if (!c || !SAVE.prefs.sound) return;
+    try { var t = c.currentTime + (w || 0), n = Math.max(1, Math.floor(c.sampleRate * d)), b = c.createBuffer(1, n, c.sampleRate), x = b.getChannelData(0); for (var i = 0; i < n; i++) x[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      var s = c.createBufferSource(), fl = c.createBiquadFilter(), g = c.createGain(); s.buffer = b; fl.type = type || 'bandpass'; fl.frequency.value = f; fl.Q.value = q; g.gain.value = v; s.connect(fl); fl.connect(g); g.connect(AU.master); s.start(t); s.onended = function () { s.disconnect(); fl.disconnect(); g.disconnect(); }; } catch (e) { /* optional */ }
+  }
+  var SND = {
+    creak: function () { tone(140, 0.6, 'sawtooth', 0.05, 0, 90); tone(210, 0.5, 'triangle', 0.04, 0.05, 160); noise(0.5, 300, 2, 0.06); },
+    step: function () { [0, 0.22, 0.44].forEach(function (w) { noise(0.08, 180, 1, 0.2, w); tone(70, 0.1, 'sine', 0.1, w); }); },
+    coin: function () { tone(1568, 0.12, 'sine', 0.08); tone(2093, 0.2, 'sine', 0.06, 0.07); },
+    hit: function () { noise(0.12, 900, 0.8, 0.25); tone(110, 0.12, 'triangle', 0.15); },
+    hurt: function () { tone(180, 0.25, 'sawtooth', 0.06, 0, 90); },
+    heal: function () { [523, 659, 784].forEach(function (f, i) { tone(f, 0.3, 'sine', 0.06, i * 0.08); }); },
+    trap: function () { noise(0.2, 2400, 3, 0.15); tone(330, 0.18, 'square', 0.04, 0.02, 160); },
+    bell: function () { tone(988, 0.8, 'sine', 0.07); tone(1482, 0.6, 'sine', 0.03); },
+    win: function () { [392, 523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.45, 'triangle', 0.08, i * 0.12); }); },
+    lose: function () { [330, 262, 196].forEach(function (f, i) { tone(f, 0.5, 'sine', 0.07, i * 0.2); }); }
+  };
+  var ambT = null;
+  function ambient() { clearTimeout(ambT); if (!AU.ctx || !SAVE.prefs.sound || !SAVE.prefs.ambient || $('#scr-game').hidden) return; noise(0.03 + Math.random() * 0.04, 1500 + Math.random() * 2500, 1.5, 0.03); ambT = setTimeout(ambient, 80 + Math.random() * 500); }
+
+  /* ================================================================ art (inline SVG) */
+  var CREST_COLOR = { iron: '#9aa3b5', gold: '#e2b450', root: '#6fb06a', clock: '#d49a4a', lantern: '#ffcf7a' };
+  function doorSVG(crest, extra) {
+    var s = '<svg class="door-svg" viewBox="0 0 200 300" aria-hidden="true" focusable="false">';
+    s += '<defs><radialGradient id="glow-' + crest + '" cx="50%" cy="80%" r="70%"><stop offset="0" stop-color="#ffcf7a" stop-opacity=".35"/><stop offset="1" stop-color="#ffcf7a" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="wood-' + crest + '" x1="0" x2="1"><stop offset="0" stop-color="#4a3018"/><stop offset=".5" stop-color="#6b4626"/><stop offset="1" stop-color="#3e2814"/></linearGradient></defs>';
+    s += '<rect x="0" y="0" width="200" height="300" fill="url(#glow-' + crest + ')"/>';
+    // dark opening behind the leaf (visible when it swings)
+    var arch = crest === 'iron' || crest === 'clock' || crest === 'lantern' ? 'M34 290 V70 H166 V290 Z' : crest === 'root' ? 'M34 290 V120 Q34 46 100 30 Q166 46 166 120 V290 Z' : 'M34 290 V110 A66 66 0 0 1 166 110 V290 Z';
+    s += '<path d="' + arch + '" fill="#0a0812"/><path d="' + arch + '" fill="#ffd58a" opacity=".12"/>';
+    // frame
+    if (crest === 'iron') s += '<rect x="22" y="58" width="156" height="236" rx="4" fill="none" stroke="#3b3f4a" stroke-width="14"/>';
+    else if (crest === 'gold') s += '<path d="M22 294 V110 A78 78 0 0 1 178 110 V294" fill="none" stroke="#c9952c" stroke-width="14"/><path d="M22 294 V110 A78 78 0 0 1 178 110 V294" fill="none" stroke="#f3d98a" stroke-width="2"/>';
+    else if (crest === 'root') s += '<path d="M22 294 V120 Q22 34 100 16 Q178 34 178 120 V294" fill="none" stroke="#5a5560" stroke-width="16"/>';
+    else if (crest === 'clock') s += '<rect x="22" y="58" width="156" height="236" rx="2" fill="none" stroke="#8a6a32" stroke-width="14"/>' + [36, 100, 164].map(function (x) { return '<circle cx="' + x + '" cy="58" r="4" fill="#e2b450"/>'; }).join('');
+    else s += '<rect x="22" y="58" width="156" height="236" rx="3" fill="none" stroke="#5a4428" stroke-width="12"/>';
+    // leaf
+    s += '<clipPath id="clip-' + crest + '"><path d="' + arch + '"/></clipPath>';
+    s += '<g class="leaf"><g clip-path="url(#clip-' + crest + ')"><path d="' + arch + '" fill="' + (crest === 'gold' ? '#5b3e18' : crest === 'clock' ? '#6a4e26' : 'url(#wood-' + crest + ')') + '"/>';
+    for (var i = 0; i < 5; i++) s += '<line x1="' + (34 + i * 26.4) + '" y1="40" x2="' + (34 + i * 26.4) + '" y2="290" stroke="#2a1a0c" stroke-width="2" opacity=".6"/>';
+    if (crest === 'iron') {
+      s += '<rect x="34" y="110" width="132" height="10" fill="#555b66"/><rect x="34" y="230" width="132" height="10" fill="#555b66"/>';
+      s += '<path d="M100 140 L132 152 V184 Q132 210 100 222 Q68 210 68 184 V152 Z" fill="#7b8292" stroke="#2c2f36" stroke-width="3"/><path d="M84 160 L92 196 M110 158 L118 200 M96 170 L104 176" stroke="#2c2f36" stroke-width="2"/>';
+    } else if (crest === 'gold') {
+      s += '<path d="M48 290 V114 A52 52 0 0 1 152 114 V290" fill="none" stroke="#e2b450" stroke-width="3" opacity=".8"/><circle cx="100" cy="150" r="22" fill="none" stroke="#f3d98a" stroke-width="4"/>';
+      for (var k = 0; k < 8; k++) { var a = k * Math.PI / 4; s += '<line x1="' + (100 + Math.cos(a) * 28) + '" y1="' + (150 + Math.sin(a) * 28) + '" x2="' + (100 + Math.cos(a) * 40) + '" y2="' + (150 + Math.sin(a) * 40) + '" stroke="#f3d98a" stroke-width="3" opacity=".75"/>'; }
+      s += '<text x="100" y="250" text-anchor="middle" fill="#e2b450" opacity=".55" font-size="18" font-family="Georgia,serif">ᚠ ᛟ ᚱ</text>';
+    } else if (crest === 'root') {
+      s += '<path d="M30 200 Q70 150 60 90 Q90 60 120 40 M170 220 Q130 170 150 110 Q140 70 110 36 M40 290 Q80 250 70 200 M160 290 Q120 260 140 210" fill="none" stroke="#3f7d4a" stroke-width="7" stroke-linecap="round"/>';
+      s += '<path d="M60 120 q6 -10 14 -2 M140 150 q8 -8 14 2 M70 220 q-8 -6 -14 4" stroke="#6fb06a" stroke-width="5" fill="none" stroke-linecap="round"/>';
+    } else if (crest === 'clock') {
+      s += gear(100, 160, 30, 10) + gear(64, 220, 16, 8) + gear(136, 226, 18, 9);
+      for (var y = 80; y < 290; y += 40) s += '<circle cx="42" cy="' + y + '" r="3" fill="#e2b450"/><circle cx="158" cy="' + y + '" r="3" fill="#e2b450"/>';
+    } else {
+      s += '<rect x="58" y="110" width="84" height="60" rx="4" fill="none" stroke="#2a1a0c" stroke-width="3"/><rect x="58" y="190" width="84" height="70" rx="4" fill="none" stroke="#2a1a0c" stroke-width="3"/>';
+    }
+    s += '<circle cx="148" cy="200" r="5" fill="#e2b450"/></g></g>';
+    if (crest === 'lantern') s += '<line x1="186" y1="70" x2="186" y2="96" stroke="#2a1a0c" stroke-width="3"/><rect x="176" y="96" width="20" height="28" rx="4" fill="#ffcf7a" stroke="#5a4428" stroke-width="3"/><circle cx="186" cy="110" r="16" fill="#ffcf7a" opacity=".25"/>';
+    if (extra) s += extra;
+    return s + '</svg>';
+  }
+  function gear(cx, cy, r, teeth) { var p = ''; for (var i = 0; i < teeth * 2; i++) { var a = i * Math.PI / teeth, rr = i % 2 ? r : r + 6; p += (i ? 'L' : 'M') + (cx + Math.cos(a) * rr).toFixed(1) + ' ' + (cy + Math.sin(a) * rr).toFixed(1); } return '<path d="' + p + 'Z" fill="#b8862e" stroke="#5a3e14" stroke-width="2"/><circle cx="' + cx + '" cy="' + cy + '" r="' + (r * 0.35) + '" fill="#5a3e14"/>'; }
+  function bossDoorExtra(approach) {
+    if (approach === 'gate') return '<g stroke="#2c2f36" stroke-width="6">' + [54, 78, 102, 126, 150].map(function (x) { return '<line x1="' + x + '" y1="64" x2="' + x + '" y2="290"/>'; }).join('') + '</g>';
+    if (approach === 'gold') return '<circle cx="100" cy="190" r="34" fill="#e2b450" stroke="#fff0b0" stroke-width="4"/><text x="100" y="198" text-anchor="middle" font-size="22" font-family="Georgia,serif" fill="#5b3e18">30</text>';
+    return '<path d="M20 160 Q100 80 180 170 M20 230 Q110 170 180 250" fill="none" stroke="#3f7d4a" stroke-width="10" stroke-linecap="round"/><circle cx="100" cy="196" r="12" fill="#a8323a"/>';
+  }
+  var FOE_GLYPH = {
+    rats: '<ellipse cx="34" cy="62" rx="12" ry="8"/><ellipse cx="62" cy="58" rx="14" ry="9"/><ellipse cx="48" cy="70" rx="12" ry="8"/>',
+    sentry: '<circle cx="48" cy="38" r="16"/><rect x="40" y="56" width="16" height="26" rx="4"/><circle cx="42" cy="36" r="4" fill="#0b0d26"/><circle cx="54" cy="36" r="4" fill="#0b0d26"/>',
+    spider: '<circle cx="48" cy="52" r="14"/><path d="M34 50 L14 36 M34 56 L12 62 M62 50 L82 36 M62 56 L84 62 M36 62 L22 80 M60 62 L74 80" stroke="currentColor" stroke-width="4" fill="none"/>',
+    cutpurse: '<circle cx="48" cy="36" r="14"/><path d="M30 86 Q48 50 66 86 Z"/><path d="M34 30 L24 20 M62 30 L72 20" stroke="currentColor" stroke-width="4"/>',
+    horror: '<path d="M48 20 Q20 50 30 86 M48 20 Q76 50 66 86 M48 30 V86" stroke="currentColor" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="48" cy="46" r="8" fill="#b6f59a"/>',
+    hound: '<rect x="22" y="44" width="50" height="24" rx="8"/><rect x="62" y="32" width="22" height="18" rx="4"/><circle cx="76" cy="40" r="3" fill="#ffae4a"/><rect x="26" y="66" width="6" height="16"/><rect x="60" y="66" width="6" height="16"/>',
+    bandit: '<circle cx="48" cy="34" r="14"/><rect x="30" y="50" width="36" height="34" rx="6"/><rect x="34" y="30" width="28" height="6" fill="#0b0d26"/>',
+    revenant: '<path d="M28 86 V40 Q48 14 68 40 V86 Z"/><circle cx="40" cy="44" r="4" fill="#7ec8ff"/><circle cx="56" cy="44" r="4" fill="#7ec8ff"/>',
+    golem: '<rect x="24" y="22" width="48" height="60" rx="6"/><rect x="34" y="34" width="10" height="8" fill="#ffae4a"/><rect x="52" y="34" width="10" height="8" fill="#ffae4a"/>',
+    shade: '<path d="M48 16 Q74 50 60 86 Q48 70 36 86 Q22 50 48 16 Z"/><path d="M60 40 L84 20" stroke="currentColor" stroke-width="4"/>',
+    warden: '<path d="M48 10 L80 30 V60 Q80 82 48 92 Q16 82 16 60 V30 Z"/><circle cx="48" cy="52" r="12" fill="#a8323a"/><circle cx="48" cy="52" r="5" fill="#ffd0d0"/>'
+  };
+  function foeSVG(id, elite) {
+    return '<svg viewBox="0 0 96 96" aria-hidden="true" focusable="false"><circle cx="48" cy="48" r="46" fill="#1b1638" stroke="' + (elite ? '#e2b450' : '#5a4a9a') + '" stroke-width="' + (elite ? 4 : 2) + '"/><g fill="#c9c3e8" color="#c9c3e8">' + (FOE_GLYPH[id] || FOE_GLYPH.sentry) + '</g></svg>';
+  }
+  var ICON = {
+    treasure: '<svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#1b1638" stroke="#e2b450" stroke-width="3"/><rect x="22" y="44" width="52" height="30" rx="4" fill="#7a4e22" stroke="#e2b450" stroke-width="3"/><path d="M22 46 Q48 18 74 46" fill="#8a5a28" stroke="#e2b450" stroke-width="3"/><rect x="44" y="50" width="8" height="10" fill="#e2b450"/></svg>',
+    trap: '<svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#1b1638" stroke="#d49a4a" stroke-width="3"/><path d="M20 70 L30 30 L40 70 L50 30 L60 70 L70 30 L76 70 Z" fill="#9aa3b5" stroke="#2c2f36" stroke-width="2"/></svg>',
+    merchant: '<svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#1b1638" stroke="#ffcf7a" stroke-width="3"/><circle cx="48" cy="34" r="12" fill="#c9c3e8"/><path d="M26 82 Q48 44 70 82 Z" fill="#6b4626"/><rect x="58" y="48" width="14" height="18" rx="3" fill="#ffcf7a"/></svg>',
+    rest: '<svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#1b1638" stroke="#6fb06a" stroke-width="3"/><path d="M48 24 Q62 44 54 58 Q66 52 64 40 Q76 60 60 74 H36 Q20 60 32 40 Q30 52 42 58 Q34 44 48 24 Z" fill="#ffae4a"/><rect x="26" y="74" width="44" height="6" rx="3" fill="#6b4626"/></svg>',
+    event: '<svg viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#1b1638" stroke="#b9a3ff" stroke-width="3"/><text x="48" y="62" text-anchor="middle" font-size="44" font-family="Georgia,serif" fill="#b9a3ff">?</text></svg>'
+  };
+
+  /* ================================================================ game state */
+  var G = { st: null, busy: false, todayAtLoad: null };
+  function runKey(st) { return st.date + '|' + st.tier; }
+  function today() { return E.utcDate(now()); }
+
+  function startRun(tier, practiceRequested) {
+    audioInit();
+    var date = today(), key = date + '|' + tier, day = SAVE.days[key];
+    var practice = !!(day && day.first) || !!practiceRequested && !!(day && day.first);
+    G.st = E.newRun(date, tier, { practice: practice });
+    SAVE.run = { date: date, tier: tier, practice: practice, actions: [] };
+    SAVE.prefs.tier = tier; SAVE.tiers[tier].runs++;
+    persist();
+    showScreen('game'); render(true);
+    say((practice ? 'Practice run. ' : 'First attempt. ') + 'Floor 1: ' + E.FLOORS[1].name + '. Three doors stand before you.');
+  }
+  function resumeRun() {
+    var r = SAVE.run; if (!r) return;
+    var st = E.replay(r.date, r.tier, r.actions, { practice: r.practice });
+    if (!st) { SAVE.run = null; persist(); $('#t-note').textContent = 'That run could not be restored. Start a fresh run.'; refreshTitle(); return; }
+    audioInit(); G.st = st; showScreen('game'); render(true);
+    say('Run restored: ' + r.date + ', ' + E.TIERS[r.tier].label + ', floor ' + st.floor + '.');
+  }
+
+  function act(a, opts) {
+    if (!G.st || G.busy) return false;
+    var before = G.st, res = E.step(G.st, a);
+    if (!res.ok) { say(res.error, true); flashNote(res.error); return false; }
+    G.st = res.state;
+    SAVE.run.actions = G.st.actions; persist();
+    sounds(before, G.st, a);
+    if (G.st.ended) { finishRun(); return true; }
+    render(a.t === 'descend' || a.t === 'open');
+    var lastLog = G.st.log[G.st.log.length - 1]; if (lastLog) say(lastLog);
+    return true;
+  }
+  function sounds(a, b, act) {
+    if (act.t === 'descend') SND.step();
+    if (b.gold > a.gold) SND.coin();
+    if (b.hp < a.hp) { SND.hurt(); var sc = $('#scene'); sc.classList.remove('flash-hit'); void sc.offsetWidth; sc.classList.add('flash-hit'); }
+    if (b.hp > a.hp) SND.heal();
+    if (act.t === 'attack' || act.t === 'special') SND.hit();
+    if (act.t === 'open' && b.enc && b.enc.type === 'merchant') SND.bell();
+    if (act.t === 'open' && b.enc && b.enc.type === 'trap') SND.trap();
+  }
+
+  /* ================================================================ records */
+  function finishRun() {
+    var st = G.st, key = runKey(st), entry = { score: st.score, result: st.ended, floor: st.floor, route: st.route.join('–') };
+    var day = SAVE.days[key] || (SAVE.days[key] = { first: null, best: null, runs: 0 });
+    if (!SAVE.run) return; // already recorded (guards against double events)
+    day.runs++;
+    var wasFirst = !day.first;
+    if (!day.first) day.first = entry;
+    var newBest = !day.best || entry.score > day.best.score;
+    if (newBest) day.best = entry;
+    var t = SAVE.tiers[st.tier];
+    if (st.ended === 'victory') t.victories++;
+    t.deepest = Math.max(t.deepest, st.ended === 'victory' ? 10 : st.floor);
+    if (st.score > t.bestScore) { t.bestScore = st.score; t.bestDate = st.date; }
+    SAVE.run = null; prune(SAVE); persist();
+    if (st.ended === 'victory') SND.win(); else SND.lose();
+    showResults(wasFirst, newBest);
+  }
+
+  /* ================================================================ rendering */
+  function render(newFloor) {
+    var st = G.st, fl = E.FLOORS[st.floor];
+    $('#h-floor').textContent = st.floor + '/10'; $('#h-fname').textContent = fl.name;
+    $('#h-hp').textContent = st.hp + '/' + st.maxHp; $('#h-hpbar').style.width = Math.round(100 * st.hp / st.maxHp) + '%';
+    $('#h-poison').hidden = !st.poison;
+    $('#h-gold').textContent = st.gold; $('#h-score').textContent = fmt(st.score);
+    $('#h-seed').textContent = st.date + ' · ' + E.TIERS[st.tier].label + (st.practice ? ' · practice' : ' · first attempt');
+    $('#mood').textContent = fl.mood;
+    renderKit(); renderLog();
+    var doors = $('#doors'), enc = $('#encounter');
+    if (st.phase === 'doors') { enc.hidden = true; doors.hidden = false; renderDoors(); if (newFloor) { var first = doors.querySelector('.door'); if (first) first.focus({ preventScroll: true }); } }
+    else { doors.hidden = true; enc.hidden = false; renderEncounter(); }
+  }
+  function renderDoors() {
+    var st = G.st, box = $('#doors'); box.innerHTML = '';
+    E.doorView(st).forEach(function (v, i) {
+      var b = el('button', { type: 'button', class: 'door', 'data-side': v.side });
+      var extra = v.approach ? bossDoorExtra(v.approach) : '';
+      b.innerHTML = doorSVG(v.crest, extra);
+      b.appendChild(el('span', { class: 'door-label' }, (i + 1) + ' · ' + SIDE_NAME[v.side] + ' door'));
+      var crestName = v.approach ? { gate: 'The Iron Gate', roots: 'The Rooted Breach', gold: 'The Golden Seal' }[v.approach] : v.crestName;
+      b.appendChild(el('span', { class: 'door-crest' }, crestName));
+      var clue = v.approach ? { gate: 'Face the Warden head-on. Victory earns +600 Valour.', roots: 'Roots have wounded the Warden (−25% health), but their thorns will poison you.', gold: 'Pay the seal 30 gold to strip the Warden’s armour and weaken it (−15%).' }[v.approach]
+        : v.sound ? 'You hear ' + v.sound + '.' : 'You hear nothing.';
+      var c = el('span', { class: 'door-clue' + (v.sound || v.approach ? '' : ' silent') }, clue); b.appendChild(c);
+      if (v.revealed && !v.approach) b.appendChild(el('span', { class: 'door-reveal' }, 'Map: ' + E.TYPE_LABEL[v.revealed]));
+      b.setAttribute('aria-label', (i + 1) + ', ' + SIDE_NAME[v.side] + ' door. ' + crestName + (v.approach ? '' : ' — ' + v.crestDesc) + '. ' + clue + (v.revealed && !v.approach ? ' The map shows: ' + E.TYPE_LABEL[v.revealed] + '.' : ''));
+      b.addEventListener('click', function () { openDoor(v.side, b); });
+      box.appendChild(b);
+    });
+  }
+  function openDoor(side, btn) {
+    if (G.busy || !G.st || G.st.phase !== 'doors') return;
+    G.busy = true; SND.creak();
+    $all('.door').forEach(function (d) { if (d !== btn) d.classList.add('dim'); });
+    btn.classList.add('opening');
+    setTimeout(function () { G.busy = false; act({ t: 'open', door: side }); var f = $('#encounter .act, #encounter button'); if (f) f.focus({ preventScroll: true }); }, reduced() ? 0 : 520);
+  }
+  function actBtn(label, sub, a, opt) {
+    opt = opt || {};
+    var b = el('button', { type: 'button', class: 'act' + (opt.primary ? ' primary' : '') });
+    b.appendChild(el('span', null, label)); if (sub) b.appendChild(el('small', null, sub));
+    if (opt.disabled) { b.disabled = true; b.setAttribute('aria-disabled', 'true'); if (opt.why) b.appendChild(el('small', null, opt.why)); }
+    b.addEventListener('click', function () { if (act(a)) { var f = document.querySelector('#encounter .act:not([disabled]), #doors .door'); if (f) f.focus({ preventScroll: true }); } });
+    return b;
+  }
+  function head(svg, title, text) { var h = el('div', { class: 'enc-head' }); var w = el('div'); w.innerHTML = svg; h.appendChild(w.firstChild); var t = el('div'); t.appendChild(el('h2', null, title)); if (text) t.appendChild(el('p', null, text)); h.appendChild(t); return h; }
+  function bar(label, v, m, foe) { var b = el('div', { class: 'bar' + (foe ? ' foe' : '') }); b.appendChild(el('span', null, label)); var tr = el('span', { class: 'track', role: 'img', 'aria-label': label + ' ' + v + ' of ' + m }); var f = el('span', { class: 'fill' }); f.style.display = 'block'; f.style.width = Math.max(0, Math.round(100 * v / m)) + '%'; tr.appendChild(f); b.appendChild(tr); b.appendChild(el('strong', null, v + '/' + m)); return b; }
+  function renderEncounter() {
+    var st = G.st, e = st.enc, box = $('#encounter'); box.innerHTML = '';
+    var acts = el('div', { class: 'actions' });
+    if (st.phase === 'cleared') {
+      var summary = e.won ? e.foe.name + ' defeated.' : e.fled ? 'You slipped away.' : 'The chamber is behind you.';
+      box.appendChild(head(ICON.rest.replace('#6fb06a', '#e2b450'), 'Floor ' + st.floor + ' cleared', summary + ' A stair leads down into the dark.'));
+      acts.appendChild(actBtn('Descend to floor ' + (st.floor + 1), E.FLOORS[st.floor + 1].name, { t: 'descend' }, { primary: true }));
+      if (st.items.indexOf('draught') >= 0) acts.appendChild(actBtn('Drink a Healing Draught', 'Restore up to ' + E.TIERS[st.tier].heal + ' health', { t: 'use', item: 'draught' }, { disabled: st.hp >= st.maxHp, why: st.hp >= st.maxHp ? 'Already at full health' : '' }));
+      if (st.poison && st.items.indexOf('antidote') >= 0) acts.appendChild(actBtn('Take an Antidote', 'Cure poison before descending', { t: 'use', item: 'antidote' }));
+      box.appendChild(acts); return;
+    }
+    if (e.sub === 'seal') {
+      box.appendChild(head(foeSVG('warden'), 'The Golden Seal', 'A seal of hammered gold bars the Warden’s chamber. It hums, waiting for payment.'));
+      acts.appendChild(actBtn('Pay 30 gold', 'The Warden loses its armour and 15% of its health', { t: 'pay' }, { primary: true, disabled: st.gold < 30, why: st.gold < 30 ? 'You have only ' + st.gold + ' gold' : '' }));
+      acts.appendChild(actBtn('Refuse and enter', 'Face the Warden at full strength', { t: 'refuse' }));
+      box.appendChild(acts); return;
+    }
+    if (e.sub === 'fight') {
+      var f = e.foe, w = E.WEAPONS[st.weapon], sp = E.SPECIALS[w.special];
+      box.appendChild(head(foeSVG(f.id, f.elite), f.name, (f.boss ? 'The guardian of the Heart. ' : '') + 'Armour ' + f.def + (f.poison ? ' · poisonous' : '') + (f.boss && f.hp <= f.maxHp / 2 ? ' · ENRAGED (+2 damage)' : '')));
+      var bars = el('div', { class: 'bars' }); bars.appendChild(bar(f.name.replace('Elite ', '').replace(' (guarding treasure)', ''), f.hp, f.maxHp, true)); bars.appendChild(bar('You', st.hp, st.maxHp)); box.appendChild(bars);
+      var inc = E.incoming(st, e.intent, false), incD = E.incoming(st, e.intent, true);
+      var it = el('p', { class: 'intent' });
+      it.appendChild(document.createTextNode('Turn ' + e.turn + ' — it intends: '));
+      it.appendChild(el('strong', null, { attack: 'Attack', heavy: 'Heavy blow', guard: 'Guard' }[e.intent.kind]));
+      it.appendChild(document.createTextNode(e.intent.kind === 'guard' ? ' (takes no swing; its armour is +3 this turn).' : ' — you would take ' + inc.min + '–' + inc.max + ' (' + incD.min + '–' + incD.max + ' if you Defend).'));
+      if (e.counter) it.appendChild(document.createTextNode(' Your counter is ready: +2 on your next attack.'));
+      box.appendChild(it);
+      var pr = E.playerRange(st, false), prs = E.playerRange(st, true);
+      acts.appendChild(actBtn('Attack', 'Deal ' + pr.min + '–' + pr.max + ' with your ' + w.name, { t: 'attack' }, { primary: true }));
+      acts.appendChild(actBtn('Defend', 'Halve damage this turn; next attack +2', { t: 'defend' }));
+      acts.appendChild(actBtn(sp.name, sp.text + ' (' + prs.min + '–' + prs.max + '). Once per fight.', { t: 'special' }, { disabled: e.specialUsed, why: e.specialUsed ? 'Already used this fight' : '' }));
+      if (st.items.indexOf('draught') >= 0) acts.appendChild(actBtn('Healing Draught', 'Restore up to ' + E.TIERS[st.tier].heal + ' (the enemy still acts)', { t: 'item', item: 'draught' }));
+      if (st.items.indexOf('flask') >= 0) acts.appendChild(actBtn('Fire Flask', '10 damage, ignores armour', { t: 'item', item: 'flask' }));
+      if (st.items.indexOf('smoke') >= 0) acts.appendChild(actBtn('Smoke Vial', f.boss ? 'Useless against the Warden' : 'Escape this fight (no reward)', { t: 'item', item: 'smoke' }, { disabled: f.boss }));
+      if (st.poison && st.items.indexOf('antidote') >= 0) acts.appendChild(actBtn('Antidote', 'Cure poison (the enemy still acts)', { t: 'item', item: 'antidote' }));
+      box.appendChild(acts); return;
+    }
+    if (e.type === 'treasure') {
+      box.appendChild(head(ICON.treasure, 'A treasure chamber', 'Take one prize. The other crumbles to dust.'));
+      var offers = el('div', { class: 'offers' });
+      e.offers.forEach(function (o, i) {
+        var blocked = E.offerBlocked(st, o);
+        offers.appendChild(actBtn('Take: ' + E.nameOf(o), describe(o), { t: 'take', i: i }, { disabled: !!blocked, why: blocked || '' }));
+      });
+      box.appendChild(offers);
+      acts.appendChild(actBtn('Leave it', 'Take nothing', { t: 'leave' })); box.appendChild(acts); return;
+    }
+    if (e.type === 'trap') {
+      var tr = E.TRAPS[e.trap], dmg = E.trapDamage(st, e.trap), ch = E.trapChance(st, e.trap);
+      box.appendChild(head(ICON.trap, tr.name, tr.text + ' It would deal ' + dmg + ' damage' + (tr.poison ? ' and poison you' : '') + (tr.goldLoss ? ' and burn up to ' + tr.goldLoss + ' gold' : '') + '.'));
+      acts.appendChild(actBtn('Try to disarm (' + ch + '% chance)', 'Success: no damage, +100 score, salvage gold. Failure: take ' + dmg + '.', { t: 'disarm' }, { primary: true }));
+      acts.appendChild(actBtn('Brace and push through', 'Take ' + Math.ceil(dmg / 2) + ' damage' + (tr.poison ? ' (no poison)' : '') + ', guaranteed', { t: 'brace' }));
+      acts.appendChild(actBtn('Use a Ward Charm', 'Negate the trap completely (+100 score)', { t: 'ward' }, { disabled: st.items.indexOf('ward') < 0, why: st.items.indexOf('ward') < 0 ? 'You have no Ward Charm' : '' }));
+      box.appendChild(acts); return;
+    }
+    if (e.type === 'merchant') {
+      box.appendChild(head(ICON.merchant, 'A travelling merchant', '“Everything has a price, delver. Prices are fixed — today, for everyone.” You have ' + st.gold + ' gold.'));
+      var offers2 = el('div', { class: 'offers' });
+      e.stock.forEach(function (s, i) {
+        var blocked = s.sold ? 'Sold' : st.gold < s.price ? 'Not enough gold' : E.offerBlocked(st, s);
+        offers2.appendChild(actBtn('Buy: ' + E.nameOf(s) + ' — ' + s.price + ' gold', describe(s), { t: 'buy', i: i }, { disabled: !!blocked, why: blocked || '' }));
+      });
+      box.appendChild(offers2);
+      acts.appendChild(actBtn('Leave the merchant', 'Continue', { t: 'leave' }, { primary: true })); box.appendChild(acts); return;
+    }
+    if (e.type === 'rest') {
+      var T = E.TIERS[st.tier], amt = Math.round(st.maxHp * (e.variant === 'spring' ? T.restHeal + 0.1 : T.restHeal));
+      box.appendChild(head(ICON.rest, { campfire: 'A sheltered campfire', spring: 'A clear spring', shrine: 'A quiet shrine' }[e.variant], 'Choose one.'));
+      acts.appendChild(actBtn('Rest', 'Recover up to ' + amt + ' health' + (e.variant === 'spring' ? ' and cure poison' : ''), { t: 'rest' }, { primary: true }));
+      if (e.variant === 'campfire') acts.appendChild(actBtn('Search the camp', 'Find something left behind instead of resting', { t: 'search' }));
+      if (e.variant === 'shrine') acts.appendChild(actBtn('Pray', '+4 maximum health (heal 4) and cure poison', { t: 'bless' }));
+      box.appendChild(acts); return;
+    }
+    if (e.type === 'event') {
+      var ev = E.EVENTS[e.event]; box.appendChild(head(ICON.event, ev.name, ev.text));
+      var opts = {
+        traveler: [['Give a Healing Draught', 'They will reward you with a relic (' + E.RELICS[e.relic].name + ') · +200 score', { t: 'give' }, st.items.indexOf('draught') < 0 ? 'You have no draught' : (st.relics.length >= 3 ? 'Your relic slots are full' : '')], ['Give 10 gold', 'Heal 4 · +150 score', { t: 'gold' }, st.gold < 10 ? 'You need 10 gold' : '']],
+        cursed: [['Open the chest', 'Gain ' + (30 + st.floor * 2) + '+ gold, but lose 4 maximum health', { t: 'open' }, '']],
+        shrine: [['Pay 15 gold', '+5 maximum health (heal 5)', { t: 'pay' }, st.gold < 15 ? 'You need 15 gold' : '']],
+        map: [['Study the map', 'The next floor’s doors will be revealed', { t: 'study' }, ''], ['Sell the map later', '+12 gold', { t: 'sell' }, '']],
+        inscription: [['Read the inscription', '+3 damage against the Warden', { t: 'read' }, '']],
+        fork: [['Take the ledge', 'Even odds: 35 gold, or a fall for 8 damage', { t: 'ledge' }, ''], ['Take the safe stair', '+10 gold', { t: 'stair' }, '']]
+      }[e.event] || [];
+      opts.forEach(function (o, i) { acts.appendChild(actBtn(o[0], o[1], o[2], { primary: i === 0, disabled: !!o[3], why: o[3] })); });
+      acts.appendChild(actBtn('Walk on', 'Leave it be', { t: 'leave' })); box.appendChild(acts); return;
+    }
+  }
+  function describe(o) {
+    if (o.k === 'weapon') { var w = E.WEAPONS[o.id], c = E.WEAPONS[G.st.weapon]; return w.min + '–' + w.max + ' damage, special: ' + E.SPECIALS[w.special].name + ' (yours: ' + c.min + '–' + c.max + ')'; }
+    if (o.k === 'armor') { return 'Armour ' + E.ARMORS[o.id].def + ' (yours: ' + E.ARMORS[G.st.armor].def + ')'; }
+    if (o.k === 'item') return o.id === 'draught' ? 'Restore up to ' + E.TIERS[G.st.tier].heal + ' health.' : E.ITEMS[o.id].text;
+    if (o.k === 'relic') return E.RELICS[o.id].text;
+    if (o.k === 'gold') return (E.offerBlocked(G.st, o) || 'Worth ' + (o.n * 2) + ' score');
+    return '';
+  }
+  function renderKit() {
+    var st = G.st, b = $('#kit-body'); b.innerHTML = '';
+    var w = E.WEAPONS[st.weapon], a = E.ARMORS[st.armor];
+    b.appendChild(el('h3', null, 'Equipment'));
+    var ul = el('ul'); var li = el('li'); li.appendChild(el('span', null, w.name)); li.appendChild(el('small', null, w.min + '–' + w.max + ' · ' + E.SPECIALS[w.special].name)); ul.appendChild(li);
+    li = el('li'); li.appendChild(el('span', null, a.name)); li.appendChild(el('small', null, 'armour ' + a.def)); ul.appendChild(li); b.appendChild(ul);
+    b.appendChild(el('h3', null, 'Pack (' + st.items.length + '/4)'));
+    var ul2 = el('ul'); if (!st.items.length) ul2.appendChild(el('li', null, '— empty —'));
+    st.items.forEach(function (id) {
+      var l = el('li'); l.appendChild(el('span', null, E.ITEMS[id].name));
+      var usable = (id === 'draught' && st.hp < st.maxHp) || (id === 'antidote' && st.poison);
+      var inFight = st.enc && st.enc.sub === 'fight';
+      if (usable && !inFight) { var u = el('button', { type: 'button', class: 'use', 'aria-label': 'Use ' + E.ITEMS[id].name }, 'Use'); u.addEventListener('click', function () { act({ t: 'use', item: id }); }); l.appendChild(u); }
+      else l.appendChild(el('small', null, E.ITEMS[id].text.replace(/\.$/, '')));
+      ul2.appendChild(l);
+    });
+    b.appendChild(ul2);
+    b.appendChild(el('h3', null, 'Relics (' + st.relics.length + '/3)'));
+    var ul3 = el('ul'); if (!st.relics.length) ul3.appendChild(el('li', null, '— none —'));
+    st.relics.forEach(function (id) { var l = el('li'); l.appendChild(el('span', null, E.RELICS[id].name)); l.appendChild(el('small', null, E.RELICS[id].text)); ul3.appendChild(l); });
+    b.appendChild(ul3);
+    if (st.bane) b.appendChild(el('p', { class: 'small muted' }, 'You know the Warden’s weak point (+3 damage).'));
+  }
+  function renderLog() { var ol = $('#log'); ol.innerHTML = ''; G.st.log.slice(-14).forEach(function (m) { ol.appendChild(el('li', null, m)); }); var lg = ol.parentNode; lg.scrollTop = lg.scrollHeight; }
+  var noteT = null;
+  function flashNote(m) { var ol = $('#log'); var li = el('li', null, '⚠ ' + m); li.style.color = '#ff9a7a'; ol.appendChild(li); }
+  var sayT = null; function say(m) { var n = $('#say'); n.textContent = ''; clearTimeout(sayT); sayT = setTimeout(function () { n.textContent = m; }, 30); }
+
+  /* ================================================================ results */
+  function showResults(wasFirst, newBest) {
+    var st = G.st, T = E.TIERS[st.tier], day = SAVE.days[runKey(st)];
+    showScreen('result');
+    $('#r-k').textContent = 'The Daily Delve · ' + st.date + ' · ' + T.label + (st.practice ? ' · practice' : ' · first attempt');
+    $('#r-h').textContent = st.ended === 'victory' ? 'Victory — the Heart is free' : st.ended === 'defeat' ? 'Fallen on floor ' + st.floor : 'Run abandoned on floor ' + st.floor;
+    $('#r-line').textContent = 'Score ' + fmt(st.score) + (newBest ? ' — a new personal best for today' : '') + '.';
+    var s = $('#r-stats'); s.innerHTML = '';
+    function stat(v, l) { var d = el('div', { class: 'stat' }); d.appendChild(el('b', null, v)); d.appendChild(el('span', null, l)); s.appendChild(d); }
+    stat(fmt(st.score), 'score'); stat(st.ended === 'victory' ? '10 (cleared)' : String(st.floor), 'deepest floor'); stat(st.hp + '/' + st.maxHp, 'health left'); stat(String(st.gold), 'gold left');
+    stat(String(st.kills), 'foes defeated'); stat(String(st.traps), 'traps mitigated');
+    stat(day.first ? fmt(day.first.score) : '—', 'today’s first attempt'); stat(day.best ? fmt(day.best.score) : '—', 'today’s personal best');
+    var dun = E.genDungeon(st.date), ol = $('#r-route'); ol.innerHTML = '';
+    st.route.forEach(function (side, i) { var d = dun.floors[i + 1].doors.filter(function (x) { return x.side === side; })[0]; ol.appendChild(el('li', null, 'Floor ' + (i + 1) + ': ' + SIDE_NAME[side] + ' door (' + (d.type === 'boss' ? { gate: 'Iron Gate', roots: 'Rooted Breach', gold: 'Golden Seal' }[d.approach] : E.CRESTS[d.crest].name + ' → ' + E.TYPE_LABEL[d.type]) + ')')); });
+    var tb = $('#r-score'); tb.innerHTML = '';
+    var groups = {}; st.scoreLog.forEach(function (x) { var k = x[0].replace(/^Floor \d+ completed$/, 'Floors completed').replace(/^Defeated (Elite )?.*$/, function (m, e) { return e ? 'Elites defeated' : (m.indexOf('Warden') >= 0 ? m : 'Foes defeated'); }); groups[k] = (groups[k] || 0) + x[1]; });
+    Object.keys(groups).forEach(function (k) { var r = el('tr'); r.appendChild(el('td', null, k)); r.appendChild(el('td', null, fmt(groups[k]))); tb.appendChild(r); });
+    var tr = el('tr', { class: 'tot' }); tr.appendChild(el('td', null, 'Total')); tr.appendChild(el('td', null, fmt(st.score))); tb.appendChild(tr);
+    $('#r-disc').textContent = st.discoveries.length ? st.discoveries.join(' · ') : 'Nothing remarkable — the dungeon keeps its secrets.';
+    $('#r-share').textContent = E.resultSummary(st); $('#r-copied').textContent = '';
+    $('#r-copy').focus();
+    say($('#r-h').textContent + '. Score ' + fmt(st.score) + '.' + (wasFirst ? ' Recorded as today’s first attempt.' : ''));
+  }
+  function copyText(t) {
+    function fallback() { var ta = el('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; } document.body.removeChild(ta); return ok; }
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function () { return true; }, function () { return fallback(); });
+    return Promise.resolve(fallback());
+  }
+  $('#r-copy').addEventListener('click', function () {
+    copyText($('#r-share').textContent).then(function (ok) {
+      $('#r-copied').textContent = ok ? 'Copied to your clipboard.' : 'Copy failed — select the text above and copy it manually.';
+      if (!ok) { var r = document.createRange(); r.selectNodeContents($('#r-share')); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }
+    });
+  });
+  $('#r-replay').addEventListener('click', function () { var t = G.st.tier; if (G.st.date !== today()) { toTitle(); $('#t-note').textContent = 'A new dungeon has opened since that run. Today’s Delve is ' + today() + '.'; return; } startRun(t, true); });
+  $('#r-title').addEventListener('click', toTitle);
+
+  /* ================================================================ title */
+  function selectedTier() { var r = document.querySelector('input[name=tier]:checked'); return r ? r.value : 'silver'; }
+  function refreshTitle() {
+    var d = today(); $('#t-date').textContent = d;
+    var ms = E.msToNextUtcMidnight(now()), h = Math.floor(ms / 3600000), m = Math.floor(ms / 60000) % 60;
+    $('#t-reset').textContent = 'A new dungeon opens at 00:00 UTC — in ' + h + ' h ' + m + ' min.';
+    if (G.todayAtLoad && G.todayAtLoad !== d) $('#t-newday').textContent = 'A new dungeon is available: ' + d + '.';
+    E.TIER_IDS.forEach(function (t) { var day = SAVE.days[d + '|' + t], s = $('.tier-stat[data-t=' + t + ']'); s.textContent = day && day.first ? 'Today: first attempt ' + fmt(day.first.score) + ' (' + day.first.result + ') · best ' + fmt(day.best.score) + ' · ' + day.runs + (day.runs === 1 ? ' run' : ' runs') : 'Today: not yet attempted.'; });
+    var tier = selectedTier(), day = SAVE.days[d + '|' + tier], first = !(day && day.first);
+    $('#t-first').textContent = first ? 'Your next ' + E.TIERS[tier].label + ' run will be recorded as today’s first attempt.' : 'Today’s ' + E.TIERS[tier].label + ' first attempt is recorded. Further runs are practice and can only raise your personal best.';
+    $('#b-enter').textContent = first ? 'Enter today’s Delve' : 'Enter today’s Delve (practice)';
+    var rp = $('#b-replay'); rp.disabled = first; rp.textContent = first ? 'Replay (after your first attempt)' : 'Replay today’s Delve (practice)';
+    var r = SAVE.run, cb = $('#b-continue');
+    if (r) { cb.hidden = false; cb.textContent = 'Continue your ' + E.TIERS[r.tier].label + ' run (' + r.date + (r.date !== d ? ', yesterday’s dungeon' : '') + ')'; } else cb.hidden = true;
+    $('#t-note').textContent = notice || (storageOk ? '' : 'Your browser is blocking storage: your run and records last only until this page closes.');
+  }
+  $all('input[name=tier]').forEach(function (r) { r.addEventListener('change', function () { SAVE.prefs.tier = this.value; persist(); refreshTitle(); }); });
+  function guardStart(fn) {
+    if (SAVE.run) { askAbandon('You have an unfinished run (' + SAVE.run.date + ', ' + E.TIERS[SAVE.run.tier].label + '). Starting a new one abandons it; an abandoned run counts as an attempt.', function () { abandonSaved(); fn(); }); return; }
+    fn();
+  }
+  $('#b-enter').addEventListener('click', function () { var t = selectedTier(); guardStart(function () { startRun(t, false); }); });
+  $('#b-replay').addEventListener('click', function () { var t = selectedTier(); guardStart(function () { startRun(t, true); }); });
+  $('#b-continue').addEventListener('click', resumeRun);
+  $('#b-howto').addEventListener('click', openHowto);
+  $('#b-records').addEventListener('click', openRecords);
+  $('#b-settings').addEventListener('click', openSettings);
+  function abandonSaved() { var r = SAVE.run; if (!r) return; var st = E.replay(r.date, r.tier, r.actions, { practice: r.practice }); if (st) { var res = E.step(st, { t: 'abandon' }); if (res.ok) { G.st = res.state; var key = runKey(G.st), day = SAVE.days[key] || (SAVE.days[key] = { first: null, best: null, runs: 0 }); var entry = { score: G.st.score, result: 'abandoned', floor: G.st.floor, route: G.st.route.join('–') }; day.runs++; if (!day.first) day.first = entry; if (!day.best || entry.score > day.best.score) day.best = entry; } } SAVE.run = null; persist(); }
+
+  /* ================================================================ dialogs & menu */
+  function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+  var confirmFn = null;
+  function askAbandon(text, fn) { $('#cf-p').textContent = text; confirmFn = fn; openDlg($('#d-confirm')); setTimeout(function () { $('#d-confirm form .btn').focus(); }, 30); }
+  $('#cf-yes').addEventListener('click', function () { $('#d-confirm').close(); var f = confirmFn; confirmFn = null; if (f) f(); });
+  $('#g-menu').addEventListener('click', function () { $('#m-note').textContent = ''; openDlg($('#d-menu')); });
+  $('#m-howto').addEventListener('click', openHowto);
+  $('#m-settings').addEventListener('click', openSettings);
+  $('#m-title').addEventListener('click', function () { $('#d-menu').close(); toTitle(); });
+  $('#m-abandon').addEventListener('click', function () { $('#d-menu').close(); askAbandon('Your run ends here with its current score' + (G.st && !G.st.practice ? ', and it becomes today’s first attempt' : '') + '. This cannot be undone.', function () { act({ t: 'abandon' }); }); });
+  $('#g-sound').addEventListener('click', toggleSound);
+  function toggleSound() { SAVE.prefs.sound = !SAVE.prefs.sound; persist(); if (SAVE.prefs.sound) audioInit(); else if (AU.master) AU.master.gain.value = 0; syncSound(); say('Sound ' + (SAVE.prefs.sound ? 'on' : 'off') + '.'); }
+  function syncSound() { var on = SAVE.prefs.sound; $('#g-sound').setAttribute('aria-pressed', on ? 'true' : 'false'); $('#g-sound').setAttribute('aria-label', 'Sound ' + (on ? 'on' : 'off') + ' (M)'); $('#g-sound-i').textContent = on ? '♪' : '×'; }
+  function openSettings() { var p = SAVE.prefs; $('#s-sound').checked = p.sound; $('#s-vol').value = p.volume; $('#s-vol-o').textContent = p.volume + '%'; $('#s-ambient').checked = p.ambient; $('#s-motion').value = p.motion; openDlg($('#d-settings')); }
+  $('#s-sound').addEventListener('change', function () { if (this.checked !== SAVE.prefs.sound) toggleSound(); });
+  $('#s-vol').addEventListener('input', function () { SAVE.prefs.volume = +this.value; $('#s-vol-o').textContent = this.value + '%'; if (AU.master) AU.master.gain.value = SAVE.prefs.sound ? SAVE.prefs.volume / 100 * 0.5 : 0; persist(); });
+  $('#s-ambient').addEventListener('change', function () { SAVE.prefs.ambient = this.checked; persist(); audioInit(); ambient(); });
+  $('#s-motion').addEventListener('change', function () { SAVE.prefs.motion = this.value; persist(); applyMotion(); });
+  if (mq && mq.addEventListener) mq.addEventListener('change', applyMotion);
+  var crestCache = null;
+  function openHowto() {
+    if (!crestCache) crestCache = E.crestStats(730);
+    var box = $('#ht-crests'); box.innerHTML = '';
+    var tb = el('table', { class: 'keys' }), hr = el('tr'); hr.appendChild(el('th', { scope: 'col' }, 'When you see…')); hr.appendChild(el('th', { scope: 'col' }, 'it hides… (share of doors, floors 1–9, 730 days)')); tb.appendChild(hr);
+    ['iron', 'gold', 'root', 'clock', 'lantern'].forEach(function (c) {
+      var s = crestCache[c]; if (!s) return; var parts = Object.keys(s).filter(function (k) { return k !== 'n'; }).sort(function (a, b) { return s[b] - s[a]; }).map(function (k) { return E.TYPE_LABEL[k].toLowerCase() + ' ' + Math.round(100 * s[k] / s.n) + '%'; });
+      var r = el('tr'); r.appendChild(el('th', { scope: 'row' }, E.CRESTS[c].name)); r.appendChild(el('td', null, parts.join(' · '))); tb.appendChild(r);
+    });
+    box.appendChild(tb);
+    var st = $('#ht-score'); st.innerHTML = '';
+    [['Each floor completed', '500'], ['Foe defeated (elite)', '250 (500)'], ['The Heart Warden', '1,000 (+600 Valour through the Iron Gate)'], ['Trap disarmed or warded', '100'], ['Treasure', 'its listed value (gold: 2 per coin)'], ['Helping the traveler', '150–200'], ['Victory', '2,000 + 20 per health + 5 per gold left']].forEach(function (x) { var r = el('tr'); r.appendChild(el('th', { scope: 'row' }, x[0])); r.appendChild(el('td', null, x[1])); st.appendChild(r); });
+    var tt = $('#ht-tiers'); tt.innerHTML = ''; tt.appendChild(el('h3', null, 'Bronze, Silver, Gold'));
+    var ul = el('ul', { class: 'howto' });
+    E.TIER_IDS.forEach(function (t) { var T = E.TIERS[t]; ul.appendChild(el('li', null, T.label + ' — ' + T.title + ': ' + T.hp + ' health, ' + T.gold + ' gold, ' + T.potions + ' draught' + (T.potions > 1 ? 's' : '') + '; foes deal ' + Math.round(T.enemyDmg * 100) + '% damage with ' + Math.round(T.enemyHp * 100) + '% health; traps ' + Math.round(T.trapDmg * 100) + '%; prices ' + Math.round(T.price * 100) + '%; the Warden has ' + T.bossHp + ' health.')); });
+    tt.appendChild(ul);
+    openDlg($('#d-howto'));
+  }
+  function openRecords() {
+    var b = $('#rec-body'); b.innerHTML = '';
+    var tb = el('table', { class: 'rec' }), th = el('thead'), hr = el('tr'); ['Tier', 'Runs', 'Victories', 'Deepest', 'Best score'].forEach(function (x) { hr.appendChild(el('th', { scope: 'col' }, x)); }); th.appendChild(hr); tb.appendChild(th);
+    E.TIER_IDS.forEach(function (t) { var v = SAVE.tiers[t], r = el('tr'); [E.TIERS[t].label, v.runs, v.victories, v.deepest || '—', v.bestScore ? fmt(v.bestScore) + ' (' + v.bestDate + ')' : '—'].forEach(function (x) { r.appendChild(el('td', null, String(x))); }); tb.appendChild(r); });
+    b.appendChild(tb);
+    b.appendChild(el('h3', null, 'Daily results'));
+    var ks = Object.keys(SAVE.days).sort().reverse();
+    if (!ks.length) b.appendChild(el('p', { class: 'muted' }, 'No daily runs yet.'));
+    else {
+      var t2 = el('table', { class: 'rec' }), h2 = el('tr'); ['Date', 'Tier', 'First attempt', 'Personal best', 'Runs'].forEach(function (x) { h2.appendChild(el('th', { scope: 'col' }, x)); }); t2.appendChild(h2);
+      ks.forEach(function (k) { var v = SAVE.days[k], r = el('tr'); [k.slice(0, 10), cap(k.slice(11)), v.first ? fmt(v.first.score) + ' · ' + v.first.result + ' · floor ' + v.first.floor : '—', v.best ? fmt(v.best.score) : '—', v.runs].forEach(function (x) { r.appendChild(el('td', null, String(x))); }); t2.appendChild(r); });
+      b.appendChild(t2);
+    }
+    $('#rec-note').textContent = '';
+    openDlg($('#d-records'));
+  }
+  $('#rec-reset').addEventListener('click', function () {
+    var b = this;
+    if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Press again to erase all Daily Delve records'; setTimeout(function () { delete b.dataset.armed; b.textContent = 'Erase Daily Delve records'; }, 4000); return; }
+    delete b.dataset.armed; b.textContent = 'Erase Daily Delve records';
+    var keep = SAVE.prefs, run = SAVE.run; SAVE = blank(); SAVE.prefs = keep; SAVE.run = run; persist();
+    $('#d-records').close(); openRecords(); $('#rec-note').textContent = 'Records erased (settings and any run in progress were kept).'; refreshTitle();
+  });
+
+  /* ================================================================ screens & keys */
+  function showScreen(n) { ['title', 'game', 'result'].forEach(function (s) { $('#scr-' + s).hidden = s !== n; }); document.body.classList.toggle('playing', n === 'game'); if (n === 'game') ambient(); }
+  function toTitle() { G.st = null; showScreen('title'); refreshTitle(); $('#b-enter').focus(); }
+  document.addEventListener('keydown', function (e) {
+    if (document.querySelector('dialog[open]')) return;
+    if ($('#scr-game').hidden) return;
+    var tag = e.target && e.target.tagName;
+    if (e.key === 'Escape') { e.preventDefault(); $('#g-menu').click(); return; }
+    if ((e.key === 'm' || e.key === 'M') && tag !== 'INPUT') { e.preventDefault(); toggleSound(); return; }
+    if (G.st && G.st.phase === 'doors') {
+      var map = { '1': 0, '2': 1, '3': 2, ArrowLeft: 0, ArrowUp: 1, ArrowRight: 2 }, i = map[e.key];
+      if (i != null) { e.preventDefault(); var b = $all('#doors .door')[i]; if (b) { b.focus(); if (e.key >= '1' && e.key <= '3') b.click(); } }
+    }
+  });
+  window.addEventListener('pagehide', function () { if (SAVE) persist(); });
+  setInterval(function () { if (!$('#scr-title').hidden) refreshTitle(); }, 30000);
+
+  /* title art */
+  (function () {
+    var s = '<svg viewBox="0 0 560 380" aria-hidden="true"><defs><linearGradient id="tbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#24223f"/><stop offset="1" stop-color="#0d0c1a"/></linearGradient><radialGradient id="tl" cx="50%" cy="85%" r="60%"><stop offset="0" stop-color="#ffae4a" stop-opacity=".25"/><stop offset="1" stop-color="#ffae4a" stop-opacity="0"/></radialGradient></defs>' +
+      '<rect width="560" height="380" fill="url(#tbg)"/><rect width="560" height="380" fill="url(#tl)"/>';
+    for (var y = 0; y < 380; y += 34) s += '<line x1="0" y1="' + y + '" x2="560" y2="' + y + '" stroke="#000" stroke-opacity=".25"/>';
+    s += '<g transform="translate(40,50) scale(.75)">' + doorSVG('iron').replace('<svg class="door-svg" viewBox="0 0 200 300" aria-hidden="true" focusable="false">', '').replace('</svg>', '') + '</g>';
+    s += '<g transform="translate(205,30) scale(.8)">' + doorSVG('root').replace('<svg class="door-svg" viewBox="0 0 200 300" aria-hidden="true" focusable="false">', '').replace('</svg>', '') + '</g>';
+    s += '<g transform="translate(375,50) scale(.75)">' + doorSVG('gold').replace('<svg class="door-svg" viewBox="0 0 200 300" aria-hidden="true" focusable="false">', '').replace('</svg>', '') + '</g>';
+    for (var i = 0; i < 5; i++) s += '<rect x="' + (180 + i * 20) + '" y="' + (300 + i * 14) + '" width="' + (200 - i * 40) + '" height="12" fill="#3a3448" stroke="#000" stroke-opacity=".4"/>';
+    s += '</svg>';
+    $('#title-art').innerHTML = s;
+  })();
+
+  /* ================================================================ boot */
+  SAVE = load(); if (notice) persist();
+  G.todayAtLoad = today();
+  var trb = document.querySelector('input[name=tier][value=' + SAVE.prefs.tier + ']'); if (trb) trb.checked = true;
+  syncSound(); applyMotion(); refreshTitle();
+  if (DEV) window.__dd = { E: E, G: G, get SAVE() { return SAVE; }, act: act, start: startRun, toTitle: toTitle, key: KEY, setNowOffset: function (ms) { nowOffset = ms; refreshTitle(); }, today: today, persist: persist, refreshTitle: refreshTitle };
+})();
+
+</script>
+</body>
+</html>
