@@ -1,0 +1,2772 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="doorquests:status" content="prototype — founder playtest — not published">
+<meta name="description" content="Gamortal #003 · Holes Between Rooms — miniature golf through the connected rooms of a crooked house. A DoorQuests prototype.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0f2c">
+<title>Holes Between Rooms | DoorQuests Gamortals</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230a0f2c'/%3E%3Crect x='18' y='10' width='28' height='46' rx='3' fill='%23e7c35a'/%3E%3Crect x='22' y='14' width='20' height='42' fill='%23151d4a'/%3E%3Ccircle cx='32' cy='44' r='5' fill='%23f6f1e4'/%3E%3C/svg%3E">
+<style>
+:root {
+  --night: #0a0f2c; --night2: #111842; --panel: #141c4a; --panel2: #1a2358; --line: #2c3772;
+  --gold: #e7c35a; --gold2: #f3d98a; --ivory: #f6f1e4; --dim: #c3c6dc; --mute: #a0a6c8;
+  --bronze: #d69257; --silver: #cfd6e6; --goldm: #f2c14e; --warn: #ffb27a; --ok: #9be39b;
+  --r: 12px; --focus: 0 0 0 3px #0a0f2c, 0 0 0 5px #f3d98a;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { background: var(--night); }
+body {
+  min-height: 100vh; min-height: 100dvh; color: var(--ivory); font: 16px/1.5 var(--sans);
+  background: radial-gradient(1200px 700px at 50% -10%, #1b2560 0%, var(--night) 60%) fixed, var(--night);
+  display: flex; flex-direction: column; overflow-x: hidden;
+}
+a { color: var(--gold2); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, canvas:focus-visible, label:focus-within { outline: none; box-shadow: var(--focus); border-radius: 6px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--gold); color: #111; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 8px; }
+[hidden] { display: none !important; }
+
+/* ---------- header ---------- */
+.top { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #222b63; background: rgba(10, 15, 44, .85); flex-wrap: wrap; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ivory); font: 600 18px/1 var(--serif); letter-spacing: .02em; }
+.brand-door { width: 16px; height: 22px; border: 2px solid var(--gold); border-radius: 8px 8px 1px 1px; position: relative; }
+.brand-door::after { content: ""; position: absolute; right: 2px; top: 10px; width: 3px; height: 3px; border-radius: 50%; background: var(--gold); }
+.crumb { color: var(--dim); font-size: 14px; display: inline-flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+.crumb-col { color: var(--gold2); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-size: 12px; }
+.badge { margin-left: auto; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px dashed var(--warn); color: var(--warn); letter-spacing: .03em; }
+
+main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+/* ---------- buttons ---------- */
+.btn { appearance: none; border: 1px solid #3a4590; background: var(--panel2); color: var(--ivory); border-radius: 10px; padding: 10px 16px; font: 600 15px/1.2 var(--sans); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
+.btn:hover { border-color: var(--gold); }
+.btn-primary { background: linear-gradient(#f0d27a, #d9ac3e); color: #1b1606; border-color: #f3d98a; }
+.btn-primary:hover { background: linear-gradient(#f6dc8c, #e2b84c); }
+.btn-quiet { background: transparent; }
+.btn-small { min-height: 36px; padding: 6px 12px; font-size: 14px; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn.confirming { background: #5a2a1a; border-color: var(--warn); color: #ffe2cf; }
+.kbd { font: 600 11px/1 var(--sans); border: 1px solid rgba(0, 0, 0, .35); border-radius: 4px; padding: 3px 5px; opacity: .8; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.stack { display: grid; gap: 8px; margin: 14px 0; }
+.note { min-height: 1.5em; color: var(--gold2); font-size: 14px; margin: 8px 0 0; }
+.muted { color: var(--mute); }
+.small { font-size: 13px; }
+
+/* ---------- title ---------- */
+.title-wrap { width: min(1080px, 100%); margin: 0 auto; padding: 22px 16px 26px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 28px; align-items: center; }
+.title-art canvas { width: 100%; height: auto; display: block; border-radius: 16px; border: 1px solid #2a3474; background: #0d1336; box-shadow: 0 20px 60px rgba(0, 0, 0, .45); }
+.kicker { margin: 0 0 6px; color: var(--gold2); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+h1 { font: 600 clamp(32px, 5vw, 52px)/1.05 var(--serif); margin: 0 0 10px; color: var(--ivory); }
+.t-no { display: block; font: 600 14px/1.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.tagline { color: var(--dim); margin: 0 0 16px; font-size: 17px; }
+.tiers { border: 0; padding: 0; margin: 0 0 14px; display: grid; gap: 8px; }
+.tiers legend { font: 600 14px/1 var(--sans); color: var(--gold2); margin-bottom: 8px; letter-spacing: .04em; }
+.tier { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid #2c3772; border-radius: 12px; background: rgba(20, 28, 74, .7); cursor: pointer; }
+.tier:hover { border-color: #56619f; }
+.tier input { margin-top: 4px; accent-color: var(--gold); width: 18px; height: 18px; }
+.tier:has(input:checked) { border-color: var(--gold); background: rgba(40, 46, 104, .85); }
+.tier-medal { width: 22px; height: 22px; border-radius: 50%; margin-top: 1px; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .25); }
+.tier-bronze .tier-medal { background: radial-gradient(circle at 35% 35%, #f0b37f, #a8642e); }
+.tier-silver .tier-medal { background: radial-gradient(circle at 35% 35%, #ffffff, #9aa4b8); }
+.tier-gold .tier-medal { background: radial-gradient(circle at 35% 35%, #fff0b0, #c8952a); }
+.tier-body { display: grid; gap: 2px; font-size: 14px; color: var(--dim); }
+.tier-body strong { color: var(--ivory); font-size: 15px; }
+.tier-goal { color: var(--gold2); font-size: 13px; }
+.title-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ---------- game ---------- */
+#screen-game { padding: 0; }
+.hud { display: flex; align-items: center; gap: 10px 18px; padding: 8px 14px; background: rgba(14, 20, 58, .92); border-bottom: 1px solid #222b63; flex-wrap: wrap; }
+.hud-hole { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.hud-k { color: var(--mute); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.hud-v { font: 700 18px/1 var(--sans); color: var(--ivory); font-variant-numeric: tabular-nums; }
+.hud-name { font: 600 17px/1.2 var(--serif); color: var(--gold2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 42vw; }
+.hud-stats { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.hud-tier { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.hud-tier.t-bronze { color: var(--bronze); } .hud-tier.t-silver { color: var(--silver); } .hud-tier.t-gold { color: var(--goldm); }
+.hud-btns { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.ibtn { appearance: none; min-width: 44px; min-height: 44px; border-radius: 10px; border: 1px solid #333e85; background: var(--panel); color: var(--ivory); display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; cursor: pointer; font: 600 13px/1 var(--sans); }
+.ibtn:hover { border-color: var(--gold); }
+.ibtn[aria-pressed="false"] { color: var(--mute); }
+.ibtn.confirming { background: #5a2a1a; border-color: var(--warn); }
+.ibtn-t { display: inline; }
+
+.stage { position: relative; flex: 1; min-height: 260px; background: radial-gradient(900px 500px at 50% 40%, #121a4a, #080c26 75%); overflow: hidden; }
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+#cv.busy { cursor: progress; }
+
+.banner { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); background: rgba(10, 15, 44, .88); border: 1px solid var(--gold); color: var(--ivory); padding: 10px 18px; border-radius: 12px; text-align: center; pointer-events: none; opacity: 0; transition: opacity .35s; max-width: min(92%, 560px); }
+.banner.show { opacity: 1; }
+.banner .b-k { display: block; font-size: 12px; letter-spacing: .14em; color: var(--gold2); text-transform: uppercase; }
+.banner .b-t { display: block; font: 600 22px/1.2 var(--serif); }
+.banner .b-s { display: block; font-size: 14px; color: var(--dim); margin-top: 4px; }
+.coach { position: absolute; left: 12px; bottom: 12px; max-width: min(420px, calc(100% - 24px)); background: rgba(16, 22, 64, .95); border: 1px solid #4b56a0; border-left: 4px solid var(--gold); border-radius: 12px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, .4); }
+.coach p { margin: 0 0 8px; font-size: 14px; color: var(--ivory); }
+.coach-btns { display: flex; gap: 8px; }
+.toast { position: absolute; right: 12px; top: 12px; background: rgba(10, 15, 44, .9); border: 1px solid #4b56a0; padding: 8px 12px; border-radius: 10px; font-size: 14px; opacity: 0; transition: opacity .3s; pointer-events: none; max-width: 70%; }
+.toast.show { opacity: 1; }
+.toast.warn { border-color: var(--warn); color: #ffe2cf; }
+
+.overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(5, 8, 26, .72); padding: 16px; z-index: 5; overflow: auto; }
+.overlay-soft { background: rgba(5, 8, 26, .45); }
+.panel { width: min(440px, 100%); background: var(--panel); border: 1px solid #3a4590; border-radius: 16px; padding: 18px 20px; box-shadow: 0 30px 80px rgba(0, 0, 0, .5); }
+.panel h2 { margin: 0 0 4px; font: 600 26px/1.2 var(--serif); color: var(--gold2); }
+.panel-done { text-align: center; }
+.panel-done .row { justify-content: center; }
+.done-kicker { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--mute); }
+.done-line { font-size: 17px; margin: 6px 0; }
+.settings { border: 1px solid #2c3772; border-radius: 12px; padding: 10px 12px; margin: 6px 0 0; display: grid; gap: 8px; font-size: 14px; }
+.settings legend { color: var(--gold2); padding: 0 4px; }
+.settings label { display: flex; gap: 8px; align-items: center; min-height: 32px; }
+.settings input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--gold); }
+select { background: var(--panel2); color: var(--ivory); border: 1px solid #3a4590; border-radius: 8px; padding: 6px 8px; font: inherit; min-height: 36px; }
+
+.controls { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto; gap: 10px 16px; align-items: end; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: rgba(14, 20, 58, .95); border-top: 1px solid #222b63; }
+.ctl-l { display: flex; justify-content: space-between; font-size: 12px; color: var(--mute); text-transform: uppercase; letter-spacing: .08em; }
+.ctl-l output { color: var(--ivory); font: 700 14px/1 var(--sans); font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0; }
+.ctl-row { display: flex; align-items: center; gap: 6px; }
+.sbtn { appearance: none; min-width: 44px; min-height: 44px; border-radius: 10px; border: 1px solid #333e85; background: var(--panel); color: var(--ivory); font: 700 16px/1 var(--sans); cursor: pointer; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.sbtn:hover { border-color: var(--gold); }
+input[type=range] { flex: 1; min-width: 0; width: 100%; accent-color: var(--gold); height: 32px; }
+.controls > * { min-width: 0; }
+.btn-shoot { min-width: 120px; min-height: 52px; font-size: 17px; }
+.btn-shoot[disabled] { filter: grayscale(.6); }
+
+/* ---------- dialogs ---------- */
+dialog { border: 1px solid #3a4590; border-radius: 16px; background: var(--panel); color: var(--ivory); padding: 0; width: min(680px, calc(100% - 24px)); max-height: calc(100dvh - 32px); }
+dialog::backdrop { background: rgba(4, 6, 20, .7); }
+.dlg { padding: 18px 20px; overflow: auto; }
+.dlg h2 { margin: 0 0 10px; font: 600 26px/1.2 var(--serif); color: var(--gold2); }
+.dlg h3 { margin: 16px 0 6px; font: 600 17px/1.2 var(--sans); color: var(--gold2); }
+.howto { padding-left: 18px; margin: 0; display: grid; gap: 8px; color: var(--dim); }
+.howto strong { color: var(--ivory); }
+.keys { border-collapse: collapse; font-size: 14px; width: 100%; }
+.keys th, .keys td { text-align: left; padding: 5px 8px; border-bottom: 1px solid #263070; }
+.keys th { color: var(--gold2); white-space: nowrap; font-weight: 600; }
+table.card { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+table.card th, table.card td { padding: 6px 6px; border-bottom: 1px solid #263070; text-align: center; }
+table.card th:first-child, table.card td:first-child { text-align: left; }
+table.card thead th { color: var(--gold2); font-weight: 600; }
+table.card .now td { background: rgba(231, 195, 90, .1); }
+table.card tfoot td { font-weight: 700; border-top: 2px solid #3a4590; }
+.u { color: var(--ok); } .o { color: var(--warn); }
+.medal { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+.medal.bronze { background: #6b3f1d; color: #ffd3ad; } .medal.silver { background: #4a5266; color: #f2f5fb; } .medal.gold { background: #6e5212; color: #ffe9a6; }
+.cardwrap { overflow-x: auto; }
+
+.foot { padding: 14px 16px 18px; border-top: 1px solid #1d2560; color: var(--dim); font-size: 14px; text-align: center; }
+.foot p { margin: 4px 0; }
+.foot-brand { color: var(--ivory); }
+
+/* ---------- game layout: fill the viewport ---------- */
+body.playing .foot { display: none; }
+body.playing { height: 100vh; height: 100dvh; overflow: hidden; }
+body.playing .top { padding: 6px 12px; }
+
+@media (max-width: 860px) {
+  .title-wrap { grid-template-columns: 1fr; gap: 16px; padding-top: 14px; }
+  .title-art { order: -1; }
+  .ibtn-t { display: none; }
+  .hud-name { max-width: 60vw; }
+  .controls { grid-template-columns: 1fr 1fr; }
+  .btn-shoot { grid-column: 1 / -1; }
+}
+@media (max-width: 520px) {
+  .badge { margin-left: 0; }
+  body.playing .top { padding: 4px 10px; gap: 8px; flex-wrap: nowrap; }
+  body.playing .crumb { display: none; }
+  body.playing .brand { font-size: 15px; }
+  body.playing .badge { margin-left: auto; font-size: 11px; padding: 2px 7px; }
+  .kbd { display: none; }
+  .ctl-l { font-size: 11px; }
+  .crumb-title { display: none; }
+  .hud { gap: 4px 10px; padding: 6px 10px; }
+  .hud-btns { margin-left: 0; width: 100%; justify-content: space-between; }
+  .ibtn { min-width: 44px; padding: 0 6px; }
+  .controls { grid-template-columns: 1fr; gap: 6px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); }
+  .btn-shoot { min-height: 48px; }
+  .hud-v { font-size: 16px; }
+  .coach { left: 8px; right: 8px; bottom: 8px; max-width: none; }
+}
+@media (max-height: 560px) and (orientation: landscape) {
+  .top { padding: 4px 10px; }
+  body.playing .top { padding: 2px 10px; }
+  body.playing .crumb, body.playing .brand-word { display: none; }
+  .stage { min-height: 120px; }
+  .hud { padding: 2px 10px; gap: 2px 12px; flex-wrap: nowrap; }
+  .hud-name { max-width: 22vw; }
+  .ibtn-t { display: none; }
+  .btn-shoot { min-height: 44px; }
+  #screen-game { display: grid; grid-template-columns: minmax(0, 1fr) 230px; grid-template-rows: auto minmax(0, 1fr); }
+  #screen-game > .hud { grid-column: 1 / -1; }
+  #screen-game > .stage { grid-column: 1; grid-row: 2; }
+  #screen-game > .controls { grid-column: 2; grid-row: 2; grid-template-columns: 1fr; align-content: center; border-top: 0; border-left: 1px solid #222b63; padding: 6px 10px; }
+  .controls .btn-shoot { grid-column: auto; }
+  .hud-hole .hud-k, .hud-tier, #btn-card, #btn-help { display: none; }
+  .hud-stats { flex-wrap: nowrap; gap: 10px; }
+  .hud-btns { flex-wrap: nowrap; }
+  .hud-name { max-width: 20vw; font-size: 15px; }
+  .controls { grid-template-columns: 1fr 1fr auto; padding: 4px 10px; }
+  .ctl-l { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .banner, .toast { transition: none; }
+}
+body.reduce-motion .banner, body.reduce-motion .toast { transition: none; }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#cv">Skip to the course</a>
+<header class="top">
+  <a class="brand" href="https://doorquests.com/" aria-label="DoorQuests home (opens doorquests.com)">
+    <span class="brand-door" aria-hidden="true"></span><span class="brand-word">DoorQuests</span>
+  </a>
+  <span class="crumb"><span class="crumb-col">Gamortal #003</span><span class="crumb-sep" aria-hidden="true">·</span><span class="crumb-title">Holes Between Rooms</span></span>
+  <span class="badge" title="This build is for founder playtesting only.">Prototype · not published</span>
+</header>
+
+<main id="main">
+  <!-- ======================= TITLE ======================= -->
+  <section id="screen-title" class="screen" aria-labelledby="t-title">
+    <div class="title-wrap">
+      <div class="title-art" aria-hidden="true">
+        <canvas id="title-cv" width="560" height="300"></canvas>
+      </div>
+      <div class="title-text">
+        <p class="kicker">DoorQuests · Gamortals — Interactive Games</p>
+        <h1 id="t-title"><span class="t-no">Gamortal #003</span>Holes Between Rooms</h1>
+        <p class="tagline">Miniature golf through the rooms of a crooked house. Every room is a puzzle. Every doorway is a possibility.</p>
+
+        <fieldset class="tiers" id="tier-pick">
+          <legend>Choose your challenge</legend>
+          <label class="tier tier-bronze"><input type="radio" name="tier" value="bronze">
+            <span class="tier-medal" aria-hidden="true"></span>
+            <span class="tier-body"><strong>Bronze — Apprentice Putter</strong>
+              <span>Full aiming guide: first bounce and doorway exits. Slower clockwork.</span>
+              <span class="tier-goal" data-goal="bronze"></span></span></label>
+          <label class="tier tier-silver"><input type="radio" name="tier" value="silver" checked>
+            <span class="tier-medal" aria-hidden="true"></span>
+            <span class="tier-body"><strong>Silver — Skilled Traveler</strong>
+              <span>Guide line to the first contact only. Standard pars.</span>
+              <span class="tier-goal" data-goal="silver"></span></span></label>
+          <label class="tier tier-gold"><input type="radio" name="tier" value="gold">
+            <span class="tier-medal" aria-hidden="true"></span>
+            <span class="tier-body"><strong>Gold — Master of the Rooms</strong>
+              <span>Direction arrow only. Extra furniture, faster clockwork, tighter pars.</span>
+              <span class="tier-goal" data-goal="gold"></span></span></label>
+        </fieldset>
+
+        <div class="title-actions">
+          <button id="btn-start" class="btn btn-primary" type="button">Start the course</button>
+          <button id="btn-continue" class="btn" type="button" hidden>Continue round</button>
+          <button id="btn-howto" class="btn btn-quiet" type="button">How to play</button>
+          <button id="btn-records" class="btn btn-quiet" type="button">Records</button>
+        </div>
+        <p id="title-note" class="note" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= GAME ======================= -->
+  <section id="screen-game" class="screen" hidden aria-label="Course">
+    <div class="hud" role="group" aria-label="Scoreboard">
+      <div class="hud-hole"><span class="hud-k">Hole</span> <span id="hud-hole" class="hud-v">1/9</span>
+        <span id="hud-name" class="hud-name">The Connecting Door</span></div>
+      <div class="hud-stats">
+        <span><span class="hud-k">Par</span> <span id="hud-par" class="hud-v">2</span></span>
+        <span><span class="hud-k">Strokes</span> <span id="hud-strokes" class="hud-v">0</span></span>
+        <span><span class="hud-k">Total</span> <span id="hud-total" class="hud-v">E</span></span>
+        <span id="hud-tier" class="hud-tier">Silver</span>
+      </div>
+      <div class="hud-btns">
+        <button id="btn-pause" class="ibtn" type="button" aria-label="Pause (P)" title="Pause (P)"><span aria-hidden="true">❚❚</span><span class="ibtn-t">Pause</span></button>
+        <button id="btn-retry" class="ibtn" type="button" aria-label="Restart this hole (R)" title="Restart this hole (R)"><span aria-hidden="true">↺</span><span class="ibtn-t">Restart hole</span></button>
+        <button id="btn-card" class="ibtn" type="button" aria-label="Scorecard (C)" title="Scorecard (C)"><span aria-hidden="true">▤</span><span class="ibtn-t">Scorecard</span></button>
+        <button id="btn-view" class="ibtn" type="button" aria-label="Camera: whole house (V)" title="Camera (V)"><span aria-hidden="true">⌖</span><span class="ibtn-t" id="btn-view-t">Whole house</span></button>
+        <button id="btn-sound" class="ibtn" type="button" aria-pressed="true" aria-label="Sound on (M)" title="Sound (M)"><span aria-hidden="true" id="snd-ico">♪</span><span class="ibtn-t" id="btn-sound-t">Sound on</span></button>
+        <button id="btn-help" class="ibtn" type="button" aria-label="How to play (H)" title="How to play (H)"><span aria-hidden="true">?</span><span class="ibtn-t">Help</span></button>
+      </div>
+    </div>
+
+    <div class="stage" id="stage">
+      <canvas id="cv" tabindex="0" role="img" aria-roledescription="mini-golf course" aria-describedby="cv-desc"></canvas>
+      <div id="cv-desc" class="sr-only"></div>
+
+      <div id="banner" class="banner" aria-hidden="true"></div>
+      <div id="coach" class="coach" hidden>
+        <p id="coach-text"></p>
+        <div class="coach-btns"><button id="coach-ok" class="btn btn-small" type="button">Got it</button>
+          <button id="coach-off" class="btn btn-small btn-quiet" type="button">Hide tips</button></div>
+      </div>
+      <div id="toast" class="toast" aria-hidden="true"></div>
+
+      <div id="pause" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="pause-h">
+        <div class="panel">
+          <h2 id="pause-h">Paused</h2>
+          <p class="muted" id="pause-sub">The clockwork waits for you.</p>
+          <div class="stack">
+            <button id="p-resume" class="btn btn-primary" type="button">Resume</button>
+            <button id="p-retry" class="btn" type="button">Restart this hole</button>
+            <button id="p-course" class="btn" type="button">Restart the whole course</button>
+            <button id="p-card" class="btn btn-quiet" type="button">Scorecard</button>
+            <button id="p-help" class="btn btn-quiet" type="button">How to play</button>
+            <button id="p-title" class="btn btn-quiet" type="button">Save and return to title</button>
+          </div>
+          <fieldset class="settings">
+            <legend>Settings</legend>
+            <label><input type="checkbox" id="set-sound"> Sound</label>
+            <label><input type="checkbox" id="set-threads"> Show threads between linked doors</label>
+            <label><input type="checkbox" id="set-tips"> Show tips</label>
+            <label>Motion <select id="set-motion"><option value="auto">Follow device setting</option><option value="full">Full</option><option value="reduced">Reduced</option></select></label>
+          </fieldset>
+          <p id="pause-note" class="note" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div id="done" class="overlay overlay-soft" hidden role="dialog" aria-modal="false" aria-labelledby="done-h">
+        <div class="panel panel-done">
+          <p class="done-kicker" id="done-kicker">Hole 1 · The Connecting Door</p>
+          <h2 id="done-h">Birdie!</h2>
+          <p id="done-line" class="done-line"></p>
+          <p id="done-total" class="muted"></p>
+          <div class="row">
+            <button id="done-next" class="btn btn-primary" type="button">Next hole</button>
+            <button id="done-card" class="btn btn-quiet" type="button">Scorecard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls" role="group" aria-label="Aim and putt">
+      <div class="ctl">
+        <label for="aim" class="ctl-l">Aim <output id="aim-out" for="aim">90.00°</output></label>
+        <div class="ctl-row">
+          <button class="sbtn" type="button" data-hold="aim" data-step="-1" aria-label="Turn aim left 1 degree">◀</button>
+          <input id="aim" type="range" min="0" max="359.75" step="0.25" value="90" aria-valuetext="90 degrees, east">
+          <button class="sbtn" type="button" data-hold="aim" data-step="1" aria-label="Turn aim right 1 degree">▶</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label for="power" class="ctl-l">Power <output id="power-out" for="power">40%</output></label>
+        <div class="ctl-row">
+          <button class="sbtn" type="button" data-hold="power" data-step="-1" aria-label="Less power">−</button>
+          <input id="power" type="range" min="3" max="100" step="1" value="40" aria-valuetext="40 percent">
+          <button class="sbtn" type="button" data-hold="power" data-step="1" aria-label="More power">+</button>
+        </div>
+      </div>
+      <button id="btn-shoot" class="btn btn-primary btn-shoot" type="button">Putt <span class="kbd" aria-hidden="true">Space</span></button>
+    </div>
+    <p id="status" class="sr-only" role="status" aria-live="polite"></p>
+    <p id="alert" class="sr-only" role="alert"></p>
+  </section>
+</main>
+
+<!-- ======================= DIALOGS ======================= -->
+<dialog id="dlg-help" aria-labelledby="help-h">
+  <div class="dlg">
+    <h2 id="help-h">How to play</h2>
+    <ul class="howto">
+      <li><strong>Aim and putt.</strong> Press anywhere on the course and drag <em>back</em>, away from where you want the ball to go. The arrow shows the direction; drag farther for more power. Let go to putt. Drag back to the start (or press Esc) to cancel.</li>
+      <li><strong>Doorways.</strong> A glowing doorway is linked to the doorway with the same <em>symbol and colour</em>. The ball keeps its speed and its direction relative to the door — like walking through: what was on your left stays on your left. A door on a north wall can open onto an east wall.</li>
+      <li><strong>Furniture.</strong> If it stands up, the ball bounces off it. If it is painted on the floor (rugs, tiles, floor symbols), the ball rolls over it. Rugs and carpets slow the ball; polished floors keep it rolling.</li>
+      <li><strong>The cup.</strong> The ball drops only if it reaches the middle of the cup slowly enough. Too fast and it skips across.</li>
+      <li><strong>Hazards.</strong> Water costs one penalty stroke and returns the ball to where you played from. Stairs pull the ball back down.</li>
+      <li><strong>Clockwork.</strong> Moving parts never stop (they pause when you pause). Their reach is marked on the floor. A ball left inside that mark is nudged clear before your next putt.</li>
+      <li><strong>Stroke limit.</strong> After 8 strokes without holing out, the hole is picked up and scores 9.</li>
+    </ul>
+    <h3>Keyboard</h3>
+    <table class="keys">
+      <tr><th scope="row">← →</th><td>Aim 1° (Shift: 10°)</td></tr>
+      <tr><th scope="row">[ ]</th><td>Aim 0.25° (fine)</td></tr>
+      <tr><th scope="row">↑ ↓</th><td>Power 1 % (Shift: 10 %)</td></tr>
+      <tr><th scope="row">Space or Enter</th><td>Putt</td></tr>
+      <tr><th scope="row">P or Esc</th><td>Pause / resume</td></tr>
+      <tr><th scope="row">R</th><td>Restart hole (press twice)</td></tr>
+      <tr><th scope="row">V</th><td>Camera: whole house / follow ball</td></tr>
+      <tr><th scope="row">C · M · H</th><td>Scorecard · Sound · Help</td></tr>
+    </table>
+    <p class="muted">The Aim and Power sliders under the course do the same job and work with screen readers and switch controls.</p>
+    <h3>Bronze, Silver and Gold</h3>
+    <div id="help-tiers"></div>
+    <form method="dialog" class="row"><button class="btn btn-primary" value="close">Close</button></form>
+  </div>
+</dialog>
+
+<dialog id="dlg-card" aria-labelledby="card-h">
+  <div class="dlg">
+    <h2 id="card-h">Scorecard</h2>
+    <div id="card-body"></div>
+    <form method="dialog" class="row"><button class="btn btn-primary" value="close">Close</button></form>
+  </div>
+</dialog>
+
+<dialog id="dlg-records" aria-labelledby="rec-h">
+  <div class="dlg">
+    <h2 id="rec-h">Records</h2>
+    <div id="rec-body"></div>
+    <p class="muted small">Records are kept only in this browser (local storage key <code>doorquests.gamortal.003.holes-between-rooms.v1</code>). They are not sent anywhere and are not yet connected to the shared DoorQuests Keyring.</p>
+    <div class="row">
+      <button id="rec-reset" class="btn btn-quiet" type="button">Reset Holes Between Rooms records</button>
+      <form method="dialog"><button class="btn btn-primary" value="close">Close</button></form>
+    </div>
+    <p id="rec-note" class="note" role="status" aria-live="polite"></p>
+  </div>
+</dialog>
+
+<dialog id="dlg-final" aria-labelledby="final-h">
+  <div class="dlg">
+    <p class="done-kicker">Course complete · The Crooked House</p>
+    <h2 id="final-h">Round complete</h2>
+    <p id="final-line" class="done-line"></p>
+    <div id="final-card"></div>
+    <p id="final-records" class="muted"></p>
+    <div class="row">
+      <button id="final-again" class="btn btn-primary" type="button">Play again</button>
+      <button id="final-title" class="btn" type="button">Choose another tier</button>
+      <a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a>
+    </div>
+  </div>
+</dialog>
+
+<footer class="foot">
+  <p class="foot-brand"><strong>DoorQuests</strong> — <em>Choose Your Path. Find the Truth. Unlock the Impossible.</em></p>
+  <p>Gamortal #003 · Holes Between Rooms · Created by The Axiom Continuum. · <a href="https://doorquests.com/">Return to DoorQuests</a></p>
+  <p class="small muted">Prototype for founder playtesting — not published. All artwork is drawn in code; all sounds are synthesised in your browser. No accounts, no downloads.</p>
+</footer>
+
+<script id="hbr-engine">
+/* Holes Between Rooms — deterministic physics engine (Gamortal #003).
+   Pure logic: no DOM, no timers, no randomness. Same inputs → same results.
+   Units: world units (u) and seconds. Angles: bearings in degrees, 0 = up (north), 90 = right (east). */
+(function (root) {
+  'use strict';
+
+  var VERSION = '1.0.0';
+
+  var K = {
+    DT: 1 / 240,          // fixed simulation step (s)
+    R: 7,                 // ball radius (u)
+    MAXV: 1050,           // shot speed at 100 % power (u/s)
+    MINP: 0.03,           // smallest accepted power (3 %)
+    DECEL: 190,           // rolling deceleration on a friction-1 floor (u/s²)
+    DRAG: 0.35,           // speed-proportional drag (1/s)
+    STOP_V: 6,            // below this speed the ball may come to rest (u/s)
+    SLOPE_HOLD: 250,      // slopes weaker than this cannot move a resting ball (u/s²)
+    CUP_R: 12,            // cup radius (u)
+    CAPTURE_D: 7,         // ball centre must be this close to the cup centre…
+    CAPTURE_V: 330,       // …and slower than this to drop (u/s)
+    CUP_PULL: 1400,       // inward acceleration over the cup (u/s²)
+    MAX_SHOT_S: 30,       // safety: a shot ends after 30 s of simulated time
+    MAX_TRANSFERS: 80,    // safety: door transfers allowed per shot
+    STROKE_CAP: 8         // strokes allowed per hole; then the hole is picked up
+  };
+
+  var MATS = {
+    wall: { e: 0.72, snd: 'wall' }, wood: { e: 0.62, snd: 'wood' }, stone: { e: 0.70, snd: 'stone' },
+    brass: { e: 0.84, snd: 'brass' }, cushion: { e: 0.42, snd: 'soft' }, mirror: { e: 0.86, snd: 'glass' },
+    plant: { e: 0.36, snd: 'soft' }, glass: { e: 0.70, snd: 'glass' }
+  };
+
+  var TIERS = {
+    bronze: { id: 'bronze', label: 'Bronze', title: 'Apprentice Putter', guide: 2, moverSpeed: 0.75, threads: true },
+    silver: { id: 'silver', label: 'Silver', title: 'Skilled Traveler', guide: 1, moverSpeed: 1.0, threads: false },
+    gold:   { id: 'gold',   label: 'Gold',   title: 'Master of the Rooms', guide: 0, moverSpeed: 1.25, threads: false }
+  };
+  var TIER_IDS = ['bronze', 'silver', 'gold'];
+
+  /* ------------------------------------------------------------ vectors */
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function dirOf(deg) { var a = deg * Math.PI / 180; return { x: Math.sin(a), y: -Math.cos(a) }; }
+  function normAngle(a) { a = a % 360; if (a < 0) a += 360; return a; }
+
+  /* ------------------------------------------------------------ compile */
+  var SIDE_N = { N: { x: 0, y: -1 }, S: { x: 0, y: 1 }, E: { x: 1, y: 0 }, W: { x: -1, y: 0 } };
+
+  function doorFrame(room, d) {
+    var n = SIDE_N[d.side], cx, cy;
+    if (d.side === 'N') { cx = room.x + d.at; cy = room.y; }
+    else if (d.side === 'S') { cx = room.x + d.at; cy = room.y + room.h; }
+    else if (d.side === 'W') { cx = room.x; cy = room.y + d.at; }
+    else { cx = room.x + room.w; cy = room.y + d.at; }
+    // tangent = normal rotated a quarter turn clockwise (screen coordinates)
+    return { cx: cx, cy: cy, nx: n.x, ny: n.y, tx: -n.y, ty: n.x };
+  }
+
+  function rectSegs(o, mat) {
+    var x = o.x, y = o.y, w = o.w, h = o.h;
+    return [[x, y, x + w, y], [x + w, y, x + w, y + h], [x + w, y + h, x, y + h], [x, y + h, x, y]].map(function (s) {
+      return { ax: s[0], ay: s[1], bx: s[2], by: s[3], rad: 0, mat: mat };
+    });
+  }
+  function polySegs(pts, mat) {
+    var out = [];
+    for (var i = 0; i < pts.length; i++) {
+      var a = pts[i], b = pts[(i + 1) % pts.length];
+      out.push({ ax: a[0], ay: a[1], bx: b[0], by: b[1], rad: 0, mat: mat });
+    }
+    return out;
+  }
+  function panelPts(o) { // thin rotated panel: centre, length, thickness, angle (deg, 0 = horizontal)
+    var a = o.angle * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a), vx = -uy, vy = ux;
+    var hl = o.len / 2, ht = o.th / 2;
+    return [[o.x - ux * hl - vx * ht, o.y - uy * hl - vy * ht], [o.x + ux * hl - vx * ht, o.y + uy * hl - vy * ht],
+            [o.x + ux * hl + vx * ht, o.y + uy * hl + vy * ht], [o.x - ux * hl + vx * ht, o.y - uy * hl + vy * ht]];
+  }
+
+  function mergeTier(def, tierId) {
+    var t = (def.tiers && def.tiers[tierId]) || {};
+    return {
+      obstacles: (def.obstacles || []).concat(t.obstacles || []),
+      zones: (def.zones || []).concat(t.zones || []),
+      movers: (def.movers || []).concat(t.movers || [])
+    };
+  }
+
+  function compileHole(def, tierId) {
+    var tier = TIERS[tierId] || TIERS.silver;
+    var parts = mergeTier(def, tier.id);
+    var H = {
+      def: def, id: def.id, name: def.name, tier: tier.id, par: def.par[tier.id],
+      rooms: {}, roomList: [], doors: {}, doorList: [], cup: def.cup, tee: def.tee,
+      moverSpeed: tier.moverSpeed, bounds: null
+    };
+    def.rooms.forEach(function (r) {
+      var room = { id: r.id, name: r.name, x: r.x, y: r.y, w: r.w, h: r.h, floor: r.floor, fric: r.fric || 1,
+        segs: [], circles: [], zones: [], movers: [], doors: [], decor: r.decor || [], obstacles: [], mirrorWalls: r.mirrorWalls || [] };
+      H.rooms[r.id] = room; H.roomList.push(room);
+    });
+    def.doors.forEach(function (d) {
+      var room = H.rooms[d.room];
+      if (!room) throw new Error('door ' + d.id + ' in unknown room ' + d.room);
+      var f = doorFrame(room, d);
+      var door = { id: d.id, room: d.room, side: d.side, at: d.at, w: d.w || 56, link: d.link, sym: d.sym, col: d.col,
+        cx: f.cx, cy: f.cy, nx: f.nx, ny: f.ny, tx: f.tx, ty: f.ty, label: d.label || '' };
+      H.doors[d.id] = door; H.doorList.push(door); room.doors.push(door);
+    });
+    // links must be symmetric
+    H.doorList.forEach(function (d) {
+      var o = H.doors[d.link];
+      if (!o) throw new Error('door ' + d.id + ' links to missing ' + d.link);
+      if (o.link !== d.id) throw new Error('door link not symmetric: ' + d.id + ' → ' + d.link);
+      if (o.col !== d.col || o.sym !== d.sym) throw new Error('linked doors must share colour and symbol: ' + d.id);
+    });
+    // walls with door gaps
+    H.roomList.forEach(function (room) {
+      ['N', 'E', 'S', 'W'].forEach(function (side) {
+        var len = (side === 'N' || side === 'S') ? room.w : room.h;
+        var gaps = room.doors.filter(function (d) { return d.side === side; })
+          .map(function (d) { return [d.at - d.w / 2, d.at + d.w / 2]; })
+          .sort(function (a, b) { return a[0] - b[0]; });
+        var cuts = [], pos = 0;
+        gaps.forEach(function (g) { cuts.push([pos, g[0]]); pos = g[1]; });
+        cuts.push([pos, len]);
+        cuts.forEach(function (c) {
+          if (c[1] - c[0] < 0.001) return;
+          var a, b;
+          if (side === 'N') { a = [room.x + c[0], room.y]; b = [room.x + c[1], room.y]; }
+          else if (side === 'S') { a = [room.x + c[0], room.y + room.h]; b = [room.x + c[1], room.y + room.h]; }
+          else if (side === 'W') { a = [room.x, room.y + c[0]]; b = [room.x, room.y + c[1]]; }
+          else { a = [room.x + room.w, room.y + c[0]]; b = [room.x + room.w, room.y + c[1]]; }
+          room.segs.push({ ax: a[0], ay: a[1], bx: b[0], by: b[1], rad: 0, mat: (room.mirrorWalls.indexOf(side) >= 0 ? 'mirror' : 'wall'), wall: side });
+        });
+      });
+    });
+    parts.obstacles.forEach(function (o) {
+      var room = H.rooms[o.room]; if (!room) throw new Error('obstacle in unknown room');
+      var mat = o.mat || 'wood';
+      room.obstacles.push(o);
+      if (o.type === 'rect') room.segs = room.segs.concat(rectSegs(o, mat));
+      else if (o.type === 'poly') room.segs = room.segs.concat(polySegs(o.pts, mat));
+      else if (o.type === 'panel') { o.pts = panelPts(o); room.segs = room.segs.concat(polySegs(o.pts, mat)); }
+      else if (o.type === 'circle') room.circles.push({ x: o.x, y: o.y, r: o.r, mat: mat });
+      else throw new Error('unknown obstacle type ' + o.type);
+    });
+    parts.zones.forEach(function (z) {
+      var room = H.rooms[z.room]; if (!room) throw new Error('zone in unknown room');
+      room.zones.push(z);
+    });
+    parts.movers.forEach(function (m) {
+      var room = H.rooms[m.room]; if (!room) throw new Error('mover in unknown room');
+      var mv = {};
+      for (var k in m) mv[k] = m[k];
+      mv.mat = m.mat || 'brass';
+      room.movers.push(mv);
+    });
+    // bounds
+    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    H.roomList.forEach(function (r) { x0 = Math.min(x0, r.x); y0 = Math.min(y0, r.y); x1 = Math.max(x1, r.x + r.w); y1 = Math.max(y1, r.y + r.h); });
+    H.bounds = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+    return H;
+  }
+
+  /* ------------------------------------------------------------ movers */
+  function moverTime(H, clock) { return clock * K.DT * H.moverSpeed; }
+
+  // Returns capsule segments [{ax,ay,bx,by,rad, vel(qx,qy)}] for a mover at simulated time t.
+  function moverCapsules(m, t) {
+    var out = [];
+    if (m.type === 'rotor') {
+      var w = 2 * Math.PI / m.period;               // rad/s (sign = direction)
+      var th = (m.phase || 0) * Math.PI / 180 + w * t;
+      var arms = m.arms || 2;
+      for (var j = 0; j < arms; j++) {
+        var a = th + j * 2 * Math.PI / arms, ux = Math.cos(a), uy = Math.sin(a);
+        out.push({ ax: m.x + ux * (m.rin || 0), ay: m.y + uy * (m.rin || 0), bx: m.x + ux * m.rout, by: m.y + uy * m.rout,
+          rad: m.cr, w: w, px: m.x, py: m.y, kind: 'rot' });
+      }
+    } else if (m.type === 'slider') {
+      var ph = 2 * Math.PI * t / m.period + (m.phase || 0) * Math.PI / 180;
+      var f = 0.5 - 0.5 * Math.cos(ph), df = 0.5 * Math.sin(ph) * 2 * Math.PI / m.period;
+      var cx = m.ax + (m.bx - m.ax) * f, cy = m.ay + (m.by - m.ay) * f;
+      var oa = m.orient * Math.PI / 180, ox = Math.cos(oa) * m.hl, oy = Math.sin(oa) * m.hl;
+      out.push({ ax: cx - ox, ay: cy - oy, bx: cx + ox, by: cy + oy, rad: m.cr,
+        vx: (m.bx - m.ax) * df, vy: (m.by - m.ay) * df, kind: 'lin' });
+    }
+    return out;
+  }
+
+  // Is point (x,y) a ball position that a mover can ever touch? (exact swept area, inflated by the ball radius + pad)
+  function inSweep(m, x, y, pad) {
+    pad = pad || 0;
+    var reach = m.cr + K.R + pad - 0.25;
+    if (m.type === 'rotor') {
+      var d = Math.hypot(x - m.x, y - m.y);
+      return d < m.rout + reach && d > Math.max(0, (m.rin || 0) - reach);
+    }
+    // slider: the swept area is the parallelogram (track ⊕ capsule axis)
+    var oa = m.orient * Math.PI / 180, ox = Math.cos(oa) * m.hl, oy = Math.sin(oa) * m.hl;
+    var P = [[m.ax - ox, m.ay - oy], [m.ax + ox, m.ay + oy], [m.bx + ox, m.by + oy], [m.bx - ox, m.by - oy]];
+    var inside = true, sign = 0, best = 1e9;
+    for (var i = 0; i < 4; i++) {
+      var a = P[i], b = P[(i + 1) % 4];
+      var cr = (b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]);
+      if (cr !== 0) { if (sign === 0) sign = cr > 0 ? 1 : -1; else if ((cr > 0 ? 1 : -1) !== sign) inside = false; }
+      best = Math.min(best, distToSeg(x, y, a[0], a[1], b[0], b[1]));
+    }
+    return inside || best < reach;
+  }
+
+  function distToSeg(px, py, ax, ay, bx, by) {
+    var dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy, t = L > 0 ? ((px - ax) * dx + (py - ay) * dy) / L : 0;
+    t = clamp(t, 0, 1);
+    return Math.hypot(px - (ax + dx * t), py - (ay + dy * t));
+  }
+
+  /* ------------------------------------------------------------ zones */
+  function inZone(z, x, y) {
+    if (z.shape === 'circle') return Math.hypot(x - z.x, y - z.y) < z.r;
+    if (z.shape === 'ring') { var d = Math.hypot(x - z.x, y - z.y); return d < z.r && d > z.rin; }
+    return x > z.x && x < z.x + z.w && y > z.y && y < z.y + z.h;
+  }
+
+  /* ------------------------------------------------------------ simulation */
+  function Sim(H, opts) {
+    opts = opts || {};
+    this.H = H;
+    this.clock = 0;
+    this.ball = { x: H.tee.x, y: H.tee.y, vx: 0, vy: 0, room: H.tee.room };
+    this.state = 'ready';   // ready | rolling | sunk | picked
+    this.strokes = 0;
+    this.penalties = 0;
+    this.shot = null;       // {a, p, clock, from:{x,y,room}}
+    this.events = [];
+    this.stat = { transfers: 0, hits: 0, hazards: 0, escapes: 0, timeouts: 0, shotSteps: 0 };
+    this.restSteps = 0;
+    this.lastDoor = null;
+    this.record = opts.record || false; // keep a path trace for tests
+    this.trace = [];
+  }
+
+  Sim.prototype.room = function () { return this.H.rooms[this.ball.room]; };
+
+  Sim.prototype.emit = function (e) { if (this.events.length < 400) this.events.push(e); };
+
+  Sim.prototype.canShoot = function () { return this.state === 'ready'; };
+
+  Sim.prototype.shoot = function (angleDeg, power) {
+    if (this.state !== 'ready') return false;
+    if (typeof angleDeg !== 'number' || typeof power !== 'number' || !isFinite(angleDeg) || !isFinite(power)) return false;
+    if (power < K.MINP) return false;
+    power = clamp(power, K.MINP, 1);
+    var d = dirOf(angleDeg), sp = K.MAXV * power;
+    this.strokes++;
+    this.shot = { a: angleDeg, p: power, clock: this.clock, from: { x: this.ball.x, y: this.ball.y, room: this.ball.room }, transfers: 0, steps: 0 };
+    this.ball.vx = d.x * sp; this.ball.vy = d.y * sp;
+    this.state = 'rolling';
+    this.restSteps = 0;
+    this.emit({ type: 'shot', strokes: this.strokes, power: power });
+    return true;
+  };
+
+  Sim.prototype.inAnySweep = function (pad) {
+    var room = this.room(), b = this.ball;
+    for (var i = 0; i < room.movers.length; i++) if (inSweep(room.movers[i], b.x, b.y, pad)) return true;
+    return false;
+  };
+
+  Sim.prototype.step = function () {
+    this.clock++;
+    if (this.state !== 'rolling') return;
+    var b = this.ball;
+    this.shot.steps++;
+    var sp = Math.hypot(b.vx, b.vy);
+    var n = clamp(Math.ceil(sp * K.DT / (K.R * 0.45)), 1, 16);
+    // movers need finer steps too
+    var room = this.room();
+    if (room.movers.length && n < 3) n = 3;
+    var h = K.DT / n, t0 = moverTime(this.H, this.clock - 1), dtm = K.DT * this.H.moverSpeed;
+    var pressed = false, slopeG = 0;
+    for (var s = 0; s < n; s++) {
+      if (this.state !== 'rolling') return;
+      room = this.room();
+      var tm = t0 + dtm * (s + 1) / n;
+      // floor forces
+      var fric = room.fric, gx = 0, gy = 0, overCup = false;
+      for (var zi = 0; zi < room.zones.length; zi++) {
+        var z = room.zones[zi];
+        if (!inZone(z, b.x, b.y)) continue;
+        if (z.type === 'fric') fric *= z.fric;
+        else if (z.type === 'slope') { gx += z.gx; gy += z.gy; }
+        else if (z.type === 'water') { this.hazard(); return; }
+      }
+      slopeG = Math.hypot(gx, gy);
+      var cup = this.H.cup;
+      if (cup.room === b.room) {
+        var cdx = cup.x - b.x, cdy = cup.y - b.y, cd = Math.hypot(cdx, cdy);
+        if (cd < K.CUP_R) {
+          overCup = true;
+          if (cd > 0.0001) { b.vx += cdx / cd * K.CUP_PULL * h; b.vy += cdy / cd * K.CUP_PULL * h; }
+        }
+      }
+      sp = Math.hypot(b.vx, b.vy);
+      if (sp > 0) {
+        var dec = (K.DECEL * fric + K.DRAG * sp) * h;
+        var k = sp > dec ? (sp - dec) / sp : 0;
+        b.vx *= k; b.vy *= k;
+      }
+      b.vx += gx * h; b.vy += gy * h;
+      var px = b.x, py = b.y;
+      b.x += b.vx * h; b.y += b.vy * h;
+      // collisions (two passes resolve corners)
+      for (var pass = 0; pass < 2; pass++) {
+        var hitAny = false;
+        for (var i = 0; i < room.segs.length; i++) {
+          var sg = room.segs[i];
+          if (this.collideSeg(sg.ax, sg.ay, sg.bx, sg.by, sg.rad, MATS[sg.mat] || MATS.wall, null, gx, gy)) { hitAny = true; if (this._pressed) pressed = true; }
+        }
+        for (var c = 0; c < room.circles.length; c++) {
+          var ci = room.circles[c];
+          if (this.collideSeg(ci.x, ci.y, ci.x, ci.y, ci.r, MATS[ci.mat] || MATS.wood, null, gx, gy)) { hitAny = true; if (this._pressed) pressed = true; }
+        }
+        for (var m = 0; m < room.movers.length; m++) {
+          var caps = moverCapsules(room.movers[m], tm);
+          for (var q = 0; q < caps.length; q++) {
+            var cp = caps[q];
+            if (this.collideSeg(cp.ax, cp.ay, cp.bx, cp.by, cp.rad, MATS[room.movers[m].mat] || MATS.brass, cp, gx, gy)) hitAny = true;
+          }
+        }
+        if (!hitAny) break;
+      }
+      // doorway crossing
+      if (this.checkDoors()) { room = this.room(); continue; }
+      // containment safety: should never trigger
+      if ((b.x < room.x - 0.5 || b.x > room.x + room.w + 0.5 || b.y < room.y - 0.5 || b.y > room.y + room.h + 0.5) && !this.inDoorway()) {
+        this.stat.escapes++;
+        b.x = clamp(px, room.x + K.R, room.x + room.w - K.R); b.y = clamp(py, room.y + K.R, room.y + room.h - K.R);
+        b.vx = -b.vx * 0.5; b.vy = -b.vy * 0.5;
+        this.emit({ type: 'escape' });
+      }
+      // cup capture
+      if (cup.room === b.room) {
+        var dd = Math.hypot(cup.x - b.x, cup.y - b.y);
+        if (dd < K.CAPTURE_D && Math.hypot(b.vx, b.vy) < K.CAPTURE_V) {
+          b.x = cup.x; b.y = cup.y; b.vx = 0; b.vy = 0;
+          this.state = 'sunk';
+          this.emit({ type: 'sunk', strokes: this.strokes + this.penalties });
+          return;
+        }
+      }
+      if (this.record && (s === n - 1)) this.trace.push([b.room, Math.round(b.x * 10) / 10, Math.round(b.y * 10) / 10]);
+    }
+    // rest test (once per step)
+    sp = Math.hypot(b.vx, b.vy);
+    var cupNear = this.H.cup.room === b.room && Math.hypot(this.H.cup.x - b.x, this.H.cup.y - b.y) < K.CUP_R;
+    if (sp < K.STOP_V && !cupNear && (slopeG < K.SLOPE_HOLD || pressed)) {
+      if (this.inAnySweep(0)) {
+        // a resting ball inside a mover's path waits to be nudged clear
+        b.vx = 0; b.vy = 0; this.restSteps = 0;
+      } else {
+        this.restSteps++;
+        if (this.restSteps >= 2) this.rest();
+      }
+    } else this.restSteps = 0;
+    if (this.state === 'rolling' && this.shot.steps > K.MAX_SHOT_S / K.DT) {
+      this.stat.timeouts++;
+      this.emit({ type: 'timeout' });
+      this.rest();
+    }
+  };
+
+  Sim.prototype.rest = function () {
+    var b = this.ball;
+    b.vx = 0; b.vy = 0;
+    if (this.strokes + this.penalties >= K.STROKE_CAP) {
+      this.state = 'picked';
+      this.emit({ type: 'picked', strokes: K.STROKE_CAP + 1 });
+      return;
+    }
+    this.state = 'ready';
+    this.emit({ type: 'rest', x: b.x, y: b.y, room: b.room });
+  };
+
+  Sim.prototype.hazard = function () {
+    var b = this.ball, f = this.shot.from;
+    this.stat.hazards++;
+    this.penalties++;
+    b.x = f.x; b.y = f.y; b.room = f.room; b.vx = 0; b.vy = 0;
+    this.emit({ type: 'hazard', penalties: this.penalties });
+    this.rest();
+  };
+
+  // Ball vs capsule (segment with radius). cp = moving surface data or null.
+  Sim.prototype.collideSeg = function (ax, ay, bx, by, rad, mat, cp, gx, gy) {
+    var b = this.ball;
+    this._pressed = false;
+    var dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy;
+    var t = L > 0 ? ((b.x - ax) * dx + (b.y - ay) * dy) / L : 0;
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    var qx = ax + dx * t, qy = ay + dy * t;
+    var ex = b.x - qx, ey = b.y - qy, d2 = ex * ex + ey * ey, rr = K.R + rad;
+    if (d2 >= rr * rr) return false;
+    var d = Math.sqrt(d2), nx, ny;
+    if (d > 1e-9) { nx = ex / d; ny = ey / d; }
+    else { var ln = Math.sqrt(L) || 1; nx = -dy / ln; ny = dx / ln; }
+    b.x = qx + nx * rr; b.y = qy + ny * rr;
+    var svx = 0, svy = 0;
+    if (cp) {
+      if (cp.kind === 'rot') { svx = -cp.w * (qy - cp.py); svy = cp.w * (qx - cp.px); }
+      else { svx = cp.vx; svy = cp.vy; }
+    }
+    var rvx = b.vx - svx, rvy = b.vy - svy, vn = rvx * nx + rvy * ny;
+    if (vn < 0) {
+      var e = mat.e;
+      if (-vn < 25) e = 0; // soft contact: no micro-bounces
+      rvx -= (1 + e) * vn * nx; rvy -= (1 + e) * vn * ny;
+      // a little tangential loss on impact
+      var tvx = rvx - (rvx * nx + rvy * ny) * nx, tvy = rvy - (rvx * nx + rvy * ny) * ny;
+      var keep = -vn > 25 ? 0.985 : 1;
+      rvx -= tvx * (1 - keep); rvy -= tvy * (1 - keep);
+      b.vx = rvx + svx; b.vy = rvy + svy;
+      if (-vn > 40) { this.stat.hits++; this.emit({ type: 'hit', mat: mat.snd, v: -vn, x: b.x, y: b.y }); }
+    }
+    if (gx * nx + gy * ny < 0) this._pressed = true;
+    return true;
+  };
+
+  Sim.prototype.checkDoors = function () {
+    var b = this.ball, room = this.room();
+    for (var i = 0; i < room.doors.length; i++) {
+      var d = room.doors[i];
+      var dn = (b.x - d.cx) * d.nx + (b.y - d.cy) * d.ny;
+      if (dn <= 0) continue;
+      var s = (b.x - d.cx) * d.tx + (b.y - d.cy) * d.ty;
+      if (Math.abs(s) > d.w / 2 + 0.5) continue;
+      var vn = b.vx * d.nx + b.vy * d.ny;
+      if (vn <= 0) continue;
+      this.transfer(d, s, dn);
+      return true;
+    }
+    return false;
+  };
+
+  // True when the ball centre sits inside a doorway gap (legitimately past the wall line).
+  Sim.prototype.inDoorway = function () {
+    var b = this.ball, room = this.room();
+    for (var i = 0; i < room.doors.length; i++) {
+      var d = room.doors[i];
+      var dn = (b.x - d.cx) * d.nx + (b.y - d.cy) * d.ny, s = (b.x - d.cx) * d.tx + (b.y - d.cy) * d.ty;
+      if (dn > -K.R - 1 && dn < K.R + 2 && Math.abs(s) <= d.w / 2) return true;
+    }
+    return false;
+  };
+
+  // The ball keeps its speed and its direction relative to the doorway:
+  // passing through is like walking through — what was on your left stays on your left.
+  Sim.prototype.transfer = function (d, s, dn) {
+    var b = this.ball, o = this.H.doors[d.link];
+    var vn = b.vx * d.nx + b.vy * d.ny, vt = b.vx * d.tx + b.vy * d.ty;
+    var lim = o.w / 2 - K.R - 0.5;
+    var s2 = clamp(s * (o.w / d.w), -lim, lim);
+    var depth = K.R + 0.75 + Math.min(dn, 2);
+    var fromRoom = b.room;
+    b.room = o.room;
+    b.x = o.cx - o.tx * s2 - o.nx * depth;
+    b.y = o.cy - o.ty * s2 - o.ny * depth;
+    b.vx = -o.nx * vn - o.tx * vt;
+    b.vy = -o.ny * vn - o.ty * vt;
+    this.shot.transfers++;
+    this.stat.transfers++;
+    this.lastDoor = o.id;
+    this.emit({ type: 'door', from: d.id, to: o.id, fromRoom: fromRoom, toRoom: o.room, v: Math.hypot(b.vx, b.vy) });
+    if (this.shot.transfers > K.MAX_TRANSFERS) { b.vx = 0; b.vy = 0; this.emit({ type: 'timeout' }); this.stat.timeouts++; }
+  };
+
+  // Run until the ball rests (or sinks). Returns steps used.
+  Sim.prototype.runToRest = function (maxSteps) {
+    maxSteps = maxSteps || Math.ceil(K.MAX_SHOT_S / K.DT) + 10;
+    var i = 0;
+    while (this.state === 'rolling' && i < maxSteps) { this.step(); i++; }
+    return i;
+  };
+
+  Sim.prototype.snapshot = function () {
+    var b = this.ball;
+    return { x: b.x, y: b.y, room: b.room, clock: this.clock, strokes: this.strokes, penalties: this.penalties, state: this.state };
+  };
+
+  // Restore a resting position (validated by the caller).
+  Sim.prototype.restore = function (s) {
+    var H = this.H, room = H.rooms[s.room];
+    if (!room) return false;
+    if (typeof s.x !== 'number' || typeof s.y !== 'number' || !isFinite(s.x) || !isFinite(s.y)) return false;
+    this.ball = { x: s.x, y: s.y, vx: 0, vy: 0, room: s.room };
+    var inside = s.x >= room.x + K.R - 0.5 && s.x <= room.x + room.w - K.R + 0.5 && s.y >= room.y + K.R - 0.5 && s.y <= room.y + room.h - K.R + 0.5;
+    if (!inside && !this.inDoorway()) return false;
+    this.clock = s.clock | 0;
+    this.strokes = s.strokes | 0;
+    this.penalties = s.penalties | 0;
+    this.state = 'ready';
+    if (this.overlapsSolid() || this.inAnySweep(0)) { return false; }
+    return true;
+  };
+
+  Sim.prototype.overlapsSolid = function () {
+    var b = this.ball, room = this.room();
+    for (var i = 0; i < room.segs.length; i++) { var s = room.segs[i]; if (distToSeg(b.x, b.y, s.ax, s.ay, s.bx, s.by) < K.R + s.rad - 0.6) return true; }
+    for (var c = 0; c < room.circles.length; c++) { var ci = room.circles[c]; if (Math.hypot(b.x - ci.x, b.y - ci.y) < K.R + ci.r - 0.6) return true; }
+    for (var z = 0; z < room.zones.length; z++) if (room.zones[z].type === 'water' && inZone(room.zones[z], b.x, b.y)) return true;
+    return false;
+  };
+
+  /* ------------------------------------------------------------ aiming guide (static geometry only) */
+  // Cast a ray of the ball's radius from (x,y) along dir; return first contact or door crossing.
+  function castRay(H, roomId, x, y, dx, dy, maxLen) {
+    var room = H.rooms[roomId], best = { t: maxLen, kind: 'none' };
+    function segHit(ax, ay, bx, by, rad) {
+      // march: sample-free analytic for capsule is long; use conservative stepping
+      return null;
+    }
+    // stepping along the ray; precise enough for a guide (2 u steps)
+    var step = 2, t = 0, px = x, py = y;
+    for (t = 0; t <= maxLen; t += step) {
+      px = x + dx * t; py = y + dy * t;
+      // door crossing
+      for (var i = 0; i < room.doors.length; i++) {
+        var d = room.doors[i];
+        var dn = (px - d.cx) * d.nx + (py - d.cy) * d.ny;
+        var s = (px - d.cx) * d.tx + (py - d.cy) * d.ty;
+        if (dn > 0 && Math.abs(s) <= d.w / 2 && dx * d.nx + dy * d.ny > 0) return { t: t, kind: 'door', door: d, x: px, y: py, s: s };
+      }
+      var hit = contactAt(room, px, py);
+      if (hit) {
+        // refine backward
+        var lo = Math.max(0, t - step), hi = t;
+        for (var k = 0; k < 8; k++) { var mid = (lo + hi) / 2; if (contactAt(room, x + dx * mid, y + dy * mid)) hi = mid; else lo = mid; }
+        var hx = x + dx * lo, hy = y + dy * lo, h2 = contactAt(room, x + dx * hi, y + dy * hi) || hit;
+        return { t: lo, kind: 'hit', x: hx, y: hy, nx: h2.nx, ny: h2.ny };
+      }
+    }
+    return { t: maxLen, kind: 'none', x: x + dx * maxLen, y: y + dy * maxLen };
+  }
+  function contactAt(room, x, y) {
+    var best = null, bd = 1e9;
+    for (var i = 0; i < room.segs.length; i++) {
+      var s = room.segs[i], dx = s.bx - s.ax, dy = s.by - s.ay, L = dx * dx + dy * dy;
+      var t = L > 0 ? clamp(((x - s.ax) * dx + (y - s.ay) * dy) / L, 0, 1) : 0;
+      var qx = s.ax + dx * t, qy = s.ay + dy * t, d = Math.hypot(x - qx, y - qy);
+      if (d < K.R + s.rad && d < bd) { bd = d; best = { nx: (x - qx) / (d || 1), ny: (y - qy) / (d || 1) }; }
+    }
+    for (var c = 0; c < room.circles.length; c++) {
+      var ci = room.circles[c], d2 = Math.hypot(x - ci.x, y - ci.y);
+      if (d2 < K.R + ci.r && d2 < bd) { bd = d2; best = { nx: (x - ci.x) / (d2 || 1), ny: (y - ci.y) / (d2 || 1) }; }
+    }
+    return best;
+  }
+
+  // Where would a ray continue after a door? (for the guide)
+  function throughDoor(H, d, s, dx, dy) {
+    var o = H.doors[d.link];
+    var vn = dx * d.nx + dy * d.ny, vt = dx * d.tx + dy * d.ty;
+    var lim = o.w / 2 - K.R - 0.5, s2 = clamp(s * (o.w / d.w), -lim, lim);
+    return { room: o.room, x: o.cx - o.tx * s2 - o.nx * (K.R + 1), y: o.cy - o.ty * s2 - o.ny * (K.R + 1),
+      dx: -o.nx * vn - o.tx * vt, dy: -o.ny * vn - o.ty * vt, door: o };
+  }
+
+  /* ------------------------------------------------------------ geometry validation */
+  function validateHole(H) {
+    var issues = [];
+    function inRoomClear(roomId, x, y, need, what) {
+      var r = H.rooms[roomId];
+      if (!r) { issues.push(what + ': unknown room'); return; }
+      if (x < r.x + need || x > r.x + r.w - need || y < r.y + need || y > r.y + r.h - need) issues.push(what + ' too close to walls');
+      r.segs.forEach(function (s) { if (!s.wall && distToSeg(x, y, s.ax, s.ay, s.bx, s.by) < need) issues.push(what + ' overlaps obstacle'); });
+      r.circles.forEach(function (c) { if (Math.hypot(x - c.x, y - c.y) < c.r + need) issues.push(what + ' overlaps round obstacle'); });
+      r.zones.forEach(function (z) { if (z.type === 'water' && inZone(z, x, y)) issues.push(what + ' in water'); });
+      r.movers.forEach(function (m) { if (inSweep(m, x, y, 0)) issues.push(what + ' inside a moving obstacle path'); });
+    }
+    inRoomClear(H.tee.room, H.tee.x, H.tee.y, K.R + 3, 'tee');
+    // cup may sit in the hub of a ring rotor, but not in its sweep
+    inRoomClear(H.cup.room, H.cup.x, H.cup.y, K.CUP_R + 3, 'cup');
+    H.doorList.forEach(function (d) {
+      var r = H.rooms[d.room];
+      var len = (d.side === 'N' || d.side === 'S') ? r.w : r.h;
+      if (d.at - d.w / 2 < 24 || d.at + d.w / 2 > len - 24) issues.push('door ' + d.id + ' too close to a corner');
+      // landing area in front of each door must be clear (ball appears here)
+      for (var k = -1; k <= 1; k++) {
+        var lx = d.cx - d.nx * (K.R + 3) + d.tx * k * (d.w / 2 - K.R - 1), ly = d.cy - d.ny * (K.R + 3) + d.ty * k * (d.w / 2 - K.R - 1);
+        r.segs.forEach(function (s) { if (!s.wall && distToSeg(lx, ly, s.ax, s.ay, s.bx, s.by) < K.R + 4) issues.push('door ' + d.id + ' landing blocked'); });
+        r.circles.forEach(function (c) { if (Math.hypot(lx - c.x, ly - c.y) < c.r + K.R + 4) issues.push('door ' + d.id + ' landing blocked (round)'); });
+        r.zones.forEach(function (z) { if (z.type === 'water' && inZone(z, lx, ly)) issues.push('door ' + d.id + ' lands in water'); });
+        r.movers.forEach(function (m) { if (inSweep(m, lx, ly, 0)) issues.push('door ' + d.id + ' lands in a mover path'); });
+      }
+    });
+    // narrow slots (wider than nothing, narrower than the ball) between round furniture and anything else wedge the ball
+    H.roomList.forEach(function (r) {
+      r.circles.forEach(function (c, ci) {
+        r.segs.forEach(function (s) { var g = distToSeg(c.x, c.y, s.ax, s.ay, s.bx, s.by) - c.r - s.rad; if (g > 0.5 && g < 2 * K.R + 1) issues.push('round obstacle ' + ci + ' in ' + r.id + ' leaves a ball-trapping slot (' + g.toFixed(1) + ')'); });
+        r.circles.forEach(function (c2, cj) { if (cj <= ci) return; var g = Math.hypot(c.x - c2.x, c.y - c2.y) - c.r - c2.r; if (g > 0.5 && g < 2 * K.R + 1) issues.push('round obstacles ' + ci + '/' + cj + ' in ' + r.id + ' leave a ball-trapping slot'); });
+      });
+    });
+    // movers must never pinch the ball against anything (gap ≥ ball diameter + margin)
+    H.roomList.forEach(function (r) {
+      r.movers.forEach(function (m, mi) {
+        var gap = 2 * K.R + 4;
+        for (var step = 0; step < 72; step++) {
+          var t = step / 72 * Math.abs(m.period);
+          moverCapsules(m, t).forEach(function (cp) {
+            for (var f = 0; f <= 10; f++) {
+              var x = cp.ax + (cp.bx - cp.ax) * f / 10, y = cp.ay + (cp.by - cp.ay) * f / 10;
+              r.segs.forEach(function (s) { if (distToSeg(x, y, s.ax, s.ay, s.bx, s.by) < cp.rad + s.rad + gap) issues.push('mover ' + mi + ' in ' + r.id + ' pinches against a wall/obstacle'); });
+              r.circles.forEach(function (c) { if (Math.hypot(x - c.x, y - c.y) < cp.rad + c.r + gap) issues.push('mover ' + mi + ' in ' + r.id + ' pinches against a round obstacle'); });
+              if (H.cup.room === r.id && Math.hypot(x - H.cup.x, y - H.cup.y) < cp.rad + K.CUP_R + 2) issues.push('mover ' + mi + ' passes over the cup');
+            }
+          });
+        }
+      });
+    });
+    var uniq = {};
+    return issues.filter(function (s) { if (uniq[s]) return false; uniq[s] = 1; return true; });
+  }
+
+  /* ------------------------------------------------------------ scoring words */
+  function termFor(strokes, par) {
+    if (strokes === 1) return 'Hole in one!';
+    var d = strokes - par;
+    if (d <= -3) return 'Albatross';
+    if (d === -2) return 'Eagle';
+    if (d === -1) return 'Birdie';
+    if (d === 0) return 'Par';
+    if (d === 1) return 'Bogey';
+    if (d === 2) return 'Double bogey';
+    return '+' + d;
+  }
+
+  var api = {
+    VERSION: VERSION, K: K, MATS: MATS, TIERS: TIERS, TIER_IDS: TIER_IDS,
+    compileHole: compileHole, Sim: Sim, moverCapsules: moverCapsules, moverTime: moverTime, inSweep: inSweep, inZone: inZone,
+    castRay: castRay, throughDoor: throughDoor, validateHole: validateHole, termFor: termFor,
+    dirOf: dirOf, normAngle: normAngle, distToSeg: distToSeg, clamp: clamp
+  };
+  root.HBREngine = api;
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script id="hbr-course">
+/* Holes Between Rooms — the inaugural course: "The Crooked House" (9 holes).
+   Pure data. World units; rooms are drawn where they are listed, and doorways
+   connect wherever their links say — rooms need not be neighbours.
+   Door 'at' = distance of the door centre from the room's top/left corner along that wall. */
+(function (root) {
+  'use strict';
+
+  var COURSE = {
+    id: 'crooked-house',
+    name: 'The Crooked House',
+    holes: [
+      /* ---------------------------------------------------------------- 1 */
+      {
+        id: '01', name: 'The Connecting Door',
+        lesson: 'Drag back from anywhere to aim and set power. Roll through the glowing doorway — the ball comes out of the door with the same symbol.',
+        rooms: [
+          { id: 'A', name: 'Foyer', x: 0, y: 0, w: 380, h: 260, floor: 'tile' },
+          { id: 'B', name: 'Parlour', x: 440, y: 0, w: 380, h: 260, floor: 'wood' }
+        ],
+        doors: [
+          { id: 'a1', room: 'A', side: 'E', at: 130, link: 'b1', sym: 'diamond', col: 0 },
+          { id: 'b1', room: 'B', side: 'W', at: 130, link: 'a1', sym: 'diamond', col: 0 }
+        ],
+        tee: { room: 'A', x: 90, y: 130 },
+        cup: { room: 'B', x: 740, y: 130 },
+        obstacles: [
+          { room: 'A', type: 'circle', x: 220, y: 52, r: 24, mat: 'wood', look: 'table' },
+          { room: 'A', type: 'rect', x: 150, y: 222, w: 120, h: 38, mat: 'wood', look: 'console' },
+          { room: 'B', type: 'rect', x: 600, y: 95, w: 44, h: 70, mat: 'cushion', look: 'armchair' },
+          { room: 'B', type: 'circle', x: 540, y: 222, r: 16, mat: 'wood', look: 'table' },
+          { room: 'B', type: 'circle', x: 804, y: 244, r: 16, mat: 'plant', look: 'pot' }
+        ],
+        zones: [
+          { room: 'B', type: 'fric', shape: 'rect', x: 680, y: 70, w: 120, h: 120, fric: 1.5, look: 'rug' }
+        ],
+        tiers: {
+          gold: { obstacles: [{ room: 'B', type: 'circle', x: 700, y: 60, r: 12, mat: 'brass', look: 'stand' }] }
+        },
+        par: { bronze: 3, silver: 2, gold: 2 }
+      },
+      /* ---------------------------------------------------------------- 2 */
+      {
+        id: '02', name: 'The Crooked Corridor',
+        lesson: 'The console blocks the straight line. Bank off the far wall into the doorway. A door can turn you: north in, east out.',
+        rooms: [
+          { id: 'A', name: 'Long Corridor', x: 0, y: 0, w: 560, h: 130, floor: 'carpet' },
+          { id: 'B', name: 'Study', x: 140, y: -360, w: 380, h: 280, floor: 'wood' }
+        ],
+        doors: [
+          { id: 'a1', room: 'A', side: 'N', at: 486, link: 'b1', sym: 'circle', col: 1 },
+          { id: 'b1', room: 'B', side: 'W', at: 170, link: 'a1', sym: 'circle', col: 1 }
+        ],
+        tee: { room: 'A', x: 55, y: 65 },
+        cup: { room: 'B', x: 432, y: -268 },
+        obstacles: [
+          { room: 'A', type: 'rect', x: 190, y: 0, w: 250, h: 34, mat: 'wood', look: 'console' },
+          { room: 'B', type: 'rect', x: 250, y: -360, w: 110, h: 46, mat: 'wood', look: 'desk' },
+          { room: 'B', type: 'circle', x: 330, y: -160, r: 22, mat: 'wood', look: 'globe' },
+          { room: 'B', type: 'rect', x: 470, y: -150, w: 50, h: 70, mat: 'wood', look: 'cabinet' }
+        ],
+        zones: [
+          { room: 'B', type: 'fric', shape: 'rect', x: 370, y: -320, w: 120, h: 110, fric: 1.4, look: 'rug' }
+        ],
+        tiers: {
+          gold: { obstacles: [{ room: 'A', type: 'circle', x: 300, y: 98, r: 12, mat: 'brass', look: 'stand' }] }
+        },
+        par: { bronze: 4, silver: 3, gold: 2 }
+      },
+      /* ---------------------------------------------------------------- 3 */
+      {
+        id: '03', name: 'The Library Passage',
+        lesson: 'Two doors, two routes. The far door is a bold shortcut; the near door leads the long way round through the archive.',
+        rooms: [
+          { id: 'A', name: 'Library', x: 0, y: 0, w: 520, h: 400, floor: 'parquet' },
+          { id: 'B', name: 'Archive', x: 0, y: -310, w: 300, h: 250, floor: 'stone' },
+          { id: 'C', name: 'Reading Room', x: 580, y: 0, w: 320, h: 260, floor: 'carpet' }
+        ],
+        doors: [
+          { id: 'a1', room: 'A', side: 'N', at: 60, link: 'b1', sym: 'circle', col: 1 },
+          { id: 'b1', room: 'B', side: 'S', at: 60, link: 'a1', sym: 'circle', col: 1 },
+          { id: 'a2', room: 'A', side: 'E', at: 138, link: 'c1', sym: 'diamond', col: 0 },
+          { id: 'c1', room: 'C', side: 'W', at: 138, link: 'a2', sym: 'diamond', col: 0 },
+          { id: 'b2', room: 'B', side: 'E', at: 70, link: 'c2', sym: 'triangle', col: 2 },
+          { id: 'c2', room: 'C', side: 'N', at: 90, link: 'b2', sym: 'triangle', col: 2 }
+        ],
+        tee: { room: 'A', x: 60, y: 350 },
+        cup: { room: 'C', x: 826, y: 196 },
+        obstacles: [
+          { room: 'A', type: 'rect', x: 120, y: 70, w: 300, h: 26, mat: 'wood', look: 'shelf' },
+          { room: 'A', type: 'rect', x: 120, y: 180, w: 300, h: 26, mat: 'wood', look: 'shelf' },
+          { room: 'A', type: 'rect', x: 120, y: 290, w: 300, h: 26, mat: 'wood', look: 'shelf' },
+          { room: 'B', type: 'rect', x: 150, y: -170, w: 50, h: 110, mat: 'wood', look: 'cabinet' },
+          { room: 'C', type: 'rect', x: 690, y: 140, w: 40, h: 100, mat: 'wood', look: 'desk' },
+          { room: 'C', type: 'circle', x: 640, y: 222, r: 18, mat: 'cushion', look: 'pouf' }
+        ],
+        zones: [],
+        tiers: {
+          gold: { obstacles: [{ room: 'C', type: 'circle', x: 780, y: 120, r: 14, mat: 'brass', look: 'stand' }] }
+        },
+        par: { bronze: 4, silver: 3, gold: 3 }
+      },
+      /* ---------------------------------------------------------------- 4 */
+      {
+        id: '04', name: "The Clockmaker's Rooms",
+        lesson: 'The clockwork never stops. A brass gate slides across the doorway and a carriage crosses the clock room — watch the rhythm, then putt.',
+        rooms: [
+          { id: 'A', name: 'Workshop', x: 0, y: 0, w: 420, h: 300, floor: 'wood' },
+          { id: 'B', name: 'Clock Room', x: 480, y: -40, w: 380, h: 360, floor: 'tile' }
+        ],
+        doors: [
+          { id: 'a1', room: 'A', side: 'E', at: 150, link: 'b1', sym: 'hex', col: 3 },
+          { id: 'b1', room: 'B', side: 'N', at: 100, link: 'a1', sym: 'hex', col: 3 }
+        ],
+        tee: { room: 'A', x: 60, y: 150 },
+        cup: { room: 'B', x: 712, y: 238 },
+        obstacles: [
+          { room: 'A', type: 'rect', x: 110, y: 0, w: 120, h: 40, mat: 'wood', look: 'bench' },
+          { room: 'A', type: 'rect', x: 110, y: 260, w: 120, h: 40, mat: 'wood', look: 'bench' },
+          { room: 'B', type: 'rect', x: 800, y: -40, w: 60, h: 64, mat: 'wood', look: 'clockcase' },
+          { room: 'B', type: 'rect', x: 480, y: 250, w: 70, h: 70, mat: 'wood', look: 'crate' },
+          { room: 'B', type: 'rect', x: 690, y: 196, w: 44, h: 24, mat: 'wood', look: 'clockcase' }
+        ],
+        movers: [
+          { room: 'A', type: 'rotor', x: 240, y: 150, rin: 0, rout: 55, cr: 6, arms: 2, period: 4.0, phase: 0, look: 'hands' },
+          { room: 'A', type: 'slider', ax: 378, ay: 62, bx: 378, by: 238, orient: 90, hl: 30, cr: 8, period: 3.6, phase: 90, look: 'gate' },
+          { room: 'B', type: 'slider', ax: 572, ay: 120, bx: 776, by: 120, orient: 90, hl: 24, cr: 8, period: 3.2, phase: 0, look: 'carriage' }
+        ],
+        zones: [],
+        par: { bronze: 4, silver: 3, gold: 2 }
+      },
+      /* ---------------------------------------------------------------- 5 */
+      {
+        id: '05', name: 'The Conservatory',
+        lesson: 'Water costs a stroke and returns the ball to where you played from. The glasshouse door is narrow — or take the back way through the potting shed.',
+        rooms: [
+          { id: 'A', name: 'Conservatory', x: 0, y: 0, w: 560, h: 380, floor: 'terracotta' },
+          { id: 'B', name: 'Glasshouse', x: 620, y: -20, w: 300, h: 230, floor: 'tile' },
+          { id: 'C', name: 'Potting Shed', x: 620, y: 260, w: 300, h: 160, floor: 'stone' }
+        ],
+        doors: [
+          { id: 'a1', room: 'A', side: 'N', at: 480, w: 44, link: 'b1', sym: 'star', col: 4 },
+          { id: 'b1', room: 'B', side: 'W', at: 60, w: 44, link: 'a1', sym: 'star', col: 4 },
+          { id: 'a2', room: 'A', side: 'E', at: 320, link: 'c1', sym: 'square', col: 5 },
+          { id: 'c1', room: 'C', side: 'W', at: 60, link: 'a2', sym: 'square', col: 5 },
+          { id: 'c2', room: 'C', side: 'N', at: 220, link: 'b2', sym: 'moon', col: 6 },
+          { id: 'b2', room: 'B', side: 'S', at: 240, link: 'c2', sym: 'moon', col: 6 }
+        ],
+        tee: { room: 'A', x: 60, y: 320 },
+        cup: { room: 'B', x: 866, y: 86 },
+        obstacles: [
+          { room: 'A', type: 'circle', x: 160, y: 110, r: 18, mat: 'plant', look: 'pot' },
+          { room: 'A', type: 'circle', x: 420, y: 96, r: 18, mat: 'plant', look: 'pot' },
+          { room: 'A', type: 'circle', x: 452, y: 300, r: 18, mat: 'plant', look: 'pot' },
+          { room: 'A', type: 'circle', x: 236, y: 334, r: 18, mat: 'plant', look: 'pot' },
+          { room: 'B', type: 'rect', x: 780, y: -20, w: 24, h: 90, mat: 'wood', look: 'planter' },
+          { room: 'B', type: 'rect', x: 780, y: 102, w: 24, h: 108, mat: 'wood', look: 'planter' },
+          { room: 'C', type: 'rect', x: 700, y: 370, w: 150, h: 50, mat: 'wood', look: 'bench' }
+        ],
+        zones: [
+          { room: 'A', type: 'water', shape: 'circle', x: 300, y: 196, r: 62, look: 'pond' }
+        ],
+        tiers: {
+          gold: { obstacles: [{ room: 'A', type: 'circle', x: 520, y: 200, r: 16, mat: 'plant', look: 'pot' }] }
+        },
+        par: { bronze: 4, silver: 3, gold: 2 }
+      },
+      /* ---------------------------------------------------------------- 6 */
+      {
+        id: '06', name: 'The Upstairs Shortcut',
+        lesson: 'Stairs pull the ball back down. Climb them with enough pace for the landing door — or wander round through the gallery.',
+        rooms: [
+          { id: 'A', name: 'Entrance Hall', x: 0, y: 0, w: 460, h: 360, floor: 'stone' },
+          { id: 'B', name: 'Long Gallery', x: 520, y: -330, w: 200, h: 690, floor: 'parquet' },
+          { id: 'C', name: 'Attic', x: 0, y: -330, w: 460, h: 260, floor: 'wood' }
+        ],
+        doors: [
+          { id: 'a1', room: 'A', side: 'N', at: 380, link: 'c1', sym: 'triangle', col: 2 },
+          { id: 'c1', room: 'C', side: 'S', at: 380, link: 'a1', sym: 'triangle', col: 2 },
+          { id: 'a2', room: 'A', side: 'W', at: 180, link: 'b1', sym: 'square', col: 5 },
+          { id: 'b1', room: 'B', side: 'E', at: 520, link: 'a2', sym: 'square', col: 5 },
+          { id: 'b2', room: 'B', side: 'W', at: 110, link: 'c2', sym: 'circle', col: 1 },
+          { id: 'c2', room: 'C', side: 'E', at: 110, link: 'b2', sym: 'circle', col: 1 }
+        ],
+        tee: { room: 'A', x: 90, y: 300 },
+        cup: { room: 'C', x: 170, y: -222 },
+        obstacles: [
+          { room: 'A', type: 'rect', x: 292, y: 0, w: 8, h: 240, mat: 'wood', look: 'banister' },
+          { room: 'A', type: 'circle', x: 150, y: 120, r: 20, mat: 'stone', look: 'urn' },
+          { room: 'B', type: 'rect', x: 600, y: -40, w: 40, h: 90, mat: 'cushion', look: 'bench' },
+          { room: 'C', type: 'rect', x: 40, y: -120, w: 90, h: 50, mat: 'wood', look: 'trunk' },
+          { room: 'C', type: 'circle', x: 280, y: -200, r: 14, mat: 'wood', look: 'beam' },
+          { room: 'C', type: 'circle', x: 280, y: -290, r: 14, mat: 'wood', look: 'beam' }
+        ],
+        zones: [
+          { room: 'A', type: 'slope', shape: 'rect', x: 300, y: 0, w: 160, h: 240, gx: 0, gy: 300, look: 'stairs' }
+        ],
+        tiers: {
+          gold: { obstacles: [{ room: 'C', type: 'circle', x: 230, y: -150, r: 14, mat: 'wood', look: 'beam' }] }
+        },
+        par: { bronze: 4, silver: 3, gold: 3 }
+      },
+      /* ---------------------------------------------------------------- 7 */
+      {
+        id: '07', name: 'The Hall of Mirrors',
+        lesson: 'Reflections show doors that are not there — only real doorways glow and carry a symbol. Mirror panels are solid and bounce briskly.',
+        rooms: [
+          { id: 'A', name: 'Hall of Mirrors', x: 0, y: 0, w: 520, h: 340, floor: 'marble', mirrorWalls: ['N', 'S'],
+            decor: [{ type: 'painteddoor', side: 'W', at: 210 }] },
+          { id: 'B', name: 'Silvered Room', x: 580, y: 100, w: 300, h: 240, floor: 'marble' },
+          { id: 'C', name: 'Vestibule', x: 0, y: 400, w: 260, h: 150, floor: 'tile' }
+        ],
+        doors: [
+          { id: 'a1', room: 'A', side: 'E', at: 270, link: 'b1', sym: 'star', col: 4 },
+          { id: 'b1', room: 'B', side: 'W', at: 170, link: 'a1', sym: 'star', col: 4 },
+          { id: 'a2', room: 'A', side: 'S', at: 110, link: 'c1', sym: 'moon', col: 6 },
+          { id: 'c1', room: 'C', side: 'N', at: 110, link: 'a2', sym: 'moon', col: 6 },
+          { id: 'a3', room: 'A', side: 'N', at: 440, link: 'c2', sym: 'hex', col: 3 },
+          { id: 'c2', room: 'C', side: 'E', at: 75, link: 'a3', sym: 'hex', col: 3 }
+        ],
+        tee: { room: 'A', x: 60, y: 60 },
+        cup: { room: 'B', x: 816, y: 176 },
+        obstacles: [
+          { room: 'A', type: 'panel', x: 220, y: 170, len: 120, th: 8, angle: 45, mat: 'mirror', look: 'mirror' },
+          { room: 'A', type: 'panel', x: 372, y: 118, len: 100, th: 8, angle: -45, mat: 'mirror', look: 'mirror' },
+          { room: 'A', type: 'panel', x: 400, y: 262, len: 80, th: 8, angle: 20, mat: 'mirror', look: 'mirror' },
+          { room: 'B', type: 'panel', x: 740, y: 200, len: 100, th: 8, angle: 90, mat: 'mirror', look: 'mirror' },
+          { room: 'C', type: 'circle', x: 180, y: 500, r: 16, mat: 'brass', look: 'stand' }
+        ],
+        zones: [],
+        tiers: {
+          gold: { obstacles: [{ room: 'B', type: 'circle', x: 660, y: 200, r: 13, mat: 'brass', look: 'stand' }] }
+        },
+        par: { bronze: 4, silver: 3, gold: 2 }
+      },
+      /* ---------------------------------------------------------------- 8 */
+      {
+        id: '08', name: 'The Grand Ballroom',
+        lesson: 'Polished floors keep the ball rolling. Play softer than you think; the alcove carpet will catch it.',
+        rooms: [
+          { id: 'A', name: 'Grand Ballroom', x: 0, y: 0, w: 680, h: 440, floor: 'polished', fric: 0.55 },
+          { id: 'B', name: 'Alcove', x: 740, y: 140, w: 280, h: 160, floor: 'carpet', fric: 2.0 }
+        ],
+        doors: [
+          { id: 'a1', room: 'A', side: 'E', at: 220, link: 'b1', sym: 'diamond', col: 0 },
+          { id: 'b1', room: 'B', side: 'W', at: 80, link: 'a1', sym: 'diamond', col: 0 },
+          { id: 'a2', room: 'A', side: 'N', at: 600, link: 'b2', sym: 'moon', col: 6 },
+          { id: 'b2', room: 'B', side: 'N', at: 200, link: 'a2', sym: 'moon', col: 6 }
+        ],
+        tee: { room: 'A', x: 60, y: 220 },
+        cup: { room: 'B', x: 940, y: 250 },
+        obstacles: [
+          { room: 'A', type: 'circle', x: 170, y: 100, r: 20, mat: 'stone', look: 'column' },
+          { room: 'A', type: 'circle', x: 510, y: 100, r: 20, mat: 'stone', look: 'column' },
+          { room: 'A', type: 'circle', x: 170, y: 340, r: 20, mat: 'stone', look: 'column' },
+          { room: 'A', type: 'circle', x: 510, y: 340, r: 20, mat: 'stone', look: 'column' },
+          { room: 'A', type: 'circle', x: 340, y: 220, r: 56, mat: 'stone', look: 'dais' },
+          { room: 'A', type: 'rect', x: 250, y: 0, w: 180, h: 46, mat: 'wood', look: 'stage' },
+          { room: 'B', type: 'rect', x: 820, y: 140, w: 70, h: 30, mat: 'cushion', look: 'settee' }
+        ],
+        zones: [],
+        tiers: {
+          gold: { obstacles: [{ room: 'A', type: 'circle', x: 600, y: 220, r: 14, mat: 'brass', look: 'stand' }] }
+        },
+        par: { bronze: 4, silver: 3, gold: 2 }
+      },
+      /* ---------------------------------------------------------------- 9 */
+      {
+        id: '09', name: 'The Impossible Suite',
+        lesson: 'A wall splits the Endless Gallery, but the gallery loops: leave by its west door and you come back in through its east door. Find the way up, then slip through the orrery.',
+        rooms: [
+          { id: 'A', name: 'Antechamber', x: 0, y: 240, w: 300, h: 220, floor: 'tile' },
+          { id: 'B', name: 'Endless Gallery', x: 0, y: 0, w: 560, h: 180, floor: 'parquet' },
+          { id: 'C', name: 'Observatory', x: 100, y: -380, w: 420, h: 320, floor: 'stars' }
+        ],
+        doors: [
+          { id: 'a1', room: 'A', side: 'N', at: 150, link: 'b4', sym: 'diamond', col: 0 },
+          { id: 'b4', room: 'B', side: 'S', at: 150, link: 'a1', sym: 'diamond', col: 0 },
+          { id: 'b1', room: 'B', side: 'W', at: 90, link: 'b2', sym: 'loop', col: 7 },
+          { id: 'b2', room: 'B', side: 'E', at: 90, link: 'b1', sym: 'loop', col: 7 },
+          { id: 'b3', room: 'B', side: 'N', at: 430, link: 'c1', sym: 'star', col: 4 },
+          { id: 'c1', room: 'C', side: 'E', at: 160, link: 'b3', sym: 'star', col: 4 }
+        ],
+        tee: { room: 'A', x: 70, y: 410 },
+        cup: { room: 'C', x: 300, y: -220 },
+        obstacles: [
+          { room: 'A', type: 'circle', x: 230, y: 330, r: 18, mat: 'stone', look: 'urn' },
+          { room: 'B', type: 'rect', x: 286, y: 0, w: 22, h: 180, mat: 'stone', look: 'partition' },
+          { room: 'C', type: 'circle', x: 150, y: -330, r: 18, mat: 'brass', look: 'telescope' }
+        ],
+        movers: [
+          { room: 'C', type: 'rotor', x: 300, y: -220, rin: 34, rout: 96, cr: 6, arms: 3, period: 6.0, phase: 30, look: 'orrery' }
+        ],
+        zones: [],
+        par: { bronze: 5, silver: 4, gold: 3 }
+      }
+    ]
+  };
+
+  root.HBRCourse = COURSE;
+  if (typeof module !== 'undefined' && module.exports) module.exports = COURSE;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script id="hbr-app">
+/* Holes Between Rooms — interface, rendering, input, audio and saved progress.
+   All rules live in HBREngine; this file only calls Sim.shoot / Sim.step and draws the result. */
+(function () {
+  'use strict';
+  var E = window.HBREngine, COURSE = window.HBRCourse, K = E.K;
+  var DEV = /[?&]dev=1\b/.test(location.search);
+  var SAVE_KEY = 'doorquests.gamortal.003.holes-between-rooms.v1';
+  var SAVE_VERSION = 1;
+  var HOLES = COURSE.holes;
+  var NH = HOLES.length;
+
+  /* ================================================================ helpers */
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $all(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function nowIso() { return new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'); }
+  function hash2(i, j) { var h = (i * 374761393 + j * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+  function fmtPar(d) { return d === 0 ? 'E' : (d > 0 ? '+' + d : '−' + (-d)); }
+  function compass(a) { var n = ['north', 'north-east', 'east', 'south-east', 'south', 'south-west', 'west', 'north-west']; return n[Math.round(E.normAngle(a) / 45) % 8]; }
+  function coursePar(tier) { var s = 0; HOLES.forEach(function (h) { s += h.par[tier]; }); return s; }
+
+  var DOOR_COLORS = ['#f2c14e', '#4fd6c8', '#ff8fab', '#b9a3ff', '#7ec8ff', '#a6e36b', '#ff9e64', '#f4ecd8'];
+  var COLOR_NAMES = ['gold', 'teal', 'rose', 'violet', 'sky-blue', 'green', 'coral', 'pearl'];
+  var SYM_NAMES = { diamond: 'diamond', circle: 'circle', triangle: 'triangle', star: 'star', moon: 'moon', square: 'square', hex: 'hexagon', loop: 'loop' };
+
+  /* ================================================================ storage */
+  var storageOk = true, memStore = null;
+  function rawGet() {
+    try { return window.localStorage.getItem(SAVE_KEY); } catch (e) { storageOk = false; return memStore; }
+  }
+  function rawSet(v) {
+    try { window.localStorage.setItem(SAVE_KEY, v); return true; } catch (e) { storageOk = false; memStore = v; return false; }
+  }
+  function rawDel() { try { window.localStorage.removeItem(SAVE_KEY); } catch (e) { storageOk = false; } memStore = null; }
+
+  function blankRecords() {
+    var r = {};
+    E.TIER_IDS.forEach(function (t) { r[t] = { rounds: 0, completed: 0, best: null, medal: false, medalAt: null, holeBest: HOLES.map(function () { return null; }) }; });
+    return r;
+  }
+  function blankSave() {
+    return { v: SAVE_VERSION, prefs: { sound: true, motion: 'auto', threads: 'auto', tips: true, view: 'auto', tier: 'silver' },
+      records: blankRecords(), achievements: {}, seen: {}, round: null };
+  }
+  var saveNotice = '';
+  function isInt(v, a, b) { return typeof v === 'number' && isFinite(v) && Math.floor(v) === v && v >= a && v <= b; }
+  function isIso(v) { return typeof v === 'string' && v.length <= 30 && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(v); }
+
+  function validRound(r) {
+    if (!r || typeof r !== 'object') return false;
+    if (E.TIER_IDS.indexOf(r.tier) < 0) return false;
+    if (!isInt(r.hole, 0, NH - 1)) return false;
+    if (!Array.isArray(r.scores) || r.scores.length !== NH) return false;
+    for (var i = 0; i < NH; i++) {
+      var s = r.scores[i];
+      if (i < r.hole) { if (!isInt(s, 1, K.STROKE_CAP + 1)) return false; }
+      else if (s !== null) return false;
+    }
+    if (!isInt(r.restarts, 0, 9999) || !isInt(r.water, 0, 9999)) return false;
+    if (typeof r.id !== 'string' || r.id.length > 60) return false;
+    var c = r.cur;
+    if (!c || !isInt(c.strokes, 0, K.STROKE_CAP) || !isInt(c.penalties, 0, K.STROKE_CAP) || !isInt(c.clock, 0, 2e9)) return false;
+    if (typeof c.room !== 'string' || typeof c.x !== 'number' || typeof c.y !== 'number' || !isFinite(c.x) || !isFinite(c.y)) return false;
+    if (c.pending != null) {
+      var p = c.pending;
+      if (typeof p.a !== 'number' || !isFinite(p.a) || p.a < 0 || p.a >= 360) return false;
+      if (typeof p.p !== 'number' || !(p.p >= K.MINP && p.p <= 1)) return false;
+      if (!isInt(p.clock, 0, 2e9)) return false;
+    }
+    return true;
+  }
+  function loadSave() {
+    var raw = rawGet(), s = blankSave();
+    if (!raw) return s;
+    if (raw.length > 200000) { saveNotice = 'Saved data was too large and has been reset.'; return s; }
+    var d;
+    try { d = JSON.parse(raw); } catch (e) { saveNotice = 'Saved data could not be read and has been reset.'; return s; }
+    if (!d || d.v !== SAVE_VERSION) { saveNotice = 'Saved data was from an unknown version and has been reset.'; return s; }
+    // preferences
+    var p = d.prefs || {};
+    s.prefs.sound = p.sound !== false;
+    s.prefs.motion = ['auto', 'full', 'reduced'].indexOf(p.motion) >= 0 ? p.motion : 'auto';
+    s.prefs.threads = ['auto', 'on', 'off'].indexOf(p.threads) >= 0 ? p.threads : 'auto';
+    s.prefs.tips = p.tips !== false;
+    s.prefs.view = ['auto', 'house', 'follow'].indexOf(p.view) >= 0 ? p.view : 'auto';
+    s.prefs.tier = E.TIER_IDS.indexOf(p.tier) >= 0 ? p.tier : 'silver';
+    // records
+    var bad = false;
+    if (d.records && typeof d.records === 'object') {
+      E.TIER_IDS.forEach(function (t) {
+        var r = d.records[t]; if (!r) return;
+        var ok = isInt(r.rounds, 0, 1e6) && isInt(r.completed, 0, 1e6) && r.completed <= r.rounds &&
+          (r.best === null || (isInt(r.best, NH, NH * (K.STROKE_CAP + 1)) && r.completed > 0)) &&
+          typeof r.medal === 'boolean' && (r.medalAt === null || isIso(r.medalAt)) &&
+          Array.isArray(r.holeBest) && r.holeBest.length === NH &&
+          r.holeBest.every(function (v) { return v === null || isInt(v, 1, K.STROKE_CAP + 1); });
+        if (ok && r.medal && (r.best === null || r.best > coursePar(t))) ok = false;
+        if (!ok) { bad = true; return; }
+        s.records[t] = { rounds: r.rounds, completed: r.completed, best: r.best, medal: r.medal, medalAt: r.medalAt, holeBest: r.holeBest.slice() };
+      });
+    }
+    if (d.achievements && typeof d.achievements === 'object') {
+      Object.keys(d.achievements).forEach(function (k) { if (ACH[k] && isIso(d.achievements[k])) s.achievements[k] = d.achievements[k]; });
+    }
+    if (d.seen && typeof d.seen === 'object') Object.keys(d.seen).forEach(function (k) { if (/^[a-z0-9-]{1,20}$/.test(k) && d.seen[k] === true) s.seen[k] = true; });
+    if (d.round != null) { if (validRound(d.round)) s.round = d.round; else saveNotice = 'An unfinished round could not be restored and was discarded.'; }
+    if (bad) saveNotice = 'Some saved records were invalid and have been reset.';
+    return s;
+  }
+  var SAVE = null;
+  function persist() { rawSet(JSON.stringify(SAVE)); }
+
+  var ACH = {
+    'hole-in-one': 'Hole in one — sink any hole with your first putt',
+    'under-par': 'Under par — finish a round below that tier’s course par',
+    'clean-round': 'Clean round — finish a round with no restarts and no water',
+    'full-house': 'Full house — hold the Bronze, Silver and Gold medals'
+  };
+
+  /* ================================================================ preferences & motion */
+  var mqReduce = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { var m = SAVE.prefs.motion; return m === 'reduced' || (m === 'auto' && mqReduce && mqReduce.matches); }
+  function threadsOn() { var t = SAVE.prefs.threads; return t === 'on' || (t === 'auto' && G && G.tier === 'bronze'); }
+
+  /* ================================================================ audio (Web Audio, synthesised) */
+  var AU = { ctx: null, master: null, lastHit: 0 };
+  function audioInit() {
+    if (AU.ctx || !SAVE.prefs.sound) return;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    try { AU.ctx = new AC(); AU.master = AU.ctx.createGain(); AU.master.gain.value = 0.45; AU.master.connect(AU.ctx.destination); }
+    catch (e) { AU.ctx = null; }
+  }
+  function tone(freq, dur, type, vol, when, glideTo) {
+    var c = AU.ctx; if (!c || !SAVE.prefs.sound) return;
+    try {
+      var t = c.currentTime + (when || 0), o = c.createOscillator(), g = c.createGain();
+      o.type = type || 'sine'; o.frequency.setValueAtTime(freq, t);
+      if (glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(AU.master); o.start(t); o.stop(t + dur + 0.02);
+      o.onended = function () { o.disconnect(); g.disconnect(); };
+    } catch (e) { /* audio is optional */ }
+  }
+  function noise(dur, freq, q, vol, when) {
+    var c = AU.ctx; if (!c || !SAVE.prefs.sound) return;
+    try {
+      var t = c.currentTime + (when || 0), n = Math.floor(c.sampleRate * dur), buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+      for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      var src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      src.buffer = buf; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q; g.gain.value = vol;
+      src.connect(f); f.connect(g); g.connect(AU.master); src.start(t);
+      src.onended = function () { src.disconnect(); f.disconnect(); g.disconnect(); };
+    } catch (e) { /* optional */ }
+  }
+  var SND = {
+    putt: function (p) { noise(0.05, 2400, 1.2, 0.25 + 0.3 * p); tone(190, 0.08, 'sine', 0.18 + 0.2 * p); },
+    hit: function (mat, v) {
+      var now = performance.now(); if (now - AU.lastHit < 55) return; AU.lastHit = now;
+      var k = clamp(v / 700, 0.08, 1);
+      if (mat === 'brass') { tone(880, 0.25, 'sine', 0.12 * k); tone(1318, 0.2, 'sine', 0.07 * k); }
+      else if (mat === 'glass') { tone(1760, 0.3, 'sine', 0.09 * k); tone(2637, 0.22, 'sine', 0.05 * k); }
+      else if (mat === 'stone') { tone(150, 0.09, 'triangle', 0.22 * k); noise(0.04, 900, 1, 0.15 * k); }
+      else if (mat === 'soft') { noise(0.06, 400, 0.8, 0.22 * k); }
+      else { tone(230, 0.08, 'triangle', 0.22 * k); noise(0.03, 1400, 1, 0.1 * k); }
+    },
+    door: function (col) { var base = 523.25 * Math.pow(2, (col % 5) / 12); [0, 0.06, 0.12].forEach(function (w, i) { tone(base * [1, 1.26, 1.5][i], 0.35, 'sine', 0.06, w); }); },
+    cup: function () { tone(620, 0.14, 'sine', 0.2, 0, 190); [0.16, 0.26, 0.36].forEach(function (w, i) { tone([1046.5, 1318.5, 1568][i], 0.5, 'sine', 0.08, w); }); },
+    soft: function () { tone(523, 0.35, 'sine', 0.07); tone(392, 0.45, 'sine', 0.06, 0.12); },
+    splash: function () { noise(0.4, 700, 0.6, 0.3); noise(0.25, 2200, 1.4, 0.12, 0.05); },
+    click: function () { tone(1200, 0.03, 'square', 0.03); }
+  };
+
+  /* ================================================================ game state */
+  var G = null;     // live round state
+  var VIEW = { mode: 'house', cam: { x: 0, y: 0, s: 1 }, target: null, w: 0, h: 0, dpr: 1 };
+  var cv = $('#cv'), ctx = cv.getContext('2d');
+  var AIM = { a: 90, p: 0.4, dragging: false, sx: 0, sy: 0, pid: null, active: false, touched: false };
+
+  function newRoundObj(tier) {
+    return { id: tier + '-' + Date.now().toString(36) + '-' + Math.floor(Math.random() * 1e6).toString(36), tier: tier, hole: 0,
+      scores: HOLES.map(function () { return null; }), restarts: 0, water: 0, startedAt: nowIso(),
+      cur: { strokes: 0, penalties: 0, clock: 0, room: HOLES[0].tee.room, x: HOLES[0].tee.x, y: HOLES[0].tee.y, pending: null } };
+  }
+
+  function setupHole(restoreCur) {
+    var r = G.round, def = HOLES[r.hole];
+    G.shownHole = r.hole;
+    G.H = E.compileHole(def, r.tier);
+    G.sim = new E.Sim(G.H);
+    G.fx = []; G.trail = []; G.done = false; G.lastRoom = null;
+    var cur = r.cur;
+    if (restoreCur) {
+      var ok = G.sim.restore({ x: cur.x, y: cur.y, room: cur.room, clock: cur.clock, strokes: cur.strokes, penalties: cur.penalties });
+      if (!ok) { G.sim = new E.Sim(G.H); G.sim.strokes = cur.strokes; G.sim.penalties = cur.penalties; G.sim.clock = cur.clock; toast('Ball position could not be restored; it is back on the tee (strokes kept).', true); }
+      if (cur.pending) {
+        // A putt was in flight when the page closed: it counts, and it finishes exactly as it would have.
+        var pd = cur.pending;
+        G.sim.clock = pd.clock;
+        G.sim.strokes = Math.max(0, cur.strokes - 1);
+        if (G.sim.shoot(pd.a, pd.p)) { G.sim.runToRest(); G.sim.events.length = 0; }
+        cur.pending = null;
+        toast('Your last putt was replayed to where it stopped.', false);
+      }
+    } else {
+      cur.strokes = 0; cur.penalties = 0; cur.clock = 0; cur.room = def.tee.room; cur.x = def.tee.x; cur.y = def.tee.y; cur.pending = null;
+    }
+    G.staticLayer = null;
+    G.lastRoom = G.sim.ball.room;
+    // default aim: toward the first door of the tee room (a friendly start)
+    var trm = G.H.rooms[G.H.tee.room], d0 = trm.doors[0];
+    if (!restoreCur && d0) { AIM.a = Math.round(bearing(d0.cx - G.H.tee.x, d0.cy - G.H.tee.y) * 4) / 4; AIM.p = 0.4; }
+    syncAimUI();
+    chooseView(true);
+    updateHud();
+    describeHole();
+    if (G.sim.state === 'sunk' || G.sim.state === 'picked') { finishHole(); return; }
+    saveRoundState();
+    showBanner();
+    coachForHole();
+  }
+
+  function bearing(dx, dy) { return E.normAngle(Math.atan2(dx, -dy) * 180 / Math.PI); }
+
+  function startRound(tier, resume) {
+    G = { tier: tier, paused: false, acc: 0, last: 0, fx: [], trail: [] };
+    if (resume && SAVE.round && SAVE.round.tier === tier) { G.round = SAVE.round; }
+    else {
+      G.round = newRoundObj(tier);
+      SAVE.round = G.round;
+      SAVE.records[tier].rounds++;
+    }
+    SAVE.prefs.tier = tier;
+    persist();
+    showScreen('game');
+    setupHole(!!resume);
+    cv.focus({ preventScroll: true });
+  }
+
+  function saveRoundState() {
+    if (!G || !G.round) return;
+    var s = G.sim, c = G.round.cur;
+    c.strokes = s.strokes; c.penalties = s.penalties; c.clock = s.clock;
+    if (s.state === 'ready') { c.room = s.ball.room; c.x = s.ball.x; c.y = s.ball.y; }
+    SAVE.round = G.round;
+    persist();
+  }
+
+  function holeScore() { return G.sim.state === 'picked' ? K.STROKE_CAP + 1 : G.sim.strokes + G.sim.penalties; }
+  function totals() {
+    var r = G.round, t = 0, par = 0;
+    for (var i = 0; i < NH; i++) if (r.scores[i] != null) { t += r.scores[i]; par += HOLES[i].par[r.tier]; }
+    return { strokes: t, par: par };
+  }
+
+  /* ================================================================ shooting & the loop */
+  function tryShoot(a, p, source) {
+    if (!G || G.paused || G.done) return false;
+    if (G.sim.state !== 'ready') { toast(G.sim.state === 'rolling' ? 'Wait for the ball to stop.' : 'This hole is finished.', true); return false; }
+    if (!(p >= K.MINP)) { toast('Too gentle — pull back farther. Putt cancelled.', true); return false; }
+    var clock = G.sim.clock;
+    a = E.normAngle(a);
+    if (!G.sim.shoot(a, p)) return false;
+    // record the putt before it rolls, so closing the page cannot undo it
+    G.round.cur.pending = { a: a, p: p, clock: clock };
+    G.round.cur.strokes = G.sim.strokes;
+    SAVE.round = G.round; persist();
+    G.trail = [];
+    SND.putt(p);
+    updateHud();
+    coachEvent('shot');
+    $('#btn-shoot').disabled = true;
+    return true;
+  }
+
+  function frame(ts) {
+    requestAnimationFrame(frame);
+    if (!G || !G.H) return;
+    var dt = G.last ? (ts - G.last) / 1000 : 0; G.last = ts;
+    if (dt > 0.1) dt = 0.1;
+    if (!G.paused && !G.done) {
+      G.acc += dt;
+      var n = 0;
+      while (G.acc >= K.DT && n < 30) { G.sim.step(); G.acc -= K.DT; n++; handleEvents(); if (G.done) break; }
+      if (n >= 30) G.acc = 0;
+      if (G.sim.state === 'rolling' && !reduced()) {
+        var b = G.sim.ball;
+        G.trail.push({ x: b.x, y: b.y, room: b.room });
+        if (G.trail.length > 26) G.trail.shift();
+      }
+    }
+    updateCamera(dt);
+    draw(ts / 1000);
+  }
+
+  function handleEvents() {
+    var ev = G.sim.events; if (!ev.length) return;
+    G.sim.events = [];
+    for (var i = 0; i < ev.length; i++) {
+      var e = ev[i];
+      if (e.type === 'hit') SND.hit(e.mat, e.v);
+      else if (e.type === 'door') {
+        var d = G.H.doors[e.to], f = G.H.doors[e.from];
+        SND.door(d.col);
+        G.trail = [];
+        if (!reduced()) { G.fx.push({ k: 'door', x: f.cx, y: f.cy, col: d.col, t: 0 }); G.fx.push({ k: 'door', x: d.cx, y: d.cy, col: d.col, t: 0 }); }
+        say('Through the ' + COLOR_NAMES[d.col] + ' ' + SYM_NAMES[d.sym] + ' door into the ' + G.H.rooms[e.toRoom].name + '.');
+        coachEvent('door');
+      } else if (e.type === 'hazard') {
+        SND.splash(); G.round.water++;
+        toast('Splash! One penalty stroke — the ball is back where you played from.', true);
+        say('Into the water. One penalty stroke. The ball returns to where you played from.', true);
+      } else if (e.type === 'rest') {
+        G.round.cur.pending = null;
+        saveRoundState();
+        $('#btn-shoot').disabled = false;
+        updateHud();
+        var room = G.H.rooms[e.room], msg = 'The ball stops in the ' + room.name;
+        if (G.H.cup.room === e.room) msg += ', ' + Math.round(Math.hypot(G.H.cup.x - e.x, G.H.cup.y - e.y)) + ' units from the cup';
+        say(msg + '. Stroke ' + (G.sim.strokes + G.sim.penalties) + '.');
+        coachEvent('rest');
+      } else if (e.type === 'sunk') {
+        SND.cup();
+        if (!reduced()) for (var k = 0; k < 18; k++) G.fx.push({ k: 'spark', x: G.H.cup.x, y: G.H.cup.y, a: k / 18 * Math.PI * 2, t: 0, col: k % 8 });
+        finishHole();
+      } else if (e.type === 'picked') {
+        SND.soft();
+        finishHole();
+      }
+    }
+  }
+
+  function finishHole() {
+    var r = G.round, sc = holeScore(), par = G.H.par;
+    G.done = true;
+    r.scores[r.hole] = sc;
+    r.cur.pending = null;
+    var rec = SAVE.records[r.tier];
+    if (rec.holeBest[r.hole] === null || sc < rec.holeBest[r.hole]) rec.holeBest[r.hole] = sc;
+    if (sc === 1 && G.sim.state === 'sunk') award('hole-in-one');
+    var last = r.hole === NH - 1;
+    if (!last) {
+      r.hole++;
+      r.cur = { strokes: 0, penalties: 0, clock: 0, room: HOLES[r.hole].tee.room, x: HOLES[r.hole].tee.x, y: HOLES[r.hole].tee.y, pending: null };
+    }
+    SAVE.round = last ? null : r;
+    if (last) completeRound(r);
+    persist();
+    updateHud(true);
+    var t = totals();
+    var picked = G.sim.state === 'picked';
+    $('#done-kicker').textContent = 'Hole ' + (G.shownHole + 1) + ' · ' + G.H.name;
+    $('#done-h').textContent = picked ? 'Picked up' : E.termFor(sc, par);
+    $('#done-line').textContent = picked ? ('Stroke limit reached — this hole scores ' + sc + '.') :
+      (sc + (sc === 1 ? ' stroke' : ' strokes') + ' · par ' + par + (G.sim.penalties ? ' (including ' + G.sim.penalties + ' penalty)' : ''));
+    $('#done-total').textContent = 'Round: ' + t.strokes + ' strokes (' + fmtPar(t.strokes - t.par) + ')';
+    $('#done-next').textContent = last ? 'See final scorecard' : 'Next hole';
+    $('#done').hidden = false;
+    say((picked ? 'Picked up. ' : E.termFor(sc, par) + '. ') + sc + ' strokes on a par ' + par + '. Round total ' + t.strokes + ', ' + fmtPar(t.strokes - t.par) + '.', true);
+    setTimeout(function () { if (!$('#done').hidden) $('#done-next').focus(); }, 60);
+    G.lastFinal = last;
+  }
+
+  function completeRound(r) {
+    var rec = SAVE.records[r.tier], total = 0;
+    r.scores.forEach(function (s) { total += s; });
+    var cpar = coursePar(r.tier);
+    rec.completed++;
+    var newBest = rec.best === null || total < rec.best;
+    if (newBest) rec.best = total;
+    var medalNow = total <= cpar;
+    var firstMedal = medalNow && !rec.medal;
+    if (medalNow && !rec.medal) { rec.medal = true; rec.medalAt = nowIso(); }
+    if (total < cpar) award('under-par');
+    if (r.restarts === 0 && r.water === 0) award('clean-round');
+    if (SAVE.records.bronze.medal && SAVE.records.silver.medal && SAVE.records.gold.medal) award('full-house');
+    G.final = { total: total, cpar: cpar, medal: medalNow, firstMedal: firstMedal, newBest: newBest, tier: r.tier, scores: r.scores.slice(), restarts: r.restarts };
+  }
+
+  function award(id) { if (!SAVE.achievements[id]) { SAVE.achievements[id] = nowIso(); toast('Achievement: ' + ACH[id].split(' — ')[0], false); } }
+
+  function nextHole() {
+    $('#done').hidden = true;
+    if (G.lastFinal) { showFinal(); return; }
+    setupHole(false);
+    cv.focus({ preventScroll: true });
+  }
+
+  function restartHole() {
+    if (!G) return;
+    G.round.restarts++;
+    G.done = false;
+    $('#done').hidden = true;
+    setupHole(false);
+    say('Hole restarted. Ball on the tee.');
+    $('#btn-shoot').disabled = false;
+  }
+  function restartCourse() {
+    var tier = G.tier;
+    SAVE.round = null; persist();
+    $('#done').hidden = true;
+    setPause(false);
+    startRound(tier, false);
+    say('Course restarted from hole 1.');
+  }
+
+  /* two-press confirmation without a modal */
+  var confirmTimers = {};
+  function confirmPress(btn, label, action) {
+    var id = btn.id;
+    if (btn.classList.contains('confirming')) {
+      clearTimeout(confirmTimers[id]); btn.classList.remove('confirming');
+      if (btn.dataset.label) restoreLabel(btn);
+      action(); return;
+    }
+    btn.classList.add('confirming');
+    btn.dataset.label = btn.innerHTML;
+    var t = btn.querySelector('.ibtn-t');
+    if (t) t.textContent = label; else btn.textContent = label;
+    btn.setAttribute('aria-label', label);
+    say(label + ' Press again to confirm.', true);
+    confirmTimers[id] = setTimeout(function () { btn.classList.remove('confirming'); restoreLabel(btn); }, 4000);
+  }
+  function restoreLabel(btn) {
+    btn.innerHTML = btn.dataset.label; delete btn.dataset.label;
+    var base = { 'btn-retry': 'Restart this hole (R)', 'p-retry': 'Restart this hole', 'p-course': 'Restart the whole course', 'btn-start': 'Start the course', 'rec-reset': 'Reset Holes Between Rooms records' };
+    if (base[btn.id]) btn.setAttribute('aria-label', base[btn.id]);
+  }
+  function needsConfirm() { return G && G.sim && (G.sim.strokes + G.sim.penalties) > 0 && !G.done; }
+
+  /* ================================================================ pause */
+  function setPause(on) {
+    if (!G) return;
+    if (on === G.paused) return;
+    G.paused = on;
+    $('#pause').hidden = !on;
+    if (on) {
+      syncSettings();
+      saveRoundState();
+      setTimeout(function () { $('#p-resume').focus(); }, 30);
+      say('Paused.');
+    } else { G.last = 0; cv.focus({ preventScroll: true }); say('Resumed.'); }
+  }
+
+  /* ================================================================ HUD */
+  function updateHud() {
+    if (!G || !G.H) return;
+    var r = G.round, s = G.sim, t = totals();
+    $('#hud-hole').textContent = (G.shownHole + 1) + '/' + NH;
+    $('#hud-name').textContent = G.H.name;
+    $('#hud-par').textContent = G.H.par;
+    $('#hud-strokes').textContent = (s.strokes + s.penalties) + (s.penalties ? ' (' + s.penalties + ' pen.)' : '');
+    $('#hud-total').textContent = t.strokes ? t.strokes + ' (' + fmtPar(t.strokes - t.par) + ')' : 'E';
+    var tier = $('#hud-tier'); tier.textContent = E.TIERS[r.tier].label; tier.className = 'hud-tier t-' + r.tier;
+    $('#btn-shoot').disabled = s.state !== 'ready' || G.done;
+  }
+
+  /* ================================================================ text & announcements */
+  var sayTimer = null;
+  function say(msg, urgent) {
+    var n = urgent ? $('#alert') : $('#status');
+    n.textContent = '';
+    clearTimeout(sayTimer);
+    sayTimer = setTimeout(function () { n.textContent = msg; }, 30);
+  }
+  var toastTimer = null;
+  function toast(msg, warn) {
+    var t = $('#toast'); t.textContent = msg; t.classList.toggle('warn', !!warn); t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+  var bannerTimer = null;
+  function showBanner() {
+    var b = $('#banner'), def = HOLES[G.round.hole];
+    b.innerHTML = '';
+    b.appendChild(el('span', { class: 'b-k' }, 'Hole ' + (G.round.hole + 1) + ' of ' + NH + ' · Par ' + G.H.par));
+    b.appendChild(el('span', { class: 'b-t' }, def.name));
+    b.classList.add('show');
+    clearTimeout(bannerTimer); bannerTimer = setTimeout(function () { b.classList.remove('show'); }, 2600);
+    say('Hole ' + (G.round.hole + 1) + ', ' + def.name + '. Par ' + G.H.par + '. ' + def.lesson);
+  }
+  function describeHole() {
+    var H = G.H, parts = [];
+    parts.push('Hole ' + (G.round.hole + 1) + ': ' + H.name + ', par ' + H.par + '.');
+    H.roomList.forEach(function (r) {
+      var ds = r.doors.map(function (d) { var o = H.doors[d.link]; return 'a ' + COLOR_NAMES[d.col] + ' ' + SYM_NAMES[d.sym] + ' door on the ' + ({ N: 'north', S: 'south', E: 'east', W: 'west' })[d.side] + ' wall leading to the ' + H.rooms[o.room].name + (o.room === r.id ? ' (this same room)' : ''); });
+      parts.push(r.name + (H.tee.room === r.id ? ' (tee)' : '') + (H.cup.room === r.id ? ' (cup)' : '') + ': ' + (ds.length ? ds.join('; ') : 'no doors') + '.');
+    });
+    $('#cv-desc').textContent = parts.join(' ');
+    cv.setAttribute('aria-label', 'Hole ' + (G.round.hole + 1) + ', ' + H.name + '. Ball in the ' + H.rooms[G.sim.ball.room].name + '.');
+  }
+
+  /* ================================================================ tips (coach) */
+  var COACH = { queue: [], showing: null };
+  function coachForHole() {
+    COACH.queue = []; hideCoach();
+    if (!SAVE.prefs.tips) return;
+    var h = G.round.hole;
+    if (h === 0) {
+      COACH.queue = [
+        { id: 'aim', on: 'start', text: 'Press anywhere on the course and drag back, away from where you want to putt. The arrow shows the line; drag farther for more power. Let go to putt. (Keyboard: ← → aim, ↑ ↓ power, Space putts.)' },
+        { id: 'door', on: 'shot', text: 'Doorways with the same symbol and colour are linked. Roll into one and the ball comes out of its twin, keeping its speed.' },
+        { id: 'cup', on: 'door', text: 'Now sink it. The ball must reach the middle of the cup slowly — a fast ball skips across.' }
+      ];
+    } else {
+      var key = 'hole' + HOLES[h].id;
+      if (!SAVE.seen[key]) COACH.queue = [{ id: key, on: 'start', text: HOLES[h].lesson }];
+    }
+    coachEvent('start');
+  }
+  function coachEvent(on) {
+    if (!SAVE.prefs.tips || COACH.showing) return;
+    if (!COACH.queue.length || COACH.queue[0].on !== on) return;
+    var c = COACH.queue.shift();
+    COACH.showing = c;
+    $('#coach-text').textContent = c.text;
+    $('#coach').hidden = false;
+  }
+  function hideCoach() { $('#coach').hidden = true; if (COACH.showing) { SAVE.seen[COACH.showing.id] = true; persist(); } COACH.showing = null; }
+
+  /* ================================================================ camera */
+  function stageSize() {
+    var r = cv.getBoundingClientRect();
+    return { w: Math.max(1, r.width), h: Math.max(1, r.height) };
+  }
+  function fitRect(x, y, w, h, pad) {
+    var ss = stageSize(), s = Math.min((ss.w - pad * 2) / w, (ss.h - pad * 2) / h);
+    return { x: x + w / 2, y: y + h / 2, s: s };
+  }
+  function houseFit() { var b = G.H.bounds; return fitRect(b.x - 18, b.y - 34, b.w + 36, b.h + 52, 8); }
+  function chooseView(snap) {
+    var pref = SAVE.prefs.view;
+    var hf = houseFit();
+    var mode = pref === 'auto' ? (hf.s * K.R >= 3.4 ? 'house' : 'follow') : pref;
+    VIEW.mode = mode;
+    $('#btn-view-t').textContent = mode === 'house' ? 'Whole house' : 'Follow ball';
+    $('#btn-view').setAttribute('aria-label', 'Camera: ' + (mode === 'house' ? 'whole house' : 'follow ball') + ' (V)');
+    VIEW.target = targetCam();
+    if (snap) { VIEW.cam = { x: VIEW.target.x, y: VIEW.target.y, s: VIEW.target.s }; }
+  }
+  function targetCam() {
+    if (VIEW.mode === 'house') return houseFit();
+    var r = G.H.rooms[G.sim.ball.room];
+    var f = fitRect(r.x - 14, r.y - 30, r.w + 28, r.h + 44, 10);
+    f.s = Math.min(f.s, 2.4);
+    return f;
+  }
+  function updateCamera(dt) {
+    if (!G || !G.H) return;
+    VIEW.target = targetCam();
+    var c = VIEW.cam, t = VIEW.target;
+    if (reduced() || G.sim.ball.room !== G.lastRoom && VIEW.mode === 'follow' && reduced()) { c.x = t.x; c.y = t.y; c.s = t.s; }
+    else { var k = 1 - Math.exp(-dt * 7); c.x += (t.x - c.x) * k; c.y += (t.y - c.y) * k; c.s += (t.s - c.s) * k; }
+    if (G.sim.ball.room !== G.lastRoom) { G.lastRoom = G.sim.ball.room; describeHoleBall(); }
+  }
+  function describeHoleBall() { cv.setAttribute('aria-label', 'Hole ' + (G.round.hole + 1) + ', ' + G.H.name + '. Ball in the ' + G.H.rooms[G.sim.ball.room].name + '.'); }
+  function toWorld(px, py) { var c = VIEW.cam; return { x: (px - VIEW.w / 2) / c.s + c.x, y: (py - VIEW.h / 2) / c.s + c.y }; }
+
+  function resize() {
+    var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    VIEW.w = r.width; VIEW.h = r.height; VIEW.dpr = dpr;
+    cv.width = Math.max(1, Math.round(r.width * dpr)); cv.height = Math.max(1, Math.round(r.height * dpr));
+    if (G && G.H) { chooseView(true); }
+  }
+
+  /* ================================================================ drawing: symbols */
+  function symPath(g, sym, x, y, s) {
+    g.beginPath();
+    if (sym === 'diamond') { g.moveTo(x, y - s); g.lineTo(x + s * 0.75, y); g.lineTo(x, y + s); g.lineTo(x - s * 0.75, y); g.closePath(); }
+    else if (sym === 'circle') { g.arc(x, y, s * 0.78, 0, Math.PI * 2); }
+    else if (sym === 'triangle') { g.moveTo(x, y - s * 0.95); g.lineTo(x + s * 0.88, y + s * 0.65); g.lineTo(x - s * 0.88, y + s * 0.65); g.closePath(); }
+    else if (sym === 'square') { g.rect(x - s * 0.7, y - s * 0.7, s * 1.4, s * 1.4); }
+    else if (sym === 'hex') { for (var i = 0; i < 6; i++) { var a = Math.PI / 6 + i * Math.PI / 3; g[i ? 'lineTo' : 'moveTo'](x + Math.cos(a) * s * 0.85, y + Math.sin(a) * s * 0.85); } g.closePath(); }
+    else if (sym === 'star') { for (var j = 0; j < 10; j++) { var b = -Math.PI / 2 + j * Math.PI / 5, rr = j % 2 ? s * 0.42 : s; g[j ? 'lineTo' : 'moveTo'](x + Math.cos(b) * rr, y + Math.sin(b) * rr); } g.closePath(); }
+    else if (sym === 'moon') { g.arc(x, y, s * 0.85, Math.PI * 0.25, Math.PI * 1.75, false); g.arc(x + s * 0.38, y, s * 0.62, Math.PI * 1.62, Math.PI * 0.38, true); g.closePath(); }
+    else if (sym === 'loop') { var rr2 = s * 0.5; g.arc(x - rr2, y, rr2, 0, Math.PI * 2); g.moveTo(x + rr2 * 2, y); g.arc(x + rr2, y, rr2, 0, Math.PI * 2); g.moveTo(x - rr2 + rr2 * 0.5, y); g.arc(x - rr2, y, rr2 * 0.5, 0, Math.PI * 2, true); g.moveTo(x + rr2 + rr2 * 0.5, y); g.arc(x + rr2, y, rr2 * 0.5, 0, Math.PI * 2, true); }
+  }
+
+  /* ================================================================ drawing: static layer */
+  var FLOOR_BASE = { tile: '#d8d0bf', wood: '#7b4f2e', parquet: '#a7733f', carpet: '#5a1f31', stone: '#6c6e79', terracotta: '#b5623a', marble: '#e7e3da', polished: '#b4813e', stars: '#0f1638' };
+
+  function paintFloor(g, r) {
+    var x0 = r.x, y0 = r.y, w = r.w, h = r.h, i, j;
+    g.save(); g.beginPath(); g.rect(x0, y0, w, h); g.clip();
+    g.fillStyle = FLOOR_BASE[r.floor] || '#777'; g.fillRect(x0, y0, w, h);
+    if (r.floor === 'tile') {
+      var t = 40; g.fillStyle = '#2b3866';
+      for (i = 0; i * t < w; i++) for (j = 0; j * t < h; j++) if ((i + j) % 2) g.fillRect(x0 + i * t, y0 + j * t, t, t);
+      g.strokeStyle = 'rgba(0,0,0,.12)'; g.lineWidth = 1; g.beginPath();
+      for (i = 0; i * t <= w; i++) { g.moveTo(x0 + i * t, y0); g.lineTo(x0 + i * t, y0 + h); }
+      for (j = 0; j * t <= h; j++) { g.moveTo(x0, y0 + j * t); g.lineTo(x0 + w, y0 + j * t); }
+      g.stroke();
+    } else if (r.floor === 'wood' || r.floor === 'polished') {
+      var ph = r.floor === 'wood' ? 20 : 24;
+      for (j = 0; j * ph < h; j++) {
+        var off = hash2(j, 3) * 150, x = x0 - off, k = 0;
+        while (x < x0 + w) {
+          var len = 110 + hash2(j, k) * 90, tone = (hash2(k, j) - 0.5) * 18;
+          g.fillStyle = shade(FLOOR_BASE[r.floor], tone); g.fillRect(x, y0 + j * ph, len, ph);
+          g.fillStyle = 'rgba(30,15,5,.35)'; g.fillRect(x, y0 + j * ph, 1.2, ph);
+          x += len; k++;
+        }
+        g.fillStyle = 'rgba(30,15,5,.3)'; g.fillRect(x0, y0 + j * ph, w, 1);
+      }
+      if (r.floor === 'polished') {
+        var gr = g.createRadialGradient(x0 + w / 2, y0 + h / 2, 10, x0 + w / 2, y0 + h / 2, Math.max(w, h) * 0.7);
+        gr.addColorStop(0, 'rgba(255,240,200,.28)'); gr.addColorStop(1, 'rgba(0,0,0,.1)');
+        g.fillStyle = gr; g.fillRect(x0, y0, w, h);
+        // inlaid compass star (flat)
+        g.save(); g.translate(x0 + w / 2, y0 + h / 2); g.globalAlpha = 0.35; g.fillStyle = '#f6e3b0';
+        for (i = 0; i < 8; i++) { g.rotate(Math.PI / 4); g.beginPath(); g.moveTo(0, 0); g.lineTo(i % 2 ? 90 : 150, 0); g.lineTo(0, 14); g.closePath(); g.fill(); }
+        g.restore();
+      }
+    } else if (r.floor === 'parquet') {
+      var c = 36;
+      for (i = 0; i * c < w; i++) for (j = 0; j * c < h; j++) {
+        var bx = x0 + i * c, by = y0 + j * c;
+        for (k = 0; k < 3; k++) {
+          g.fillStyle = shade(FLOOR_BASE.parquet, (hash2(i * 3 + k, j) - 0.5) * 26);
+          if ((i + j) % 2) g.fillRect(bx, by + k * 12, c, 12); else g.fillRect(bx + k * 12, by, 12, c);
+        }
+        g.strokeStyle = 'rgba(40,20,5,.35)'; g.lineWidth = 0.8; g.strokeRect(bx, by, c, c);
+      }
+    } else if (r.floor === 'carpet') {
+      g.strokeStyle = 'rgba(231,195,90,.22)'; g.lineWidth = 1.2; g.beginPath();
+      for (i = -h; i < w + h; i += 34) { g.moveTo(x0 + i, y0); g.lineTo(x0 + i + h, y0 + h); g.moveTo(x0 + i + h, y0); g.lineTo(x0 + i, y0 + h); }
+      g.stroke();
+      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 8; g.strokeRect(x0 + 10, y0 + 10, w - 20, h - 20);
+      g.strokeStyle = 'rgba(231,195,90,.35)'; g.lineWidth = 1.5; g.strokeRect(x0 + 16, y0 + 16, w - 32, h - 32);
+    } else if (r.floor === 'stone') {
+      var sh = 46;
+      for (j = 0; j * sh < h; j++) {
+        var sx = x0 - hash2(j, 9) * 60; k = 0;
+        while (sx < x0 + w) {
+          var sw = 56 + hash2(k, j + 7) * 40;
+          g.fillStyle = shade(FLOOR_BASE.stone, (hash2(j, k + 5) - 0.5) * 22); g.fillRect(sx + 1.5, y0 + j * sh + 1.5, sw - 3, sh - 3);
+          sx += sw; k++;
+        }
+      }
+    } else if (r.floor === 'terracotta') {
+      var tt = 34;
+      for (i = 0; i * tt < w; i++) for (j = 0; j * tt < h; j++) {
+        g.fillStyle = shade(FLOOR_BASE.terracotta, (hash2(i, j) - 0.5) * 24); g.fillRect(x0 + i * tt + 1, y0 + j * tt + 1, tt - 2, tt - 2);
+      }
+    } else if (r.floor === 'marble') {
+      var m = 44;
+      for (i = 0; i * m < w; i++) for (j = 0; j * m < h; j++) if ((i + j) % 2) { g.fillStyle = '#1f2130'; g.fillRect(x0 + i * m, y0 + j * m, m, m); }
+      g.strokeStyle = 'rgba(120,120,140,.25)'; g.lineWidth = 1;
+      for (i = 0; i < 9; i++) { g.beginPath(); var vx = x0 + hash2(i, 1) * w, vy = y0; g.moveTo(vx, vy); for (k = 0; k < 8; k++) { vx += (hash2(i, k) - 0.4) * 60; vy += h / 8; g.lineTo(vx, vy); } g.stroke(); }
+    } else if (r.floor === 'stars') {
+      for (i = 0; i < 160; i++) { var px = x0 + hash2(i, 2) * w, py = y0 + hash2(i, 5) * h, rs = 0.5 + hash2(i, 8) * 1.4; g.fillStyle = 'rgba(246,241,228,' + (0.3 + hash2(i, 4) * 0.6) + ')'; g.beginPath(); g.arc(px, py, rs, 0, Math.PI * 2); g.fill(); }
+      g.strokeStyle = 'rgba(126,200,255,.12)'; g.lineWidth = 1;
+      for (i = 1; i < 6; i++) { g.beginPath(); g.arc(x0 + w * 0.48, y0 + h * 0.5, i * 34, 0, Math.PI * 2); g.stroke(); }
+    }
+    // soft vignette
+    var vg = g.createLinearGradient(x0, y0, x0, y0 + h);
+    vg.addColorStop(0, 'rgba(0,0,0,.18)'); vg.addColorStop(0.15, 'rgba(0,0,0,0)'); vg.addColorStop(0.85, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.18)');
+    g.fillStyle = vg; g.fillRect(x0, y0, w, h);
+    g.restore();
+  }
+  function shade(hex, amt) {
+    var n = parseInt(hex.slice(1), 16), r = (n >> 16) + amt, gg = ((n >> 8) & 255) + amt, b = (n & 255) + amt;
+    return 'rgb(' + clamp(Math.round(r), 0, 255) + ',' + clamp(Math.round(gg), 0, 255) + ',' + clamp(Math.round(b), 0, 255) + ')';
+  }
+
+  function paintZone(g, z) {
+    g.save();
+    if (z.look === 'rug') {
+      g.fillStyle = '#25456c'; g.fillRect(z.x, z.y, z.w, z.h);
+      g.strokeStyle = '#e7c35a'; g.lineWidth = 3; g.strokeRect(z.x + 6, z.y + 6, z.w - 12, z.h - 12);
+      g.strokeStyle = 'rgba(231,195,90,.45)'; g.lineWidth = 1.2;
+      g.beginPath(); g.moveTo(z.x + z.w / 2, z.y + 14); g.lineTo(z.x + z.w - 16, z.y + z.h / 2); g.lineTo(z.x + z.w / 2, z.y + z.h - 14); g.lineTo(z.x + 16, z.y + z.h / 2); g.closePath(); g.stroke();
+      g.strokeStyle = 'rgba(246,241,228,.5)'; g.lineWidth = 1;
+      for (var i = z.y + 4; i < z.y + z.h - 2; i += 5) { g.beginPath(); g.moveTo(z.x - 4, i); g.lineTo(z.x, i); g.moveTo(z.x + z.w, i); g.lineTo(z.x + z.w + 4, i); g.stroke(); }
+    } else if (z.look === 'stairs') {
+      var steps = Math.round(z.h / 20);
+      for (var s = 0; s < steps; s++) {
+        var y = z.y + s * z.h / steps, lit = 0.15 + 0.5 * (1 - s / steps);
+        g.fillStyle = 'rgba(205,190,160,' + (0.55 + lit * 0.4) + ')'; g.fillRect(z.x, y, z.w, z.h / steps);
+        g.fillStyle = 'rgba(40,30,20,.45)'; g.fillRect(z.x, y + z.h / steps - 3, z.w, 3);
+      }
+      g.fillStyle = 'rgba(40,30,60,.55)';
+      for (var c = 0; c < 3; c++) { var cx = z.x + z.w * (0.25 + c * 0.25), cy = z.y + z.h * 0.55; g.beginPath(); g.moveTo(cx - 9, cy - 5); g.lineTo(cx, cy + 5); g.lineTo(cx + 9, cy - 5); g.lineTo(cx + 9, cy - 1); g.lineTo(cx, cy + 9); g.lineTo(cx - 9, cy - 1); g.closePath(); g.fill(); }
+      g.fillStyle = 'rgba(20,20,40,.75)'; g.font = '600 11px system-ui, sans-serif'; g.textAlign = 'center';
+      g.fillText('STAIRS — UP ↑', z.x + z.w / 2, z.y + z.h - 8);
+    } else if (z.type === 'water') {
+      var gr = g.createRadialGradient(z.x - z.r * 0.3, z.y - z.r * 0.3, 4, z.x, z.y, z.r);
+      gr.addColorStop(0, '#3d9bb3'); gr.addColorStop(1, '#14506a');
+      g.fillStyle = gr; g.beginPath(); g.arc(z.x, z.y, z.r, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = 'rgba(200,190,170,.85)'; g.lineWidth = 3; g.setLineDash([7, 4]); g.stroke(); g.setLineDash([]);
+      [[0.35, -0.3, 11], [-0.4, 0.25, 9], [0.1, 0.5, 8]].forEach(function (p) {
+        g.fillStyle = '#4f9a4a'; g.beginPath(); g.moveTo(z.x + p[0] * z.r, z.y + p[1] * z.r); g.arc(z.x + p[0] * z.r, z.y + p[1] * z.r, p[2], 0.4, Math.PI * 2 - 0.1); g.closePath(); g.fill();
+      });
+      g.fillStyle = 'rgba(255,255,255,.75)'; g.font = '600 10px system-ui, sans-serif'; g.textAlign = 'center'; g.fillText('WATER · +1', z.x, z.y + 4);
+    }
+    g.restore();
+  }
+
+  function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+
+  function paintObstacle(g, o) {
+    g.save();
+    var look = o.look || '';
+    // drop shadow (soft, small) — the crisp outline is the true edge
+    g.shadowColor = 'rgba(0,0,0,.4)'; g.shadowBlur = 6; g.shadowOffsetX = 2; g.shadowOffsetY = 3;
+    if (o.type === 'circle') {
+      var fill = { table: '#8a5a33', pot: '#b3592f', globe: '#2f6d8a', pouf: '#7d3b5b', urn: '#8d8f9c', column: '#cfc8b8', dais: '#d9cfb9', beam: '#6b4425', stand: '#c9a14a', telescope: '#c9a14a' }[look] || '#888';
+      g.fillStyle = fill; g.beginPath(); g.arc(o.x, o.y, o.r, 0, Math.PI * 2); g.fill();
+      g.shadowColor = 'transparent';
+      g.lineWidth = 2; g.strokeStyle = 'rgba(20,15,10,.85)'; g.stroke();
+      if (look === 'pot') { g.fillStyle = '#3f7d3a'; for (var i = 0; i < 6; i++) { var a = i * Math.PI / 3; g.beginPath(); g.ellipse(o.x + Math.cos(a) * o.r * 0.42, o.y + Math.sin(a) * o.r * 0.42, o.r * 0.42, o.r * 0.2, a, 0, Math.PI * 2); g.fill(); } g.fillStyle = '#65a85a'; g.beginPath(); g.arc(o.x, o.y, o.r * 0.28, 0, Math.PI * 2); g.fill(); }
+      else if (look === 'table') { g.strokeStyle = 'rgba(255,220,170,.35)'; g.lineWidth = 1; g.beginPath(); g.arc(o.x, o.y, o.r * 0.7, 0, Math.PI * 2); g.stroke(); }
+      else if (look === 'column' || look === 'urn') { g.strokeStyle = 'rgba(80,70,60,.5)'; g.lineWidth = 1; for (var k = 1; k < 4; k++) { g.beginPath(); g.arc(o.x, o.y, o.r * k / 4, 0, Math.PI * 2); g.stroke(); } }
+      else if (look === 'dais') { g.strokeStyle = 'rgba(120,100,70,.55)'; g.lineWidth = 2; g.beginPath(); g.arc(o.x, o.y, o.r - 10, 0, Math.PI * 2); g.stroke(); g.beginPath(); g.arc(o.x, o.y, o.r - 22, 0, Math.PI * 2); g.stroke(); g.fillStyle = '#e7c35a'; symPath(g, 'star', o.x, o.y, 12); g.fill(); }
+      else if (look === 'globe') { g.fillStyle = '#5e9b54'; g.beginPath(); g.ellipse(o.x - 5, o.y - 3, 7, 5, 0.5, 0, Math.PI * 2); g.fill(); g.beginPath(); g.ellipse(o.x + 7, o.y + 6, 5, 4, -0.3, 0, Math.PI * 2); g.fill(); }
+      else if (look === 'stand' || look === 'telescope') { g.fillStyle = '#f3d98a'; g.beginPath(); g.arc(o.x - o.r * 0.25, o.y - o.r * 0.25, o.r * 0.35, 0, Math.PI * 2); g.fill(); if (look === 'telescope') { g.strokeStyle = '#3a2a10'; g.lineWidth = 4; g.beginPath(); g.moveTo(o.x - o.r * 0.6, o.y + o.r * 0.5); g.lineTo(o.x + o.r * 0.6, o.y - o.r * 0.5); g.stroke(); } }
+      else if (look === 'beam') { g.strokeStyle = 'rgba(40,20,5,.6)'; g.lineWidth = 1; g.beginPath(); g.arc(o.x, o.y, o.r * 0.55, 0, Math.PI * 2); g.stroke(); }
+    } else {
+      var pts = o.type === 'rect' ? [[o.x, o.y], [o.x + o.w, o.y], [o.x + o.w, o.y + o.h], [o.x, o.y + o.h]] : o.pts;
+      var col = { console: '#6a4026', desk: '#5b3a22', cabinet: '#4d3220', shelf: '#5e3b1f', bench: '#6d4a2c', armchair: '#7a3247', crate: '#8a6a3a', clockcase: '#4a2f1c', planter: '#4f6b39', stage: '#7a4a28', banister: '#4a2d18', trunk: '#6a4a2a', settee: '#6b2c45', mirror: '#c7d2e6', partition: '#7d7f8c', gate: '#c9a14a' }[look] || '#6a4a2a';
+      g.fillStyle = col;
+      if (look === 'mirror') { var mg = g.createLinearGradient(pts[0][0], pts[0][1], pts[2][0], pts[2][1]); mg.addColorStop(0, '#9fb0cc'); mg.addColorStop(0.5, '#f3f6ff'); mg.addColorStop(1, '#8a9abb'); g.fillStyle = mg; }
+      g.beginPath(); pts.forEach(function (p, i) { g[i ? 'lineTo' : 'moveTo'](p[0], p[1]); }); g.closePath(); g.fill();
+      g.shadowColor = 'transparent';
+      g.lineWidth = 2; g.strokeStyle = look === 'mirror' ? '#e7c35a' : 'rgba(20,12,6,.9)'; g.stroke();
+      if (o.type === 'rect') {
+        g.save(); g.beginPath(); g.rect(o.x, o.y, o.w, o.h); g.clip();
+        if (look === 'shelf') { for (var bx = o.x + 3; bx < o.x + o.w - 3; bx += 6) { g.fillStyle = ['#a33b3b', '#2f5f8a', '#c9a14a', '#3c7a4a', '#6d3c7a'][Math.floor(hash2(bx | 0, 2) * 5)]; g.fillRect(bx, o.y + 4, 4, o.h - 8); } }
+        else if (look === 'console' || look === 'desk' || look === 'bench' || look === 'stage' || look === 'trunk') { g.fillStyle = 'rgba(255,220,170,.12)'; g.fillRect(o.x + 3, o.y + 3, o.w - 6, Math.min(8, o.h / 3)); if (look === 'trunk') { g.fillStyle = '#c9a14a'; g.fillRect(o.x + o.w / 2 - 4, o.y + o.h / 2 - 4, 8, 8); } if (look === 'stage') { g.fillStyle = '#8f1f2c'; g.fillRect(o.x, o.y, o.w, 10); } }
+        else if (look === 'armchair' || look === 'settee') { g.fillStyle = 'rgba(255,255,255,.12)'; roundRect(g, o.x + 8, o.y + 8, o.w - 16, o.h - 16, 6); g.fill(); }
+        else if (look === 'clockcase') { g.fillStyle = '#f6f1e4'; g.beginPath(); g.arc(o.x + o.w / 2, o.y + o.h / 2, Math.min(o.w, o.h) * 0.32, 0, Math.PI * 2); g.fill(); g.strokeStyle = '#222'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(o.x + o.w / 2, o.y + o.h / 2); g.lineTo(o.x + o.w / 2, o.y + o.h / 2 - 10); g.moveTo(o.x + o.w / 2, o.y + o.h / 2); g.lineTo(o.x + o.w / 2 + 7, o.y + o.h / 2); g.stroke(); }
+        else if (look === 'planter') { g.fillStyle = '#6fae5a'; for (var py = o.y + 6; py < o.y + o.h - 4; py += 10) { g.beginPath(); g.arc(o.x + o.w / 2, py, 5, 0, Math.PI * 2); g.fill(); } }
+        else if (look === 'crate' || look === 'cabinet') { g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(o.x, o.y); g.lineTo(o.x + o.w, o.y + o.h); g.moveTo(o.x + o.w, o.y); g.lineTo(o.x, o.y + o.h); g.stroke(); }
+        else if (look === 'banister') { g.fillStyle = '#c9a14a'; for (var yy = o.y + 8; yy < o.y + o.h; yy += 16) { g.beginPath(); g.arc(o.x + o.w / 2, yy, 2.2, 0, Math.PI * 2); g.fill(); } }
+        g.restore();
+      }
+    }
+    g.restore();
+  }
+
+  function paintWalls(g, H, r) {
+    var T = 10;
+    g.save();
+    g.lineCap = 'butt';
+    r.segs.forEach(function (s) {
+      if (!s.wall) return;
+      var n = { N: [0, -1], S: [0, 1], E: [1, 0], W: [-1, 0] }[s.wall], ox = n[0] * T / 2, oy = n[1] * T / 2;
+      var mir = s.mat === 'mirror';
+      g.strokeStyle = mir ? '#b9c6dd' : '#1b2148'; g.lineWidth = T;
+      g.beginPath(); g.moveTo(s.ax + ox, s.ay + oy); g.lineTo(s.bx + ox, s.by + oy); g.stroke();
+      g.strokeStyle = mir ? '#ffffff' : '#c9a14a'; g.lineWidth = 1.6;
+      g.beginPath(); g.moveTo(s.ax + n[0] * 0.8, s.ay + n[1] * 0.8); g.lineTo(s.bx + n[0] * 0.8, s.by + n[1] * 0.8); g.stroke();
+      if (mir) { g.strokeStyle = 'rgba(231,195,90,.9)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(s.ax + n[0] * T, s.ay + n[1] * T); g.lineTo(s.bx + n[0] * T, s.by + n[1] * T); g.stroke(); }
+    });
+    g.fillStyle = '#1b2148';
+    [[r.x - T, r.y - T], [r.x + r.w, r.y - T], [r.x - T, r.y + r.h], [r.x + r.w, r.y + r.h]].forEach(function (c) { g.fillRect(c[0], c[1], T, T); });
+    // painted (false) doors
+    (r.decor || []).forEach(function (d) {
+      if (d.type !== 'painteddoor') return;
+      var x = d.side === 'W' ? r.x - T : r.x + r.w, y = r.y + d.at - 26;
+      g.fillStyle = '#5a3a24'; g.fillRect(x - (d.side === 'W' ? 24 : 0), y, 24 + T, 52);
+      g.strokeStyle = '#c9a14a'; g.lineWidth = 1.5; g.strokeRect(x - (d.side === 'W' ? 24 : 0) + 3, y + 3, 24 + T - 6, 46);
+      g.fillStyle = 'rgba(246,241,228,.75)'; g.font = 'italic 10px Georgia, serif'; g.textAlign = 'right';
+      g.save(); g.translate(x - 28, y + 26); g.fillText('painted door', 0, 4); g.restore();
+    });
+    g.restore();
+  }
+
+  function paintDoorFrame(g, H, d) {
+    var col = DOOR_COLORS[d.col], hw = d.w / 2, T = 10;
+    g.save();
+    // jamb posts (outside the room, at the two gap ends)
+    g.fillStyle = '#e2c27a';
+    [-1, 1].forEach(function (k) {
+      var jx = d.cx + d.tx * hw * k, jy = d.cy + d.ty * hw * k;
+      g.save(); g.translate(jx, jy); g.rotate(Math.atan2(d.ny, d.nx));
+      g.fillRect(0, -2.5, T + 4, 5);
+      g.restore();
+    });
+    // open door leaf, folded back against the outside of the wall (never into the room)
+    var hx = d.cx + d.tx * hw, hy = d.cy + d.ty * hw;
+    g.save(); g.translate(hx, hy);
+    var base = Math.atan2(d.ty, d.tx), out = Math.atan2(d.ny, d.nx);
+    var diff = Math.atan2(Math.sin(out - base), Math.cos(out - base));
+    g.rotate(base + diff * 0.28);
+    var LL = d.w * 0.82;
+    g.fillStyle = '#6b4226'; g.fillRect(T + 2, -3.5, LL, 7);
+    g.strokeStyle = '#2b190d'; g.lineWidth = 1; g.strokeRect(T + 2, -3.5, LL, 7);
+    g.fillStyle = col; symPath(g, d.sym, T + 2 + LL * 0.5, 0, 3.6); g.fill();
+    g.fillStyle = '#e7c35a'; g.beginPath(); g.arc(T + LL - 4, 0, 1.8, 0, Math.PI * 2); g.fill();
+    g.restore();
+    // floor medallion just inside (flat)
+    var mx = d.cx - d.nx * 24, my = d.cy - d.ny * 24;
+    g.fillStyle = 'rgba(10,15,44,.55)'; g.beginPath(); g.arc(mx, my, 11, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = col; g.lineWidth = 1.5; g.stroke();
+    g.fillStyle = col; symPath(g, d.sym, mx, my, 6.5); g.fill();
+    g.restore();
+  }
+
+  function paintRoomLabel(g, r) {
+    g.save(); g.fillStyle = 'rgba(243,217,138,.9)'; g.font = '600 13px Georgia, "Times New Roman", serif'; g.textAlign = 'left';
+    var label = r.name.toUpperCase(), tw = g.measureText(label).width, x = r.x;
+    var blocks = r.doors.filter(function (d) { return d.side === 'N'; }).map(function (d) { return [d.cx - d.w / 2 - 16, d.cx + d.w / 2 + d.w * 0.9 + 24]; });
+    for (var tries = 0; tries < 12; tries++) {
+      var hit = blocks.filter(function (b) { return x < b[1] && x + tw > b[0]; })[0];
+      if (!hit) break;
+      x = hit[1] + 4;
+    }
+    if (x + tw > r.x + r.w) x = r.x;
+    g.fillText(label, x, r.y - 16);
+    g.restore();
+  }
+  function paintMirrorReflections(g, H, r) {
+    (r.mirrorWalls || []).forEach(function (side) {
+      var band = 80;
+      g.save();
+      g.beginPath();
+      if (side === 'N') g.rect(r.x, r.y - 10 - band, r.w, band); else g.rect(r.x, r.y + r.h + 10, r.w, band);
+      g.clip();
+      g.globalAlpha = 0.28;
+      g.translate(0, side === 'N' ? 2 * (r.y - 10) : 2 * (r.y + r.h + 10));
+      g.scale(1, -1);
+      paintFloor(g, r);
+      r.obstacles.forEach(function (o) { paintObstacle(g, o); });
+      g.restore();
+      // fade + label
+      g.save();
+      var y0 = side === 'N' ? r.y - 10 - band : r.y + r.h + 10;
+      var fg = g.createLinearGradient(0, y0, 0, y0 + band);
+      if (side === 'N') { fg.addColorStop(0, 'rgba(8,12,38,1)'); fg.addColorStop(1, 'rgba(8,12,38,0)'); } else { fg.addColorStop(0, 'rgba(8,12,38,0)'); fg.addColorStop(1, 'rgba(8,12,38,1)'); }
+      g.fillStyle = fg; g.fillRect(r.x, y0, r.w, band);
+      g.fillStyle = 'rgba(207,214,230,.7)'; g.font = 'italic 11px Georgia, serif'; g.textAlign = 'right';
+      g.fillText('reflection', r.x + r.w - 4, side === 'N' ? y0 + 14 : y0 + band - 6);
+      g.restore();
+    });
+  }
+
+  function buildStatic() {
+    var H = G.H, b = H.bounds, pad = 120;
+    var maxDim = Math.max(b.w, b.h) + pad * 2;
+    var k = clamp(Math.min(VIEW.cam.s * VIEW.dpr * 1.25, 3), 0.6, 4096 / maxDim);
+    var c = document.createElement('canvas');
+    c.width = Math.ceil((b.w + pad * 2) * k); c.height = Math.ceil((b.h + pad * 2) * k);
+    var g = c.getContext('2d');
+    g.setTransform(k, 0, 0, k, (pad - b.x) * k, (pad - b.y) * k);
+    H.roomList.forEach(function (r) { paintMirrorReflections(g, H, r); });
+    H.roomList.forEach(function (r) {
+      paintFloor(g, r);
+      r.zones.forEach(function (z) { paintZone(g, z); });
+      // mover reach marks (flat)
+      r.movers.forEach(function (m) { paintMoverReach(g, m); });
+      // tee mat
+      if (H.tee.room === r.id) { g.fillStyle = 'rgba(40,110,60,.9)'; roundRect(g, H.tee.x - 14, H.tee.y - 10, 28, 20, 4); g.fill(); g.strokeStyle = 'rgba(246,241,228,.7)'; g.lineWidth = 1; g.stroke(); g.fillStyle = '#f6f1e4'; g.beginPath(); g.arc(H.tee.x - 9, H.tee.y, 1.6, 0, 7); g.arc(H.tee.x + 9, H.tee.y, 1.6, 0, 7); g.fill(); }
+      r.obstacles.forEach(function (o) { paintObstacle(g, o); });
+      paintWalls(g, H, r);
+      paintRoomLabel(g, r);
+    });
+    H.doorList.forEach(function (d) { paintDoorFrame(g, H, d); });
+    G.staticLayer = { c: c, k: k, x: b.x - pad, y: b.y - pad, w: c.width / k, h: c.height / k, forScale: VIEW.cam.s * VIEW.dpr };
+  }
+
+  function paintMoverReach(g, m) {
+    g.save(); g.strokeStyle = 'rgba(231,195,90,.55)'; g.lineWidth = 1.5; g.setLineDash([6, 6]);
+    if (m.type === 'rotor') {
+      g.fillStyle = 'rgba(231,195,90,.07)';
+      g.beginPath(); g.arc(m.x, m.y, m.rout + m.cr, 0, Math.PI * 2); if (m.rin) g.arc(m.x, m.y, Math.max(1, m.rin - m.cr), 0, Math.PI * 2, true); g.fill('evenodd');
+      g.beginPath(); g.arc(m.x, m.y, m.rout + m.cr, 0, Math.PI * 2); g.stroke();
+      if (m.rin) { g.beginPath(); g.arc(m.x, m.y, m.rin - m.cr, 0, Math.PI * 2); g.stroke(); }
+      if (m.look === 'hands') { g.setLineDash([]); g.strokeStyle = 'rgba(246,241,228,.35)'; for (var i = 0; i < 12; i++) { var a = i * Math.PI / 6; g.beginPath(); g.moveTo(m.x + Math.cos(a) * (m.rout - 2), m.y + Math.sin(a) * (m.rout - 2)); g.lineTo(m.x + Math.cos(a) * (m.rout + 4), m.y + Math.sin(a) * (m.rout + 4)); g.stroke(); } }
+    } else {
+      var oa = m.orient * Math.PI / 180, ox = Math.cos(oa) * (m.hl + m.cr), oy = Math.sin(oa) * (m.hl + m.cr);
+      var ex = (m.bx - m.ax), ey = (m.by - m.ay), L = Math.hypot(ex, ey), ux = ex / L * m.cr, uy = ey / L * m.cr;
+      g.fillStyle = 'rgba(231,195,90,.07)';
+      g.beginPath(); g.moveTo(m.ax - ox - ux, m.ay - oy - uy); g.lineTo(m.bx - ox + ux, m.by - oy + uy); g.lineTo(m.bx + ox + ux, m.by + oy + uy); g.lineTo(m.ax + ox - ux, m.ay + oy - uy); g.closePath(); g.fill(); g.stroke();
+      g.setLineDash([]); g.strokeStyle = 'rgba(201,161,74,.8)'; g.lineWidth = 3; g.beginPath(); g.moveTo(m.ax, m.ay); g.lineTo(m.bx, m.by); g.stroke();
+    }
+    g.restore();
+  }
+
+  /* ================================================================ drawing: dynamic */
+  function draw(t) {
+    var g = ctx, H = G.H, dpr = VIEW.dpr, c = VIEW.cam;
+    if (!G.staticLayer || Math.abs(G.staticLayer.forScale - c.s * dpr) / (c.s * dpr) > 0.6) buildStatic();
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.fillStyle = '#080c26'; g.fillRect(0, 0, cv.width, cv.height);
+    g.setTransform(dpr * c.s, 0, 0, dpr * c.s, dpr * (VIEW.w / 2 - c.x * c.s), dpr * (VIEW.h / 2 - c.y * c.s));
+    var L = G.staticLayer;
+    g.imageSmoothingEnabled = true;
+    g.drawImage(L.c, L.x, L.y, L.w, L.h);
+    var rm = reduced();
+    // threads between linked doors
+    if (threadsOn()) {
+      var seen = {};
+      H.doorList.forEach(function (d) {
+        if (seen[d.id]) return; var o = H.doors[d.link]; seen[d.id] = seen[o.id] = 1;
+        g.save(); g.strokeStyle = DOOR_COLORS[d.col]; g.globalAlpha = 0.45; g.lineWidth = 1.6 / c.s; g.setLineDash([6 / c.s, 6 / c.s]);
+        var ax = d.cx + d.nx * 30, ay = d.cy + d.ny * 30, bx = o.cx + o.nx * 30, by = o.cy + o.ny * 30;
+        g.beginPath(); g.moveTo(d.cx + d.nx * 12, d.cy + d.ny * 12);
+        if (d === o) { g.arc(d.cx + d.nx * 40, d.cy + d.ny * 40, 28, 0, Math.PI * 2); }
+        else g.bezierCurveTo(d.cx + d.nx * 90, d.cy + d.ny * 90, o.cx + o.nx * 90, o.cy + o.ny * 90, o.cx + o.nx * 12, o.cy + o.ny * 12);
+        g.stroke(); g.restore();
+      });
+    }
+    // glowing thresholds
+    H.doorList.forEach(function (d) {
+      var col = DOOR_COLORS[d.col], pulse = rm ? 0.7 : 0.55 + 0.25 * Math.sin(t * 2.4 + d.col);
+      g.save();
+      var gx = d.cx - d.nx * 10, gy = d.cy - d.ny * 10;
+      var gr = g.createRadialGradient(gx, gy, 2, gx, gy, d.w * 0.75);
+      gr.addColorStop(0, hexA(col, 0.35 * pulse)); gr.addColorStop(1, hexA(col, 0));
+      g.fillStyle = gr; g.beginPath(); g.arc(gx, gy, d.w * 0.75, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = hexA(col, 0.6 + 0.4 * pulse); g.lineWidth = 4;
+      g.beginPath(); g.moveTo(d.cx - d.tx * d.w / 2 + d.nx * 1, d.cy - d.ty * d.w / 2 + d.ny * 1); g.lineTo(d.cx + d.tx * d.w / 2 + d.nx * 1, d.cy + d.ty * d.w / 2 + d.ny * 1); g.stroke();
+      g.restore();
+    });
+    // cup
+    var cup = H.cup, cp = rm ? 0.6 : 0.5 + 0.3 * Math.sin(t * 3);
+    g.save();
+    g.strokeStyle = hexA('#f3d98a', 0.35 * cp); g.lineWidth = 2; g.beginPath(); g.arc(cup.x, cup.y, K.CUP_R + 7 + cp * 3, 0, Math.PI * 2); g.stroke();
+    var cg = g.createRadialGradient(cup.x, cup.y - 2, 1, cup.x, cup.y, K.CUP_R);
+    cg.addColorStop(0, '#000'); cg.addColorStop(1, '#1b1d2a');
+    g.fillStyle = cg; g.beginPath(); g.arc(cup.x, cup.y, K.CUP_R, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = '#f6f1e4'; g.lineWidth = 2; g.stroke();
+    g.restore();
+    // movers
+    H.roomList.forEach(function (r) { r.movers.forEach(function (m) { drawMover(g, m, E.moverTime(H, G.sim.clock)); }); });
+    // trail
+    if (G.trail.length > 1) {
+      for (var i = 0; i < G.trail.length; i++) { var p = G.trail[i]; if (p.room !== G.sim.ball.room) continue; g.fillStyle = 'rgba(246,241,228,' + (0.25 * i / G.trail.length) + ')'; g.beginPath(); g.arc(p.x, p.y, K.R * (0.4 + 0.5 * i / G.trail.length), 0, Math.PI * 2); g.fill(); }
+    }
+    // aim
+    if (G.sim.state === 'ready' && !G.done && !G.paused) drawAim(g);
+    // ball
+    var b = G.sim.ball;
+    if (G.sim.state !== 'sunk') {
+      g.save();
+      g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(b.x + 2, b.y + 3, K.R, K.R * 0.8, 0, 0, Math.PI * 2); g.fill();
+      var bg = g.createRadialGradient(b.x - 2.5, b.y - 2.5, 0.5, b.x, b.y, K.R);
+      bg.addColorStop(0, '#ffffff'); bg.addColorStop(0.7, '#ece7da'); bg.addColorStop(1, '#b9b3a3');
+      g.fillStyle = bg; g.beginPath(); g.arc(b.x, b.y, K.R, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = 'rgba(20,20,30,.6)'; g.lineWidth = 0.8; g.stroke();
+      if (VIEW.mode === 'house' && c.s * K.R < 4.5) { g.strokeStyle = 'rgba(246,241,228,.8)'; g.lineWidth = 1.5 / c.s; g.beginPath(); g.arc(b.x, b.y, K.R + 6 / c.s, 0, Math.PI * 2); g.stroke(); }
+      g.restore();
+    }
+    // effects
+    for (var f = G.fx.length - 1; f >= 0; f--) {
+      var e = G.fx[f]; e.t += 1 / 60;
+      if (e.k === 'door') {
+        var a = 1 - e.t / 0.6; if (a <= 0) { G.fx.splice(f, 1); continue; }
+        g.strokeStyle = hexA(DOOR_COLORS[e.col], a); g.lineWidth = 3; g.beginPath(); g.arc(e.x, e.y, 10 + e.t * 70, 0, Math.PI * 2); g.stroke();
+      } else if (e.k === 'spark') {
+        var a2 = 1 - e.t / 0.9; if (a2 <= 0) { G.fx.splice(f, 1); continue; }
+        var rr = 8 + e.t * 90; g.fillStyle = hexA(DOOR_COLORS[e.col], a2); g.beginPath(); g.arc(e.x + Math.cos(e.a) * rr, e.y + Math.sin(e.a) * rr, 3, 0, Math.PI * 2); g.fill();
+      }
+    }
+    if (DEV && window.__hbrDebug) window.__hbrDebug(g);
+  }
+  function hexA(hex, a) { var n = parseInt(hex.slice(1), 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + clamp(a, 0, 1).toFixed(3) + ')'; }
+
+  function drawMover(g, m, tm) {
+    var caps = E.moverCapsules(m, tm);
+    g.save();
+    caps.forEach(function (cp) {
+      g.lineCap = 'round';
+      g.strokeStyle = '#2a1a08'; g.lineWidth = cp.rad * 2 + 2; g.beginPath(); g.moveTo(cp.ax, cp.ay); g.lineTo(cp.bx, cp.by); g.stroke();
+      g.strokeStyle = m.look === 'orrery' ? '#c9a14a' : '#d9b257'; g.lineWidth = cp.rad * 2; g.beginPath(); g.moveTo(cp.ax, cp.ay); g.lineTo(cp.bx, cp.by); g.stroke();
+      g.strokeStyle = 'rgba(255,245,210,.6)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(cp.ax, cp.ay); g.lineTo(cp.bx, cp.by); g.stroke();
+      if (m.look === 'orrery') { g.fillStyle = ['#7ec8ff', '#ff9e64', '#a6e36b'][caps.indexOf(cp) % 3]; g.beginPath(); g.arc(cp.bx, cp.by, cp.rad - 0.5, 0, Math.PI * 2); g.fill(); }
+    });
+    if (m.type === 'rotor') {
+      g.fillStyle = '#e7c35a'; g.beginPath(); g.arc(m.x, m.y, m.rin ? 5 : 9, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = '#2a1a08'; g.lineWidth = 1.5; g.stroke();
+    }
+    g.restore();
+  }
+
+  function drawAim(g) {
+    var b = G.sim.ball, H = G.H, c = VIEW.cam, d = E.dirOf(AIM.a), tier = E.TIERS[G.round.tier];
+    var show = AIM.dragging || AIM.active;
+    g.save();
+    var px = 1 / c.s;
+    if (AIM.dragging) {
+      // pull-back indicator
+      var pull = 40 + AIM.p * 90;
+      g.strokeStyle = 'rgba(246,241,228,.35)'; g.lineWidth = 2 * px; g.setLineDash([3 * px, 4 * px]);
+      g.beginPath(); g.moveTo(b.x, b.y); g.lineTo(b.x - d.x * pull, b.y - d.y * pull); g.stroke(); g.setLineDash([]);
+    }
+    // power ring
+    g.strokeStyle = 'rgba(10,15,44,.7)'; g.lineWidth = 5 * px; g.beginPath(); g.arc(b.x, b.y, K.R + 7 * px, 0, Math.PI * 2); g.stroke();
+    var pc = AIM.p < 0.5 ? '#9be39b' : AIM.p < 0.8 ? '#f3d98a' : '#ff9e64';
+    g.strokeStyle = pc; g.lineWidth = 3.5 * px; g.beginPath(); g.arc(b.x, b.y, K.R + 7 * px, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * AIM.p); g.stroke();
+    // guide
+    var len = 30 + AIM.p * 120;
+    if (tier.guide >= 1 && show) {
+      var ray = E.castRay(H, b.room, b.x, b.y, d.x, d.y, 900);
+      g.strokeStyle = 'rgba(246,241,228,.75)'; g.lineWidth = 1.6 * px; g.setLineDash([5 * px, 5 * px]);
+      g.beginPath(); g.moveTo(b.x, b.y); g.lineTo(ray.x, ray.y); g.stroke(); g.setLineDash([]);
+      if (ray.kind === 'hit') {
+        g.fillStyle = 'rgba(246,241,228,.85)'; g.beginPath(); g.arc(ray.x, ray.y, 3 * px + 1, 0, Math.PI * 2); g.fill();
+        if (tier.guide >= 2) {
+          var dn = d.x * ray.nx + d.y * ray.ny, rx = d.x - 2 * dn * ray.nx, ry = d.y - 2 * dn * ray.ny;
+          var r2 = E.castRay(H, b.room, ray.x + rx * 1.5, ray.y + ry * 1.5, rx, ry, 130);
+          g.strokeStyle = 'rgba(246,241,228,.4)'; g.setLineDash([3 * px, 5 * px]);
+          g.beginPath(); g.moveTo(ray.x, ray.y); g.lineTo(r2.x, r2.y); g.stroke(); g.setLineDash([]);
+        }
+      } else if (ray.kind === 'door') {
+        var col = DOOR_COLORS[ray.door.col];
+        g.strokeStyle = col; g.lineWidth = 3 * px; g.beginPath(); g.arc(ray.door.cx, ray.door.cy, ray.door.w / 2 + 4, 0, Math.PI * 2); g.stroke();
+        if (tier.guide >= 2) {
+          var td = E.throughDoor(H, ray.door, ray.s, d.x, d.y);
+          var r3 = E.castRay(H, td.room, td.x, td.y, td.dx, td.dy, 160);
+          g.strokeStyle = hexA(col, 0.85); g.lineWidth = 1.8 * px; g.setLineDash([5 * px, 5 * px]);
+          g.beginPath(); g.moveTo(td.x, td.y); g.lineTo(r3.x, r3.y); g.stroke(); g.setLineDash([]);
+          g.beginPath(); g.arc(td.door.cx, td.door.cy, td.door.w / 2 + 4, 0, Math.PI * 2); g.lineWidth = 3 * px; g.stroke();
+        }
+      }
+    }
+    // direction arrow (all tiers)
+    var ax = b.x + d.x * (K.R + 10 * px), ay = b.y + d.y * (K.R + 10 * px), bx2 = b.x + d.x * (K.R + 10 * px + len * (show ? 1 : 0.45)), by2 = b.y + d.y * (K.R + 10 * px + len * (show ? 1 : 0.45));
+    g.strokeStyle = show ? '#f3d98a' : 'rgba(243,217,138,.55)'; g.lineWidth = 3 * px; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx2, by2); g.stroke();
+    var hx = -d.y, hy = d.x, hs = 7 * px + 2;
+    g.fillStyle = g.strokeStyle; g.beginPath(); g.moveTo(bx2 + d.x * hs, by2 + d.y * hs); g.lineTo(bx2 + hx * hs * 0.7, by2 + hy * hs * 0.7); g.lineTo(bx2 - hx * hs * 0.7, by2 - hy * hs * 0.7); g.closePath(); g.fill();
+    g.restore();
+  }
+
+  /* ================================================================ input: aim UI sync */
+  function syncAimUI() {
+    var a = $('#aim'), p = $('#power');
+    a.value = String(AIM.a); p.value = String(Math.round(AIM.p * 100));
+    var at = AIM.a.toFixed(2).replace(/\.?0+$/, '') + '°';
+    $('#aim-out').textContent = AIM.a.toFixed(2) + '°';
+    $('#power-out').textContent = Math.round(AIM.p * 100) + '%';
+    a.setAttribute('aria-valuetext', at + ', ' + compass(AIM.a));
+    p.setAttribute('aria-valuetext', Math.round(AIM.p * 100) + ' percent');
+  }
+  function nudgeAim(da) { AIM.a = Math.round(E.normAngle(AIM.a + da) * 4) / 4; if (AIM.a >= 360) AIM.a = 0; AIM.active = true; syncAimUI(); }
+  function nudgePower(dp) { AIM.p = clamp(Math.round((AIM.p * 100 + dp)) / 100, K.MINP, 1); AIM.active = true; syncAimUI(); }
+
+  $('#aim').addEventListener('input', function () { AIM.a = clamp(parseFloat(this.value) || 0, 0, 359.75); AIM.active = true; syncAimUI(); });
+  $('#power').addEventListener('input', function () { AIM.p = clamp((parseFloat(this.value) || 3) / 100, K.MINP, 1); AIM.active = true; syncAimUI(); });
+  $('#btn-shoot').addEventListener('click', function () { audioInit(); tryShoot(AIM.a, AIM.p, 'button'); });
+
+  // press-and-hold step buttons
+  $all('[data-hold]').forEach(function (btn) {
+    var timer = null, rep = null;
+    function act() { if (btn.dataset.hold === 'aim') nudgeAim(+btn.dataset.step); else nudgePower(+btn.dataset.step); }
+    function stop() { clearTimeout(timer); clearInterval(rep); timer = rep = null; }
+    btn.addEventListener('pointerdown', function (e) { e.preventDefault(); act(); timer = setTimeout(function () { rep = setInterval(act, 60); }, 380); });
+    ['pointerup', 'pointerleave', 'pointercancel', 'blur'].forEach(function (ev) { btn.addEventListener(ev, stop); });
+    btn.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!e.repeat || true) act(); } });
+    btn.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  });
+
+  /* ================================================================ input: pointer drag (pull back to aim) */
+  function dragScale() { return clamp(Math.min(VIEW.w, VIEW.h) * 0.42, 110, 220); }
+  cv.addEventListener('pointerdown', function (e) {
+    if (!G || G.paused || G.done) return;
+    if (e.button !== 0 && e.pointerType === 'mouse') { if (AIM.dragging) cancelDrag('Putt cancelled.'); return; }
+    if (G.sim.state !== 'ready') { toast('Wait for the ball to stop.', false); return; }
+    if (AIM.dragging) return;
+    audioInit();
+    AIM.dragging = true; AIM.pid = e.pointerId; AIM.sx = e.clientX; AIM.sy = e.clientY; AIM.touched = false;
+    try { cv.setPointerCapture(e.pointerId); } catch (x) { /* ok */ }
+    e.preventDefault();
+  });
+  cv.addEventListener('pointermove', function (e) {
+    if (!AIM.dragging || e.pointerId !== AIM.pid) return;
+    var dx = AIM.sx - e.clientX, dy = AIM.sy - e.clientY, L = Math.hypot(dx, dy);
+    if (L < 6 && !AIM.touched) return;
+    AIM.touched = true;
+    AIM.a = Math.round(bearing(dx, dy) * 4) / 4; if (AIM.a >= 360) AIM.a = 0;
+    AIM.p = clamp(L / dragScale(), 0, 1);
+    syncAimUI();
+  });
+  function endDrag(e) {
+    if (!AIM.dragging || (e && e.pointerId !== AIM.pid)) return;
+    AIM.dragging = false;
+    try { cv.releasePointerCapture(AIM.pid); } catch (x) { /* ok */ }
+    if (!AIM.touched) return; // a tap does nothing
+    if (AIM.p < K.MINP) { toast('Too gentle — pull back farther. Putt cancelled.', true); AIM.p = Math.max(AIM.p, 0.1); syncAimUI(); return; }
+    AIM.p = Math.round(AIM.p * 100) / 100; syncAimUI();
+    tryShoot(AIM.a, AIM.p, 'drag');
+  }
+  function cancelDrag(msg) { AIM.dragging = false; try { cv.releasePointerCapture(AIM.pid); } catch (x) { /* ok */ } if (msg) toast(msg, false); }
+  cv.addEventListener('pointerup', endDrag);
+  cv.addEventListener('pointercancel', function () { cancelDrag(''); });
+  cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  window.addEventListener('blur', function () { if (AIM.dragging) cancelDrag(''); });
+
+  /* ================================================================ input: keyboard */
+  document.addEventListener('keydown', function (e) {
+    if (!G || $('#screen-game').hidden) return;
+    if (document.querySelector('dialog[open]')) return;
+    var tag = (e.target && e.target.tagName) || '';
+    var onRange = tag === 'INPUT' && e.target.type === 'range';
+    var onCtl = tag === 'BUTTON' || tag === 'SELECT' || (tag === 'INPUT' && !onRange) || tag === 'A';
+    var k = e.key;
+    if (G.paused) { if ((k === 'Escape' || k === 'p' || k === 'P') && !onCtl) { e.preventDefault(); setPause(false); } else if (k === 'Escape') { e.preventDefault(); setPause(false); } return; }
+    if (k === 'Escape') { e.preventDefault(); if (AIM.dragging) { cancelDrag('Putt cancelled.'); return; } if (!$('#done').hidden) return; setPause(true); return; }
+    if (onRange && (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown' || k === 'Home' || k === 'End' || k === 'PageUp' || k === 'PageDown')) return; // native slider keys
+    if (onCtl && (k === ' ' || k === 'Enter')) return;
+    if (!$('#done').hidden) { if (k === 'Enter' || k === 'n' || k === 'N') { e.preventDefault(); nextHole(); } return; }
+    if (k === 'ArrowLeft') { e.preventDefault(); nudgeAim(e.shiftKey ? -10 : -1); }
+    else if (k === 'ArrowRight') { e.preventDefault(); nudgeAim(e.shiftKey ? 10 : 1); }
+    else if (k === '[') { e.preventDefault(); nudgeAim(-0.25); }
+    else if (k === ']') { e.preventDefault(); nudgeAim(0.25); }
+    else if (k === 'ArrowUp') { e.preventDefault(); nudgePower(e.shiftKey ? 10 : 1); }
+    else if (k === 'ArrowDown') { e.preventDefault(); nudgePower(e.shiftKey ? -10 : -1); }
+    else if (k === ' ' || k === 'Enter') { e.preventDefault(); if (e.repeat) return; audioInit(); tryShoot(AIM.a, AIM.p, 'key'); }
+    else if (k === 'p' || k === 'P') { e.preventDefault(); setPause(true); }
+    else if (k === 'r' || k === 'R') { e.preventDefault(); onRetry($('#btn-retry')); }
+    else if (k === 'v' || k === 'V') { e.preventDefault(); toggleView(); }
+    else if (k === 'm' || k === 'M') { e.preventDefault(); toggleSound(); }
+    else if (k === 'c' || k === 'C') { e.preventDefault(); openCard(); }
+    else if (k === 'h' || k === 'H' || k === '?') { e.preventDefault(); openHelp(); }
+  });
+
+  /* ================================================================ buttons */
+  function onRetry(btn) {
+    if (!G || G.done) return;
+    if (needsConfirm()) confirmPress(btn, 'Confirm restart?', restartHole); else restartHole();
+  }
+  $('#btn-pause').addEventListener('click', function () { setPause(true); });
+  $('#btn-retry').addEventListener('click', function () { onRetry(this); });
+  $('#btn-card').addEventListener('click', openCard);
+  $('#btn-view').addEventListener('click', toggleView);
+  $('#btn-sound').addEventListener('click', toggleSound);
+  $('#btn-help').addEventListener('click', openHelp);
+  $('#p-resume').addEventListener('click', function () { setPause(false); });
+  $('#p-retry').addEventListener('click', function () { var b = this; if (needsConfirm()) confirmPress(b, 'Confirm: restart this hole', function () { setPause(false); restartHole(); }); else { setPause(false); restartHole(); } });
+  $('#p-course').addEventListener('click', function () { confirmPress(this, 'Confirm: restart from hole 1', restartCourse); });
+  $('#p-help').addEventListener('click', openHelp);
+  $('#p-card').addEventListener('click', openCard);
+  $('#p-title').addEventListener('click', function () { saveRoundState(); G.paused = false; $('#pause').hidden = true; toTitle(); });
+  $('#done-next').addEventListener('click', nextHole);
+  $('#done-card').addEventListener('click', openCard);
+  $('#coach-ok').addEventListener('click', function () { hideCoach(); cv.focus({ preventScroll: true }); });
+  $('#coach-off').addEventListener('click', function () { SAVE.prefs.tips = false; hideCoach(); COACH.queue = []; persist(); toast('Tips hidden. Turn them back on in Pause → Settings.', false); cv.focus({ preventScroll: true }); });
+
+  function toggleView() {
+    if (!G) return;
+    var next = VIEW.mode === 'house' ? 'follow' : 'house';
+    SAVE.prefs.view = next; persist();
+    chooseView(reduced());
+    say('Camera: ' + (next === 'house' ? 'whole house' : 'follow the ball') + '.');
+  }
+  function toggleSound() {
+    SAVE.prefs.sound = !SAVE.prefs.sound; persist();
+    if (SAVE.prefs.sound) { audioInit(); if (AU.ctx && AU.ctx.state === 'suspended') AU.ctx.resume(); SND.click(); }
+    syncSound();
+    say('Sound ' + (SAVE.prefs.sound ? 'on' : 'off') + '.');
+  }
+  function syncSound() {
+    var on = SAVE.prefs.sound, b = $('#btn-sound');
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.setAttribute('aria-label', 'Sound ' + (on ? 'on' : 'off') + ' (M)');
+    $('#btn-sound-t').textContent = on ? 'Sound on' : 'Sound off';
+    $('#snd-ico').textContent = on ? '♪' : '×';
+  }
+  function syncSettings() {
+    $('#set-sound').checked = SAVE.prefs.sound;
+    $('#set-threads').checked = threadsOn();
+    $('#set-tips').checked = SAVE.prefs.tips;
+    $('#set-motion').value = SAVE.prefs.motion;
+  }
+  $('#set-sound').addEventListener('change', function () { if (this.checked !== SAVE.prefs.sound) toggleSound(); });
+  $('#set-threads').addEventListener('change', function () { SAVE.prefs.threads = this.checked ? 'on' : 'off'; persist(); });
+  $('#set-tips').addEventListener('change', function () { SAVE.prefs.tips = this.checked; persist(); if (this.checked && G) { SAVE.seen = {}; } });
+  $('#set-motion').addEventListener('change', function () { SAVE.prefs.motion = this.value; persist(); applyMotion(); });
+  function applyMotion() { document.body.classList.toggle('reduce-motion', reduced()); if (reduced() && G) { G.trail = []; G.fx = []; } }
+  if (mqReduce && mqReduce.addEventListener) mqReduce.addEventListener('change', applyMotion);
+
+  /* ================================================================ dialogs */
+  function openDialog(d) { if (G && !G.paused && !$('#screen-game').hidden && !G.done) { G.paused = true; G.dialogPause = true; } if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+  $all('dialog').forEach(function (d) {
+    d.addEventListener('close', function () { if (G && G.dialogPause) { G.dialogPause = false; G.paused = false; G.last = 0; } if (!$('#screen-game').hidden) cv.focus({ preventScroll: true }); });
+  });
+  function tierGoalText(t) { return 'Medal: finish all nine holes at or under ' + coursePar(t) + ' strokes (the ' + E.TIERS[t].label + ' course par).'; }
+  function openHelp() {
+    var h = $('#help-tiers'); h.innerHTML = '';
+    var ul = el('ul', { class: 'howto' });
+    E.TIER_IDS.forEach(function (t) {
+      var li = el('li'); li.appendChild(el('strong', null, E.TIERS[t].label + ' — ' + E.TIERS[t].title + '. '));
+      li.appendChild(document.createTextNode({ bronze: 'Generous pars, the aiming line shows its first bounce and where it would leave the linked doorway, threads link paired doors, clockwork runs at 75 % speed. ', silver: 'Standard pars; the aiming line stops at the first thing it touches (a doorway it would enter is circled). ', gold: 'Tighter pars, a direction arrow only, a few extra pieces of furniture, clockwork at 125 % speed. ' }[t] + tierGoalText(t)));
+      ul.appendChild(li);
+    });
+    h.appendChild(ul);
+    openDialog($('#dlg-help'));
+  }
+  function cardTable(tier, scores, curHole) {
+    var wrap = el('div', { class: 'cardwrap' }), tb = el('table', { class: 'card' });
+    var cap = el('caption', { class: 'sr-only' }, 'Scorecard, ' + E.TIERS[tier].label + ' tier'); tb.appendChild(cap);
+    var th = el('thead'), tr = el('tr');
+    ['Hole', 'Name', 'Par', 'Strokes', '±', 'Best'].forEach(function (x) { tr.appendChild(el('th', { scope: 'col' }, x)); });
+    th.appendChild(tr); tb.appendChild(th);
+    var body = el('tbody'), tot = 0, tpar = 0, played = 0;
+    HOLES.forEach(function (h, i) {
+      var r = el('tr'); if (i === curHole) r.className = 'now';
+      var s = scores ? scores[i] : null, par = h.par[tier];
+      r.appendChild(el('td', null, String(i + 1)));
+      r.appendChild(el('td', null, h.name));
+      r.appendChild(el('td', null, String(par)));
+      r.appendChild(el('td', null, s == null ? (i === curHole ? '…' : '—') : String(s)));
+      var dd = s == null ? '' : fmtPar(s - par); var td = el('td', { class: s == null ? '' : (s < par ? 'u' : s > par ? 'o' : '') }, dd); r.appendChild(td);
+      var best = SAVE.records[tier].holeBest[i]; r.appendChild(el('td', null, best == null ? '—' : String(best)));
+      if (s != null) { tot += s; tpar += par; played++; }
+      body.appendChild(r);
+    });
+    tb.appendChild(body);
+    var tf = el('tfoot'), fr = el('tr');
+    fr.appendChild(el('td', null, 'Total')); fr.appendChild(el('td', null, played + ' of ' + NH + ' played')); fr.appendChild(el('td', null, String(coursePar(tier))));
+    fr.appendChild(el('td', null, played ? String(tot) : '—')); fr.appendChild(el('td', null, played ? fmtPar(tot - tpar) : '')); fr.appendChild(el('td', null, SAVE.records[tier].best == null ? '—' : String(SAVE.records[tier].best)));
+    tf.appendChild(fr); tb.appendChild(tf);
+    wrap.appendChild(tb);
+    return wrap;
+  }
+  function openCard() {
+    var b = $('#card-body'); b.innerHTML = '';
+    if (!G) return;
+    var tier = G.round ? G.round.tier : G.tier;
+    b.appendChild(el('p', { class: 'muted' }, E.TIERS[tier].label + ' — ' + E.TIERS[tier].title + '. ' + tierGoalText(tier) + ' Restarts this round: ' + (G.round ? G.round.restarts : 0) + '.'));
+    var scores = G.round ? G.round.scores : (G.final ? G.final.scores : null);
+    var cur = G.round && !G.done ? G.round.hole : -1;
+    b.appendChild(cardTable(tier, G.final && !SAVE.round ? G.final.scores : scores, cur));
+    openDialog($('#dlg-card'));
+  }
+  function openRecords() {
+    var b = $('#rec-body'); b.innerHTML = '';
+    var tb = el('table', { class: 'card' }), th = el('thead'), tr = el('tr');
+    ['Tier', 'Course par', 'Best round', 'Medal', 'Rounds started', 'Completed'].forEach(function (x) { tr.appendChild(el('th', { scope: 'col' }, x)); });
+    th.appendChild(tr); tb.appendChild(th);
+    var body = el('tbody');
+    E.TIER_IDS.forEach(function (t) {
+      var r = SAVE.records[t], row = el('tr');
+      row.appendChild(el('td', null, E.TIERS[t].label));
+      row.appendChild(el('td', null, String(coursePar(t))));
+      row.appendChild(el('td', null, r.best == null ? '—' : String(r.best)));
+      var mc = el('td'); if (r.medal) mc.appendChild(el('span', { class: 'medal ' + t }, E.TIERS[t].label + ' medal')); else mc.textContent = 'Not yet'; row.appendChild(mc);
+      row.appendChild(el('td', null, String(r.rounds))); row.appendChild(el('td', null, String(r.completed)));
+      body.appendChild(row);
+    });
+    tb.appendChild(body); b.appendChild(el('div', { class: 'cardwrap' })).appendChild(tb);
+    b.appendChild(el('h3', null, 'Achievements'));
+    var ul = el('ul', { class: 'howto' });
+    Object.keys(ACH).forEach(function (k) { ul.appendChild(el('li', null, (SAVE.achievements[k] ? '✓ ' : '○ ') + ACH[k] + (SAVE.achievements[k] ? ' (' + SAVE.achievements[k].slice(0, 10) + ')' : ''))); });
+    b.appendChild(ul);
+    if (!storageOk) b.appendChild(el('p', { class: 'note' }, 'Your browser is blocking storage, so records last only until you close this page.'));
+    $('#rec-note').textContent = '';
+    openDialog($('#dlg-records'));
+  }
+  $('#rec-reset').addEventListener('click', function () {
+    confirmPress(this, 'Press again to erase records', function () {
+      SAVE.records = blankRecords(); SAVE.achievements = {}; persist();
+      $('#rec-note').textContent = 'Holes Between Rooms records were reset. Nothing else was touched.';
+      openRecordsRefresh();
+    });
+  });
+  function openRecordsRefresh() { var d = $('#dlg-records'); if (d.open) { d.close(); openRecords(); $('#rec-note').textContent = 'Holes Between Rooms records were reset. Nothing else was touched.'; } }
+
+  function showFinal() {
+    var f = G.final; if (!f) return;
+    $('#final-h').textContent = f.medal ? E.TIERS[f.tier].label + ' medal earned!' : 'Round complete';
+    $('#final-line').textContent = f.total + ' strokes · ' + E.TIERS[f.tier].label + ' course par ' + f.cpar + ' (' + fmtPar(f.total - f.cpar) + ')' + (f.medal ? '' : ' — finish at or under ' + f.cpar + ' for the ' + E.TIERS[f.tier].label + ' medal.');
+    var fc = $('#final-card'); fc.innerHTML = ''; fc.appendChild(cardTable(f.tier, f.scores, -1));
+    var rec = SAVE.records[f.tier];
+    $('#final-records').textContent = (f.newBest ? 'New personal best for ' + E.TIERS[f.tier].label + '. ' : 'Personal best: ' + rec.best + '. ') + (f.firstMedal ? 'First ' + E.TIERS[f.tier].label + ' medal!' : '') + (storageOk ? '' : ' (Storage is blocked: records last until you close the page.)');
+    openDialog($('#dlg-final'));
+    say('Round complete. ' + f.total + ' strokes. ' + (f.medal ? E.TIERS[f.tier].label + ' medal earned.' : 'No medal this time.'), true);
+  }
+  $('#final-again').addEventListener('click', function () { var t = G.final.tier; $('#dlg-final').close(); G.final = null; startRound(t, false); });
+  $('#final-title').addEventListener('click', function () { $('#dlg-final').close(); toTitle(); });
+
+  /* ================================================================ screens */
+  function showScreen(name) {
+    $('#screen-title').hidden = name !== 'title';
+    $('#screen-game').hidden = name !== 'game';
+    document.body.classList.toggle('playing', name === 'game');
+    if (name === 'game') { setTimeout(resize, 0); }
+  }
+  function toTitle() {
+    showScreen('title');
+    if (G) { G.H = null; }
+    refreshTitle();
+    $('#btn-start').focus();
+  }
+  function selectedTier() { var r = $('input[name=tier]:checked'); return r ? r.value : 'silver'; }
+  function refreshTitle() {
+    $all('.tier-goal').forEach(function (s) { var t = s.dataset.goal, r = SAVE.records[t]; s.textContent = tierGoalText(t) + (r.medal ? ' ✓ Medal held' + (r.best != null ? ' · best ' + r.best : '') : (r.best != null ? ' · best ' + r.best : '')); });
+    var rd = SAVE.round, cont = $('#btn-continue');
+    if (rd) {
+      cont.hidden = false;
+      cont.textContent = 'Continue ' + E.TIERS[rd.tier].label + ' round · hole ' + (rd.hole + 1);
+    } else cont.hidden = true;
+    $('#title-note').textContent = saveNotice || (storageOk ? '' : 'Your browser is blocking storage, so progress will not be kept after you close this page.');
+  }
+  $('#btn-start').addEventListener('click', function () {
+    audioInit();
+    var tier = selectedTier();
+    if (SAVE.round) {
+      var self = this;
+      confirmPress(self, 'Replace your unfinished ' + E.TIERS[SAVE.round.tier].label + ' round?', function () { SAVE.round = null; persist(); startRound(tier, false); });
+      return;
+    }
+    startRound(tier, false);
+  });
+  $('#btn-continue').addEventListener('click', function () { audioInit(); if (SAVE.round) startRound(SAVE.round.tier, true); });
+  $('#btn-howto').addEventListener('click', openHelp);
+  $('#btn-records').addEventListener('click', openRecords);
+  $all('input[name=tier]').forEach(function (r) { r.addEventListener('change', function () { SAVE.prefs.tier = this.value; persist(); }); });
+
+  document.addEventListener('visibilitychange', function () { if (document.hidden && G && G.H && !$('#screen-game').hidden && !G.done) { setPause(true); } });
+  window.addEventListener('pagehide', function () { if (G && G.H) saveRoundState(); });
+  if (window.ResizeObserver) new ResizeObserver(function () { if (!$('#screen-game').hidden) resize(); }).observe($('#stage'));
+  window.addEventListener('resize', function () { if (!$('#screen-game').hidden) resize(); });
+
+  /* ================================================================ title art */
+  function drawTitleArt() {
+    var c = $('#title-cv'), g = c.getContext('2d'), W = c.width, Hh = c.height;
+    g.fillStyle = '#0d1336'; g.fillRect(0, 0, W, Hh);
+    for (var i = 0; i < 70; i++) { g.fillStyle = 'rgba(246,241,228,' + (0.2 + hash2(i, 1) * 0.6) + ')'; g.beginPath(); g.arc(hash2(i, 2) * W, hash2(i, 3) * Hh, 0.6 + hash2(i, 4), 0, 7); g.fill(); }
+    var rooms = [{ x: 40, y: 60, w: 200, h: 150, floor: 'tile', name: 'Foyer' }, { x: 300, y: 40, w: 220, h: 120, floor: 'wood', name: 'Parlour' }, { x: 300, y: 190, w: 220, h: 80, floor: 'carpet', name: 'Study' }];
+    rooms.forEach(function (r) { paintFloor(g, r); g.strokeStyle = '#1b2148'; g.lineWidth = 8; g.strokeRect(r.x - 4, r.y - 4, r.w + 8, r.h + 8); g.strokeStyle = '#c9a14a'; g.lineWidth = 1.2; g.strokeRect(r.x, r.y, r.w, r.h); });
+    // doors (gaps) and glow
+    function gap(x, y, w, h, col) { g.fillStyle = '#0d1336'; g.fillRect(x, y, w, h); g.fillStyle = col; g.globalAlpha = 0.85; g.fillRect(x, y, w, h); g.globalAlpha = 1; }
+    gap(236, 112, 8, 40, '#f2c14e'); gap(296, 80, 8, 40, '#f2c14e');
+    gap(400, 156, 40, 8, '#4fd6c8'); gap(400, 186, 40, 8, '#4fd6c8');
+    g.fillStyle = '#f2c14e'; symPath(g, 'diamond', 260, 132, 7); g.fill(); symPath(g, 'diamond', 282, 100, 7); g.fill();
+    // path
+    g.strokeStyle = 'rgba(246,241,228,.75)'; g.setLineDash([5, 5]); g.lineWidth = 2;
+    g.beginPath(); g.moveTo(90, 160); g.lineTo(236, 132); g.moveTo(304, 100); g.quadraticCurveTo(380, 90, 420, 156); g.moveTo(420, 194); g.lineTo(470, 236); g.stroke(); g.setLineDash([]);
+    // cup & ball
+    g.fillStyle = '#000'; g.beginPath(); g.arc(476, 240, 9, 0, 7); g.fill(); g.strokeStyle = '#f6f1e4'; g.lineWidth = 2; g.stroke();
+    var bg = g.createRadialGradient(86, 157, 1, 90, 160, 7); bg.addColorStop(0, '#fff'); bg.addColorStop(1, '#bdb6a5'); g.fillStyle = bg; g.beginPath(); g.arc(90, 160, 7, 0, 7); g.fill();
+    g.fillStyle = 'rgba(243,217,138,.9)'; g.font = '600 12px Georgia, serif';
+    rooms.forEach(function (r) { g.fillText(r.name.toUpperCase(), r.x, r.y - 10); });
+  }
+
+  /* ================================================================ boot */
+  function boot() {
+    SAVE = loadSave();
+    if (saveNotice) persist();
+    var tr = $('input[name=tier][value=' + SAVE.prefs.tier + ']'); if (tr) tr.checked = true;
+    syncSound();
+    applyMotion();
+    drawTitleArt();
+    refreshTitle();
+    requestAnimationFrame(frame);
+    if (DEV) {
+      window.__hbr = {
+        E: E, COURSE: COURSE, get G() { return G; }, get SAVE() { return SAVE; }, VIEW: VIEW, AIM: AIM,
+        shoot: function (a, p) { return tryShoot(a, p, 'dev'); }, start: startRound, setPause: setPause, nextHole: nextHole,
+        toTitle: toTitle, restartHole: restartHole, restartCourse: restartCourse, saveKey: SAVE_KEY,
+        jump: function (i) { if (!G || !G.round) return; for (var j = 0; j < NH; j++) G.round.scores[j] = j < i ? (G.round.scores[j] || HOLES[j].par[G.round.tier]) : null; G.round.hole = i; G.done = false; $('#done').hidden = true; setupHole(false); },
+        fast: function (n) { for (var i = 0; i < (n || 1e5) && G.sim.state === 'rolling'; i++) { G.sim.step(); handleEvents(); if (G.done) break; } }
+      };
+    }
+  }
+  boot();
+})();
+
+</script>
+<!-- Cloudflare Web Analytics -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3f72232588414cf087bd7c4ed5e4ddaa"}'></script>
+<!-- End Cloudflare Web Analytics -->
+</body>
+</html>
