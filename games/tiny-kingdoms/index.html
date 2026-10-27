@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="doorquests:status" content="Prototype · Founder Playtest · Not Published">
+<meta name="description" content="Gamortal #012 · Tiny Kingdoms — every tile matters, every choice endures. A DoorQuests miniature civilization prototype for founder playtesting.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1b1d4e">
+<title>Gamortal #012 — Tiny Kingdoms | DoorQuests</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231b1d4e'/%3E%3Crect x='8' y='34' width='48' height='22' rx='3' fill='%23c9b26a'/%3E%3Cpath d='M18 34 L32 20 L46 34 Z' fill='%23b8643c'/%3E%3Crect x='27' y='40' width='10' height='16' fill='%23f4efe2'/%3E%3C/svg%3E">
+<style>
+:root {
+  --indigo: #1b1d4e; --indigo2: #262a6a; --gold: #c9a24a; --gold2: #e8c977; --parch: #f3ead4; --parch2: #e8dcbc; --paper: #fbf6e8; --ink: #2b2417; --ink2: #5b4f3a; --mute: #7a6d55;
+  --forest: #3f6b3a; --plain: #c9c06a; --meadow: #b7c48a; --earth: #8a6a44; --river: #4a8fc0; --slate: #7c8490; --copper: #b8643c; --ivory: #fffaf0;
+  --ok: #2f7a3d; --bad: #b4382e; --warn: #a9670f;
+  --focus: 0 0 0 3px #fff, 0 0 0 6px #2a3fa8;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --tile: 64px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { background: var(--parch); }
+html.large { font-size: 118.75%; }
+body { min-height: 100vh; min-height: 100dvh; color: var(--ink); font: 1rem/1.5 var(--sans); display: flex; flex-direction: column; overflow-x: hidden; background: var(--parch) radial-gradient(ellipse at 50% 0%, #fbf3dc, #efe2c2 80%); }
+a { color: #6b3f12; }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 8px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--gold); color: #111; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 8px; }
+[hidden] { display: none !important; }
+.nojs { padding: 20px; }
+.top { display: flex; align-items: center; gap: 10px; padding: 6px 14px; background: var(--indigo); border-bottom: 3px solid var(--gold); flex-wrap: wrap; color: #f4efe2; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #f4efe2; font: 600 18px/1 var(--serif); }
+.brand-door { width: 16px; height: 22px; border: 2px solid var(--gold2); border-radius: 8px 8px 1px 1px; }
+.crumb { color: #d8d4ea; font-size: 14px; display: inline-flex; gap: 6px; }
+.crumb-col { color: var(--gold2); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; align-self: center; }
+.badge { margin-left: auto; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px dashed #ffbe6b; color: #ffcf8a; }
+main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
+.btn { appearance: none; border: 1px solid #b59a62; background: var(--paper); color: var(--ink); border-radius: 10px; padding: 10px 16px; font: 600 .95rem/1.2 var(--sans); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
+.btn:hover:not([disabled]) { border-color: var(--indigo); }
+.btn-primary { background: linear-gradient(#2d3384, var(--indigo)); color: #fff6dc; border-color: var(--gold); }
+.btn-big { font-size: 1.08rem; padding: 13px 24px; }
+.btn-quiet { background: rgba(251, 246, 232, .85); }
+.btn-danger { border-color: var(--bad); color: #7a1d16; background: #fbe7e2; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.stack { display: grid; gap: 10px; margin: 12px 0; }
+.note { min-height: 1.3em; color: #7a4310; font-size: .9rem; margin: 8px 0 0; }
+.muted { color: var(--mute); } .small { font-size: .84rem; }
+.k { color: var(--mute); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; display: block; }
+.kicker { margin: 0 0 6px; color: #8a5a14; font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; }
+/* ---------- title ---------- */
+.title-wrap { display: grid; grid-template-columns: minmax(0, 620px) minmax(0, 1fr); gap: 24px; padding: 22px 16px; max-width: 1180px; margin: 0 auto; width: 100%; align-items: center; }
+h1 { font: 600 clamp(40px, 7vw, 70px)/1 var(--serif); margin: 0 0 8px; color: var(--indigo); }
+.t-no { display: block; font: 700 .85rem/1.4 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: #8a5a14; margin-bottom: 6px; }
+.tagline { color: #6b3f12; font: italic 1.3rem/1.4 var(--serif); margin: 0 0 8px; }
+.lede { color: var(--ink2); margin: 0 0 14px; }
+.title-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.title-art { aspect-ratio: 1; max-width: 460px; width: 100%; justify-self: center; display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; padding: 10px; border-radius: 18px; background: var(--indigo); border: 3px solid var(--gold); box-shadow: 0 12px 30px rgba(27, 29, 78, .25); }
+.credit { margin-top: 18px; color: var(--mute); font-size: .82rem; }
+.credit p { margin: 2px 0; }
+.motto { font: italic .95rem/1.4 var(--serif); color: var(--ink2); }
+/* ---------- new kingdom ---------- */
+.new-wrap { width: min(980px, 100%); margin: 0 auto; padding: 18px 16px 26px; }
+.new-wrap h2 { font: 600 2rem/1.2 var(--serif); color: var(--indigo); margin: 0 0 10px; }
+.tiers, .maps { border: 0; padding: 0; margin: 0 0 14px; display: grid; gap: 8px; }
+.tiers legend, .maps legend { font: 700 .9rem/1 var(--sans); color: #6b3f12; margin-bottom: 8px; }
+.tier { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: start; padding: 9px 12px; border: 1px solid #c9b78a; border-radius: 12px; background: var(--paper); cursor: pointer; }
+.tier:has(input:checked) { border-color: var(--indigo); box-shadow: inset 0 0 0 2px var(--indigo); }
+.tier input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--indigo); }
+.tier-medal { width: 22px; height: 22px; border-radius: 50%; }
+.tier-bronze .tier-medal { background: radial-gradient(circle at 35% 35%, #f0b37f, #a8642e); }
+.tier-silver .tier-medal { background: radial-gradient(circle at 35% 35%, #fff, #9aa4b8); }
+.tier-gold .tier-medal { background: radial-gradient(circle at 35% 35%, #fff0b0, #c8952a); }
+.tier-body { display: grid; gap: 2px; font-size: .88rem; color: var(--ink2); }
+.tier-body strong { color: var(--ink); font-size: .95rem; }
+.map-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.mapcard { display: grid; gap: 6px; padding: 8px; border: 1px solid #c9b78a; border-radius: 12px; background: var(--paper); cursor: pointer; text-align: left; font: inherit; color: inherit; min-height: 44px; }
+.mapcard[aria-checked="true"] { border-color: var(--indigo); box-shadow: inset 0 0 0 2px var(--indigo); }
+.mapcard strong { font: 600 1.05rem/1.2 var(--serif); }
+.mapcard span { font-size: .8rem; color: var(--ink2); }
+.mapcard .best { color: #8a5a14; font-weight: 700; }
+.minimap { display: grid; grid-template-columns: repeat(8, 1fr); gap: 1px; aspect-ratio: 1; border-radius: 6px; overflow: hidden; }
+.minimap i { display: block; }
+.namefield { display: grid; gap: 4px; font-weight: 700; color: #6b3f12; max-width: 420px; }
+.namefield input { font: 1.05rem var(--serif); padding: 9px 12px; border-radius: 10px; border: 1px solid #b59a62; background: var(--ivory); color: var(--ink); min-height: 44px; }
+/* ---------- kingdom ---------- */
+#scr-game { padding: 0 0 10px; }
+.topbar { display: flex; gap: 6px 20px; align-items: center; flex-wrap: wrap; padding: 8px 14px; background: var(--paper); border-bottom: 1px solid #d8c9a0; }
+.realm { display: flex; flex-direction: column; } .realm strong { font: 600 1.2rem/1.2 var(--serif); color: var(--indigo); }
+.when { display: flex; flex-direction: column; line-height: 1.2; } .when strong { font: 700 1rem/1.2 var(--sans); }
+.events { display: flex; flex-direction: column; gap: 2px; font-size: .84rem; max-width: 420px; }
+.ev { color: var(--ink2); } .ev b { color: var(--ink); } .ev.good b { color: var(--ok); } .ev.bad b { color: var(--bad); }
+.top-btns { margin-left: auto; }
+.resbar { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 14px; background: var(--parch2); border-bottom: 1px solid #d8c9a0; }
+.res { display: grid; grid-template-columns: auto 1fr; column-gap: 6px; align-items: center; background: var(--paper); border: 1px solid #d0bf94; border-radius: 10px; padding: 4px 10px; min-width: 112px; }
+.res .ic { font-size: 1.05rem; grid-row: span 2; width: 22px; text-align: center; }
+.res strong { font: 800 1.02rem/1.15 var(--sans); font-variant-numeric: tabular-nums; }
+.res .d { font-size: .74rem; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.res .d.up { color: var(--ok); } .res .d.down { color: var(--bad); }
+.res.warn { border-color: var(--bad); background: #fbe9e4; }
+.layout { flex: 1; display: grid; grid-template-columns: 230px minmax(0, 1fr) 320px; gap: 12px; padding: 12px 14px 0; align-items: start; }
+.ph { font: 600 1.05rem/1.2 var(--serif); color: var(--indigo); margin: 0 0 6px; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.crews { font: 700 .74rem/1 var(--sans); color: var(--ink2); }
+.pal { display: grid; gap: 4px; }
+.pb { display: grid; grid-template-columns: 30px 1fr; gap: 0 8px; align-items: center; text-align: left; padding: 5px 8px; border-radius: 10px; border: 1px solid #d0bf94; background: var(--paper); cursor: pointer; font: inherit; color: inherit; min-height: 44px; }
+.pb svg { grid-row: span 2; width: 28px; height: 28px; }
+.pb b { font-size: .88rem; } .pb small { font-size: .72rem; color: var(--ink2); }
+.pb[aria-selected="true"] { border-color: var(--indigo); box-shadow: inset 0 0 0 2px var(--indigo); background: #eef0ff; }
+.pb.cant small { color: var(--bad); }
+.pal-hint { margin: 6px 0 0; }
+.boardwrap { display: flex; flex-direction: column; align-items: center; }
+.board { display: grid; grid-template-columns: repeat(8, var(--tile)); grid-template-rows: repeat(8, var(--tile)); gap: 3px; padding: 10px; border-radius: 16px; background: var(--indigo); border: 3px solid var(--gold); box-shadow: 0 10px 24px rgba(27, 29, 78, .22); position: relative; }
+.tile { position: relative; appearance: none; border: 0; padding: 0; margin: 0; border-radius: 7px; cursor: pointer; overflow: hidden; font: inherit; color: inherit; background: var(--plain); }
+.tile svg.terr, .tile svg.bld { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.tile .crd { position: absolute; left: 3px; top: 1px; font: 700 9px/1 var(--sans); color: rgba(30, 24, 10, .55); pointer-events: none; }
+.tile .mk { position: absolute; right: 3px; bottom: 1px; font: 800 11px/1 var(--sans); color: rgba(30, 24, 10, .6); pointer-events: none; }
+.tile.t-F { background: #4f7f45; } .tile.t-P { background: #cdbf62; } .tile.t-m { background: #b6c487; } .tile.t-H { background: #a8875a; } .tile.t-K { background: #9a9890; } .tile.t-C { background: #e2cf96; } .tile.t-M { background: #6f7783; cursor: default; } .tile.t-R { background: #5c9bcc; } .tile.t-L { background: #4c86b8; cursor: default; } .tile.t-S { background: #3f74a8; cursor: default; }
+.tile.ok::after { content: ""; position: absolute; inset: 3px; border: 3px dashed rgba(27, 29, 78, .9); border-radius: 6px; pointer-events: none; }
+.tile.no::before { content: ""; position: absolute; inset: 0; background: rgba(30, 22, 12, .55); pointer-events: none; z-index: 2; }
+.tile.sug::after { border-color: #b0300f; border-style: solid; }
+.tile .star { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 800 20px/1 var(--sans); color: #fff; text-shadow: 0 0 4px #b0300f, 0 0 2px #000; z-index: 3; pointer-events: none; }
+.tile.sel { box-shadow: inset 0 0 0 4px #fff, inset 0 0 0 7px var(--indigo); }
+.tile.off .bld { opacity: .55; filter: grayscale(.6); }
+.tile .flag { position: absolute; right: 2px; top: 2px; font: 800 10px/1 var(--sans); background: #fff; color: var(--bad); border-radius: 4px; padding: 1px 3px; z-index: 3; pointer-events: none; }
+.tile .flag.ok { color: var(--ok); }
+.board.s-winter .tile:not(.t-R):not(.t-L):not(.t-S)::before { content: ""; position: absolute; inset: 0; background: rgba(240, 248, 255, .32); pointer-events: none; z-index: 1; }
+.board.s-autumn .tile.t-F, .board.s-autumn .tile.t-P { filter: sepia(.35) saturate(1.2); }
+.legend { margin: 6px 0 0; text-align: center; max-width: 600px; }
+.side { display: flex; flex-direction: column; gap: 10px; }
+.details { background: var(--paper); border: 1px solid #d0bf94; border-radius: 12px; padding: 10px 12px; min-height: 170px; font-size: .9rem; }
+.details h3 { margin: 0 0 2px; font: 600 1.1rem/1.2 var(--serif); color: var(--indigo); }
+.details ul { margin: 6px 0; padding-left: 1.1em; } .details li { margin: 2px 0; }
+.details .good { color: var(--ok); } .details .bad { color: var(--bad); }
+.details .cost { font-weight: 700; }
+.details .acts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.details .acts .btn { min-height: 40px; padding: 7px 12px; font-size: .86rem; }
+.objectives { background: var(--paper); border: 1px solid #d0bf94; border-radius: 12px; padding: 10px 12px; }
+.objlist { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; font-size: .86rem; }
+.objlist li { display: grid; grid-template-columns: 1.3em 1fr; gap: 4px; }
+.objlist li.done .m { color: var(--ok); } .objlist li.no .m { color: var(--bad); }
+.endturn { width: 100%; }
+.toast { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); max-width: calc(100% - 20px); background: var(--indigo); color: #fff6dc; border: 1px solid var(--gold); padding: 8px 16px; border-radius: 999px; font: 700 .92rem/1.3 var(--sans); z-index: 20; text-align: center; }
+/* living diorama */
+.smoke { animation: smoke 3.2s ease-out infinite; transform-origin: center; }
+@keyframes smoke { 0% { opacity: 0; transform: translateY(0) scale(.6); } 30% { opacity: .7; } 100% { opacity: 0; transform: translateY(-14px) scale(1.4); } }
+.blade { animation: spin 5s linear infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sway { animation: sway 4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2.5deg); } }
+.flow { animation: flow 3s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -24; } }
+.bob { animation: bob 2.4s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-1.5px); } }
+.pop { animation: popin .45s ease-out; }
+@keyframes popin { 0% { transform: scale(.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+body.reduce *, body.reduce *::before, body.reduce *::after { animation: none !important; transition: none !important; }
+/* ---------- report ---------- */
+.final-wrap { width: min(1080px, 100%); margin: 0 auto; padding: 22px 16px 30px; }
+#f-h { font: 600 clamp(30px, 5vw, 44px)/1.05 var(--serif); margin: 0; color: var(--indigo); }
+.o-sub { color: var(--ink2); margin: 6px 0 0; }
+.pb-grade, #f-grade { font: 600 1.25rem/1.3 var(--serif); color: #8a5a14; margin: 8px 0; }
+.final-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 400px); gap: 16px; align-items: start; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 8px 0; }
+.stat { background: var(--paper); border: 1px solid #d0bf94; border-radius: 12px; padding: 8px 10px; }
+.stat strong { display: block; font: 800 1.3rem/1.1 var(--sans); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--mute); font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; }
+.f-mapbox canvas { width: 100%; height: auto; border-radius: 14px; border: 3px solid var(--gold); background: var(--indigo); }
+.f-h3 { font: 600 1.1rem/1.2 var(--serif); color: var(--indigo); margin: 12px 0 4px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: .86rem; background: var(--paper); border-radius: 10px; }
+.tbl th, .tbl td { text-align: left; padding: 5px 7px; border-bottom: 1px solid #e0d2ad; vertical-align: top; }
+.tbl td.n, .tbl th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl tr.total td { font-weight: 800; color: var(--indigo); }
+.tbl .why { color: var(--ink2); font-size: .78rem; }
+.share { white-space: pre-wrap; background: var(--paper); border: 1px dashed #b59a62; border-radius: 10px; padding: 10px 12px; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; color: var(--ink2); margin-top: 12px; }
+/* ---------- dialogs ---------- */
+dialog { border: 2px solid var(--gold); border-radius: 16px; background: var(--paper); color: var(--ink); padding: 18px 20px; width: min(480px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; }
+dialog.wide { width: min(820px, calc(100vw - 24px)); }
+dialog::backdrop { background: rgba(27, 29, 78, .55); }
+dialog h2 { font: 600 1.5rem/1.2 var(--serif); margin: 0 0 6px; color: var(--indigo); }
+dialog h3 { font: 600 1.05rem/1.2 var(--serif); color: #6b3f12; margin: 14px 0 6px; }
+.ledger { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.ledger table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.ledger caption { text-align: left; font: 600 1rem/1.3 var(--serif); color: var(--indigo); }
+.ledger td { padding: 2px 4px; border-bottom: 1px dotted #d8c9a0; } .ledger td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ledger tr.end td { font-weight: 800; border-top: 1px solid #b59a62; }
+.notes { margin: 8px 0; padding-left: 1.1em; font-size: .88rem; }
+.chk { display: flex; gap: 10px; align-items: flex-start; min-height: 32px; } .chk input { width: 20px; height: 20px; accent-color: var(--indigo); margin-top: 2px; flex: none; }
+.slider, .sel { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.sel select { background: var(--ivory); color: var(--ink); border: 1px solid #b59a62; border-radius: 8px; padding: 6px 8px; min-height: 36px; }
+.howto { padding-left: 1.2em; } .howto li { margin: 4px 0; }
+.rtbl { width: 100%; border-collapse: collapse; font-size: .86rem; } .rtbl th, .rtbl td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #e0d2ad; } .rtbl td.n { text-align: right; font-variant-numeric: tabular-nums; }
+.ach { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; } .ach span { font-size: .78rem; padding: 4px 8px; border-radius: 999px; border: 1px solid #d0bf94; color: var(--mute); } .ach span.got { border-color: var(--gold); color: #6b3f12; background: #fff4d6; }
+/* ---------- responsive ---------- */
+@media (max-width: 1180px) { .layout { grid-template-columns: 200px minmax(0, 1fr) 280px; } :root { --tile: 56px; } }
+@media (max-width: 980px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .palette { order: 2; } .boardwrap { order: 1; } .side { order: 3; }
+  .pal { grid-auto-flow: column; grid-auto-columns: minmax(118px, 1fr); overflow-x: auto; padding-bottom: 4px; }
+  .pal-hint { display: none; }
+  .title-wrap { grid-template-columns: 1fr; } .title-art { max-width: 300px; }
+  .final-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  :root { --tile: calc((100vw - 54px) / 8); }
+  .crumb { display: none; }
+  .board { gap: 2px; padding: 6px; }
+  .tile .crd { font-size: 8px; }
+  .res { min-width: 0; flex: 1 1 calc(33% - 6px); padding: 3px 7px; }
+  .res strong { font-size: .88rem; } .res .lbl { display: none; } .res .ic { display: none; } .res { grid-template-columns: 1fr; }
+  .topbar { padding: 6px 10px; gap: 4px 12px; } .layout { padding: 8px 8px 0; }
+  .endturn { position: sticky; bottom: 8px; z-index: 5; box-shadow: 0 6px 18px rgba(27, 29, 78, .35); }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header class="top">
+  <a class="brand" href="https://doorquests.com/" aria-label="DoorQuests home (opens doorquests.com)"><span class="brand-door" aria-hidden="true"></span><span class="brand-word">DoorQuests</span></a>
+  <span class="crumb"><span class="crumb-col">Gamortal #012</span><span aria-hidden="true">·</span><span>Tiny Kingdoms</span></span>
+  <span class="badge">Prototype · Founder Playtest · Not Published</span>
+</header>
+<noscript><p class="nojs">Tiny Kingdoms needs JavaScript to run.</p></noscript>
+
+<main id="main">
+  <!-- ============================ TITLE ============================ -->
+  <section id="scr-title" class="screen" aria-labelledby="t-h">
+    <div class="title-wrap">
+      <div class="title-text">
+        <p class="kicker">DoorQuests · Gamortals — Interactive Games</p>
+        <h1 id="t-h"><span class="t-no">Gamortal #012<span class="sr-only"> — </span></span>Tiny Kingdoms</h1>
+        <p class="tagline">Every tile matters. Every choice endures.</p>
+        <p class="lede">In the Pocket Lands, a kingdom fits on a few dozen tiles. Farms, homes, roads and markets all want the same ground — and six years of seasons will judge how well you shared it.</p>
+        <div class="title-actions">
+          <button id="b-new" class="btn btn-primary btn-big" type="button">Found a Kingdom</button>
+          <button id="b-continue" class="btn btn-big" type="button" hidden>Continue Kingdom</button>
+        </div>
+        <p id="t-save" class="small muted"></p>
+        <div class="title-actions">
+          <button id="b-howto" class="btn btn-quiet" type="button">How to play</button>
+          <button id="b-records" class="btn btn-quiet" type="button">Records</button>
+          <button id="b-settings" class="btn btn-quiet" type="button">Settings</button>
+          <a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a>
+        </div>
+        <p id="t-note" class="note" role="status" aria-live="polite"></p>
+        <footer class="credit"><p class="motto">Choose Your Path. Find the Truth. Unlock the Impossible.</p><p>Created by The Axiom Continuum.</p></footer>
+      </div>
+      <div class="title-art" id="title-art" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- ============================ NEW KINGDOM ============================ -->
+  <section id="scr-new" class="screen" aria-labelledby="n-h" hidden>
+    <div class="new-wrap">
+      <h2 id="n-h">Found a kingdom</h2>
+      <fieldset class="tiers"><legend>Difficulty</legend>
+        <label class="tier tier-bronze"><input type="radio" name="tier" value="bronze"><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Bronze — Village Founder</strong><span>More supplies, richer soil, half upkeep, 4 crews a season, gentle seasons, a ★ suggested site for each building</span></span></label>
+        <label class="tier tier-silver"><input type="radio" name="tier" value="silver" checked><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Silver — Kingdom Steward</strong><span>The intended reign: standard supplies and upkeep, 3 crews, moderate events</span></span></label>
+        <label class="tier tier-gold"><input type="radio" name="tier" value="gold"><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Gold — Master Sovereign</strong><span>Scarce supplies, poorer soil (some plains turn rocky), 1½× upkeep, 2 crews, harsher seasons, stricter grades</span></span></label>
+      </fieldset>
+      <fieldset class="maps"><legend>Choose a map</legend><div id="map-list" class="map-list"></div></fieldset>
+      <label class="namefield">Name your realm <input id="n-name" type="text" maxlength="28" autocomplete="off" spellcheck="false"></label>
+      <div class="row">
+        <button id="n-go" class="btn btn-primary btn-big" type="button">Found the kingdom</button>
+        <button id="n-back" class="btn" type="button">Back</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ KINGDOM ============================ -->
+  <section id="scr-game" class="screen" aria-label="Your kingdom" hidden>
+    <div class="topbar">
+      <div class="realm"><strong id="g-name">Realm</strong><span id="g-map" class="muted small"></span></div>
+      <div class="when"><span class="k">Season</span><strong id="g-season">Spring, Year 1</strong><span id="g-turn" class="small muted">Turn 1 of 24</span></div>
+      <div class="events"><span id="g-event" class="ev"></span><span id="g-forecast" class="ev fc"></span></div>
+      <div class="top-btns"><button id="b-menu" class="btn" type="button" aria-label="Menu (Esc)">☰ Menu</button></div>
+    </div>
+    <div class="resbar" id="resbar" role="group" aria-label="Kingdom resources"></div>
+    <div class="layout">
+      <aside class="palette" aria-label="Buildings">
+        <h2 class="ph">Build <span class="crews" id="g-crews"></span></h2>
+        <div id="palette" class="pal" role="listbox" aria-label="Choose a building"></div>
+        <p class="small muted pal-hint">Choose a building, then a tile. Esc cancels.</p>
+      </aside>
+      <div class="boardwrap">
+        <div id="board" class="board" role="grid" aria-label="The Pocket Lands — 8 by 8 tiles. Arrow keys move, Enter builds or selects."></div>
+        <p class="legend small muted" id="legend"></p>
+      </div>
+      <aside class="side">
+        <div id="details" class="details" aria-live="polite"></div>
+        <div class="objectives"><h2 class="ph">Objectives</h2><ul id="objs" class="objlist"></ul></div>
+        <button id="b-end" class="btn btn-primary btn-big endturn" type="button">End season ▶</button>
+      </aside>
+    </div>
+    <div id="toast" class="toast" hidden role="status"></div>
+  </section>
+
+  <!-- ============================ REPORT ============================ -->
+  <section id="scr-final" class="screen" aria-labelledby="f-h" hidden>
+    <div class="final-wrap">
+      <p class="kicker" id="f-k">Civilization report</p>
+      <h2 id="f-h">The reign of …</h2>
+      <p class="o-sub" id="f-sub"></p>
+      <p class="f-grade" id="f-grade"></p>
+      <div class="final-grid">
+        <div><div class="stats" id="f-stats"></div>
+          <h3 class="f-h3">How the score was made</h3><table class="tbl" id="f-score"></table></div>
+        <div class="f-mapbox"><canvas id="f-map" width="480" height="580" aria-label="Your kingdom at the end of the reign" role="img"></canvas></div>
+      </div>
+      <div class="row">
+        <button id="f-again" class="btn btn-primary" type="button">Found another kingdom</button>
+        <button id="f-copy" class="btn" type="button">Copy result</button>
+        <button id="f-png" class="btn" type="button">Download picture</button>
+        <button id="f-title" class="btn" type="button">Return to title</button>
+        <a class="btn" href="https://doorquests.com/">Return to DoorQuests</a>
+      </div>
+      <p id="f-note" class="note" role="status" aria-live="polite"></p>
+      <pre id="f-share" class="share" aria-label="Result text"></pre>
+    </div>
+  </section>
+</main>
+
+<p id="live" class="sr-only" role="status" aria-live="polite"></p>
+
+<!-- ============================ DIALOGS ============================ -->
+<dialog id="d-summary" class="wide" aria-labelledby="ds-h">
+  <h2 id="ds-h">Season report</h2>
+  <div id="ds-body"></div>
+  <div class="row"><button id="ds-ok" class="btn btn-primary" type="button">Continue</button></div>
+</dialog>
+
+<dialog id="d-menu" aria-labelledby="dm-h">
+  <h2 id="dm-h">Menu</h2>
+  <p class="small muted">Your kingdom saves itself after every building and every season.</p>
+  <div class="stack">
+    <button id="dm-resume" class="btn btn-primary" type="button">Back to the kingdom (Esc)</button>
+    <button id="dm-howto" class="btn" type="button">How to play</button>
+    <button id="dm-settings" class="btn" type="button">Settings</button>
+    <button id="dm-title" class="btn" type="button">Save and return to title</button>
+    <button id="dm-abandon" class="btn btn-danger" type="button">Abandon this kingdom…</button>
+  </div>
+</dialog>
+
+<dialog id="d-howto" class="wide" aria-labelledby="dh-h">
+  <h2 id="dh-h">How to play</h2>
+  <div id="dh-body"></div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button></div>
+</dialog>
+
+<dialog id="d-records" class="wide" aria-labelledby="dr-h">
+  <h2 id="dr-h">Records</h2>
+  <p class="small muted">Kept in this browser only (key <code>doorquests.gamortal.012.tiny-kingdoms.v1</code>). No accounts, no leaderboards.</p>
+  <div id="dr-body"></div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button><button id="dr-reset" class="btn btn-danger" type="button">Reset records…</button></div>
+</dialog>
+
+<dialog id="d-settings" aria-labelledby="dse-h">
+  <h2 id="dse-h">Settings</h2>
+  <div class="stack">
+    <label class="chk"><input type="checkbox" id="s-sound"> <span>Sound</span></label>
+    <label class="slider">Volume <input type="range" id="s-vol" min="0" max="100" step="5"> <span id="s-vol-v"></span></label>
+    <label class="sel">Motion <select id="s-motion"><option value="auto">Follow device setting</option><option value="reduced">Reduced (no animation)</option><option value="full">Full</option></select></label>
+    <label class="chk"><input type="checkbox" id="s-confirm"> <span>Ask before every building (always on for touch screens)</span></label>
+    <label class="chk"><input type="checkbox" id="s-advice"> <span>Show a ★ suggested site for the chosen building (always on in Bronze)</span></label>
+    <label class="chk"><input type="checkbox" id="s-large"> <span>Larger text</span></label>
+  </div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Done</button></div>
+</dialog>
+
+<dialog id="d-confirm" aria-labelledby="dc-h">
+  <h2 id="dc-h">Are you sure?</h2>
+  <p id="dc-p"></p>
+  <div class="row"><button id="dc-yes" class="btn btn-danger" type="button">Yes</button><button id="dc-no" class="btn" type="button">Cancel</button></div>
+</dialog>
+
+<script id="tk-routes">
+/* Generated by tools/routes.js — one verified reign per map and tier, found by the search planner (compact action lists). */
+window.KingdomRoutes = {"greenvale":{"bronze":{"seed":"route-greenvale-bronze","actions":[["b","well",21],["b","lumber",1],["b","farm",11],["b","farm",18],["e",1],["b","road",28],["b","road",20],["b","road",12],["b","road",19],["e",2],["b","quarry",4],["b","garden",13],["b","road",27],["b","road",26],["e",3],["b","cottage",22],["b","road",30],["b","road",25],["b","road",17],["e",4],["b","road",9],["e",5],["e",6],["u",1],["b","cottage",31],["b","well",23],["e",7],["b","well",38],["b","garden",39],["b","market",37],["e",8],["b","granary",8],["u",11],["e",9],["b","cottage",46],["b","road",36],["b","road",44],["b","road",45],["e",10],["b","farm",33],["b","cottage",47],["b","road",53],["t",37,"buyWood"],["e",11],["b","road",54],["b","road",55],["b","lumber",61],["u",22],["t",37,"buyWood"],["e",12],["e",13],["b","school",16],["b","cottage",35],["b","well",43],["e",14],["b","farm",40],["b","road",24],["b","road",32],["u",31],["t",37,"buyWood"],["e",15],["b","market",52],["u",52],["u",18],["u",33],["t",37,"buyWood"],["e",16],["u",40],["e",17],["b","lumber",3],["e",18],["b","garden",60],["b","road",10],["b","road",2],["b","road",62],["t",37,"buyWood"],["e",19],["b","cottage",51],["b","road",34],["b","road",42],["b","road",50],["t",37,"buyWood"],["e",20],["e",21],["e",22],["b","road",58],["u",35],["t",37,"buyWood"],["e",23],["t",37,"buyWood"],["e",24]],"points":888,"grade":"gold","pop":37,"happy":87,"fallen":false},"silver":{"seed":"route-greenvale-silver","actions":[["b","quarry",14],["b","lumber",1],["b","farm",28],["e",1],["u",1],["b","road",21],["b","road",13],["e",2],["b","road",12],["b","road",4],["b","road",3],["e",3],["b","road",2],["b","cottage",10],["u",28],["e",4],["e",5],["b","farm",20],["u",10],["u",20],["e",6],["b","cottage",11],["b","well",18],["b","market",17],["e",7],["b","market",25],["u",11],["b","road",37],["e",8],["e",9],["b","well",22],["b","farm",33],["b","road",36],["e",10],["b","farm",35],["b","road",44],["b","road",43],["e",11],["b","road",42],["b","road",34],["b","road",26],["e",12],["u",25],["e",13],["b","road",41],["b","road",40],["b","road",32],["e",14],["b","road",24],["b","road",16],["b","cottage",8],["t",17,"buyWood"],["e",15],["u",17],["b","well",9],["b","lumber",54],["t",17,"sellStone"],["e",16],["b","road",38],["b","road",46],["t",17,"sellStone"],["e",17],["b","cottage",30],["t",17,"sellStone"],["e",18],["u",8],["b","granary",39],["t",17,"buyWood"],["e",19],["b","school",47],["u",33],["u",30],["t",17,"buyWood"],["e",20],["b","garden",23],["u",35],["t",17,"sellStone"],["e",21],["b","market",45],["t",17,"buyWood"],["t",17,"sellStone"],["e",22],["b","workshop",60],["b","road",52],["b","cottage",31],["t",17,"buyWood"],["e",23],["u",45],["b","farm",58],["b","road",50],["t",17,"buyWood"],["e",24]],"points":881,"grade":"gold","pop":37,"happy":81,"fallen":false},"gold":{"seed":"route-greenvale-gold","actions":[["b","lumber",1],["b","farm",28],["e",1],["b","well",3],["b","farm",11],["e",2],["b","road",21],["b","road",13],["e",3],["b","road",12],["b","road",20],["e",4],["b","cottage",4],["e",5],["b","cottage",22],["b","quarry",33],["e",6],["b","lumber",8],["u",1],["e",7],["b","garden",23],["b","market",31],["e",8],["u",11],["b","road",30],["e",9],["b","market",39],["b","road",38],["e",10],["u",8],["t",39,"sellFood"],["b","farm",18],["t",31,"buyWood"],["e",11],["t",39,"sellFood"],["b","road",19],["t",31,"buyWood"],["e",12],["t",31,"sellFood"],["t",39,"sellFood"],["b","road",27],["b","road",35],["e",13],["b","market",36],["t",31,"buyWood"],["b","cottage",46],["e",14],["b","road",34],["t",31,"buyWood"],["e",15],["b","well",47],["b","road",26],["e",16],["b","cottage",37],["b","road",25],["e",17],["b","farm",43],["b","road",17],["e",18],["b","road",9],["b","well",14],["t",31,"buyWood"],["e",19],["b","cottage",54],["b","road",42],["t",31,"buyWood"],["e",20],["u",22],["b","farm",50],["e",21],["u",31],["b","well",45],["e",22],["u",37],["b","granary",0],["t",31,"buyWood"],["e",23],["b","school",60],["u",18],["t",31,"buyWood"],["e",24]],"points":811,"grade":"gold","pop":30,"happy":73,"fallen":false}},"stonecrest":{"bronze":{"seed":"route-stonecrest-bronze","actions":[["b","well",3],["b","lumber",32],["b","farm",27],["b","farm",29],["e",1],["b","road",21],["b","road",19],["b","road",18],["b","road",26],["e",2],["b","road",34],["b","road",33],["b","cottage",10],["u",27],["e",3],["b","cottage",12],["b","quarry",22],["b","market",13],["u",29],["t",13,"buyWood"],["e",4],["e",5],["u",32],["b","cottage",4],["b","lumber",41],["e",6],["b","granary",42],["b","school",25],["t",13,"buyWood"],["e",7],["b","cottage",9],["b","road",17],["b","well",5],["e",8],["e",9],["b","farm",37],["b","road",28],["b","road",36],["u",9],["e",10],["b","workshop",23],["b","road",44],["b","road",45],["b","road",46],["e",11],["b","farm",35],["b","road",38],["b","road",30],["b","road",31],["e",12],["b","well",11],["b","well",16],["e",13],["b","cottage",39],["e",14],["b","farm",43],["t",13,"buyWood"],["e",15],["u",10],["u",35],["t",13,"buyWood"],["e",16],["e",17],["e",18],["u",12],["t",13,"buyWood"],["e",19],["u",13],["u",39],["u",37],["t",13,"buyWood"],["e",20],["e",21],["e",22],["b","cottage",24],["u",43],["t",13,"buyWood"],["e",23],["t",13,"buyWood"],["e",24]],"points":858,"grade":"gold","pop":39,"happy":60,"fallen":false},"silver":{"seed":"route-stonecrest-silver","actions":[["b","market",3],["b","lumber",32],["b","farm",27],["e",1],["b","road",19],["b","road",11],["b","road",18],["e",2],["b","road",26],["b","road",34],["b","road",33],["e",3],["b","cottage",10],["u",27],["e",4],["e",5],["b","farm",35],["e",6],["b","cottage",12],["b","quarry",14],["b","road",21],["e",7],["b","road",13],["b","cottage",41],["b","well",5],["t",3,"buyWood"],["e",8],["b","well",17],["b","well",42],["b","lumber",46],["e",9],["b","farm",37],["b","farm",43],["e",10],["b","road",29],["b","road",30],["b","road",38],["t",3,"buyWood"],["e",11],["b","school",39],["b","road",28],["b","road",36],["e",12],["b","road",44],["b","cottage",4],["u",35],["e",13],["b","cottage",9],["u",37],["u",43],["e",14],["u",10],["b","granary",45],["t",3,"buyWood"],["e",15],["u",12],["b","granary",16],["t",3,"buyWood"],["e",16],["e",17],["b","farm",53],["b","cottage",50],["e",18],["t",3,"buyStone"],["b","farm",61],["u",53],["u",41],["e",19],["u",32],["b","farm",58],["b","workshop",23],["e",20],["b","garden",49],["b","road",22],["u",58],["e",21],["u",3],["u",61],["e",22],["b","quarry",31],["b","cottage",24],["b","road",25],["t",3,"buyWood"],["e",23],["b","farm",47],["b","granary",40],["t",3,"buyWood"],["e",24]],"points":853,"grade":"gold","pop":41,"happy":75,"fallen":false},"gold":{"seed":"route-stonecrest-gold","actions":[["b","garden",3],["b","lumber",32],["e",1],["b","farm",27],["b","farm",29],["e",2],["b","quarry",5],["u",27],["e",3],["b","road",21],["b","road",19],["e",4],["b","road",13],["b","road",18],["e",5],["b","road",26],["b","road",34],["e",6],["b","road",33],["b","cottage",10],["e",7],["b","cottage",41],["e",8],["b","market",25],["u",25],["e",9],["t",25,"sellFood"],["b","farm",35],["b","well",11],["e",10],["b","cottage",42],["b","well",17],["t",25,"buyWood"],["e",11],["b","workshop",4],["b","road",12],["t",25,"buyWood"],["e",12],["t",25,"buyWood"],["b","granary",9],["b","well",50],["e",13],["b","lumber",46],["e",14],["b","road",22],["b","road",30],["t",25,"buyWood"],["e",15],["b","road",38],["b","cottage",16],["t",25,"buyWood"],["e",16],["b","school",23],["u",29],["e",17],["b","farm",37],["u",10],["e",18],["u",46],["u",35],["t",25,"buyWood"],["e",19],["u",41],["b","garden",49],["t",25,"buyWood"],["e",20],["u",42],["u",37],["e",21],["b","farm",45],["e",22],["u",45],["b","road",28],["t",25,"buyWood"],["e",23],["b","road",36],["b","road",44],["e",24]],"points":848,"grade":"gold","pop":31,"happy":78,"fallen":false}},"willowmere":{"bronze":{"seed":"route-willowmere-bronze","actions":[["b","market",1],["b","well",6],["b","lumber",0],["b","farm",3],["e",1],["b","cottage",7],["b","road",19],["b","road",11],["b","road",10],["e",2],["b","farm",4],["b","road",9],["b","road",8],["e",3],["t",1,"buyWood"],["b","cottage",16],["b","quarry",62],["e",4],["t",1,"buyWood"],["b","road",12],["e",5],["t",1,"buyWood"],["b","road",13],["b","road",14],["b","road",15],["b","road",22],["e",6],["t",1,"buyWood"],["e",7],["u",1],["t",1,"sellFood"],["b","lumber",55],["t",1,"buyWood"],["e",8],["t",1,"buyWood"],["u",55],["b","road",23],["b","road",31],["e",9],["u",3],["t",1,"sellFood"],["e",10],["t",1,"sellFood"],["b","road",39],["b","road",47],["t",1,"buyWood"],["e",11],["b","road",46],["b","road",54],["b","cottage",17],["t",1,"buyWood"],["e",12],["b","well",24],["u",4],["e",13],["e",14],["b","market",32],["u",7],["t",1,"buyWood"],["e",15],["b","farm",34],["b","road",35],["b","road",26],["t",1,"buyWood"],["e",16],["b","road",25],["e",17],["b","road",33],["u",16],["e",18],["b","farm",21],["u",32],["t",1,"buyWood"],["e",19],["t",1,"buyWood"],["b","cottage",42],["b","road",43],["b","well",51],["u",21],["t",1,"buyWood"],["e",20],["e",21],["t",1,"buyWood"],["t",1,"sellFood"],["u",17],["e",22],["t",1,"buyWood"],["u",42],["b","granary",63],["u",34],["t",1,"buyWood"],["e",23],["t",1,"buyWood"],["e",24]],"points":827,"grade":"gold","pop":32,"happy":65,"fallen":false},"silver":{"seed":"route-willowmere-silver","actions":[["b","lumber",0],["b","farm",3],["b","farm",4],["e",1],["b","farm",9],["b","road",19],["b","road",11],["e",2],["b","road",12],["b","road",35],["b","cottage",28],["e",3],["e",4],["e",5],["e",6],["b","lumber",6],["e",7],["e",8],["e",9],["b","quarry",1],["e",10],["b","garden",21],["e",11],["e",12],["e",13],["b","cottage",14],["e",14],["e",15],["b","cottage",22],["b","garden",23],["e",16],["e",17],["b","well",15],["b","road",10],["e",18],["b","road",2],["e",19],["u",28],["e",20],["e",21],["b","road",13],["b","road",5],["e",22],["u",14],["e",23],["b","road",18],["b","road",17],["e",24]],"points":557,"grade":"bronze","pop":23,"happy":58,"fallen":false},"gold":{"seed":"route-willowmere-gold","actions":[["b","quarry",32],["b","farm",3],["e",1],["u",3],["b","lumber",0],["e",2],["b","lumber",6],["u",0],["e",3],["b","road",19],["b","road",11],["e",4],["e",5],["b","road",35],["b","road",34],["e",6],["e",7],["b","cottage",28],["e",8],["e",9],["b","garden",21],["b","garden",37],["e",10],["u",6],["e",11],["b","farm",4],["b","road",12],["e",12],["b","road",33],["e",13],["b","market",14],["e",14],["b","workshop",1],["e",15],["b","road",13],["b","road",5],["t",14,"buyWood"],["e",16],["t",14,"sellFood"],["b","road",10],["b","road",9],["e",17],["b","well",36],["u",28],["e",18],["u",14],["b","market",42],["t",14,"buyWood"],["e",19],["u",42],["t",14,"sellFood"],["b","road",8],["e",20],["t",14,"sellFood"],["b","cottage",44],["b","road",43],["e",21],["e",22],["u",4],["t",14,"buyWood"],["e",23],["u",44],["t",14,"buyWood"],["e",24]],"points":762,"grade":"gold","pop":17,"happy":83,"fallen":false}},"embercoast":{"bronze":{"seed":"route-embercoast-bronze","actions":[["b","farm",19],["b","granary",2],["b","lumber",5],["b","farm",18],["e",1],["b","well",3],["b","road",26],["b","road",28],["b","road",20],["e",2],["b","well",21],["b","road",12],["b","road",4],["b","cottage",11],["e",3],["b","cottage",29],["b","quarry",17],["b","road",25],["b","market",13],["t",13,"buyWood"],["e",4],["u",11],["t",13,"sellFood"],["e",5],["b","farm",33],["e",6],["u",5],["u",13],["t",13,"buyWood"],["e",7],["b","harbor",36],["t",13,"buyWood"],["e",8],["b","lumber",32],["b","road",24],["u",29],["e",9],["t",13,"buyWood"],["t",13,"buyWood"],["b","farm",42],["b","road",34],["b","road",35],["b","road",43],["e",10],["t",13,"sellFood"],["b","cottage",14],["b","granary",9],["t",13,"buyWood"],["e",11],["b","cottage",41],["b","road",51],["b","road",50],["b","road",49],["t",13,"buyWood"],["e",12],["b","well",48],["e",13],["b","school",16],["e",14],["b","cottage",56],["b","farm",6],["b","road",57],["t",13,"buyWood"],["e",15],["b","farm",40],["b","farm",44],["u",41],["t",13,"buyWood"],["e",16],["t",13,"buyWood"],["e",17],["b","farm",58],["e",18],["t",13,"buyWood"],["e",19],["u",56],["t",13,"buyWood"],["e",20],["t",13,"sellStone"],["e",21],["t",13,"sellStone"],["e",22],["t",13,"buyWood"],["e",23],["t",13,"buyWood"],["e",24]],"points":850,"grade":"gold","pop":38,"happy":60,"fallen":false},"silver":{"seed":"route-embercoast-silver","actions":[["b","farm",19],["b","harbor",14],["b","lumber",5],["e",1],["b","road",28],["b","road",20],["b","road",12],["e",2],["b","road",4],["b","road",13],["b","cottage",3],["e",3],["b","farm",26],["e",4],["e",5],["b","cottage",11],["b","quarry",17],["b","road",35],["e",6],["b","farm",34],["e",7],["b","road",43],["e",8],["e",9],["b","road",42],["e",10],["b","road",41],["b","road",33],["e",11],["b","road",25],["b","well",2],["e",12],["e",13],["e",14],["u",3],["e",15],["b","lumber",32],["e",16],["b","market",21],["e",17],["b","workshop",29],["b","garden",36],["e",18],["t",21,"buyStone"],["b","cottage",44],["e",19],["b","well",10],["b","well",51],["t",21,"buyWood"],["e",20],["u",21],["e",21],["b","farm",49],["b","cottage",58],["e",22],["b","road",50],["t",21,"buyWood"],["e",23],["b","farm",18],["t",21,"buyWood"],["e",24]],"points":781,"grade":"gold","pop":24,"happy":64,"fallen":false},"gold":{"seed":"route-embercoast-gold","actions":[["b","harbor",14],["b","farm",19],["e",1],["b","lumber",5],["b","road",28],["e",2],["b","road",20],["b","road",12],["e",3],["b","road",4],["b","road",13],["e",4],["b","cottage",3],["e",5],["b","farm",26],["e",6],["b","farm",35],["b","cottage",11],["e",7],["b","lumber",32],["b","road",36],["e",8],["b","road",44],["b","road",43],["e",9],["b","garden",2],["b","farm",42],["e",10],["b","cottage",9],["e",11],["b","road",51],["b","road",50],["e",12],["e",13],["b","farm",21],["b","road",49],["e",14],["b","road",41],["b","road",33],["e",15],["b","road",25],["b","road",17],["e",16],["b","cottage",16],["b","quarry",34],["e",17],["b","workshop",29],["b","garden",18],["e",18],["b","workshop",48],["e",19],["b","well",10],["e",20],["e",21],["e",22],["e",23],["e",24]],"points":756,"grade":"silver","pop":22,"happy":55,"fallen":false}},"narrowcrown":{"bronze":{"seed":"route-narrowcrown-bronze","actions":[["b","lumber",9],["b","farm",19],["b","road",12],["b","road",11],["e",1],["b","road",10],["b","cottage",13],["b","quarry",22],["b","road",21],["e",2],["b","cottage",38],["b","farm",26],["b","road",18],["b","road",29],["e",3],["b","road",37],["b","market",44],["e",4],["e",5],["u",19],["e",6],["u",9],["b","road",45],["t",44,"buyWood"],["e",7],["u",44],["b","cottage",34],["b","road",36],["t",44,"buyWood"],["e",8],["b","road",35],["e",9],["t",44,"buyWood"],["b","granary",49],["b","farm",52],["b","road",53],["e",10],["u",13],["t",44,"buyWood"],["e",11],["b","cottage",28],["u",26],["t",44,"buyWood"],["e",12],["e",13],["u",28],["e",14],["b","farm",17],["u",34],["t",44,"buyWood"],["e",15],["b","cottage",54],["u",52],["t",44,"buyWood"],["e",16],["t",44,"sellStone"],["e",17],["t",44,"sellStone"],["e",18],["t",44,"buyWood"],["e",19],["u",38],["t",44,"buyWood"],["e",20],["t",44,"sellStone"],["e",21],["t",44,"sellStone"],["e",22],["t",44,"buyWood"],["e",23],["u",54],["t",44,"buyWood"],["e",24]],"points":825,"grade":"gold","pop":38,"happy":51,"fallen":false},"silver":{"seed":"route-narrowcrown-silver","actions":[["b","market",12],["t",12,"buyWood"],["b","lumber",9],["b","farm",26],["e",1],["u",9],["t",12,"sellFood"],["b","road",19],["b","road",18],["e",2],["t",12,"sellFood"],["b","road",10],["b","cottage",28],["e",3],["t",12,"sellFood"],["b","farm",34],["e",4],["e",5],["b","cottage",13],["b","farm",44],["b","road",21],["e",6],["b","road",29],["b","road",37],["b","road",45],["e",7],["b","cottage",22],["b","quarry",11],["t",12,"buyWood"],["e",8],["u",12],["t",12,"sellFood"],["b","road",27],["e",9],["u",13],["t",12,"sellFood"],["b","road",35],["e",10],["u",22],["t",12,"sellFood"],["t",12,"buyWood"],["e",11],["b","granary",49],["t",12,"buyWood"],["b","farm",52],["b","farm",54],["t",12,"buyWood"],["e",12],["b","road",53],["u",28],["e",13],["t",12,"buyWood"],["b","cottage",38],["u",26],["e",14],["u",34],["t",12,"buyWood"],["e",15],["b","workshop",17],["u",38],["u",44],["t",12,"buyWood"],["e",16],["t",12,"buyWood"],["u",52],["e",17],["e",18],["t",12,"buyWood"],["e",19],["t",12,"buyWood"],["e",20],["t",12,"buyWood"],["t",12,"buyWood"],["e",21],["e",22],["t",12,"buyWood"],["e",23],["t",12,"buyWood"],["e",24]],"points":827,"grade":"gold","pop":34,"happy":49,"fallen":false},"gold":{"seed":"route-narrowcrown-gold","actions":[["b","well",12],["b","quarry",11],["e",1],["b","garden",13],["b","lumber",9],["e",2],["b","farm",26],["b","road",19],["e",3],["b","road",18],["b","road",10],["e",4],["u",26],["e",5],["e",6],["b","cottage",22],["b","road",21],["e",7],["b","lumber",53],["b","road",29],["e",8],["b","road",37],["e",9],["b","farm",28],["e",10],["b","road",45],["u",22],["e",11],["b","farm",34],["b","road",27],["e",12],["b","road",35],["e",13],["b","cottage",49],["u",28],["e",14],["b","cottage",52],["e",15],["u",53],["b","road",44],["e",16],["u",34],["e",17],["e",18],["b","cottage",54],["b","market",38],["t",38,"buyWood"],["e",19],["b","workshop",17],["u",38],["t",38,"buyWood"],["e",20],["t",38,"buyWood"],["t",38,"buyWood"],["e",21],["u",52],["t",38,"sellFood"],["t",38,"sellStone"],["e",22],["t",38,"sellFood"],["t",38,"buyWood"],["e",23],["t",38,"buyWood"],["e",24]],"points":752,"grade":"silver","pop":28,"happy":47,"fallen":false}}};
+
+</script>
+<script id="tk-engine">
+/* Tiny Kingdoms — civilization engine (no DOM). Gamortal #012 · DoorQuests prototype.
+   Sections: 1 configuration · 2 seeded random · 3 terrain rules · 4 building definitions · 5 map definitions · 6 state & construction validation
+   · 7 adjacency & previews · 8 road connectivity · 9 turn resolution (economy, population, happiness, seasons, events) · 10 scoring
+   · 11 actions & save-by-replay · 12 planner (advisor and solvability bot).
+   Every number the player sees comes from these functions; the interface only displays them. Identical inputs give identical kingdoms. */
+(function (root) {
+  'use strict';
+  var VERSION = '1.0.0';
+
+  /* ================================================================ 1 · configuration */
+  var W = 8, H = 8, TURNS = 24;
+  var SEASONS = [
+    { id: 'spring', name: 'Spring', food: 1.0, regrow: 1, growth: 1, note: 'Fields sprout: +1 extra citizen when the kingdom grows.' },
+    { id: 'summer', name: 'Summer', food: 1.2, regrow: 1, growth: 0, note: 'Strong harvests (×1.2). Heat: homes without a nearby well are less happy.' },
+    { id: 'autumn', name: 'Autumn', food: 1.5, regrow: 1, growth: 0, note: 'Harvest season (×1.5). Store food for the winter.' },
+    { id: 'winter', name: 'Winter', food: 0.25, regrow: 0, growth: 0, note: 'Farms yield a quarter. Every home burns 1 wood (townhouses 2) for heat.' }
+  ];
+  var TIERS = {
+    bronze: { id: 'bronze', label: 'Bronze', name: 'Village Founder', start: { food: 30, wood: 22, stone: 8, coins: 24 }, pop: 6, happy: 65, upkeep: 0.5, crews: 4, fertile: 1, timber: 6, events: 'gentle', advisor: true, grade: { silver: 520, gold: 680 } },
+    silver: { id: 'silver', label: 'Silver', name: 'Kingdom Steward', start: { food: 22, wood: 16, stone: 4, coins: 16 }, pop: 6, happy: 60, upkeep: 1, crews: 3, fertile: 0, timber: 6, events: 'moderate', advisor: false, grade: { silver: 560, gold: 720 } },
+    gold: { id: 'gold', label: 'Gold', name: 'Master Sovereign', start: { food: 16, wood: 12, stone: 2, coins: 10 }, pop: 6, happy: 55, upkeep: 1.5, crews: 2, fertile: -1, timber: 5, events: 'demanding', advisor: false, grade: { silver: 600, gold: 760 } }
+  };
+  var TIER_IDS = ['bronze', 'silver', 'gold'];
+  var CAPS = { food: 60, wood: 80, stone: 60 }, GRANARY_CAP = 40, TIMBER_MAX = 6;
+  var HAPPY = { step: 8, growMin: 40, leaveBelow: 25 };
+  var WEIGHTS = { prosperity: 25, population: 20, happiness: 20, infrastructure: 15, stability: 10, land: 10 };
+
+  /* ================================================================ 2 · seeded random */
+  function h32(s) { var h = 0x811c9dc5; s = String(s); for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16; return h >>> 0; }
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  /* ================================================================ 3 · terrain rules */
+  // farm: base food of a farm here (null = no farm) · build: may hold ordinary buildings · water: counts as water for farms/harbors
+  var TERRAIN = {
+    P: { id: 'P', name: 'Fertile plains', farm: 5, build: true, mark: '' },
+    m: { id: 'm', name: 'Meadow (thin soil)', farm: 3, build: true, mark: '·' },
+    F: { id: 'F', name: 'Forest', farm: 3, build: true, forest: true, mark: '♣' },
+    H: { id: 'H', name: 'Hills', farm: 2, build: true, stone: 3, mark: '^' },
+    K: { id: 'K', name: 'Rocky ground', farm: null, build: false, stone: 4, mark: '▲' },
+    C: { id: 'C', name: 'Coast', farm: 3, build: true, coast: true, mark: '~' },
+    M: { id: 'M', name: 'Mountains', farm: null, build: false, block: true, mark: '⛰' },
+    R: { id: 'R', name: 'River', farm: null, build: false, water: true, river: true, mark: '≈' },
+    L: { id: 'L', name: 'Lake', farm: null, build: false, water: true, block: true, mark: '≋' },
+    S: { id: 'S', name: 'Sea', farm: null, build: false, water: true, sea: true, block: true, mark: '≋' }
+  };
+
+  /* ================================================================ 4 · building definitions */
+  // cost: construction materials · upkeep: coins per turn (× tier factor) · workers: citizens needed to operate · on: allowed terrain ids
+  var B = {
+    hall: { id: 'hall', name: 'Town Hall', icon: '♜', cost: {}, upkeep: 0, workers: 0, housing: 6, on: [], desc: 'The settlement anchor: houses 6, collects 3 coins of taxes each turn and starts the road network. Cannot be built or demolished.' },
+    cottage: { id: 'cottage', name: 'Cottage', icon: '⌂', cost: { wood: 4 }, upkeep: 0, workers: 0, housing: 4, on: ['P', 'm', 'F', 'H', 'C'], desc: 'Houses 4 citizens. Happier near wells, gardens and a market; unhappy next to quarries and workshops, or cut off from the roads. Burns 1 wood in winter.', up: 'townhouse' },
+    farm: { id: 'farm', name: 'Farm', icon: '⚘', cost: { wood: 3 }, upkeep: 0, workers: 2, on: ['P', 'm', 'F', 'H', 'C'], desc: 'Food: 5 on fertile plains, 3 on meadow, forest clearing or coast, 2 on hills; +2 beside a river or lake. Seasons change the harvest. Half output if not connected to roads.', up: 'irrigated' },
+    lumber: { id: 'lumber', name: 'Lumberyard', icon: '🪓', cost: { wood: 2, coins: 2 }, upkeep: 0, workers: 2, on: ['P', 'm', 'H', 'C', 'F'], needs: 'forest', desc: 'Cuts up to 3 adjacent forests: 1 timber from each → 2 wood. Each forest regrows 1 timber every season except winter (max 6) — one lumberyard per forest is sustainable, two are not; a forest cut to nothing becomes meadow for good. Half output if not connected.', up: 'forestry' },
+    quarry: { id: 'quarry', name: 'Quarry', icon: '⛏', cost: { wood: 4 }, upkeep: 0, workers: 2, on: ['H', 'K'], desc: 'Stone: 3 on hills, 4 on rocky ground, +1 beside mountains. Noisy: homes nearby are unhappy. Half output if not connected.' },
+    market: { id: 'market', name: 'Market', icon: '⚖', cost: { wood: 4, stone: 2, coins: 4 }, upkeep: 1, workers: 1, needsRoad: true, on: ['P', 'm', 'F', 'H', 'C'], desc: 'Coins: 2 + 1 per cottage (2 per townhouse) within 2 tiles, up to +8. Homes within 2 tiles gain market access (happiness). One trade per turn. Must be connected.', up: 'hallTrade' },
+    workshop: { id: 'workshop', name: 'Workshop', icon: '⚒', cost: { wood: 4, stone: 3 }, upkeep: 1, workers: 2, needsRoad: true, on: ['P', 'm', 'F', 'H', 'C'], desc: 'Turns 2 wood + 1 stone into 6 coins each turn (+2 coins if the road network also links a quarry and a lumberyard). Noisy for nearby homes. Must be connected.' },
+    well: { id: 'well', name: 'Well', icon: '◎', cost: { wood: 1, stone: 2 }, upkeep: 0, workers: 0, on: ['P', 'm', 'F', 'H', 'C', 'K'], desc: 'Homes within 1 tile (diagonals too) are watered: happier all year, and spared the summer heat penalty.' },
+    road: { id: 'road', name: 'Road', icon: '═', cost: { wood: 1 }, upkeep: 0, workers: 0, on: ['P', 'm', 'F', 'H', 'C', 'K', 'R'], desc: 'Links buildings to the Town Hall. A building touching (side by side) a connected road or the Town Hall is connected. Over a river it is a bridge (1 wood + 2 stone).' },
+    school: { id: 'school', name: 'School', icon: '✎', cost: { wood: 4, stone: 4, coins: 6 }, upkeep: 2, workers: 1, needsRoad: true, on: ['P', 'm', 'F', 'H', 'C'], desc: 'Knowledge +2 per turn. Every 10 knowledge adds 5% to all production (up to +25%). Citizens are happier (+5) with a school. Must be connected.' },
+    granary: { id: 'granary', name: 'Granary', icon: '⌸', cost: { wood: 5, stone: 1 }, upkeep: 0, workers: 0, on: ['P', 'm', 'F', 'H', 'C'], desc: 'Stores 40 more food (base storage 60); food above storage spoils.' },
+    harbor: { id: 'harbor', name: 'Harbor', icon: '⚓', cost: { wood: 5, stone: 2 }, upkeep: 1, workers: 2, needsRoad: true, on: ['C'], needs: 'sea', desc: 'On coast beside the sea: 3 food from fishing and 2 coins from trade each turn. Must be connected.' },
+    garden: { id: 'garden', name: 'Garden', icon: '❀', cost: { wood: 1, coins: 3 }, upkeep: 0, workers: 0, on: ['P', 'm', 'F', 'H', 'C'], desc: 'Homes within 1 tile (diagonals too) enjoy it: happiness bonus. Produces nothing else.' },
+    // upgrades (built in place)
+    townhouse: { id: 'townhouse', name: 'Townhouse', icon: '⌂', base: 'cottage', cost: { wood: 2, stone: 3, coins: 3 }, upkeep: 0, workers: 0, housing: 7, needsRoad: true, desc: 'Upgraded cottage: houses 7. Must be connected to upgrade. Burns 2 wood in winter.' },
+    irrigated: { id: 'irrigated', name: 'Irrigated Farm', icon: '⚘', base: 'farm', cost: { wood: 2, stone: 2, coins: 2 }, upkeep: 0, workers: 2, needs: 'water', desc: 'Upgraded farm beside a river or lake: +2 more food.' },
+    forestry: { id: 'forestry', name: 'Sustainable Forestry', icon: '🪓', base: 'lumber', cost: { wood: 1, stone: 2, coins: 3 }, upkeep: 0, workers: 2, desc: 'Upgraded lumberyard: only cuts forests with 3 or more timber left (never clears a forest) and adds +1 wood.' },
+    hallTrade: { id: 'hallTrade', name: 'Trading Hall', icon: '⚖', base: 'market', cost: { stone: 3, coins: 6 }, upkeep: 1, workers: 1, needsRoad: true, desc: 'Upgraded market: +2 coins, two trades per turn at better rates.' }
+  };
+  var BUILD_ORDER = ['cottage', 'farm', 'lumber', 'quarry', 'road', 'well', 'market', 'workshop', 'granary', 'garden', 'school', 'harbor'];
+  var STAFF_ORDER = ['farm', 'irrigated', 'harbor', 'lumber', 'forestry', 'quarry', 'school', 'market', 'hallTrade', 'workshop'];
+  var TRADES = { market: [{ id: 'sellWood', give: { wood: 4 }, get: { coins: 2 } }, { id: 'sellStone', give: { stone: 3 }, get: { coins: 3 } }, { id: 'sellFood', give: { food: 6 }, get: { coins: 2 } }, { id: 'buyWood', give: { coins: 3 }, get: { wood: 2 } }, { id: 'buyStone', give: { coins: 5 }, get: { stone: 2 } }],
+    hallTrade: [{ id: 'sellWood', give: { wood: 4 }, get: { coins: 3 } }, { id: 'sellStone', give: { stone: 3 }, get: { coins: 4 } }, { id: 'sellFood', give: { food: 6 }, get: { coins: 3 } }, { id: 'buyWood', give: { coins: 3 }, get: { wood: 3 } }, { id: 'buyStone', give: { coins: 4 }, get: { stone: 2 } }] };
+  var EVENTS = {
+    goodHarvest: { id: 'goodHarvest', name: 'Good harvest', good: true, text: 'Farms produce 30% more this season.' },
+    timberShortage: { id: 'timberShortage', name: 'Timber blight', good: false, text: 'Lumberyards produce 30% less wood this season.' },
+    marketDay: { id: 'marketDay', name: 'Market opportunity', good: true, text: 'Merchants visit: markets earn +3 coins each this season.' },
+    migrants: { id: 'migrants', name: 'Migrants arrive', good: true, text: 'Up to 2 newcomers settle at season’s end if there is room and happiness is at least 50.' },
+    drought: { id: 'drought', name: 'Minor drought', good: false, text: 'Farms not beside a river or lake produce 30% less this season.' },
+    festival: { id: 'festival', name: 'Festival', good: true, text: 'Celebrations: happiness target +10 this season.' },
+    tradeRoute: { id: 'tradeRoute', name: 'New trade route', good: true, text: 'Harbors and markets earn +2 coins each this season.' },
+    harshWinter: { id: 'harshWinter', name: 'Harsh winter', good: false, text: 'Homes burn twice the wood for heat, and citizens eat 25% more.' }
+  };
+
+  /* ================================================================ 5 · map definitions (curated, 8 × 8, validated in tests) */
+  // P plains · p plains (rocky on Gold) · m meadow · F forest · H hills · K rocky · C coast · M mountains · R river · L lake · S sea · T Town Hall (on plains)
+  var MAPS = [
+    { id: 'greenvale', name: 'Greenvale', blurb: 'Fertile inland valley with a winding river — the gentlest start.', rows: ['FFFHHMMM', 'FFPPPHKM', 'FPPRpPHH', 'PPRRPTPH', 'PpRPPPPm', 'PRRPpPmm', 'LRPPPpmF', 'LLPPmmFF'] },
+    { id: 'stonecrest', name: 'Stonecrest', blurb: 'Mountain country: stone everywhere, little farmland.', rows: ['MMMHHKMM', 'MHHKHHKM', 'HKHPTHKH', 'FFHPRPHK', 'FFmPRmHH', 'FmmmRmmF', 'FFmLLmFF', 'MFFLLFFM'] },
+    { id: 'willowmere', name: 'Willowmere', blurb: 'River country: rich farms, but water leaves little room to build.', rows: ['FHRPPRHF', 'FPRPRRPF', 'PPRRRPPm', 'PRRTPRRP', 'pRPPPPRR', 'RRPpPRRP', 'LRRPRRpP', 'LLRRRPHF'] },
+    { id: 'embercoast', name: 'Ember Coast', blurb: 'A harbor kingdom: rich sea trade, thin inland resources.', rows: ['MMHHFFFS', 'MHKHFFCS', 'HKPPFCSS', 'FPPTCCSS', 'FPpPCSSS', 'FmPCCSSS', 'mmCCSSSS', 'CCCSSSSS'] },
+    { id: 'narrowcrown', name: 'The Narrow Crown', blurb: 'A cramped highland pass: every tile counts twice.', rows: ['MMMMMMMM', 'MFFKHHMM', 'MFPPTKHM', 'MMPRPPMM', 'MMPRRPmM', 'MLLRpmMM', 'MFLRPPFM', 'MMMMMMMM'] }
+  ];
+  var MAP_IDS = MAPS.map(function (m) { return m.id; });
+
+  /* ================================================================ 6 · state & construction validation */
+  function idx(x, y) { return y * W + x; }
+  function inb(x, y) { return x >= 0 && y >= 0 && x < W && y < H; }
+  function coord(i) { return 'ABCDEFGH'.charAt(i % W) + (Math.floor(i / W) + 1); }
+  var N4 = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+  function n4(i) { var x = i % W, y = Math.floor(i / W), out = []; N4.forEach(function (d) { if (inb(x + d[0], y + d[1])) out.push(idx(x + d[0], y + d[1])); }); return out; }
+  function n8(i) { var x = i % W, y = Math.floor(i / W), out = []; for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) if ((dx || dy) && inb(x + dx, y + dy)) out.push(idx(x + dx, y + dy)); return out; }
+  function within(i, j, r) { return Math.max(Math.abs(i % W - j % W), Math.abs(Math.floor(i / W) - Math.floor(j / W))) <= r; }
+  function eventSchedule(seed, tier) { // the whole season-by-season event plan is fixed at founding (seeded); each one is announced a season ahead
+    var r = mulberry(h32('TK|events|' + seed + '|' + tier)), sched = [], good = ['goodHarvest', 'marketDay', 'migrants', 'festival', 'tradeRoute'], bad = ['timberShortage', 'drought'];
+    var pBad = tier === 'bronze' ? 0.12 : tier === 'silver' ? 0.22 : 0.32, pGood = tier === 'bronze' ? 0.3 : tier === 'silver' ? 0.22 : 0.16;
+    for (var t = 0; t < TURNS; t++) { var s = t % 4, e = null, x = r();
+      if (t < 2) e = null; else if (s === 3) e = x < (tier === 'bronze' ? 0.15 : tier === 'silver' ? 0.3 : 0.45) ? 'harshWinter' : null;
+      else if (x < pBad) e = bad[Math.floor(r() * bad.length)]; else if (x < pBad + pGood) e = good[Math.floor(r() * good.length)];
+      if (e === 'drought' && s !== 1) e = s === 0 ? null : e; sched.push(e); }
+    return sched;
+  }
+  function create(mapId, tierId, seed, name) {
+    var map = MAPS.find(function (m) { return m.id === mapId; }), T = TIERS[tierId]; if (!map || !T) throw new Error('unknown map or tier');
+    var tiles = [], hall = -1;
+    for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) { var ch = map.rows[y].charAt(x), t = ch === 'T' ? 'P' : ch === 'p' ? (tierId === 'gold' ? 'K' : 'P') : ch; var tile = { t: t, b: null, timber: t === 'F' ? T.timber : 0 }; if (ch === 'T') { hall = tiles.length; tile.b = { type: 'hall', id: 0, inv: {} }; } tiles.push(tile); }
+    var st = { v: 1, map: mapId, tier: tierId, seed: String(seed), name: name || 'Unnamed Realm', turn: 1, tiles: tiles, hall: hall, res: { food: T.start.food, wood: T.start.wood, stone: T.start.stone, coins: T.start.coins, knowledge: 0 }, pop: T.pop, happy: T.happy,
+      crewsUsed: 0, tradesUsed: {}, events: eventSchedule(seed, tierId), streak: { short: 0, low: 0 }, hist: [], nextId: 1, built: 0, demolished: 0, upgrades: 0, over: false, result: null, actions: [], maxPop: T.pop, maxHappy: T.happy, shortTurns: 0 };
+    return st;
+  }
+  function clone(st) { return JSON.parse(JSON.stringify(st)); }
+  function season(st, turn) { return SEASONS[((turn || st.turn) - 1) % 4]; }
+  function year(st, turn) { return Math.floor(((turn || st.turn) - 1) / 4) + 1; }
+  function eventOf(st, turn) { var e = st.events[(turn || st.turn) - 1]; return e ? EVENTS[e] : null; }
+  function tierOf(st) { return TIERS[st.tier]; }
+  function scaledCost(st, type) { var c = B[type].cost, out = {}; for (var k in c) out[k] = c[k]; return out; }
+  function upkeepOf(st, type) { var u = B[type].upkeep || 0; if (!u) return 0; var f = tierOf(st).upkeep; return f < 1 ? Math.floor(u * f) : Math.ceil(u * f); }
+  function afford(st, cost) { for (var k in cost) if ((st.res[k] || 0) < cost[k]) return false; return true; }
+  function isWater(st, i) { var T = TERRAIN[st.tiles[i].t]; return !!(T && T.water); }
+  function hasNeed(st, i, need) {
+    if (need === 'forest') return n4(i).some(function (j) { return TERRAIN[st.tiles[j].t].forest; });
+    if (need === 'sea') return n4(i).some(function (j) { return st.tiles[j].t === 'S'; });
+    if (need === 'water') return n4(i).some(function (j) { return st.tiles[j].t === 'R' || st.tiles[j].t === 'L'; });
+    return true;
+  }
+  function needText(need) { return need === 'forest' ? 'must touch a forest tile (side by side)' : need === 'sea' ? 'must touch the sea' : 'must touch a river or lake'; }
+  function canBuild(st, type, i) {
+    var D = B[type]; if (!D || D.base || type === 'hall') return { ok: false, reason: 'Not a buildable structure.' };
+    if (st.over) return { ok: false, reason: 'The reign has ended.' };
+    if (i < 0 || i >= W * H) return { ok: false, reason: 'Off the map.' };
+    var tile = st.tiles[i], cost = scaledCost(st, type);
+    if (type === 'road' && tile.t === 'R') cost = { wood: 1, stone: 2 };
+    if (tile.b) return { ok: false, reason: coord(i) + ' is occupied by a ' + B[tile.b.type].name + '.', cost: cost };
+    if (D.on.indexOf(tile.t) < 0) return { ok: false, reason: 'A ' + D.name + ' cannot be built on ' + TERRAIN[tile.t].name.toLowerCase() + '.', cost: cost };
+    if (D.needs && !hasNeed(st, i, D.needs)) return { ok: false, reason: 'A ' + D.name + ' ' + needText(D.needs) + '.', cost: cost };
+    if (st.crewsUsed >= tierOf(st).crews) return { ok: false, reason: 'All ' + tierOf(st).crews + ' building crews are busy this season.', cost: cost };
+    if (!afford(st, cost)) return { ok: false, reason: 'Not enough ' + missing(st, cost) + '.', cost: cost };
+    return { ok: true, cost: cost };
+  }
+  function canUpgrade(st, i) {
+    var tile = st.tiles[i]; if (!tile || !tile.b) return { ok: false, reason: 'Nothing to upgrade.' }; var up = B[tile.b.type].up; if (!up) return { ok: false, reason: 'This building has no upgrade.' };
+    var D = B[up], cost = scaledCost(st, up); if (st.over) return { ok: false, reason: 'The reign has ended.' };
+    if (D.needsRoad && !connectedSet(st)[i]) return { ok: false, reason: D.name + ' needs the building to be connected to the roads.', to: up, cost: cost };
+    if (D.needs && !hasNeed(st, i, D.needs)) return { ok: false, reason: D.name + ' ' + needText(D.needs) + '.', to: up, cost: cost };
+    if (st.crewsUsed >= tierOf(st).crews) return { ok: false, reason: 'All building crews are busy this season.', to: up, cost: cost };
+    if (!afford(st, cost)) return { ok: false, reason: 'Not enough ' + missing(st, cost) + '.', to: up, cost: cost };
+    return { ok: true, to: up, cost: cost };
+  }
+  function missing(st, cost) { var m = []; for (var k in cost) if ((st.res[k] || 0) < cost[k]) m.push(k + ' (' + (st.res[k] || 0) + ' of ' + cost[k] + ')'); return m.join(', '); }
+  function refundOf(st, i) { var b = st.tiles[i].b, out = {}; if (!b) return out; for (var k in b.inv) if (k === 'wood' || k === 'stone') { var v = Math.floor(b.inv[k] / 2); if (v) out[k] = v; } return out; }
+
+  /* ================================================================ 8 · road connectivity (flood fill from the Town Hall through roads) */
+  function connectedSet(st) {
+    var net = {}, q = [st.hall], seen = {}; seen[st.hall] = 1; net[st.hall] = 1;
+    while (q.length) { var c = q.shift(); n4(c).forEach(function (j) { if (seen[j]) return; var b = st.tiles[j].b; if (b && b.type === 'road') { seen[j] = 1; net[j] = 1; q.push(j); } }); }
+    var con = {}; Object.keys(net).forEach(function (k) { con[k] = true; }); // the hall and every road in the network
+    st.tiles.forEach(function (t, i) { if (!t.b || con[i]) return; if (n4(i).some(function (j) { return net[j]; })) con[i] = true; });
+    return con;
+  }
+
+  /* ================================================================ 7 · adjacency & building output (shared by previews and turn resolution) */
+  function homesOf(st) { var h = []; st.tiles.forEach(function (t, i) { if (t.b && (t.b.type === 'cottage' || t.b.type === 'townhouse')) h.push(i); }); return h; }
+  function knowledgeBonus(st) { return Math.min(0.25, Math.floor(st.res.knowledge / 10) * 0.05); }
+  function efficiency(st) { return 0.85 + 0.003 * st.happy; }   // 50 % happiness → ×1.00; 100 % → ×1.15; 0 % → ×0.85
+  // the raw output of one building in a given turn context (before staffing/upkeep decisions); returns { food, wood, stone, coins, knowledge, notes[], harvest[] }
+  function output(st, i, ctx) {
+    var tile = st.tiles[i], b = tile.b, type = b.type, T = TERRAIN[tile.t], o = { food: 0, wood: 0, stone: 0, coins: 0, knowledge: 0, notes: [], harvest: [] }, con = ctx.con[i], sea = ctx.season, ev = ctx.event;
+    var mult = ctx.eff * (1 + ctx.kb), half = !con && (type === 'farm' || type === 'irrigated' || type === 'lumber' || type === 'forestry' || type === 'quarry') ? 0.5 : 1;
+    if (type === 'farm' || type === 'irrigated') {
+      var base = (T.farm || 0) + tierOf(st).fertile, w = hasNeed(st, i, 'water'); o.notes.push(T.name + ' ' + base); if (tierOf(st).fertile) o.notes.push((tierOf(st).fertile > 0 ? '+' : '') + tierOf(st).fertile + ' ' + tierOf(st).label + ' soil');
+      if (w) { base += 2; o.notes.push('+2 beside water'); } if (type === 'irrigated') { base += 2; o.notes.push('+2 irrigation'); }
+      var f = sea.food; if (ev && ev.id === 'goodHarvest') { f *= 1.3; o.notes.push('×1.3 good harvest'); } if (ev && ev.id === 'drought' && !w) { f *= 0.7; o.notes.push('×0.7 drought'); }
+      o.notes.push('×' + sea.food + ' ' + sea.name.toLowerCase()); o.food = Math.round(Math.max(0, base) * f * mult * half);
+    }
+    if (type === 'lumber' || type === 'forestry') {
+      var fs = n4(i).filter(function (j) { return TERRAIN[st.tiles[j].t].forest; }).sort(function (a, c) { return st.tiles[c].timber - st.tiles[a].timber || a - c; }).slice(0, 3), cut = 0;
+      fs.forEach(function (j) { var tb = ctx.timber ? ctx.timber[j] : st.tiles[j].timber; if (type === 'forestry' ? tb >= 3 : tb >= 1) { cut++; o.harvest.push(j); } });
+      var wood = cut * 2 + (type === 'forestry' && cut ? 1 : 0); o.notes.push(cut + ' forest' + (cut === 1 ? '' : 's') + ' cut ×2' + (type === 'forestry' ? ' +1 forestry' : ''));
+      if (ev && ev.id === 'timberShortage') { wood *= 0.7; o.notes.push('×0.7 timber blight'); } o.wood = Math.round(wood * mult * half);
+    }
+    if (type === 'quarry') { var s = (T.stone || 0) + (n4(i).some(function (j) { return st.tiles[j].t === 'M'; }) ? 1 : 0); o.notes.push(T.name + ' ' + T.stone + (s > T.stone ? ', +1 beside mountains' : '')); o.stone = Math.round(s * mult * half); }
+    if (type === 'market' || type === 'hallTrade') {
+      var homes = homesOf(st).filter(function (h) { return within(h, i, 2); }), n = 0; homes.forEach(function (h) { n += st.tiles[h].b.type === 'townhouse' ? 2 : 1; }); n = Math.min(8, n);
+      var c = 2 + n + (type === 'hallTrade' ? 2 : 0) + (ev && ev.id === 'marketDay' ? 3 : 0) + (ev && ev.id === 'tradeRoute' ? 2 : 0); o.notes.push('2 + ' + n + ' from homes within 2 tiles' + (type === 'hallTrade' ? ' +2 trading hall' : '') + (ev && (ev.id === 'marketDay' || ev.id === 'tradeRoute') ? ' + event' : ''));
+      o.coins = Math.round(c * mult);
+    }
+    if (type === 'harbor') { var cc = 2 + (ev && ev.id === 'tradeRoute' ? 2 : 0); o.food = Math.round(3 * mult); o.coins = Math.round(cc * mult); o.notes.push('3 food, ' + cc + ' coins'); }
+    if (type === 'school') { o.knowledge = 2; o.notes.push('2 knowledge'); }
+    if (type === 'hall') { o.coins = 3; o.notes.push('3 coins of taxes'); }
+    if (type === 'workshop') { var link = ctx.linked; o.coins = Math.round((6 + (link ? 2 : 0)) * mult); o.uses = { wood: 2, stone: 1 }; o.notes.push('2 wood + 1 stone → ' + (6 + (link ? 2 : 0)) + ' coins' + (link ? ' (linked to a quarry and a lumberyard)' : '')); }
+    if (!con && half < 1) o.notes.push('×0.5 not connected');
+    return o;
+  }
+  function context(st, turn) {
+    var con = connectedSet(st), linkQ = false, linkL = false; st.tiles.forEach(function (t, i) { if (!t.b || !con[i]) return; if (t.b.type === 'quarry') linkQ = true; if (t.b.type === 'lumber' || t.b.type === 'forestry') linkL = true; });
+    return { con: con, season: season(st, turn), event: eventOf(st, turn), eff: efficiency(st), kb: knowledgeBonus(st), linked: linkQ && linkL };
+  }
+  // what one building will do at the end of THIS season, exactly as the turn will compute it (staffing and upkeep aside — see project())
+  function preview(st, type, i) {
+    var chk = canBuild(st, type, i), s2 = clone(st), out = { check: chk, cost: chk.cost || scaledCost(st, type), bonuses: [], penalties: [], connected: false, workers: B[type].workers || 0, upkeep: upkeepOf(st, type) };
+    if (!st.tiles[i] || st.tiles[i].b || B[type].on.indexOf(st.tiles[i].t) < 0) return out;
+    s2.tiles[i].b = { type: type, id: -1, inv: {} }; var ctx = context(s2); out.connected = !!ctx.con[i];
+    var o = (type === 'road' || type === 'well' || type === 'garden' || type === 'cottage' || type === 'granary') ? { food: 0, wood: 0, stone: 0, coins: 0, knowledge: 0, notes: [] } : output(s2, i, ctx);
+    if (chk.ok && o.notes.length) { // exact: build it on a copy and resolve the season — staffing, upkeep and roads included
+      var s3 = clone(st); act(s3, { t: 'build', b: type, i: i }); var L3 = resolve(s3), real = L3.buildings[i];
+      if (real) o = real; else { o = { food: 0, wood: 0, stone: 0, coins: 0, knowledge: 0, notes: [B[type].needsRoad && !ctx.con[i] ? 'would not operate: no road' : 'would stand idle: not enough workers' + (B[type].upkeep ? ' or coins for upkeep' : '') + (type === 'workshop' ? ' or materials' : '')] }; out.idle = true; } }
+    out.output = o;
+    var T = TERRAIN[st.tiles[i].t];
+    if (T.forest && type !== 'road') out.penalties.push('Clears this forest for good (+2 wood now).');
+    if (type === 'farm') { if (hasNeed(st, i, 'water')) out.bonuses.push('+2 food: beside a river or lake.'); if (T.farm < 5) out.penalties.push(T.name + ': poorer soil (' + T.farm + ' base instead of 5).'); }
+    if (type === 'lumber') { var nf = n4(i).filter(function (j) { return TERRAIN[st.tiles[j].t].forest; }); out.bonuses.push(Math.min(3, nf.length) + ' adjacent forest' + (nf.length === 1 ? '' : 's') + ' to cut.'); var shared = nf.some(function (j) { return n4(j).some(function (k) { return k !== i && st.tiles[k].b && (st.tiles[k].b.type === 'lumber' || st.tiles[k].b.type === 'forestry'); }); }); if (shared) out.penalties.push('Shares forest with another lumberyard: it will run out sooner.'); }
+    if (type === 'quarry') { var nh = homesOf(st).filter(function (h) { return within(h, i, 1); }).length; if (nh) out.penalties.push(nh + ' home' + (nh === 1 ? '' : 's') + ' within 1 tile will be unhappy (noise).'); if (n4(i).some(function (j) { return st.tiles[j].t === 'M'; })) out.bonuses.push('+1 stone: beside mountains.'); }
+    if (type === 'workshop') { var nw = homesOf(st).filter(function (h) { return within(h, i, 1); }).length; if (nw) out.penalties.push(nw + ' home' + (nw === 1 ? '' : 's') + ' within 1 tile will be unhappy (noise).'); out.bonuses.push(ctx.linked ? '+2 coins: the roads link a quarry and a lumberyard.' : 'Link a quarry and a lumberyard to the roads for +2 coins.'); }
+    if (type === 'cottage') { var near = function (k) { return st.tiles.some(function (t, j) { return t.b && t.b.type === k && within(i, j, 1); }); }; if (near('well')) out.bonuses.push('Watered: a well within 1 tile.'); if (near('garden')) out.bonuses.push('A garden within 1 tile.'); if (st.tiles.some(function (t, j) { return t.b && (t.b.type === 'market' || t.b.type === 'hallTrade') && within(i, j, 2) && ctx.con[j]; })) out.bonuses.push('Market access (a connected market within 2 tiles).'); if (near('quarry') || near('workshop')) out.penalties.push('Noisy: a quarry or workshop within 1 tile.'); if (!out.connected) out.penalties.push('Not connected to the roads: unhappy, no market access.'); out.output.housing = 4; }
+    if (type === 'well' || type === 'garden') { var hn = homesOf(st).filter(function (h) { return within(h, i, 1); }).length; out.bonuses.push(hn + ' home' + (hn === 1 ? '' : 's') + ' within 1 tile ' + (type === 'well' ? 'will be watered.' : 'will enjoy the garden.')); }
+    if (type === 'market') { out.bonuses.push((o.coins || 0) + ' coins now; +1 for each home built within 2 tiles (up to +8).'); }
+    if (type === 'road') { var before = connectedSet(st), gained = 0; Object.keys(ctx.con).forEach(function (k) { if (!before[k] && +k !== i) gained++; }); out.bonuses.push(out.connected ? 'Joins the network' + (gained ? ' and connects ' + gained + ' building' + (gained === 1 ? '' : 's') : '') + '.' : 'Not touching the network yet — it will not connect anything.'); }
+    if (B[type].needsRoad && !out.connected) out.penalties.push('Not connected: a ' + B[type].name.toLowerCase() + ' does not operate until a road links it to the Town Hall.');
+    if ((type === 'farm' || type === 'lumber' || type === 'quarry') && !out.connected) out.penalties.push('Not connected: half output until a road reaches it.');
+    if (out.workers) out.bonuses.push('Needs ' + out.workers + ' worker' + (out.workers === 1 ? '' : 's') + (out.upkeep ? ' and ' + out.upkeep + ' coin' + (out.upkeep === 1 ? '' : 's') + ' upkeep' : '') + ' each turn.');
+    return out;
+  }
+
+  /* ================================================================ 9 · turn resolution */
+  // Order (documented): 1 upkeep → 2 staffing → 3 production → 4 workshops → 5 food & heating consumption → 6 storage limits
+  // → 7 population → 8 happiness → 9 forests → 10 records, season advance, victory / failure.
+  function resolve(st) {
+    var L = { turn: st.turn, season: season(st).name, year: year(st), event: eventOf(st) ? eventOf(st).name : null, lines: { food: [], wood: [], stone: [], coins: [], knowledge: [] }, start: Object.assign({}, st.res), notes: [], pop: {}, happy: {}, buildings: {} };
+    var ctx = context(st), ev = ctx.event, sea = ctx.season, T = tierOf(st), r = st.res, add = function (k, v, why) { if (!v) return; r[k] += v; L.lines[k].push([why, v]); };
+    // 1 · upkeep: buildings are paid in staffing order; an unpaid building does not operate this season
+    var order = []; STAFF_ORDER.forEach(function (ty) { st.tiles.forEach(function (t, i) { if (t.b && t.b.type === ty) order.push(i); }); });
+    var active = {}, upkeep = 0, unpaid = [];
+    order.forEach(function (i) { var u = upkeepOf(st, st.tiles[i].b.type); if (u > r.coins) { unpaid.push(i); return; } if (u) { r.coins -= u; upkeep += u; } active[i] = true; });
+    if (upkeep) L.lines.coins.push(['Upkeep', -upkeep]); if (unpaid.length) L.notes.push(unpaid.length + ' building' + (unpaid.length === 1 ? '' : 's') + ' unpaid (no coins) and idle: ' + unpaid.map(coord).join(', ') + '.');
+    // 2 · staffing: workers fill buildings in priority order; must-connect buildings without a road do not operate
+    var workers = st.pop, idle = [], off = [];
+    order.forEach(function (i) { if (!active[i]) return; var D = B[st.tiles[i].b.type]; if (D.needsRoad && !ctx.con[i]) { active[i] = false; off.push(i); return; } if (workers >= D.workers) workers -= D.workers; else { active[i] = false; idle.push(i); } });
+    if (off.length) L.notes.push('Not connected, not operating: ' + off.map(coord).join(', ') + '.'); if (idle.length) L.notes.push('Not enough workers: ' + idle.map(coord).join(', ') + ' stood idle.');
+    L.workers = { total: st.pop, free: workers };
+    // 3 · production
+    var sums = { farms: 0, harbors: 0, lumber: 0, quarry: 0, market: 0, hall: 0, harborCoins: 0, school: 0 }, timber = {}; st.tiles.forEach(function (t, i) { if (TERRAIN[t.t].forest) timber[i] = t.timber; }); ctx.timber = timber;
+    var harvested = {};
+    st.tiles.forEach(function (t, i) { if (!t.b) return; var ty = t.b.type; if (ty !== 'hall' && STAFF_ORDER.indexOf(ty) >= 0 && !active[i]) return; if (ty === 'workshop') return;
+      var o = output(st, i, ctx); L.buildings[i] = o;
+      if (ty === 'farm' || ty === 'irrigated') sums.farms += o.food; if (ty === 'harbor') { sums.harbors += o.food; sums.harborCoins += o.coins; }
+      if (ty === 'lumber' || ty === 'forestry') { sums.lumber += o.wood; o.harvest.forEach(function (j) { timber[j] -= 1; harvested[j] = (harvested[j] || 0) + 1; }); }
+      if (ty === 'quarry') sums.quarry += o.stone; if (ty === 'market' || ty === 'hallTrade') sums.market += o.coins; if (ty === 'hall') sums.hall += o.coins; if (ty === 'school') sums.school += o.knowledge; });
+    add('food', sums.farms, 'Farms'); add('food', sums.harbors, 'Harbors (fishing)'); add('wood', sums.lumber, 'Lumberyards'); add('stone', sums.quarry, 'Quarries');
+    add('coins', sums.hall, 'Town Hall taxes'); add('coins', sums.market, 'Markets'); add('coins', sums.harborCoins, 'Harbor trade'); add('knowledge', sums.school, 'Schools');
+    // 4 · workshops convert materials (only while materials last)
+    var ws = 0, wsW = 0, wsS = 0; order.forEach(function (i) { if (!active[i] || st.tiles[i].b.type !== 'workshop') return; if (r.wood >= 2 && r.stone >= 1) { r.wood -= 2; r.stone -= 1; wsW += 2; wsS += 1; var o = output(st, i, ctx); ws += o.coins; L.buildings[i] = o; } else L.notes.push('Workshop ' + coord(i) + ' had no wood or stone to work.'); });
+    if (ws) { L.lines.wood.push(['Workshops used', -wsW]); L.lines.stone.push(['Workshops used', -wsS]); add('coins', ws, 'Workshops'); }
+    // 5 · consumption: food, then winter heating
+    var eat = st.pop; if (ev && ev.id === 'harshWinter') eat = Math.ceil(st.pop * 1.25); var shortage = 0;
+    if (r.food >= eat) { r.food -= eat; L.lines.food.push(['Citizens ate', -eat]); } else { shortage = eat - r.food; L.lines.food.push(['Citizens ate (short ' + shortage + ')', -r.food]); r.food = 0; }
+    var heatShort = false; if (sea.id === 'winter') { var need = 0; homesOf(st).forEach(function (h) { need += st.tiles[h].b.type === 'townhouse' ? 2 : 1; }); need += 1; if (ev && ev.id === 'harshWinter') need *= 2; var burn = Math.min(need, r.wood); r.wood -= burn; if (burn) L.lines.wood.push(['Winter heating', -burn]); if (burn < need) { heatShort = true; L.notes.push('Not enough wood to heat every home (' + burn + ' of ' + need + ').'); } }
+    // 6 · storage limits
+    var granaries = st.tiles.filter(function (t) { return t.b && t.b.type === 'granary'; }).length, capF = CAPS.food + GRANARY_CAP * granaries;
+    if (r.food > capF) { L.lines.food.push(['Spoiled (storage ' + capF + ')', capF - r.food]); r.food = capF; }
+    if (r.wood > CAPS.wood) { L.lines.wood.push(['No room to store (max ' + CAPS.wood + ')', CAPS.wood - r.wood]); r.wood = CAPS.wood; }
+    if (r.stone > CAPS.stone) { L.lines.stone.push(['No room to store (max ' + CAPS.stone + ')', CAPS.stone - r.stone]); r.stone = CAPS.stone; }
+    // 7 · population
+    var cap = housing(st), p0 = st.pop, net = 0; L.lines.food.forEach(function (l) { net += l[1]; });
+    if (shortage > 0) { var lost = Math.max(1, Math.ceil(shortage / 2)); st.pop = Math.max(0, st.pop - lost); st.streak.short++; st.shortTurns++; L.pop.change = -lost; L.pop.why = 'Food ran short by ' + shortage + ': ' + lost + ' citizen' + (lost === 1 ? '' : 's') + ' left.'; }
+    else { st.streak.short = 0;
+      if (st.pop > cap) { var gone = st.pop - cap; st.pop = cap; L.pop.change = -gone; L.pop.why = 'Not enough homes: ' + gone + ' left.'; }
+      else if (st.happy < HAPPY.growMin) { L.pop.change = 0; L.pop.why = 'No growth: happiness is below ' + HAPPY.growMin + '%.'; }
+      else if (st.pop >= cap) { L.pop.change = 0; L.pop.why = 'No growth: every home is full (' + cap + ').'; }
+      else if (net < 0) { L.pop.change = 0; L.pop.why = 'No growth: the kingdom ate more food than it produced.'; }
+      else { var g = Math.min(cap - st.pop, Math.min(3, 1 + Math.floor(net / 4)) + sea.growth); st.pop += g; L.pop.change = g; L.pop.why = 'Growth: food to spare (+' + net + ') and room in ' + (cap - p0) + ' home places.'; } }
+    if (ev && ev.id === 'migrants' && shortage === 0 && st.happy >= 50 && st.pop < cap) { var mg = Math.min(2, cap - st.pop); st.pop += mg; L.pop.migrants = mg; }
+    if (st.happy < HAPPY.leaveBelow) { st.streak.low++; if (st.streak.low >= 2 && st.pop > 0) { st.pop -= 1; L.pop.departed = 1; } } else st.streak.low = 0;
+    L.pop.from = p0; L.pop.to = st.pop; L.pop.cap = cap;
+    // 8 · happiness: a target from named factors; it moves toward the target by at most 8 points a season
+    var H = happinessTarget(st, ctx, { shortage: shortage > 0, heatShort: heatShort }), h0 = st.happy, d = Math.max(-HAPPY.step, Math.min(HAPPY.step, H.target - st.happy)); st.happy = Math.max(0, Math.min(100, st.happy + d));
+    L.happy = { from: h0, to: st.happy, target: H.target, factors: H.factors };
+    // 9 · forests: cut timber, regrowth, clearing
+    Object.keys(timber).forEach(function (k) { var i = +k, t = st.tiles[i]; t.timber = Math.max(0, timber[i]); if (sea.regrow && t.timber > 0) t.timber = Math.min(TIMBER_MAX, t.timber + sea.regrow); if (t.timber <= 0) { t.t = 'm'; L.notes.push('The forest at ' + coord(i) + ' was cut to nothing and is now meadow.'); } });
+    // 10 · records, season advance, end
+    L.end = Object.assign({}, r); L.popEnd = st.pop; L.shortage = shortage; st.maxPop = Math.max(st.maxPop, st.pop); st.maxHappy = Math.max(st.maxHappy, st.happy);
+    var prod = 0; ['food', 'wood', 'stone', 'coins', 'knowledge'].forEach(function (k) { L.lines[k].forEach(function (l) { if (l[1] > 0 && !/^Workshops used/.test(l[0])) prod += l[1]; }); });
+    st.hist.push({ turn: st.turn, pop: st.pop, happy: st.happy, coins: r.coins, income: (L.lines.coins.reduce(function (a, l) { return a + l[1]; }, 0)), food: r.food, shortage: shortage, prod: prod, occupied: occupied(st) });
+    st.crewsUsed = 0; st.tradesUsed = {};
+    if (st.pop <= 0) { st.over = true; st.result = { fallen: true, why: 'Everyone has left — the kingdom is empty.' }; }
+    else if (st.streak.short >= 3) { st.over = true; st.result = { fallen: true, why: 'Three seasons of famine in a row: the kingdom collapsed.' }; }
+    else if (st.turn >= TURNS) { st.over = true; st.result = { fallen: false }; }
+    if (!st.over) st.turn++;
+    if (st.over) st.result.score = score(st);
+    L.next = st.over ? null : { season: season(st).name, event: eventOf(st) ? eventOf(st).name : null };
+    return L;
+  }
+  function housing(st) { var c = 0; st.tiles.forEach(function (t) { if (t.b && B[t.b.type].housing) c += B[t.b.type].housing; }); return c; }
+  function occupied(st) { return st.tiles.filter(function (t) { return t.b; }).length; }
+  function happinessTarget(st, ctx, o) {
+    var f = [], homes = homesOf(st), n = homes.length || 1, add = function (why, v) { if (v) f.push([why, Math.round(v)]); };
+    f.push(['Base', 50]);
+    if (o.shortage) add('Food ran out', -20); else if (st.res.food >= st.pop) add('Food in store for a season', 5);
+    var cap = housing(st); if (st.pop >= cap) add('Crowded homes', -6); else if (st.pop <= cap * 0.75) add('Room to grow', 3);
+    if (homes.length) {
+      var near = function (h, types, r) { return st.tiles.some(function (t, j) { return t.b && types.indexOf(t.b.type) >= 0 && within(h, j, r) && (types[0] !== 'market' || ctx.con[j]); }); };
+      var watered = homes.filter(function (h) { return near(h, ['well'], 1); }).length; add('Wells (' + watered + ' of ' + homes.length + ' homes)', 10 * watered / n);
+      if (ctx.season.id === 'summer') add('Summer heat (' + (homes.length - watered) + ' homes without a well)', -10 * (homes.length - watered) / n);
+      var mk = homes.filter(function (h) { return near(h, ['market', 'hallTrade'], 2); }).length; add('Market access (' + mk + ' of ' + homes.length + ')', 10 * mk / n);
+      var gd = homes.filter(function (h) { return near(h, ['garden'], 1); }).length; add('Gardens (' + gd + ' of ' + homes.length + ')', 8 * gd / n);
+      var noisy = homes.filter(function (h) { return near(h, ['quarry', 'workshop'], 1); }).length; add('Noise from quarries/workshops (' + noisy + ' homes)', -12 * noisy / n);
+      var iso = homes.filter(function (h) { return !ctx.con[h]; }).length; add('Homes off the roads (' + iso + ')', -8 * iso / n);
+    }
+    if (st.tiles.some(function (t, i) { return t.b && t.b.type === 'school' && ctx.con[i]; })) add('School', 5);
+    if (o.heatShort) add('Cold homes (not enough firewood)', -10);
+    if (ctx.event && ctx.event.id === 'festival') add('Festival', 10); if (ctx.event && ctx.event.id === 'harshWinter') add('Harsh winter', -5);
+    var target = 0; f.forEach(function (x) { target += x[1]; }); return { target: Math.max(0, Math.min(100, target)), factors: f };
+  }
+  // exact projection of the end of this season if nothing else is built (events this season are already known)
+  function project(st) { var s2 = clone(st), L = resolve(s2); return { food: L.end.food - st.res.food, wood: L.end.wood - st.res.wood, stone: L.end.stone - st.res.stone, coins: L.end.coins - st.res.coins, knowledge: L.end.knowledge - st.res.knowledge, pop: s2.pop - st.pop, happy: s2.happy - st.happy, ledger: L, fails: s2.over && s2.result && s2.result.fallen }; }
+
+  /* ================================================================ 10 · scoring (0–1000) */
+  function score(st) {
+    var h = st.hist, last = h.slice(-4), avg = function (k) { return last.length ? last.reduce(function (a, x) { return a + x[k]; }, 0) / last.length : 0; };
+    var con = connectedSet(st), blds = st.tiles.map(function (t, i) { return t.b && t.b.type !== 'road' && t.b.type !== 'hall' ? i : -1; }).filter(function (i) { return i >= 0; });
+    var types = {}; st.tiles.forEach(function (t) { if (t.b && t.b.type !== 'hall') types[B[t.b.type].base || t.b.type] = 1; });
+    var turns = h.length || 1, shortages = h.filter(function (x) { return x.shortage > 0; }).length, occ = Math.max(1, occupied(st));
+    var c = {
+      prosperity: Math.min(100, (st.res.coins / 2 + 6 * Math.max(0, avg('income'))) / 1.6),
+      population: Math.min(100, avg('pop') / 36 * 100),
+      happiness: avg('happy'),
+      infrastructure: blds.length ? 60 * blds.filter(function (i) { return con[i]; }).length / blds.length + 40 * Math.min(1, Object.keys(types).length / 10) : 0,
+      stability: 100 * (turns - shortages) / turns * (st.res.food >= st.pop ? 1 : 0.7),
+      land: Math.min(100, avg('prod') / occ / 5 * 100)
+    };
+    var total = 0, parts = {}; Object.keys(WEIGHTS).forEach(function (k) { parts[k] = Math.round(c[k] * 10) / 10; total += c[k] * WEIGHTS[k] / 100; });
+    var pts = Math.round(total * 10), T = tierOf(st), fallen = st.result && st.result.fallen;
+    var grade = fallen ? 'fallen' : pts >= T.grade.gold ? 'gold' : pts >= T.grade.silver ? 'silver' : 'bronze';
+    return { points: pts, parts: parts, grade: grade, efficiency: Math.round(c.land) };
+  }
+  var GRADE_TEXT = { gold: 'Gold Kingdom', silver: 'Silver Kingdom', bronze: 'Bronze Kingdom', fallen: 'Fallen Kingdom' };
+  var SCORE_TEXT = [
+    ['prosperity', 'Prosperity', '(treasury ÷ 2 + 6 × average coin income over the last year) ÷ 1.6, up to 100'],
+    ['population', 'Population', 'average population over the last year ÷ 36, up to 100'],
+    ['happiness', 'Happiness', 'average happiness over the last year'],
+    ['infrastructure', 'Infrastructure', '60 × share of buildings connected to the roads + 40 × variety (different building types ÷ 10, up to 1)'],
+    ['stability', 'Resource stability', '100 × share of seasons without famine (× 0.7 if the final food store cannot feed everyone for a season)'],
+    ['land', 'Land efficiency', 'average production per season ÷ occupied tiles ÷ 5, up to 100']
+  ];
+
+  /* ================================================================ 11 · actions & save-by-replay */
+  function act(st, a) {
+    if (!a || st.over) return { ok: false, reason: st.over ? 'The reign has ended.' : 'No action.' };
+    if (a.t === 'build') { var c = canBuild(st, a.b, a.i); if (!c.ok) return c; var tile = st.tiles[a.i], gain = 0;
+      for (var k in c.cost) st.res[k] -= c.cost[k];
+      if (TERRAIN[tile.t].forest && a.b !== 'road') { gain = 2; st.res.wood += 2; tile.t = 'm'; tile.timber = 0; }
+      if (a.b === 'road' && TERRAIN[tile.t].forest) { gain = 1; st.res.wood += 1; tile.t = 'm'; tile.timber = 0; }
+      tile.b = { type: a.b, id: st.nextId++, inv: c.cost, at: st.turn }; st.crewsUsed++; st.built++; st.actions.push(a); return { ok: true, cleared: gain }; }
+    if (a.t === 'upgrade') { var u = canUpgrade(st, a.i); if (!u.ok) return u; var b = st.tiles[a.i].b; for (var k2 in u.cost) { st.res[k2] -= u.cost[k2]; b.inv[k2] = (b.inv[k2] || 0) + u.cost[k2]; } b.type = u.to; st.crewsUsed++; st.upgrades++; st.actions.push(a); return { ok: true }; }
+    if (a.t === 'demolish') { var t2 = st.tiles[a.i]; if (!t2 || !t2.b) return { ok: false, reason: 'Nothing to demolish.' }; if (t2.b.type === 'hall') return { ok: false, reason: 'The Town Hall cannot be demolished.' };
+      var rf = refundOf(st, a.i); for (var k3 in rf) st.res[k3] += rf[k3]; t2.b = null; st.demolished++; st.actions.push(a); return { ok: true, refund: rf }; }
+    if (a.t === 'trade') { var mb = st.tiles[a.i] && st.tiles[a.i].b; if (!mb || !TRADES[mb.type]) return { ok: false, reason: 'Trades happen at a market.' };
+      if (!connectedSet(st)[a.i]) return { ok: false, reason: 'This market is not connected to the roads.' };
+      var lim = mb.type === 'hallTrade' ? 2 : 1; if ((st.tradesUsed[a.i] || 0) >= lim) return { ok: false, reason: 'This market has made its ' + (lim === 1 ? 'trade' : 'two trades') + ' this season.' };
+      var tr = TRADES[mb.type].find(function (x) { return x.id === a.k; }); if (!tr) return { ok: false, reason: 'Unknown trade.' }; if (!afford(st, tr.give)) return { ok: false, reason: 'Not enough ' + missing(st, tr.give) + '.' };
+      for (var g in tr.give) st.res[g] -= tr.give[g]; for (var g2 in tr.get) st.res[g2] += tr.get[g2]; st.tradesUsed[a.i] = (st.tradesUsed[a.i] || 0) + 1; st.actions.push(a); return { ok: true, trade: tr }; }
+    if (a.t === 'end') { if (a.turn !== st.turn) return { ok: false, reason: 'This season has already ended.' }; st.actions.push(a); var L = resolve(st); return { ok: true, ledger: L }; }
+    return { ok: false, reason: 'Unknown action.' };
+  }
+  // a save is the founding parameters plus the list of actions; loading replays them through the engine (production can never be duplicated)
+  function saveData(st) { return { v: 1, map: st.map, tier: st.tier, seed: st.seed, name: st.name, actions: st.actions.slice(), check: checksum(st) }; }
+  function checksum(st) { return h32(JSON.stringify([st.turn, st.res, st.pop, st.happy, st.tiles.map(function (t) { return [t.t, t.b ? t.b.type : 0, t.timber]; }), st.over])); }
+  function restore(d) {
+    if (!d || d.v !== 1 || MAP_IDS.indexOf(d.map) < 0 || !TIERS[d.tier] || typeof d.seed !== 'string' || typeof d.name !== 'string' || !Array.isArray(d.actions) || d.actions.length > 5000) return { ok: false, reason: 'unknown or damaged save' };
+    var st = create(d.map, d.tier, d.seed, d.name.slice(0, 40));
+    for (var k = 0; k < d.actions.length; k++) { var a = d.actions[k]; if (!a || typeof a !== 'object') return { ok: false, reason: 'damaged action list' }; var r = act(st, a); if (!r.ok) return { ok: false, reason: 'an action could not be replayed (' + r.reason + ')' }; }
+    if (d.check !== undefined && d.check !== checksum(st)) return { ok: false, reason: 'the saved kingdom does not match its history' };
+    return { ok: true, st: st };
+  }
+
+  /* ================================================================ 12 · planner (Bronze advisor, and the solvability bot used by the tests) */
+  // tileValue: a quick, explainable rating of a site for a building type (used by the Bronze advisor and the steward bot)
+  function tileValue(st, type, i, con) {
+    if (!canBuild(st, type, i).ok) return -Infinity; con = con || connectedSet(st);
+    var s2 = clone(st); s2.tiles[i].b = { type: type, id: -1, inv: {} }; var c2 = connectedSet(s2), ctx = context(s2), touches = !!c2[i], v = touches ? 6 : 0, homes = homesOf(st), T = TERRAIN[st.tiles[i].t];
+    var nearOf = function (types, r) { return homes.filter(function (h) { return within(h, i, r); }).length; };
+    if (type === 'farm') v += (T.farm || 0) * 3 + (hasNeed(st, i, 'water') ? 7 : 0) - nearOf([], 1) * 0.5;
+    if (type === 'lumber') { var o = output(s2, i, ctx); v += o.wood * 3; }
+    if (type === 'quarry') { v += (T.stone || 0) * 3 - nearOf([], 1) * 6; }
+    if (type === 'cottage') { st.tiles.forEach(function (t, j) { if (!t.b) return; var ty = t.b.type; if (within(i, j, 1) && (ty === 'well' || ty === 'garden')) v += 5; if (within(i, j, 2) && (ty === 'market' || ty === 'hallTrade')) v += 4; if (within(i, j, 1) && (ty === 'quarry' || ty === 'workshop')) v -= 9; }); v += T.farm >= 5 ? -2 : 1; if (T.forest) v -= 2; }
+    if (type === 'well' || type === 'garden') v += nearOf([], 1) * 6 - 3;
+    if (type === 'market') v += Math.min(8, nearOf([], 2)) * 4;
+    if (type === 'workshop' || type === 'school' || type === 'granary' || type === 'harbor') v += (T.farm >= 5 ? -3 : 2) - (type === 'workshop' ? nearOf([], 1) * 6 : 0);
+    if (T.forest && type !== 'lumber') v -= 3; if (T.farm >= 5 && type !== 'farm') v -= 2;
+    // keep room: never seal off the last free tiles beside the road network
+    if (type !== 'road') { var fr = frontier(st, con); if (fr.indexOf(i) >= 0 && fr.length <= 3) v -= 25; }
+    return v;
+  }
+  function frontier(st, con) { con = con || connectedSet(st); var f = []; for (var i = 0; i < W * H; i++) { var t = st.tiles[i]; if (t.b || B.road.on.indexOf(t.t) < 0 || t.t === 'R') continue; if (n4(i).some(function (j) { var b = st.tiles[j].b; return con[j] && b && (b.type === 'road' || b.type === 'hall'); })) f.push(i); } return f; }
+  function bestSite(st, type) { var con = connectedSet(st), best = -1, bv = -Infinity; for (var i = 0; i < W * H; i++) { var v = tileValue(st, type, i, con); if (v > bv) { bv = v; best = i; } } return best; }
+  function suggest(st, type) { return bestSite(st, type); }
+  // a road step toward the nearest unconnected building that needs one (BFS over tiles a road may use)
+  function roadStep(st, avoid) {
+    if (avoid === undefined) avoid = true; var con = connectedSet(st), want = [];
+    st.tiles.forEach(function (t, i) { if (t.b && !con[i] && t.b.type !== 'road' && t.b.type !== 'well' && t.b.type !== 'garden' && t.b.type !== 'granary') want.push(i); });
+    if (!want.length) return -1; var net = {}; Object.keys(con).forEach(function (k) { var b = st.tiles[k].b; if (b && (b.type === 'road' || b.type === 'hall')) net[k] = 1; });
+    var prev = {}, q = Object.keys(net).map(Number), seen = {}; q.forEach(function (k) { seen[k] = 1; });
+    var target = {}; want.forEach(function (w) { n4(w).forEach(function (j) { target[j] = 1; }); });
+    while (q.length) { var c = q.shift(); if (!net[c] && target[c]) { var p = c; while (prev[p] !== undefined && !net[prev[p]]) p = prev[p]; return p; }
+      n4(c).forEach(function (j) { if (seen[j]) return; var t = st.tiles[j]; if (t.b || B.road.on.indexOf(t.t) < 0 || (avoid && (TERRAIN[t.t].forest || t.t === 'R'))) return; seen[j] = 1; prev[j] = c; q.push(j); }); }
+    return avoid ? roadStep(st, false) : -1;
+  }
+  function steward(st) { // a sensible, deterministic ruler: food first, then wood, homes, roads, amenities, industry, upgrades
+    var guard = 0, T = tierOf(st);
+    function tryB(type, i) { if (i < 0) return false; return act(st, { t: 'build', b: type, i: i }).ok; }
+    function count(types) { return st.tiles.filter(function (t) { return t.b && types.indexOf(t.b.type) >= 0; }).length; }
+    while (st.crewsUsed < T.crews && guard++ < 12) {
+      var cap = housing(st), farms = count(['farm', 'irrigated']), lumber = count(['lumber', 'forestry']), quarries = count(['quarry']), homes = homesOf(st).length, done = false;
+      var foodRate = 0, ctx = context(st); st.tiles.forEach(function (t, i) { if (t.b && (t.b.type === 'farm' || t.b.type === 'irrigated' || t.b.type === 'harbor')) { var b0 = t.b.type === 'harbor' ? 3 : ((TERRAIN[t.t].farm || 0) + T.fertile + (hasNeed(st, i, 'water') ? 2 : 0) + (t.b.type === 'irrigated' ? 2 : 0)); foodRate += b0 * (ctx.con[i] || t.b.type === 'harbor' ? 1 : 0.5); } });
+      var winterNeed = homes + count(['townhouse']) + 2, rs = st.res;
+      var used = 0; st.tiles.forEach(function (t) { if (t.b) used += B[t.b.type].workers || 0; }); var free = st.pop - used, canStaff = function (ty) { return free >= (B[ty].workers || 0); };
+      var steps = [
+        function () { return lumber === 0 && tryB('lumber', bestSite(st, 'lumber')); },
+        function () { return foodRate < st.pop + 2 && canStaff('farm') && tryB('farm', bestSite(st, 'farm')); },
+        function () { var r = roadStep(st); return r >= 0 && tryB('road', r); },
+        function () { var fr = frontier(st); if (fr.length > 2 || st.res.wood < 3) return false; var best = -1, bv = -1; fr.forEach(function (i) { var open = n4(i).filter(function (j) { return !st.tiles[j].b && B.road.on.indexOf(st.tiles[j].t) >= 0 && st.tiles[j].t !== 'R'; }).length; if (open > bv) { bv = open; best = i; } }); return best >= 0 && bv >= 1 && tryB('road', best); },
+        function () { return st.pop >= cap - 1 && foodRate >= st.pop + 1 && tryB('cottage', bestSite(st, 'cottage')); },
+        function () { return quarries === 0 && st.turn >= 2 && canStaff('quarry') && tryB('quarry', bestSite(st, 'quarry')); },
+        function () { return homes >= 2 && rs.stone >= 2 && homesOf(st).some(function (h) { return !st.tiles.some(function (t, j) { return t.b && t.b.type === 'well' && within(h, j, 1); }); }) && (function () { var i = bestSite(st, 'well'); return i >= 0 && tileValue(st, 'well', i) >= 3 && tryB('well', i); })(); },
+        function () { return homes >= 2 && count(['market', 'hallTrade']) === 0 && canStaff('market') && tryB('market', bestSite(st, 'market')); },
+        function () { return lumber < 2 && rs.wood < winterNeed + 6 && st.turn >= 3 && canStaff('lumber') && tryB('lumber', bestSite(st, 'lumber')); },
+        function () { var c = canUpgrade(st, (function () { var best = -1; homesOf(st).forEach(function (h) { if (best < 0 && st.tiles[h].b.type === 'cottage' && canUpgrade(st, h).ok) best = h; }); return best; })()); return st.pop >= cap - 2 && foodRate >= st.pop + 4 && c.ok && act(st, { t: 'upgrade', i: (function () { var b = -1; homesOf(st).forEach(function (h) { if (b < 0 && canUpgrade(st, h).ok) b = h; }); return b; })() }).ok; },
+        function () { return rs.food >= CAPS.food + GRANARY_CAP * count(['granary']) - 12 && tryB('granary', bestSite(st, 'granary')); },
+        function () { return homes >= 3 && rs.coins >= 8 && (function () { var i = bestSite(st, 'garden'); return i >= 0 && tileValue(st, 'garden', i) >= 9 && tryB('garden', i); })(); },
+        function () { return st.turn >= 5 && count(['school']) === 0 && rs.coins >= 14 && canStaff('school') && tryB('school', bestSite(st, 'school')); },
+        function () { return quarries && lumber && count(['workshop']) === 0 && rs.wood >= 12 && rs.stone >= 6 && canStaff('workshop') && tryB('workshop', bestSite(st, 'workshop')); },
+        function () { var f = -1; st.tiles.forEach(function (t, i) { if (f < 0 && t.b && t.b.type === 'farm' && canUpgrade(st, i).ok) f = i; }); return f >= 0 && act(st, { t: 'upgrade', i: f }).ok; },
+        function () { var h = -1; st.tiles.forEach(function (t, i) { if (h < 0 && t.b && t.b.type === 'harbor') h = i; }); return h < 0 && st.turn >= 3 && canStaff('harbor') && (function () { var i = bestSite(st, 'harbor'); return i >= 0 && tryB('harbor', i); })(); },
+        function () { return st.pop >= cap - 1 && foodRate >= st.pop + 2 && tryB('cottage', bestSite(st, 'cottage')); },
+        function () { return foodRate < st.pop + 3 && homes >= 2 && canStaff('farm') && tryB('farm', bestSite(st, 'farm')); }
+      ];
+      for (var k = 0; k < steps.length && !done; k++) done = steps[k]();
+      if (!done) break;
+    }
+    // trades: firewood before winter, sell what overflows
+    var m = -1; st.tiles.forEach(function (t, i) { if (m < 0 && t.b && TRADES[t.b.type]) m = i; });
+    if (m >= 0) { var nextWinter = season(st).id === 'autumn' || season(st).id === 'winter'; if (st.res.wood < homesOf(st).length + 2 && nextWinter) act(st, { t: 'trade', i: m, k: 'buyWood' }); else if (st.res.stone > 40) act(st, { t: 'trade', i: m, k: 'sellStone' }); else if (st.res.wood > 60) act(st, { t: 'trade', i: m, k: 'sellWood' }); }
+  }
+  function value(st) { if (st.over && st.result.fallen) return -1e6 + st.turn * 1000; return score(st).points + st.pop * 4 - st.streak.short * 200; }
+  // search planner (offline, for the solvability routes): before the steward acts, try single extra actions and keep one if playing
+  // the rest of the reign with the steward then ends with a better final score than the steward alone
+  function rollStew(st, n) { var s = clone(st); for (var k = 0; k < n && !s.over; k++) { steward(s); act(s, { t: 'end', turn: s.turn }); } return s; }
+  function finalValue(s) { return s.over && s.result.fallen ? -1e6 + s.turn : s.result ? s.result.score.points : value(s); }
+  function plan(st, opts) {
+    opts = opts || {}; var acts = 0, left = TURNS - st.turn + 1;
+    while (acts < (opts.extra || 2) && st.crewsUsed < tierOf(st).crews) {
+      var cands = [], con = connectedSet(st);
+      BUILD_ORDER.forEach(function (ty) { if (ty === 'road') return; var best = -1, bv = -Infinity; for (var i = 0; i < W * H; i++) { var v = tileValue(st, ty, i, con); if (v > bv) { bv = v; best = i; } } if (best >= 0) cands.push({ t: 'build', b: ty, i: best }); });
+      var r = roadStep(st); if (r >= 0) cands.push({ t: 'build', b: 'road', i: r });
+      for (var j = 0; j < W * H; j++) { if (st.tiles[j].b && canUpgrade(st, j).ok) cands.push({ t: 'upgrade', i: j }); var mb = st.tiles[j].b; if (mb && TRADES[mb.type] && con[j]) ['buyWood', 'buyStone', 'sellFood'].forEach(function (k) { cands.push({ t: 'trade', i: j, k: k }); }); }
+      var base = finalValue(rollStew(st, left)), best = null;
+      cands.forEach(function (a) { var s = clone(st); if (!act(s, a).ok) return; var v = finalValue(rollStew(s, left)); if (!best || v > best.v) best = { a: a, v: v }; });
+      if (!best || best.v <= base) break; act(st, best.a); acts++;
+    }
+    steward(st); return acts;
+  }
+  function autoplay(mapId, tierId, seed, opts) { var st = create(mapId, tierId, seed, 'Planner'); while (!st.over) { if (opts && opts.search) plan(st, opts); else steward(st); act(st, { t: 'end', turn: st.turn }); } return st; }
+  function shareText(st) { var s = st.result && st.result.score; return ['TINY KINGDOMS', 'DoorQuests · Gamortal #012', '', 'Realm: ' + st.name, 'Map: ' + MAPS.find(function (m) { return m.id === st.map; }).name, 'Difficulty: ' + TIERS[st.tier].label, 'Seasons Completed: ' + st.hist.length + ' of ' + TURNS, 'Population: ' + st.pop, 'Happiness: ' + st.happy + '%', 'Final Score: ' + (s ? s.points.toLocaleString('en-US') : 0), 'Kingdom Grade: ' + (s ? GRADE_TEXT[s.grade] : '—'), '', 'Every tile matters. Every choice endures.', '', 'doorquests.com/games/tiny-kingdoms/'].join('\n'); }
+
+  root.KingdomEngine = { VERSION: VERSION, W: W, H: H, TURNS: TURNS, SEASONS: SEASONS, TIERS: TIERS, TIER_IDS: TIER_IDS, TERRAIN: TERRAIN, B: B, BUILD_ORDER: BUILD_ORDER, TRADES: TRADES, EVENTS: EVENTS, MAPS: MAPS, MAP_IDS: MAP_IDS, CAPS: CAPS, GRANARY_CAP: GRANARY_CAP, HAPPY: HAPPY, WEIGHTS: WEIGHTS, GRADE_TEXT: GRADE_TEXT, SCORE_TEXT: SCORE_TEXT,
+    create: create, clone: clone, canBuild: canBuild, canUpgrade: canUpgrade, refundOf: refundOf, preview: preview, connectedSet: connectedSet, context: context, output: output, resolve: resolve, project: project, housing: housing, happinessTarget: happinessTarget, score: score,
+    act: act, saveData: saveData, restore: restore, checksum: checksum, season: season, year: year, eventOf: eventOf, coord: coord, n4: n4, n8: n8, within: within, upkeepOf: upkeepOf, efficiency: efficiency, knowledgeBonus: knowledgeBonus, homesOf: homesOf, occupied: occupied, eventSchedule: eventSchedule,
+    value: value, plan: plan, frontier: frontier, steward: steward, suggest: suggest, tileValue: tileValue, bestSite: bestSite, roadStep: roadStep, autoplay: autoplay, shareText: shareText, h32: h32, mulberry: mulberry };
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script id="tk-app">
+/* Tiny Kingdoms — app layer: saves & records · audio · board rendering · input · screens.
+   The engine (KingdomEngine) owns every rule and number; this layer only shows them and passes the player's actions through. */
+(function () {
+  'use strict';
+  var E = window.KingdomEngine, KEY = 'doorquests.gamortal.012.tiny-kingdoms.v1';
+  var QS = (function () { try { return new URLSearchParams(location.search); } catch (e) { return { get: function () { return null; } }; } })();
+  var DEV = QS.get('dev') === '1';
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function el(tag, attrs, text) { var e = document.createElement(tag); if (attrs) for (var k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); } if (text !== undefined && text !== null) e.textContent = text; return e; }
+  function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+  function sgn(n) { return (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n); }
+  var liveT = null; function announce(msg) { var l = $('#live'); clearTimeout(liveT); l.textContent = ''; liveT = setTimeout(function () { l.textContent = msg; }, 40); }
+  var RES = [['food', 'Food', '🌾'], ['wood', 'Wood', '🪵'], ['stone', 'Stone', '🪨'], ['coins', 'Coins', '🪙'], ['knowledge', 'Knowledge', '✎']];
+  var RIC = { food: '◍', wood: '⧉', stone: '◆', coins: '◎', knowledge: '✎' };
+
+  /* ================================================================ saves & records (validated) */
+  var storageOk = true, memStore = null, notes = [];
+  function rawGet() { try { return localStorage.getItem(KEY); } catch (e) { storageOk = false; return memStore; } }
+  function rawSet(v) { try { localStorage.setItem(KEY, v); } catch (e) { storageOk = false; memStore = v; } }
+  var ACH = [['first', 'Completed a reign'], ['silverK', 'A Silver Kingdom'], ['goldK', 'A Gold Kingdom'], ['allMaps', 'Completed all five maps'], ['pop40', '40 citizens'], ['happy80', 'Happiness 80% at the end'], ['noFamine', 'A reign without famine'], ['goldTier', 'Completed a Gold-tier reign'], ['school', 'Knowledge 30'], ['eff', 'Land efficiency 60+']];
+  function blankRec() { var t = {}, m = {}; E.TIER_IDS.forEach(function (k) { t[k] = { best: 0, completions: 0, fallen: 0 }; }); E.MAP_IDS.forEach(function (k) { m[k] = { best: 0, grade: '' }; }); return { tiers: t, maps: m, maxPop: 0, maxHappy: 0, bestEff: 0, completions: 0 }; }
+  function blank() { return { v: 1, prefs: { sound: true, volume: 70, motion: 'auto', confirm: false, advice: false, large: false, tier: 'silver', map: 'greenvale' }, records: blankRec(), ach: [], save: null }; }
+  function isInt(v, lo, hi) { return typeof v === 'number' && isFinite(v) && Math.floor(v) === v && v >= lo && v <= hi; }
+  function load() {
+    var s = blank(), raw = rawGet(); if (!raw) return s;
+    var d; try { d = JSON.parse(raw); } catch (e) { notes.push('Saved data could not be read and was set aside — a fresh start.'); return s; }
+    if (!d || typeof d !== 'object' || d.v !== 1) { notes.push('Saved data was in an unknown format and was set aside.'); return s; }
+    var bad = 0, p = d.prefs || {};
+    if (typeof p.sound === 'boolean') s.prefs.sound = p.sound; if (isInt(p.volume, 0, 100)) s.prefs.volume = p.volume; if (['auto', 'reduced', 'full'].indexOf(p.motion) >= 0) s.prefs.motion = p.motion;
+    ['confirm', 'advice', 'large'].forEach(function (k) { if (typeof p[k] === 'boolean') s.prefs[k] = p[k]; }); if (E.TIERS[p.tier]) s.prefs.tier = p.tier; if (E.MAP_IDS.indexOf(p.map) >= 0) s.prefs.map = p.map;
+    var r = d.records; if (r && typeof r === 'object') {
+      E.TIER_IDS.forEach(function (k) { var x = r.tiers && r.tiers[k]; if (!x) return; if (isInt(x.best, 0, 1000) && isInt(x.completions, 0, 1e6) && isInt(x.fallen, 0, 1e6)) s.records.tiers[k] = { best: x.best, completions: x.completions, fallen: x.fallen }; else bad++; });
+      E.MAP_IDS.forEach(function (k) { var x = r.maps && r.maps[k]; if (!x) return; if (isInt(x.best, 0, 1000) && ['', 'bronze', 'silver', 'gold', 'fallen'].indexOf(x.grade) >= 0) s.records.maps[k] = { best: x.best, grade: x.grade }; else bad++; });
+      if (isInt(r.maxPop, 0, 500)) s.records.maxPop = r.maxPop; else if (r.maxPop !== undefined) bad++; if (isInt(r.maxHappy, 0, 100)) s.records.maxHappy = r.maxHappy; else if (r.maxHappy !== undefined) bad++;
+      if (isInt(r.bestEff, 0, 100)) s.records.bestEff = r.bestEff; else if (r.bestEff !== undefined) bad++; if (isInt(r.completions, 0, 1e6)) s.records.completions = r.completions; else if (r.completions !== undefined) bad++;
+    } else if (r !== undefined) bad++;
+    if (Array.isArray(d.ach)) s.ach = d.ach.filter(function (a, i, arr) { return ACH.some(function (x) { return x[0] === a; }) && arr.indexOf(a) === i; });
+    if (bad) notes.push('Some saved records were invalid and were removed; the rest were kept.');
+    if (d.save) { var res = E.restore(d.save); if (res.ok && !res.st.over) { s.save = d.save; s.saveState = res.st; } else notes.push('Your saved kingdom could not be restored (' + (res.ok ? 'its reign had already ended' : res.reason) + ') and was set aside. Your records are safe.'); }
+    return s;
+  }
+  var SAVE = load(), saves = 0;
+  function persist() { saves++; var out = { v: 1, prefs: SAVE.prefs, records: SAVE.records, ach: SAVE.ach, save: SAVE.save }; try { rawSet(JSON.stringify(out)); } catch (e) { storageOk = false; } }
+
+  /* ================================================================ motion / text size */
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { var m = SAVE.prefs.motion; return m === 'reduced' || (m === 'auto' && !!(mq && mq.matches)); }
+  function applyPrefs() { document.body.classList.toggle('reduce', reduced()); document.documentElement.classList.toggle('large', !!SAVE.prefs.large); }
+
+  /* ================================================================ audio (original Web Audio synthesis — never required) */
+  var AU = { ctx: null, master: null, voices: 0, unlocked: false };
+  function audioInit() { AU.unlocked = true; if (!SAVE.prefs.sound) return; if (!AU.ctx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; try { AU.ctx = new AC(); AU.master = AU.ctx.createGain(); AU.master.connect(AU.ctx.destination); } catch (e) { AU.ctx = null; return; } } AU.master.gain.value = SAVE.prefs.volume / 100 * 0.6; if (AU.ctx.state === 'suspended') AU.ctx.resume().catch(function () {}); }
+  function live() { return AU.ctx && SAVE.prefs.sound && AU.ctx.state !== 'closed'; }
+  function tone(f, d, type, v, w, f2) { if (!live() || AU.voices > 20) return; var c = AU.ctx; try { var t = c.currentTime + (w || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g); g.connect(AU.master); o.start(t); o.stop(t + d + 0.03); AU.voices++; o.onended = function () { AU.voices--; o.disconnect(); g.disconnect(); }; } catch (e) { /* optional */ } }
+  function knock(w) { tone(180, 0.08, 'triangle', 0.08, w, 90); tone(320, 0.05, 'square', 0.02, w); }
+  var SND = {
+    place: function () { knock(0); knock(0.12); tone(523, 0.25, 'triangle', 0.04, 0.2); },
+    build: function () { knock(0); knock(0.1); knock(0.2); },
+    harvest: function () { [392, 494, 587].forEach(function (f, i) { tone(f, 0.35, 'triangle', 0.035, i * 0.08); }); },
+    trade: function () { tone(1318, 0.12, 'square', 0.025); tone(1568, 0.18, 'square', 0.025, 0.08); },
+    growth: function () { [523, 659, 784].forEach(function (f, i) { tone(f, 0.4, 'sine', 0.04, i * 0.1); }); },
+    good: function () { [659, 784, 988, 1318].forEach(function (f, i) { tone(f, 0.45, 'triangle', 0.035, i * 0.09); }); },
+    warn: function () { tone(220, 0.35, 'square', 0.04); tone(207, 0.45, 'square', 0.035, 0.3); },
+    winter: function () { [988, 784, 659, 523].forEach(function (f, i) { tone(f, 0.7, 'sine', 0.03, i * 0.15); }); },
+    victory: function () { [392, 523, 659, 784, 1046].forEach(function (f, i) { tone(f, 1, 'triangle', 0.045, i * 0.12); }); },
+    collapse: function () { tone(196, 1.2, 'sawtooth', 0.05, 0, 65); tone(147, 1.4, 'triangle', 0.04, 0.3, 60); },
+    tap: function () { tone(880, 0.05, 'sine', 0.02); },
+    no: function () { tone(160, 0.15, 'square', 0.03); }
+  };
+  function setSound(on) { SAVE.prefs.sound = on; persist(); if (on) audioInit(); if (AU.master) AU.master.gain.value = on ? SAVE.prefs.volume / 100 * 0.6 : 0; }
+
+  /* ================================================================ art: original SVG drawings, built as elements (never from strings) */
+  var NS = 'http://www.w3.org/2000/svg';
+  function S(tag, attrs, kids) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); (kids || []).forEach(function (c) { if (c) e.appendChild(c); }); return e; }
+  function svgBox(cls, kids) { return S('svg', { viewBox: '0 0 64 64', class: cls, 'aria-hidden': 'true', focusable: 'false' }, kids); }
+  function tree(x, y, s, cls) { return S('g', { class: cls || 'sway' }, [S('rect', { x: x - 1.5 * s, y: y, width: 3 * s, height: 6 * s, fill: '#5b3b1f' }), S('path', { d: 'M' + x + ' ' + (y - 14 * s) + ' L' + (x + 8 * s) + ' ' + (y + 1 * s) + ' L' + (x - 8 * s) + ' ' + (y + 1 * s) + ' Z', fill: '#2f5a2c' }), S('path', { d: 'M' + x + ' ' + (y - 19 * s) + ' L' + (x + 6 * s) + ' ' + (y - 7 * s) + ' L' + (x - 6 * s) + ' ' + (y - 7 * s) + ' Z', fill: '#3d7337' })]); }
+  function terrainArt(t, tile, season) {
+    var k = [];
+    if (t === 'F') { var n = Math.max(1, Math.ceil(tile.timber / 2)); [[20, 44], [44, 40], [32, 30]].slice(0, n).forEach(function (p) { k.push(tree(p[0], p[1], 1)); }); }
+    if (t === 'P') { for (var i = 0; i < 4; i++) k.push(S('path', { d: 'M8 ' + (16 + i * 12) + ' q8 -4 16 0 t16 0 t16 0', stroke: season === 'winter' ? '#e9eef2' : '#a99a3c', 'stroke-width': 2, fill: 'none', opacity: '.7' })); }
+    if (t === 'm') { [[16, 22], [40, 18], [28, 40], [50, 46], [12, 50]].forEach(function (p) { k.push(S('path', { d: 'M' + p[0] + ' ' + p[1] + ' l3 -6 l3 6', stroke: '#6f8a4a', 'stroke-width': 2, fill: 'none' })); }); }
+    if (t === 'H') { k.push(S('path', { d: 'M2 50 Q18 22 34 50 Z', fill: '#8c6a40' })); k.push(S('path', { d: 'M26 52 Q44 26 62 52 Z', fill: '#9b7a4c' })); }
+    if (t === 'K') { [[14, 42, 10], [36, 34, 13], [46, 50, 8]].forEach(function (p) { k.push(S('path', { d: 'M' + (p[0] - p[2]) + ' ' + p[1] + ' L' + p[0] + ' ' + (p[1] - p[2]) + ' L' + (p[0] + p[2]) + ' ' + p[1] + ' Z', fill: '#77756e', stroke: '#5c5a54', 'stroke-width': 1.5 })); }); }
+    if (t === 'C') { k.push(S('path', { d: 'M0 50 q8 -5 16 0 t16 0 t16 0 t16 0', stroke: '#7fb2d6', 'stroke-width': 3, fill: 'none' })); }
+    if (t === 'M') { k.push(S('path', { d: 'M4 56 L24 16 L44 56 Z', fill: '#5f6672' })); k.push(S('path', { d: 'M24 56 L42 24 L62 56 Z', fill: '#6b7380' })); k.push(S('path', { d: 'M24 16 L29 26 L19 26 Z M42 24 L46 31 L38 31 Z', fill: '#eef2f6' })); }
+    if (t === 'R' || t === 'L' || t === 'S') { for (var j = 0; j < 3; j++) k.push(S('path', { d: 'M4 ' + (16 + j * 16) + ' q7 -5 14 0 t14 0 t14 0 t14 0', stroke: '#cfe6f7', 'stroke-width': 2, fill: 'none', 'stroke-dasharray': '6 6', class: t === 'R' ? 'flow' : '', opacity: '.75' })); }
+    return svgBox('terr', k);
+  }
+  function house(x, y, w, h, roof) { return [S('rect', { x: x, y: y, width: w, height: h, fill: '#f4e7c8', stroke: '#5b4122', 'stroke-width': 1.5 }), S('path', { d: 'M' + (x - 3) + ' ' + y + ' L' + (x + w / 2) + ' ' + (y - h * 0.8) + ' L' + (x + w + 3) + ' ' + y + ' Z', fill: roof || '#b8643c', stroke: '#5b2f18', 'stroke-width': 1.5 }), S('rect', { x: x + w / 2 - 3, y: y + h - 9, width: 6, height: 9, fill: '#6b4a24' })]; }
+  function buildingArt(type, st, i) {
+    var k = [];
+    if (type === 'hall') { k.push(S('rect', { x: 14, y: 24, width: 36, height: 30, fill: '#efe2be', stroke: '#4a3a1a', 'stroke-width': 2 })); [14, 25, 36, 47].forEach(function (x) { k.push(S('rect', { x: x - 1, y: 18, width: 6, height: 8, fill: '#efe2be', stroke: '#4a3a1a', 'stroke-width': 1.5 })); }); k.push(S('path', { d: 'M28 54 V42 a4 4 0 0 1 8 0 V54 Z', fill: '#5b3b1f' })); k.push(S('path', { d: 'M32 18 V6', stroke: '#4a3a1a', 'stroke-width': 2 })); k.push(S('path', { d: 'M32 6 L44 9 L32 12 Z', fill: '#c9a24a', class: 'sway' })); }
+    if (type === 'cottage' || type === 'townhouse') { house(14, 30, 30, 22).forEach(function (e) { k.push(e); }); if (type === 'townhouse') { k.push(S('rect', { x: 18, y: 36, width: 7, height: 6, fill: '#9cc3e0' })); k.push(S('rect', { x: 33, y: 36, width: 7, height: 6, fill: '#9cc3e0' })); k.push(S('rect', { x: 42, y: 24, width: 14, height: 28, fill: '#efe2be', stroke: '#5b4122', 'stroke-width': 1.5 })); } k.push(S('rect', { x: 36, y: 14, width: 5, height: 10, fill: '#7a4a2a' })); k.push(S('circle', { cx: 38.5, cy: 10, r: 3.5, fill: '#e8e4dc', class: 'smoke' })); }
+    if (type === 'farm' || type === 'irrigated') { for (var r = 0; r < 4; r++) k.push(S('path', { d: 'M4 ' + (36 + r * 7) + ' H42', stroke: '#7a6a1a', 'stroke-width': 3 })); if (type === 'irrigated') k.push(S('path', { d: 'M4 60 H44', stroke: '#4a8fc0', 'stroke-width': 3 })); k.push(S('path', { d: 'M50 58 L46 30 L54 30 Z', fill: '#efe2be', stroke: '#5b4122', 'stroke-width': 1.5 })); k.push(S('g', { class: 'blade' }, [S('path', { d: 'M50 18 V42 M38 30 H62', stroke: '#5b4122', 'stroke-width': 3 })])); }
+    if (type === 'lumber' || type === 'forestry') { [0, 1, 2].forEach(function (j) { k.push(S('rect', { x: 10 + j * 4, y: 40 - j * 7, width: 40, height: 7, rx: 3.5, fill: '#9b6a3a', stroke: '#5b3b1f', 'stroke-width': 1.5 })); k.push(S('circle', { cx: 12 + j * 4, cy: 43.5 - j * 7, r: 3, fill: '#d9b07a' })); }); k.push(S('path', { d: 'M44 10 L54 20 M48 16 L56 8', stroke: '#4a4a4a', 'stroke-width': 3 })); if (type === 'forestry') k.push(tree(52, 54, 0.6)); }
+    if (type === 'quarry') { [[14, 44], [28, 48], [22, 34], [40, 42]].forEach(function (p) { k.push(S('rect', { x: p[0], y: p[1], width: 14, height: 10, fill: '#b9b6ad', stroke: '#5c5a54', 'stroke-width': 1.5 })); }); k.push(S('path', { d: 'M40 14 L56 30 M44 12 Q52 10 58 18', stroke: '#4a3a1a', 'stroke-width': 3, fill: 'none' })); }
+    if (type === 'market' || type === 'hallTrade') { k.push(S('rect', { x: 10, y: 30, width: 44, height: 24, fill: '#efe2be', stroke: '#5b4122', 'stroke-width': 1.5 })); for (var a = 0; a < 5; a++) k.push(S('rect', { x: 8 + a * 9.6, y: 20, width: 9.6, height: 10, fill: a % 2 ? '#f4efe2' : (type === 'hallTrade' ? '#2a3fa8' : '#b4382e') })); k.push(S('circle', { cx: 24, cy: 44, r: 4, fill: '#c9a24a' })); k.push(S('circle', { cx: 38, cy: 44, r: 4, fill: '#8fbf5a' })); if (type === 'hallTrade') k.push(S('path', { d: 'M32 6 L38 18 H26 Z', fill: '#c9a24a' })); }
+    if (type === 'workshop') { k.push(S('rect', { x: 10, y: 26, width: 40, height: 28, fill: '#d9c9a4', stroke: '#5b4122', 'stroke-width': 1.5 })); k.push(S('path', { d: 'M8 26 L30 12 L52 26 Z', fill: '#7c8490' })); k.push(S('g', { class: 'blade' }, [S('circle', { cx: 30, cy: 40, r: 7, fill: 'none', stroke: '#4a4a4a', 'stroke-width': 4, 'stroke-dasharray': '3 2.5' })])); }
+    if (type === 'well') { k.push(S('ellipse', { cx: 32, cy: 46, rx: 14, ry: 6, fill: '#7c8490', stroke: '#4a4a4a', 'stroke-width': 1.5 })); k.push(S('ellipse', { cx: 32, cy: 45, rx: 9, ry: 3.5, fill: '#4a8fc0' })); k.push(S('path', { d: 'M20 44 V22 M44 44 V22', stroke: '#5b3b1f', 'stroke-width': 3 })); k.push(S('path', { d: 'M16 24 L32 12 L48 24 Z', fill: '#b8643c' })); }
+    if (type === 'road') { var con = E.n4(i), x = i % 8, y = Math.floor(i / 8), dirs = [[0, -1], [1, 0], [0, 1], [-1, 0]], any = false;
+      dirs.forEach(function (d, dI) { var nx = x + d[0], ny = y + d[1]; if (nx < 0 || ny < 0 || nx > 7 || ny > 7) return; var b = st.tiles[ny * 8 + nx].b; if (b && (b.type === 'road' || b.type === 'hall' || true)) { if (!b) return; any = true; k.push(S('path', { d: 'M32 32 L' + (32 + d[0] * 34) + ' ' + (32 + d[1] * 34), stroke: '#c8a46a', 'stroke-width': 16, 'stroke-linecap': 'round' })); k.push(S('path', { d: 'M32 32 L' + (32 + d[0] * 34) + ' ' + (32 + d[1] * 34), stroke: '#a78550', 'stroke-width': 2, 'stroke-dasharray': '4 5' })); } });
+      if (st.tiles[i].t === 'R') { k.unshift(S('rect', { x: 10, y: 6, width: 44, height: 52, fill: '#8a6a44', stroke: '#5b3b1f', 'stroke-width': 2 })); }
+      k.push(S('circle', { cx: 32, cy: 32, r: 9, fill: '#c8a46a' })); }
+    if (type === 'school') { house(12, 30, 40, 24, '#2a3fa8').forEach(function (e) { k.push(e); }); k.push(S('circle', { cx: 32, cy: 22, r: 3, fill: '#c9a24a' })); k.push(S('rect', { x: 17, y: 36, width: 8, height: 7, fill: '#9cc3e0' })); k.push(S('rect', { x: 39, y: 36, width: 8, height: 7, fill: '#9cc3e0' })); }
+    if (type === 'granary') { k.push(S('rect', { x: 20, y: 22, width: 24, height: 34, rx: 4, fill: '#d9b07a', stroke: '#5b3b1f', 'stroke-width': 1.5 })); k.push(S('path', { d: 'M18 22 Q32 6 46 22 Z', fill: '#b8643c' })); [30, 38, 46].forEach(function (yy) { k.push(S('path', { d: 'M20 ' + yy + ' H44', stroke: '#9b6a3a', 'stroke-width': 1.5 })); }); }
+    if (type === 'harbor') { k.push(S('rect', { x: 4, y: 34, width: 40, height: 6, fill: '#8a6a44' })); [8, 20, 32].forEach(function (xx) { k.push(S('rect', { x: xx, y: 34, width: 3, height: 18, fill: '#5b3b1f' })); }); k.push(S('g', { class: 'bob' }, [S('path', { d: 'M38 50 H60 L56 58 H42 Z', fill: '#b8643c' }), S('path', { d: 'M49 50 V30 L60 46 Z', fill: '#f4efe2', stroke: '#5b4122', 'stroke-width': 1 })])); }
+    if (type === 'garden') { [[18, 22, '#e86f8a'], [40, 18, '#f0c34a'], [28, 38, '#b56fe0'], [46, 42, '#e86f8a'], [16, 46, '#f0c34a']].forEach(function (p) { k.push(S('path', { d: 'M' + p[0] + ' ' + (p[1] + 6) + ' V' + (p[1] + 14), stroke: '#3f6b3a', 'stroke-width': 2 })); for (var q = 0; q < 5; q++) { var an = q / 5 * 6.283; k.push(S('circle', { cx: p[0] + Math.cos(an) * 4, cy: p[1] + Math.sin(an) * 4, r: 3, fill: p[2] })); } k.push(S('circle', { cx: p[0], cy: p[1], r: 2.2, fill: '#fff3c4' })); }); }
+    return svgBox('bld' + (type === 'road' ? '' : ' pop'), k);
+  }
+
+  /* ================================================================ state */
+  var G = { st: null, tool: null, sel: -1, focus: 0, busy: false, proj: null, pending: -1, ended: false };
+  function touchy() { return document.body.classList.contains('touch'); }
+  function detectTouch() { var t = (navigator.maxTouchPoints > 0) || (window.matchMedia && matchMedia('(pointer: coarse)').matches); document.body.classList.toggle('touch', !!t); }
+  function confirmMode() { return SAVE.prefs.confirm || touchy(); }
+  function adviceOn() { return G.st && (E.TIERS[G.st.tier].advisor || SAVE.prefs.advice); }
+
+  /* ================================================================ rendering */
+  var tileEls = [], suggested = -1;
+  function buildBoard() {
+    var bd = $('#board'); bd.textContent = ''; tileEls = [];
+    for (var y = 0; y < 8; y++) { var row = el('div', { role: 'row', style: 'display:contents' }); for (var x = 0; x < 8; x++) { var i = y * 8 + x, b = el('button', { class: 'tile', role: 'gridcell', type: 'button', tabindex: i === G.focus ? '0' : '-1', 'data-i': String(i) }); tileEls.push(b); row.appendChild(b); } bd.appendChild(row); }
+  }
+  function tileLabel(i) {
+    var st = G.st, t = st.tiles[i], T = E.TERRAIN[t.t], parts = [E.coord(i) + ',', T.name + (T.forest ? ' (timber ' + t.timber + ' of 6)' : '') + ','];
+    if (t.b) { var off = G.proj && G.proj.offline[i]; parts.push(E.B[t.b.type].name + (off ? ' — ' + off : '') + '.'); } else parts.push('empty.');
+    if (G.tool) { var c = E.canBuild(st, G.tool, i); parts.push(c.ok ? E.B[G.tool].name + ' can be built here.' : 'Cannot build: ' + c.reason); if (i === suggested) parts.push('Suggested site.'); }
+    return parts.join(' ');
+  }
+  function renderBoard() {
+    var st = G.st, con = E.connectedSet(st), sea = E.season(st).id, bd = $('#board');
+    bd.className = 'board s-' + sea; suggested = G.tool && adviceOn() ? E.suggest(st, G.tool) : -1;
+    tileEls.forEach(function (b, i) {
+      var t = st.tiles[i], cls = 'tile t-' + t.t; b.textContent = '';
+      b.appendChild(terrainArt(t.t, t, sea)); if (t.b) b.appendChild(buildingArt(t.b.type, st, i));
+      b.appendChild(el('span', { class: 'crd', 'aria-hidden': 'true' }, E.coord(i))); var mk = E.TERRAIN[t.t].mark; if (mk && !t.b) b.appendChild(el('span', { class: 'mk', 'aria-hidden': 'true' }, mk));
+      if (t.b && t.b.type !== 'road' && t.b.type !== 'hall' && !con[i]) b.appendChild(el('span', { class: 'flag', 'aria-hidden': 'true', title: 'Not connected to the roads' }, '⛓'));
+      if (G.proj && G.proj.offline[i] && t.b) { cls += ' off'; b.appendChild(el('span', { class: 'flag', 'aria-hidden': 'true' }, '⏸')); }
+      if (G.tool) { var ok = E.canBuild(st, G.tool, i).ok; cls += ok ? ' ok' : ' no'; if (i === suggested) { cls += ' sug'; b.appendChild(el('span', { class: 'star', 'aria-hidden': 'true' }, '★')); } }
+      if (i === G.sel || i === G.pending) cls += ' sel';
+      b.className = cls; b.setAttribute('aria-label', tileLabel(i)); b.tabIndex = i === G.focus ? 0 : -1;
+    });
+    $('#legend').textContent = G.tool ? 'Dashed outline: ' + E.B[G.tool].name + ' can go here. Shaded: it cannot.' + (suggested >= 0 ? ' ★ suggested site.' : '') + ' ⛓ = not connected to the roads, ⏸ = not operating.' : '⛓ = not connected to the roads · ⏸ = not operating this season (no workers, no coins for upkeep, or no road). Corner marks: · meadow, ♣ forest, ^ hills, ▲ rocky, ~ coast, ≈ river, ≋ lake or sea, ⛰ mountains.';
+  }
+  function computeProjection() {
+    var st = G.st, p = E.project(st), L = p.ledger, off = {};
+    L.notes.forEach(function () {});
+    var order = []; ['farm', 'irrigated', 'harbor', 'lumber', 'forestry', 'quarry', 'school', 'market', 'hallTrade', 'workshop'].forEach(function (ty) { st.tiles.forEach(function (t, i) { if (t.b && t.b.type === ty) order.push(i); }); });
+    order.forEach(function (i) { if (!L.buildings[i]) { var ty = st.tiles[i].b.type, D = E.B[ty], con = E.connectedSet(st)[i]; off[i] = D.needsRoad && !con ? 'not operating: no road' : ty === 'workshop' ? 'idle: no wood or stone' : 'idle: no workers or no coins for upkeep'; } });
+    G.proj = { p: p, L: L, offline: off };
+  }
+  function renderRes() {
+    var st = G.st, P = G.proj.p, L = G.proj.L, box = $('#resbar'); box.textContent = '';
+    function cell(ic, name, val, d, warn, title) { var c = el('div', { class: 'res' + (warn ? ' warn' : ''), title: title || '' }); c.appendChild(el('span', { class: 'ic', 'aria-hidden': 'true' }, ic)); c.appendChild(el('strong', null, name + ' ' + val)); var ds = el('span', { class: 'd' + (d > 0 ? ' up' : d < 0 ? ' down' : '') }, d === null ? '' : sgn(d)); if (d !== null) ds.appendChild(el('span', { class: 'lbl' }, ' at season’s end')); c.appendChild(ds); box.appendChild(c); }
+    cell(RIC.food, 'Food', st.res.food, P.food, L.shortage > 0, 'Food store; the projection includes eating and spoilage.');
+    cell(RIC.wood, 'Wood', st.res.wood, P.wood, st.res.wood + P.wood < 0); cell(RIC.stone, 'Stone', st.res.stone, P.stone); cell(RIC.coins, 'Coins', st.res.coins, P.coins); cell(RIC.knowledge, 'Knowledge', st.res.knowledge, P.knowledge);
+    cell('☺', 'People', st.pop + '/' + E.housing(st), P.pop, P.pop < 0); cell('♥', 'Happiness', st.happy + '%', P.happy, st.happy < 30, 'Moves toward ' + L.happy.target + '% by at most 8 points a season');
+    var c = el('div', { class: 'res' }); c.appendChild(el('span', { class: 'ic', 'aria-hidden': 'true' }, '⚒')); c.appendChild(el('strong', null, 'Workers ' + L.workers.free + ' free')); c.appendChild(el('span', { class: 'd' }, 'of ' + st.pop)); box.appendChild(c);
+  }
+  function renderTop() {
+    var st = G.st, map = E.MAPS.find(function (m) { return m.id === st.map; }), sea = E.season(st), ev = E.eventOf(st), nx = st.turn < E.TURNS ? E.eventOf(st, st.turn + 1) : null;
+    $('#g-name').textContent = st.name; $('#g-map').textContent = map.name + ' · ' + E.TIERS[st.tier].label + ' — ' + E.TIERS[st.tier].name;
+    $('#g-season').textContent = sea.name + ', Year ' + E.year(st); $('#g-turn').textContent = 'Season ' + st.turn + ' of ' + E.TURNS;
+    var e1 = $('#g-event'); e1.textContent = ''; e1.className = 'ev' + (ev ? (ev.good ? ' good' : ' bad') : ''); e1.appendChild(el('b', null, 'This season: ')); e1.appendChild(document.createTextNode(ev ? ev.name + ' — ' + ev.text : sea.note));
+    var e2 = $('#g-forecast'); e2.textContent = ''; if (st.turn < E.TURNS) { var ns = E.season(st, st.turn + 1); e2.className = 'ev fc' + (nx ? (nx.good ? ' good' : ' bad') : ''); e2.appendChild(el('b', null, 'Forecast for ' + ns.name + ': ')); e2.appendChild(document.createTextNode(nx ? nx.name + ' — ' + nx.text : 'no event; ' + ns.note)); }
+    $('#g-crews').textContent = (E.TIERS[st.tier].crews - st.crewsUsed) + ' of ' + E.TIERS[st.tier].crews + ' crews free';
+  }
+  function costText(c) { var p = []; for (var k in c) p.push(c[k] + ' ' + k); return p.length ? p.join(', ') : 'free'; }
+  function renderPalette() {
+    var st = G.st, box = $('#palette'); box.textContent = '';
+    E.BUILD_ORDER.forEach(function (ty, n) { var D = E.B[ty], cost = D.cost, can = Object.keys(cost).every(function (k) { return st.res[k] >= cost[k]; });
+      var key = n < 9 ? String(n + 1) : n === 9 ? '0' : n === 10 ? '-' : '=';
+      var b = el('button', { class: 'pb' + (can ? '' : ' cant'), type: 'button', role: 'option', 'aria-selected': G.tool === ty ? 'true' : 'false', 'data-t': ty, title: D.desc, 'aria-label': D.name + ', costs ' + costText(cost) + (can ? '' : ' (not enough)') + '. Shortcut ' + key + '. ' + D.desc });
+      b.appendChild(ty === 'road' ? svgBox('', [S('path', { d: 'M4 40 Q32 20 60 30', stroke: '#c8a46a', 'stroke-width': 14, fill: 'none' }), S('path', { d: 'M4 40 Q32 20 60 30', stroke: '#a78550', 'stroke-width': 2, 'stroke-dasharray': '4 5', fill: 'none' })]) : buildingArt(ty, st, -1));
+      b.appendChild(el('b', null, D.name)); b.appendChild(el('small', null, costText(cost) + (D.upkeep ? ' · upkeep ' + E.upkeepOf(st, ty) : ''))); box.appendChild(b); });
+  }
+  function li(ul, txt, cls) { var x = el('li', cls ? { class: cls } : null, txt); ul.appendChild(x); return x; }
+  function renderDetails(i) {
+    var st = G.st, box = $('#details'); box.textContent = ''; if (i === undefined) i = G.pending >= 0 ? G.pending : G.sel >= 0 ? G.sel : G.focus;
+    if (G.tool) {
+      var D = E.B[G.tool], pv = E.preview(st, G.tool, i), chk = pv.check; box.appendChild(el('h3', null, D.name + ' on ' + E.coord(i)));
+      box.appendChild(el('p', { class: 'small muted' }, D.desc));
+      var cp = el('p'); cp.appendChild(el('span', { class: 'cost' }, 'Cost: ' + costText(chk.cost || pv.cost))); cp.appendChild(document.createTextNode(' · you have ' + st.res.wood + ' wood, ' + st.res.stone + ' stone, ' + st.res.coins + ' coins')); box.appendChild(cp);
+      if (!chk.ok) box.appendChild(el('p', { class: 'bad' }, '✗ ' + chk.reason));
+      if (pv.output) { var o = pv.output, ex = []; ['food', 'wood', 'stone', 'coins', 'knowledge'].forEach(function (k) { if (o[k]) ex.push(o[k] + ' ' + k); }); if (o.housing) ex.push('homes for ' + o.housing);
+        box.appendChild(el('p', null, 'This season it would make: ' + (ex.length ? ex.join(', ') : 'nothing directly') + (o.notes && o.notes.length ? ' (' + o.notes.join(', ') + ')' : '') + (o.uses ? ', using 2 wood and 1 stone' : '') + '.')); }
+      var ul = el('ul'); pv.bonuses.forEach(function (b) { li(ul, '＋ ' + b, 'good'); }); pv.penalties.forEach(function (b) { li(ul, '− ' + b, 'bad'); }); li(ul, pv.connected ? '⛓ Connected to the Town Hall’s roads.' : '⛓ Not connected to the roads.', pv.connected ? 'good' : 'bad'); box.appendChild(ul);
+      if (chk.ok && confirmMode()) { var acts = el('div', { class: 'acts' }), bb = el('button', { class: 'btn btn-primary', type: 'button', id: 'd-build' }, 'Build here'); bb.addEventListener('click', function () { doBuild(i); }); acts.appendChild(bb); var cc = el('button', { class: 'btn', type: 'button' }, 'Cancel'); cc.addEventListener('click', cancelTool); acts.appendChild(cc); box.appendChild(acts); }
+      return;
+    }
+    var t = st.tiles[i], T = E.TERRAIN[t.t]; box.appendChild(el('h3', null, E.coord(i) + ' — ' + (t.b ? E.B[t.b.type].name : T.name)));
+    var info = el('ul'); li(info, 'Terrain: ' + T.name + (T.forest ? ' — timber ' + t.timber + ' of 6' : '') + (T.farm ? ' — farm soil ' + T.farm : '') + (T.stone ? ' — stone ' + T.stone : '') + '.');
+    if (t.b) { var B = E.B[t.b.type], L = G.proj.L, o = L.buildings[i], con = E.connectedSet(st)[i];
+      li(info, B.desc); if (t.b.type !== 'road') li(info, con ? 'Connected to the roads.' : 'Not connected to the roads.', con ? 'good' : 'bad');
+      if (G.proj.offline[i]) li(info, 'This season: ' + G.proj.offline[i] + '.', 'bad'); else if (o) { var ex2 = []; ['food', 'wood', 'stone', 'coins', 'knowledge'].forEach(function (k) { if (o[k]) ex2.push(o[k] + ' ' + k); }); if (ex2.length) li(info, 'This season: ' + ex2.join(', ') + ' (' + o.notes.join(', ') + ').', 'good'); }
+      if (B.housing) li(info, 'Houses ' + B.housing + '.'); if (B.workers) li(info, 'Needs ' + B.workers + ' worker' + (B.workers === 1 ? '' : 's') + (E.upkeepOf(st, t.b.type) ? ', upkeep ' + E.upkeepOf(st, t.b.type) + ' coin' + (E.upkeepOf(st, t.b.type) === 1 ? '' : 's') : '') + '.');
+      box.appendChild(info);
+      var acts2 = el('div', { class: 'acts' });
+      if (B.up) { var u = E.canUpgrade(st, i), ub = el('button', { class: 'btn', type: 'button', id: 'd-up', title: E.B[B.up].desc }, 'Upgrade to ' + E.B[B.up].name + ' (' + costText(E.B[B.up].cost) + ')'); ub.disabled = !u.ok; if (!u.ok) ub.title = u.reason; ub.addEventListener('click', function () { doAct({ t: 'upgrade', i: i }, 'Upgraded to ' + E.B[B.up].name + '.'); }); acts2.appendChild(ub); if (!u.ok) box.appendChild(el('p', { class: 'small muted' }, 'Upgrade: ' + u.reason)); }
+      if (E.TRADES[t.b.type]) { var used = st.tradesUsed[i] || 0, lim = t.b.type === 'hallTrade' ? 2 : 1; E.TRADES[t.b.type].forEach(function (tr) { var tb = el('button', { class: 'btn', type: 'button', 'data-trade': tr.id }, 'Trade ' + costText(tr.give) + ' → ' + costText(tr.get)); tb.disabled = used >= lim || !con || !Object.keys(tr.give).every(function (k) { return st.res[k] >= tr.give[k]; }); tb.addEventListener('click', function () { doAct({ t: 'trade', i: i, k: tr.id }, 'Traded ' + costText(tr.give) + ' for ' + costText(tr.get) + '.', 'trade'); }); acts2.appendChild(tb); }); box.appendChild(el('p', { class: 'small muted' }, 'Trades left this season: ' + Math.max(0, lim - used) + (con ? '' : ' (connect the market first)') + '.')); }
+      if (t.b.type !== 'hall') { var rf = E.refundOf(st, i), db = el('button', { class: 'btn btn-danger', type: 'button', id: 'd-demolish' }, 'Demolish (recover ' + costText(rf) + ')'); db.addEventListener('click', function () { confirmDlg('Demolish the ' + B.name + ' on ' + E.coord(i) + '? You recover ' + costText(rf) + ' (half the wood and stone it cost). ' + (E.TERRAIN[t.t].forest === undefined && t.t === 'm' ? 'A cleared forest does not grow back.' : ''), function () { doAct({ t: 'demolish', i: i }, 'Demolished — recovered ' + costText(rf) + '.'); }); }); acts2.appendChild(db); }
+      box.appendChild(acts2);
+    } else { box.appendChild(info); var can = E.BUILD_ORDER.filter(function (ty) { return E.B[ty].on.indexOf(t.t) >= 0; }).map(function (ty) { return E.B[ty].name; }); box.appendChild(el('p', { class: 'small' }, can.length ? 'Can hold: ' + can.join(', ') + '.' : 'Nothing can be built here.')); }
+  }
+  function renderObjectives() {
+    var st = G.st, ul = $('#objs'), sc = E.score(st), T = E.TIERS[st.tier], L = G.proj.L; ul.textContent = '';
+    function o(ok, txt) { var x = el('li', { class: ok === true ? 'done' : ok === false ? 'no' : '' }); x.appendChild(el('span', { class: 'm', 'aria-hidden': 'true' }, ok === true ? '✓' : ok === false ? '!' : '○')); x.appendChild(el('span', null, txt)); ul.appendChild(x); }
+    o(null, 'Rule for ' + (E.TURNS - st.turn + 1) + ' more season' + (E.TURNS - st.turn ? 's' : '') + ' (to Winter of Year 6).');
+    var winterIn = 3 - ((st.turn - 1) % 4); o(L.shortage ? false : true, L.shortage ? 'Famine ahead: food runs out this season (short ' + L.shortage + ').' + (st.streak.short ? ' Famine streak: ' + st.streak.short + ' of 3 — a third in a row ends the reign.' : '') : 'Everyone is fed this season.' + (winterIn ? ' Winter in ' + winterIn + ' season' + (winterIn === 1 ? '' : 's') + '.' : ' It is winter now.'));
+    var con = E.connectedSet(st), un = st.tiles.filter(function (t, i) { return t.b && t.b.type !== 'road' && t.b.type !== 'hall' && !con[i]; }).length; o(un === 0, un ? un + ' building' + (un === 1 ? ' is' : 's are') + ' not connected to the roads.' : 'Every building is connected to the roads.');
+    o(null, 'Score if the reign ended now: ' + sc.points + ' — Silver Kingdom at ' + T.grade.silver + ', Gold Kingdom at ' + T.grade.gold + ' (based on the last year).');
+  }
+  function renderAll(focusTile) { if (!G.st) return; computeProjection(); renderTop(); renderRes(); renderPalette(); renderBoard(); renderDetails(); renderObjectives(); if (focusTile) tileEls[G.focus].focus(); }
+
+  /* ================================================================ actions */
+  function toast(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 2600); }
+  function saveNow() { if (!G.st || G.st.over) return; SAVE.save = E.saveData(G.st); persist(); }
+  function doBuild(i) {
+    var st = G.st, ty = G.tool; if (!ty || G.busy) return; var r = E.act(st, { t: 'build', b: ty, i: i });
+    if (!r.ok) { SND.no(); toast(r.reason); announce(r.reason); return; }
+    SND.place(); G.pending = -1; var msg = E.B[ty].name + ' built on ' + E.coord(i) + (r.cleared ? ' (forest cleared: +' + r.cleared + ' wood)' : '') + '.'; toast(msg); announce(msg);
+    saveNow(); G.focus = i; if (!E.canBuild(st, ty, i).ok && !Object.keys(E.B[ty].cost).every(function (k) { return st.res[k] >= E.B[ty].cost[k]; })) { /* keep tool so the player sees why */ } renderAll(true);
+  }
+  function doAct(a, msg, snd) { var r = E.act(G.st, a); if (!r.ok) { SND.no(); toast(r.reason); announce(r.reason); return; } (SND[snd || 'build'])(); toast(msg); announce(msg); saveNow(); renderAll(); }
+  function selectTool(ty) { if (G.busy) return; G.tool = G.tool === ty ? null : ty; G.pending = -1; G.sel = -1; SND.tap(); renderAll(); if (G.tool) announce(E.B[ty].name + ' chosen. ' + (adviceOn() && suggested >= 0 ? 'Suggested site ' + E.coord(suggested) + '. ' : '') + 'Choose a tile; Escape cancels.'); }
+  function cancelTool() { G.tool = null; G.pending = -1; renderAll(); announce('Building cancelled.'); }
+  function tileActivate(i) {
+    if (!G.st || G.busy) return; G.focus = i;
+    if (G.tool) { var ok = E.canBuild(G.st, G.tool, i).ok; if (confirmMode()) { if (G.pending === i && ok) { doBuild(i); return; } G.pending = i; renderBoard(); renderDetails(i); if (!ok) SND.no(); return; } if (ok) doBuild(i); else { var c = E.canBuild(G.st, G.tool, i); SND.no(); toast(c.reason); renderBoard(); renderDetails(i); } return; }
+    G.sel = G.sel === i ? -1 : i; renderBoard(); renderDetails(i);
+  }
+  function endSeason() {
+    var st = G.st; if (!st || G.busy || st.over || anyDialog()) return; G.busy = true; $('#b-end').disabled = true;
+    var turn = st.turn, r = E.act(st, { t: 'end', turn: turn }); if (!r.ok) { G.busy = false; $('#b-end').disabled = false; return; }
+    var L = r.ledger; G.tool = null; G.sel = -1; G.pending = -1;
+    if (st.over) { SAVE.save = null; recordReign(); persist(); } else saveNow();
+    if (L.shortage) SND.warn(); else SND.harvest(); if (L.pop.change > 0) setTimeout(SND.growth, 400); if (!st.over && E.season(st).id === 'winter') setTimeout(SND.winter, 700); if (!st.over && E.eventOf(st) && E.eventOf(st).good) setTimeout(SND.good, 900);
+    showSummary(L); renderAll(); G.busy = false; $('#b-end').disabled = false;
+  }
+  function anyDialog() { return $$('dialog').some(function (d) { return d.open; }); }
+  function closeDialogs() { $$('dialog').forEach(function (d) { if (d.open) d.close(); }); }
+  function openDlg(s) { var d = $(s); if (!d.open) { try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } } }
+  var confirmFn = null; function confirmDlg(txt, fn) { $('#dc-p').textContent = txt; confirmFn = fn; openDlg('#d-confirm'); }
+
+  /* ================================================================ season report (the ledger) */
+  function showSummary(L) {
+    var b = $('#ds-body'); b.textContent = ''; $('#ds-h').textContent = L.season + ', Year ' + L.year + ' — season report' + (L.event ? ' (' + L.event + ')' : '');
+    var grid = el('div', { class: 'ledger' });
+    RES.forEach(function (r) { var k = r[0]; if (k === 'knowledge' && !L.lines.knowledge.length && L.start.knowledge === L.end.knowledge) return; var tb = el('table'); tb.appendChild(el('caption', null, r[1]));
+      function row(a, v, cls) { var tr = el('tr', cls ? { class: cls } : null); tr.appendChild(el('td', null, a)); tr.appendChild(el('td', { class: 'n' }, typeof v === 'number' ? (cls ? String(v) : sgn(v)) : v)); tb.appendChild(tr); }
+      row('Starting', L.start[k], 'start'); L.lines[k].forEach(function (l) { row(l[0], l[1]); }); row('Ending', L.end[k], 'end'); grid.appendChild(tb); });
+    b.appendChild(grid);
+    b.appendChild(el('h3', null, 'People'));
+    var pp = el('ul', { class: 'notes' }); li(pp, 'Population ' + L.pop.from + ' → ' + L.pop.to + ' (homes for ' + L.pop.cap + '). ' + (L.pop.why || '')); if (L.pop.migrants) li(pp, L.pop.migrants + ' migrants settled.'); if (L.pop.departed) li(pp, 'Unhappy for two seasons: 1 citizen departed.'); li(pp, 'Workers: ' + (L.workers.total - L.workers.free) + ' of ' + L.workers.total + ' at work.'); b.appendChild(pp);
+    b.appendChild(el('h3', null, 'Happiness ' + L.happy.from + '% → ' + L.happy.to + '% (target ' + L.happy.target + '%, moves at most 8 a season)'));
+    var hf = el('table', { class: 'tbl' }); L.happy.factors.forEach(function (f) { var tr = el('tr'); tr.appendChild(el('td', null, f[0])); tr.appendChild(el('td', { class: 'n' }, f[0] === 'Base' ? String(f[1]) : sgn(f[1]))); hf.appendChild(tr); }); b.appendChild(hf);
+    if (L.notes.length) { b.appendChild(el('h3', null, 'Notes')); var nl = el('ul', { class: 'notes' }); L.notes.forEach(function (n) { li(nl, n); }); b.appendChild(nl); }
+    if (L.next) b.appendChild(el('p', { class: 'small' }, 'Next: ' + L.next.season + (L.next.event ? ' — ' + L.next.event + ' (see the forecast).' : '.')));
+    $('#ds-ok').textContent = G.st.over ? 'See the civilization report' : 'Continue to ' + (L.next ? L.next.season : '');
+    openDlg('#d-summary'); $('#ds-ok').focus();
+    announce(L.season + ' report. Food ' + L.start.food + ' to ' + L.end.food + ', wood ' + L.start.wood + ' to ' + L.end.wood + ', population ' + L.pop.from + ' to ' + L.pop.to + ', happiness ' + L.happy.to + ' percent.' + (L.shortage ? ' Famine: food ran short.' : ''));
+  }
+
+  /* ================================================================ end of reign: records, report, sharing */
+  function recordReign() {
+    var st = G.st, s = st.result.score, R = SAVE.records, T = R.tiers[st.tier], M = R.maps[st.map], got = [];
+    if (s.grade === 'fallen') T.fallen++; else { T.completions++; R.completions++; } T.best = Math.max(T.best, s.points);
+    var rank = { '': 0, fallen: 1, bronze: 2, silver: 3, gold: 4 }; if (s.points > M.best) M.best = s.points; if (rank[s.grade] > rank[M.grade]) M.grade = s.grade;
+    if (s.grade !== 'fallen') { R.maxPop = Math.max(R.maxPop, st.pop); R.maxHappy = Math.max(R.maxHappy, st.happy); R.bestEff = Math.max(R.bestEff, s.efficiency); }
+    function ach(k, ok) { if (ok && SAVE.ach.indexOf(k) < 0) { SAVE.ach.push(k); got.push(k); } }
+    var ok = s.grade !== 'fallen'; ach('first', ok); ach('silverK', s.grade === 'silver' || s.grade === 'gold'); ach('goldK', s.grade === 'gold'); ach('allMaps', E.MAP_IDS.every(function (m) { return ['bronze', 'silver', 'gold'].indexOf(R.maps[m].grade) >= 0; }));
+    ach('pop40', ok && st.pop >= 40); ach('happy80', ok && st.happy >= 80); ach('noFamine', ok && st.shortTurns === 0); ach('goldTier', ok && st.tier === 'gold'); ach('school', st.res.knowledge >= 30); ach('eff', ok && s.efficiency >= 60);
+    G.newAch = got; G.prevBest = T.best;
+  }
+  function showReport() {
+    closeDialogs(); var st = G.st, s = st.result.score, map = E.MAPS.find(function (m) { return m.id === st.map; }); show('#scr-final');
+    $('#f-k').textContent = 'Civilization report · ' + map.name + ' · ' + E.TIERS[st.tier].label;
+    $('#f-h').textContent = 'The reign of ' + st.name;
+    $('#f-sub').textContent = st.result.fallen ? st.result.why + ' (after ' + st.hist.length + ' seasons)' : 'Six years of seasons, ruled to the end.';
+    $('#f-grade').textContent = E.GRADE_TEXT[s.grade] + ' — ' + s.points + ' points' + (s.grade === 'gold' ? ': a highly efficient kingdom balancing growth, happiness and resources.' : s.grade === 'silver' ? ': a stable and prosperous settlement.' : s.grade === 'bronze' ? ': a viable civilization that survived.' : '.');
+    var con = E.connectedSet(st), blds = st.tiles.filter(function (t) { return t.b && t.b.type !== 'hall'; }).length, occ = E.occupied(st), stats = $('#f-stats'); stats.textContent = '';
+    [['Realm', st.name], ['Map', map.name], ['Difficulty', E.TIERS[st.tier].label], ['Seasons survived', st.hist.length + ' of ' + E.TURNS], ['Population', String(st.pop)], ['Happiness', st.happy + '%'], ['Food security', st.res.food + ' food, ' + (st.hist.length - st.shortTurns) + ' of ' + st.hist.length + ' seasons fed'], ['Treasury', st.res.coins + ' coins'], ['Buildings constructed', String(st.built + st.upgrades) + ' (' + st.upgrades + ' upgrades)'], ['Land occupied', occ + ' of ' + st.tiles.filter(function (t) { return !E.TERRAIN[t.t].block && t.t !== 'R'; }).length + ' usable tiles'], ['Civilization score', String(s.points)], ['Final grade', E.GRADE_TEXT[s.grade]]]
+      .forEach(function (q) { var d = el('div', { class: 'stat' }); d.appendChild(el('strong', null, q[1])); d.appendChild(el('span', null, q[0])); stats.appendChild(d); });
+    var tb = $('#f-score'); tb.textContent = ''; var h = el('tr'); ['Part', 'Weight', 'Value', 'Points'].forEach(function (x, k) { h.appendChild(el('th', k ? { class: 'n' } : null, x)); }); tb.appendChild(h); var tot = 0;
+    E.SCORE_TEXT.forEach(function (r) { var v = s.parts[r[0]], w = E.WEIGHTS[r[0]], p = v * w / 10; tot += p; var tr = el('tr'), td = el('td'); td.appendChild(el('b', null, r[1])); td.appendChild(el('div', { class: 'why' }, r[2])); tr.appendChild(td); tr.appendChild(el('td', { class: 'n' }, w + '%')); tr.appendChild(el('td', { class: 'n' }, v.toFixed(1))); tr.appendChild(el('td', { class: 'n' }, p.toFixed(1))); tb.appendChild(tr); });
+    var tt = el('tr', { class: 'total' }); tt.appendChild(el('td', null, 'Civilization score (out of 1,000)')); tt.appendChild(el('td')); tt.appendChild(el('td')); tt.appendChild(el('td', { class: 'n' }, String(s.points))); tb.appendChild(tt);
+    var T = E.TIERS[st.tier], gr = el('tr'); var gtd = el('td', { colspan: '4', class: 'why' }, 'Grades on ' + T.label + ': Gold Kingdom ≥ ' + T.grade.gold + ', Silver Kingdom ≥ ' + T.grade.silver + ', Bronze Kingdom = survived all ' + E.TURNS + ' seasons.' + (G.newAch && G.newAch.length ? ' New achievements: ' + G.newAch.map(function (k) { return ACH.find(function (a) { return a[0] === k; })[1]; }).join(', ') + '.' : '')); gr.appendChild(gtd); tb.appendChild(gr);
+    $('#f-share').textContent = E.shareText(st); $('#f-note').textContent = ''; drawPicture(); (s.grade === 'fallen' ? SND.collapse : SND.victory)(); announce('Civilization report. ' + E.GRADE_TEXT[s.grade] + ', ' + s.points + ' points.'); $('#f-again').focus();
+  }
+  function drawPicture() { // the final kingdom as a picture: the same SVG art, composed and drawn onto a canvas
+    var st = G.st, cv = $('#f-map'), c = cv.getContext('2d'), s = E.season(st).id; c.fillStyle = '#1b1d4e'; c.fillRect(0, 0, 480, 580); c.fillStyle = '#c9a24a'; c.fillRect(0, 476, 480, 2);
+    var root = S('svg', { xmlns: NS, viewBox: '0 0 512 512', width: 448, height: 448 }), bg = { F: '#4f7f45', P: '#cdbf62', m: '#b6c487', H: '#a8875a', K: '#9a9890', C: '#e2cf96', M: '#6f7783', R: '#5c9bcc', L: '#4c86b8', S: '#3f74a8' };
+    st.tiles.forEach(function (t, i) { var g = S('g', { transform: 'translate(' + (i % 8) * 64 + ' ' + Math.floor(i / 8) * 64 + ')' }); g.appendChild(S('rect', { x: 1, y: 1, width: 62, height: 62, rx: 6, fill: bg[t.t] })); var a = terrainArt(t.t, t, s); while (a.firstChild) g.appendChild(a.firstChild); if (t.b) { var bb = buildingArt(t.b.type, st, i); while (bb.firstChild) g.appendChild(bb.firstChild); } root.appendChild(g); });
+    var img = new Image(); img.onload = function () { c.drawImage(img, 16, 16, 448, 448); txt(); }; img.onerror = function () { txt(); };
+    function txt() { var sc = st.result.score; c.fillStyle = '#e8c977'; c.font = '600 22px Georgia, serif'; c.fillText(st.name, 16, 504); c.fillStyle = '#f4efe2'; c.font = '14px system-ui, sans-serif'; c.fillText(E.MAPS.find(function (m) { return m.id === st.map; }).name + ' · ' + E.TIERS[st.tier].label + ' · ' + E.GRADE_TEXT[sc.grade] + ' · ' + sc.points + ' points', 16, 526); c.fillText('Population ' + st.pop + ' · Happiness ' + st.happy + '%', 16, 546); c.fillStyle = '#c9b98f'; c.font = '13px system-ui, sans-serif'; c.fillText('Tiny Kingdoms · DoorQuests Gamortal #012', 16, 566); }
+    try { img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(root)); } catch (e) { txt(); }
+  }
+  function copyShare() { var txt = $('#f-share').textContent, note = $('#f-note'); function ok() { note.textContent = 'Result copied.'; } function fail() { if (fallbackCopy(txt)) ok(); else note.textContent = 'Copy is blocked here — select the text below and copy it.'; } if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, fail); else fail(); }
+  function fallbackCopy(txt) { try { var ta = el('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); var r = document.execCommand('copy'); document.body.removeChild(ta); return r; } catch (e) { return false; } }
+  function downloadPng() { try { var url = $('#f-map').toDataURL('image/png'), a = el('a', { href: url, download: 'tiny-kingdoms-' + G.st.map + '.png' }); document.body.appendChild(a); a.click(); document.body.removeChild(a); $('#f-note').textContent = 'Picture saved.'; } catch (e) { $('#f-note').textContent = 'This browser would not save the picture.'; } }
+
+  /* ================================================================ screens */
+  function show(id) { ['#scr-title', '#scr-new', '#scr-game', '#scr-final'].forEach(function (s) { $(s).hidden = s !== id; }); window.scrollTo(0, 0); }
+  function toTitle() { closeDialogs(); G.tool = null; show('#scr-title'); refreshTitle(); $('#b-new').focus(); }
+  function refreshTitle() {
+    var sv = SAVE.save && SAVE.saveState; $('#b-continue').hidden = !sv; $('#t-save').textContent = sv ? 'Saved: ' + SAVE.saveState.name + ' — ' + E.MAPS.find(function (m) { return m.id === SAVE.saveState.map; }).name + ', ' + E.TIERS[SAVE.saveState.tier].label + ', ' + E.season(SAVE.saveState).name + ' of Year ' + E.year(SAVE.saveState) + '.' : '';
+    var n = notes.slice(); if (!storageOk) n.push('Your browser is not saving data here — the kingdom and records will not be kept after you leave.'); $('#t-note').textContent = n.join(' ');
+    titleArt();
+  }
+  function titleArt() { var box = $('#title-art'); box.textContent = ''; var rt = window.KingdomRoutes && window.KingdomRoutes.greenvale && window.KingdomRoutes.greenvale.bronze, st = E.create('greenvale', 'bronze', rt ? rt.seed : 'title', 'x');
+    if (rt) { for (var k = 0; k < rt.actions.length && st.turn < 18; k++) E.act(st, decodeA(rt.actions[k])); }
+    st.tiles.forEach(function (t, i) { var c = el('div', { class: 'tile t-' + t.t, style: 'border-radius:5px;position:relative;overflow:hidden' }); c.appendChild(terrainArt(t.t, t, 'summer')); if (t.b) c.appendChild(buildingArt(t.b.type, st, i)); box.appendChild(c); }); }
+  function decodeA(a) { return a[0] === 'e' ? { t: 'end', turn: a[1] } : a[0] === 'b' ? { t: 'build', b: a[1], i: a[2] } : a[0] === 'u' ? { t: 'upgrade', i: a[1] } : a[0] === 't' ? { t: 'trade', i: a[1], k: a[2] } : { t: 'demolish', i: a[1] }; }
+  var NAMES = ['Ashford', 'Brightwater', 'Cindervale', 'Dunmere', 'Eastholm', 'Fernwick', 'Goldcrest', 'Hollowmere', 'Ivybridge', 'Juniper Reach', 'Kestrel Fold', 'Larkspur', 'Mossgate', 'Northwind', 'Oakhaven', 'Pennyroyal'];
+  function openNew() {
+    var t = SAVE.prefs.tier; $$('input[name=tier]').forEach(function (r) { r.checked = r.value === t; });
+    var list = $('#map-list'); list.textContent = ''; list.setAttribute('role', 'radiogroup'); list.setAttribute('aria-label', 'Maps');
+    E.MAPS.forEach(function (m) { var b = el('button', { class: 'mapcard', type: 'button', role: 'radio', 'aria-checked': m.id === SAVE.prefs.map ? 'true' : 'false', 'data-m': m.id, tabindex: m.id === SAVE.prefs.map ? '0' : '-1' }), mm = el('div', { class: 'minimap', 'aria-hidden': 'true' }), col = { F: '#4f7f45', P: '#cdbf62', p: '#cdbf62', m: '#b6c487', H: '#a8875a', K: '#9a9890', C: '#e2cf96', M: '#6f7783', R: '#5c9bcc', L: '#4c86b8', S: '#3f74a8', T: '#c9a24a' };
+      m.rows.join('').split('').forEach(function (ch) { mm.appendChild(el('i', { style: 'background:' + col[ch] })); }); b.appendChild(mm); b.appendChild(el('strong', null, m.name)); b.appendChild(el('span', null, m.blurb)); var rec = SAVE.records.maps[m.id]; if (rec.best) b.appendChild(el('span', { class: 'best' }, 'Best ' + rec.best + (rec.grade && rec.grade !== 'fallen' ? ' · ' + E.GRADE_TEXT[rec.grade] : '')));
+      b.addEventListener('click', function () { SAVE.prefs.map = m.id; $$('.mapcard').forEach(function (c) { c.setAttribute('aria-checked', c.dataset.m === m.id ? 'true' : 'false'); c.tabIndex = c.dataset.m === m.id ? 0 : -1; }); });
+      b.addEventListener('keydown', function (ev) { var cards = $$('.mapcard'), k = cards.indexOf(b), n = ev.key === 'ArrowRight' || ev.key === 'ArrowDown' ? 1 : ev.key === 'ArrowLeft' || ev.key === 'ArrowUp' ? -1 : 0; if (n) { ev.preventDefault(); var nb = cards[(k + n + cards.length) % cards.length]; nb.click(); nb.focus(); } }); list.appendChild(b); });
+    $('#n-name').value = NAMES[Math.floor(Math.random() * NAMES.length)]; show('#scr-new'); $('#n-h').focus && $('#b-new');
+  }
+  function begin(st) { G.st = st; G.tool = null; G.sel = -1; G.pending = -1; G.focus = st.hall; G.busy = false; show('#scr-game'); buildBoard(); renderAll(); saveNow(); announce(st.name + ' founded on ' + E.MAPS.find(function (m) { return m.id === st.map; }).name + '. ' + E.season(st).name + ', Year 1. Arrow keys move around the map; choose a building from the list.'); }
+  function found() { audioInit(); var tier = ($('input[name=tier]:checked') || {}).value || 'silver', name = ($('#n-name').value || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 28) || 'Unnamed Realm'; SAVE.prefs.tier = tier; var seed = String(Date.now() % 1e9) + '-' + Math.floor(Math.random() * 1e6); begin(E.create(SAVE.prefs.map, tier, seed, name)); }
+  function cont() { audioInit(); var r = E.restore(SAVE.save); if (!r.ok) { notes.push('The saved kingdom could not be restored.'); SAVE.save = null; persist(); refreshTitle(); return; } begin(r.st); toast('Welcome back to ' + r.st.name + ' — ' + E.season(r.st).name + ', Year ' + E.year(r.st) + '.'); }
+
+  /* ================================================================ how to play / records */
+  function howto() {
+    var b = $('#dh-body'); b.textContent = ''; var ol = el('ol', { class: 'howto' });
+    ['Choose a building from the list (or press 1–9, 0, - and =), then a tile. A dashed outline shows where it fits; the panel shows its cost, what it will make this season, bonuses, penalties and whether it is connected. On a touch screen, tap a tile to preview, then tap it again (or "Build here") to build.',
+     'Each season you have a few building crews (Bronze 4, Silver 3, Gold 2). When you are done, press "End season". The season report shows exactly where every resource came from and went.',
+     'People need homes (the Town Hall houses 6, a cottage 4) and food (1 each per season). Production buildings need workers: a growing town is a working town.',
+     'Seasons: summer and autumn harvests are big; winter farms give a quarter and every home burns firewood. Store food and wood before winter.',
+     'Roads link buildings to the Town Hall. Markets, workshops, schools and harbors only work when connected; farms, lumberyards and quarries work at half speed without a road. Homes off the roads are unhappy.',
+     'Happiness moves toward a target made of named reasons (wells, markets, gardens, a school, food, noise, cold) — at most 8 points a season. Above 40% the town grows; below 25% for two seasons people leave. Happier towns work harder.',
+     'Three seasons of famine in a row, or an empty town, end the reign. Otherwise, after 24 seasons your civilization is graded.'].forEach(function (t) { li(ol, t); });
+    b.appendChild(ol); b.appendChild(el('h3', null, 'Buildings')); var tb = el('table', { class: 'tbl' }); E.BUILD_ORDER.concat(['townhouse', 'irrigated', 'forestry', 'hallTrade']).forEach(function (ty) { var D = E.B[ty], tr = el('tr'), td = el('td'); td.appendChild(el('b', null, D.name)); tr.appendChild(td); tr.appendChild(el('td', null, (D.base ? 'Upgrade of the ' + E.B[D.base].name + '. ' : '') + 'Cost: ' + costText(D.cost) + (D.upkeep ? '; upkeep ' + D.upkeep + ' (× tier)' : '') + (D.workers ? '; ' + D.workers + ' worker' + (D.workers === 1 ? '' : 's') : '') + '. ' + D.desc)); tb.appendChild(tr); }); b.appendChild(tb);
+    b.appendChild(el('h3', null, 'Score')); var st2 = el('table', { class: 'tbl' }); E.SCORE_TEXT.forEach(function (r) { var tr = el('tr'); tr.appendChild(el('td', null, r[1] + ' (' + E.WEIGHTS[r[0]] + '%)')); tr.appendChild(el('td', null, r[2])); st2.appendChild(tr); }); b.appendChild(st2);
+    b.appendChild(el('p', { class: 'small' }, 'Keys: arrows move on the map · Enter or Space builds or selects · Esc cancels · 1–9, 0, -, = choose a building · Tab reaches the panels. Your kingdom saves itself after every building and every season.'));
+    openDlg('#d-howto');
+  }
+  function openRecords() {
+    var b = $('#dr-body'), R = SAVE.records; b.textContent = ''; var tb = el('table', { class: 'rtbl' }), h = el('tr'); ['', 'Bronze', 'Silver', 'Gold'].forEach(function (x) { h.appendChild(el('th', null, x)); }); tb.appendChild(h);
+    [['Highest score', 'best'], ['Reigns completed', 'completions'], ['Reigns fallen', 'fallen']].forEach(function (q) { var tr = el('tr'); tr.appendChild(el('td', null, q[0])); E.TIER_IDS.forEach(function (t) { tr.appendChild(el('td', { class: 'n' }, String(R.tiers[t][q[1]]))); }); tb.appendChild(tr); }); b.appendChild(tb);
+    var tm = el('table', { class: 'rtbl' }), hm = el('tr'); ['Map', 'Best score', 'Best grade'].forEach(function (x) { hm.appendChild(el('th', null, x)); }); tm.appendChild(hm); E.MAPS.forEach(function (m) { var tr = el('tr'), r = R.maps[m.id]; tr.appendChild(el('td', null, m.name)); tr.appendChild(el('td', { class: 'n' }, String(r.best))); tr.appendChild(el('td', null, r.grade ? E.GRADE_TEXT[r.grade] : '—')); tm.appendChild(tr); }); b.appendChild(el('h3', null, 'By map')); b.appendChild(tm);
+    b.appendChild(el('p', null, 'Largest kingdom at the end of a reign: ' + R.maxPop + ' citizens · Highest final happiness: ' + R.maxHappy + '% · Most efficient kingdom (land efficiency): ' + R.bestEff + ' · Campaign completions: ' + R.completions + '.'));
+    b.appendChild(el('h3', null, 'Achievements')); var a = el('div', { class: 'ach' }); ACH.forEach(function (x) { a.appendChild(el('span', { class: SAVE.ach.indexOf(x[0]) >= 0 ? 'got' : '' }, (SAVE.ach.indexOf(x[0]) >= 0 ? '★ ' : '○ ') + x[1])); }); b.appendChild(a); openDlg('#d-records');
+  }
+  function openSettings() { $('#s-sound').checked = SAVE.prefs.sound; $('#s-vol').value = SAVE.prefs.volume; $('#s-vol-v').textContent = SAVE.prefs.volume + '%'; $('#s-motion').value = SAVE.prefs.motion; $('#s-confirm').checked = SAVE.prefs.confirm; $('#s-advice').checked = SAVE.prefs.advice; $('#s-large').checked = SAVE.prefs.large; openDlg('#d-settings'); }
+
+  /* ================================================================ input */
+  $('#board').addEventListener('click', function (ev) { var b = ev.target.closest('.tile'); if (!b) return; audioInit(); tileActivate(+b.dataset.i); });
+  $('#board').addEventListener('focusin', function (ev) { var b = ev.target.closest('.tile'); if (!b) return; G.focus = +b.dataset.i; tileEls.forEach(function (t, i) { t.tabIndex = i === G.focus ? 0 : -1; }); if (G.pending < 0) renderDetails(G.focus); });
+  $('#board').addEventListener('mouseover', function (ev) { var b = ev.target.closest('.tile'); if (!b || G.pending >= 0 || touchy()) return; renderDetails(+b.dataset.i); });
+  $('#board').addEventListener('keydown', function (ev) { var i = G.focus, x = i % 8, y = Math.floor(i / 8), n = -1;
+    if (ev.key === 'ArrowLeft') n = y * 8 + Math.max(0, x - 1); else if (ev.key === 'ArrowRight') n = y * 8 + Math.min(7, x + 1); else if (ev.key === 'ArrowUp') n = Math.max(0, y - 1) * 8 + x; else if (ev.key === 'ArrowDown') n = Math.min(7, y + 1) * 8 + x; else if (ev.key === 'Home') n = y * 8; else if (ev.key === 'End') n = y * 8 + 7;
+    if (n >= 0) { ev.preventDefault(); G.focus = n; tileEls.forEach(function (t, k) { t.tabIndex = k === n ? 0 : -1; }); tileEls[n].focus(); return; }
+    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); if (!ev.repeat) tileActivate(i); } });
+  $('#palette').addEventListener('click', function (ev) { var b = ev.target.closest('.pb'); if (!b) return; audioInit(); selectTool(b.dataset.t); var nb = $('.pb[data-t="' + b.dataset.t + '"]'); if (nb) nb.focus(); });
+  $('#palette').addEventListener('keydown', function (ev) { var bs = $$('.pb'), k = bs.indexOf(document.activeElement), n = ev.key === 'ArrowDown' || ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowUp' || ev.key === 'ArrowLeft' ? -1 : 0; if (n && k >= 0) { ev.preventDefault(); bs[(k + n + bs.length) % bs.length].focus(); } });
+  window.addEventListener('keydown', function (ev) {
+    if (!AU.unlocked) audioInit(); if (anyDialog() || $('#scr-game').hidden || !G.st) return; var tag = document.activeElement && document.activeElement.tagName;
+    if (ev.key === 'Escape') { ev.preventDefault(); if (G.tool || G.pending >= 0) cancelTool(); else if (G.sel >= 0) { G.sel = -1; renderBoard(); renderDetails(); } else openDlg('#d-menu'); return; }
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    var keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='], k = keys.indexOf(ev.key); if (k >= 0 && k < E.BUILD_ORDER.length) { ev.preventDefault(); selectTool(E.BUILD_ORDER[k]); }
+  });
+  $('#b-end').addEventListener('click', function () { audioInit(); endSeason(); });
+  $('#ds-ok').addEventListener('click', function () { $('#d-summary').close(); });
+  $('#d-summary').addEventListener('close', function () { if (G.st && G.st.over && $('#scr-final').hidden) showReport(); else if (!$('#scr-game').hidden) $('#b-end').focus(); });
+  $('#b-new').addEventListener('click', function () { audioInit(); openNew(); });
+  $('#b-continue').addEventListener('click', cont);
+  $('#n-go').addEventListener('click', found); $('#n-back').addEventListener('click', toTitle);
+  $$('input[name=tier]').forEach(function (r) { r.addEventListener('change', function () { SAVE.prefs.tier = r.value; persist(); }); });
+  $('#b-howto').addEventListener('click', howto); $('#b-records').addEventListener('click', openRecords); $('#b-settings').addEventListener('click', openSettings);
+  $('#b-menu').addEventListener('click', function () { openDlg('#d-menu'); });
+  $('#dm-resume').addEventListener('click', function () { $('#d-menu').close(); }); $('#dm-howto').addEventListener('click', howto); $('#dm-settings').addEventListener('click', openSettings);
+  $('#dm-title').addEventListener('click', function () { saveNow(); SAVE.saveState = G.st; toTitle(); });
+  $('#dm-abandon').addEventListener('click', function () { confirmDlg('Abandon ' + G.st.name + '? The kingdom is deleted and nothing is recorded.', function () { SAVE.save = null; SAVE.saveState = null; persist(); G.st = null; toTitle(); }); });
+  $('#dc-yes').addEventListener('click', function () { var f = confirmFn; confirmFn = null; $('#d-confirm').close(); if (f) f(); });
+  $('#dc-no').addEventListener('click', function () { confirmFn = null; $('#d-confirm').close(); });
+  $('#dr-reset').addEventListener('click', function () { confirmDlg('Erase all Tiny Kingdoms records and achievements in this browser? Your settings and any kingdom in progress are kept.', function () { SAVE.records = blankRec(); SAVE.ach = []; persist(); $('#d-records').close(); refreshTitle(); }); });
+  $$('dialog [data-close]').forEach(function (b) { b.addEventListener('click', function () { b.closest('dialog').close(); }); });
+  $('#s-sound').addEventListener('change', function (e) { audioInit(); setSound(e.target.checked); });
+  $('#s-vol').addEventListener('input', function (e) { SAVE.prefs.volume = +e.target.value; $('#s-vol-v').textContent = SAVE.prefs.volume + '%'; if (AU.master && SAVE.prefs.sound) AU.master.gain.value = SAVE.prefs.volume / 100 * 0.6; persist(); });
+  $('#s-motion').addEventListener('change', function (e) { SAVE.prefs.motion = e.target.value; persist(); applyPrefs(); });
+  $('#s-confirm').addEventListener('change', function (e) { SAVE.prefs.confirm = e.target.checked; persist(); if (G.st) renderAll(); });
+  $('#s-advice').addEventListener('change', function (e) { SAVE.prefs.advice = e.target.checked; persist(); if (G.st) renderAll(); });
+  $('#s-large').addEventListener('change', function (e) { SAVE.prefs.large = e.target.checked; persist(); applyPrefs(); });
+  $('#f-again').addEventListener('click', openNew); $('#f-copy').addEventListener('click', copyShare); $('#f-png').addEventListener('click', downloadPng); $('#f-title').addEventListener('click', toTitle);
+  window.addEventListener('resize', detectTouch); if (mq && mq.addEventListener) mq.addEventListener('change', applyPrefs);
+
+  detectTouch(); applyPrefs(); refreshTitle();
+  if (DEV) window.__tk = { E: E, G: G, get SAVE() { return SAVE; }, saves: function () { return saves; }, begin: begin, found: found, toTitle: toTitle, showReport: showReport, decodeA: decodeA, renderAll: renderAll, endSeason: endSeason, stats: function () { return { hasAudio: !!AU.ctx, voices: AU.voices }; } };
+})();
+
+</script>
+</body>
+</html>
