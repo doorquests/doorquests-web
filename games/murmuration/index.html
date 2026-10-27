@@ -1,0 +1,1439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="doorquests:status" content="Prototype · Founder Playtest · Not Published">
+<meta name="description" content="Gamortal #014 · Murmuration — many wings, one will. A DoorQuests flock-coordination prototype for founder playtesting.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1b1d4e">
+<title>Gamortal #014 — Murmuration | DoorQuests</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231b1d4e'/%3E%3Cpath d='M10 40 L18 34 L26 40 M24 26 L31 21 L38 26 M36 42 L43 37 L50 42 M30 34 L35 30 L40 34' stroke='%23f2c66d' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root {
+  --indigo: #1b1d4e; --indigo2: #2a2f72; --gold: #e2a94a; --gold2: #f2c66d; --ivory: #fbf6ec; --ivory2: #f3eadb; --sky: #8fc3e6; --rose: #e7a7a4; --violet: #7d6a9e; --forest: #2f5a3e;
+  --ink: #241f2e; --ink2: #4f4760; --mute: #6f6680; --ok: #2f7a3d; --bad: #b4382e; --warn: #a9670f;
+  --focus: 0 0 0 3px #fff, 0 0 0 6px #2a3fa8;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { background: var(--ivory2); }
+html.large { font-size: 118.75%; }
+body { min-height: 100vh; min-height: 100dvh; color: var(--ink); font: 1rem/1.5 var(--sans); display: flex; flex-direction: column; overflow-x: hidden; background: var(--ivory2) linear-gradient(#f8efe2, #f1e2cf); }
+body.in-game { height: 100vh; height: 100dvh; overflow: hidden; }
+a { color: #6b3f12; }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 8px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--gold); color: #111; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 8px; }
+[hidden] { display: none !important; }
+.nojs { padding: 20px; }
+.top { display: flex; align-items: center; gap: 10px; padding: 6px 14px; background: var(--indigo); border-bottom: 3px solid var(--gold); flex-wrap: wrap; color: #f4efe2; position: relative; z-index: 2; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #f4efe2; font: 600 18px/1 var(--serif); }
+.brand-door { width: 16px; height: 22px; border: 2px solid var(--gold2); border-radius: 8px 8px 1px 1px; }
+.crumb { color: #d8d4ea; font-size: 14px; display: inline-flex; gap: 6px; }
+.crumb-col { color: var(--gold2); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; align-self: center; }
+.badge { margin-left: auto; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px dashed #ffbe6b; color: #ffcf8a; }
+main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
+.btn { appearance: none; border: 1px solid #b3946a; background: var(--ivory); color: var(--ink); border-radius: 10px; padding: 10px 16px; font: 600 .95rem/1.2 var(--sans); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; touch-action: manipulation; }
+.btn:hover:not([disabled]) { border-color: var(--indigo); }
+.btn-primary { background: linear-gradient(#2d3384, var(--indigo)); color: #fff6dc; border-color: var(--gold); }
+.btn-big { font-size: 1.08rem; padding: 13px 24px; }
+.btn-quiet { background: rgba(251, 246, 236, .9); }
+.btn-danger { border-color: var(--bad); color: #7a1d16; background: #fbe7e2; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.stack { display: grid; gap: 10px; margin: 12px 0; }
+.note { min-height: 1.3em; color: #7a4310; font-size: .9rem; margin: 8px 0 0; }
+.muted { color: var(--mute); } .small { font-size: .84rem; }
+.k { color: var(--mute); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; display: block; }
+.kicker { margin: 0 0 6px; color: #8a5a14; font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; }
+
+/* ---------- title: a live murmuration fills the sky behind the card ---------- */
+#scr-title { overflow: hidden; background: linear-gradient(#35407a, #b9729a 55%, #f2b56d 90%); }
+.t-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.title-wrap { position: relative; padding: 22px 16px 28px; max-width: 1180px; margin: 0 auto; width: 100%; }
+.title-text { max-width: 600px; background: rgba(251, 246, 236, .9); border: 2px solid var(--gold); border-radius: 18px; padding: 18px 20px; box-shadow: 0 16px 36px rgba(27, 29, 78, .3); }
+h1 { font: 600 clamp(40px, 6.6vw, 68px)/1.02 var(--serif); margin: 0 0 6px; color: var(--indigo); }
+.t-no { display: block; font: 700 .85rem/1.4 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: #8a5a14; margin-bottom: 6px; }
+.tagline { color: #7a3f52; font: italic 1.35rem/1.4 var(--serif); margin: 0 0 12px; }
+.tiers { border: 0; padding: 0; margin: 0 0 4px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tiers legend { font: 700 .8rem/1 var(--sans); color: #6b3f12; margin-bottom: 8px; letter-spacing: .06em; text-transform: uppercase; }
+.tier { display: flex; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid #c8ad86; border-radius: 12px; background: var(--ivory); cursor: pointer; min-height: 52px; }
+.tier input { margin: 0; width: 18px; height: 18px; accent-color: var(--indigo); }
+.tier strong { display: block; font-size: .95rem; line-height: 1.1; } .tier small { color: var(--mute); font-size: .74rem; }
+.tier:has(input:checked) { border-color: var(--indigo); box-shadow: inset 0 0 0 2px var(--indigo); background: #f2f0ff; }
+.tier:has(input:focus-visible) { box-shadow: var(--focus); }
+.medal { width: 18px; height: 18px; border-radius: 50%; flex: none; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); }
+.tier-bronze .medal { background: #b8743a; } .tier-silver .medal { background: #b7bcc4; } .tier-gold .medal { background: #e0b84c; }
+.tiertext { min-height: 2.6em; margin: 6px 0 0; color: var(--ink2); }
+.title-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+#t-progress { color: var(--ink2); margin: 8px 0 0; }
+.credit { margin-top: 14px; color: var(--mute); font-size: .82rem; }
+.credit p { margin: 2px 0; }
+.principle { font: 600 1rem/1.4 var(--serif); color: var(--indigo); }
+.motto { font: italic .95rem/1.4 var(--serif); color: var(--ink2); }
+
+/* ---------- stage list ---------- */
+.line-wrap { width: min(1180px, 100%); margin: 0 auto; padding: 18px 16px 28px; }
+.line-head { display: flex; gap: 16px; align-items: end; justify-content: space-between; flex-wrap: wrap; }
+.line-head h2 { font: 600 1.9rem/1.2 var(--serif); color: var(--indigo); margin: 0; }
+.stage-list { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.stage-card { width: 100%; text-align: left; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; padding: 12px; border-radius: 14px; border: 1px solid #c8ad86; background: var(--ivory); cursor: pointer; font: inherit; color: inherit; min-height: 92px; }
+.stage-card:hover:not([disabled]) { border-color: var(--indigo); }
+.stage-card[disabled] { opacity: .55; cursor: not-allowed; background: #efe5d6; }
+.stage-card .num { grid-row: span 3; font: 700 1.5rem/1 var(--serif); color: #b0607a; width: 2.2ch; }
+.stage-card strong { font: 600 1.02rem/1.2 var(--serif); color: var(--indigo); }
+.stage-card .ch { font-size: .8rem; color: var(--ink2); }
+.stage-card .best { font-size: .78rem; color: var(--mute); }
+.grade-chip { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .72rem; font-weight: 700; margin-right: 4px; border: 1px solid; }
+.g-gold { background: #fff3cd; color: #7a5a00; border-color: #d8b24a; } .g-silver { background: #eef0f3; color: #4a5260; border-color: #a7aeb8; } .g-bronze { background: #f6e5d6; color: #7a4310; border-color: #c08a5a; } .g-failed { background: #fbe7e2; color: #7a1d16; border-color: #d48a80; }
+
+/* ---------- game ---------- */
+#scr-game { background: #20243f; color: #f4efe2; }
+.hud-top { display: flex; align-items: center; gap: 14px; padding: 6px 12px; background: var(--indigo); border-bottom: 1px solid #3a3f86; }
+.hud-stage { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.hud-stage strong { font: 600 1.02rem/1.2 var(--serif); color: var(--gold2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-stage span { color: #c9c6e6; }
+.hud-cell { display: flex; flex-direction: column; align-items: flex-end; }
+.hud-cell .k, .dock .k { color: #b9b5da; }
+.hud-cell strong { font-size: 1.02rem; font-variant-numeric: tabular-nums; }
+.hud-cell.prog { width: 170px; align-items: stretch; }
+.pbar { height: 8px; border-radius: 5px; background: #3b3f6a; overflow: hidden; margin: 3px 0 2px; }
+.pbar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #e7a7a4, #f2c66d); }
+#scr-game .btn { background: #2a2f62; color: #f4efe2; border-color: #5a5fa8; }
+#scr-game .btn:hover:not([disabled]) { border-color: var(--gold2); }
+.canvas-wrap { position: relative; flex: 1; min-height: 0; overflow: hidden; background: #3a4a7a; }
+#sky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+#sky:focus-visible { box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 6px #2a3fa8; border-radius: 0; }
+.dock { display: grid; grid-template-columns: auto minmax(220px, 340px) 1fr; gap: 12px; align-items: center; padding: 8px 12px; background: #262b52; border-top: 1px solid #3a3f86; }
+.forms { display: grid; grid-template-columns: repeat(4, 76px); gap: 6px; }
+.fbtn { flex-direction: column; gap: 2px; padding: 6px 4px; min-height: 58px; font-size: .8rem; }
+.fbtn svg { width: 34px; height: 18px; }
+.fbtn .fk { font-size: .66rem; color: #b9b5da; }
+.fbtn[aria-checked="true"] { background: #f2c66d !important; color: #1b1d4e !important; border-color: #fff3c8 !important; }
+.fbtn[aria-checked="true"] .fk { color: #3a3f86; }
+.density { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+.dbtn { min-height: 52px; min-width: 64px; padding: 6px 10px; font-size: .85rem; user-select: none; -webkit-user-select: none; }
+.dbtn.held { background: #f2c66d !important; color: #1b1d4e !important; }
+.dmid { display: flex; flex-direction: column; } .dmid input { width: 100%; accent-color: #f2c66d; min-height: 28px; }
+.dmid .k span { color: #f4efe2; font-weight: 700; letter-spacing: .04em; }
+.readouts { display: grid; grid-template-columns: auto auto 1fr; gap: 14px; align-items: center; }
+.readouts strong { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.readouts .obj span:last-child { color: #e9e6ff; line-height: 1.3; display: block; }
+.warn { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; font: 700 .95rem/1.2 var(--sans); background: #3a1d2a; color: #ffd9d3; border: 2px solid #ff6a5a; box-shadow: 0 6px 18px rgba(0,0,0,.35); pointer-events: none; max-width: calc(100% - 20px); text-align: center; }
+.warn.urgent { background: #3b2a10; color: #ffe2a8; border-color: #e0a43a; }
+.warn.info { background: #1e2245; color: #dfe4ff; border-color: #8b92e0; font-weight: 600; }
+.warn .wi { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.9); color: #3a1d2a; font-weight: 900; flex: none; }
+.warn.critical { animation: pulse .7s ease-in-out infinite alternate; }
+.reduce .warn.critical { animation: none; }
+@keyframes pulse { from { box-shadow: 0 0 0 0 rgba(255,106,90,.6); } to { box-shadow: 0 0 0 10px rgba(255,106,90,0); } }
+.brief { position: absolute; left: 12px; top: 12px; width: min(460px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow-y: auto; background: rgba(251, 246, 236, .97); color: var(--ink); border: 2px solid var(--gold); border-radius: 16px; padding: 14px 16px; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+.brief h2 { font: 600 1.45rem/1.2 var(--serif); color: var(--indigo); margin: 0 0 6px; }
+.brief .btn-primary { background: linear-gradient(#2d3384, var(--indigo)) !important; color: #fff6dc !important; border-color: var(--gold) !important; }
+.bf-p { margin: 0 0 8px; color: var(--ink2); }
+.bf-list { margin: 0; padding-left: 18px; font-size: .86rem; color: var(--ink2); } .bf-list li { margin: 2px 0; }
+.toast { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); background: rgba(27, 29, 78, .94); color: #fff6dc; border: 1px solid var(--gold); border-radius: 999px; padding: 8px 16px; font-size: .9rem; pointer-events: none; max-width: calc(100% - 20px); text-align: center; }
+
+/* ---------- results ---------- */
+.result-wrap { width: min(1100px, 100%); margin: 0 auto; padding: 20px 16px 28px; }
+.result-wrap h2 { font: 600 clamp(28px, 4.6vw, 44px)/1.1 var(--serif); color: var(--indigo); margin: 0; }
+.r-sub { color: var(--ink2); margin: 4px 0 6px; }
+.r-grade { font: 600 1.25rem/1.3 var(--serif); color: #8a5a14; margin: 6px 0 12px; }
+.result-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.stat { background: var(--ivory); border: 1px solid #d6c3a2; border-radius: 12px; padding: 8px 10px; }
+.stat strong { display: block; font: 700 1.12rem/1.25 var(--sans); color: var(--ink); }
+.stat span { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); }
+.h3 { font: 600 1.05rem/1.3 var(--serif); color: var(--indigo); margin: 16px 0 6px; }
+.tbl { width: 100%; border-collapse: collapse; background: var(--ivory); border-radius: 12px; overflow: hidden; font-size: .88rem; }
+.tbl th, .tbl td { padding: 6px 8px; border-bottom: 1px solid #e8dcc4; text-align: left; vertical-align: top; }
+.tbl .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl .why { display: block; color: var(--mute); font-size: .78rem; }
+.tbl tr.total td { font-weight: 700; color: var(--indigo); }
+.objlist { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.objlist li { padding: 6px 10px; border-radius: 8px; background: var(--ivory); border: 1px solid #e3d3b4; }
+.objlist li.met::before { content: "✓ "; color: var(--ok); font-weight: 700; } .objlist li.miss::before { content: "○ "; color: var(--mute); }
+.gradelist { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; font-size: .86rem; }
+.gradelist li { background: var(--ivory); border: 1px solid #e3d3b4; border-radius: 8px; padding: 5px 8px; }
+.share { white-space: pre-wrap; background: var(--ivory); border: 1px dashed #b3946a; border-radius: 12px; padding: 12px; font-size: .86rem; }
+
+/* ---------- dialogs ---------- */
+dialog { border: 2px solid var(--gold); border-radius: 16px; padding: 18px 20px; background: var(--ivory); color: var(--ink); max-width: min(560px, calc(100vw - 24px)); width: 100%; max-height: calc(100dvh - 24px); }
+dialog.wide { max-width: min(860px, calc(100vw - 24px)); }
+dialog::backdrop { background: rgba(14, 16, 40, .6); }
+dialog h2 { font: 600 1.5rem/1.2 var(--serif); color: var(--indigo); margin: 0 0 6px; }
+dialog h3 { font: 600 1.05rem/1.3 var(--serif); color: var(--indigo); margin: 14px 0 4px; }
+.chk, .slider, .sel { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.chk input { width: 22px; height: 22px; accent-color: var(--indigo); flex: none; }
+.slider input { flex: 1; min-width: 120px; }
+.sel select { font: inherit; padding: 8px; border-radius: 8px; border: 1px solid #b3946a; background: #fff; min-height: 44px; }
+.rtbl { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.rtbl th, .rtbl td { border-bottom: 1px solid #e8dcc4; padding: 4px 6px; text-align: center; }
+.rtbl th:first-child, .rtbl td:first-child { text-align: left; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1100px) {
+  .dock { grid-template-columns: auto 1fr; }
+  .readouts { grid-column: 1 / -1; grid-template-columns: auto auto 1fr; }
+  .result-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) and (orientation: portrait) {
+  .top { padding: 3px 10px; gap: 6px; flex-wrap: nowrap; } .brand { font-size: 15px; } .crumb { display: none; }
+  .badge { font-size: 10px; padding: 2px 7px; white-space: nowrap; }
+  .tiers { grid-template-columns: 1fr; }
+  .hud-top { gap: 8px; padding: 3px 8px; } .hud-top .lbl, .hud-stage span { display: none; }
+  .hud-stage strong { font-size: .92rem; } .hud-cell strong { font-size: .9rem; } .hud-cell .k { font-size: .58rem; } .hud-cell.prog { width: 74px; }
+  #b-pause { min-height: 44px; padding: 6px 12px; }
+  .dock { grid-template-columns: 1fr; gap: 6px; padding: 6px; }
+  .forms { grid-template-columns: repeat(4, 1fr); }
+  .fbtn { min-height: 52px; font-size: .74rem; } .fbtn .fk { display: none; }
+  .density { grid-template-columns: 1fr 1.3fr 1fr; } .dbtn { min-height: 50px; } .dbtn .lbl { font-size: .76rem; }
+  .readouts { grid-template-columns: auto auto 1fr; gap: 10px; font-size: .8rem; } .readouts strong { font-size: .92rem; }
+  .readouts .obj span:last-child { font-size: .72rem; max-height: 2.6em; overflow: hidden; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .top { padding: 2px 10px; } .brand { font-size: 14px; } .crumb { display: none; } .badge { font-size: 10px; padding: 1px 7px; }
+  .hud-top { padding: 2px 8px; gap: 10px; } .hud-stage span, .hud-top .lbl { display: none; }
+  .hud-cell .k { font-size: .58rem; } .hud-cell strong { font-size: .88rem; } #b-pause { min-height: 40px; padding: 4px 12px; }
+  .dock { grid-template-columns: auto 1fr; gap: 8px; padding: 4px 8px; }
+  .forms { grid-template-columns: repeat(4, 58px); gap: 4px; } .fbtn { min-height: 44px; padding: 3px; font-size: .7rem; } .fbtn svg { height: 12px; } .fbtn .fk { display: none; }
+  .dbtn { min-height: 44px; min-width: 52px; } .dbtn .lbl { display: none; }
+  .readouts { display: none; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header class="top">
+  <a class="brand" href="https://doorquests.com/" aria-label="DoorQuests home (opens doorquests.com)"><span class="brand-door" aria-hidden="true"></span><span class="brand-word">DoorQuests</span></a>
+  <span class="crumb"><span class="crumb-col">Gamortal #014</span><span aria-hidden="true">·</span><span>Murmuration</span></span>
+  <span class="badge">Prototype · Founder Playtest · Not Published</span>
+</header>
+<noscript><p class="nojs">Murmuration needs JavaScript to run.</p></noscript>
+
+<main id="main">
+  <!-- ============================ TITLE ============================ -->
+  <section id="scr-title" class="screen" aria-labelledby="t-h">
+    <canvas id="t-canvas" class="t-canvas" aria-hidden="true"></canvas>
+    <div class="title-wrap">
+      <div class="title-text">
+        <p class="kicker">DoorQuests · Gamortals — Interactive Games</p>
+        <h1 id="t-h"><span class="t-no">Gamortal #014<span class="sr-only"> — </span></span>Murmuration</h1>
+        <p class="tagline">Many wings. One will.</p>
+        <fieldset class="tiers" id="t-tiers"><legend>Difficulty</legend>
+          <label class="tier tier-bronze"><input type="radio" name="tier" value="bronze"><span class="medal" aria-hidden="true"></span><span><strong>Bronze</strong><small>Flock Keeper</small></span></label>
+          <label class="tier tier-silver"><input type="radio" name="tier" value="silver" checked><span class="medal" aria-hidden="true"></span><span><strong>Silver</strong><small>Sky Weaver</small></span></label>
+          <label class="tier tier-gold"><input type="radio" name="tier" value="gold"><span class="medal" aria-hidden="true"></span><span><strong>Gold</strong><small>Master Murmurator</small></span></label>
+        </fieldset>
+        <p id="t-tiertext" class="small tiertext"></p>
+        <div class="title-actions">
+          <button id="b-begin" class="btn btn-primary btn-big" type="button">Begin Migration</button>
+          <button id="b-continue" class="btn btn-big" type="button" hidden>Continue Migration</button>
+        </div>
+        <p id="t-progress" class="small"></p>
+        <div class="title-actions">
+          <button id="b-free" class="btn btn-quiet" type="button">Free Flight</button>
+          <button id="b-howto" class="btn btn-quiet" type="button">How to Play</button>
+          <button id="b-records" class="btn btn-quiet" type="button">Records</button>
+          <button id="b-settings" class="btn btn-quiet" type="button">Sound &amp; Settings</button>
+          <a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a>
+        </div>
+        <p id="t-note" class="note" role="status" aria-live="polite"></p>
+        <footer class="credit"><p class="principle">Many birds. One movement. Endless possibilities.</p><p class="motto">Choose Your Path. Find the Truth. Unlock the Impossible.</p><p>Created by The Axiom Continuum.</p></footer>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ THE SKYWARD PASSAGE ============================ -->
+  <section id="scr-line" class="screen" aria-labelledby="l-h" hidden>
+    <div class="line-wrap">
+      <div class="line-head">
+        <div><p class="kicker" id="l-k">The Skyward Passage</p><h2 id="l-h">Fifteen stages of migration</h2><p class="small muted" id="l-sub"></p></div>
+        <div class="row"><button id="l-summary" class="btn" type="button">Campaign results</button><button id="l-back" class="btn" type="button">Back to title</button></div>
+      </div>
+      <ol id="stage-list" class="stage-list"></ol>
+    </div>
+  </section>
+
+  <!-- ============================ GAME ============================ -->
+  <section id="scr-game" class="screen" aria-label="The sky" hidden>
+    <div class="hud-top">
+      <div class="hud-stage"><strong id="h-stage">Stage</strong><span id="h-tier" class="small"></span></div>
+      <div class="hud-cell"><span class="k">Birds</span><strong id="h-birds">—</strong></div>
+      <div class="hud-cell prog"><span class="k">To the roost</span><div class="pbar" aria-hidden="true"><span id="h-prog"></span></div><strong id="h-progt" class="small">—</strong></div>
+      <div class="hud-cell"><span class="k">Score</span><strong id="h-score">—</strong></div>
+      <button id="b-pause" class="btn" type="button" aria-label="Pause (Escape)">❚❚ <span class="lbl">Pause</span></button>
+    </div>
+    <div class="canvas-wrap" id="cwrap">
+      <canvas id="sky" tabindex="0" role="application" aria-roledescription="flock" aria-label="The sky. Move the pointer or drag to guide the flock; arrow keys or W A S D also steer. Q compresses, E expands, 1 to 4 choose Cloud, Ribbon, Fan or Arc. Escape pauses." aria-describedby="h-obj"></canvas>
+      <div id="warn" class="warn" hidden><span class="wi" aria-hidden="true">!</span><span id="warn-t"></span></div>
+      <div id="brief" class="brief" hidden>
+        <p class="kicker" id="bf-k"></p>
+        <h2 id="bf-h"></h2>
+        <p id="bf-p" class="bf-p"></p>
+        <ul id="bf-list" class="bf-list"></ul>
+        <div class="row"><button id="b-fly" class="btn btn-primary btn-big" type="button">Take flight ▶</button></div>
+        <p class="small muted">Space or Enter also starts. The flock waits until you are ready.</p>
+      </div>
+      <div id="toast" class="toast" hidden role="status"></div>
+    </div>
+    <div class="dock" aria-label="Flock controls">
+      <div class="forms" role="radiogroup" aria-label="Formation (1–4)" id="forms"></div>
+      <div class="density" role="group" aria-label="Density (Q compress, E expand)">
+        <button id="b-comp" class="btn dbtn" type="button" aria-label="Compress (Q) — hold">⇥⇤ <span class="lbl">Compress</span></button>
+        <div class="dmid"><label for="d-range" class="k">Density · <span id="h-dens">Balanced</span></label><input id="d-range" type="range" min="0" max="100" step="1" value="50"></div>
+        <button id="b-exp" class="btn dbtn" type="button" aria-label="Expand (E) — hold">⇤⇥ <span class="lbl">Expand</span></button>
+      </div>
+      <div class="readouts">
+        <div><span class="k">Stability</span><strong id="h-stab">—</strong></div>
+        <div><span class="k">Width</span><strong id="h-width">—</strong></div>
+        <div class="obj"><span class="k">Objective</span><span id="h-obj" class="small">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ STAGE RESULT ============================ -->
+  <section id="scr-result" class="screen" aria-labelledby="r-h" hidden>
+    <div class="result-wrap">
+      <p class="kicker" id="r-k"></p>
+      <h2 id="r-h"></h2>
+      <p class="r-sub" id="r-sub"></p>
+      <p class="r-grade" id="r-grade"></p>
+      <div class="result-grid">
+        <div><div class="stats" id="r-stats"></div><h3 class="h3">Optional objectives</h3><ul id="r-opt" class="objlist"></ul></div>
+        <div><h3 class="h3">How the score was made</h3><table class="tbl" id="r-score"></table><p class="small muted" id="r-rules"></p></div>
+      </div>
+      <div class="row">
+        <button id="r-next" class="btn btn-primary" type="button">Continue to the next stage</button>
+        <button id="r-retry" class="btn" type="button">Retry stage</button>
+        <button id="r-line" class="btn" type="button">The Skyward Passage</button>
+        <button id="r-title" class="btn" type="button">Title</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ CAMPAIGN RESULTS ============================ -->
+  <section id="scr-camp" class="screen" aria-labelledby="c-h" hidden>
+    <div class="result-wrap">
+      <p class="kicker" id="c-k">Campaign results</p>
+      <h2 id="c-h">The Skyward Passage</h2>
+      <p class="r-sub" id="c-sub"></p>
+      <div class="stats" id="c-stats"></div>
+      <h3 class="h3">Stage grades</h3>
+      <ol class="gradelist" id="c-grades"></ol>
+      <div class="row">
+        <button id="c-copy" class="btn btn-primary" type="button">Copy result</button>
+        <button id="c-replay" class="btn" type="button">Replay a stage</button>
+        <button id="c-title" class="btn" type="button">Title</button>
+        <a class="btn" href="https://doorquests.com/">Return to DoorQuests</a>
+      </div>
+      <p id="c-note" class="note" role="status" aria-live="polite"></p>
+      <pre id="c-share" class="share" aria-label="Result text"></pre>
+    </div>
+  </section>
+</main>
+
+<p id="live" class="sr-only" role="status" aria-live="polite"></p>
+<p id="alert" class="sr-only" role="alert"></p>
+
+<!-- ============================ DIALOGS ============================ -->
+<dialog id="d-pause" aria-labelledby="dp-h">
+  <h2 id="dp-h">Paused</h2>
+  <p class="small muted">The flock and every hazard are frozen.</p>
+  <div class="stack">
+    <button id="dp-resume" class="btn btn-primary" type="button">Resume (Esc)</button>
+    <button id="dp-threats" class="btn" type="button" hidden>Threats: on</button>
+    <button id="dp-restart" class="btn" type="button">Restart this stage</button>
+    <button id="dp-howto" class="btn" type="button">How to Play</button>
+    <button id="dp-settings" class="btn" type="button">Sound &amp; Settings</button>
+    <button id="dp-quit" class="btn btn-danger" type="button">Leave the stage…</button>
+  </div>
+  <p class="small muted">Progress is saved between stages. Leaving or reloading during a stage restarts it.</p>
+</dialog>
+
+<dialog id="d-howto" class="wide" aria-labelledby="dh-h">
+  <h2 id="dh-h">How to Play</h2>
+  <div id="dh-body"></div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button></div>
+</dialog>
+
+<dialog id="d-records" class="wide" aria-labelledby="dr-h">
+  <h2 id="dr-h">Records</h2>
+  <p class="small muted">Kept in this browser only (key <code>doorquests.gamortal.014.murmuration.v1</code>). No accounts, no leaderboards.</p>
+  <div id="dr-body"></div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button><button id="dr-reset" class="btn btn-danger" type="button">Reset records…</button></div>
+</dialog>
+
+<dialog id="d-settings" aria-labelledby="dse-h">
+  <h2 id="dse-h">Sound &amp; Settings</h2>
+  <div class="stack">
+    <label class="chk"><input type="checkbox" id="s-sound"> <span>Sound (M)</span></label>
+    <label class="slider">Volume <input type="range" id="s-vol" min="0" max="100" step="5"> <span id="s-vol-v"></span></label>
+    <label class="sel">Motion <select id="s-motion"><option value="auto">Follow device setting</option><option value="reduced">Reduced (no wing flutter, lightning, streaks or parallax)</option><option value="full">Full</option></select></label>
+    <label class="chk"><input type="checkbox" id="s-simple"> <span>Simplified view: plain sky, bold flock outline, birds as clear marks (the flight itself is unchanged)</span></label>
+    <label class="chk"><input type="checkbox" id="s-assist"> <span>Assisted Bronze: the flock flies 20 % slower on Bronze (scores are marked “assisted”)</span></label>
+    <label class="chk"><input type="checkbox" id="s-large"> <span>Larger text</span></label>
+  </div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Done</button></div>
+</dialog>
+
+<dialog id="d-confirm" aria-labelledby="dc-h">
+  <h2 id="dc-h">Are you sure?</h2>
+  <p id="dc-p"></p>
+  <div class="row"><button id="dc-yes" class="btn btn-danger" type="button">Yes</button><button id="dc-no" class="btn" type="button">Cancel</button></div>
+</dialog>
+
+<script id="mu-engine">
+/* Murmuration — engine (window.FlockEngine).
+   Deterministic and DOM-free: the page draws it, the tests run it in Node. Time advances only in fixed 1/60 s steps.
+   The world is a side view of the sky: x runs east along the migration (metres), y runs from the top of the sky (0) to the ground (100).
+   Sections: 1 configuration · 2 level definitions · 3 bird entities · 4 flocking behaviour · 5 formation geometry · 6 density
+             7 hazard simulation · 8 predator AI · 9 collision detection · 10 scoring · 11 stage progression · 12 conductor (demo driver) */
+(function (root) {
+  'use strict';
+
+  /* ================================================================ 1 · configuration */
+  var H = 100, STEP = 1 / 60;
+  var BIRD_R = 0.45;          // collision radius of a bird (m)
+  var DMIN = 1.0;             // hard minimum distance between two birds (m) — compression never overlaps birds
+  var BASE_SP = 2.2;          // formation spacing at density 0.5 is BASE_SP × 0.79
+  var NB_R = 5;               // neighbourhood radius for alignment/cohesion (m) — also the spatial-grid cell size
+  var MAX_ACC = 42, MAX_TURN = 5.5;   // bounded steering: m/s² and rad/s
+  var FORMS = ['cloud', 'ribbon', 'fan', 'arc'];
+  var FORM = {
+    cloud: { label: 'Cloud', key: '1', text: 'Balanced and rounded. Stable, easy to steer; inner birds are well protected.', coh: 1.0, flee: 1.0, resp: 1.0, steer: 1.0 },
+    ribbon: { label: 'Ribbon', key: '2', text: 'A long, narrow double line. Slips through tight gaps, but is long, turns more slowly and is slow to reform.', coh: 0.8, flee: 0.8, resp: 0.8, steer: 0.75 },
+    fan: { label: 'Fan', key: '3', text: 'A wide sweep across the sky. Gathers food over a broad band; easy to clip on walls and exposed to hunters.', coh: 0.7, flee: 0.8, resp: 0.9, steer: 0.9 },
+    arc: { label: 'Arc', key: '4', text: 'A curved crescent. Bends around obstacles and parts sideways around a diving hunter (strong evasion).', coh: 0.9, flee: 2.4, resp: 0.95, steer: 1.0 }
+  };
+  var TIER_IDS = ['bronze', 'silver', 'gold'];
+  var TIERS = {
+    bronze: { id: 'bronze', k: 0, label: 'Bronze', title: 'Flock Keeper', birds: 24, survive: 0.6, gapScale: 1.25, hz: 0.8, wind: 0.65, pred: 0.8, conf: 3, warn: 3.2, grace: 0.5, stormT: 2.6, formResp: 1.25, cruise: 10, preview: true, fitHint: true,
+      text: '24 birds; bring 60 % home. Wider gaps, gentler wind, slower hunters, longer grace on contact, and a “fits / too wide” guide for every gap.' },
+    silver: { id: 'silver', k: 1, label: 'Silver', title: 'Sky Weaver', birds: 32, survive: 0.75, gapScale: 1.0, hz: 1.0, wind: 1.0, pred: 1.0, conf: 4, warn: 2.6, grace: 0.3, stormT: 1.7, formResp: 1.0, cruise: 12, preview: true, fitHint: true,
+      text: '32 birds; bring 75 % home. Standard gaps, wind and hunters. Gap guides show whether your flock fits.' },
+    gold: { id: 'gold', k: 2, label: 'Gold', title: 'Master Murmurator', birds: 40, survive: 0.9, gapScale: 0.85, hz: 1.2, wind: 1.25, pred: 1.15, conf: 5, warn: 2.2, grace: 0.2, stormT: 1.2, formResp: 0.85, cruise: 13, preview: false, fitHint: false,
+      text: '40 birds; bring 90 % home. Narrower gaps, faster storms, stronger wind and hunters, slower formation response, gap widths shown without a fit guide.' }
+  };
+  function h32(s) { var h = 2166136261 >>> 0; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function len(x, y) { return Math.sqrt(x * x + y * y); }
+
+  /* ================================================================ 2 · level definitions */
+  // Each stage builds its hazards for a tier through these helpers. Gaps are given at Silver size and scaled by the tier.
+  // "ribbon gap": Silver 6 m (only a Ribbon fits); "compact gap": Silver 13 m (a compressed Cloud fits); wide gaps: 22 m +.
+  function builder(T) {
+    var B = { solids: [], gaps: [], winds: [], storms: [], foods: [], preds: [], joins: [], notes: [] };
+    var A = {
+      B: B,
+      gap: function (x, w, cy, h, kind) { h = h * T.gapScale; var y0 = cy - h / 2, y1 = cy + h / 2; if (y0 > 1) B.solids.push({ t: 'rect', x0: x, x1: x + w, y0: 0, y1: y0, kind: kind || 'cliff' }); if (y1 < 99) B.solids.push({ t: 'rect', x0: x, x1: x + w, y0: y1, y1: H, kind: kind || 'cliff' }); B.gaps.push({ x0: x, x1: x + w, y0: y0, y1: y1, w: h, kind: kind || 'cliff' }); },
+      rock: function (x0, x1, y0, y1, kind) { B.solids.push({ t: 'rect', x0: x0, x1: x1, y0: y0, y1: y1, kind: kind || 'rock' }); },
+      tree: function (cx, cy, r) { B.solids.push({ t: 'circle', x: cx, y: cy, r: r, kind: 'tree' }); B.solids.push({ t: 'rect', x0: cx - 0.7, x1: cx + 0.7, y0: cy, y1: H, kind: 'trunk' }); },
+      wind: function (x0, x1, y0, y1, fx, fy, period, duty, phase) { B.winds.push({ x0: x0, x1: x1, y0: y0, y1: y1, fx: fx * T.wind, fy: fy * T.wind, period: period || 0, duty: duty === undefined ? 1 : duty, phase: phase || 0 }); },
+      cell: function (x, y, rx, ry, vx, vy, t0) { B.storms.push({ t: 'cell', x: x, y: y, rx: rx, ry: ry, vx: (vx || 0) * T.hz, vy: (vy || 0) * T.hz, t0: t0 || 0 }); },
+      front: function (x0, x1, cy, h, amp, period) { B.storms.push({ t: 'front', x0: x0, x1: x1, cy: cy, h: h * T.gapScale, amp: amp, period: period / T.hz }); },
+      food: function (x0, x1, y0, y1, n, seed) { var r = mulberry(h32('food:' + x0 + ':' + seed)); for (var i = 0; i < n; i++) B.foods.push({ id: B.foods.length, x: x0 + r() * (x1 - x0), y: y0 + r() * (y1 - y0), taken: false }); },
+      pred: function (x, side, attacks) { B.preds.push({ trigger: x, side: side || 'above', attacks: attacks || 3 }); },
+      join: function (x, y) { B.joins.push({ x: x, y: y, joined: false }); }
+    };
+    return A;
+  }
+  var STAGES = [
+    { id: 1, name: 'First Flight', mech: 'Learn flock direction', L: 620, theme: 'grass', start: 50,
+      brief: 'Move the pointer (or drag, or use the arrow keys) and the flock follows — together, not all at once. Rise over the hill and dip under the rock to reach the roost.',
+      optional: [{ t: 'noLoss' }, { t: 'stability', n: 70 }],
+      build: function (a) { a.rock(150, 190, 70, 100, 'hill'); a.rock(300, 330, 0, 32, 'rock'); a.rock(420, 470, 66, 100, 'hill'); a.tree(520, 72, 7); } },
+    { id: 2, name: 'Gather Together', mech: 'Learn density control', L: 700, theme: 'grass', start: 50,
+      brief: 'Compress (Q) to draw the birds close, expand (E) to spread them. Two rock gates ahead: a balanced flock is a little too wide for them.',
+      optional: [{ t: 'noLoss' }, { t: 'noScrape' }],
+      build: function (a) { a.gap(230, 30, 50, 15); a.gap(470, 30, 44, 15); a.rock(350, 380, 0, 18); } },
+    { id: 3, name: 'The Narrow Gap', mech: 'Use compact formation', L: 760, theme: 'mountain', start: 50,
+      brief: 'A canyon only a few metres wide. Even a compressed Cloud is too broad — form a Ribbon (2) before you reach it, and fly straight.',
+      optional: [{ t: 'ribbonGap' }, { t: 'noLoss' }],
+      build: function (a) { a.gap(200, 20, 50, 14); a.gap(380, 70, 52, 6); a.rock(560, 600, 0, 30); a.rock(620, 660, 72, 100, 'hill'); } },
+    { id: 4, name: 'Across the Meadow', mech: 'Use fan formation', L: 820, theme: 'grass', start: 50,
+      brief: 'Seed drifts over the meadow in a wide band. A Fan (3) spread wide gathers far more than a tight Cloud.',
+      optional: [{ t: 'food', n: 70 }, { t: 'noLoss' }],
+      build: function (a) { a.food(150, 330, 22, 78, 40, 1); a.rock(380, 420, 0, 20); a.rock(380, 420, 82, 100, 'hill'); a.food(470, 700, 18, 82, 48, 2); a.tree(760, 74, 6); } },
+    { id: 5, name: 'The River Bend', mech: 'Navigate around obstacles', L: 900, theme: 'river', start: 40,
+      brief: 'Rock pillars and riverside trees stand in the way. Weave between them — an Arc (4) bends around large obstacles neatly.',
+      optional: [{ t: 'noScrape' }, { t: 'noLoss' }],
+      build: function (a) { a.rock(180, 215, 30, 62); a.tree(300, 70, 9); a.rock(380, 420, 0, 38); a.rock(380, 420, 80, 100, 'hill'); a.rock(500, 540, 36, 64); a.tree(620, 62, 10); a.rock(700, 735, 0, 30); a.tree(800, 70, 8); } },
+    { id: 6, name: 'Wings in Harmony', mech: 'Practice formation switching', L: 940, theme: 'valley', start: 50,
+      brief: 'Every formation has its moment: a compact gate, a field of seed, a ribbon slot, and a pillar to bend around. Switch in time.',
+      optional: [{ t: 'allForms' }, { t: 'noLoss' }],
+      build: function (a) { a.gap(170, 26, 50, 13); a.food(260, 420, 20, 80, 36, 3); a.gap(500, 40, 46, 6); a.rock(640, 690, 34, 68); a.food(740, 860, 25, 75, 20, 4); } },
+    { id: 7, name: 'The Forest Passage', mech: 'Manage repeated narrow openings', L: 1000, theme: 'forest', start: 46,
+      brief: 'Overhanging rock above, a forest canopy below: one opening after another, at different heights. Keep the flock compact and read the next opening early.',
+      optional: [{ t: 'noLoss' }, { t: 'noScrape' }],
+      build: function (a) { var ys = [44, 56, 40, 52, 46, 58, 42]; ys.forEach(function (y, i) { var x = 170 + i * 105; a.gap(x, 26, y, 13, 'canopy'); a.tree(x + 60, 84, 6); }); } },
+    { id: 8, name: 'The First Hunter', mech: 'Avoid a predator', L: 900, theme: 'grass', start: 50,
+      brief: 'A hawk will come. It hunts the most isolated bird: keep the flock tight (compress, Cloud) and every dive meets a confusing crowd. An Arc scatters away from dives.',
+      optional: [{ t: 'noCatch' }, { t: 'noLoss' }],
+      build: function (a) { a.pred(220, 'above', 3); a.rock(600, 640, 70, 100, 'hill'); a.tree(760, 74, 7); } },
+    { id: 9, name: 'The Crosswind', mech: 'Compensate for gusts', L: 1000, theme: 'wind', start: 50,
+      brief: 'Gusts sweep down and up through the gaps (watch the streaks and the countdown). Steer against them — the flock drifts with the wind unless you hold it.',
+      optional: [{ t: 'noScrape' }, { t: 'noLoss' }],
+      build: function (a) { a.wind(150, 330, 0, 100, 0, 9, 5, 0.6, 0); a.gap(280, 26, 46, 16); a.wind(400, 600, 0, 100, 0, -9, 4, 0.55, 1); a.gap(540, 26, 54, 16); a.wind(660, 880, 0, 100, 3, 8, 6, 0.5, 2); a.gap(800, 30, 42, 14); } },
+    { id: 10, name: 'The Gathering Storm', mech: 'Navigate moving danger zones', L: 1000, theme: 'storm', start: 50,
+      brief: 'Storm cells drift across the sky, and a storm wall with one moving opening blocks the way. A few seconds inside a storm can cost a bird — follow the opening through.',
+      optional: [{ t: 'noStorm' }, { t: 'noLoss' }],
+      build: function (a) { a.cell(260, -10, 14, 12, 0, 6, 0); a.cell(330, 110, 16, 12, 0, -6, 4); a.front(560, 600, 50, 20, 18, 10); a.cell(760, 20, 16, 14, 0, 4, 40); a.rock(860, 900, 76, 100, 'hill'); } },
+    { id: 11, name: 'The Scattered Harvest', mech: 'Balance expansion and cohesion', L: 1100, theme: 'grass', start: 50,
+      brief: 'Wide seed fields between rocks. Expand to harvest, but a flock spread too thin strays — birds left far behind for long are lost. A lone bird waits to join you.',
+      optional: [{ t: 'food', n: 75 }, { t: 'stability', n: 70 }],
+      build: function (a) { a.food(140, 330, 15, 85, 44, 5); a.rock(360, 400, 40, 60); a.food(430, 640, 15, 85, 48, 6); a.gap(680, 26, 50, 14); a.food(740, 980, 18, 82, 50, 7); a.join(600, 30); } },
+    { id: 12, name: 'Through the Cliffs', mech: 'Combine precise movement and formation', L: 1100, theme: 'cliffs', start: 50,
+      brief: 'Coastal cliffs with staggered openings: a ribbon slot, then gates that step up and down. Precise steering and timely reshaping.',
+      optional: [{ t: 'ribbonGap' }, { t: 'noLoss' }],
+      build: function (a) { a.gap(180, 30, 40, 13); a.gap(300, 50, 56, 6); a.gap(440, 30, 36, 13); a.gap(560, 30, 62, 13); a.gap(700, 60, 48, 6); a.gap(860, 30, 38, 13); a.gap(960, 30, 58, 14); } },
+    { id: 13, name: 'The Hunter’s Return', mech: 'Handle multiple threats', L: 1100, theme: 'sunset', start: 50,
+      brief: 'Two hawks hunt in turn while gusts and a gate press you. Stay tight when they come; reshape for the gate between dives.',
+      optional: [{ t: 'noCatch' }, { t: 'noLoss' }],
+      build: function (a) { a.pred(200, 'above', 3); a.wind(300, 520, 0, 100, 0, 7, 5, 0.5, 0); a.gap(560, 30, 50, 14); a.pred(640, 'below', 3); a.rock(900, 940, 0, 30); } },
+    { id: 14, name: 'The Long Crossing', mech: 'Maintain flock integrity over distance', L: 1500, theme: 'ocean', start: 50,
+      brief: 'Open ocean: no walls, but long stretches of wind and storm. Hold the flock together for the whole crossing. Two lone birds on the way can join to replace losses.',
+      optional: [{ t: 'noLoss' }, { t: 'stability', n: 75 }],
+      build: function (a) { a.wind(150, 450, 0, 100, -2, 7, 7, 0.6, 0); a.cell(560, 10, 18, 14, 0, 5, 0); a.cell(640, 95, 18, 14, 0, -5, 3); a.join(700, 30); a.wind(780, 1100, 0, 100, 2, -8, 6, 0.55, 3); a.front(1180, 1220, 50, 22, 16, 9); a.join(1260, 70); a.wind(1300, 1450, 0, 100, 0, 6, 5, 0.5, 1); } },
+    { id: 15, name: 'The Evening Sky', mech: 'Demonstrate mastery of all major mechanics', L: 1500, theme: 'evening', start: 50,
+      brief: 'Everything the passage has taught: gates, a ribbon slot, a seed field, gusts, a storm wall and a final hunter — then the roost in the evening light.',
+      optional: [{ t: 'allForms' }, { t: 'noLoss' }],
+      build: function (a) { a.gap(150, 26, 48, 13); a.food(230, 380, 20, 80, 34, 8); a.gap(440, 50, 54, 6); a.wind(520, 700, 0, 100, 0, 8, 5, 0.55, 0); a.gap(640, 30, 44, 14); a.front(800, 840, 50, 22, 16, 10); a.pred(900, 'above', 3); a.rock(1120, 1170, 34, 66); a.join(1000, 75); a.gap(1300, 30, 50, 13); } }
+  ];
+  var FREE = { id: 0, name: 'Free Flight', mech: 'Practice — no score, no records', L: 2400, theme: 'valley', start: 50, practice: true,
+    brief: 'Try everything with nothing at stake: steer, compress, expand and switch formations, and watch each bird respond to its neighbours. Rocks, a gap, a seed field and a gentle gust lie ahead; birds are never lost here.',
+    optional: [], build: function (a) { a.rock(260, 300, 0, 34); a.rock(260, 300, 72, 100, 'hill'); a.food(380, 560, 20, 80, 40, 9); a.gap(640, 30, 50, 13); a.gap(820, 50, 50, 6); a.wind(950, 1150, 0, 100, 0, 6, 5, 0.5, 0); a.rock(1250, 1300, 36, 64); a.tree(1420, 72, 8); a.food(1550, 1800, 20, 80, 50, 10); a.pred(1000, 'above', 4); a.cell(1950, -10, 16, 13, 0, 5, 150); a.gap(2150, 40, 50, 14); } };
+  function stageDef(id) { return id === 0 ? FREE : STAGES[id - 1]; }
+
+  /* ================================================================ 3 · bird entities */
+  function makeBird(id, x, y, rng, vx) {
+    return { id: id, x: x, y: y, vx: vx, vy: 0, hd: 0, pref: 0.9 + rng() * 0.2, slot: id, active: true, member: true, lost: null, hit: 0, hitCool: 0, storm: 0, stray: 0, flap: rng() * 6.28, joined: false };
+  }
+
+  /* ================================================================ 5 · formation geometry  ·  6 · density */
+  function spacing(d) { return BASE_SP * (0.55 + 1.05 * clamp(d, 0, 1)); }   // compact 1.21 m · balanced 1.73 m · wide 2.86 m
+  function densityName(d) { return d < 0.34 ? 'Compact' : d > 0.66 ? 'Wide' : 'Balanced'; }
+  // offsets in the flock frame: u along the direction of travel (+ ahead), w across it
+  function slots(form, n, s) {
+    var out = [], i;
+    if (form === 'cloud') { for (i = 0; i < n; i++) { var r = s * 0.55 * Math.sqrt(i + 0.5), a = i * 2.39996323; out.push({ u: r * Math.cos(a), w: r * Math.sin(a) }); } }
+    else if (form === 'ribbon') { var K = Math.ceil(n / 2); for (i = 0; i < n; i++) { var k = Math.floor(i / 2), lane = i % 2; out.push({ u: -(k - (K - 1) / 2) * s * 0.95, w: (lane - 0.5) * s * 0.9 }); } }
+    else if (form === 'fan') { var rows = 3, cols = Math.ceil(n / rows); for (i = 0; i < n; i++) { var c = Math.floor(i / rows), rw = i % rows; var wv = (c - (cols - 1) / 2) * s * 1.05; out.push({ u: -(rw - 1) * s * 0.9 - Math.abs(wv) * 0.12, w: wv + (rw % 2) * s * 0.5 }); } }
+    else { // arc: two concentric crescents, convex side forward
+      var per = Math.ceil(n / 2), span = 2.4, R = Math.max(s * 2, per * s * 1.0 / span);
+      for (i = 0; i < n; i++) { var layer = i % 2, j = Math.floor(i / 2), m = layer ? Math.floor(n / 2) : per, th = m > 1 ? -span / 2 + span * j / (m - 1) : 0, RR = R - layer * s * 0.95; out.push({ u: RR * Math.cos(th) - R, w: RR * Math.sin(th) }); }
+    }
+    var mu = 0, mw = 0; out.forEach(function (o) { mu += o.u; mw += o.w; }); mu /= n; mw /= n; out.forEach(function (o) { o.u -= mu; o.w -= mw; });
+    return out;
+  }
+  function extent(form, n, s) { var sl = slots(form, n, s), u0 = Infinity, u1 = -Infinity, w0 = Infinity, w1 = -Infinity; sl.forEach(function (o) { u0 = Math.min(u0, o.u); u1 = Math.max(u1, o.u); w0 = Math.min(w0, o.w); w1 = Math.max(w1, o.w); }); return { len: u1 - u0 + 2 * BIRD_R, cross: w1 - w0 + 2 * BIRD_R }; }
+  // assign birds to slots preserving their order along the new formation's long axis, so birds do not cross over when reshaping
+  function assignSlots(st) {
+    var f = st.flock, act = st.birds.filter(function (b) { return b.active; }), n = act.length; if (!n) return;
+    var sl = slots(f.form, n, 1), hx = Math.cos(f.hd), hy = Math.sin(f.hd);   // unit slots: scaled by the live spacing every step
+    var ex = extent(f.form, n, 1), byU = ex.len >= ex.cross;
+    var rel = act.map(function (b) { var dx = b.x - f.x, dy = b.y - f.y; return { b: b, u: dx * hx + dy * hy, w: -dx * hy + dy * hx }; });
+    var key = function (o) { return byU ? o.u * 1000 + o.w : o.w * 1000 + o.u; };
+    var idx = sl.map(function (o, i) { return i; }).sort(function (a, b) { return key(sl[a]) - key(sl[b]); });
+    rel.sort(function (a, b) { return key(a) - key(b); });
+    rel.forEach(function (o, k) { o.b.slot = idx[k]; });
+    f.slots = sl; f.n = n;
+  }
+
+  // Slot targets follow the guide's own flight path: a place u metres behind the guide sits on the trail the guide flew,
+  // offset w metres across the local direction of travel — so long formations snake through bends instead of swinging rigidly.
+  function trailPoint(f, back) {
+    var tr = f.trail, end = tr[tr.length - 1], target = end.s - back;
+    if (back <= 0) { var hx = Math.cos(f.hd), hy = Math.sin(f.hd); return { x: f.x - back * hx, y: f.y - back * hy, hx: hx, hy: hy }; }
+    var lo = 0, hi = tr.length - 1; if (target <= tr[0].s) { lo = 0; hi = 1; } else { while (hi - lo > 1) { var m = (lo + hi) >> 1; if (tr[m].s < target) lo = m; else hi = m; } }
+    var a = tr[lo], b = tr[hi], seg = (b.s - a.s) || 1e-9, k = clamp((target - a.s) / seg, 0, 1), dx = b.x - a.x, dy = b.y - a.y, dl = len(dx, dy) || 1e-9;
+    var kk = target < tr[0].s ? (target - a.s) / seg : k;
+    return { x: a.x + dx * kk, y: a.y + dy * kk, hx: dx / dl, hy: dy / dl };
+  }
+  function slotTarget(f, o) { var s = spacing(f.dEff), u = o.u * s, w = o.w * s, p = trailPoint(f, -u); return { x: p.x - w * p.hy, y: p.y + w * p.hx }; }
+  // a place that falls inside a free-standing obstacle (a pillar or a tree crown, not a cliff) moves to that obstacle's nearer edge,
+  // on the bird's own side — so the flock parts around it and closes up again beyond it
+  function clearOfObstacles(st, b, tp, near) {
+    for (var i = 0; i < near.length; i++) { var so = near[i]; if (so.t === 'rect' && (so.y0 <= 1 || so.y1 >= H - 1)) continue; if (so.kind === 'trunk') continue;
+      if (sdSolid(so, tp.x, tp.y).d > 1.2 && sdSolid(so, tp.x + st.flock.vx * 0.5, tp.y).d > 1.2 && sdSolid(so, tp.x + st.flock.vx * 0.25, tp.y).d > 1.2) continue;   // look half a second ahead
+      if (so.t === 'circle') { var dx = b.x - so.x, dy = b.y - so.y, d = len(dx, dy) || 1, r = so.r + 1.6; tp = { x: so.x + dx / d * r, y: so.y + dy / d * r }; }
+      else { var mid = (so.y0 + so.y1) / 2; tp = { x: tp.x, y: b.y < mid ? so.y0 - 1.8 - Math.max(0, tp.y - so.y0) : so.y1 + 1.8 + Math.max(0, so.y1 - tp.y) }; } }   // mirrored outward: birds keep their order instead of piling onto one line
+    return tp;
+  }
+
+  /* ================================================================ 9 · collision detection */
+  // signed distance from a point to a solid (negative inside) and the outward normal
+  function sdSolid(s, x, y) {
+    if (s.t === 'circle') { var dx = x - s.x, dy = y - s.y, d = len(dx, dy) || 1e-9; return { d: d - s.r, nx: dx / d, ny: dy / d }; }
+    var cx = clamp(x, s.x0, s.x1), cy = clamp(y, s.y0, s.y1);
+    if (cx === x && cy === y) { // inside: nearest face
+      var l = x - s.x0, r = s.x1 - x, t = y - s.y0, b = s.y1 - y, m = Math.min(l, r, t, b);
+      if (m === t && s.y0 > 0.01) return { d: -t, nx: 0, ny: -1 }; if (m === b && s.y1 < H - 0.01) return { d: -b, nx: 0, ny: 1 };
+      if (m === l) return { d: -l, nx: -1, ny: 0 }; if (m === r) return { d: -r, nx: 1, ny: 0 };
+      return s.y0 <= 0.01 ? { d: -b, nx: 0, ny: 1 } : { d: -t, nx: 0, ny: -1 };
+    }
+    var ex = x - cx, ey = y - cy, dd = len(ex, ey) || 1e-9; return { d: dd, nx: ex / dd, ny: ey / dd };
+  }
+  function nearSolids(st, x, pad) { return st.solids.filter(function (s) { var x0 = s.t === 'circle' ? s.x - s.r : s.x0, x1 = s.t === 'circle' ? s.x + s.r : s.x1; return x >= x0 - pad && x <= x1 + pad; }); }
+  // the free vertical intervals of sky at column x at time t (solids + predicted storms), used for warnings and by the demo driver
+  function blockedAt(st, x, t, withStorm) {
+    var bl = [];
+    st.solids.forEach(function (s) { if (s.t === 'circle') { var dx = x - s.x; if (Math.abs(dx) <= s.r) { var h = Math.sqrt(s.r * s.r - dx * dx); bl.push([s.y - h, s.y + h]); } } else if (x >= s.x0 && x <= s.x1) bl.push([s.y0, s.y1]); });
+    if (withStorm) st.storms.forEach(function (s) { stormIntervals(s, x, t).forEach(function (iv) { bl.push(iv); }); });
+    return bl;
+  }
+  function freeAt(st, x, t, withStorm) {
+    var bl = blockedAt(st, x, t, withStorm).sort(function (a, b) { return a[0] - b[0]; }), free = [], y = 0;
+    bl.forEach(function (iv) { if (iv[0] > y) free.push([y, iv[0]]); y = Math.max(y, iv[1]); }); if (y < H) free.push([y, H]);
+    return free;
+  }
+
+  /* ================================================================ 7 · hazard simulation (wind, storms, food, joiners) */
+  function windActive(w, t) { return !w.period || ((t + w.phase) % w.period) < w.period * w.duty; }
+  function windIn(w, t) { if (!w.period) return 0; var p = (t + w.phase) % w.period, on = w.period * w.duty; return p < on ? -(on - p) : w.period - p; }   // negative: seconds left on; positive: seconds until next gust
+  function windRamp(w, t) { if (!w.period) return 1; var p = (t + w.phase) % w.period, on = w.period * w.duty; if (p >= on) return 0; return Math.min(1, p / 0.6, (on - p) / 0.4); }   // gusts build over 0.6 s and ease off over 0.4 s
+  function windAt(st, x, y, t) { var fx = 0, fy = 0; st.winds.forEach(function (w) { if (x >= w.x0 && x <= w.x1 && y >= w.y0 && y <= w.y1) { var k = windRamp(w, t); fx += w.fx * k; fy += w.fy * k; } }); return [fx, fy]; }
+  function stormPos(s, t) { var tt = Math.max(0, t - (s.t0 || 0)); return { x: s.x + s.vx * tt, y: s.y + s.vy * tt }; }
+  function frontGap(s, t) { return s.cy + s.amp * Math.sin(2 * Math.PI * t / s.period); }
+  function inStorm(st, x, y, t) {
+    for (var i = 0; i < st.storms.length; i++) { var s = st.storms[i];
+      if (s.t === 'cell') { var p = stormPos(s, t), dx = (x - p.x) / s.rx, dy = (y - p.y) / s.ry; if (dx * dx + dy * dy <= 1) return true; }
+      else if (x >= s.x0 && x <= s.x1) { var g = frontGap(s, t); if (y < g - s.h / 2 || y > g + s.h / 2) return true; } }
+    return false;
+  }
+  function stormIntervals(s, x, t) {
+    if (s.t === 'cell') { var p = stormPos(s, t), dx = (x - p.x) / s.rx; if (Math.abs(dx) > 1) return []; var h = s.ry * Math.sqrt(1 - dx * dx); return [[p.y - h, p.y + h]]; }
+    if (x < s.x0 || x > s.x1) return []; var g = frontGap(s, t); return [[0, g - s.h / 2], [g + s.h / 2, H]];
+  }
+
+  /* ================================================================ 11 · stage progression (creation) */
+  function create(stageId, tier, opts) {
+    opts = opts || {};
+    var def = stageDef(stageId), T = TIERS[def.practice ? (opts.tier || 'silver') : tier], a = builder(T); def.build(a);
+    var rng = mulberry(h32('murmuration:' + def.id + ':' + T.id)), n = opts.birds || T.birds, cruise = T.cruise * (opts.assist && T.id === 'bronze' ? 0.8 : 1);
+    var st = { v: 1, mode: def.practice ? 'practice' : 'campaign', stage: def.id, name: def.name, tier: T.id, assist: !!opts.assist && T.id === 'bronze', threats: opts.threats !== false,
+      L: def.L, t: 0, tick: 0, over: false, result: null, events: [], cruise: cruise, n0: n,
+      solids: a.B.solids, gaps: a.B.gaps, winds: a.B.winds, storms: def.practice && opts.threats === false ? [] : a.B.storms, foods: a.B.foods, joins: a.B.joins,
+      preds: (def.practice && opts.threats === false ? [] : a.B.preds).map(function (p, i) { return { id: i, trigger: p.trigger, side: p.side, attacks: p.attacks, state: 'idle', x: 0, y: 0, vx: 0, vy: 0, t: 0, target: -1, done: 0, caught: 0, confused: 0 }; }),
+      flock: { x: 30, y: def.start, vx: cruise, vy: 0, hd: 0, form: 'cloud', d: 0.5, dEff: 0.5, slots: null, n: n, trail: [{ x: 30 - 80, y: def.start, s: 0 }, { x: 30, y: def.start, s: 80 }] },
+      input: { ty: def.start, pace: 1, steer: false },
+      birds: [], nextId: n,
+      stats: { lost: { obstacle: 0, predator: 0, storm: 0, stray: 0 }, scrapes: 0, stormEntries: 0, attacks: 0, caught: 0, confused: 0, food: 0, joined: 0, formsUsed: { cloud: 1 }, stabSum: 0, stabN: 0, inRibbonGaps: 0, ribbonGapPasses: 0, gapPasses: 0, maxWidth: 0, formChanges: 0 },
+      log: [] };
+    var sl = slots('cloud', n, spacing(0.5));
+    for (var i = 0; i < n; i++) st.birds.push(makeBird(i, 30 + sl[i].u + (rng() - 0.5) * 0.6, def.start + sl[i].w + (rng() - 0.5) * 0.6, rng, cruise));
+    assignSlots(st);
+    st.required = Math.ceil(n * T.survive - 1e-9);
+    st.par = def.L / cruise;
+    st.gaps.forEach(function (g) { g.passedBy = 0; });
+    return st;
+  }
+  function tierOf(st) { return TIERS[st.tier]; }
+  function active(st) { return st.birds.filter(function (b) { return b.active; }); }
+  function activeCount(st) { var c = 0; for (var i = 0; i < st.birds.length; i++) if (st.birds[i].active) c++; return c; }
+
+  /* ---------- player controls (the only way the demo driver plays, too) ---------- */
+  function setForm(st, f) { if (FORMS.indexOf(f) < 0 || st.over) return false; if (st.flock.form !== f) { st.flock.form = f; st.stats.formsUsed[f] = 1; st.stats.formChanges++; assignSlots(st); st.events.push({ t: 'form', form: f }); } return true; }
+  function setDensity(st, d) { if (st.over) return; st.flock.d = clamp(d, 0, 1); }
+  function nudgeDensity(st, dd) { setDensity(st, st.flock.d + dd); }
+  function steerTo(st, y, pace) { if (st.over) return; st.input.ty = clamp(y, 2, H - 2); if (pace !== undefined) st.input.pace = clamp(pace, 0.7, 1.3); }
+
+  /* ================================================================ 4 · flocking behaviour (one fixed step) */
+  function step(st) {
+    if (st.over) return;
+    var T = tierOf(st), f = st.flock, dt = STEP, t = st.t; st.tick++; st.t += dt;
+    // the guide (the player's influence): eases toward the steering target; carried partly by the wind
+    var wind = windAt(st, f.x, f.y, t), F = FORM[f.form];
+    var vyT = clamp((st.input.ty - f.y) * 2.6, -9 * F.steer, 9 * F.steer) + wind[1] * 0.55, vxT = st.cruise * st.input.pace + wind[0] * 0.55;
+    var ax = clamp((vxT - f.vx) * 3, -14, 14), ay = clamp((vyT - f.vy) * 3.2, -16 * F.steer, 16 * F.steer);
+    f.vx += ax * dt; f.vy += ay * dt; f.x += f.vx * dt; f.y = clamp(f.y + f.vy * dt, 3, H - 3);
+    var thd = Math.atan2(f.vy, Math.max(1, f.vx)); f.hd += (thd - f.hd) * Math.min(1, dt * 3);
+    var last = f.trail[f.trail.length - 1], dl = len(f.x - last.x, f.y - last.y); if (dl > 0.05) { f.trail.push({ x: f.x, y: f.y, s: last.s + dl }); if (f.trail.length > 900) f.trail.splice(0, f.trail.length - 900); }
+    // density eases toward its setting: formations take time to develop
+    var dd = f.d - f.dEff; f.dEff += clamp(dd, -0.9 * dt, 0.9 * dt);
+    var s = spacing(f.dEff), hx = Math.cos(f.hd), hy = Math.sin(f.hd), sl = f.slots, n = f.n;
+    // spatial grid for neighbour queries (bounded neighbourhoods, no all-pairs)
+    var act = active(st), grid = {}, cell = NB_R;
+    act.forEach(function (b) { var k = Math.floor(b.x / cell) + ',' + Math.floor(b.y / cell); (grid[k] || (grid[k] = [])).push(b); });
+    function neigh(b) { var out = [], gx = Math.floor(b.x / cell), gy = Math.floor(b.y / cell); for (var i = -1; i <= 1; i++) for (var j = -1; j <= 1; j++) { var g = grid[(gx + i) + ',' + (gy + j)]; if (g) for (var k = 0; k < g.length; k++) if (g[k] !== b) out.push(g[k]); } return out; }
+    var near = nearSolids(st, f.x, 40), preds = st.preds.filter(function (p) { return p.state === 'dive' || p.state === 'approach' || p.state === 'recover'; });
+    var straySum = 0;
+    act.forEach(function (b) {
+      var nb = neigh(b), sx = 0, sy = 0, axv = 0, ayv = 0, cx = 0, cy = 0, cn = 0, sep = s * 0.9 * b.pref;
+      for (var i = 0; i < nb.length; i++) { var o = nb[i], dx = b.x - o.x, dy = b.y - o.y, d = len(dx, dy);
+        if (d < NB_R) { axv += o.vx; ayv += o.vy; cx += o.x; cy += o.y; cn++; }
+        if (d < sep && d > 1e-6) { var push = (sep - d) / sep; sx += dx / d * push; sy += dy / d * push; } }
+      var fx = 0, fy = 0;
+      // separation · alignment · cohesion
+      fx += sx * 26; fy += sy * 26;
+      if (cn) { fx += (axv / cn - b.vx) * 0.9; fy += (ayv / cn - b.vy) * 0.9; fx += (cx / cn - b.x) * 0.6 * F.coh; fy += (cy / cn - b.y) * 0.6 * F.coh; }
+      // formation influence + guidance: a damped spring toward this bird's slot, which moves with the guide
+      var o2 = sl[b.slot] || { u: 0, w: 0 }, tp = clearOfObstacles(st, b, slotTarget(f, o2), near), tx = tp.x, ty = tp.y;
+      var kp = 5.5 * T.formResp * F.resp, kd = 3.6 * Math.sqrt(T.formResp * F.resp);
+      fx += (tx - b.x) * kp + (f.vx - b.vx) * kd; fy += (ty - b.y) * kp + (f.vy - b.vy) * kd;
+      // hazard avoidance: look ahead along the velocity and feel nearby surfaces
+      var avoid = 0;
+      for (var k = 0; k < near.length; k++) { var so = near[k];
+        var px = b.x + b.vx * 0.25, py = b.y + b.vy * 0.25, q = sdSolid(so, px, py), q2 = sdSolid(so, b.x, b.y), m = Math.min(q.d, q2.d), nrm = q.d < q2.d ? q : q2;
+        if (m < 2.2) { var str = (2.2 - m) * 16; fx += nrm.nx * str; fy += nrm.ny * str; avoid = 1; } }
+      // storms: birds lean out of a storm they are in
+      // predators: flee from a hunter close by (much stronger in Arc)
+      for (var pi = 0; pi < preds.length; pi++) { var p = preds[pi], ddx = b.x - p.x, ddy = b.y - p.y, pd = len(ddx, ddy); if (pd < 9 && pd > 1e-6) { var fl = (9 - pd) / 9 * (p.state === 'dive' ? 15 : 6) * F.flee; fx += ddx / pd * fl; fy += ddy / pd * fl;
+        if (f.form === 'arc' && p.state === 'dive' && pd < 7) { var pv = len(p.vx, p.vy) || 1, side = ((-p.vy) * ddx + p.vx * ddy) >= 0 ? 1 : -1; fx += -p.vy / pv * side * 22; fy += p.vx / pv * side * 22; } } }   // the Arc parts sideways around a stoop
+      // wind acts on every bird
+      var wb = windAt(st, b.x, b.y, t); fx += wb[0]; fy += wb[1];
+      // soft sky/ground bounds
+      if (b.y < 2.5) fy += (2.5 - b.y) * 20; if (b.y > H - 2.5) fy -= (b.y - H + 2.5) * 20;
+      // bounded acceleration and turning
+      var am = len(fx, fy); if (am > MAX_ACC) { fx *= MAX_ACC / am; fy *= MAX_ACC / am; }
+      var nvx = b.vx + fx * dt, nvy = b.vy + fy * dt, a0 = Math.atan2(b.vy, b.vx), a1 = Math.atan2(nvy, nvx), da = Math.atan2(Math.sin(a1 - a0), Math.cos(a1 - a0)), mt = MAX_TURN * dt;
+      var sp = len(nvx, nvy); if (Math.abs(da) > mt) { var aa = a0 + clamp(da, -mt, mt); nvx = Math.cos(aa) * sp; nvy = Math.sin(aa) * sp; }
+      var vmax = st.cruise * 1.9, vmin = st.cruise * 0.45; sp = len(nvx, nvy); if (sp > vmax) { nvx *= vmax / sp; nvy *= vmax / sp; } if (sp < vmin && sp > 1e-9) { nvx *= vmin / sp; nvy *= vmin / sp; }
+      b.vx = nvx; b.vy = nvy; b.x += b.vx * dt; b.y = clamp(b.y + b.vy * dt, 0.6, H - 0.6); b.hd = Math.atan2(b.vy, b.vx); b.flap += dt * (9 + b.pref * 3); b.avoid = avoid;
+      // stragglers: a bird far from its flock for long is lost
+      var dfx = b.x - f.x, dfy = b.y - f.y, df = len(dfx, dfy), lim = Math.max(22, (f.form === 'ribbon' ? n * s * 0.6 : 0)) + s * 6;
+      b.member = df < lim; if (!b.member) { b.stray += dt; straySum++; } else b.stray = Math.max(0, b.stray - dt * 2);
+      if (b.stray > 6 && st.mode !== 'practice') lose(st, b, 'stray');
+    });
+    // collisions with solids: push out; sustained contact (beyond the grace period) costs the bird
+    act.forEach(function (b) { if (!b.active) return; var touching = false;
+      for (var k = 0; k < near.length; k++) { var q = sdSolid(near[k], b.x, b.y); if (q.d < BIRD_R) { touching = true; var pen = BIRD_R - q.d; b.x += q.nx * pen; b.y += q.ny * pen; var vn = b.vx * q.nx + b.vy * q.ny; if (vn < 0) { b.vx -= vn * q.nx * 1.2; b.vy -= vn * q.ny * 1.2; } } }
+      if (touching) { if (b.hit === 0) { st.stats.scrapes++; st.events.push({ t: 'scrape', id: b.id }); } b.hit += dt; b.hitCool = 0.5; if (b.hit > (st.mode === 'practice' ? 1e9 : T.grace)) lose(st, b, 'obstacle'); }
+      else if (b.hit > 0) { b.hitCool -= dt; if (b.hitCool <= 0) b.hit = 0; }
+      // storms: exposure builds inside and fades outside
+      if (inStorm(st, b.x, b.y, st.t)) { if (b.storm <= 0.001) { st.stats.stormEntries++; st.events.push({ t: 'storm', id: b.id }); } b.storm += dt; if (b.storm > T.stormT && st.mode !== 'practice') lose(st, b, 'storm'); }
+      else b.storm = Math.max(0, b.storm - dt * 0.5);
+    });
+    // hard minimum separation: birds never overlap, however compressed (positional projection)
+    for (var it = 0; it < 3; it++) act.forEach(function (b) { if (!b.active) return; neigh(b).forEach(function (o) { if (!o.active || o.id < b.id) return; var dx = o.x - b.x, dy = o.y - b.y, d = len(dx, dy); if (d < DMIN) { var c = (DMIN - (d || 1e-6)) / 2, ux = d > 1e-9 ? dx / d : 1, uy = d > 1e-9 ? dy / d : 0; b.x -= ux * c; b.y -= uy * c; o.x += ux * c; o.y += uy * c; } }); });
+    predators(st, act);
+    // food: each seed is eaten once, by the first bird that reaches it
+    st.foods.forEach(function (fd) { if (fd.taken || Math.abs(fd.x - f.x) > 60) return; for (var i = 0; i < act.length; i++) { var b = act[i]; if (b.active && Math.abs(b.x - fd.x) < 1.6 && Math.abs(b.y - fd.y) < 1.6 && len(b.x - fd.x, b.y - fd.y) < 1.6) { fd.taken = true; st.stats.food++; st.events.push({ t: 'food', id: fd.id }); break; } } });
+    // lone birds join to replace losses — never above the starting flock, each only once
+    st.joins.forEach(function (j) { if (j.joined || activeCount(st) >= st.n0) return; if (act.some(function (b) { return b.active && len(b.x - j.x, b.y - j.y) < 7; })) { j.joined = true; var nb = makeBird(st.nextId++, j.x, j.y, mulberry(st.nextId), st.cruise); nb.joined = true; st.birds.push(nb); st.stats.joined++; assignSlots(st); st.events.push({ t: 'join', id: nb.id }); } });
+    // gap bookkeeping (for objectives and the gap guide)
+    st.gaps.forEach(function (g) { if (!g.done && f.x > g.x1 + 4) { g.done = true; st.stats.gapPasses++; if (g.w <= 9 && g.form === 'ribbon') st.stats.ribbonGapPasses++; } if (!g.done && f.x >= g.x0 && f.x <= g.x1) g.form = g.form === undefined || g.form === 'ribbon' ? f.form : g.form; });
+    // formation stability (how closely birds hold their places)
+    var err = 0, cnt = 0, w0 = Infinity, w1 = -Infinity;
+    act.forEach(function (b) { if (!b.active) return; var o2 = f.slots[b.slot] || { u: 0, w: 0 }, tp = slotTarget(f, o2); err += len(b.x - tp.x, b.y - tp.y); cnt++; if (b.member) { w0 = Math.min(w0, b.y); w1 = Math.max(w1, b.y); } });
+    f.stability = cnt ? clamp(1 - (err / cnt) / (s * 2.5), 0, 1) : 0; f.width = w1 > w0 ? w1 - w0 + 2 * BIRD_R : 0;
+    st.stats.stabSum += f.stability; st.stats.stabN++; st.stats.maxWidth = Math.max(st.stats.maxWidth, f.width);
+    // the slot table follows the number of active birds
+    if (f.n !== activeCount(st)) assignSlots(st);
+    // end of stage
+    var ac = activeCount(st);
+    if (st.mode !== 'practice' && ac < st.required) return finish(st, false, 'Too few birds remain to complete the passage (' + ac + ' of the ' + st.required + ' needed).');
+    if (f.x >= st.L) return finish(st, true, 'The flock reached the roost.');
+  }
+  function lose(st, b, cause) { if (!b.active) return; b.active = false; b.member = false; b.lost = cause; st.stats.lost[cause]++; st.events.push({ t: 'lost', id: b.id, cause: cause, x: b.x, y: b.y }); }
+
+  /* ================================================================ 8 · predator AI */
+  // warn (visible, off-screen arrow) → approach (circle the flock) → dive at the most isolated bird → strike or confusion → recover → … → leave
+  function predators(st, act) {
+    var T = tierOf(st), f = st.flock, dt = STEP;
+    st.preds.forEach(function (p) {
+      if (p.state === 'gone') return;
+      if (p.state === 'idle') { if (f.x >= p.trigger) { p.state = 'warn'; p.t = 0; var up = p.side !== 'below'; p.x = f.x - 30; p.y = up ? -12 : H + 12; p.vx = st.cruise; p.vy = 0; st.events.push({ t: 'predWarn', id: p.id, side: p.side }); } return; }
+      p.t += dt;
+      var vApp = 15 * T.pred, vDive = 31 * T.pred;
+      if (p.state === 'warn') { p.x += st.cruise * dt; if (p.t >= T.warn) { p.state = 'approach'; p.t = 0; } return; }
+      var tx, ty, vmax;
+      if (p.state === 'approach') { var ang = st.t * 0.9 + p.id * 2; tx = f.x + Math.cos(ang) * 18; ty = clamp(f.y + (p.side === 'below' ? 16 : -16), 4, H - 4); vmax = vApp;
+        if (p.t > 2.2) { // choose the most isolated bird: fewest neighbours within the confusion radius, then furthest from the flock centre
+          var best = null, bs = Infinity; act.forEach(function (b) { if (!b.active) return; var c = neighboursWithin(st, b, 3.2), d = len(b.x - f.x, b.y - f.y), sc = c * 100 - d; if (sc < bs) { bs = sc; best = b; } });
+          if (best) { p.state = 'dive'; p.t = 0; p.target = best.id; st.stats.attacks++; st.events.push({ t: 'dive', id: p.id, target: best.id }); } } }
+      else if (p.state === 'dive') { var tb = birdById(st, p.target); if (!tb || !tb.active) { p.state = 'recover'; p.t = 0; return; } tx = tb.x + tb.vx * 0.15; ty = tb.y + tb.vy * 0.15; vmax = vDive;
+        if (len(tb.x - p.x, tb.y - p.y) < 1.6) { var nbc = neighboursWithin(st, tb, 3.2);
+          if (nbc >= T.conf) { p.confused++; st.stats.confused++; st.events.push({ t: 'confused', id: p.id }); } else if (st.mode === 'practice') { st.stats.nearMiss = (st.stats.nearMiss || 0) + 1; st.events.push({ t: 'practiceCatch', id: tb.id }); } else { p.caught++; st.stats.caught++; lose(st, tb, 'predator'); }
+          p.done++; p.state = 'recover'; p.t = 0; }
+        else if (p.t > 2.8) { p.done++; p.state = 'recover'; p.t = 0; st.events.push({ t: 'miss', id: p.id }); } }
+      else if (p.state === 'recover') { tx = f.x + 10; ty = p.side === 'below' ? H + 20 : -20; vmax = vApp; if (p.t > 2.6) { if (p.done >= p.attacks) { p.state = 'leave'; p.t = 0; st.events.push({ t: 'predLeave', id: p.id }); } else { p.state = 'approach'; p.t = 0; } } }
+      else if (p.state === 'leave') { tx = f.x + 80; ty = p.side === 'below' ? H + 40 : -40; vmax = vApp * 1.4; if (p.t > 4) { p.state = 'gone'; return; } }
+      // bounded pursuit steering; hunters do not fly through rock
+      var dx = tx - p.x, dy = ty - p.y, d = len(dx, dy) || 1e-9, dvx = dx / d * vmax - p.vx, dvy = dy / d * vmax - p.vy, a = len(dvx, dvy), amax = p.state === 'dive' ? 34 : 22;
+      if (a > amax) { dvx *= amax / a; dvy *= amax / a; } p.vx += dvx * dt * 3; p.vy += dvy * dt * 3; var sp = len(p.vx, p.vy); if (sp > vmax) { p.vx *= vmax / sp; p.vy *= vmax / sp; }
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      nearSolids(st, p.x, 3).forEach(function (s) { var q = sdSolid(s, p.x, p.y); if (q.d < 1) { p.x += q.nx * (1 - q.d); p.y += q.ny * (1 - q.d); } });
+    });
+  }
+  function birdById(st, id) { for (var i = 0; i < st.birds.length; i++) if (st.birds[i].id === id) return st.birds[i]; return null; }
+  function neighboursWithin(st, b, r) { var c = 0; for (var i = 0; i < st.birds.length; i++) { var o = st.birds[i]; if (o !== b && o.active && Math.abs(o.x - b.x) < r && Math.abs(o.y - b.y) < r && len(o.x - b.x, o.y - b.y) < r) c++; } return c; }
+
+  /* ================================================================ 10 · scoring */
+  var SCORE_TEXT = [
+    ['complete', 250, 'Passage complete', 'reaching the roost with enough birds'],
+    ['survival', 350, 'Birds surviving', 'birds home ÷ birds at the start'],
+    ['formation', 120, 'Formation accuracy', 'average formation stability during the flight'],
+    ['avoidance', 120, 'Hazard avoidance', '−10 % for each scrape, storm entry or hunter catch'],
+    ['food', 80, 'Food gathered', 'seed eaten ÷ seed in the stage (full marks where there is none)'],
+    ['pace', 40, 'Migration pace', 'par time ÷ your time (never more than full)'],
+    ['optional', 40, 'Optional objectives', '20 for each of the stage’s two objectives']
+  ];
+  function optionalMet(st, o) {
+    var s = st.stats, foodN = st.foods.length;
+    switch (o.t) {
+      case 'noLoss': return activeCount(st) >= st.n0 && s.lost.obstacle + s.lost.predator + s.lost.storm + s.lost.stray === 0;
+      case 'stability': return s.stabN && (s.stabSum / s.stabN) * 100 >= o.n;
+      case 'noScrape': return s.scrapes === 0;
+      case 'ribbonGap': return st.gaps.filter(function (g) { return g.w <= 9; }).every(function (g) { return g.form === 'ribbon'; });
+      case 'food': return foodN > 0 && s.food / foodN * 100 >= o.n;
+      case 'allForms': return FORMS.every(function (k) { return s.formsUsed[k]; });
+      case 'noCatch': return s.caught === 0;
+      case 'noStorm': return s.stormEntries === 0;
+    }
+    return false;
+  }
+  function optionalText(o) {
+    switch (o.t) {
+      case 'noLoss': return 'Lose no birds';
+      case 'stability': return 'Average formation stability of ' + o.n + ' % or more';
+      case 'noScrape': return 'No bird touches rock or tree';
+      case 'ribbonGap': return 'Fly every narrow slot in Ribbon formation';
+      case 'food': return 'Gather at least ' + o.n + ' % of the seed';
+      case 'allForms': return 'Use all four formations';
+      case 'noCatch': return 'No bird caught by a hunter';
+      case 'noStorm': return 'Never enter a storm';
+    }
+    return '';
+  }
+  function scoreOf(st, done) {
+    var def = stageDef(st.stage), s = st.stats, home = activeCount(st), stab = s.stabN ? s.stabSum / s.stabN : 0, inc = s.scrapes + s.stormEntries + s.caught;
+    var opt = def.optional.map(function (o) { return { text: optionalText(o), met: done && optionalMet(st, o) }; });
+    var parts = { complete: done ? 1 : 0, survival: done ? home / st.n0 : 0, formation: done ? stab : 0, avoidance: done ? Math.max(0, 1 - 0.1 * inc) : 0,
+      food: done ? (st.foods.length ? s.food / st.foods.length : 1) : 0, pace: done ? Math.min(1, st.par / Math.max(1, st.t)) : 0, optional: opt.length ? opt.filter(function (o) { return o.met; }).length / opt.length : 0 };
+    var points = 0; SCORE_TEXT.forEach(function (r) { points += Math.round(parts[r[0]] * r[1]); });
+    var surv = home / st.n0, grade = !done ? 'failed' : surv >= 0.95 && stab >= 0.8 ? 'gold' : surv >= 0.85 && stab >= 0.65 ? 'silver' : 'bronze';
+    return { points: done ? points : 0, parts: parts, home: home, lost: st.n0 - home + s.joined, survival: surv, stability: stab, incidents: inc, optional: opt, grade: grade };
+  }
+  var GRADE_TEXT = { gold: 'Gold Passage', silver: 'Silver Passage', bronze: 'Bronze Passage', failed: 'Passage failed' };
+  var GRADE_RULE = { bronze: 'Bronze Passage: reach the roost with the flock the tier requires.', silver: 'Silver Passage: at least 85 % of birds home and formation accuracy of 65 % or more.', gold: 'Gold Passage: at least 95 % of birds home and formation accuracy of 80 % or more.' };
+  function finish(st, ok, text) { if (st.over) return; st.over = true; st.result = { ok: ok, text: text, score: scoreOf(st, ok) }; st.events.push({ t: ok ? 'complete' : 'failed' }); }
+  function advance(st, seconds) { var n = Math.round(seconds / STEP); for (var i = 0; i < n && !st.over; i++) step(st); }
+
+  /* ================================================================ 12 · conductor (the demonstration driver used by the tests) */
+  // It plays only through the player's controls — a steering target, pace, density and formation — choosing them by looking ahead
+  // at the open sky the way a player reads the landscape (a short dynamic-programming path through the free space).
+  function conduct(st, opt) {
+    opt = opt || {};
+    var f = st.flock, T = tierOf(st), look = opt.look || 70, dxs = 2, cols = Math.ceil(look / dxs), rows = 100, cellH = H / rows;
+    var predOn = st.preds.some(function (p) { return p.state === 'warn' || p.state === 'approach' || p.state === 'dive' || p.state === 'recover'; });
+    var vx = Math.max(6, f.vx);
+    function plan(half) {
+      var cost = [], back = [], maxStep = Math.max(1, Math.round((8 * dxs / vx) / cellH));
+      for (var c = 0; c <= cols; c++) {
+        var x = f.x + c * dxs, tArr = st.t + c * dxs / vx, bl = blockedAt(st, x, tArr, true), row = [], br = [];
+        for (var r = 0; r < rows; r++) {
+          var y = (r + 0.5) * cellH, clear = Infinity; bl.forEach(function (iv) { if (y >= iv[0] && y <= iv[1]) clear = -1; else clear = Math.min(clear, y < iv[0] ? iv[0] - y : y - iv[1]); }); clear = Math.min(clear, y - 1, H - 1 - y);
+          var wy = 0; st.winds.forEach(function (w) { if (x >= w.x0 && x <= w.x1) wy = Math.max(wy, Math.abs(w.fy)); }); var hh = half + wy * 0.12;
+          var cc = clear < hh ? 1000 : 0.4 / Math.max(0.25, clear - hh);
+          if (opt.foodBias) st.foods.forEach(function (fd) { if (!fd.taken && Math.abs(fd.x - x) < dxs && Math.abs(fd.y - y) < 12) cc -= 0.04; });
+          if (c === 0) { row.push(Math.abs(y - f.y) > 6 ? cc + Math.abs(y - f.y) * 0.4 : cc); br.push(-1); }
+          else { var best = Infinity, bi = -1; for (var k = -maxStep; k <= maxStep; k++) { var pr = r + k; if (pr < 0 || pr >= rows) continue; var v = cost[c - 1][pr] + Math.abs(k) * 0.05; if (v < best) { best = v; bi = pr; } } row.push(best + cc); br.push(bi); }
+        }
+        cost.push(row); back.push(br);
+      }
+      var end = 0; for (var r2 = 1; r2 < rows; r2++) if (cost[cols][r2] < cost[cols][end]) end = r2;
+      var path = [end]; for (var c2 = cols; c2 > 0; c2--) path.unshift(back[c2][path[0]]);
+      return { ok: cost[cols][end] < 1000, cost: cost[cols][end], path: path.map(function (r) { return (r + 0.5) * cellH; }) };
+    }
+    var n = activeCount(st), choices = [];
+    var inFood = st.foods.some(function (fd) { return !fd.taken && fd.x > f.x - 5 && fd.x < f.x + 40; });
+    if (predOn) choices.push(['cloud', 0]);
+    if (inFood && !predOn) choices.push(['fan', 0.75], ['fan', 0.45]);
+    choices.push(['cloud', 0.5], ['cloud', 0.15], ['cloud', 0], ['ribbon', 0]);
+    var pick = null, pl = null;
+    for (var i = 0; i < choices.length; i++) { var ex = extent(choices[i][0], n, spacing(choices[i][1])), half = ex.cross / 2 + (choices[i][0] === 'ribbon' ? 0.6 : 1.4); opt.foodBias = choices[i][0] === 'fan'; var p = plan(half); if (p.ok) { pick = choices[i]; pl = p; break; } }
+    if (!pick) { pick = ['ribbon', 0]; opt.foodBias = false; pl = plan(extent('ribbon', n, spacing(0)).cross / 2); }
+    var wNow = windAt(st, f.x, f.y, st.t), kp = 5.5 * T.formResp * FORM[pick[0]].resp;
+    var aim = pl.path[Math.min(pl.path.length - 1, 3)] - wNow[1] * (0.55 / 2.6 + 0.6 / kp);   // lean into the wind, as a player must
+    return { form: pick[0], d: pick[1], ty: aim, pace: 1 };
+  }
+  function autoplay(st, opt) {
+    opt = opt || {}; var guard = 0, every = opt.every || 6, limit = opt.seconds ? opt.seconds * 60 : 60 * 600;
+    while (!st.over && guard++ < limit) { if (st.tick % every === 0) { var c = conduct(st, {}); setForm(st, c.form); setDensity(st, c.d); steerTo(st, c.ty, c.pace); } step(st); }
+    return { ok: !!(st.result && st.result.ok), result: st.result };
+  }
+
+  /* ================================================================ share text */
+  function shareText(c) {
+    return ['MURMURATION', 'DoorQuests · Gamortal #014', '', 'Tier: ' + c.tier, 'Stages Completed: ' + c.stages + '/15', 'Total Score: ' + c.score, 'Best Flock Survival: ' + c.best + '%', 'Perfect Flights: ' + c.perfect, 'Birds Preserved: ' + c.preserved, '', 'Many wings. One will.', '', 'doorquests.com/games/murmuration/'].join('\n');
+  }
+
+  root.FlockEngine = {
+    H: H, STEP: STEP, BIRD_R: BIRD_R, DMIN: DMIN, NB_R: NB_R, MAX_ACC: MAX_ACC, MAX_TURN: MAX_TURN, FORMS: FORMS, slotTarget: slotTarget, trailPoint: trailPoint, FORM: FORM, TIERS: TIERS, TIER_IDS: TIER_IDS, STAGES: STAGES, FREE: FREE,
+    SCORE_TEXT: SCORE_TEXT, GRADE_TEXT: GRADE_TEXT, GRADE_RULE: GRADE_RULE,
+    h32: h32, mulberry: mulberry, clamp: clamp, stageDef: stageDef, create: create, step: step, advance: advance, active: active, activeCount: activeCount,
+    setForm: setForm, setDensity: setDensity, nudgeDensity: nudgeDensity, steerTo: steerTo, spacing: spacing, densityName: densityName, slots: slots, extent: extent, assignSlots: assignSlots,
+    sdSolid: sdSolid, freeAt: freeAt, blockedAt: blockedAt, windAt: windAt, windActive: windActive, windIn: windIn, inStorm: inStorm, stormPos: stormPos, frontGap: frontGap, stormIntervals: stormIntervals,
+    neighboursWithin: neighboursWithin, birdById: birdById, scoreOf: scoreOf, optionalText: optionalText, conduct: conduct, autoplay: autoplay, shareText: shareText
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="mu-app">
+/* Murmuration — app layer: storage · audio · rendering · loop · input · HUD · screens.
+   The engine (FlockEngine) owns every rule and number; this layer draws it and passes the player's influence through. */
+(function () {
+  'use strict';
+  var E = window.FlockEngine, KEY = 'doorquests.gamortal.014.murmuration.v1';
+  var QS = (function () { try { return new URLSearchParams(location.search); } catch (e) { return { get: function () { return null; } }; } })();
+  var DEV = QS.get('dev') === '1';
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function el(tag, attrs, text) { var e = document.createElement(tag); if (attrs) for (var k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); } if (text !== undefined && text !== null) e.textContent = text; return e; }
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function svg(tag, attrs) { var e = document.createElementNS(SVGNS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  var liveT = null; function announce(msg) { var l = $('#live'); clearTimeout(liveT); l.textContent = ''; liveT = setTimeout(function () { l.textContent = msg; }, 30); }
+  var alertT = null, alertLog = []; function alertSR(msg) { var l = $('#alert'); clearTimeout(alertT); l.textContent = ''; alertLog.push(msg); if (alertLog.length > 40) alertLog.shift(); alertT = setTimeout(function () { l.textContent = msg; }, 30); }
+
+  /* ================================================================ 1 · storage (validated; saved between stages) */
+  var storageOk = true, memStore = null, notes = [];
+  function rawGet() { try { return localStorage.getItem(KEY); } catch (e) { storageOk = false; return memStore; } }
+  function rawSet(v) { try { localStorage.setItem(KEY, v); } catch (e) { storageOk = false; memStore = v; } }
+  var GRADES = ['bronze', 'silver', 'gold'];
+  var ACH = [['first', 'First passage completed'], ['perfect', 'A perfect flight — no bird lost'], ['allForms', 'All four formations in one stage'], ['gold', 'A Gold Passage'], ['hunter', 'Outwitted a hunter — no bird caught'], ['storm', 'Through a storm stage without entering a storm'], ['harvest', 'Gathered 90 % of a stage’s seed'], ['goldTier', 'Completed a stage on Gold'], ['campaign', 'Completed the Skyward Passage']];
+  function blankProg() { return { bronze: {}, silver: {}, gold: {} }; }
+  function blankRec() { return { flights: 0, failures: 0, bestSurvival: 0, preserved: 0, bestStage: null }; }
+  function blank() { return { v: 1, prefs: { sound: true, volume: 70, motion: 'auto', simple: false, assist: false, large: false, tier: 'silver' }, progress: blankProg(), records: blankRec(), ach: [] }; }
+  function isInt(v, lo, hi) { return typeof v === 'number' && isFinite(v) && Math.floor(v) === v && v >= lo && v <= hi; }
+  function load() {
+    var s = blank(), raw = rawGet();
+    if (!storageOk) { notes.push('This browser is not saving data here — progress and records will last only until the page closes.'); return s; }
+    if (!raw) return s;
+    var d; try { d = JSON.parse(raw); } catch (e) { notes.push('Saved data could not be read and was set aside — starting fresh.'); return s; }
+    if (!d || typeof d !== 'object' || d.v !== 1) { notes.push('Saved data was from an unknown version and was set aside — starting fresh.'); return s; }
+    var bad = 0, p = d.prefs || {};
+    if (typeof p.sound === 'boolean') s.prefs.sound = p.sound; else if (p.sound !== undefined) bad++;
+    if (isInt(p.volume, 0, 100)) s.prefs.volume = p.volume; else if (p.volume !== undefined) bad++;
+    if (['auto', 'reduced', 'full'].indexOf(p.motion) >= 0) s.prefs.motion = p.motion; else if (p.motion !== undefined) bad++;
+    ['simple', 'assist', 'large'].forEach(function (k) { if (typeof p[k] === 'boolean') s.prefs[k] = p[k]; else if (p[k] !== undefined) bad++; });
+    if (E.TIERS[p.tier]) s.prefs.tier = p.tier; else if (p.tier !== undefined) bad++;
+    var pr = d.progress; if (pr && typeof pr === 'object') {
+      E.TIER_IDS.forEach(function (t) { var tt = pr[t]; if (!tt || typeof tt !== 'object') return; Object.keys(tt).forEach(function (k) { var n = +k, r = tt[k];
+        if (!isInt(n, 1, 15) || !r || typeof r !== 'object' || !isInt(r.best, 0, 1000) || GRADES.indexOf(r.grade) < 0 || !isInt(r.surv, 0, 100) || !isInt(r.home, 0, 40) || !isInt(r.n0, 1, 40) || r.home > r.n0 || typeof r.perfect !== 'boolean' || (r.assisted !== undefined && typeof r.assisted !== 'boolean')) { bad++; return; }
+        s.progress[t][n] = { best: r.best, grade: r.grade, surv: r.surv, home: r.home, n0: r.n0, perfect: r.perfect, assisted: !!r.assisted }; }); });
+    } else if (pr !== undefined) bad++;
+    var rc = d.records; if (rc && typeof rc === 'object') {
+      ['flights', 'failures', 'preserved'].forEach(function (k) { if (isInt(rc[k], 0, 1e7)) s.records[k] = rc[k]; else if (rc[k] !== undefined) bad++; });
+      if (isInt(rc.bestSurvival, 0, 100)) s.records.bestSurvival = rc.bestSurvival; else if (rc.bestSurvival !== undefined) bad++;
+      var b = rc.bestStage; if (b && isInt(b.points, 0, 1000) && isInt(b.stage, 1, 15) && E.TIERS[b.tier]) s.records.bestStage = { points: b.points, stage: b.stage, tier: b.tier }; else if (b !== undefined && b !== null) bad++;
+    } else if (rc !== undefined) bad++;
+    if (Array.isArray(d.ach)) s.ach = d.ach.filter(function (a, i, arr) { return ACH.some(function (x) { return x[0] === a; }) && arr.indexOf(a) === i; }); else if (d.ach !== undefined) bad++;
+    if (bad) notes.push('Some saved values were invalid and were removed; everything else was kept.');
+    return s;
+  }
+  var SAVE = load(), saves = 0;
+  function persist() { saves++; try { rawSet(JSON.stringify({ v: 1, prefs: SAVE.prefs, progress: SAVE.progress, records: SAVE.records, ach: SAVE.ach })); } catch (e) { storageOk = false; } }
+
+  /* ================================================================ 2 · motion, text size, simplified view */
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { var m = SAVE.prefs.motion; return m === 'reduced' || (m === 'auto' && !!(mq && mq.matches)); }
+  function applyPrefs() { document.body.classList.toggle('reduce', reduced()); document.documentElement.classList.toggle('large', !!SAVE.prefs.large); }
+
+  /* ================================================================ 3 · audio (original Web Audio synthesis — never required) */
+  var AU = { ctx: null, master: null, noise: null, voices: 0, wind: null, windGain: null };
+  function audioInit() {
+    if (!SAVE.prefs.sound) return; if (AU.ctx) { if (AU.ctx.state === 'suspended') try { AU.ctx.resume(); } catch (e) {} return; }
+    var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    try { AU.ctx = new AC(); AU.master = AU.ctx.createGain(); AU.master.connect(AU.ctx.destination); setVol();
+      var n = AU.ctx.sampleRate * 2, buf = AU.ctx.createBuffer(1, n, AU.ctx.sampleRate), d = buf.getChannelData(0), seed = 11; for (var i = 0; i < n; i++) { seed = (seed * 16807) % 2147483647; d[i] = seed / 1073741823.5 - 1; } AU.noise = buf;
+      // soft wind bed: looping filtered noise whose level follows the flock's speed and any gust
+      var src = AU.ctx.createBufferSource(), f = AU.ctx.createBiquadFilter(), g = AU.ctx.createGain(); src.buffer = buf; src.loop = true; f.type = 'bandpass'; f.frequency.value = 520; f.Q.value = 0.6; g.gain.value = 0; src.connect(f); f.connect(g); g.connect(AU.master); src.start(); AU.wind = f; AU.windGain = g;
+    } catch (e) { AU.ctx = null; }
+  }
+  function setVol() { if (AU.master) AU.master.gain.value = (SAVE.prefs.volume / 100) * 0.9; }
+  function live() { return AU.ctx && SAVE.prefs.sound && AU.ctx.state !== 'closed'; }
+  function tone(f, d, type, v, w, f2) {
+    if (!live() || AU.voices > 24) return; var c = AU.ctx;
+    try { var t = c.currentTime + (w || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v || 0.04, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g); g.connect(AU.master); o.start(t); o.stop(t + d + 0.02); AU.voices++; o.onended = function () { AU.voices--; }; } catch (e) {}
+  }
+  function noise(d, v, freq, w, type, q) {
+    if (!live() || !AU.noise || AU.voices > 24) return; var c = AU.ctx;
+    try { var t = c.currentTime + (w || 0), s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = AU.noise; f.type = type || 'bandpass'; f.frequency.value = freq || 1200; f.Q.value = q || 1;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v || 0.04, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      s.connect(f); f.connect(g); g.connect(AU.master); s.start(t, Math.random()); s.stop(t + d + 0.02); AU.voices++; s.onended = function () { AU.voices--; }; } catch (e) {}
+  }
+  var SND = {
+    call: function () { var f = 2200 + Math.random() * 900; tone(f, 0.09, 'sine', 0.012, 0, f * 1.35); tone(f * 1.1, 0.07, 'sine', 0.009, 0.12, f * 0.9); },
+    wings: function () { noise(0.14, 0.012, 900, 0, 'bandpass', 0.8); noise(0.12, 0.009, 1300, 0.07, 'bandpass', 0.8); },
+    form: function (i) { var b = [523, 587, 659, 784][i] || 523; tone(b, 0.25, 'triangle', 0.03); tone(b * 1.5, 0.3, 'triangle', 0.02, 0.06); },
+    density: function (up) { tone(up ? 440 : 660, 0.12, 'sine', 0.02, 0, up ? 660 : 440); },
+    hawk: function () { tone(1900, 0.5, 'sawtooth', 0.012, 0, 900); tone(1700, 0.45, 'sine', 0.025, 0.05, 820); noise(0.5, 0.02, 180, 0.1, 'lowpass', 0.7); },
+    gust: function () { noise(1.1, 0.05, 700, 0, 'bandpass', 0.5); },
+    food: function () { tone(1320 + Math.random() * 240, 0.07, 'sine', 0.012); },
+    scrape: function () { noise(0.12, 0.03, 300, 0, 'lowpass', 1); },
+    lost: function () { tone(392, 0.4, 'triangle', 0.03, 0, 262); },
+    join: function () { [659, 880].forEach(function (f, i) { tone(f, 0.2, 'triangle', 0.025, i * 0.08); }); },
+    storm: function () { noise(0.9, 0.04, 160, 0, 'lowpass', 0.8); },
+    complete: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.6, 'triangle', 0.03, i * 0.12); }); },
+    finale: function () { [392, 523, 659, 784, 1047, 1319].forEach(function (f, i) { tone(f, 0.9, 'triangle', 0.028, i * 0.16); tone(f / 2, 0.9, 'sine', 0.02, i * 0.16); }); },
+    fail: function () { [392, 330, 262].forEach(function (f, i) { tone(f, 0.4, 'triangle', 0.03, i * 0.18); }); },
+    tap: function () { tone(880, 0.04, 'sine', 0.018); },
+    no: function () { tone(160, 0.15, 'square', 0.02); }
+  };
+  function windBed(level) { if (!AU.windGain || !live()) return; try { AU.windGain.gain.setTargetAtTime(Math.min(0.06, level), AU.ctx.currentTime, 0.3); } catch (e) {} }
+
+  /* ================================================================ 4 · rendering (Canvas 2D; world units are metres) */
+  var THEMES = {
+    grass: { sky: ['#8fc3e6', '#cfe3ee', '#f4e3b8'], far: '#9db3c9', mid: '#8fa86a', ground: '#9a9b4e', rock: '#5d5468', bird: '#1f1b2e', glow: '#f6d58a', sun: '#fff1c4' },
+    mountain: { sky: ['#7fa7d6', '#bcd3ea', '#e9e4d8'], far: '#8a94ab', mid: '#6d7a8f', ground: '#6f7552', rock: '#4c4a5e', bird: '#1f1b2e', glow: '#f6d58a', sun: '#fffbe6' },
+    river: { sky: ['#86b9df', '#d1e6ef', '#f0e7c8'], far: '#a1b6c4', mid: '#5f8f78', ground: '#4f86a8', rock: '#5a5a66', bird: '#1f1b2e', glow: '#f6d58a', sun: '#fff1c4' },
+    valley: { sky: ['#93c1e3', '#dbe9ef', '#f7dfae'], far: '#a7b2c8', mid: '#7d9d6b', ground: '#8a9a52', rock: '#5d5468', bird: '#1f1b2e', glow: '#f6d58a', sun: '#fff1c4' },
+    forest: { sky: ['#7fb2c9', '#cde0d6', '#efe1bb'], far: '#7f9a8e', mid: '#3f6a4c', ground: '#2f5a3e', rock: '#4a4a52', bird: '#1b1a24', glow: '#f6d58a', sun: '#fff1c4', canopy: '#2f5a3e' },
+    wind: { sky: ['#9ab9d8', '#d8e2ea', '#efe6d6'], far: '#a5afc0', mid: '#8a9c80', ground: '#97905a', rock: '#5d5468', bird: '#1f1b2e', glow: '#f6d58a', sun: '#ffffff' },
+    storm: { sky: ['#4d5578', '#8a86a3', '#c8b8b6'], far: '#6e6a85', mid: '#57625a', ground: '#4f5a44', rock: '#3d3a4c', bird: '#14121c', glow: '#f6d58a', sun: '#d9d6e8' },
+    cliffs: { sky: ['#7ea9d8', '#c9dceb', '#f2dcc0'], far: '#9aa7c0', mid: '#6b7d96', ground: '#3f73a0', rock: '#5c5466', bird: '#1f1b2e', glow: '#f6d58a', sun: '#fff1c4' },
+    sunset: { sky: ['#3d3f7a', '#c27795', '#f6b469'], far: '#6c587e', mid: '#5a4466', ground: '#3c3049', rock: '#2e2a3d', bird: '#171423', glow: '#ffd38a', sun: '#ffd9a0' },
+    ocean: { sky: ['#6f9fd3', '#c3dcee', '#f5e3c4'], far: '#9fb7cf', mid: '#4f7fae', ground: '#2f6a9a', rock: '#4a4a5a', bird: '#1f1b2e', glow: '#f6d58a', sun: '#fff1c4', sea: true },
+    evening: { sky: ['#232552', '#7c5a8f', '#f0a36b'], far: '#4b3f6a', mid: '#3a3052', ground: '#2a2440', rock: '#262236', bird: '#120f1d', glow: '#ffd38a', sun: '#ffe2b0' },
+    night: { sky: ['#0f1433', '#283163', '#4a4e7a'], far: '#2a3157', mid: '#1f2a45', ground: '#1b2a3a', rock: '#1a1c2e', bird: '#f1ece0', glow: '#d9e4ff', sun: '#f4f1e2' }
+  };
+  function makeView(canvas, opt) {
+    var V = { cv: canvas, ctx: canvas.getContext('2d'), dpr: 1, w: 1, h: 1, sc: 6, ox: 0, oy: 0, portrait: false, viewLen: 150, cam: 0, t: 0, fx: [], fixed: opt && opt.fixed };
+    V.layout = function () {
+      var r = canvas.getBoundingClientRect(), w = Math.max(60, r.width), h = Math.max(60, r.height), dpr = Math.min(2, window.devicePixelRatio || 1);
+      V.dpr = dpr; V.w = w; V.h = h; V.portrait = !V.fixed && h > w * 1.05;
+      // the whole sky height always fits; if that would leave less than 150 m of view along the route, zoom out and let the sky and ground fill the margins
+      if (!V.portrait) { V.sc = Math.min(h / E.H, V.fixed ? Infinity : w / 150); V.viewLen = w / V.sc; V.oy = (h - E.H * V.sc) / 2; V.ox = 0; }
+      else { V.sc = Math.min(w / E.H, h / 150); V.viewLen = h / V.sc; V.ox = (w - E.H * V.sc) / 2; V.oy = 0; }
+      var pw = Math.round(w * dpr), ph = Math.round(h * dpr); if (canvas.width !== pw || canvas.height !== ph) { canvas.width = pw; canvas.height = ph; }
+    };
+    V.world = function (par) { var c = V.ctx, d = V.dpr, s = V.sc, cam = V.cam * (par === undefined ? 1 : par); if (!V.portrait) c.setTransform(d * s, 0, 0, d * s, -d * cam * s, d * V.oy); else c.setTransform(0, -d * s, d * s, 0, d * V.ox, d * (V.h + cam * s)); };
+    V.screen = function () { V.ctx.setTransform(V.dpr, 0, 0, V.dpr, 0, 0); };
+    V.toScreen = function (wx, wy) { return !V.portrait ? [(wx - V.cam) * V.sc, V.oy + wy * V.sc] : [V.ox + wy * V.sc, V.h - (wx - V.cam) * V.sc]; };
+    V.toWorld = function (sx, sy) { return !V.portrait ? [sx / V.sc + V.cam, (sy - V.oy) / V.sc] : [V.cam + (V.h - sy) / V.sc, (sx - V.ox) / V.sc]; };
+    return V;
+  }
+  function circ(c, x, y, r) { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); }
+  function hash(n) { var h = (n * 374761393) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+  function ridge(u, k) { return Math.sin(u * 0.021 + k) * 6 + Math.sin(u * 0.057 + k * 2) * 3 + Math.sin(u * 0.13 + k * 3) * 1.4; }
+  function label(V, wx, wy, text, color, bg) { var s = V.toScreen(wx, wy), c = V.ctx; V.screen(); c.font = '700 12px system-ui, sans-serif'; var w = c.measureText(text).width + 10; s[0] = Math.max(w / 2 + 2, Math.min(V.w - w / 2 - 2, s[0])); s[1] = Math.max(12, Math.min(V.h - 10, s[1])); c.fillStyle = bg || 'rgba(27,29,78,.86)'; c.fillRect(s[0] - w / 2, s[1] - 10, w, 18); c.fillStyle = color || '#fff6dc'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, s[0], s[1]); c.textAlign = 'start'; c.textBaseline = 'alphabetic'; V.world(); }
+  function hatch(c, x0, y0, x1, y1, col) { c.save(); c.beginPath(); c.rect(x0, y0, x1 - x0, y1 - y0); c.clip(); c.strokeStyle = col; c.lineWidth = 0.25; c.beginPath(); for (var k = x0 - (y1 - y0); k < x1; k += 2.2) { c.moveTo(k, y1); c.lineTo(k + (y1 - y0), y0); } c.stroke(); c.restore(); }
+  function drawBird(c, x, y, hd, flap, col, size, simple) {
+    var ca = Math.cos(hd), sa = Math.sin(hd), w = simple ? 0.75 : 0.45 + 0.35 * Math.sin(flap);
+    function P(u, v) { return [x + u * ca - v * sa, y + u * sa + v * ca]; }
+    var nose = P(0.55 * size, 0), lw = P(-0.35 * size, -0.95 * size * w - 0.15 * size), rw = P(-0.35 * size, 0.95 * size * w + 0.15 * size), tail = P(-0.08 * size, 0);
+    c.fillStyle = col; c.beginPath(); c.moveTo(nose[0], nose[1]); c.lineTo(lw[0], lw[1]); c.lineTo(tail[0], tail[1]); c.lineTo(rw[0], rw[1]); c.closePath(); c.fill();
+  }
+  function hull(pts) { if (pts.length < 3) return pts; pts = pts.slice().sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }); function cr(o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); } var lo = [], up = []; pts.forEach(function (p) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }); for (var i = pts.length - 1; i >= 0; i--) { var p = pts[i]; while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); } lo.pop(); up.pop(); return lo.concat(up); }
+
+  function render(V, st, ui) {
+    ui = ui || {}; var c = V.ctx, anim = !reduced() && !ui.still, simple = !!ui.simple, def = E.stageDef(st.stage), th = THEMES[ui.theme || def.theme] || THEMES.grass, f = st.flock, T = E.TIERS[st.tier];
+    var x0 = V.cam - 4, x1 = V.cam + V.viewLen + 4;
+    // sky
+    V.screen(); var g = V.portrait ? c.createLinearGradient(0, 0, V.w, 0) : c.createLinearGradient(0, 0, 0, V.h);
+    if (simple) { c.fillStyle = th.sky[1]; c.fillRect(0, 0, V.w, V.h); } else { g.addColorStop(0, th.sky[0]); g.addColorStop(0.55, th.sky[1]); g.addColorStop(1, th.sky[2]); c.fillStyle = g; c.fillRect(0, 0, V.w, V.h); }
+    if (!simple) { var sp = V.toScreen(V.cam + V.viewLen * 0.78, 22); c.fillStyle = th.sun; c.globalAlpha = 0.8; c.beginPath(); c.arc(sp[0], sp[1], V.sc * 6, 0, Math.PI * 2); c.fill(); c.globalAlpha = 0.18; c.beginPath(); c.arc(sp[0], sp[1], V.sc * 13, 0, Math.PI * 2); c.fill(); c.globalAlpha = 1; }
+    // parallax landscape
+    if (!simple) [[0.18, th.far, 70, 1.3], [0.45, th.mid, 82, 2.4]].forEach(function (L, li) { var par = anim ? L[0] : 0.3; V.world(par); var ox = V.cam * par, a0 = ox - 6, a1 = ox + V.viewLen + 6; c.fillStyle = L[1]; c.globalAlpha = th.sea && li === 1 ? 0.0 : 0.85; var mg = (V.portrait ? V.ox : V.oy) / V.sc + 1; c.beginPath(); c.moveTo(a0, E.H + mg); for (var u = a0; u <= a1; u += 3) c.lineTo(u, L[2] - ridge(u, L[3] + st.stage) * (li ? 0.9 : 1.6)); c.lineTo(a1, E.H + mg); c.closePath(); c.fill(); c.globalAlpha = 1; });
+    V.world();
+    // ground
+    var margin = (V.portrait ? V.ox : V.oy) / V.sc; c.fillStyle = th.ground; c.fillRect(x0, 97.2, x1 - x0, 3 + margin + 1);
+    if (th.sea && !simple) { c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 0.25; for (var wx = Math.floor(x0 / 6) * 6; wx < x1; wx += 6) { var wy = 96.5 + Math.sin(wx * 0.3 + (anim ? V.t * 1.5 : 0)) * 0.4; c.beginPath(); c.moveTo(wx, wy); c.quadraticCurveTo(wx + 1.5, wy - 0.6, wx + 3, wy); c.stroke(); } }
+    // wind zones (streaks while blowing; arrows and a countdown otherwise)
+    st.winds.forEach(function (w) { if (w.x1 < x0 || w.x0 > x1) return; var on = E.windActive(w, st.t), mag = Math.hypot(w.fx, w.fy) || 1, ux = w.fx / mag, uy = w.fy / mag;
+      c.fillStyle = on ? 'rgba(255,255,255,.10)' : 'rgba(255,255,255,.04)'; c.fillRect(w.x0, w.y0, w.x1 - w.x0, w.y1 - w.y0);
+      c.strokeStyle = on ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.18)'; c.lineWidth = 0.22;
+      for (var k = 0; k < 26; k++) { var bx = w.x0 + hash(k * 7 + w.x0) * (w.x1 - w.x0), by = w.y0 + hash(k * 13 + w.x0) * (w.y1 - w.y0), off = on && anim ? ((V.t * mag * 1.2 + hash(k) * 30) % 30) - 15 : 0; var px = bx + ux * off, py = ((by + uy * off) % E.H + E.H) % E.H; c.beginPath(); c.moveTo(px, py); c.lineTo(px + ux * 4, py + uy * 4); c.stroke(); }
+      var tin = E.windIn(w, st.t), arrow = uy > 0.5 ? '↓' : uy < -0.5 ? '↑' : ux > 0 ? '→' : '←';
+      if (w.x0 < V.cam + V.viewLen && w.x1 > V.cam) label(V, Math.max(w.x0 + 4, V.cam + 8), 91, 'Gust ' + arrow + (on ? ' blowing' + (w.period ? ' (' + Math.ceil(-tin) + ' s)' : '') : ' in ' + tin.toFixed(1) + ' s'), on ? '#fff6dc' : '#dfe4ff', on ? 'rgba(122,74,20,.88)' : 'rgba(27,29,78,.75)'); });
+    // storms
+    st.storms.forEach(function (s, si) {
+      c.save();
+      if (s.t === 'cell') { var p = E.stormPos(s, st.t); if (p.x + s.rx < x0 || p.x - s.rx > x1) { c.restore(); return; } c.fillStyle = 'rgba(70,58,96,.82)'; c.beginPath(); c.ellipse(p.x, p.y, s.rx, s.ry, 0, 0, Math.PI * 2); c.fill(); if (!simple) { c.fillStyle = 'rgba(110,96,140,.65)'; for (var k = 0; k < 7; k++) { circ(c, p.x + (hash(k + si * 9) - 0.5) * s.rx * 1.3, p.y + (hash(k * 3 + si) - 0.5) * s.ry * 1.2, s.ry * 0.45); c.fill(); } } c.beginPath(); c.ellipse(p.x, p.y, s.rx, s.ry, 0, 0, Math.PI * 2); c.clip(); hatch(c, p.x - s.rx, p.y - s.ry, p.x + s.rx, p.y + s.ry, 'rgba(255,255,255,.22)'); c.restore(); label(V, p.x, p.y, 'STORM', '#fff', 'rgba(70,58,96,.92)'); }
+      else { if (s.x1 < x0 || s.x0 > x1) { c.restore(); return; } var gy = E.frontGap(s, st.t); c.fillStyle = 'rgba(70,58,96,.85)'; c.fillRect(s.x0, 0, s.x1 - s.x0, gy - s.h / 2); c.fillRect(s.x0, gy + s.h / 2, s.x1 - s.x0, E.H - gy - s.h / 2); hatch(c, s.x0, 0, s.x1, gy - s.h / 2, 'rgba(255,255,255,.22)'); hatch(c, s.x0, gy + s.h / 2, s.x1, E.H, 'rgba(255,255,255,.22)'); c.restore(); c.strokeStyle = '#f2c66d'; c.lineWidth = 0.35; c.setLineDash([1.2, 1]); c.strokeRect(s.x0, gy - s.h / 2, s.x1 - s.x0, s.h); c.setLineDash([]); label(V, s.x0 + (s.x1 - s.x0) / 2, Math.max(6, gy - s.h / 2 - 3), 'STORM WALL — opening ' + Math.round(s.h) + ' m', '#fff', 'rgba(70,58,96,.92)'); }
+      if (anim && !simple && Math.sin(V.t * 7 + si * 3) > 0.985) { V.screen(); c.fillStyle = 'rgba(255,255,255,.08)'; c.fillRect(0, 0, V.w, V.h); V.world(); }
+    });
+    // solids
+    st.solids.forEach(function (s) {
+      if (s.t === 'circle') { if (s.x + s.r < x0 || s.x - s.r > x1) return; c.fillStyle = '#28462f'; circ(c, s.x, s.y, s.r); c.fill(); if (!simple) { c.fillStyle = '#356041'; for (var k = 0; k < 6; k++) { var a = k * 1.05, rr = s.r * 0.42; circ(c, s.x + Math.cos(a) * s.r * 0.5, s.y + Math.sin(a) * s.r * 0.5, rr); c.fill(); } } c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 0.25; circ(c, s.x, s.y, s.r); c.stroke(); return; }
+      if (s.x1 < x0 || s.x0 > x1) return;
+      var col = s.kind === 'canopy' ? (th.canopy || '#2f5a3e') : s.kind === 'trunk' ? '#3e2e22' : s.kind === 'hill' ? th.mid : th.rock;
+      var mg2 = (V.portrait ? V.ox : V.oy) / V.sc + 1, ry0 = s.y0 <= 0.01 ? -mg2 : s.y0, ry1 = s.y1 >= E.H - 0.01 ? E.H + mg2 : s.y1;   // rock joined to the sky's edge or the ground continues into the margins
+      c.fillStyle = col; c.fillRect(s.x0, ry0, s.x1 - s.x0, ry1 - ry0);
+      if (s.kind === 'trunk') return;
+      if (s.kind === 'canopy') { c.fillStyle = 'rgba(120,180,110,.35)'; for (var cx = s.x0 + 1.5; cx < s.x1; cx += 3) { var ey = s.y0 > 0.5 ? s.y0 + 1.5 : s.y1 - 1.5; circ(c, cx, ey, 1.3); c.fill(); } }
+      else hatch(c, s.x0, s.y0, s.x1, s.y1, 'rgba(255,255,255,.14)');
+      c.strokeStyle = 'rgba(255,255,255,.4)'; c.lineWidth = 0.3; c.strokeRect(s.x0 + 0.15, s.y0 + 0.15, s.x1 - s.x0 - 0.3, s.y1 - s.y0 - 0.3);
+    });
+    // gap guides: width (and, on Bronze/Silver, whether the flock fits as it is now)
+    st.gaps.forEach(function (gp) { if (gp.x1 < V.cam || gp.x0 > x1 || gp.done) return; var fits = f.width <= gp.w - 0.6, txt = Math.round(gp.w * 10) / 10 + ' m' + (T.fitHint ? (fits ? ' · fits' : ' · too wide') : '');
+      c.strokeStyle = T.fitHint ? (fits ? '#9fe0a8' : '#ff9a8a') : '#f2c66d'; c.lineWidth = 0.35; c.setLineDash([1, 0.8]); c.beginPath(); c.moveTo(gp.x0 - 2, gp.y0); c.lineTo(gp.x1 + 2, gp.y0); c.moveTo(gp.x0 - 2, gp.y1); c.lineTo(gp.x1 + 2, gp.y1); c.stroke(); c.setLineDash([]);
+      label(V, gp.x0 + 1, gp.y0 - 3, (T.fitHint ? (fits ? '✓ ' : '✕ ') : '') + txt, '#fff6dc', T.fitHint ? (fits ? 'rgba(30,90,50,.9)' : 'rgba(140,40,30,.9)') : 'rgba(27,29,78,.86)'); });
+    // food
+    st.foods.forEach(function (fd) { if (fd.taken || fd.x < x0 || fd.x > x1) return; var tw = anim ? 0.3 + 0.12 * Math.sin(V.t * 4 + fd.id) : 0.36; c.fillStyle = '#f2c66d'; circ(c, fd.x, fd.y, tw); c.fill(); c.strokeStyle = 'rgba(122,74,20,.7)'; c.lineWidth = 0.1; c.stroke(); });
+    // lone birds waiting to join
+    st.joins.forEach(function (j) { if (j.joined || j.x < x0 || j.x > x1) return; var a = anim ? V.t * 1.6 : 0; drawBird(c, j.x + Math.cos(a) * 2, j.y + Math.sin(a) * 2, a + Math.PI / 2, V.t * 10, th.bird, 1.2, simple); c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = 0.2; c.setLineDash([0.6, 0.6]); circ(c, j.x, j.y, 7); c.stroke(); c.setLineDash([]); label(V, j.x, j.y - 8.5, 'lone bird', '#fff6dc'); });
+    // roost
+    if (st.L < x1) { var rx = st.L; c.fillStyle = th.glow; c.globalAlpha = 0.28; circ(c, rx + 6, 70, 26); c.fill(); c.globalAlpha = 1; c.fillStyle = '#2a2236'; c.fillRect(rx + 5, 70, 2.4, 30); c.fillStyle = '#3b3048'; circ(c, rx + 6, 66, 9); c.fill(); circ(c, rx + 1, 70, 6); c.fill(); circ(c, rx + 11, 71, 6); c.fill(); c.strokeStyle = th.glow; c.lineWidth = 0.4; c.setLineDash([1.2, 1]); c.beginPath(); c.moveTo(rx, 0); c.lineTo(rx, E.H); c.stroke(); c.setLineDash([]); label(V, rx + 6, 52, 'ROOST', '#2a2236', th.glow); }
+    // formation preview: where each bird is being drawn to (Bronze & Silver, or in Free Flight)
+    var act = E.active(st);
+    if (ui.preview && f.slots) { c.fillStyle = 'rgba(255,255,255,.35)'; act.forEach(function (b) { var tp = E.slotTarget(f, f.slots[b.slot] || { u: 0, w: 0 }); circ(c, tp.x, tp.y, 0.28); c.fill(); }); }
+    // flock outline (bold in the simplified view)
+    var mem = act.filter(function (b) { return b.member; }).map(function (b) { return [b.x, b.y]; });
+    if (mem.length >= 3) { var hl = hull(mem); c.beginPath(); c.moveTo(hl[0][0], hl[0][1]); for (var i = 1; i < hl.length; i++) c.lineTo(hl[i][0], hl[i][1]); c.closePath(); c.fillStyle = simple ? 'rgba(255,255,255,.18)' : 'rgba(255,255,255,.07)'; c.fill(); c.strokeStyle = simple ? 'rgba(27,29,78,.9)' : 'rgba(255,255,255,.35)'; c.lineWidth = simple ? 0.5 : 0.2; c.stroke(); }
+    // birds
+    var bc = th.bird, light = bc === '#f1ece0', bs = Math.max(1, 6 / V.sc);   // small screens draw birds larger so each stays readable
+    act.forEach(function (b) { if (b.x < x0 || b.x > x1) return; var hurt = b.hit > 0 || b.storm > 0.2; if (!simple) { drawBird(c, b.x + 0.08, b.y + 0.12, b.hd, b.flap, 'rgba(0,0,0,.12)', 1.25, false); } drawBird(c, b.x, b.y, b.hd, anim ? b.flap : 1.2, hurt ? '#c0392b' : bc, (simple ? 1.35 : 1.25) * bs, simple); if (simple) { c.strokeStyle = light ? '#000' : '#fff'; c.lineWidth = 0.12; circ(c, b.x, b.y, 0.75); c.stroke(); } if (b.joined) { c.strokeStyle = '#f2c66d'; c.lineWidth = 0.15; circ(c, b.x, b.y, 0.9); c.stroke(); } });
+    // falling feathers for lost birds (visual only)
+    V.fx = V.fx.filter(function (p) { p.life -= 1 / 60; if (anim) { p.y += 0.25; p.x += Math.sin(p.life * 6) * 0.05; } if (p.life > 0) { c.globalAlpha = Math.min(1, p.life); drawBird(c, p.x, p.y, p.a += 0.05, 0, '#7a6a80', 1.0, true); c.globalAlpha = 1; } return p.life > 0; });
+    // predators
+    st.preds.forEach(function (p) { if (p.state === 'idle' || p.state === 'gone') return;
+      if (p.state === 'warn') { var side = p.side === 'below' ? 96 : 4; label(V, V.cam + V.viewLen * 0.3, side, '⚠ HAWK ' + (p.side === 'below' ? 'from below' : 'from above') + ' in ' + Math.max(0, E.TIERS[st.tier].warn - p.t).toFixed(1) + ' s', '#fff', 'rgba(140,40,30,.92)'); return; }
+      var on = p.x > x0 && p.x < x1 && p.y > 0 && p.y < E.H, hd = Math.atan2(p.vy, p.vx);
+      if (on) { if (p.state === 'dive') { c.strokeStyle = '#ff5a4a'; c.lineWidth = 0.35; circ(c, p.x, p.y, 3.2); c.stroke(); } drawBird(c, p.x, p.y, hd, anim ? V.t * 7 : 1, p.state === 'dive' ? '#5a1010' : '#2a1a1a', 3.2, false); c.fillStyle = '#ff5a4a'; circ(c, p.x + Math.cos(hd) * 1.2, p.y + Math.sin(hd) * 1.2, 0.3); c.fill(); label(V, p.x, p.y - 4.5, p.state === 'dive' ? 'HAWK DIVING' : 'HAWK', '#fff', 'rgba(140,40,30,.9)'); }
+      else label(V, Math.max(V.cam + 3, Math.min(V.cam + V.viewLen - 3, p.x)), Math.max(3, Math.min(97, p.y)), p.y < 0 ? '▲ hawk' : p.y > E.H ? '▼ hawk' : '◆ hawk', '#fff', 'rgba(140,40,30,.9)'); });
+    // stragglers outside the view
+    act.forEach(function (b) { if (!b.member && (b.x < V.cam || b.x > V.cam + V.viewLen)) label(V, Math.max(V.cam + 2, Math.min(V.cam + V.viewLen - 2, b.x)), b.y, (b.x < V.cam ? '◀' : '▶') + ' straggler', '#fff', 'rgba(122,74,20,.88)'); });
+    // the guide point (where the player is steering)
+    if (ui.guide) { c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 0.25; c.setLineDash([0.6, 0.6]); circ(c, f.x + 6, st.input.ty, 1.3); c.stroke(); c.setLineDash([]); c.beginPath(); c.moveTo(f.x + 4.4, st.input.ty); c.lineTo(f.x + 7.6, st.input.ty); c.stroke(); }
+    V.screen();
+  }
+
+  /* ================================================================ 5 · game state & the single loop */
+  var G = { st: null, tier: SAVE.prefs.tier, screen: 'title', paused: false, started: false, mode: 'campaign', recorded: false, overT: 0, keys: {}, hold: { comp: false, exp: false }, ptr: null, steerActive: false, hudT: 0, lastWarn: '', threats: true, callT: 3, wingT: 0, foodSnd: 0 };
+  var view = null, tview = null, demo = null;
+  var LOOP = { last: 0, acc: 0, starts: 0, frames: 0, manual: false, steps: 0 };
+  function running() { return G.screen === 'game' && G.st && G.started && !G.st.over && !G.paused && !anyDialogOpen(); }
+  function applyHeldInput(dt) {
+    var st = G.st, k = G.keys; if (!st) return;
+    var up = k.ArrowUp || k.w || k.W, dn = k.ArrowDown || k.s || k.S, lf = k.ArrowLeft || k.a || k.A, rt = k.ArrowRight || k.d || k.D;
+    // phones held upright show the sky turned: screen-left is the sky, screen-right the ground, screen-up is the way ahead
+    if (view.portrait) { up = k.ArrowLeft || k.a || k.A; dn = k.ArrowRight || k.d || k.D; lf = k.ArrowDown || k.s || k.S; rt = k.ArrowUp || k.w || k.W; }
+    if (up || dn) { E.steerTo(st, st.input.ty + (dn ? 1 : -1) * 30 * dt); G.keySteer = true; }
+    if (lf || rt) { st.input.pace = lf && !rt ? 0.75 : rt && !lf ? 1.25 : 1; G.keyPace = true; } else if (G.keyPace) { st.input.pace = 1; G.keyPace = false; }
+    if (G.hold.comp || k.q || k.Q) E.nudgeDensity(st, -0.75 * dt);
+    if (G.hold.exp || k.e || k.E) E.nudgeDensity(st, 0.75 * dt);
+  }
+  function tick(now) {
+    var dt = LOOP.last ? (now - LOOP.last) / 1000 : 0; LOOP.last = now; dt = Math.min(Math.max(dt, 0), 0.25); LOOP.frames++;
+    if (G.screen === 'game' && G.st) {
+      var st = G.st;
+      if (running()) { applyHeldInput(dt); LOOP.acc += dt; var n = 0; while (LOOP.acc >= E.STEP && n < 20) { E.step(st); LOOP.acc -= E.STEP; n++; LOOP.steps++; } if (n >= 20) LOOP.acc = 0; ambient(dt); }
+      else { LOOP.acc = 0; windBed(0); }
+      drainEvents(st);
+      view.t += dt; var want = st.flock.x - view.viewLen * (view.portrait ? 0.22 : 0.3); view.cam += (want - view.cam) * (1 - Math.exp(-dt * 4)); if (Math.abs(want - view.cam) > 60) view.cam = want;
+      render(view, st, { simple: SAVE.prefs.simple, preview: E.TIERS[st.tier].preview || st.mode === 'practice', guide: G.started && !st.over });
+      G.hudT -= dt; if (G.hudT <= 0) { G.hudT = 0.1; hud(); }
+      if (st.over && !G.recorded) { G.recorded = true; G.overT = 1e-6; finishStage(); }
+      if (st.over && G.overT) { G.overT += dt; if (G.overT > (reduced() ? 0.6 : 1.8)) { G.overT = 0; showResult(); } }
+    } else if (G.screen === 'title' && tview && demo) {
+      if (!reduced()) { demo.acc += dt; while (demo.acc >= E.STEP) { demo.acc -= E.STEP; if (demo.st.tick % 6 === 0) { var c = E.conduct(demo.st, {}); E.setForm(demo.st, demo.forms[Math.floor(demo.st.t / 6) % 4]); E.setDensity(demo.st, 0.35 + 0.3 * Math.sin(demo.st.t * 0.4)); E.steerTo(demo.st, 50 + 26 * Math.sin(demo.st.t * 0.33), 1); } E.step(demo.st); } if (demo.st.over || demo.st.flock.x > 2200) newDemo(); }
+      else if (demo.drawn) return; demo.drawn = true; tview.t += dt;
+      tview.cam = demo.st.flock.x - tview.viewLen * 0.62;
+      render(tview, demo.st, { theme: 'sunset', simple: false, still: reduced() });
+    }
+  }
+  function frame(now) { requestAnimationFrame(frame); if (!LOOP.manual) tick(now); }
+  function newDemo() { var st = E.create(0, 'silver', { threats: false, birds: 60 }); st.solids = []; st.gaps = []; st.foods = []; st.joins = []; st.winds = []; demo = { st: st, acc: 0, drawn: false, forms: ['cloud', 'ribbon', 'fan', 'arc'] }; }
+  // occasional calls and wingbeats, more often with a bigger flock; the wind bed follows speed and gusts
+  function ambient(dt) {
+    var st = G.st, n = E.activeCount(st); G.callT -= dt * (0.4 + n / 40); if (G.callT <= 0) { G.callT = 2.5 + Math.random() * 4; SND.call(); }
+    G.wingT -= dt; if (G.wingT <= 0) { G.wingT = 0.7 + Math.random() * 0.9; SND.wings(); }
+    var w = E.windAt(st, st.flock.x, st.flock.y, st.t); windBed(0.012 + Math.min(0.04, Math.hypot(w[0], w[1]) * 0.004)); G.foodSnd = Math.max(0, G.foodSnd - dt);
+  }
+
+  /* ================================================================ 6 · engine events → sound, text, effects (every sound has a visual twin) */
+  function drainEvents(st) {
+    var ev = st.events; if (!ev.length) return; st.events = [];
+    ev.forEach(function (e) {
+      switch (e.t) {
+        case 'form': SND.form(E.FORMS.indexOf(e.form)); break;
+        case 'lost': SND.lost(); view.fx.push({ x: e.x, y: e.y, a: 0, life: 2 }); var why = { obstacle: 'struck the rock', predator: 'was caught by the hawk', storm: 'was lost in the storm', stray: 'strayed too far from the flock' }[e.cause]; toast('A bird ' + why + '.'); announce('A bird ' + why + '. ' + E.activeCount(st) + ' remain.'); break;
+        case 'scrape': SND.scrape(); break;
+        case 'food': if (G.foodSnd <= 0) { SND.food(); G.foodSnd = 0.08; } break;
+        case 'join': SND.join(); toast('A lone bird joined the flock.'); announce('A lone bird joined the flock.'); break;
+        case 'predWarn': SND.hawk(); alertSR('Hawk approaching from ' + (e.side === 'below' ? 'below' : 'above') + '! Tighten the flock.'); break;
+        case 'dive': SND.hawk(); break;
+        case 'confused': toast('The hawk was confused by the crowded flock.'); break;
+        case 'miss': toast('The hawk missed — the flock dodged.'); break;
+        case 'practiceCatch': toast('That dive would have caught a bird (practice: no loss).'); break;
+        case 'storm': if (!G.stormSnd) { SND.storm(); G.stormSnd = 1; setTimeout(function () { G.stormSnd = 0; }, 1500); } break;
+        case 'complete': SND.complete(); if (st.mode === 'campaign' && st.stage === 15) SND.finale(); announce('The flock reached the roost.'); break;
+        case 'failed': SND.fail(); alertSR('The passage failed: ' + (st.result && st.result.text)); break;
+      }
+    });
+  }
+  var toastT = null; function toast(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 2600); }
+
+  /* ================================================================ 7 · HUD */
+  var FORM_ICON = { cloud: function (g) { [[8, 9, 5], [17, 6, 6], [26, 9, 5], [17, 12, 4]].forEach(function (p) { g.appendChild(svg('circle', { cx: p[0], cy: p[1], r: p[2] })); }); }, ribbon: function (g) { g.appendChild(svg('rect', { x: 2, y: 7, width: 30, height: 4, rx: 2 })); }, fan: function (g) { g.appendChild(svg('path', { d: 'M17 16 L2 3 L32 3 Z' })); }, arc: function (g) { g.appendChild(svg('path', { d: 'M3 15 Q17 -5 31 15', fill: 'none', 'stroke-width': 4, stroke: 'currentColor' })); } };
+  function buildForms() { var box = $('#forms'); box.textContent = ''; E.FORMS.forEach(function (f, i) { var b = el('button', { class: 'btn fbtn', type: 'button', role: 'radio', 'aria-checked': 'false', 'data-form': f, 'aria-label': E.FORM[f].label + ' formation (' + (i + 1) + '): ' + E.FORM[f].text }); var s = svg('svg', { viewBox: '0 0 34 18', 'aria-hidden': 'true', fill: 'currentColor' }); FORM_ICON[f](s); b.appendChild(s); b.appendChild(el('span', null, E.FORM[f].label)); b.appendChild(el('span', { class: 'fk' }, 'key ' + (i + 1))); b.addEventListener('click', function () { chooseForm(f); }); box.appendChild(b); }); }
+  function chooseForm(f) { var st = G.st; if (!st || st.over || G.paused) return; audioInit(); E.setForm(st, f); announce(E.FORM[f].label + ' formation. ' + E.FORM[f].text); hud(); }
+  function nextObjective(st) {
+    var f = st.flock, T = E.TIERS[st.tier], ahead = st.gaps.filter(function (g) { return !g.done && g.x1 > f.x && g.x0 < f.x + 90; })[0];
+    if (ahead) { var need = ahead.w <= 9 ? 'a Ribbon' : 'a compact flock'; return 'Gap ahead: ' + (Math.round(ahead.w * 10) / 10) + ' m wide — your flock is ' + f.width.toFixed(1) + ' m. ' + (T.fitHint ? (f.width <= ahead.w - 0.6 ? 'It fits.' : 'Too wide: try ' + need + '.') : ''); }
+    var food = st.foods.filter(function (fd) { return !fd.taken && fd.x > f.x && fd.x < f.x + 60; }).length; if (food > 8) return 'Seed field ahead (' + food + ' seeds) — spread out to gather it.';
+    var def = E.stageDef(st.stage); if (def.optional.length) return 'Optional: ' + def.optional.map(E.optionalText).join(' · ');
+    return 'Reach the roost.';
+  }
+  function hud() {
+    var st = G.st; if (!st) return; var T = E.TIERS[st.tier], f = st.flock, n = E.activeCount(st);
+    $('#h-stage').textContent = st.mode === 'campaign' ? 'Stage ' + pad2(st.stage) + ' · ' + st.name : st.name;
+    $('#h-tier').textContent = st.mode === 'practice' ? 'Free Flight — no score, no losses' : T.label + ' — ' + T.title + (st.assist ? ' · assisted' : '');
+    $('#h-birds').textContent = n + ' / ' + st.n0 + (st.mode === 'practice' ? '' : ' (need ' + st.required + ')');
+    var p = Math.max(0, Math.min(1, (f.x - 30) / (st.L - 30))); $('#h-prog').style.width = Math.round(p * 100) + '%'; $('#h-progt').textContent = Math.round(p * 100) + '% · ' + Math.max(0, Math.round(st.L - f.x)) + ' m';
+    $('#h-score').textContent = st.mode === 'practice' ? '—' : String(st.over && st.result ? st.result.score.points : E.scoreOf(st, true).points);
+    $('#h-dens').textContent = E.densityName(f.d) + ' (' + Math.round(f.d * 100) + ')'; var dr = $('#d-range'); if (document.activeElement !== dr) dr.value = Math.round(f.d * 100);
+    $('#h-stab').textContent = Math.round((f.stability || 0) * 100) + '%'; $('#h-width').textContent = (f.width || 0).toFixed(1) + ' m';
+    $$('.fbtn').forEach(function (b) { b.setAttribute('aria-checked', b.dataset.form === f.form ? 'true' : 'false'); });
+    $('#h-obj').textContent = nextObjective(st);
+    // warnings, in order of urgency (each also announced to screen readers when it first appears)
+    var w = null, pr = st.preds.filter(function (q) { return q.state === 'warn' || q.state === 'dive' || q.state === 'approach'; })[0];
+    if (pr) w = { lv: pr.state === 'dive' ? 'critical' : 'urgent', t: pr.state === 'warn' ? 'Hawk coming from ' + (pr.side === 'below' ? 'below' : 'above') + ' — tighten the flock (compress, Cloud or Arc)' : pr.state === 'dive' ? 'HAWK DIVING — stay tight!' : 'Hawk circling — keep the flock together' };
+    if (!w) { var sb = E.active(st).filter(function (b) { return b.storm > 0.05; }).length; if (sb) w = { lv: 'critical', t: sb + ' bird' + (sb > 1 ? 's' : '') + ' inside the storm — get out!' }; }
+    if (!w) { var hit = E.active(st).filter(function (b) { return b.hit > 0; }).length; if (hit) w = { lv: 'critical', t: hit + ' bird' + (hit > 1 ? 's' : '') + ' scraping rock — steer clear or tighten' }; }
+    if (!w) { var gw = st.winds.filter(function (q) { return f.x > q.x0 - 30 && f.x < q.x1; })[0]; if (gw) { var tin = E.windIn(gw, st.t), arrow = gw.fy > 0 ? 'downward' : gw.fy < 0 ? 'upward' : gw.fx > 0 ? 'forward' : 'backward'; if (tin < 0 || tin < 1.6) w = { lv: 'urgent', t: (tin < 0 ? 'Gust blowing ' : 'Gust in ' + tin.toFixed(1) + ' s, ') + arrow + ' — steer against it' }; } }
+    if (!w) { var str = E.active(st).filter(function (b) { return !b.member; }).length; if (str) w = { lv: 'urgent', t: str + ' straggler' + (str > 1 ? 's' : '') + ' — slow down or tighten to gather them' }; }
+    if (!w && st.mode !== 'practice' && n <= st.required + 1 && n < st.n0) w = { lv: 'critical', t: 'Only ' + n + ' birds left — ' + st.required + ' must reach the roost' };
+    var wb = $('#warn'); if (w && !st.over && G.started) { wb.hidden = false; wb.className = 'warn ' + w.lv; $('#warn-t').textContent = w.t; if (G.lastWarn !== w.t.slice(0, 10)) { alertSR(w.t); if (w.t.indexOf('Gust') === 0) SND.gust(); } G.lastWarn = w.t.slice(0, 10); } else { wb.hidden = true; G.lastWarn = ''; }
+  }
+
+  /* ================================================================ 8 · input (pointer guides, keys guide/shape, buttons hold) */
+  function blocked() { return G.screen !== 'game' || !G.st || G.st.over || G.paused || anyDialogOpen(); }
+  function anyDialogOpen() { return $$('dialog').some(function (d) { return d.open; }); }
+  function steerFromPointer(ev) { var r = view.cv.getBoundingClientRect(), w = view.toWorld(ev.clientX - r.left, ev.clientY - r.top), st = G.st; var ahead = w[0] - st.flock.x, pace = 1 + Math.max(-0.3, Math.min(0.3, (ahead - 10) / 60)); E.steerTo(st, w[1], pace); }
+  function releaseAll() { G.keys = {}; G.hold.comp = G.hold.exp = false; $$('.dbtn').forEach(function (b) { b.classList.remove('held'); }); G.ptr = null; if (G.st) G.st.input.pace = 1; }
+  function initInput() {
+    var cv = $('#sky');
+    cv.addEventListener('pointerdown', function (e) { audioInit(); if (!G.started && G.st && !G.st.over && !anyDialogOpen()) return; if (blocked() || G.ptr !== null) return; G.ptr = e.pointerId; try { cv.setPointerCapture(e.pointerId); } catch (er) {} steerFromPointer(e); e.preventDefault(); });
+    cv.addEventListener('pointermove', function (e) { if (blocked()) return; if (G.ptr === e.pointerId || (G.ptr === null && e.pointerType === 'mouse')) steerFromPointer(e); });
+    function up(e) { if (G.ptr !== e.pointerId) return; G.ptr = null; if (G.st) G.st.input.pace = 1; }
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('lostpointercapture', up);
+    cv.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse' && G.st) G.st.input.pace = 1; });
+    cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    // density buttons: hold to keep compressing or expanding; any release, cancel or leave stops it
+    [['#b-comp', 'comp', false], ['#b-exp', 'exp', true]].forEach(function (d) { var b = $(d[0]);
+      b.addEventListener('pointerdown', function (e) { audioInit(); if (blocked()) return; G.hold[d[1]] = true; b.classList.add('held'); E.nudgeDensity(G.st, d[2] ? 0.06 : -0.06); SND.density(d[2]); try { b.setPointerCapture(e.pointerId); } catch (er) {} e.preventDefault(); });
+      ['pointerup', 'pointercancel', 'lostpointercapture', 'pointerleave'].forEach(function (t) { b.addEventListener(t, function () { G.hold[d[1]] = false; b.classList.remove('held'); }); });
+      b.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && !blocked()) { e.preventDefault(); E.nudgeDensity(G.st, d[2] ? 0.1 : -0.1); SND.density(d[2]); hud(); } });
+    });
+    $('#d-range').addEventListener('input', function (e) { if (blocked()) return; E.setDensity(G.st, +e.target.value / 100); hud(); });
+    document.addEventListener('keydown', function (e) {
+      if (G.screen !== 'game' || !G.st) return; if (anyDialogOpen()) return;
+      var tag = (document.activeElement && document.activeElement.tagName) || '', k = e.key; if (tag === 'INPUT' && document.activeElement.type !== 'range' || tag === 'SELECT') return;
+      if (k === 'Escape' || k === 'p' || k === 'P') { e.preventDefault(); if (!G.st.over) pause(); return; }
+      audioInit();
+      if (k === 'm' || k === 'M') { toggleSound(); return; }
+      if (!G.started) { if ((k === 'Enter' || k === ' ') && tag !== 'BUTTON') { e.preventDefault(); takeFlight(); } return; }
+      if (G.st.over) return;
+      if (/^[1-4]$/.test(k)) { chooseForm(E.FORMS[+k - 1]); return; }
+      if ((k === 'q' || k === 'Q' || k === 'e' || k === 'E') && !e.repeat) { E.nudgeDensity(G.st, (k === 'q' || k === 'Q') ? -0.06 : 0.06); SND.density(k === 'e' || k === 'E'); }
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'W', 'A', 'S', 'D', 'q', 'Q', 'e', 'E'].indexOf(k) >= 0) { if (tag !== 'INPUT') e.preventDefault(); G.keys[k] = true; }
+    });
+    document.addEventListener('keyup', function (e) { delete G.keys[e.key]; if (e.key.length === 1) { delete G.keys[e.key.toLowerCase()]; delete G.keys[e.key.toUpperCase()]; } });
+    // focus loss pauses; every held key and button is released (nothing stays stuck)
+    document.addEventListener('visibilitychange', function () { if (document.hidden) { releaseAll(); if (running()) pause(); LOOP.last = 0; } });
+    window.addEventListener('blur', function () { releaseAll(); if (running()) pause(); LOOP.last = 0; });
+    window.addEventListener('resize', function () { if (view) view.layout(); if (tview) tview.layout(); });
+    window.addEventListener('orientationchange', function () { releaseAll(); setTimeout(function () { if (view) view.layout(); if (tview) tview.layout(); }, 120); });
+  }
+
+  /* ================================================================ 9 · screens */
+  function show(id) { $$('.screen').forEach(function (s) { s.hidden = s.id !== 'scr-' + id; }); G.screen = id; document.body.classList.toggle('in-game', id === 'game'); if (id === 'game' && view) view.layout(); if (id === 'title' && tview) { tview.layout(); if (demo) demo.drawn = false; } }
+  function tierLabel(t) { var T = E.TIERS[t]; return T.label + ' — ' + T.title; }
+  function prog(t) { return SAVE.progress[t]; }
+  function completed(t) { return Object.keys(prog(t)).map(Number).filter(function (n) { return n >= 1 && n <= 15; }); }
+  function unlocked(t, n) { return n === 1 || !!prog(t)[n - 1]; }
+  function nextStage(t) { for (var n = 1; n <= 15; n++) if (!prog(t)[n]) return n; return null; }
+  function toTitle() {
+    G.st = null; G.paused = false; releaseAll(); closeAll(); show('title');
+    var t = G.tier; $$('input[name=tier]').forEach(function (i) { i.checked = i.value === t; }); $('#t-tiertext').textContent = E.TIERS[t].text;
+    var n = completed(t).length, nx = nextStage(t), cb = $('#b-continue');
+    cb.hidden = n === 0; cb.textContent = nx ? 'Continue Migration — Stage ' + pad2(nx) : 'Continue Migration — all 15 complete';
+    $('#t-progress').textContent = n ? tierLabel(t) + ': ' + n + ' of 15 stages complete.' : 'No ' + E.TIERS[t].label + ' stages completed yet.';
+    $('#t-note').textContent = notes.join(' ');
+  }
+  function openLine() {
+    var t = G.tier, list = $('#stage-list'); list.textContent = ''; releaseAll(); show('line');
+    $('#l-k').textContent = 'The Skyward Passage · ' + tierLabel(t); var n = completed(t).length;
+    $('#l-sub').textContent = n + ' of 15 complete. Each stage unlocks the next. Progress saves between stages.';
+    $('#l-summary').disabled = n === 0;
+    E.STAGES.forEach(function (d) {
+      var li = el('li'), b = el('button', { class: 'stage-card', type: 'button', 'data-stage': String(d.id) }), p = prog(t)[d.id], open = unlocked(t, d.id);
+      b.appendChild(el('span', { class: 'num' }, pad2(d.id))); b.appendChild(el('strong', null, d.name)); b.appendChild(el('span', { class: 'ch' }, d.mech));
+      var best = el('span', { class: 'best' }); if (p) { best.appendChild(el('span', { class: 'grade-chip g-' + p.grade }, E.GRADE_TEXT[p.grade])); best.appendChild(document.createTextNode(p.best + ' pts · ' + p.surv + '% home' + (p.assisted ? ' (assisted)' : ''))); } else best.textContent = open ? 'Not yet completed' : 'Locked — complete stage ' + pad2(d.id - 1);
+      b.appendChild(best); if (!open) b.disabled = true;
+      b.setAttribute('aria-label', 'Stage ' + d.id + ': ' + d.name + '. ' + d.mech + '. ' + best.textContent);
+      b.addEventListener('click', function () { startStage(d.id); }); li.appendChild(b); list.appendChild(li);
+    });
+    var first = list.querySelector('button:not([disabled])'); if (first) first.focus();
+  }
+  function startStage(id, mode) {
+    audioInit(); mode = mode || 'campaign'; G.mode = mode; releaseAll();
+    G.st = mode === 'practice' ? E.create(0, G.tier, { tier: G.tier, threats: G.threats }) : E.create(id, G.tier, { assist: SAVE.prefs.assist });
+    G.recorded = false; G.overT = 0; G.paused = false; G.started = false; G.lastWarn = '';
+    show('game'); view.cam = G.st.flock.x - view.viewLen * 0.3; view.fx = []; LOOP.acc = 0; LOOP.last = 0;
+    var st = G.st, def = E.stageDef(st.stage), T = E.TIERS[st.tier];
+    $('#bf-k').textContent = mode === 'campaign' ? 'Stage ' + pad2(id) + ' of 15 · ' + tierLabel(st.tier) : 'Free Flight · practice — no score, nothing recorded';
+    $('#bf-h').textContent = def.name; $('#bf-p').textContent = def.brief;
+    var ul = $('#bf-list'); ul.textContent = ''; function li(t2) { ul.appendChild(el('li', null, t2)); }
+    li('Flock: ' + st.n0 + ' birds. ' + (mode === 'practice' ? 'Birds are never lost here.' : 'Bring at least ' + st.required + ' (' + Math.round(T.survive * 100) + ' %) to the roost.'));
+    li('Steer: move the pointer or drag across the sky (arrow keys / W A S D). Q compresses, E expands, 1–4 choose Cloud, Ribbon, Fan, Arc.');
+    if (def.optional.length) li('Optional: ' + def.optional.map(E.optionalText).join(' · ') + '.');
+    if (mode === 'campaign') li(E.GRADE_RULE.silver + ' ' + E.GRADE_RULE.gold);
+    $('#dp-threats').hidden = mode !== 'practice'; $('#dp-threats').textContent = 'Threats (hawk and storm): ' + (G.threats ? 'on' : 'off');
+    $('#brief').hidden = false; $('#warn').hidden = true; $('#toast').hidden = true; hud();
+    announce((mode === 'campaign' ? 'Stage ' + id + ': ' : '') + def.name + '. ' + def.brief);
+    $('#b-fly').focus();
+  }
+  function takeFlight() { if (!G.st || G.started || G.st.over) return; audioInit(); G.started = true; $('#brief').hidden = true; LOOP.last = 0; $('#sky').focus({ preventScroll: true }); SND.call(); announce('Flying. ' + E.activeCount(G.st) + ' birds.'); }
+  function finishStage() {
+    var st = G.st, r = st.result; if (!r || G.mode === 'practice') return;
+    if (!r.ok) { SAVE.records.failures++; persist(); return; }
+    var s = r.score, t = st.tier, p = prog(t)[st.stage], surv = Math.round(s.survival * 100), perfect = s.home >= st.n0 && st.stats.lost.obstacle + st.stats.lost.predator + st.stats.lost.storm + st.stats.lost.stray === 0;
+    var entry = { best: s.points, grade: s.grade, surv: surv, home: s.home, n0: st.n0, perfect: perfect, assisted: !!st.assist };
+    if (!p || s.points > p.best) { if (p) { if (GRADES.indexOf(p.grade) > GRADES.indexOf(entry.grade)) entry.grade = p.grade; entry.perfect = entry.perfect || p.perfect; } prog(t)[st.stage] = entry; }
+    else { if (GRADES.indexOf(s.grade) > GRADES.indexOf(p.grade)) p.grade = s.grade; if (perfect) p.perfect = true; }
+    SAVE.records.flights++; SAVE.records.preserved += s.home; if (surv > SAVE.records.bestSurvival) SAVE.records.bestSurvival = surv;
+    if (!SAVE.records.bestStage || s.points > SAVE.records.bestStage.points) SAVE.records.bestStage = { points: s.points, stage: st.stage, tier: t };
+    var got = [];
+    function ach(k, cond) { if (cond && SAVE.ach.indexOf(k) < 0) { SAVE.ach.push(k); got.push(k); } }
+    ach('first', true); ach('perfect', perfect); ach('allForms', E.FORMS.every(function (k) { return st.stats.formsUsed[k]; })); ach('gold', s.grade === 'gold'); ach('hunter', st.preds.length > 0 && st.stats.caught === 0);
+    ach('storm', st.storms.length > 0 && st.stats.stormEntries === 0); ach('harvest', st.foods.length > 0 && st.stats.food / st.foods.length >= 0.9); ach('goldTier', t === 'gold'); ach('campaign', completed(t).length === 15);
+    G.newAch = got; persist();
+  }
+  function stat(box, k, v) { var d = el('div', { class: 'stat' }); d.appendChild(el('strong', null, v)); d.appendChild(el('span', null, k)); box.appendChild(d); }
+  function showResult() {
+    var st = G.st, r = st.result; if (!r) return; releaseAll(); show('result');
+    var s = r.score, ok = r.ok, practice = G.mode === 'practice', ss = st.stats;
+    $('#r-k').textContent = practice ? 'Free Flight' : 'Stage ' + pad2(st.stage) + ' · ' + tierLabel(st.tier) + (st.assist ? ' · assisted' : '');
+    $('#r-h').textContent = (ok ? 'Home to the roost — ' : 'Passage failed — ') + st.name;
+    $('#r-sub').textContent = r.text + (practice ? ' Free Flight is never scored or recorded.' : '');
+    $('#r-grade').textContent = practice ? '' : E.GRADE_TEXT[s.grade] + (ok ? ' — ' + s.points + ' points' : ' — no points for this attempt');
+    var box = $('#r-stats'); box.textContent = ''; var home = E.activeCount(st), lostN = ss.lost.obstacle + ss.lost.predator + ss.lost.storm + ss.lost.stray;
+    stat(box, 'Birds surviving', home + ' of ' + st.n0); stat(box, 'Birds lost', lostN + (lostN ? ' (' + ['obstacle', 'predator', 'storm', 'stray'].filter(function (k) { return ss.lost[k]; }).map(function (k) { return ss.lost[k] + ' ' + { obstacle: 'rock', predator: 'hawk', storm: 'storm', stray: 'strayed' }[k]; }).join(', ') + ')' : ''));
+    stat(box, 'Survival', Math.round(home / st.n0 * 100) + '%' + (ss.joined ? ' (' + ss.joined + ' joined)' : ''));
+    stat(box, 'Food collected', st.foods.length ? ss.food + ' of ' + st.foods.length + ' (' + Math.round(ss.food / st.foods.length * 100) + '%)' : 'none in this stage');
+    stat(box, 'Formation performance', Math.round((ss.stabN ? ss.stabSum / ss.stabN : 0) * 100) + '% stability · ' + Object.keys(ss.formsUsed).length + ' formation' + (Object.keys(ss.formsUsed).length > 1 ? 's' : '') + ' used');
+    stat(box, 'Hazard contacts', ss.scrapes + ' scrape' + (ss.scrapes === 1 ? '' : 's') + ' · ' + ss.stormEntries + ' storm · ' + ss.caught + ' caught');
+    stat(box, 'Time', Math.floor(st.t / 60) + ':' + pad2(Math.floor(st.t % 60)) + ' (par ' + Math.floor(st.par / 60) + ':' + pad2(Math.round(st.par % 60)) + ')');
+    var ol = $('#r-opt'); ol.textContent = ''; (s.optional || []).forEach(function (o) { ol.appendChild(el('li', { class: o.met ? 'met' : 'miss' }, o.text)); }); if (!s.optional.length) ol.appendChild(el('li', { class: 'miss' }, 'None in Free Flight.'));
+    if (G.newAch && G.newAch.length && !practice) G.newAch.forEach(function (k) { ol.appendChild(el('li', { class: 'met' }, 'Achievement: ' + ACH.filter(function (a) { return a[0] === k; })[0][1])); });
+    G.newAch = [];
+    var tb = $('#r-score'); tb.textContent = '';
+    if (!practice) {
+      var h = el('tr'); ['Part', 'Value', 'Points'].forEach(function (x, i) { h.appendChild(el('th', i ? { class: 'n' } : null, x)); }); tb.appendChild(h);
+      E.SCORE_TEXT.forEach(function (row) { var v = s.parts[row[0]], tr = el('tr'), td = el('td'); td.appendChild(el('b', null, row[2])); td.appendChild(el('span', { class: 'why' }, row[3] + ' · up to ' + row[1])); tr.appendChild(td); tr.appendChild(el('td', { class: 'n' }, Math.round(v * 100) + '%')); tr.appendChild(el('td', { class: 'n' }, String(ok ? Math.round(v * row[1]) : 0))); tb.appendChild(tr); });
+      var tt = el('tr', { class: 'total' }); tt.appendChild(el('td', null, 'Stage score (out of 1,000)')); tt.appendChild(el('td')); tt.appendChild(el('td', { class: 'n' }, String(s.points))); tb.appendChild(tt);
+      $('#r-rules').textContent = E.GRADE_RULE.bronze + ' ' + E.GRADE_RULE.silver + ' ' + E.GRADE_RULE.gold + ' Time counts for only 40 of 1,000 points.';
+    } else $('#r-rules').textContent = '';
+    var last = st.stage === 15, nb = $('#r-next'); nb.hidden = practice || !ok; nb.textContent = last ? 'Campaign results' : 'Continue to stage ' + pad2(st.stage + 1);
+    $('#r-retry').textContent = practice ? 'Fly again' : 'Retry stage';
+    (nb.hidden ? $('#r-retry') : nb).focus();
+  }
+  function campaignStats(t) {
+    var done = completed(t), total = 0, best = 0, perfect = 0, preserved = 0, top = null, grades = { gold: 0, silver: 0, bronze: 0 };
+    done.forEach(function (n) { var p = prog(t)[n]; total += p.best; best = Math.max(best, p.surv); if (p.perfect) perfect++; preserved += p.home; grades[p.grade]++; if (!top || p.best > top.best) top = { n: n, best: p.best }; });
+    return { tier: E.TIERS[t].label, stages: done.length, score: total, best: best, perfect: perfect, preserved: preserved, grades: grades, top: top };
+  }
+  function openCampaign() {
+    var t = G.tier, c = campaignStats(t); releaseAll(); show('camp');
+    $('#c-k').textContent = 'Campaign results · ' + tierLabel(t);
+    $('#c-sub').textContent = c.stages === 15 ? 'The Skyward Passage is complete.' : c.stages + ' of 15 stages complete so far — totals use each stage’s best flight.';
+    var box = $('#c-stats'); box.textContent = '';
+    stat(box, 'Stages completed', c.stages + ' / 15'); stat(box, 'Total score', String(c.score)); stat(box, 'Best survival', c.best + '%'); stat(box, 'Birds preserved', String(c.preserved));
+    stat(box, 'Perfect flights', String(c.perfect)); stat(box, 'Grades', c.grades.gold + ' Gold · ' + c.grades.silver + ' Silver · ' + c.grades.bronze + ' Bronze');
+    stat(box, 'Best performance', c.top ? 'Stage ' + pad2(c.top.n) + ' · ' + c.top.best + ' pts' : '—');
+    var bs = SAVE.records.bestStage; stat(box, 'Personal record', bs ? bs.points + ' pts (stage ' + pad2(bs.stage) + ', ' + E.TIERS[bs.tier].label + ')' : '—');
+    var gl = $('#c-grades'); gl.textContent = ''; E.STAGES.forEach(function (d) { var p = prog(t)[d.id]; gl.appendChild(el('li', null, pad2(d.id) + ' ' + d.name + ': ' + (p ? E.GRADE_TEXT[p.grade].split(' ')[0] + ' · ' + p.best : '—'))); });
+    $('#c-share').textContent = E.shareText(c); $('#c-note').textContent = ''; $('#c-copy').focus();
+  }
+  function copyShare() { var txt = $('#c-share').textContent, note = $('#c-note'); function ok() { note.textContent = 'Result copied.'; } function fail() { if (fallbackCopy(txt)) ok(); else note.textContent = 'Copy is blocked here — select the text below and copy it.'; } if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, fail); else fail(); }
+  function fallbackCopy(txt) { try { var ta = el('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); var r = document.execCommand('copy'); document.body.removeChild(ta); return r; } catch (e) { return false; } }
+
+  /* ---------- dialogs ---------- */
+  var returnFocus = null;
+  function openDlg(id) { var d = $(id); if (d.open) return; returnFocus = document.activeElement; releaseAll(); try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } }
+  function closeDlg(id) { var d = $(id); if (d.open) d.close(); }
+  function closeAll() { $$('dialog').forEach(function (d) { if (d.open) d.close(); }); }
+  function pause() { if (!G.st || G.st.over || G.paused) return; G.paused = true; releaseAll(); SND.tap(); openDlg('#d-pause'); $('#dp-resume').focus(); announce('Paused.'); }
+  function resume() { G.paused = false; LOOP.last = 0; LOOP.acc = 0; closeDlg('#d-pause'); $('#sky').focus({ preventScroll: true }); announce('Resumed.'); }
+  function confirmBox(title, text, yes, onYes) { $('#dc-h').textContent = title; $('#dc-p').textContent = text; $('#dc-yes').textContent = yes; G.onYes = onYes; openDlg('#d-confirm'); $('#dc-no').focus(); }
+  function howto() {
+    var b = $('#dh-body'); b.textContent = '';
+    function sec(h, items) { b.appendChild(el('h3', null, h)); var ul = el('ul'); items.forEach(function (t) { ul.appendChild(el('li', null, t)); }); b.appendChild(ul); }
+    sec('You conduct a flock', ['You do not fly a bird. Every bird steers itself — keeping its distance from neighbours, matching their heading, staying with the group — while you set where the flock goes, how tightly it gathers and what shape it takes.', 'Guide: move the pointer over the sky (or drag with a finger) and the flock turns toward it, gradually. Pointing far ahead hurries it a little; behind the flock slows it. Arrow keys or W/S steer up and down, A/D slow and hurry.', 'Reach the roost at the end of each stage with enough birds: Bronze 60 %, Silver 75 %, Gold 90 %.']);
+    sec('Density and formation', ['Q compresses, E expands (hold to keep going; on touch, hold the big buttons or use the slider). Birds never overlap, however tight.', '1 Cloud: balanced and stable. 2 Ribbon: a long double line that slips through narrow gaps, but it is long and slow to reshape. 3 Fan: a wide sweep for gathering seed — easy to clip on rock. 4 Arc: a crescent that bends around obstacles and parts sideways when a hawk dives.', 'Shapes take time to form: birds fly to their new places, they never jump. The HUD shows the flock’s width, its stability (how well birds hold their places) and the density.']);
+    sec('Hazards', ['Rock, cliffs and trees: a bird that keeps scraping (beyond a short grace: Bronze 0.5 s, Silver 0.3 s, Gold 0.2 s) is lost. Gap guides show each opening’s width — and on Bronze and Silver whether your flock fits.', 'Gusts push the whole flock; a countdown and streaks show when. Steer against them.', 'Storms drift or stand as walls with a moving opening. A few seconds inside costs birds (Bronze 2.6 s, Silver 1.7 s, Gold 1.2 s).', 'Hawks are announced seconds ahead, circle, then dive at the most isolated bird. If that bird is surrounded by enough neighbours the hawk is confused and fails; an Arc also parts sideways around a dive. Spread-out flocks lose birds.', 'Stragglers left far from the flock for 6 seconds are lost. Lone birds along the way join to replace losses — never more than you started with.']);
+    sec('Scoring', ['Out of 1,000: passage 250 · birds surviving 350 · formation accuracy 120 · hazard avoidance 120 · food 80 · pace 40 · optional objectives 40. Losing birds always costs more than flying slowly.', E.GRADE_RULE.bronze + ' ' + E.GRADE_RULE.silver + ' ' + E.GRADE_RULE.gold]);
+    sec('Saving and settings', ['Progress saves between stages in this browser. Leaving or reloading during a stage restarts it.', 'Escape pauses (leaving the tab pauses too). M toggles sound — every alert is also on screen. Settings: reduced motion, a simplified view with a bold flock outline (the flight is identical), Assisted Bronze (20 % slower), larger text.', 'Free Flight: practise with nothing at stake; birds are never lost, and threats can be switched off in its pause menu.']);
+    openDlg('#d-howto'); $('#d-howto [data-close]').focus();
+  }
+  function openRecords() {
+    var b = $('#dr-body'); b.textContent = '';
+    var tbl = el('table', { class: 'rtbl' }), h = el('tr'); h.appendChild(el('th', null, 'Stage')); E.TIER_IDS.forEach(function (t) { h.appendChild(el('th', null, E.TIERS[t].label)); }); tbl.appendChild(h);
+    E.STAGES.forEach(function (d) { var tr = el('tr'); tr.appendChild(el('td', null, pad2(d.id) + ' ' + d.name)); E.TIER_IDS.forEach(function (t) { var p = prog(t)[d.id]; tr.appendChild(el('td', null, p ? E.GRADE_TEXT[p.grade].split(' ')[0] + ' · ' + p.best + ' · ' + p.surv + '%' + (p.perfect ? ' ★' : '') + (p.assisted ? '*' : '') : '—')); }); tbl.appendChild(tr); });
+    b.appendChild(tbl);
+    var r = SAVE.records, ul = el('ul');
+    E.TIER_IDS.forEach(function (t) { var c = campaignStats(t); ul.appendChild(el('li', null, E.TIERS[t].label + ': ' + c.stages + ' / 15 stages · total ' + c.score + ' · best survival ' + c.best + '% · perfect flights ' + c.perfect)); });
+    ul.appendChild(el('li', null, 'Completed flights: ' + r.flights + ' · failed: ' + r.failures + ' · birds brought home: ' + r.preserved + ' · best survival: ' + r.bestSurvival + '%'));
+    ul.appendChild(el('li', null, 'Best stage: ' + (r.bestStage ? r.bestStage.points + ' points (stage ' + pad2(r.bestStage.stage) + ', ' + E.TIERS[r.bestStage.tier].label + ')' : '—') + ' · ★ perfect · * assisted'));
+    b.appendChild(ul); b.appendChild(el('h3', null, 'Achievements'));
+    var al = el('ul'); ACH.forEach(function (a) { al.appendChild(el('li', null, (SAVE.ach.indexOf(a[0]) >= 0 ? '✓ ' : '○ ') + a[1])); }); b.appendChild(al);
+    openDlg('#d-records'); $('#d-records [data-close]').focus();
+  }
+  function openSettings() {
+    $('#s-sound').checked = SAVE.prefs.sound; $('#s-vol').value = SAVE.prefs.volume; $('#s-vol-v').textContent = SAVE.prefs.volume + '%'; $('#s-motion').value = SAVE.prefs.motion;
+    $('#s-simple').checked = SAVE.prefs.simple; $('#s-assist').checked = SAVE.prefs.assist; $('#s-large').checked = SAVE.prefs.large;
+    openDlg('#d-settings'); $('#s-sound').focus();
+  }
+  function toggleSound() { SAVE.prefs.sound = !SAVE.prefs.sound; persist(); if (SAVE.prefs.sound) audioInit(); else if (AU.ctx) try { AU.ctx.suspend(); } catch (e) {} toast('Sound ' + (SAVE.prefs.sound ? 'on' : 'off') + '.'); announce('Sound ' + (SAVE.prefs.sound ? 'on' : 'off') + '.'); }
+
+  /* ================================================================ 10 · wiring */
+  function boot() {
+    applyPrefs(); buildForms();
+    view = makeView($('#sky')); tview = makeView($('#t-canvas'), { fixed: true });
+    view.layout(); tview.layout(); newDemo(); initInput();
+    $$('input[name=tier]').forEach(function (i) { i.addEventListener('change', function () { G.tier = i.value; SAVE.prefs.tier = i.value; persist(); toTitle(); i.focus(); }); });
+    $('#b-begin').addEventListener('click', function () { audioInit(); openLine(); });
+    $('#b-continue').addEventListener('click', function () { audioInit(); var n = nextStage(G.tier); if (n) startStage(n); else openLine(); });
+    $('#b-free').addEventListener('click', function () { startStage(0, 'practice'); });
+    $('#b-howto').addEventListener('click', howto); $('#b-records').addEventListener('click', openRecords); $('#b-settings').addEventListener('click', openSettings);
+    $('#l-back').addEventListener('click', toTitle); $('#l-summary').addEventListener('click', openCampaign);
+    $('#b-fly').addEventListener('click', takeFlight); $('#b-pause').addEventListener('click', pause);
+    $('#dp-resume').addEventListener('click', resume);
+    $('#d-pause').addEventListener('cancel', function (e) { e.preventDefault(); resume(); });
+    $('#dp-threats').addEventListener('click', function () { G.threats = !G.threats; closeAll(); startStage(0, 'practice'); toast('Free Flight threats ' + (G.threats ? 'on' : 'off') + '.'); });
+    $('#dp-restart').addEventListener('click', function () { var st = G.st; closeAll(); startStage(st.mode === 'practice' ? 0 : st.stage, G.mode); });
+    $('#dp-howto').addEventListener('click', howto); $('#dp-settings').addEventListener('click', openSettings);
+    $('#dp-quit').addEventListener('click', function () { confirmBox('Leave this stage?', 'The stage will restart next time — nothing from this flight is saved.', 'Leave', function () { closeAll(); G.paused = false; if (G.mode === 'campaign') openLine(); else toTitle(); }); });
+    $('#r-next').addEventListener('click', function () { if (G.st.stage === 15) openCampaign(); else startStage(G.st.stage + 1); });
+    $('#r-retry').addEventListener('click', function () { startStage(G.mode === 'practice' ? 0 : G.st.stage, G.mode); });
+    $('#r-line').addEventListener('click', openLine); $('#r-title').addEventListener('click', toTitle);
+    $('#c-copy').addEventListener('click', copyShare); $('#c-replay').addEventListener('click', openLine); $('#c-title').addEventListener('click', toTitle);
+    $('#dr-reset').addEventListener('click', function () { confirmBox('Reset records?', 'This clears campaign progress, records and achievements for every tier. Settings are kept.', 'Reset', function () { SAVE.progress = blankProg(); SAVE.records = blankRec(); SAVE.ach = []; persist(); closeAll(); toTitle(); toast('Records reset.'); }); });
+    $('#dc-yes').addEventListener('click', function () { var f = G.onYes; G.onYes = null; closeDlg('#d-confirm'); if (f) f(); });
+    $('#dc-no').addEventListener('click', function () { closeDlg('#d-confirm'); });
+    $$('dialog [data-close]').forEach(function (b) { b.addEventListener('click', function () { b.closest('dialog').close(); }); });
+    $$('dialog').forEach(function (d) { d.addEventListener('close', function () { if (d.id !== 'd-pause' && G.paused && !$('#d-pause').open && G.st && !G.st.over && G.screen === 'game') openDlg('#d-pause'); if (returnFocus && document.contains(returnFocus) && !anyDialogOpen()) try { returnFocus.focus(); } catch (e) {} }); });
+    $('#s-sound').addEventListener('change', function (e) { SAVE.prefs.sound = e.target.checked; persist(); if (SAVE.prefs.sound) audioInit(); else if (AU.ctx) try { AU.ctx.suspend(); } catch (er) {} });
+    $('#s-vol').addEventListener('input', function (e) { SAVE.prefs.volume = +e.target.value; $('#s-vol-v').textContent = SAVE.prefs.volume + '%'; setVol(); persist(); });
+    $('#s-motion').addEventListener('change', function (e) { SAVE.prefs.motion = e.target.value; applyPrefs(); persist(); if (demo) demo.drawn = false; });
+    $('#s-simple').addEventListener('change', function (e) { SAVE.prefs.simple = e.target.checked; persist(); });
+    $('#s-assist').addEventListener('change', function (e) { SAVE.prefs.assist = e.target.checked; persist(); });
+    $('#s-large').addEventListener('change', function (e) { SAVE.prefs.large = e.target.checked; applyPrefs(); persist(); });
+    if (mq && mq.addEventListener) mq.addEventListener('change', applyPrefs);
+    G.tier = E.TIERS[SAVE.prefs.tier] ? SAVE.prefs.tier : 'silver';
+    toTitle();
+    LOOP.starts++; requestAnimationFrame(frame);
+    if (DEV) window.__mu = { E: E, G: G, SAVE: function () { return SAVE; }, view: function () { return view; }, startStage: startStage, takeFlight: takeFlight, toTitle: toTitle, openLine: openLine, openCampaign: openCampaign, showResult: showResult, pause: pause, resume: resume,
+      manual: function (on) { LOOP.manual = !!on; LOOP.last = 0; }, run: function (ms, fps) { fps = fps || 60; var t = performance.now(), n = Math.round(ms / 1000 * fps); LOOP.last = t; for (var i = 0; i < n; i++) { t += 1000 / fps; tick(t); } },
+      alerts: function () { return alertLog.slice(); }, renderNow: function (simple) { render(view, G.st, { simple: !!simple, preview: true, guide: true }); }, stats: function () { return { loops: LOOP.starts, frames: LOOP.frames, steps: LOOP.steps, hasAudio: !!AU.ctx, saves: saves, storageOk: storageOk }; }, persist: persist, releaseAll: releaseAll };
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+
+</script>
+</body>
+</html>
