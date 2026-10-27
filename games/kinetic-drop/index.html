@@ -1,0 +1,1616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="doorquests:status" content="Prototype · Founder Playtest · Not Published">
+<meta name="description" content="Gamortal #016 · Kinetic Drop — change the pull, change the path. A DoorQuests gravity-control physics prototype for founder playtesting.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#121838">
+<title>Gamortal #016 — Kinetic Drop | DoorQuests</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23121838'/%3E%3Ccircle cx='20' cy='22' r='4' fill='%23d9a441'/%3E%3Ccircle cx='44' cy='22' r='4' fill='%23d9a441'/%3E%3Ccircle cx='32' cy='36' r='4' fill='%23d9a441'/%3E%3Ccircle cx='39' cy='49' r='7' fill='%23f3eadb'/%3E%3C/svg%3E">
+<style>
+:root {
+  --navy: #0f1430; --indigo: #1d2350; --indigo2: #2b3274; --brass: #c8963e; --gold: #e9b44c; --gold2: #f5d27a; --copper: #b8693a; --iron: #5d6273; --ivory: #f6eedb; --ivory2: #ece0c3; --amber: #f0a43a;
+  --ink: #1d1a24; --ink2: #4a4352; --mute: #6c6474; --ok: #2f7a3d; --bad: #b4382e;
+  --focus: 0 0 0 3px #fff, 0 0 0 6px #e9b44c;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { background: var(--navy); }
+html.large { font-size: 118.75%; }
+body { min-height: 100vh; min-height: 100dvh; color: var(--ink); font: 1rem/1.5 var(--sans); display: flex; flex-direction: column; overflow-x: hidden; background: radial-gradient(ellipse at 50% 0%, #2b3274 0%, #141a3a 55%, #0b0f24 100%) fixed; }
+body.in-game { height: 100vh; height: 100dvh; overflow: hidden; }
+a { color: #7a4a10; }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 8px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--gold); color: #111; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 8px; }
+[hidden] { display: none !important; }
+.nojs { padding: 20px; color: #fff; }
+.top { display: flex; align-items: center; gap: 10px; padding: 6px 14px; background: #0c1028; border-bottom: 3px solid var(--brass); flex-wrap: wrap; color: #f4efe2; position: relative; z-index: 2; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #f4efe2; font: 600 18px/1 var(--serif); }
+.brand-door { width: 16px; height: 22px; border: 2px solid var(--gold2); border-radius: 8px 8px 1px 1px; }
+.crumb { color: #d8d4ea; font-size: 14px; display: inline-flex; gap: 6px; }
+.crumb-col { color: var(--gold2); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; align-self: center; }
+.badge { margin-left: auto; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px dashed #ffbe6b; color: #ffcf8a; }
+main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
+.btn { appearance: none; border: 1px solid #a07a3c; background: var(--ivory); color: var(--ink); border-radius: 10px; padding: 10px 16px; font: 600 .95rem/1.2 var(--sans); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; touch-action: manipulation; }
+.btn:hover:not([disabled]) { border-color: var(--indigo); }
+.btn-primary { background: linear-gradient(#3a2d12, #241a08); color: #ffe6a6; border-color: var(--gold); }
+.btn-primary:hover:not([disabled]) { border-color: #fff1c4; }
+.btn-big { font-size: 1.08rem; padding: 13px 24px; }
+.btn-quiet { background: rgba(246, 238, 219, .92); }
+.btn-danger { border-color: var(--bad); color: #7a1d16; background: #fbe7e2; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.stack { display: grid; gap: 8px; margin: 12px 0; }
+.note { min-height: 1.3em; color: #7a4310; font-size: .9rem; margin: 8px 0 0; }
+.muted { color: var(--mute); } .small { font-size: .84rem; }
+.k { color: var(--mute); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; display: block; }
+.kicker { margin: 0 0 6px; color: #8a5a14; font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; }
+
+/* ---------- title: the tower's machinery turning behind the card ---------- */
+#scr-title { overflow: hidden; background: #0f1430; }
+.t-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.title-wrap { position: relative; padding: 22px 16px 28px; max-width: 1180px; margin: 0 auto; width: 100%; }
+.title-text { max-width: 610px; background: rgba(246, 238, 219, .94); border: 2px solid var(--brass); border-radius: 18px; padding: 18px 20px; box-shadow: 0 16px 40px rgba(0, 0, 0, .5), inset 0 0 0 4px rgba(200, 150, 62, .18); }
+h1 { font: 600 clamp(40px, 6.6vw, 70px)/1.02 var(--serif); margin: 0 0 6px; color: #2a2108; letter-spacing: -.01em; }
+.t-no { display: block; font: 700 .85rem/1.4 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: #8a5a14; margin-bottom: 6px; }
+.tagline { color: #6b3f12; font: italic 1.35rem/1.4 var(--serif); margin: 0 0 12px; }
+.tiers { border: 0; padding: 0; margin: 0 0 4px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tiers legend { font: 700 .8rem/1 var(--sans); color: #6b3f12; margin-bottom: 8px; letter-spacing: .06em; text-transform: uppercase; }
+.tier { display: flex; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid #c8ad86; border-radius: 12px; background: #fffaf0; cursor: pointer; min-height: 52px; }
+.tier input { margin: 0; width: 18px; height: 18px; accent-color: #6b3f12; }
+.tier strong { display: block; font-size: .95rem; line-height: 1.1; } .tier small { color: var(--mute); font-size: .74rem; }
+.tier:has(input:checked) { border-color: #6b3f12; box-shadow: inset 0 0 0 2px #6b3f12; background: #fff1d0; }
+.tier:has(input:focus-visible) { box-shadow: var(--focus); }
+.medal { width: 18px; height: 18px; border-radius: 50%; flex: none; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); }
+.tier-bronze .medal { background: #b8743a; } .tier-silver .medal { background: #b7bcc4; } .tier-gold .medal { background: #e0b84c; }
+.tiertext { min-height: 2.6em; margin: 6px 0 0; color: var(--ink2); }
+.title-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+#t-progress { color: var(--ink2); margin: 8px 0 0; }
+.credit { margin-top: 14px; color: var(--mute); font-size: .82rem; }
+.credit p { margin: 2px 0; }
+.motto { font: italic .95rem/1.4 var(--serif); color: var(--ink2); }
+
+/* ---------- stage lists ---------- */
+#scr-tower, #scr-shop, #scr-result, #scr-camp { overflow-y: auto; }
+.list-wrap { width: min(1180px, 100%); margin: 0 auto; padding: 18px 16px 28px; }
+.list-head { display: flex; gap: 16px; align-items: end; justify-content: space-between; flex-wrap: wrap; color: #f4efe2; }
+.list-head .kicker { color: var(--gold2); } .list-head .muted { color: #c9c3dd; }
+.list-head h2 { font: 600 1.9rem/1.2 var(--serif); color: #fff1cc; margin: 0; }
+.stage-list { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.stage-card { width: 100%; text-align: left; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; padding: 12px; border-radius: 14px; border: 1px solid #a07a3c; background: linear-gradient(#fbf4e3, #efe2c2); cursor: pointer; font: inherit; color: inherit; min-height: 96px; }
+.stage-card:hover:not([disabled]) { border-color: #fff1c4; box-shadow: 0 0 0 2px var(--gold); }
+.stage-card[disabled] { opacity: .55; cursor: not-allowed; background: #cfc6b2; }
+.stage-card .num { grid-row: span 3; font: 700 1.5rem/1 var(--serif); color: #8a5a14; width: 2.2ch; }
+.stage-card strong { font: 600 1.02rem/1.2 var(--serif); color: #2a2108; }
+.stage-card .ch { font-size: .8rem; color: var(--ink2); }
+.stage-card .best { font-size: .78rem; color: var(--mute); }
+.shop-list .stage-card { grid-template-columns: auto 1fr; }
+.shop-row { display: flex; gap: 6px; flex-wrap: wrap; grid-column: 1 / -1; }
+.shop-row .btn { min-height: 40px; padding: 6px 12px; font-size: .85rem; }
+.grade-chip { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .72rem; font-weight: 700; margin-right: 4px; border: 1px solid; }
+.g-gold { background: #fff3cd; color: #7a5a00; border-color: #d8b24a; } .g-silver { background: #eef0f3; color: #4a5260; border-color: #a7aeb8; } .g-bronze { background: #f6e5d6; color: #7a4310; border-color: #c08a5a; } .g-assist { background: #e4eefc; color: #233d6b; border-color: #8aa6d6; }
+
+/* ---------- game ---------- */
+#scr-game { background: #0b0f24; color: #f4efe2; }
+.hud-top { display: flex; align-items: center; gap: 14px; padding: 6px 12px; background: linear-gradient(#1d2350, #151a3e); border-bottom: 2px solid #6b5220; }
+.hud-stage { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.hud-stage strong { font: 600 1.02rem/1.2 var(--serif); color: var(--gold2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-stage span { color: #c9c6e6; }
+.hud-cell { display: flex; flex-direction: column; align-items: flex-end; }
+.hud-cell .k { color: #b9b5da; }
+.hud-cell strong { font-size: 1.02rem; font-variant-numeric: tabular-nums; }
+.dialcell { flex-direction: row; align-items: center; gap: 6px; }
+.dialcell canvas { width: 34px; height: 34px; }
+.dialcell span { color: #e8e2ff; max-width: 9em; line-height: 1.15; }
+#scr-game .btn { background: #262c60; color: #f4efe2; border-color: #6b5220; }
+#scr-game .btn:hover:not([disabled]) { border-color: var(--gold2); }
+.canvas-wrap { position: relative; flex: 1; min-height: 0; overflow: hidden; background: #141a3a; }
+#world { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#world:focus-visible { box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 6px var(--gold); border-radius: 0; }
+.obj { position: absolute; left: 10px; top: 8px; margin: 0; color: #e8e2ff; background: rgba(12, 16, 40, .62); border-radius: 8px; padding: 3px 8px; pointer-events: none; max-width: calc(100% - 20px); }
+.brief { position: absolute; left: 12px; top: 12px; width: min(470px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow-y: auto; background: rgba(246, 238, 219, .97); color: var(--ink); border: 2px solid var(--brass); border-radius: 16px; padding: 14px 16px; box-shadow: 0 10px 28px rgba(0,0,0,.45); z-index: 3; }
+.brief h2 { font: 600 1.45rem/1.2 var(--serif); color: #2a2108; margin: 0 0 6px; }
+.brief .btn { background: var(--ivory) !important; color: var(--ink) !important; border-color: #a07a3c !important; }
+.brief .btn-primary { background: linear-gradient(#3a2d12, #241a08) !important; color: #ffe6a6 !important; border-color: var(--gold) !important; }
+.bf-p { margin: 0 0 8px; color: var(--ink2); }
+.bf-list { margin: 0; padding-left: 18px; font-size: .86rem; color: var(--ink2); } .bf-list li { margin: 2px 0; }
+.toast { position: absolute; left: 50%; top: 46px; transform: translateX(-50%); background: rgba(20, 16, 6, .92); color: #ffe6a6; border: 1px solid var(--gold); border-radius: 999px; padding: 8px 16px; font-size: .92rem; pointer-events: none; max-width: calc(100% - 20px); text-align: center; z-index: 2; }
+.prompt { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); background: rgba(12, 16, 40, .9); color: #fff1cc; border: 1px solid var(--gold); border-radius: 10px; padding: 6px 12px; font-size: .9rem; pointer-events: none; z-index: 2; }
+/* touch controls float over the bottom of the tower view */
+.dock { position: absolute; left: 0; right: 0; bottom: 0; display: none; justify-content: space-between; align-items: flex-end; padding: 0 max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); pointer-events: none; z-index: 2; }
+body.touch .dock { display: flex; }
+body.touch .prompt { bottom: 112px; }
+.pad-l, .pad-r { display: flex; gap: 14px; align-items: flex-end; pointer-events: none; }
+.tbtn { pointer-events: auto; width: 84px; height: 84px; border-radius: 50%; border: 3px solid rgba(233, 180, 76, .85); background: radial-gradient(circle at 40% 35%, rgba(90, 70, 30, .78), rgba(30, 22, 8, .78)); color: #ffe6a6; font: 700 1.4rem/1 var(--sans); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; box-shadow: 0 4px 14px rgba(0,0,0,.4); }
+.tbtn.held { background: radial-gradient(circle at 40% 35%, #f5d27a, #c8963e); color: #241a08; }
+.tjump { width: 104px; height: 104px; font-size: 1.15rem; }
+.tuse { width: 62px; height: 62px; font-size: 1.1rem; opacity: .9; margin-bottom: 20px; }
+.tuse.near { border-color: #fff; box-shadow: 0 0 0 4px rgba(245, 210, 122, .6); }
+
+/* ---------- results ---------- */
+.result-wrap { width: min(1100px, 100%); margin: 0 auto; padding: 20px 16px 28px; }
+#scr-result .result-wrap, #scr-camp .result-wrap { background: rgba(246, 238, 219, .97); border-radius: 18px; margin-top: 16px; margin-bottom: 16px; width: min(1100px, calc(100% - 24px)); border: 2px solid var(--brass); }
+.result-wrap h2 { font: 600 clamp(28px, 4.6vw, 44px)/1.1 var(--serif); color: #2a2108; margin: 0; }
+.r-sub { color: var(--ink2); margin: 4px 0 6px; }
+.r-grade { font: 600 1.25rem/1.3 var(--serif); color: #8a5a14; margin: 6px 0 12px; }
+.result-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.stat { background: #fffaf0; border: 1px solid #d6c3a2; border-radius: 12px; padding: 8px 10px; }
+.stat strong { display: block; font: 700 1.12rem/1.25 var(--sans); color: var(--ink); }
+.stat span { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); }
+.h3 { font: 600 1.05rem/1.3 var(--serif); color: #2a2108; margin: 16px 0 6px; }
+.tbl { width: 100%; border-collapse: collapse; background: #fffaf0; border-radius: 12px; overflow: hidden; font-size: .88rem; }
+.tbl th, .tbl td { padding: 6px 8px; border-bottom: 1px solid #e8dcc4; text-align: left; vertical-align: top; }
+.tbl .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl tr.total td { font-weight: 700; color: #2a2108; }
+.objlist { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.objlist li { padding: 6px 10px; border-radius: 8px; background: #fffaf0; border: 1px solid #e3d3b4; }
+.objlist li.met::before { content: "✓ "; color: var(--ok); font-weight: 700; } .objlist li.miss::before { content: "○ "; color: var(--mute); }
+.gradelist { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 6px; font-size: .86rem; }
+.gradelist li { background: #fffaf0; border: 1px solid #e3d3b4; border-radius: 8px; padding: 5px 8px; }
+.share { white-space: pre-wrap; background: #fffaf0; border: 1px dashed #a07a3c; border-radius: 12px; padding: 12px; font-size: .86rem; }
+
+/* ---------- dialogs ---------- */
+dialog { border: 2px solid var(--brass); border-radius: 16px; padding: 18px 20px; background: var(--ivory); color: var(--ink); max-width: min(560px, calc(100vw - 24px)); width: 100%; max-height: calc(100dvh - 24px); }
+dialog.wide { max-width: min(880px, calc(100vw - 24px)); }
+dialog::backdrop { background: rgba(6, 8, 22, .68); }
+dialog h2 { font: 600 1.5rem/1.2 var(--serif); color: #2a2108; margin: 0 0 6px; }
+dialog h3 { font: 600 1.05rem/1.3 var(--serif); color: #2a2108; margin: 14px 0 4px; }
+.chk, .slider, .sel { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.chk input { width: 22px; height: 22px; accent-color: #6b3f12; flex: none; }
+.slider input { flex: 1; min-width: 120px; }
+.sel select { font: inherit; padding: 8px; border-radius: 8px; border: 1px solid #a07a3c; background: #fff; min-height: 44px; max-width: 100%; }
+.rtbl { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.rtbl th, .rtbl td { border-bottom: 1px solid #e8dcc4; padding: 4px 6px; text-align: center; }
+.rtbl th:first-child, .rtbl td:first-child { text-align: left; }
+.ach { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; }
+.ach li { padding: 6px 10px; border-radius: 8px; border: 1px solid #e3d3b4; background: #fffaf0; font-size: .85rem; }
+.ach li.got { border-color: #d8b24a; background: #fff3cd; }
+.ach li strong { display: block; }
+.howto h3 { margin-top: 12px; } .howto ul { margin: 4px 0; padding-left: 20px; } .howto p { margin: 4px 0; }
+.legend-sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; border: 1px solid #0003; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1100px) { .result-grid { grid-template-columns: 1fr; } }
+@media (max-width: 980px) { .hide-s { display: none; } }
+@media (max-width: 700px) and (orientation: portrait) {
+  .top { padding: 3px 10px; gap: 6px; flex-wrap: nowrap; } .brand { font-size: 15px; } .crumb { display: none; }
+  .badge { font-size: 10px; padding: 2px 7px; white-space: nowrap; }
+  .tiers { grid-template-columns: 1fr; }
+  .hud-top { gap: 8px; padding: 3px 8px; } .hud-top .lbl, .hud-stage span { display: none; }
+  .hud-stage strong { font-size: .88rem; } .hud-cell strong { font-size: .86rem; } .hud-cell .k { font-size: .56rem; }
+  .dialcell span { display: none; }
+  #b-pause { min-height: 44px; padding: 6px 12px; }
+  .tbtn { width: 76px; height: 76px; } .tjump { width: 96px; height: 96px; } .tuse { width: 58px; height: 58px; }
+  .obj { font-size: .72rem; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .top { padding: 2px 10px; } .brand { font-size: 14px; } .crumb { display: none; } .badge { font-size: 10px; padding: 1px 7px; }
+  .hud-top { padding: 2px 8px; gap: 10px; } .hud-stage span, .hud-top .lbl { display: none; }
+  .hud-cell .k { font-size: .56rem; } .hud-cell strong { font-size: .86rem; } #b-pause { min-height: 40px; padding: 4px 12px; }
+  .tbtn { width: 70px; height: 70px; } .tjump { width: 88px; height: 88px; } .tuse { width: 54px; height: 54px; margin-bottom: 12px; }
+  .obj { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+/* ================= Kinetic Drop specifics ================= */
+.lede { margin: 0 0 12px; color: var(--ink2); }
+#scr-list, #scr-result, #scr-camp { overflow-y: auto; }
+.chapter { margin: 18px 0 0; }
+.chapter h3 { font: 600 1.25rem/1.3 var(--serif); color: #fff1cc; margin: 0 0 2px; }
+.chapter p.small { color: #c9c3dd; margin: 0 0 8px; }
+.game-body { flex: 1; min-height: 0; display: flex; gap: 0; }
+.board-wrap { position: relative; flex: 1; min-width: 0; min-height: 0; overflow: hidden; background: radial-gradient(ellipse at 50% 30%, #1d2560, #0b0f24 75%); }
+#board { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+#board:focus-visible { box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 6px var(--gold); border-radius: 0; }
+.side { width: 250px; flex: none; display: flex; flex-direction: column; gap: 8px; padding: 10px; background: linear-gradient(#171d44, #0f1430); border-left: 2px solid #6b5220; overflow-y: auto; }
+.dialbox { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+#dial { width: 170px; height: 170px; }
+.dialtext { width: 100%; text-align: center; color: #f4efe2; }
+.dialtext .k { display: inline; color: #b9b5da; }
+.gmode { margin: 0; font: 600 1rem/1.3 var(--serif); color: var(--gold2); }
+.ebar { height: 10px; border-radius: 6px; background: #2a2f5a; overflow: hidden; margin: 6px 0 2px; border: 1px solid #6b5220; }
+.ebar span { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #c8963e, #f5d27a); transition: width .1s linear; }
+.reduce .ebar span { transition: none; }
+.ebar.low span { background: linear-gradient(90deg, #b4382e, #f08a5a); }
+.side .obj { position: static; background: rgba(255,255,255,.05); color: #e8e2ff; margin: 0; }
+.pads { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+.padgrid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-areas: ". up ." "left down right"; gap: 6px; }
+#c-up { grid-area: up; } #c-left { grid-area: left; } #c-down { grid-area: down; } #c-right { grid-area: right; }
+.padrow { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 6px; }
+.cbtn { appearance: none; min-height: 56px; border-radius: 12px; border: 2px solid #8a6a2a; background: radial-gradient(circle at 40% 30%, #3a2f18, #1e1709); color: #ffe6a6; font: 700 1.25rem/1 var(--sans); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; touch-action: manipulation; user-select: none; -webkit-user-select: none; cursor: pointer; }
+.cbtn small { font: 600 .66rem/1 var(--sans); color: #d9c79a; letter-spacing: .04em; }
+.cbtn.small2 { font-size: .9rem; }
+.cbtn.drop { background: radial-gradient(circle at 40% 30%, #f5d27a, #c8963e); color: #241a08; border-color: #fff1c4; font-size: 1.1rem; }
+.cbtn.on { background: radial-gradient(circle at 40% 30%, #f5d27a, #c8963e); color: #241a08; border-color: #fff1c4; }
+.cbtn.on small { color: #3a2a0a; }
+.cbtn[disabled] { opacity: .35; cursor: not-allowed; }
+.cbtn:focus-visible { box-shadow: var(--focus); }
+.toast { top: 12px; }
+.brief { z-index: 3; }
+@media (max-width: 760px), (orientation: portrait) and (max-width: 1000px) {
+  .game-body { flex-direction: column; }
+  .side { width: auto; flex-direction: row; flex-wrap: wrap; align-items: stretch; border-left: 0; border-top: 2px solid #6b5220; padding: 6px 8px max(6px, env(safe-area-inset-bottom)); gap: 6px; overflow: visible; }
+  .dialbox { flex-direction: row; width: auto; flex: 1 1 150px; gap: 8px; }
+  #dial { width: 76px; height: 76px; flex: none; }
+  .dialtext { text-align: left; }
+  .gmode { font-size: .85rem; }
+  .side .obj { display: none; }
+  .pads { flex: 2 1 230px; margin-top: 0; flex-direction: row; gap: 6px; }
+  .padgrid { flex: 3; } .padrow { flex: 2; grid-template-columns: 1fr; grid-template-rows: repeat(3, 1fr); }
+  .cbtn { min-height: 46px; font-size: 1.05rem; } .cbtn small { display: none; } .cbtn.small2 { font-size: .74rem; }
+  .padrow .cbtn { min-height: 30px; }
+}
+@media (max-height: 560px) and (orientation: landscape) {
+  .side { width: 230px; padding: 4px 6px; gap: 4px; } .side .obj { display: none; }
+  .dialbox { flex-direction: row; gap: 6px; } #dial { width: 64px; height: 64px; flex: none; } .dialtext { text-align: left; font-size: .8rem; } .gmode { font-size: .82rem; }
+  .ebar { margin: 3px 0 1px; } .pads { gap: 4px; } .padgrid, .padrow { gap: 4px; }
+  .cbtn { min-height: 40px; font-size: 1rem; } .cbtn small { display: none; }
+}
+.seal { display: inline-block; width: 1.1em; height: 1.1em; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffe6a6, #c8963e); vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #6b3f12; }
+.seal.no { background: #d9ccb0; box-shadow: 0 0 0 1px #a08a6a; }
+.title-text, dialog, .result-wrap, .brief { color-scheme: light; }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header class="top">
+  <a class="brand" href="https://doorquests.com/" aria-label="DoorQuests home (opens doorquests.com)"><span class="brand-door" aria-hidden="true"></span><span class="brand-word">DoorQuests</span></a>
+  <span class="crumb"><span class="crumb-col">Gamortal #016</span><span aria-hidden="true">·</span><span>Kinetic Drop</span></span>
+  <span class="badge">Prototype · Founder Playtest · Not Published</span>
+</header>
+<noscript><p class="nojs">Kinetic Drop needs JavaScript to run.</p></noscript>
+
+<main id="main">
+  <!-- ============================ TITLE ============================ -->
+  <section id="scr-title" class="screen" aria-labelledby="t-h">
+    <canvas id="t-canvas" class="t-canvas" aria-hidden="true"></canvas>
+    <div class="title-wrap">
+      <div class="title-text">
+        <p class="kicker">DoorQuests · Gamortals — Interactive Games</p>
+        <h1 id="t-h"><span class="t-no">Gamortal #016 — <span class="sr-only">title: </span></span>Kinetic Drop</h1>
+        <p class="tagline">Change the pull. Change the path.</p>
+        <p class="lede">Control gravity to guide a bouncing ball through a mechanical pegboard. You never steer the ball — you change the force acting on it.</p>
+        <fieldset class="tiers" id="t-tiers"><legend>Difficulty</legend>
+          <label class="tier tier-bronze"><input type="radio" name="tier" value="bronze"><span class="medal" aria-hidden="true"></span><span><strong>Bronze</strong><small>Apprentice Dropper</small></span></label>
+          <label class="tier tier-silver"><input type="radio" name="tier" value="silver" checked><span class="medal" aria-hidden="true"></span><span><strong>Silver</strong><small>Gravity Engineer</small></span></label>
+          <label class="tier tier-gold"><input type="radio" name="tier" value="gold"><span class="medal" aria-hidden="true"></span><span><strong>Gold</strong><small>Master of the Pull</small></span></label>
+        </fieldset>
+        <p id="t-tiertext" class="small tiertext"></p>
+        <div class="title-actions">
+          <button id="b-begin" class="btn btn-primary btn-big" type="button">Begin Campaign</button>
+          <button id="b-continue" class="btn btn-big" type="button" hidden>Continue Campaign</button>
+        </div>
+        <p id="t-progress" class="small"></p>
+        <div class="title-actions">
+          <button id="b-practice" class="btn btn-quiet" type="button">Practice Chamber</button>
+          <button id="b-howto" class="btn btn-quiet" type="button">How to Play</button>
+          <button id="b-records" class="btn btn-quiet" type="button">Records &amp; Seals</button>
+          <button id="b-settings" class="btn btn-quiet" type="button">Sound &amp; Settings</button>
+          <a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a>
+        </div>
+        <p id="t-note" class="note" role="status" aria-live="polite"></p>
+        <footer class="credit"><p class="motto">Choose Your Path. Find the Truth. Unlock the Impossible.</p><p>Original concept: Gemini · Created by The Axiom Continuum.</p></footer>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ STAGE LIST ============================ -->
+  <section id="scr-list" class="screen" aria-labelledby="l-h" hidden>
+    <div class="list-wrap">
+      <div class="list-head">
+        <div><p class="kicker" id="l-k">The Campaign</p><h2 id="l-h">Five chapters, fifteen machines</h2><p class="small muted" id="l-sub"></p></div>
+        <div class="row"><button id="l-summary" class="btn" type="button">Campaign summary</button><button id="l-back" class="btn" type="button">Back to title</button></div>
+      </div>
+      <div id="chapters"></div>
+    </div>
+  </section>
+
+  <!-- ============================ GAME ============================ -->
+  <section id="scr-game" class="screen" aria-label="The machine" hidden>
+    <div class="hud-top" id="hud">
+      <div class="hud-stage"><strong id="h-stage">Stage</strong><span id="h-tier" class="small"></span></div>
+      <div class="hud-cell"><span class="k">Balls</span><strong id="h-balls">—</strong></div>
+      <div class="hud-cell"><span class="k">Lanterns</span><strong id="h-lit">—</strong></div>
+      <div class="hud-cell"><span class="k">Time</span><strong id="h-time">0.0</strong></div>
+      <div class="hud-cell hide-s"><span class="k">Adjust</span><strong id="h-adj">0</strong></div>
+      <div class="hud-cell hide-s"><span class="k">Tokens</span><strong id="h-tok">0</strong></div>
+      <button id="b-pause" class="btn" type="button" aria-label="Pause (Escape)">❚❚ <span class="lbl">Pause</span></button>
+    </div>
+    <div class="game-body">
+      <div class="board-wrap" id="bwrap">
+        <canvas id="board" tabindex="0" role="application" aria-roledescription="gravity pegboard" aria-label="The pegboard. Before release, Left and Right arrows move the dropper and Space releases the ball. While it rolls: Left, Right and Down set gravity left, right or down; Up reverses gravity where unlocked; Q and E make gravity lighter or heavier where unlocked. R restarts, Escape pauses, M toggles sound." aria-describedby="h-obj"></canvas>
+        <div id="brief" class="brief" hidden>
+          <p class="kicker" id="bf-k"></p>
+          <h2 id="bf-h"></h2>
+          <p id="bf-p" class="bf-p"></p>
+          <ul id="bf-list" class="bf-list"></ul>
+          <div class="row"><button id="b-go" class="btn btn-primary btn-big" type="button">Ready ▶</button><button id="b-demo" class="btn" type="button" hidden>Watch solution replay</button></div>
+          <p class="small muted">Space or Enter also starts.</p>
+        </div>
+        <div id="toast" class="toast" hidden role="status"></div>
+      </div>
+      <aside class="side" aria-label="Gravity controls">
+        <div class="dialbox">
+          <canvas id="dial" width="220" height="220" aria-hidden="true"></canvas>
+          <div class="dialtext"><p id="g-mode" class="gmode">Down · normal</p><div class="ebar" aria-hidden="true"><span id="g-ebar"></span></div><p class="small"><span class="k">Gravity reserve</span> <strong id="g-energy">100 %</strong></p></div>
+        </div>
+        <p id="h-obj" class="obj small"></p>
+        <div class="pads" id="pads">
+          <div class="padgrid">
+            <button id="c-up" class="cbtn" type="button" aria-label="Reverse gravity (Up arrow)">▲<small>Reverse</small></button>
+            <button id="c-left" class="cbtn" type="button" aria-label="Gravity left (Left arrow)">◀<small>Left</small></button>
+            <button id="c-down" class="cbtn" type="button" aria-label="Gravity down (Down arrow)">▼<small>Down</small></button>
+            <button id="c-right" class="cbtn" type="button" aria-label="Gravity right (Right arrow)">▶<small>Right</small></button>
+          </div>
+          <div class="padrow">
+            <button id="c-light" class="cbtn small2" type="button" aria-label="Lighter gravity (Q)">Light <small>Q</small></button>
+            <button id="c-drop" class="cbtn drop" type="button" aria-label="Release the ball (Space)">Drop</button>
+            <button id="c-heavy" class="cbtn small2" type="button" aria-label="Heavier gravity (E)">Heavy <small>E</small></button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================ STAGE RESULT ============================ -->
+  <section id="scr-result" class="screen" aria-labelledby="r-h" hidden>
+    <div class="result-wrap">
+      <p class="kicker" id="r-k"></p>
+      <h2 id="r-h"></h2>
+      <p class="r-sub" id="r-sub"></p>
+      <p class="r-grade" id="r-grade"></p>
+      <div class="result-grid">
+        <div><div class="stats" id="r-stats"></div><h3 class="h3">Drop grades for this stage</h3><ul id="r-rules" class="objlist"></ul></div>
+        <div><h3 class="h3">How the score was made</h3><table class="tbl" id="r-score"></table><p class="small muted" id="r-note"></p></div>
+      </div>
+      <div class="row">
+        <button id="r-next" class="btn btn-primary" type="button">Next stage</button>
+        <button id="r-retry" class="btn" type="button">Retry stage</button>
+        <button id="r-list" class="btn" type="button">Stage list</button>
+        <button id="r-title" class="btn" type="button">Title</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ CAMPAIGN SUMMARY ============================ -->
+  <section id="scr-camp" class="screen" aria-labelledby="c-h" hidden>
+    <div class="result-wrap">
+      <p class="kicker" id="c-k">Campaign summary</p>
+      <h2 id="c-h">Kinetic Drop</h2>
+      <p class="r-sub" id="c-sub"></p>
+      <div class="stats" id="c-stats"></div>
+      <h3 class="h3">Stage records</h3>
+      <ol class="gradelist" id="c-grades"></ol>
+      <div class="row">
+        <button id="c-copy" class="btn btn-primary" type="button">Copy summary</button>
+        <button id="c-replay" class="btn" type="button">Stage list</button>
+        <button id="c-title" class="btn" type="button">Title</button>
+        <a class="btn" href="https://doorquests.com/">Return to DoorQuests</a>
+      </div>
+      <p id="c-note" class="note" role="status" aria-live="polite"></p>
+      <pre id="c-share" class="share" aria-label="Summary text"></pre>
+    </div>
+  </section>
+</main>
+
+<p id="live" class="sr-only" role="status" aria-live="polite"></p>
+<p id="alert" class="sr-only" role="alert"></p>
+
+<!-- ============================ DIALOGS ============================ -->
+<dialog id="d-pause" aria-labelledby="dp-h">
+  <h2 id="dp-h">Paused</h2>
+  <p class="small muted">The ball and every mechanism are frozen; no time passes.</p>
+  <div class="stack">
+    <button id="dp-resume" class="btn btn-primary" type="button">Resume (Esc)</button>
+    <button id="dp-restart" class="btn" type="button">Restart this stage (R)</button>
+    <button id="dp-howto" class="btn" type="button">How to Play</button>
+    <button id="dp-settings" class="btn" type="button">Sound &amp; Settings</button>
+    <button id="dp-quit" class="btn btn-danger" type="button">Leave the stage…</button>
+  </div>
+  <p class="small muted">Results are saved when a stage is completed. Leaving or reloading during a stage restarts it.</p>
+</dialog>
+
+<dialog id="d-howto" class="wide" aria-labelledby="dh-h">
+  <h2 id="dh-h">How to Play</h2>
+  <div id="dh-body"></div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button></div>
+</dialog>
+
+<dialog id="d-records" class="wide" aria-labelledby="dr-h">
+  <h2 id="dr-h">Records &amp; Seals</h2>
+  <p class="small muted">Kept in this browser only (key <code>doorquests.gamortal.016.kinetic-drop.v1</code>). Seals are this game’s own accomplishments in the spirit of the Gamortal Keyring; they are not connected to any external or central Keyring service.</p>
+  <div id="dr-body"></div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button><button id="dr-reset" class="btn btn-danger" type="button">Reset records…</button></div>
+</dialog>
+
+<dialog id="d-settings" aria-labelledby="dse-h">
+  <h2 id="dse-h">Sound &amp; Settings</h2>
+  <div class="stack">
+    <label class="chk"><input type="checkbox" id="s-sound"> <span>Sound (M)</span></label>
+    <label class="slider">Volume <input type="range" id="s-vol" min="0" max="100" step="5"> <span id="s-vol-v"></span></label>
+    <label class="sel">Motion <select id="s-motion"><option value="auto">Follow device setting</option><option value="reduced">Reduced (no trails, sparks or swirling wells; machinery still moves)</option><option value="full">Full</option></select></label>
+    <label class="chk"><input type="checkbox" id="s-contrast"> <span>High contrast: bold outlines, striped hazards, bright lanterns</span></label>
+    <label class="chk"><input type="checkbox" id="s-ghost"> <span>Bronze ghost path (shows where the ball goes if gravity stays as it is)</span></label>
+    <label class="chk"><input type="checkbox" id="s-slow"> <span>Assisted slow motion: the machine runs at 60 % speed (same physics; results are recorded as “Assisted”)</span></label>
+    <label class="chk"><input type="checkbox" id="s-large"> <span>Larger text</span></label>
+  </div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Done</button></div>
+</dialog>
+
+<dialog id="d-confirm" aria-labelledby="dc-h">
+  <h2 id="dc-h">Are you sure?</h2>
+  <p id="dc-p"></p>
+  <div class="row"><button id="dc-yes" class="btn btn-danger" type="button">Yes</button><button id="dc-no" class="btn" type="button">Cancel</button></div>
+</dialog>
+
+<script id="kd-engine">
+/* Kinetic Drop — deterministic physics engine (no DOM). Gamortal #016 · DoorQuests prototype.
+   Exposed as window.KineticDropEngine. Coordinates: x right, y UP, 1 unit ≈ 1 board cell. Fixed step 1/240 s.
+   The player never steers the ball: commands only change the gravity vector (direction, strength), within an energy budget. */
+(function (root) {
+  'use strict';
+  var PI = Math.PI, TAU = 2 * PI, sin = Math.sin, cos = Math.cos, abs = Math.abs, sqrt = Math.sqrt, min = Math.min, max = Math.max, floor = Math.floor, round = Math.round, atan2 = Math.atan2;
+
+  // ------------------------------------------------------------------ CONFIG
+  var CFG = {
+    dt: 1 / 240, macro: 24,                 // physics step; solver/replay command granularity (0.1 s)
+    W: 12, H: 18, ballR: 0.24,
+    g: 9.0, maxSpeed: 15, airDamp: 0.04,    // gravity magnitude at strength 1, speed cap, linear air drag per second
+    tilt: 45 * PI / 180,                    // gravity tilt angle for Left/Right
+    slew: 6 * PI,                           // rad/s the gravity direction can turn (≈ 0.17 s for a full reversal)
+    strengths: [0.55, 1, 1.6],              // Light / Normal / Heavy
+    strengthSlew: 3,                        // strength units per second
+    drain: { tilt: 8, reverse: 15, light: 4, heavy: 6 },   // energy per second while in each non-default state
+    changeCost: 1.5,                        // energy per command that changes gravity
+    rest: { speed: 1.4, time: 0.35 },       // cup capture: slow inside the cup for this long
+    stall: { speed: 0.25, time: 5 },        // a ball that has stopped outside a cup for 5 s is lost
+    ballTime: 75,                           // a single ball may roll for at most 75 s
+    score: { complete: 1000, lantern: 0, token: 150, energyPer: 4, adjFree: 300, adjCost: 30, time: 300, bullseye: 200, clean: 150, lost: 200 },
+    grade: { silverLost: 1, silverPar: 1.5 }
+  };
+  var MAT = { peg: { e: 0.55, mu: 0.08 }, wall: { e: 0.45, mu: 0.1 }, rail: { e: 0.3, mu: 0.04 }, bumper: { e: 0.9, mu: 0.02, kick: 7 }, wheel: { e: 0.5, mu: 0.25 }, gate: { e: 0.4, mu: 0.1 }, glass: { e: 0.5, mu: 0.05 }, cup: { e: 0.25, mu: 0.3 } };
+  var TIERS = {
+    bronze: { name: 'Bronze', title: 'Apprentice Dropper', energy: 140, balls: 5, cup: 1.3, target: 1.25, timer: 1.3, glass: 0.85, mult: 1.0, aids: { ghost: true } },
+    silver: { name: 'Silver', title: 'Gravity Engineer', energy: 100, balls: 3, cup: 1.0, target: 1.0, timer: 1.0, glass: 1.0, mult: 1.25, aids: { ghost: false } },
+    gold: { name: 'Gold', title: 'Master of the Pull', energy: 70, balls: 2, cup: 0.85, target: 0.85, timer: 0.8, glass: 1.1, mult: 1.5, aids: { ghost: false } }
+  };
+
+    // ================================================================== STAGES (data). Board 12 × 18, y up. Cup y = its floor.
+  function peg(x, y, r) { return { k: 'peg', x: x, y: y, r: r }; }
+  function pegs(x, y, nx, dx, ny, dy, stagger) { return { k: 'pegs', x: x, y: y, nx: nx, dx: dx, ny: ny || 1, dy: dy || 0, stagger: stagger || 0 }; }
+  function bump(x, y, r) { return { k: 'bumper', x: x, y: y, r: r }; }
+  function wall(x1, y1, x2, y2, ow) { return { k: 'wall', x1: x1, y1: y1, x2: x2, y2: y2, oneway: ow }; }
+  function rail(x1, y1, x2, y2) { return { k: 'rail', x1: x1, y1: y1, x2: x2, y2: y2 }; }
+  function arc(cx, cy, R, a0, a1, n) { var out = []; for (var i = 0; i < n; i++) { var u0 = (a0 + (a1 - a0) * i / n) * Math.PI / 180, u1 = (a0 + (a1 - a0) * (i + 1) / n) * Math.PI / 180; out.push(rail(cx + R * Math.cos(u0), cy + R * Math.sin(u0), cx + R * Math.cos(u1), cy + R * Math.sin(u1))); } return out; }
+  function wheel(x, y, R, n, w, a0) { return { k: 'wheel', x: x, y: y, R: R, n: n, w: w, a0: a0 || 0 }; }
+  function paddle(x1, y1, x2, y2, A, T, ph, ax, ay) { return { k: 'paddle', x1: x1, y1: y1, x2: x2, y2: y2, A: A, T: T, ph: ph || 0, ax: ax == null ? 1 : ax, ay: ay || 0 }; }
+  function gate(x1, y1, x2, y2, sx, sy, extra) { var o = { k: 'gate', x1: x1, y1: y1, x2: x2, y2: y2, sx: sx, sy: sy }; for (var k in extra) o[k] = extra[k]; return o; }
+  function glass(x1, y1, x2, y2, need) { return { k: 'break', x1: x1, y1: y1, x2: x2, y2: y2, need: need }; }
+  function sw(x, y, g, dur) { return { k: 'switch', x: x, y: y, gate: g, dur: dur }; }
+  function lan(x, y) { return { k: 'lantern', x: x, y: y }; }
+  function tok(x, y) { return { k: 'token', x: x, y: y }; }
+  function haz(x, y, r) { return { k: 'hazard', x: x, y: y, r: r }; }
+  function well(x, y, R, kk) { return { k: 'well', x: x, y: y, R: R, kk: kk }; }
+  function cup(x, y, w, extra) { var o = { k: 'cup', x: x, y: y, w: w || 1.5 }; for (var k in extra || {}) o[k] = extra[k]; return o; }
+  function valley() { var out = [], cx = 6, cy = 9.4, R = 7.0, n = 22; for (var i = 0; i < n; i++) { var u0 = (215 + 110 * i / n) * Math.PI / 180, u1 = (215 + 110 * (i + 1) / n) * Math.PI / 180, x0 = cx + R * Math.cos(u0), y0 = cy + R * Math.sin(u0), x1 = cx + R * Math.cos(u1), y1 = cy + R * Math.sin(u1); if (Math.max(x0, x1) > 5.15 && Math.min(x0, x1) < 6.85) { if (x0 < 5.15) out.push(rail(x0, y0, 5.15, y0 + (y1 - y0) * (5.15 - x0) / (x1 - x0))); else if (x1 > 6.85) out.push(rail(6.85, y0 + (y1 - y0) * (6.85 - x0) / (x1 - x0), x1, y1)); continue; } out.push(rail(x0, y0, x1, y1)); } return out; }
+  function flat(a) { var out = []; a.forEach(function (p) { if (Array.isArray(p)) out = out.concat(p); else out.push(p); }); return out; }
+
+  var STAGES = [
+    // ---------------- Chapter I — The First Fall
+    { id: 's01', n: 1, ch: 1, name: 'The First Fall', drop: [4.5, 7.5, 17.2], unlock: { tilt: true }, parAdj: 2,
+      intro: 'Release the ball, then lean gravity left with ← (or ◀). The ball is never steered: only the pull on it changes. Land it in the brass cup.',
+      goals: ['cup 0'], parts: flat([pegs(3.4, 14, 5, 1.3, 4, 1.3, 0.65), cup(2.2, 0.6, 1.8), tok(2.4, 7.5)]) },
+    { id: 's02', n: 2, ch: 1, name: 'The Gentle Lean', drop: [5, 7, 17.2], unlock: { tilt: true }, parAdj: 3,
+      intro: 'The cup is sealed until its lantern is lit. Lean right to pass through the lantern, then lean left and let the ball settle.',
+      goals: ['lantern 0', 'cup 0'], parts: flat([pegs(3, 13.5, 5, 1.5, 3, 1.6, 0.75), lan(9.9, 14.6), cup(3.2, 0.6, 1.7), tok(6, 4)]) },
+    { id: 's03', n: 3, ch: 1, name: 'Ivory Rain', drop: [3, 9, 17.2], unlock: { tilt: true }, parAdj: 3,
+      intro: 'A storm of pegs and a cup on a high shelf. Bounces scatter the ball: lean early and gently rather than hard and late.',
+      goals: ['cup 0'], parts: flat([pegs(1.5, 15, 9, 1.1, 8, 1.15, 0.55), wall(8.2, 4.8, 12, 4.8), cup(10.3, 4.8, 1.6), tok(1.4, 2.2)]) },
+    // ---------------- Chapter II — The Tilted Machine
+    { id: 's04', n: 4, ch: 2, name: 'Narrow Ways', drop: [1, 4, 17.2], unlock: { tilt: true }, parAdj: 4,
+      intro: 'Brass rails carry the ball down a zig-zag. Lean against a rail to slow down, with it to speed up, and pass through both lanterns on the way.',
+      goals: ['lantern 0', 'lantern 1', 'cup 0'],
+      parts: flat([rail(0.2, 15, 9.6, 13.2), rail(11.8, 11.6, 2.6, 9.6), rail(0.2, 8, 9.6, 6.2), lan(10.9, 12.6), lan(1.2, 8.9), wall(9.6, 0, 9.6, 3.2), haz(5, 1.2, 0.55), cup(10.8, 0.6, 1.6), tok(5.2, 11.5)]) },
+    { id: 's05', n: 5, ch: 2, name: 'The Clockwork Gate', drop: [5, 7, 17.2], unlock: { tilt: true }, parAdj: 5,
+      intro: 'A sliding gate guards the cup and opens on a steady rhythm. Swing the ball up the funnel walls to light the lanterns, then time its arrival.',
+      goals: ['lantern 0', 'lantern 1', 'cup 0'],
+      parts: flat([pegs(3.5, 14, 4, 1.7, 2, 1.6, 0.85), rail(0.2, 8.5, 4.7, 2.6), rail(11.8, 8.5, 7.3, 2.6), gate(4.7, 2.6, 7.3, 2.6, 2.7, 0, { mode: 'timer', T: 3.2, open: 0.3 }), lan(1.2, 9.2), lan(10.8, 9.2), cup(6, 0.4, 1.6)]) },
+    { id: 's06', n: 6, ch: 2, name: 'Switchback', drop: [1, 5, 17.2], unlock: { tilt: true }, parAdj: 5,
+      intro: 'Strike the brass switch on the left to open the gate on the right for a few seconds, then hurry the ball across before it closes.',
+      goals: ['switch 0', 'cup 0'],
+      parts: flat([pegs(1.6, 15, 4, 1.6, 2, 1.5, 0.8), sw(0.8, 10.4, 0, 4.5), rail(0.2, 9.6, 7.6, 6.6), wall(8.6, 0, 8.6, 4.6), gate(8.6, 2.8, 11.8, 2.8, 3.2, 0, { mode: 'switch' }), cup(10.3, 0.4, 1.6), haz(6.0, 0.9, 0.6), tok(10.2, 9.5)]) },
+    // ---------------- Chapter III — Momentum Matters
+    { id: 's07', n: 7, ch: 3, name: 'Bumper Garden', drop: [6, 10, 17.2], unlock: { tilt: true }, parAdj: 4,
+      intro: 'Bumpers kick the ball away at speed. Use their kick, not just your pull, to lift the ball over the wall into the raised cup.',
+      goals: ['lantern 0', 'cup 0'],
+      parts: flat([bump(7.5, 12, 0.5), bump(9.6, 9.5, 0.5), bump(5.6, 8.6, 0.5), bump(8, 5.6, 0.5), bump(4.2, 3.4, 0.55), bump(10.6, 2.6, 0.5), wall(3.6, 9.2, 3.6, 12.2), wall(0, 9.2, 3.6, 9.2), lan(6.3, 14.6), cup(1.8, 9.2, 1.7), tok(10.8, 13.8)]) },
+    { id: 's08', n: 8, ch: 3, name: 'The Long Rail', drop: [10.4, 11.2, 6.4], unlock: { tilt: true, strength: true }, parAdj: 6,
+      intro: 'A smooth valley. A rolling ball cannot climb higher than it started — unless you add energy: heavy gravity (E) on the way down, light gravity (Q) on the climb. Pump it like a swing to reach the lantern; its light opens the cup in the valley floor.',
+      goals: ['lantern 0', 'cup 0'],
+      parts: flat([valley(), cup(6, 1.45, 1.5, { fixed: true }), lan(0.6, 6.2), tok(11.3, 8.6), pegs(2, 15.5, 6, 1.6, 1, 0, 0)]) },
+    { id: 's09', n: 9, ch: 3, name: 'Wheelworks', drop: [4, 8, 17.2], unlock: { tilt: true, strength: true }, parAdj: 5,
+      intro: 'Spoked wheels turn steadily and fling whatever they catch. Their spin adds momentum: read which way each wheel turns before you lean.',
+      goals: ['lantern 0', 'cup 0'],
+      parts: flat([wheel(6, 12, 1.8, 4, -1.4), wheel(3, 7, 1.6, 3, 1.6), wheel(9, 6.5, 1.6, 3, -1.8), lan(1.4, 13.2), cup(10, 0.6, 1.6), haz(6, 1.2, 0.6), tok(10.6, 10.5)]) },
+    // ---------------- Chapter IV — Against the Pull
+    { id: 's10', n: 10, ch: 4, name: 'Upside Down', drop: [7, 10, 16.8], unlock: { tilt: true, reverse: true }, parAdj: 4,
+      intro: 'The cup hangs from the ceiling. Press ↑ (or ▲) to reverse gravity — it drains the reserve fast, so reverse at the right moment, not all the time.',
+      goals: ['lantern 0', 'cup 0'],
+      parts: flat([pegs(1.6, 13.5, 6, 1.6, 5, 1.6, 0.8), lan(2.2, 4), cup(2.6, 17.98, 1.6, { up: true }), tok(10.5, 3)]) },
+    { id: 's11', n: 11, ch: 4, name: 'The Breaker', drop: [8, 11, 17.2], unlock: { tilt: true, reverse: true, strength: true }, parAdj: 5,
+      intro: 'A pane of glass seals the cup chamber and only a hard enough impact breaks it. Build speed with a long, heavy fall — the glass ignores gentle taps.',
+      goals: ['break 0', 'cup 0'],
+      parts: flat([pegs(1, 14.8, 4, 1.2, 3, 1.2, 0.6), wall(0, 5.2, 4.5, 5.2), glass(4.5, 5.2, 7.5, 5.2, 13), wall(7.5, 5.2, 12, 5.2), cup(6, 0.4, 1.6), haz(1.6, 2, 0.6), haz(10.4, 2, 0.6), tok(11, 8)]) },
+    { id: 's12', n: 12, ch: 4, name: 'Two Locks', energy: 1.3, drop: [5, 7, 17.2], unlock: { tilt: true, reverse: true }, parAdj: 7,
+      intro: 'Two lanterns, one switch, one gate. One lantern can only be reached by falling upward. Plan the whole route before you release.',
+      goals: ['lantern 0', 'switch 0', 'at 10 3.4 1.2', 'lantern 1', 'cup 0'],
+      parts: flat([pegs(2.5, 12.5, 6, 1.4, 2, 1.5, 0.7), lan(10.6, 16.4), sw(1, 9, 0, 5), wall(0, 4.5, 8, 4.5), gate(8, 4.5, 12, 4.5, 0, 2.4, { mode: 'switch' }), lan(1.4, 2.8), cup(6, 0.6, 1.6), tok(1.2, 16.4)]) },
+    // ---------------- Chapter V — The Grand Mechanism
+    { id: 's13', n: 13, ch: 5, name: 'Gravity Wells', drop: [5, 7, 17.2], unlock: { tilt: true, reverse: true, strength: true }, parAdj: 6,
+      intro: 'Violet wells pull the ball toward their centre wherever your gravity points. Slingshot around them, and avoid the sweeping paddles.',
+      goals: ['lantern 0', 'lantern 1', 'cup 0'],
+      parts: flat([well(3.5, 11, 2.4, 10), well(8.5, 6.5, 2.4, 10), paddle(4, 3.2, 6.2, 3.2, 2.2, 3, 0), lan(10.6, 12.4), lan(1.2, 5.8), cup(10.4, 0.6, 1.6), haz(2, 0.9, 0.6), tok(6, 9)]) },
+    { id: 's14', n: 14, ch: 5, name: 'The Orrery', drop: [5.5, 6.5, 17.2], unlock: { tilt: true, reverse: true, strength: true }, parAdj: 7,
+      intro: 'Turning wheels, a central well and one-way glass passages (they let the ball through in the arrow’s direction only). Everything orbits; time your pull.',
+      goals: ['lantern 0', 'lantern 1', 'cup 0'],
+      parts: flat([well(6, 9, 2.0, 8), wheel(2.6, 12.5, 1.5, 3, 1.5), wheel(9.4, 12.5, 1.5, 3, -1.5), wall(0, 5, 3.2, 5), wall(3.2, 5, 3.2, 6.6, [1, 0]), wall(8.8, 5, 12, 5), wall(8.8, 5, 8.8, 6.6, [-1, 0]),
+        lan(1.3, 6.4), lan(10.7, 6.4), bump(6, 3.6, 0.5), cup(1.6, 0.6, 1.6), cup(10.4, 0.6, 1.6), haz(6, 0.8, 0.6), tok(6, 14.6)]) },
+    { id: 's15', n: 15, ch: 5, name: 'The Grand Mechanism', energy: 2.0, drop: [9, 11, 17.2], unlock: { tilt: true, reverse: true, strength: true }, parAdj: 9,
+      intro: 'Everything at once: lanterns, a switch-gate, a one-way hatch, glass, bumpers, a wheel, a well and grinders — and the golden cup hangs at the very top behind the glass.',
+      goals: ['lantern 0', 'switch 0', 'lantern 1', 'break 0', 'cup 0'],
+      parts: flat([bump(3, 12.8, 0.5), bump(7.2, 12.4, 0.5), lan(1.2, 10.2), sw(10.8, 10.2, 0, 6), wall(0, 7.6, 1.4, 7.6, [0, 1]), wall(1.4, 7.6, 7.5, 7.6), gate(7.5, 7.6, 12, 7.6, 4.6, 0, { mode: 'switch' }),
+        wheel(6, 4.2, 1.6, 3, 1.4), well(9.6, 3.6, 2.0, 9), lan(10.8, 1.2), haz(3.2, 1.0, 0.6), haz(6.4, 0.6, 0.5),
+        wall(0, 14.6, 4, 14.6), wall(4, 14.6, 4, 15.4), wall(4, 15.4, 8, 15.4), glass(4, 15.4, 4, 18, 10), cup(2, 17.98, 1.5, { up: true }), tok(1.2, 4.5)]) }
+  ];
+
+  var PRACTICE = [
+    { id: 'p01', practice: true, name: 'Practice Chamber', drop: [1, 11, 17.2], unlock: { tilt: true, reverse: true, strength: true }, parAdj: 99,
+      intro: 'A sandbox with one of everything and an unlimited reserve. Nothing here changes your records. Press R for a fresh ball.',
+      goals: ['cup 0'],
+      parts: flat([pegs(1.5, 14.5, 7, 1.5, 2, 1.4, 0.75), bump(3, 9.5, 0.5), wheel(9, 9.5, 1.5, 3, -1.4), well(6, 7, 2.0, 8), paddle(2, 4.5, 4, 4.5, 1.2, 3), gate(7.6, 3.6, 10.4, 3.6, 0, 1.8, { mode: 'timer', T: 3, open: 0.4 }), cup(9, 0.6, 1.8), cup(3, 0.6, 1.8), lan(6, 12.2), tok(11, 5)]) }
+  ];
+
+  // Demonstrated ascents found by tools/solve.js (beam search over player inputs only). Tape: run-length macros of 10 physics steps.
+var ROUTES = {"s01":{"bronze":{"tape":"6.00|a3cbca3bacaba2da2ba3da5","time":2.86,"par":10,"adj":9,"energy":81},"silver":{"tape":"6.00|a3cbca4bdba5ca2bcadca","time":2.63,"par":10,"adj":11,"energy":72},"gold":{"tape":"6.00|a3cbca4bdbada6bacada","time":2.64,"par":10,"adj":10,"energy":59}},"s02":{"bronze":{"tape":"6.00|da2cada6cba4ca12bacdca","time":3.66,"par":15,"adj":10,"energy":72},"silver":{"tape":"6.00|da2cada3bdaba3cbca9bcba3cada","time":3.78,"par":15,"adj":14,"energy":58},"gold":{"tape":"6.00|da7bda4cba7ca5ba5dca","time":3.78,"par":15,"adj":9,"energy":55}},"s03":{"bronze":{"tape":"6.00|dba3da4bcdabdaba4ca2ba","time":2.69,"par":10,"adj":11,"energy":80},"silver":{"tape":"6.00|dba3da3baca2bda2baca3bac","time":2.67,"par":10,"adj":11,"energy":71},"gold":{"tape":"6.00|dba3da4badaba7da3","time":2.55,"par":10,"adj":7,"energy":72}},"s04":{"bronze":{"tape":"2.50|da15ca11bada6ca2badaba8cbd","time":5.58,"par":15,"adj":11,"energy":64},"silver":{"tape":"2.50|da15ca11bada6ca2badaba8cbd","time":5.58,"par":15,"adj":11,"energy":50},"gold":{"tape":"2.50|da15ca10bada5ba6da3cba4cabd","time":5.58,"par":15,"adj":11,"energy":30}},"s05":{"bronze":{"tape":"6.00|ca8bada2bada10bca3da21bacba7ca2bada24ca3ba3cda23ba5cba11ca6ba10cdaca2bd","time":17.26,"par":35,"adj":28,"energy":1},"silver":{"tape":"6.00|ca2baca2bca5bda15ba5dba2cbada22ca2ba14dabdaba2ca2ba6dbac","time":10.8,"par":25,"adj":24,"energy":12},"gold":{"tape":"5.50|ca5ba6da5ba3da8ba4ca4ba7da2ba5ca2bacada2ba2dca","time":7.47,"par":20,"adj":17,"energy":18}},"s06":{"bronze":{"tape":"3.00|a4cbaca4bda5ba12cbd","time":3.49,"par":15,"adj":9,"energy":82},"silver":{"tape":"3.00|a4cbaca4bda5ba12cbd","time":3.49,"par":15,"adj":9,"energy":75},"gold":{"tape":"3.00|a4cbaca4bda5ba12cbd","time":3.49,"par":15,"adj":9,"energy":65}},"s07":{"bronze":{"tape":"8.00|ca11ba3ca6da","time":2.47,"par":10,"adj":4,"energy":84},"silver":{"tape":"8.00|ca11baca6bdbc","time":2.48,"par":10,"adj":7,"energy":73},"gold":{"tape":"8.00|ca13bada6ca","time":2.5,"par":10,"adj":4,"energy":65}},"s08":{"bronze":{"tape":"10.90|gca7fa4gabada7f2ba2","time":3.08,"par":10,"adj":9,"energy":66},"silver":{"tape":"10.90|gca7fa4gabada7f2ba2","time":3.08,"par":10,"adj":9,"energy":52},"gold":{"tape":"10.90|gca7fa4gabada7f2ba2","time":3.08,"par":10,"adj":9,"energy":32}},"p01":{"silver":{"tape":"5.50|ga5dba2da3ebebacafdcbfd","time":2.7,"par":0,"adj":15,"energy":100}},"s09":{"bronze":{"tape":"4.00|gca3bda8caba6fcafb","time":2.88,"par":10,"adj":10,"energy":68},"silver":{"tape":"7.00|gca2bcfgfgabcdfaga3bada7ba5dfbfa","time":4.08,"par":15,"adj":20,"energy":28},"gold":{"tape":"7.50|gca6ba2ca2da3faba2cba2da2fa2","time":3.21,"par":15,"adj":11,"energy":35}},"s10":{"bronze":{"tape":"8.50|cba3ca5ba4dea18bebebeabea4baea3ba","time":5.67,"par":15,"adj":17,"energy":36},"silver":{"tape":"8.50|cba3ca5ba4dea18bebebeabea11ba","time":5.71,"par":15,"adj":15,"energy":8},"gold":{"tape":"9.50|cba3ca4ba3dabea16beabaea3ba4ea4ba","time":5.43,"par":15,"adj":14,"energy":1}},"s11":{"bronze":{"tape":"9.50|gcaba9cba12cafbfca","time":3.38,"par":15,"adj":10,"energy":72},"silver":{"tape":"9.50|gcaba9cba9dfabgafaea","time":3.39,"par":15,"adj":11,"energy":59},"gold":{"tape":"9.50|gcaba9cba10dbfa3daca","time":3.5,"par":15,"adj":10,"energy":46}},"s12":{"bronze":{"tape":"6.50|edaebebdaba4caebca6dea3baedebadaba3ea14bacbaca4bea2bdaebebda6cbaca3de","time":9.46,"par":25,"adj":40,"energy":20},"silver":{"tape":"6.00|da2ebebeabadaca6bcbcbca4debeabeabdaeabaca12deaba6dabca","time":7.29,"par":20,"adj":32,"energy":21},"gold":{"tape":"5.50|edaebebebeba2ca2ba2cabdcba6eda2ebeabea3baca9deabdea14","time":7.57,"par":20,"adj":31,"energy":0}},"s13":{"bronze":{"tape":"6.00|gda5fa2baca2egafga11bcaba3edebda9fbdea","time":5.67,"par":15,"adj":21,"energy":19},"silver":{"tape":"6.00|dga5ba2dfbcba3ea3ga3bebada2ba7fdaba2ea","time":4.84,"par":15,"adj":19,"energy":23},"gold":{"tape":"7.00|gda3facga7f2ega4bgca2da2faeaba14","time":5.08,"par":15,"adj":16,"energy":0}},"s14":{"bronze":{"tape":"6.00|gcaba3cfa2gda7ebdafa4gca4ba3da3fbaea","time":4.75,"par":15,"adj":18,"energy":44},"silver":{"tape":"6.00|gcaba3ca3bada5ebda4fabgca5ba5fafca","time":4.68,"par":15,"adj":17,"energy":27},"gold":{"tape":"6.00|gcaba3ca3bda7ebda3fbacga4ba5f2a4","time":4.65,"par":15,"adj":16,"energy":0}},"s15":{"bronze":{"tape":"10.00|cga3bcadaefabagedaebebda2ba2da7ebea17fbcga4fafa3g2a4f2aega3beabfc","time":9.07,"par":20,"adj":38,"energy":31},"silver":{"tape":"10.00|cga3bcadaefabagedaebebda2ba2da7ebea17fbcga8bca6fega6fbfa","time":8.94,"par":20,"adj":33,"energy":5},"gold":{"tape":"10.50|cga5bcaba3edaebeba10da4ea5bea6fba6caga14faea3ba2eabfa4","time":9.14,"par":20,"adj":25,"energy":0}}};
+
+
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function fmod(a, b) { var r = a % b; return r < 0 ? r + b : r; }
+  function sq(x) { return x * x; }
+
+  // ------------------------------------------------------------------ build a stage instance
+  // Colliders: { t:'c'|'s', mat, ... , mover(time,out) } ; sensors: lanterns, tokens, switches, hazards, cups, wells
+  function build(def, tierKey) {
+    var T = TIERS[tierKey] || TIERS.silver, W = def.w || CFG.W, H = def.h || CFG.H;
+    var S = { def: def, tier: tierKey, T: T, W: W, H: H, cols: [], lanterns: [], tokens: [], switches: [], hazards: [], wells: [], cups: [], gates: [], breaks: [] };
+    function seg(x1, y1, x2, y2, mat, extra) { var c = { t: 's', x1: x1, y1: y1, x2: x2, y2: y2, th: 0.06, mat: MAT[mat] || MAT.wall, kind: mat }; for (var k in extra || {}) c[k] = extra[k]; S.cols.push(c); return c; }
+    // chamber walls and ceiling (the bottom is open: a ball that leaves the board is lost)
+    seg(0, -2, 0, H, 'wall', { frame: true }); seg(W, -2, W, H, 'wall', { frame: true }); seg(0, H, W, H, 'wall', { frame: true });
+    (def.parts || []).forEach(function (p) {
+      var k = p.k;
+      if (p.tiers && p.tiers.indexOf(tierKey[0]) < 0) return;
+      if (k === 'peg') S.cols.push({ t: 'c', x: p.x, y: p.y, r: p.r || 0.13, mat: MAT.peg, kind: 'peg' });
+      else if (k === 'pegs') { // a row/grid helper: n×m pegs
+        for (var i = 0; i < p.nx; i++) for (var j = 0; j < (p.ny || 1); j++) {
+          var px = p.x + i * p.dx + ((j % 2) ? (p.stagger || 0) : 0), py = p.y - j * (p.dy || 0);
+          if (px > 0.3 && px < W - 0.3) S.cols.push({ t: 'c', x: px, y: py, r: p.r || 0.13, mat: MAT.peg, kind: 'peg' });
+        }
+      }
+      else if (k === 'bumper') S.cols.push({ t: 'c', x: p.x, y: p.y, r: p.r || 0.45, mat: MAT.bumper, kind: 'bumper', flash: 0 });
+      else if (k === 'wall' || k === 'rail' || k === 'glass') seg(p.x1, p.y1, p.x2, p.y2, k, { oneway: p.oneway || null });
+      else if (k === 'wheel') {
+        var wh = { kind: 'wheel', x: p.x, y: p.y, R: p.R, n: p.n || 4, w: p.w, a0: p.a0 || 0 };
+        S.cols.push({ t: 'c', x: p.x, y: p.y, r: 0.22, mat: MAT.wheel, kind: 'hub', wheel: wh });
+        for (var s = 0; s < wh.n; s++) S.cols.push({ t: 's', th: 0.07, mat: MAT.wheel, kind: 'spoke', wheel: wh, j: s, x1: 0, y1: 0, x2: 0, y2: 0, moving: true });
+      }
+      else if (k === 'paddle') S.cols.push({ t: 's', th: 0.08, mat: MAT.gate, kind: 'paddle', d: p, moving: true, x1: 0, y1: 0, x2: 0, y2: 0 });
+      else if (k === 'gate') { var g = { t: 's', th: 0.08, mat: MAT.gate, kind: 'gate', d: p, moving: true, x1: p.x1, y1: p.y1, x2: p.x2, y2: p.y2, i: S.gates.length }; S.cols.push(g); S.gates.push(g); }
+      else if (k === 'break') { var b = seg(p.x1, p.y1, p.x2, p.y2, 'glass', { kind: 'break', need: p.need || 7, i: S.breaks.length }); S.breaks.push(b); }
+      else if (k === 'switch') S.switches.push({ x: p.x, y: p.y, r: p.r || 0.3, gate: p.gate, dur: p.dur || 4, i: S.switches.length });
+      else if (k === 'lantern') S.lanterns.push({ x: p.x, y: p.y, r: (p.r || 0.42) * T.target, i: S.lanterns.length });
+      else if (k === 'token') S.tokens.push({ x: p.x, y: p.y, r: 0.3, i: S.tokens.length });
+      else if (k === 'hazard') S.hazards.push({ x: p.x, y: p.y, r: p.r || 0.5, w: p.w || 3, i: S.hazards.length });
+      else if (k === 'well') S.wells.push({ x: p.x, y: p.y, R: p.R || 2.2, k: p.kk || 9, i: S.wells.length });
+      else if (k === 'cup') {
+        var up = p.up ? -1 : 1, hw = (p.w || 1.4) / 2 * (p.fixed ? 1 : T.cup), hh = p.h || 0.9, x = p.x, y = p.y;   // y = cup floor; up=true hangs from the ceiling
+        var cup = { x: x, y: y, hw: hw, hh: hh, dir: up, req: p.req == null ? -1 : p.req, i: S.cups.length, gold: true };
+        seg(x - hw - 0.08, y, x - hw - 0.08, y + up * hh, 'wall', { kind: 'cupwall' });
+        seg(x + hw + 0.08, y, x + hw + 0.08, y + up * hh, 'wall', { kind: 'cupwall' });
+        cup.floor = seg(x - hw - 0.08, y, x + hw + 0.08, y, 'cup', { kind: 'cupfloor' });
+        cup.lid = seg(x - hw - 0.08, y + up * hh, x + hw + 0.08, y + up * hh, 'gate', { kind: 'lid', cup: cup });
+        S.cups.push(cup);
+      }
+      else if (k === 'deco') { /* drawn only */ }
+      else throw new Error('unknown part ' + k);
+    });
+    S.energyMax = round(T.energy * (def.energy || 1));
+    S.drop = def.drop;                       // [xMin, xMax, y]: the dropper travels along the top rail
+    S.unlock = def.unlock || {};
+    S.par = (ROUTES[def.id] && ROUTES[def.id][tierKey] && ROUTES[def.id][tierKey].par) || def.par || 40;
+    S.parAdj = def.parAdj != null ? def.parAdj : 4;
+    return S;
+  }
+
+  // ------------------------------------------------------------------ kinematics of moving parts (exact functions of time)
+  function wheelAngle(wh, t) { return wh.a0 * PI / 180 + wh.w * t; }
+  function gateOpen(G, g, t) {     // 0 = closed (blocking), 1 = fully open (moved aside)
+    var d = g.d;
+    if (d.mode === 'timer') {
+      var T = d.T, f = fmod(t / T + (d.ph || 0), 1), o = d.open || 0.4, tr = 0.12;
+      if (f < o) return min(1, f / tr);                      // opening, then open
+      if (f < o + tr) return 1 - (f - o) / tr;               // closing
+      return 0;
+    }
+    if (d.mode === 'switch') {
+      var until = G.gateUntil[g.i]; if (until <= 0) return 0;
+      var rem = until - t; if (rem <= 0) return max(0, 1 + rem / 0.2); // closes over 0.2 s
+      var since = t - G.gateFrom[g.i]; return min(1, since / 0.2);
+    }
+    return 0;
+  }
+  // pose a moving segment collider at time t (writes x1..y2)
+  var _p = { x1: 0, y1: 0, x2: 0, y2: 0 };
+  function segAt(G, c, t, out) {
+    if (c.kind === 'spoke') {
+      var wh = c.wheel, a = wheelAngle(wh, t) + c.j * TAU / wh.n;
+      out.x1 = wh.x + cos(a) * 0.2; out.y1 = wh.y + sin(a) * 0.2; out.x2 = wh.x + cos(a) * wh.R; out.y2 = wh.y + sin(a) * wh.R; return out;
+    }
+    if (c.kind === 'paddle') {
+      var d = c.d, s = d.A * sin(TAU * t / d.T + (d.ph || 0) * TAU), ax = d.ax || 1, ay = d.ay || 0;
+      out.x1 = d.x1 + ax * s; out.y1 = d.y1 + ay * s; out.x2 = d.x2 + ax * s; out.y2 = d.y2 + ay * s; return out;
+    }
+    if (c.kind === 'gate') {
+      var dd = c.d, o = gateOpen(G, c, t), sx = (dd.sx || 0) * o, sy = (dd.sy || 0) * o;
+      out.x1 = dd.x1 + sx; out.y1 = dd.y1 + sy; out.x2 = dd.x2 + sx; out.y2 = dd.y2 + sy; return out;
+    }
+    out.x1 = c.x1; out.y1 = c.y1; out.x2 = c.x2; out.y2 = c.y2; return out;
+  }
+  function solid(G, c) {
+    if (c.kind === 'break') return !G.broken[c.i];
+    if (c.kind === 'lid') return !cupOpen(G, c.cup);
+    return true;
+  }
+  function cupOpen(G, cup) { var need = cup.req < 0 ? G.S.lanterns.length : cup.req; return litCount(G) >= need; }
+  function litCount(G) { var n = 0; for (var i = 0; i < G.lit.length; i++) if (G.lit[i]) n++; return n; }
+
+  // ------------------------------------------------------------------ game state
+  function newGame(def, tierKey, opts) {
+    opts = opts || {};
+    if (typeof def === 'string') def = findStage(def);
+    var S = build(def, tierKey);
+    var G = { S: S, tier: tierKey, practice: !!(def.practice || opts.practice), solver: !!opts.solver, infinite: !!(def.practice || opts.infinite),
+      ballsLeft: S.T.balls, ballsUsed: 0, lost: 0, adjTotal: 0, tTotal: 0, done: false, failed: false, result: null, ev: [], lostWhy: '', dropX: (S.drop[0] + S.drop[1]) / 2 };
+    resetBall(G);
+    return G;
+  }
+  function resetBall(G) {          // every ball starts the machine from the same state (deterministic retries)
+    var S = G.S;
+    G.phase = 'aim'; G.t = 0; G.steps = 0;
+    G.b = { x: G.dropX, y: S.drop[2], vx: 0, vy: 0 };
+    G.gm = 'down'; G.gs = 1;                    // commanded mode: down | left | right | up ; commanded strength index value
+    G.ga = 0; G.gsv = 1;                        // actual (slewed) angle and strength
+    G.energy = S.energyMax; G.adj = 0; G.empty = false;
+    G.lit = S.lanterns.map(function () { return 0; }); G.tok = S.tokens.map(function () { return 0; });
+    G.broken = S.breaks.map(function () { return 0; }); G.hits = S.breaks.map(function () { return 0; });
+    G.gateUntil = S.gates.map(function () { return 0; }); G.gateFrom = S.gates.map(function () { return 0; });
+    G.swOn = S.switches.map(function () { return 0; });
+    G.restT = 0; G.stallT = 0; G.inCup = -1; G.flash = {}; G.minDistCup = 1e9;
+  }
+  function findStage(id) {
+    for (var i = 0; i < STAGES.length; i++) if (STAGES[i].id === id || STAGES[i].n === id) return STAGES[i];
+    for (var j = 0; j < PRACTICE.length; j++) if (PRACTICE[j].id === id) return PRACTICE[j];
+    throw new Error('no stage ' + id);
+  }
+  function clone(G) {
+    var H = {}; for (var k in G) H[k] = G[k];
+    H.b = { x: G.b.x, y: G.b.y, vx: G.b.vx, vy: G.b.vy };
+    ['lit', 'tok', 'broken', 'hits', 'gateUntil', 'gateFrom', 'swOn'].forEach(function (k) { H[k] = G[k].slice(); });
+    H.ev = []; H.flash = {}; return H;
+  }
+  function emit(G, type, a, b) { if (!G.solver && G.ev.length < 64) G.ev.push({ type: type, a: a, b: b }); }
+
+  // ------------------------------------------------------------------ commands (the only things a player can do)
+  // aim phase: move the dropper (dir -1/1) and release.  roll phase: gravity commands.
+  var MODES = ['down', 'left', 'right', 'up'];
+  function canMode(G, m) { if (m === 'up') return !!G.S.unlock.reverse; if (m === 'left' || m === 'right') return G.S.unlock.tilt !== false; return true; }
+  function command(G, cmd) {
+    if (G.done || G.failed || typeof cmd !== 'string') return false;
+    if (G.phase === 'aim') {
+      if (cmd === 'aimL' || cmd === 'aimR') { var S = G.S; G.dropX = clamp(G.dropX + (cmd === 'aimL' ? -0.25 : 0.25), S.drop[0], S.drop[1]); G.b.x = G.dropX; return true; }
+      if (cmd === 'drop') { G.phase = 'roll'; G.ballsUsed++; emit(G, 'drop'); return true; }
+      return false;
+    }
+    if (G.phase !== 'roll' || G.empty) return false;
+    var changed = false;
+    if (MODES.indexOf(cmd) >= 0) {
+      if (!canMode(G, cmd)) return false;
+      if (G.gm !== cmd) { G.gm = cmd; changed = true; }
+    } else if (cmd === 'lighter' || cmd === 'heavier') {
+      if (!G.S.unlock.strength) return false;
+      var L = CFG.strengths, i = L.indexOf(G.gs), ni = clamp(i + (cmd === 'lighter' ? -1 : 1), 0, 2);
+      if (L[ni] !== G.gs) { G.gs = L[ni]; changed = true; }
+    } else return false;
+    if (changed) { G.adj++; if (!G.infinite) G.energy = max(0, G.energy - CFG.changeCost); emit(G, 'gravity', G.gm, G.gs); if (G.energy <= 0 && !G.infinite) emptyReserve(G); }
+    return changed;
+  }
+  function emptyReserve(G) { G.empty = true; G.gm = 'down'; G.gs = 1; emit(G, 'empty'); }
+  function setAim(G, x) { if (G.phase !== 'aim' || typeof x !== 'number' || !isFinite(x)) return; G.dropX = clamp(x, G.S.drop[0], G.S.drop[1]); G.b.x = G.dropX; }
+  function targetAngle(m) { return m === 'left' ? -CFG.tilt : m === 'right' ? CFG.tilt : m === 'up' ? PI : 0; }
+
+  // ------------------------------------------------------------------ physics step
+  var SEG = { x1: 0, y1: 0, x2: 0, y2: 0 }, SEG0 = { x1: 0, y1: 0, x2: 0, y2: 0 };
+  function gravityVec(G) { var a = G.ga, s = G.gsv * CFG.g; return [s * sin(a), -s * cos(a)]; }
+  function step(G) {
+    if (G.done || G.failed || G.phase !== 'roll') return;
+    var S = G.S, dt = CFG.dt, b = G.b, t0 = G.t, t1 = t0 + dt;
+    G.t = t1; G.steps++; G.tTotal += dt;
+    // gravity slews smoothly toward the commanded vector; the reserve drains while gravity is not plain "down"
+    var ta = targetAngle(G.gm), da = ta - G.ga;
+    if (G.gm === 'up' && abs(G.ga) < 1e-9) da = PI;           // reversal from straight down turns clockwise-over-the-top deterministically
+    var mx = CFG.slew * dt; G.ga += clamp(da, -mx, mx);
+    G.gsv += clamp(G.gs - G.gsv, -CFG.strengthSlew * dt, CFG.strengthSlew * dt);
+    if (!G.infinite && !G.empty) {
+      var D = CFG.drain, rate = (G.gm === 'left' || G.gm === 'right') ? D.tilt : G.gm === 'up' ? D.reverse : 0;
+      if (G.gs < 1) rate += D.light; else if (G.gs > 1) rate += D.heavy;
+      if (rate > 0) { G.energy -= rate * dt; if (G.energy <= 0) { G.energy = 0; emptyReserve(G); } }
+    }
+    var gv = gravityVec(G), ax = gv[0], ay = gv[1];
+    for (var w = 0; w < S.wells.length; w++) {          // gravity wells: a local pull toward their centre (shown as purple rings)
+      var W0 = S.wells[w], dx = W0.x - b.x, dy = W0.y - b.y, d = sqrt(dx * dx + dy * dy);
+      if (d < W0.R && d > 0.05) { var f = W0.k * (1 - d / W0.R); ax += f * dx / d; ay += f * dy / d; }
+    }
+    b.vx += ax * dt; b.vy += ay * dt;
+    var damp = 1 - CFG.airDamp * dt; b.vx *= damp; b.vy *= damp;
+    b.x += b.vx * dt; b.y += b.vy * dt;
+    // collisions (two passes resolve corners)
+    var r = CFG.ballR;
+    for (var pass = 0; pass < 2; pass++) {
+      for (var i = 0; i < S.cols.length; i++) {
+        var c = S.cols[i]; if (!solid(G, c)) continue;
+        if (c.t === 'c') {
+          var cx = c.x, cy = c.y; if (c.wheel) { cx = c.wheel.x; cy = c.wheel.y; }
+          var ex = b.x - cx, ey = b.y - cy, dd = ex * ex + ey * ey, rr = r + c.r;
+          if (dd >= rr * rr) continue;
+          var dist = sqrt(dd) || 1e-9, nx = ex / dist, ny = ey / dist;
+          b.x = cx + nx * rr; b.y = cy + ny * rr;
+          respond(G, c, nx, ny, 0, 0, pass);
+        } else {
+          var sgm = c.moving ? segAt(G, c, t1, SEG) : c;
+          var x1 = sgm.x1, y1 = sgm.y1, x2 = sgm.x2, y2 = sgm.y2, vx = x2 - x1, vy = y2 - y1, L2 = vx * vx + vy * vy;
+          var u = L2 > 0 ? clamp(((b.x - x1) * vx + (b.y - y1) * vy) / L2, 0, 1) : 0, qx = x1 + vx * u, qy = y1 + vy * u;
+          var ex2 = b.x - qx, ey2 = b.y - qy, d2 = ex2 * ex2 + ey2 * ey2, rr2 = r + c.th;
+          if (d2 >= rr2 * rr2) continue;
+          var dist2 = sqrt(d2) || 1e-9, nx2 = ex2 / dist2, ny2 = ey2 / dist2;
+          if (c.oneway) {        // one-way passage: blocks only a ball arriving against the allowed direction (allowed = oneway vector)
+            var ow = c.oneway; if (b.vx * ow[0] + b.vy * ow[1] > 0) continue;
+            if (nx2 * ow[0] + ny2 * ow[1] < 0) { nx2 = -nx2; ny2 = -ny2; }
+          }
+          b.x = qx + nx2 * rr2; b.y = qy + ny2 * rr2;
+          var svx = 0, svy = 0;
+          if (c.moving) { segAt(G, c, t0, SEG0); var px = SEG0.x1 + (SEG0.x2 - SEG0.x1) * u, py = SEG0.y1 + (SEG0.y2 - SEG0.y1) * u; svx = (qx - px) / dt; svy = (qy - py) / dt; }
+          respond(G, c, nx2, ny2, svx, svy, pass);
+        }
+      }
+    }
+    var sp = sqrt(b.vx * b.vx + b.vy * b.vy);
+    if (sp > CFG.maxSpeed) { b.vx *= CFG.maxSpeed / sp; b.vy *= CFG.maxSpeed / sp; sp = CFG.maxSpeed; }
+    sensors(G, sp);
+  }
+  // collision response: restitution along the normal, Coulomb-limited friction along the tangent, relative to the surface velocity
+  function respond(G, c, nx, ny, svx, svy, pass) {
+    var b = G.b, m = c.mat, rvx = b.vx - svx, rvy = b.vy - svy, vn = rvx * nx + rvy * ny;
+    if (vn >= 0) return;
+    var e = abs(vn) < 0.6 ? 0 : m.e;                      // resting contact: no micro-bounces
+    var jn = -(1 + e) * vn;
+    var tx = -ny, ty = nx, vt = rvx * tx + rvy * ty, jt = clamp(-vt, -m.mu * jn, m.mu * jn);
+    b.vx += jn * nx + jt * tx; b.vy += jn * ny + jt * ty;
+    if (c.kind === 'bumper' && pass === 0) {               // active bumper: guarantees at least `kick` m/s outward
+      var on = b.vx * nx + b.vy * ny; if (on < m.kick) { b.vx += (m.kick - on) * nx; b.vy += (m.kick - on) * ny; }
+      emit(G, 'bumper', c.x, c.y); G.flash[c.x + ',' + c.y] = 1;
+    } else if (pass === 0 && jn > 1.2) emit(G, 'hit', c.kind, jn);
+    if (c.kind === 'break' && pass === 0) {
+      if (jn >= c.need * G.S.T.glass) { G.broken[c.i] = 1; emit(G, 'break', c.i); }
+      else { G.hits[c.i]++; emit(G, 'clink', c.i, jn); }
+    }
+  }
+  function sensors(G, sp) {
+    var S = G.S, b = G.b, r = CFG.ballR, i;
+    for (i = 0; i < S.lanterns.length; i++) { var L = S.lanterns[i]; if (!G.lit[i] && sq(b.x - L.x) + sq(b.y - L.y) < sq(L.r + r)) { G.lit[i] = 1; emit(G, 'lantern', i); if (litCount(G) === S.lanterns.length) emit(G, 'unsealed'); } }
+    for (i = 0; i < S.tokens.length; i++) { var K = S.tokens[i]; if (!G.tok[i] && sq(b.x - K.x) + sq(b.y - K.y) < sq(K.r + r)) { G.tok[i] = 1; emit(G, 'token', i); } }
+    for (i = 0; i < S.switches.length; i++) {
+      var W = S.switches[i];
+      if (sq(b.x - W.x) + sq(b.y - W.y) < sq(W.r + r)) {
+        var gi = W.gate, dur = W.dur * S.T.timer;
+        if (G.gateUntil[gi] < G.t) G.gateFrom[gi] = G.t;
+        if (G.gateUntil[gi] < G.t + dur - 0.05) { G.gateUntil[gi] = G.t + dur; if (!G.swOn[i] || G.swOn[i] < G.t - 0.5) emit(G, 'switch', i); G.swOn[i] = G.t; }
+      }
+    }
+    for (i = 0; i < S.hazards.length; i++) { var Z = S.hazards[i]; if (sq(b.x - Z.x) + sq(b.y - Z.y) < sq(Z.r + r - 0.06)) return loseBall(G, 'Ground by a grinder'); }
+    // cups
+    var inside = -1;
+    for (i = 0; i < S.cups.length; i++) {
+      var C = S.cups[i], yy = (b.y - C.y) * C.dir;
+      var dC = abs(b.x - C.x) + max(0, abs(yy - C.hh / 2) - C.hh / 2); if (dC < G.minDistCup) G.minDistCup = dC;
+      if (abs(b.x - C.x) < C.hw && yy > 0 && yy < C.hh) inside = i;
+    }
+    G.inCup = inside;
+    if (inside >= 0 && sp < CFG.rest.speed) { G.restT += CFG.dt; if (G.restT >= CFG.rest.time) return finish(G, inside); } else G.restT = 0;
+    if (inside < 0 && sp < CFG.stall.speed) { G.stallT += CFG.dt; if (G.stallT > CFG.stall.time) return loseBall(G, 'The ball came to rest outside the cup'); } else G.stallT = 0;
+    if (b.y < -1 || b.y > S.H + 1 || b.x < -1 || b.x > S.W + 1) return loseBall(G, 'The ball left the machine');
+    if (G.t > CFG.ballTime) return loseBall(G, 'Time ran out for this ball');
+  }
+  function loseBall(G, why) {
+    G.lost++; G.lostWhy = why; G.adjTotal += G.adj; emit(G, 'lost', why);
+    if (G.solver) { G.failed = true; return; }
+    if (G.ballsUsed >= G.S.T.balls && !G.infinite) { G.failed = true; emit(G, 'failed'); return; }
+    G.ballsLeft = G.infinite ? 99 : G.S.T.balls - G.ballsUsed;
+    var keepX = G.dropX; resetBall(G); G.dropX = keepX; G.b.x = keepX;
+  }
+  function finish(G, cupI) {
+    G.adjTotal += G.adj; G.done = true; G.cupI = cupI; G.result = result(G); emit(G, 'done', cupI);
+  }
+
+  // ------------------------------------------------------------------ scoring (all from engine state)
+  function result(G) {
+    var S = G.S, C = CFG.score, T = S.T, cup = S.cups[G.cupI] || S.cups[0];
+    var off = abs(G.b.x - cup.x) / cup.hw, bull = off <= 0.25;
+    var energyPct = round(100 * G.energy / S.energyMax), nTok = G.tok.filter(Boolean).length;
+    var time = round(G.t * 100) / 100, par = S.par;
+    var lines = [], base = C.complete;
+    var energyB = C.energyPer * energyPct;
+    var adjB = max(0, C.adjFree - C.adjCost * max(0, G.adj - S.parAdj));
+    var timeB = round(C.time * clamp((2 * par - time) / par, 0, 1));
+    var tokB = C.token * nTok, bullB = bull ? C.bullseye : 0, cleanB = G.lost === 0 ? C.clean : 0, lostP = C.lost * G.lost;
+    var pool = max(0, energyB + adjB + timeB + tokB + bullB + cleanB - lostP), total = round((base + pool) * T.mult);
+    var grade = (G.lost === 0 && bull && time <= par) ? 'gold' : (G.lost <= CFG.grade.silverLost && time <= par * CFG.grade.silverPar) ? 'silver' : 'bronze';
+    lines.push(['Drop completed', base], ['Gravity reserve left: ' + energyPct + ' % × ' + C.energyPer, energyB], ['Adjustments: ' + G.adj + ' (par ' + S.parAdj + ')', adjB],
+      ['Time bonus (par ' + par + ' s)', timeB], ['Tokens × ' + nTok, tokB], ['Bullseye landing', bullB], ['No ball lost', cleanB], ['Balls lost × ' + G.lost, -lostP], ['Bonus pool (never below 0)', pool], [T.name + ' multiplier × ' + T.mult, total]);
+    return { stage: S.def.id, n: S.def.n, tier: G.tier, practice: G.practice, time: time, par: par, adjustments: G.adj, parAdj: S.parAdj, energyPct: energyPct,
+      lanterns: litCount(G), lanternsTotal: S.lanterns.length, tokens: nTok, tokensTotal: S.tokens.length, bullseye: bull, offCentre: round(off * 100) / 100,
+      lost: G.lost, ballsUsed: G.ballsUsed, balls: T.balls, lines: lines, score: total, grade: grade };
+  }
+  function gradeRules(par) {
+    return [['gold', 'Gold Drop: no ball lost, bullseye landing (centre quarter of the cup), time ≤ ' + par + ' s'],
+      ['silver', 'Silver Drop: at most ' + CFG.grade.silverLost + ' ball lost, time ≤ ' + round(par * CFG.grade.silverPar) + ' s'],
+      ['bronze', 'Bronze Drop: land the ball in the cup']];
+  }
+
+  // ------------------------------------------------------------------ demonstration tapes
+  // A tape is "dropX|commands": run-length symbols, each covering one 0.1 s macro. Symbol letters:
+  // a = no command, b = down, c = left, d = right, e = up (reverse), f = lighter, g = heavier
+  var SYM = [null, 'down', 'left', 'right', 'up', 'lighter', 'heavier'];
+  function decodeTape(s) {
+    var parts = s.split('|'), x = +parts[0], out = [], str = parts[1] || '', i = 0;
+    while (i < str.length) { var c = str.charCodeAt(i) - 97; i++; var n = 0; while (i < str.length && str[i] >= '0' && str[i] <= '9') { n = n * 10 + (str.charCodeAt(i) - 48); i++; } if (!n) n = 1; for (var k = 0; k < n; k++) out.push(c); }
+    return { x: x, seq: out };
+  }
+  function encodeTape(x, seq) {
+    var s = '', i = 0; while (i < seq.length) { var c = seq[i], n = 1; while (i + n < seq.length && seq[i + n] === c) n++; s += String.fromCharCode(97 + c) + (n > 1 ? n : ''); i += n; }
+    return x.toFixed(2) + '|' + s;
+  }
+  function runTape(G, tape) {   // legal controls only: aim, drop, then one optional command per 0.1 s
+    var T = typeof tape === 'string' ? decodeTape(tape) : tape;
+    setAim(G, T.x); command(G, 'drop');
+    for (var m = 0; m < T.seq.length && !G.done && !G.failed && G.phase === 'roll'; m++) {
+      if (SYM[T.seq[m]]) command(G, SYM[T.seq[m]]);
+      for (var k = 0; k < CFG.macro && !G.done && !G.failed && G.phase === 'roll'; k++) step(G);
+    }
+    var guard = 0; while (!G.done && !G.failed && G.phase === 'roll' && guard++ < 240 * 80) step(G);
+    return G;
+  }
+  // Ghost (Bronze aid): where the ball goes over the next seconds if gravity stays as it is now
+  function predict(G, secs) {
+    var H = clone(G); H.solver = true; var pts = [], n = round((secs || 1.2) / CFG.dt);
+    if (H.phase === 'aim') H.phase = 'roll';
+    for (var i = 0; i < n && !H.done && !H.failed; i++) { step(H); if (i % 12 === 0) pts.push([H.b.x, H.b.y]); }
+    return pts;
+  }
+  function stateOf(G) { return { phase: G.phase, t: G.t, x: G.b.x, y: G.b.y, vx: G.b.vx, vy: G.b.vy, mode: G.gm, strength: G.gs, angle: G.ga, energy: G.energy, adj: G.adj, lit: litCount(G), done: G.done, failed: G.failed, lost: G.lost }; }
+
+  root.KineticDropEngine = {
+    CFG: CFG, MAT: MAT, TIERS: TIERS, STAGES: STAGES, PRACTICE: PRACTICE, ROUTES: ROUTES, SYM: SYM,
+    newGame: newGame, clone: clone, step: step, command: command, setAim: setAim, resetBall: resetBall, findStage: findStage, build: build,
+    segAt: segAt, gateOpen: gateOpen, wheelAngle: wheelAngle, solid: solid, cupOpen: cupOpen, litCount: litCount, gravityVec: gravityVec, canMode: canMode,
+    result: result, gradeRules: gradeRules, decodeTape: decodeTape, encodeTape: encodeTape, runTape: runTape, predict: predict, stateOf: stateOf
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="kd-app">
+/* Kinetic Drop — interface, renderer, input, audio, persistence. Gamortal #016 · DoorQuests prototype.
+   The physics lives entirely in window.KineticDropEngine; this file only issues legal commands and draws the state. */
+(function () {
+  'use strict';
+  var E = window.KineticDropEngine, CFG = E.CFG, DT = CFG.dt;
+  var $ = function (id) { return document.getElementById(id); };
+  var DEV = /[?&]dev=1/.test(location.search);
+  var PI = Math.PI, TAU = PI * 2, min = Math.min, max = Math.max, abs = Math.abs, sin = Math.sin, cos = Math.cos, floor = Math.floor, round = Math.round;
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') n.textContent = attrs[k]; else if (k === 'cls') n.className = attrs[k];
+      else if (k === 'on') { for (var ev in attrs.on) n.addEventListener(ev, attrs.on[ev]); }
+      else if (attrs[k] === true) n.setAttribute(k, ''); else if (attrs[k] !== false && attrs[k] != null) n.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c != null) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  var TIER_KEYS = ['bronze', 'silver', 'gold'], STAGES = E.STAGES;
+  var CHAPTERS = { 1: ['Chapter I — The First Fall', 'Bouncing, collisions and your first gravity shifts.'], 2: ['Chapter II — The Tilted Machine', 'Narrow routes, timed gravity changes and moving gates.'],
+    3: ['Chapter III — Momentum Matters', 'Speed, elastic bumpers, spinning wheels and pumping energy.'], 4: ['Chapter IV — Against the Pull', 'Gravity reversal, glass, switches and multi-part puzzles.'], 5: ['Chapter V — The Grand Mechanism', 'Everything you have learned, working together.'] };
+
+  // ============================================================ persistence
+  var KEY = 'doorquests.gamortal.016.kinetic-drop.v1', STORE_OK = true, LOAD_NOTE = '';
+  function defaults() { return { sound: true, vol: 70, motion: 'auto', contrast: false, ghost: true, slow: false, large: false }; }
+  function trackIds() { var t = []; TIER_KEYS.forEach(function (k) { t.push(k, k + '-assisted'); }); return t; }
+  function blankTrack() { return { unlocked: 1, stages: {}, lost: 0, runs: 0, bestTotal: 0 }; }
+  function blank() { var d = { v: 1, settings: defaults(), tier: 'silver', prog: {}, seals: {}, practice: 0 }; trackIds().forEach(function (t) { d.prog[t] = blankTrack(); }); return d; }
+  var SAVE = blank();
+  function num(v, a, b, d) { return typeof v === 'number' && isFinite(v) && v >= a && v <= b ? v : d; }
+  var SEALS = [
+    ['first', 'First Fall', 'Complete Stage 01.'], ['light', 'Light Touch', 'Complete a stage within its par number of gravity adjustments.'],
+    ['bull', 'Bullseye', 'Settle the ball in the centre quarter of a cup.'], ['tokens', 'Collector', 'Collect every token in a stage in one drop.'],
+    ['clean', 'Clean Run', 'Complete a stage without losing a ball.'], ['reverse', 'Against the Pull', 'Complete Stage 10 using reversed gravity.'],
+    ['glass', 'Glass Breaker', 'Break a pane of glass.'], ['grand', 'The Grand Mechanism', 'Complete Stage 15.'], ['gold', 'Master of the Pull', 'Complete all fifteen stages on Gold.'],
+    ['chamber', 'Chamber Tinkerer', 'Settle a ball in a cup in the Practice Chamber.']
+  ];
+  var SEAL_IDS = SEALS.map(function (s) { return s[0]; });
+  function validate(raw) {
+    var d = blank(), notes = [];
+    if (!raw || typeof raw !== 'object') return { d: d, notes: ['saved data was not readable'] };
+    if (raw.v !== 1) return { d: d, notes: ['saved data had an unsupported version and was set aside'] };
+    var s = raw.settings || {}, D = defaults();
+    d.settings.sound = typeof s.sound === 'boolean' ? s.sound : D.sound; d.settings.vol = num(s.vol, 0, 100, D.vol);
+    d.settings.motion = ['auto', 'reduced', 'full'].indexOf(s.motion) >= 0 ? s.motion : D.motion;
+    ['contrast', 'ghost', 'slow', 'large'].forEach(function (k) { d.settings[k] = typeof s[k] === 'boolean' ? s[k] : D[k]; });
+    d.tier = TIER_KEYS.indexOf(raw.tier) >= 0 ? raw.tier : 'silver';
+    d.practice = num(raw.practice, 0, 1e7, 0) | 0;
+    var bad = 0;
+    trackIds().forEach(function (t) {
+      var p = raw.prog && raw.prog[t]; if (!p || typeof p !== 'object') return; var o = d.prog[t];
+      o.unlocked = num(p.unlocked, 1, 15, 1) | 0; o.lost = num(p.lost, 0, 1e7, 0) | 0; o.runs = num(p.runs, 0, 1e7, 0) | 0; o.bestTotal = num(p.bestTotal, 0, 1e8, 0) | 0;
+      STAGES.forEach(function (st) {
+        var r = p.stages && p.stages[st.id]; if (!r) return;
+        var nt = st.parts.filter(function (q) { return q.k === 'token'; }).length;
+        if (typeof r !== 'object' || !isFinite(r.score) || r.score < 0 || r.score > 1e6 || !isFinite(r.time) || r.time <= 0 || r.time > 1e4 || ['gold', 'silver', 'bronze'].indexOf(r.grade) < 0) { bad++; return; }
+        var tk = Array.isArray(r.tokens) ? r.tokens.filter(function (k, i, a) { return typeof k === 'number' && (k | 0) === k && k >= 0 && k < nt && a.indexOf(k) === i; }) : [];
+        o.stages[st.id] = { score: round(r.score), time: round(r.time * 100) / 100, grade: r.grade, bestGrade: ['gold', 'silver', 'bronze'].indexOf(r.bestGrade) >= 0 ? r.bestGrade : r.grade, tokens: tk,
+          adj: num(r.adj, 0, 1e5, 0) | 0, energy: num(r.energy, 0, 100, 0) | 0, lost: num(r.lost, 0, 99, 0) | 0, clears: num(r.clears, 1, 1e6, 1) | 0 };
+        if (o.unlocked < st.n + 1) o.unlocked = min(15, st.n + 1);
+      });
+    });
+    if (raw.seals && typeof raw.seals === 'object') for (var a in raw.seals) if (SEAL_IDS.indexOf(a) >= 0 && isFinite(raw.seals[a])) d.seals[a] = raw.seals[a];
+    if (bad) notes.push(bad + ' damaged stage record' + (bad > 1 ? 's were' : ' was') + ' skipped');
+    return { d: d, notes: notes };
+  }
+  function load() {
+    var txt = null;
+    try { txt = localStorage.getItem(KEY); } catch (e) { STORE_OK = false; LOAD_NOTE = 'This browser is blocking storage, so progress will not be kept after you close the page.'; return; }
+    if (txt == null) return;
+    var raw; try { raw = JSON.parse(txt); } catch (e) { LOAD_NOTE = 'Saved progress was damaged and could not be read; starting fresh (the damaged copy stays until your next save).'; return; }
+    var r = validate(raw); SAVE = r.d; if (r.notes.length) LOAD_NOTE = 'Saved progress: ' + r.notes.join('; ') + '.';
+  }
+  function persist() {   // writes ONLY this game's key; other DoorQuests entries are never touched
+    if (!STORE_OK) return false;
+    try { localStorage.setItem(KEY, JSON.stringify(SAVE)); return true; } catch (e) { STORE_OK = false; note('Progress could not be saved (storage is full or blocked).'); return false; }
+  }
+
+  // ============================================================ settings, messages
+  var reduce = false;
+  function applySettings() {
+    var s = SAVE.settings, mq = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    reduce = s.motion === 'reduced' || (s.motion === 'auto' && !!mq);
+    document.documentElement.classList.toggle('large', !!s.large); document.body.classList.toggle('reduce', reduce);
+    if (AU.master) AU.master.gain.value = s.sound ? s.vol / 100 * 0.6 : 0;
+  }
+  var alertLog = [];
+  function live(t) { var n = $('live'); n.textContent = ''; setTimeout(function () { n.textContent = t; }, 30); }
+  function alertMsg(t) { alertLog.push(t); if (alertLog.length > 50) alertLog.shift(); var n = $('alert'); n.textContent = ''; setTimeout(function () { n.textContent = t; }, 30); }
+  var toastT = 0;
+  function toast(t, secs) { var n = $('toast'); n.textContent = t; n.hidden = false; toastT = secs || 2.2; }
+  function note(t) { var n = $('t-note'); if (n) n.textContent = t; }
+
+  // ============================================================ audio (created only after a user gesture)
+  var AU = { ctx: null, master: null, noise: null };
+  function audioOn() {
+    if (AU.ctx) { if (AU.ctx.state === 'suspended') AU.ctx.resume(); return; }
+    if (!SAVE.settings.sound) return;
+    var C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+    try {
+      AU.ctx = new C(); AU.master = AU.ctx.createGain(); AU.master.gain.value = SAVE.settings.vol / 100 * 0.6; AU.master.connect(AU.ctx.destination);
+      var len = AU.ctx.sampleRate * 0.5, buf = AU.ctx.createBuffer(1, len, AU.ctx.sampleRate), d = buf.getChannelData(0), s = 11;
+      for (var i = 0; i < len; i++) { s = (s * 16807) % 2147483647; d[i] = s / 2147483647 * 2 - 1; } AU.noise = buf;
+    } catch (e) { AU.ctx = null; }
+  }
+  function ok() { return AU.ctx && SAVE.settings.sound && SAVE.settings.vol > 0 && AU.ctx.state === 'running'; }
+  function tone(f, dur, type, vol, f2, delay) {
+    if (!ok()) return; var c = AU.ctx, t = c.currentTime + (delay || 0), o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.15, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(AU.master); o.start(t); o.stop(t + dur + 0.02);
+  }
+  function noise(dur, vol, freq, type) {
+    if (!ok()) return; var c = AU.ctx, t = c.currentTime, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    s.buffer = AU.noise; f.type = type || 'bandpass'; f.frequency.value = freq || 1500; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.1, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(AU.master); s.start(t); s.stop(t + dur + 0.02);
+  }
+  var lastHit = 0;
+  var SFX = {
+    hit: function (j) { var now = performance.now(); if (now - lastHit < 40) return; lastHit = now; tone(900 + min(j, 12) * 90, 0.05, 'triangle', clamp(0.02 + j * 0.008, 0.02, 0.12)); },
+    bumper: function () { tone(330, 0.16, 'square', 0.09, 660); },
+    gravity: function (m) { noise(0.25, 0.06, m === 'up' ? 2400 : m === 'down' ? 600 : 1200, 'bandpass'); tone(m === 'up' ? 520 : 260, 0.18, 'sine', 0.06, m === 'up' ? 780 : 200); },
+    lantern: function () { [659, 880, 1175].forEach(function (f, i) { tone(f, 0.3, 'sine', 0.1, 0, i * 0.06); }); },
+    token: function () { tone(1320, 0.08, 'triangle', 0.1); tone(1760, 0.12, 'triangle', 0.08, 0, 0.06); },
+    sw: function () { tone(700, 0.05, 'square', 0.08); tone(1050, 0.05, 'square', 0.06, 0, 0.05); },
+    glass: function () { noise(0.4, 0.18, 4000, 'highpass'); [1800, 2400, 3100].forEach(function (f, i) { tone(f, 0.15, 'triangle', 0.05, 0, i * 0.03); }); },
+    clink: function () { tone(2600, 0.06, 'sine', 0.05); },
+    lost: function () { tone(330, 0.4, 'sawtooth', 0.07, 110); },
+    drop: function () { tone(440, 0.08, 'triangle', 0.08, 330); },
+    empty: function () { tone(200, 0.3, 'square', 0.06, 120); },
+    done: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.8, 'sine', 0.09, 0, i * 0.1); }); }
+  };
+
+  // ============================================================ screens
+  var SCREENS = ['scr-title', 'scr-list', 'scr-game', 'scr-result', 'scr-camp'], screen = 'scr-title';
+  function show(id) {
+    screen = id; SCREENS.forEach(function (s) { $(s).hidden = s !== id; });
+    document.body.classList.toggle('in-game', id === 'scr-game'); releaseAll();
+    if (id === 'scr-title') renderTitle(); window.scrollTo(0, 0);
+    if (id === 'scr-game') setTimeout(resize, 0);
+  }
+  function track(t) { return (t || SAVE.tier) + (SAVE.settings.slow ? '-assisted' : ''); }
+  function trackName(tr) { var p = tr.split('-'); return E.TIERS[p[0]].name + (p[1] ? ' (Assisted)' : ''); }
+  var TIERTEXT = {
+    bronze: 'Apprentice Dropper — 5 balls, a 140-unit gravity reserve, wider cups and lanterns, longer switch timers, softer glass, and a ghost path showing where the ball is heading.',
+    silver: 'Gravity Engineer — 3 balls, a 100-unit reserve: the intended balance of timing and precision.',
+    gold: 'Master of the Pull — 2 balls, a 70-unit reserve, narrower cups and lanterns, shorter switch timers and tougher glass.'
+  };
+  function campaignTotal(tr) { var P = SAVE.prog[tr], s = 0; for (var k in P.stages) s += P.stages[k].score; return s; }
+  function nextStage(tr) { var P = SAVE.prog[tr]; for (var i = 0; i < STAGES.length; i++) if (!P.stages[STAGES[i].id] && STAGES[i].n <= P.unlocked) return STAGES[i]; return null; }
+  function renderTitle() {
+    Array.prototype.forEach.call(document.querySelectorAll('input[name=tier]'), function (r) { r.checked = r.value === SAVE.tier; });
+    $('t-tiertext').textContent = TIERTEXT[SAVE.tier] + (SAVE.settings.slow ? ' Assisted slow motion is on (recorded separately).' : '');
+    var tr = track(), P = SAVE.prog[tr], done = Object.keys(P.stages).length;
+    $('t-progress').textContent = done ? trackName(tr) + ': ' + done + ' of 15 stages complete · campaign score ' + campaignTotal(tr) : trackName(tr) + ': no stages completed yet.';
+    var nx = nextStage(tr); $('b-continue').hidden = !done; $('b-continue').textContent = nx ? 'Continue Campaign · Stage ' + pad2(nx.n) : 'Continue Campaign';
+    if (LOAD_NOTE) note(LOAD_NOTE);
+  }
+  function gradeName(g) { return { gold: 'Gold Drop', silver: 'Silver Drop', bronze: 'Bronze Drop' }[g] || g; }
+  function renderList() {
+    var tr = track(), P = SAVE.prog[tr], box = $('chapters'); clear(box);
+    $('l-sub').textContent = trackName(tr) + ' · ' + Object.keys(P.stages).length + ' of 15 complete. Each stage unlocks the next.';
+    [1, 2, 3, 4, 5].forEach(function (ch) {
+      var ol = el('ol', { cls: 'stage-list' });
+      STAGES.filter(function (s) { return s.ch === ch; }).forEach(function (st) {
+        var r = P.stages[st.id], locked = st.n > P.unlocked, nt = st.parts.filter(function (q) { return q.k === 'token'; }).length;
+        var best = r ? [el('span', { cls: 'grade-chip g-' + r.bestGrade, text: gradeName(r.bestGrade) }), el('span', { text: r.score + ' pts · ' + r.time.toFixed(1) + ' s · tokens ' + r.tokens.length + '/' + nt })] : [locked ? 'Locked — complete Stage ' + pad2(st.n - 1) + ' first' : 'Not yet completed'];
+        ol.appendChild(el('li', null, [el('button', { cls: 'stage-card', type: 'button', disabled: locked, 'aria-label': 'Stage ' + st.n + ', ' + st.name + (locked ? ', locked' : r ? ', best ' + gradeName(r.bestGrade) + ', ' + r.score + ' points' : ''), on: { click: function () { startStage(st.id); } } },
+          [el('span', { cls: 'num', text: pad2(st.n) }), el('strong', { text: st.name }), el('span', { cls: 'ch', text: unlockText(st) }), el('span', { cls: 'best' }, best)])]));
+      });
+      box.appendChild(el('section', { cls: 'chapter', 'aria-label': CHAPTERS[ch][0] }, [el('h3', { text: CHAPTERS[ch][0] }), el('p', { cls: 'small', text: CHAPTERS[ch][1] }), ol]));
+    });
+  }
+  function unlockText(st) { var u = st.unlock, a = ['tilt']; if (u.strength) a.push('strength'); if (u.reverse) a.push('reverse'); return 'Controls: ' + a.join(' · '); }
+
+  // ============================================================ a run (one stage attempt with its balls)
+  var RUN = null, LOOP = { starts: 0, frames: 0, steps: 0, manual: false, last: 0 };
+  function startStage(id, opts) {
+    opts = opts || {}; var def = E.findStage(id), tr = opts.practice ? null : track();
+    var G = E.newGame(def, opts.practice ? 'silver' : SAVE.tier, { practice: !!opts.practice });
+    beginRun({ G: G, id: id, def: def, track: tr, practice: !!opts.practice, demo: !!opts.demo });
+  }
+  function beginRun(r) {
+    audioOn(); r.acc = 0; r.started = false; r.doneT = -1; r.fx = []; r.trail = []; r.prev = { x: r.G.b.x, y: r.G.b.y }; r.demoStep = 0;
+    if (r.demo) { var Rt = E.ROUTES[r.id] && E.ROUTES[r.id][r.G.tier]; r.tape = Rt ? E.decodeTape(Rt.tape) : null; if (r.tape) E.setAim(r.G, r.tape.x); }
+    RUN = r; releaseAll(); show('scr-game'); resize();
+    var d = r.def, T = E.TIERS[r.G.tier];
+    $('bf-k').textContent = r.practice ? 'Practice Chamber · nothing here changes your records' : (r.demo ? 'Solution replay · ' : '') + 'Stage ' + pad2(d.n) + ' of 15 · ' + CHAPTERS[d.ch][0].split(' — ')[0] + ' · ' + trackName(r.track);
+    $('bf-h').textContent = d.name; $('bf-p').textContent = d.intro;
+    var li = $('bf-list'), items = []; clear(li);
+    if (r.demo) items.push('A recorded solution found by the test solver: one dropper position and one gravity command per 0.1 s, replayed through the same physics. Not scored.');
+    else if (r.practice) items.push('Unlimited gravity reserve and balls; every control is unlocked. R gives a fresh ball.');
+    else {
+      var S = r.G.S, req = S.lanterns.length;
+      items.push('Goal: ' + (req ? 'light ' + (req === 1 ? 'the lantern' : 'all ' + req + ' lanterns') + ' to unseal the cup, then ' : '') + 'settle the ball in the cup' + (S.cups.length > 1 ? ' (either cup)' : '') + '.');
+      items.push(T.balls + ' balls · gravity reserve ' + S.energyMax + ' · ' + unlockText(d) + '.');
+      if (S.switches.length) items.push('Switches open their gate for a few seconds (' + (S.switches[0].dur * T.timer).toFixed(1) + ' s on ' + T.name + ').');
+      if (S.breaks.length) items.push('Glass breaks only on an impact of at least ' + (S.breaks[0].need * T.glass).toFixed(1) + ' units.');
+      E.gradeRules(S.par).forEach(function (g) { items.push(g[1]); });
+    }
+    items.forEach(function (t) { li.appendChild(el('li', { text: t })); });
+    var rec = r.track && SAVE.prog[r.track].stages[r.id];
+    $('b-demo').hidden = !(rec && E.ROUTES[r.id] && !r.demo); $('b-go').textContent = 'Ready ▶';
+    $('brief').hidden = false;
+    $('h-stage').textContent = r.practice ? 'Practice Chamber' : pad2(d.n) + ' · ' + d.name;
+    $('h-tier').textContent = r.demo ? 'Solution replay' : r.practice ? 'Sandbox' : trackName(r.track) + ' · ' + T.title;
+    syncControls(); updateHud(true); setTimeout(function () { $('b-go').focus(); }, 0);
+    live((r.practice ? 'Practice Chamber. ' : 'Stage ' + d.n + ': ' + d.name + '. ') + d.intro);
+  }
+  function go() { if (!RUN || RUN.started) return; audioOn(); RUN.started = true; $('brief').hidden = true; LOOP.last = 0; $('board').focus();
+    if (RUN.demo && RUN.tape) { E.command(RUN.G, 'drop'); SFX.drop(); } }
+  function restart() { if (!RUN) return; var r = RUN; if (r.practice) startStage(r.id, { practice: true }); else startStage(r.id, { demo: r.demo }); go(); toast('Restarted', 1); }
+  function quitToMenu() { var r = RUN; RUN = null; closeDialogs(); if (r && r.practice) show('scr-title'); else { renderList(); show('scr-list'); } }
+
+  // ============================================================ input
+  var IN = { aimL: false, aimR: false };
+  function releaseAll() { IN.aimL = IN.aimR = false; Array.prototype.forEach.call(document.querySelectorAll('.cbtn.held'), function (b) { b.classList.remove('held'); }); }
+  function anyDialogOpen() { return !!document.querySelector('dialog[open]'); }
+  function cmd(c) {
+    var r = RUN; if (!r || !r.started || r.demo || anyDialogOpen()) return;
+    var G = r.G;
+    if (G.phase === 'aim') { if (c === 'drop') { if (E.command(G, 'drop')) { SFX.drop(); live('Ball released.'); } } return; }
+    if (c === 'drop') return;
+    if (E.command(G, c)) { SFX.gravity(G.gm); syncControls(); }
+    else if (G.empty) toast('The gravity reserve is empty: gravity stays down.', 1.6);
+    else if ((c === 'up' && !G.S.unlock.reverse) || ((c === 'lighter' || c === 'heavier') && !G.S.unlock.strength)) toast(c === 'up' ? 'Reversal unlocks in Chapter IV.' : 'Strength control unlocks in Chapter III.', 1.6);
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (screen !== 'scr-game' || !RUN || anyDialogOpen()) return;
+    var k = e.code, tag = (e.target && e.target.tagName) || '';
+    if (!RUN.started) { if ((k === 'Space' || k === 'Enter') && !/BUTTON|A|INPUT|SELECT/.test(tag)) { e.preventDefault(); if (RUN.failedShown) restart(); else go(); } if (k === 'Escape') { e.preventDefault(); quitToMenu(); } return; }
+    var G = RUN.G, aim = G.phase === 'aim';
+    if (k === 'ArrowLeft' || k === 'KeyA') { e.preventDefault(); if (aim) IN.aimL = true; else if (!e.repeat) cmd('left'); }
+    else if (k === 'ArrowRight' || k === 'KeyD') { e.preventDefault(); if (aim) IN.aimR = true; else if (!e.repeat) cmd('right'); }
+    else if (k === 'ArrowDown' || k === 'KeyS') { e.preventDefault(); if (!e.repeat) cmd('down'); }
+    else if (k === 'ArrowUp' || k === 'KeyW') { e.preventDefault(); if (!e.repeat) cmd('up'); }
+    else if (k === 'KeyQ') { if (!e.repeat) cmd('lighter'); }
+    else if (k === 'KeyE') { if (!e.repeat) cmd('heavier'); }
+    else if (k === 'Space' || k === 'Enter') { e.preventDefault(); if (!e.repeat) cmd('drop'); }
+    else if (k === 'KeyR') { e.preventDefault(); if (!e.repeat) restart(); }
+    else if (k === 'Escape' || k === 'KeyP') { e.preventDefault(); pause(); }
+    else if (k === 'KeyM') { e.preventDefault(); toggleSound(); }
+  });
+  document.addEventListener('keyup', function (e) { var k = e.code; if (k === 'ArrowLeft' || k === 'KeyA') IN.aimL = false; if (k === 'ArrowRight' || k === 'KeyD') IN.aimR = false; });
+  function bindBtn(id, onDown, onUp) {
+    var b = $(id);
+    b.addEventListener('pointerdown', function (e) { e.preventDefault(); audioOn(); try { b.setPointerCapture(e.pointerId); } catch (x) { } b.classList.add('held'); if (RUN && !RUN.started && !RUN.failedShown) go(); onDown(); });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (ev) { b.addEventListener(ev, function () { b.classList.remove('held'); if (onUp) onUp(); }); });
+    b.addEventListener('click', function (e) { if (e.detail === 0) onDown(); });   // keyboard activation of the on-screen buttons
+    b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  }
+  bindBtn('c-left', function () { if (RUN && RUN.G.phase === 'aim') IN.aimL = true; else cmd('left'); }, function () { IN.aimL = false; });
+  bindBtn('c-right', function () { if (RUN && RUN.G.phase === 'aim') IN.aimR = true; else cmd('right'); }, function () { IN.aimR = false; });
+  bindBtn('c-down', function () { cmd('down'); });
+  bindBtn('c-up', function () { cmd('up'); });
+  bindBtn('c-light', function () { cmd('lighter'); });
+  bindBtn('c-heavy', function () { cmd('heavier'); });
+  bindBtn('c-drop', function () { cmd('drop'); });
+  // drag on the board to aim the dropper before release
+  var cv = $('board'), cx = cv.getContext('2d');
+  function boardX(e) { var rc = cv.getBoundingClientRect(); return (e.clientX - rc.left - VIEW.ox) / VIEW.s; }
+  cv.addEventListener('pointerdown', function (e) { if (!RUN || !RUN.started || RUN.demo) return; audioOn(); if (RUN.G.phase === 'aim') { E.setAim(RUN.G, boardX(e)); RUN.dragAim = e.pointerId; try { cv.setPointerCapture(e.pointerId); } catch (x) { } } });
+  cv.addEventListener('pointermove', function (e) { if (RUN && RUN.dragAim === e.pointerId && RUN.G.phase === 'aim') E.setAim(RUN.G, boardX(e)); });
+  ['pointerup', 'pointercancel'].forEach(function (ev) { cv.addEventListener(ev, function () { if (RUN) RUN.dragAim = null; }); });
+  window.addEventListener('blur', function () { releaseAll(); if (RUN && RUN.started && !RUN.G.done && screen === 'scr-game') pause(true); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) { releaseAll(); if (RUN && RUN.started && !RUN.G.done && screen === 'scr-game') pause(true); } LOOP.last = 0; });
+  function syncControls() {
+    var r = RUN; if (!r) return; var G = r.G, u = G.S.unlock, aim = G.phase === 'aim';
+    $('c-up').disabled = !u.reverse; $('c-light').disabled = !u.strength; $('c-heavy').disabled = !u.strength;
+    ['left', 'right', 'down', 'up'].forEach(function (m) { $('c-' + m).classList.toggle('on', !aim && G.gm === m); $('c-' + m).setAttribute('aria-pressed', String(!aim && G.gm === m)); });
+    $('c-light').classList.toggle('on', G.gs < 1); $('c-heavy').classList.toggle('on', G.gs > 1);
+    $('c-drop').disabled = !aim; $('c-drop').textContent = aim ? 'Drop' : (G.empty ? 'Empty' : 'Rolling');
+    $('c-left').setAttribute('aria-label', aim ? 'Move the dropper left' : 'Gravity left (Left arrow)'); $('c-right').setAttribute('aria-label', aim ? 'Move the dropper right' : 'Gravity right (Right arrow)');
+  }
+
+  // ============================================================ dialogs
+  function openDialog(id) { var d = $(id); if (!d.open) { try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } } releaseAll(); }
+  function closeDialog(id) { var d = $(id); if (d.open) { try { d.close(); } catch (e) { d.removeAttribute('open'); } } }
+  function closeDialogs() { Array.prototype.forEach.call(document.querySelectorAll('dialog[open]'), function (d) { try { d.close(); } catch (e) { d.removeAttribute('open'); } }); }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (b) { b.addEventListener('click', function () { var d = b.closest('dialog'); try { d.close(); } catch (e) { d.removeAttribute('open'); } }); });
+  function pause(auto) { if (!RUN || !RUN.started || RUN.G.done) return; openDialog('d-pause'); if (auto) live('Paused because the window lost focus.'); }
+  $('d-pause').addEventListener('close', function () { LOOP.last = 0; releaseAll(); if (screen === 'scr-game') setTimeout(function () { cv.focus(); }, 0); });
+  var confirmCb = null;
+  function confirmBox(h, p, yes, cb) { $('dc-h').textContent = h; $('dc-p').textContent = p; $('dc-yes').textContent = yes; confirmCb = cb; openDialog('d-confirm'); }
+  $('dc-yes').addEventListener('click', function () { closeDialog('d-confirm'); var c = confirmCb; confirmCb = null; if (c) c(); });
+  $('dc-no').addEventListener('click', function () { closeDialog('d-confirm'); confirmCb = null; });
+  function toggleSound() { SAVE.settings.sound = !SAVE.settings.sound; if (SAVE.settings.sound) audioOn(); applySettings(); persist(); syncSettings(); toast(SAVE.settings.sound ? 'Sound on' : 'Sound off', 1.2); }
+  function syncSettings() { var s = SAVE.settings; $('s-sound').checked = s.sound; $('s-vol').value = s.vol; $('s-vol-v').textContent = s.vol + ' %'; $('s-motion').value = s.motion; $('s-contrast').checked = s.contrast; $('s-ghost').checked = s.ghost; $('s-slow').checked = s.slow; $('s-large').checked = s.large; }
+  [['s-sound', 'sound'], ['s-contrast', 'contrast'], ['s-ghost', 'ghost'], ['s-slow', 'slow'], ['s-large', 'large']].forEach(function (p) {
+    $(p[0]).addEventListener('change', function (e) { SAVE.settings[p[1]] = e.target.checked; if (p[1] === 'sound' && e.target.checked) audioOn(); applySettings(); persist(); if (p[1] === 'slow') { renderTitle(); if (RUN && !RUN.practice) toast('Assisted slow motion applies from the next stage you start.', 2.4); } });
+  });
+  $('s-vol').addEventListener('input', function (e) { SAVE.settings.vol = +e.target.value; $('s-vol-v').textContent = SAVE.settings.vol + ' %'; applySettings(); persist(); });
+  $('s-motion').addEventListener('change', function (e) { SAVE.settings.motion = e.target.value; applySettings(); persist(); });
+  function openSettings() { syncSettings(); openDialog('d-settings'); }
+
+  function renderHowto() {
+    var b = $('dh-body'); clear(b); var box = el('div', { cls: 'howto' }); b.appendChild(box);
+    function h(t) { box.appendChild(el('h3', { text: t })); } function p(t) { box.appendChild(el('p', { text: t })); } function ul(a) { box.appendChild(el('ul', null, a.map(function (t) { return el('li', { text: t }); }))); }
+    p('You never steer the ball. You choose where to release it, then change the force acting on it. Its momentum and every collision are real physics: the same inputs always give the same result.');
+    h('Controls');
+    ul(['Before release: ← / → (or ◀ ▶, or drag on the board) move the dropper; Space, Enter or Drop releases the ball.',
+      'While it rolls: ← gravity left · → gravity right · ↓ gravity down (restore) · ↑ reverse gravity (Chapter IV on) · Q lighter · E heavier (Chapter III on). Each is one press: gravity stays that way until you change it.',
+      'R restarts the stage · Esc or P pauses · M sound. Touch buttons sit beside or below the board, never on top of it.']);
+    h('The gravity dial and reserve');
+    ul(['The dial’s arrow shows the direction of the pull; its length shows the strength (Light 0.55×, Normal 1×, Heavy 1.6×). Gravity swings smoothly to a new direction in a fraction of a second.',
+      'Any pull other than plain “down, normal” drains the gravity reserve each second (tilt 8, reverse 15, light 4, heavy 6), and every change costs 1.5. When the reserve is empty, gravity returns down and stays there for that ball.',
+      'Every ball starts the machine afresh with a full reserve.']);
+    h('The machine');
+    ul(['Brass pegs and rails, rubber bumpers (they kick the ball away at speed), spoked wheels that fling, sliding gates on a timer or a switch, one-way glass passages (chevrons show the open direction), panes of glass that break on a hard enough impact, violet gravity wells that pull toward their centre, and grinders (striped, toothed, marked ✕) that destroy the ball.',
+      'Lanterns: pass the ball through each one to light it; when all are lit the cup’s lid unlocks. Tokens are optional extras.',
+      'A ball is lost if it leaves the machine, touches a grinder, stops outside the cup for 5 seconds, or rolls for more than 75 seconds. The stage is complete when the ball settles in an unsealed cup.']);
+    h('Scoring and grades');
+    ul(['Score = 1000 for completing the drop + a bonus pool, multiplied by the tier (Bronze ×1, Silver ×1.25, Gold ×1.5). The pool is: 4 per % of reserve left + adjustment bonus (300, minus 30 for each adjustment beyond the stage’s par) + time bonus (up to 300 against par) + 150 per token + 200 for a bullseye (settling in the centre quarter of the cup) + 150 if no ball was lost − 200 per ball lost. The pool never goes below 0.',
+      'Grades: Gold Drop — no ball lost, bullseye, within par time. Silver Drop — at most one ball lost, within 1.5 × par. Bronze Drop — complete the stage.',
+      'Fewer, better-timed adjustments score more than constant fiddling: stronger gravity is not always better.']);
+    h('Modes and difficulty');
+    ul(['Campaign: 15 stages in five chapters, each unlocking the next. Practice Chamber: a sandbox with everything unlocked and no records.',
+      'Bronze, Silver and Gold change balls, reserve, cup and lantern size, switch timers and glass strength — never the laws of physics.',
+      'Assisted slow motion (Settings) runs the machine at 60 % speed; the physics and outcomes are identical, and results are recorded separately as “Assisted”.',
+      'An “Endless Drop” mode is not included in this prototype.']);
+    h('Saving'); p('Results save automatically in this browser when you complete a stage. Leaving or reloading during a stage restarts it.');
+  }
+  function renderRecords() {
+    var b = $('dr-body'); clear(b);
+    trackIds().forEach(function (tr) {
+      var P = SAVE.prog[tr], ids = Object.keys(P.stages); if (!ids.length && /assisted/.test(tr)) return;
+      b.appendChild(el('h3', { text: trackName(tr) + ' — ' + ids.length + '/15 complete · campaign score ' + campaignTotal(tr) + (P.bestTotal ? ' · personal best ' + P.bestTotal : '') + ' · balls lost ' + P.lost }));
+      if (!ids.length) { b.appendChild(el('p', { cls: 'small muted', text: 'No stages completed yet.' })); return; }
+      var t = el('table', { cls: 'rtbl' }); t.appendChild(el('thead', null, [el('tr', null, ['Stage', 'Best grade', 'Best score', 'Best time', 'Tokens', 'Clears'].map(function (x) { return el('th', { scope: 'col', text: x }); }))]));
+      var tb = el('tbody'); t.appendChild(tb);
+      STAGES.forEach(function (st) { var r = P.stages[st.id]; if (!r) return; var nt = st.parts.filter(function (q) { return q.k === 'token'; }).length;
+        tb.appendChild(el('tr', null, [el('td', { text: pad2(st.n) + ' ' + st.name }), el('td', { text: gradeName(r.bestGrade) }), el('td', { text: String(r.score) }), el('td', { text: r.time.toFixed(2) + ' s' }), el('td', { text: r.tokens.length + '/' + nt }), el('td', { text: String(r.clears) })])); });
+      b.appendChild(t);
+    });
+    b.appendChild(el('h3', { text: 'Seals (this game’s own accomplishments)' }));
+    b.appendChild(el('ul', { cls: 'ach' }, SEALS.map(function (a) { var got = !!SAVE.seals[a[0]]; return el('li', { cls: got ? 'got' : '' }, [el('strong', null, [el('span', { cls: 'seal' + (got ? '' : ' no'), 'aria-hidden': 'true' }), (got ? 'Earned: ' : 'Not yet: ') + a[1]]), el('span', { text: a[2] })]); })));
+  }
+  $('dr-reset').addEventListener('click', function () {
+    closeDialog('d-records');
+    confirmBox('Reset all records?', 'This permanently clears every stage record, grade, token and seal for all difficulties. Sound and accessibility settings are kept. Other DoorQuests games are not affected.', 'Reset records', function () {
+      var keep = SAVE.settings, tier = SAVE.tier; SAVE = blank(); SAVE.settings = keep; SAVE.tier = tier; persist(); renderTitle(); note('Records reset. Settings were kept.');
+    });
+  });
+
+  // ============================================================ completion
+  function seal(id) { if (!SAVE.seals[id]) { SAVE.seals[id] = Date.now(); var a = SEALS.filter(function (x) { return x[0] === id; })[0]; toast('Seal earned: ' + a[1], 3); live('Seal earned: ' + a[1]); } }
+  function completeRun() {
+    var r = RUN, G = r.G, res = G.result;
+    if (r.demo && !r.autoRecord) { toast('Solution replay complete', 2.4); setTimeout(function () { if (RUN === r) quitToMenu(); }, 1500); return; }
+    if (r.practice) { SAVE.practice++; seal('chamber'); persist(); toast('In the cup! R for another ball.', 2.4); return; }
+    var tr = r.track, P = SAVE.prog[tr], old = P.stages[r.id], rank = { gold: 3, silver: 2, bronze: 1 };
+    P.runs++; P.lost += G.lost;
+    var toks = old ? old.tokens.slice() : []; G.tok.forEach(function (k, i) { if (k && toks.indexOf(i) < 0) toks.push(i); }); toks.sort();
+    var better = !old || res.score > old.score;
+    P.stages[r.id] = { score: better ? res.score : old.score, time: old ? min(old.time, res.time) : res.time, grade: better ? res.grade : old.grade, bestGrade: !old || rank[res.grade] > rank[old.bestGrade] ? res.grade : old.bestGrade,
+      tokens: toks, adj: better ? res.adjustments : old.adj, energy: better ? res.energyPct : old.energy, lost: better ? res.lost : old.lost, clears: (old ? old.clears : 0) + 1 };
+    P.unlocked = max(P.unlocked, min(15, r.def.n + 1));
+    var tot = campaignTotal(tr); if (tot > P.bestTotal) P.bestTotal = tot;
+    if (r.def.n === 1) seal('first'); if (res.adjustments <= res.parAdj) seal('light'); if (res.bullseye) seal('bull'); if (res.tokensTotal && res.tokens === res.tokensTotal) seal('tokens');
+    if (res.lost === 0) seal('clean'); if (r.def.n === 10 && G.usedReverse) seal('reverse'); if (G.broken.some(Boolean)) seal('glass'); if (r.def.n === 15) seal('grand');
+    if (/^gold/.test(tr) && Object.keys(P.stages).length === 15) seal('gold');
+    persist(); showResult(res, !old, better && !!old);
+  }
+  function showResult(res, first, improved) {
+    var r = RUN, d = r.def;
+    $('r-k').textContent = 'Stage ' + pad2(d.n) + ' of 15 · ' + trackName(r.track);
+    $('r-h').textContent = d.name + ' — complete'; $('r-sub').textContent = first ? 'First completion on ' + trackName(r.track) + '.' : improved ? 'New best score!' : 'Best score ' + SAVE.prog[r.track].stages[d.id].score + '.';
+    $('r-grade').textContent = gradeName(res.grade) + (/assisted/.test(r.track) ? ' (Assisted)' : '');
+    var st = $('r-stats'); clear(st);
+    [['Completed', 'Yes'], ['Time', res.time.toFixed(2) + ' s (par ' + res.par + ' s)'], ['Lanterns', res.lanterns + '/' + res.lanternsTotal], ['Tokens', res.tokens + '/' + res.tokensTotal],
+      ['Gravity adjustments', res.adjustments + ' (par ' + res.parAdj + ')'], ['Reserve left', res.energyPct + ' %'], ['Landing', res.bullseye ? 'Bullseye' : (round(res.offCentre * 100)) + ' % off centre'], ['Balls used', res.ballsUsed + ' of ' + res.balls + ' (' + res.lost + ' lost)'], ['Score', String(res.score)]]
+      .forEach(function (x) { st.appendChild(el('div', { cls: 'stat' }, [el('span', { text: x[0] }), el('strong', { text: x[1] })])); });
+    var rl = $('r-rules'); clear(rl);
+    E.gradeRules(res.par).forEach(function (g) { var met = g[0] === 'bronze' || (g[0] === 'silver' && res.grade !== 'bronze') || (g[0] === 'gold' && res.grade === 'gold'); rl.appendChild(el('li', { cls: met ? 'met' : 'miss', text: g[1] })); });
+    var tb = $('r-score'); clear(tb);
+    res.lines.forEach(function (l, i) { tb.appendChild(el('tr', { cls: i === res.lines.length - 1 ? 'total' : '' }, [el('td', { text: l[0] }), el('td', { cls: 'n', text: (l[1] > 0 && i > 0 && i < res.lines.length - 2 ? '+' : '') + l[1] })])); });
+    $('r-note').textContent = 'Every number here is read from the physics engine’s final state: the ball’s resting position, the reserve, the commands you gave and the clock.';
+    var nx = STAGES[d.n]; $('r-next').hidden = !nx; $('r-next').textContent = nx ? 'Next: Stage ' + pad2(nx.n) : '';
+    show('scr-result'); setTimeout(function () { (nx ? $('r-next') : $('r-list')).focus(); }, 0);
+    live('Stage complete. ' + gradeName(res.grade) + '. Score ' + res.score + '.');
+  }
+  function showFailed() {
+    var r = RUN; r.started = false; r.failedShown = true;
+    $('bf-k').textContent = 'Out of balls'; $('bf-h').textContent = 'The machine wins this time'; $('bf-p').textContent = 'All ' + E.TIERS[r.G.tier].balls + ' balls were lost. Last: ' + r.G.lostWhy + '. Nothing was recorded; try a different release point or fewer, better-timed adjustments.';
+    clear($('bf-list')); $('b-go').textContent = 'Try again'; $('b-demo').hidden = true; $('brief').hidden = false; setTimeout(function () { $('b-go').focus(); }, 0);
+    alertMsg('Out of balls. ' + r.G.lostWhy + '.');
+  }
+  function shareText(tr) {
+    var P = SAVE.prog[tr], ids = Object.keys(P.stages), g = { gold: 0, silver: 0, bronze: 0 }, tk = 0, tkT = 0;
+    STAGES.forEach(function (st) { var r = P.stages[st.id]; tkT += st.parts.filter(function (q) { return q.k === 'token'; }).length; if (r) { g[r.bestGrade]++; tk += r.tokens.length; } });
+    return ['KINETIC DROP', 'DoorQuests · Gamortal #016', '', 'Difficulty: ' + trackName(tr), 'Stages Completed: ' + ids.length + '/15', 'Campaign Score: ' + campaignTotal(tr), 'Grades: ' + g.gold + ' Gold · ' + g.silver + ' Silver · ' + g.bronze + ' Bronze',
+      'Tokens: ' + tk + '/' + tkT, 'Balls Lost: ' + P.lost, '', 'Change the pull. Change the path.', '', 'doorquests.com/games/kinetic-drop/'].join('\n');
+  }
+  function renderCamp() {
+    var tr = track(), P = SAVE.prog[tr], ids = Object.keys(P.stages), g = { gold: 0, silver: 0, bronze: 0 };
+    STAGES.forEach(function (st) { var r = P.stages[st.id]; if (r) g[r.bestGrade]++; });
+    $('c-k').textContent = 'Campaign summary · ' + trackName(tr);
+    $('c-sub').textContent = ids.length === 15 ? 'Every machine conquered on ' + trackName(tr) + '.' : ids.length + ' of 15 stages complete on ' + trackName(tr) + '. Totals use your best result on each stage.';
+    var s = $('c-stats'); clear(s);
+    [['Stages complete', ids.length + '/15'], ['Campaign score', String(campaignTotal(tr))], ['Personal best', String(P.bestTotal)], ['Grades', g.gold + ' gold · ' + g.silver + ' silver · ' + g.bronze + ' bronze'], ['Balls lost (all runs)', String(P.lost)], ['Completed runs', String(P.runs)]]
+      .forEach(function (x) { s.appendChild(el('div', { cls: 'stat' }, [el('span', { text: x[0] }), el('strong', { text: x[1] })])); });
+    var gl = $('c-grades'); clear(gl);
+    STAGES.forEach(function (st) { var r = P.stages[st.id]; gl.appendChild(el('li', null, [el('strong', { text: pad2(st.n) + ' ' + st.name + ': ' }), r ? el('span', { cls: 'grade-chip g-' + r.bestGrade, text: gradeName(r.bestGrade) }) : el('span', { cls: 'muted', text: 'not completed' }), r ? ' ' + r.score : ''])); });
+    $('c-share').textContent = shareText(tr); $('c-note').textContent = ''; show('scr-camp');
+  }
+  $('c-copy').addEventListener('click', function () { var t = $('c-share').textContent; function y() { $('c-note').textContent = 'Copied to the clipboard.'; } function n() { $('c-note').textContent = 'Copy is not available here; select the text below and copy it.'; }
+    try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(y, n); else n(); } catch (e) { n(); } });
+
+  // ============================================================ main loop (fixed 1/240 s physics; never catches up after suspension)
+  var VIEW = { s: 30, ox: 0, oy: 0, cw: 0, ch: 0, dpr: 1 };
+  function resize() {
+    var w = cv.clientWidth || 600, h = cv.clientHeight || 600, d = min(window.devicePixelRatio || 1, 2);
+    VIEW.dpr = d; VIEW.cw = w; VIEW.ch = h; cv.width = round(w * d); cv.height = round(h * d);
+    var W = RUN ? RUN.G.S.W : 12, H = RUN ? RUN.G.S.H : 18, pad = 0.35;
+    VIEW.s = min(w / (W + 2 * pad), h / (H + 2 * pad)); VIEW.ox = (w - W * VIEW.s) / 2; VIEW.oy = (h - H * VIEW.s) / 2;
+    var dc = $('dial'), dd = min(window.devicePixelRatio || 1, 2), sz = dc.clientWidth || 170; dc.width = round(sz * dd); dc.height = round(sz * dd);
+  }
+  window.addEventListener('resize', function () { resize(); sizeTitle(); });
+  window.addEventListener('orientationchange', function () { releaseAll(); setTimeout(resize, 150); });
+  function frame(ts) {
+    requestAnimationFrame(frame);
+    if (LOOP.manual) return;
+    var dt = LOOP.last ? (ts - LOOP.last) / 1000 : 0; LOOP.last = ts;
+    advance(min(dt, 0.1)); draw();
+  }
+  function advance(dt) {
+    LOOP.frames++; dt = clamp(dt, 0, 0.1);
+    if (toastT > 0) { toastT -= dt; if (toastT <= 0) $('toast').hidden = true; }
+    if (screen === 'scr-title') { titleT += dt; return; }
+    if (screen !== 'scr-game' || !RUN) return;
+    var r = RUN, G = r.G;
+    if (!r.started || anyDialogOpen()) return;
+    if (G.phase === 'aim' && !r.demo) { var mv = (IN.aimR ? 1 : 0) - (IN.aimL ? 1 : 0); if (mv) E.setAim(G, G.dropX + mv * 4 * dt); }
+    var scale = (SAVE.settings.slow && !r.practice && !r.demo) ? 0.6 : 1;
+    r.acc += dt * scale; var n = 0;
+    while (r.acc >= DT && n < 60) {
+      if (G.phase !== 'roll' || G.done || G.failed) { r.acc = 0; break; }
+      if (r.demo && r.tape) { if (G.steps % CFG.macro === 0) { var m = G.steps / CFG.macro, sym = r.tape.seq[m]; if (E.SYM[sym]) { E.command(G, E.SYM[sym]); SFX.gravity(G.gm); } } }
+      r.prev.x = G.b.x; r.prev.y = G.b.y;
+      E.step(G); LOOP.steps++; r.acc -= DT; n++;
+      handleEvents(r);
+    }
+    if (n >= 60) r.acc = 0;
+    if (G.gm === 'up' && G.phase === 'roll') G.usedReverse = true;
+    if (G.done && !r.completed) { r.doneT = r.doneT < 0 ? 0 : r.doneT + dt; if (r.doneT >= 0.9) { r.completed = true; completeRun(); } }
+    if (G.failed && !r.failedShown) showFailed();
+    if (!reduce && G.phase === 'roll') { r.trail.push([G.b.x, G.b.y]); if (r.trail.length > 14) r.trail.shift(); } else r.trail.length = 0;
+    updateFx(dt); updateHud(false);
+  }
+  function handleEvents(r) {
+    var G = r.G, ev = G.ev; if (!ev.length) return;
+    for (var i = 0; i < ev.length; i++) {
+      var e = ev[i];
+      if (e.type === 'hit') SFX.hit(e.b);
+      else if (e.type === 'bumper') { SFX.bumper(); sparks(e.a, e.b, 6, '#9fe8ff'); r.flash = r.flash || {}; r.flash[e.a + ',' + e.b] = 0.25; }
+      else if (e.type === 'lantern') { SFX.lantern(); var L = G.S.lanterns[e.a]; sparks(L.x, L.y, 12, '#ffd75e'); toast('Lantern lit (' + E.litCount(G) + '/' + G.S.lanterns.length + ')', 1.4); live('Lantern lit, ' + E.litCount(G) + ' of ' + G.S.lanterns.length + '.'); }
+      else if (e.type === 'unsealed') { toast('All lanterns lit — the cup is unsealed', 2); live('The cup is unsealed.'); }
+      else if (e.type === 'token') { SFX.token(); var K = G.S.tokens[e.a]; sparks(K.x, K.y, 8, '#f0a43a'); }
+      else if (e.type === 'switch') { SFX.sw(); toast('Switch: gate open for ' + (G.S.switches[e.a].dur * G.S.T.timer).toFixed(1) + ' s', 1.6); live('Switch pressed; the gate is open.'); }
+      else if (e.type === 'break') { SFX.glass(); var B = G.S.breaks[e.a]; sparks((B.x1 + B.x2) / 2, (B.y1 + B.y2) / 2, 18, '#bff4ff'); toast('The glass shatters!', 1.6); live('The glass broke.'); }
+      else if (e.type === 'clink') SFX.clink();
+      else if (e.type === 'lost') { SFX.lost(); alertMsg('Ball lost: ' + e.a + '.' + (G.failed ? '' : ' ' + G.ballsLeft + ' left — aim and drop again.')); if (!G.failed) toast(e.a, 2); syncControls(); }
+      else if (e.type === 'empty') { SFX.empty(); toast('Gravity reserve empty — gravity returns down', 1.8); live('The gravity reserve is empty.'); syncControls(); }
+      else if (e.type === 'drop') syncControls();
+      else if (e.type === 'gravity') syncControls();
+      else if (e.type === 'done') { SFX.done(); sparks(G.b.x, G.b.y, 24, '#ffe6a6'); live('The ball settled in the cup.'); }
+    }
+    G.ev.length = 0;
+  }
+  var hc = {};
+  function setText(id, t) { if (hc[id] !== t) { hc[id] = t; $(id).textContent = t; } }
+  function updateHud(force) {
+    if (!RUN) return; if (force) hc = {};
+    var G = RUN.G, S = G.S, inf = G.infinite;
+    setText('h-balls', inf ? '∞' : String(max(0, S.T.balls - G.ballsUsed + (G.phase === 'aim' ? 0 : 0))) + (inf ? '' : ' left'));
+    setText('h-lit', S.lanterns.length ? E.litCount(G) + '/' + S.lanterns.length : '—');
+    setText('h-time', G.t.toFixed(1) + ' s'); setText('h-adj', String(G.adj)); setText('h-tok', G.tok.filter(Boolean).length + '/' + S.tokens.length);
+    var pct = inf ? 100 : round(100 * G.energy / S.energyMax);
+    setText('g-energy', inf ? '∞' : pct + ' %'); $('g-ebar').style.width = pct + '%'; $('g-ebar').parentNode.classList.toggle('low', pct < 25);
+    var mode = G.phase === 'aim' ? 'Aiming — drop when ready' : (G.empty ? 'Reserve empty · down' : ({ down: 'Down', left: 'Left (45°)', right: 'Right (45°)', up: 'Reversed (up)' }[G.gm]) + ' · ' + (G.gs < 1 ? 'light' : G.gs > 1 ? 'heavy' : 'normal'));
+    setText('g-mode', mode);
+    var obj = !S.lanterns.length || E.cupOpen(G, S.cups[0]) ? 'Settle the ball in the cup.' : 'Light ' + (S.lanterns.length - E.litCount(G)) + ' more lantern' + (S.lanterns.length - E.litCount(G) > 1 ? 's' : '') + ' to unseal the cup.';
+    setText('h-obj', obj);
+    drawDial();
+  }
+
+  // ============================================================ rendering
+  var P2 = { x1: 0, y1: 0, x2: 0, y2: 0 }, FX = [], tF = 0;
+  function sparks(x, y, n, col) { if (reduce) n = min(n, 3); for (var i = 0; i < n; i++) { var a = (i / n) * TAU + i, s = 1.5 + (i % 4); FX.push({ x: x, y: y, vx: cos(a) * s, vy: sin(a) * s, t: 0, life: 0.35 + (i % 3) * 0.1, col: col }); } if (FX.length > 200) FX.splice(0, FX.length - 200); }
+  function updateFx(dt) { for (var i = FX.length - 1; i >= 0; i--) { var f = FX[i]; f.t += dt; if (f.t > f.life) { FX.splice(i, 1); continue; } f.x += f.vx * dt; f.y += f.vy * dt; f.vy -= 6 * dt; } }
+  function W2S() { var s = VIEW.s * VIEW.dpr; cx.setTransform(s, 0, 0, -s, VIEW.ox * VIEW.dpr, (VIEW.oy + RUN.G.S.H * VIEW.s) * VIEW.dpr); }
+  function draw() {
+    if (screen === 'scr-title') { drawTitle(); return; }
+    if (screen !== 'scr-game' || !RUN) return;
+    tF += 1 / 60;
+    var G = RUN.G, S = G.S, hcm = SAVE.settings.contrast, t = G.t, a = RUN.acc / DT;
+    cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height);
+    W2S();
+    // cabinet: engraved back panel and brass frame
+    var g = cx.createLinearGradient(0, 0, 0, S.H); g.addColorStop(0, '#0d1230'); g.addColorStop(1, '#1b2258');
+    cx.fillStyle = g; cx.fillRect(0, 0, S.W, S.H);
+    cx.fillStyle = 'rgba(255,255,255,0.035)'; for (var gx = 0.5; gx < S.W; gx += 1) for (var gy = 0.5; gy < S.H; gy += 1) cx.fillRect(gx - 0.02, gy - 0.02, 0.04, 0.04);
+    cx.strokeStyle = '#c8963e'; cx.lineWidth = 0.18; cx.strokeRect(-0.09, -0.4, S.W + 0.18, S.H + 0.49);
+    cx.strokeStyle = 'rgba(255,231,160,0.25)'; cx.lineWidth = 0.04; cx.strokeRect(0.1, -0.2, S.W - 0.2, S.H - 0.1);
+    cx.fillStyle = 'rgba(180,56,46,0.35)'; cx.fillRect(0, -0.4, S.W, 0.25);   // the open drain at the bottom
+    drawWells(S, t);
+    // drop rail and dropper
+    cx.strokeStyle = '#8a6a2a'; cx.lineWidth = 0.1; cx.beginPath(); cx.moveTo(S.drop[0] - 0.3, S.drop[2] + 0.4); cx.lineTo(S.drop[1] + 0.3, S.drop[2] + 0.4); cx.stroke();
+    cx.fillStyle = '#c8963e'; cx.fillRect(G.dropX - 0.38, S.drop[2] + 0.32, 0.76, 0.18);
+    // colliders
+    S.cols.forEach(function (c) { if (c.frame) return; drawCollider(G, c, t); });
+    S.cups.forEach(function (c) { drawCup(G, c); });
+    S.hazards.forEach(function (z) { drawHazard(z, t); });
+    S.switches.forEach(function (w, i) { drawSwitch(G, w, i, t); });
+    S.lanterns.forEach(function (L, i) { drawLantern(L, G.lit[i], t); });
+    S.tokens.forEach(function (k, i) { if (!G.tok[i]) drawToken(k, t); });
+    // Bronze ghost path
+    if (E.TIERS[G.tier].aids.ghost && SAVE.settings.ghost && RUN.started && !RUN.demo && !G.done && !G.failed) { var pts = E.predict(G, 1.3); cx.fillStyle = 'rgba(255,241,204,0.5)'; pts.forEach(function (p, i) { if (i % 2) return; cx.beginPath(); cx.arc(p[0], p[1], 0.06, 0, TAU); cx.fill(); }); }
+    // ball (interpolated) and trail
+    var bx = G.phase === 'roll' ? RUN.prev.x + (G.b.x - RUN.prev.x) * a : G.b.x, by = G.phase === 'roll' ? RUN.prev.y + (G.b.y - RUN.prev.y) * a : G.b.y;
+    RUN.trail.forEach(function (p, i) { cx.fillStyle = 'rgba(243,234,219,' + (0.04 + i * 0.012).toFixed(3) + ')'; cx.beginPath(); cx.arc(p[0], p[1], CFG.ballR * (0.4 + i / 30), 0, TAU); cx.fill(); });
+    var rg = cx.createRadialGradient(bx - 0.08, by + 0.08, 0.03, bx, by, CFG.ballR); rg.addColorStop(0, '#ffffff'); rg.addColorStop(0.5, '#e8e2d2'); rg.addColorStop(1, '#8c8a86');
+    cx.fillStyle = rg; cx.beginPath(); cx.arc(bx, by, CFG.ballR, 0, TAU); cx.fill();
+    if (hcm) { cx.strokeStyle = '#ffffff'; cx.lineWidth = 0.05; cx.stroke(); }
+    // particles
+    FX.forEach(function (f) { cx.globalAlpha = max(0, 1 - f.t / f.life); cx.fillStyle = f.col; cx.beginPath(); cx.arc(f.x, f.y, 0.06, 0, TAU); cx.fill(); }); cx.globalAlpha = 1;
+  }
+  function seg(c, t, G) { return c.moving ? E.segAt(G, c, t, P2) : c; }
+  function drawCollider(G, c, t) {
+    var hcm = SAVE.settings.contrast;
+    if (c.t === 'c') {
+      if (c.kind === 'peg') { var pg = cx.createRadialGradient(c.x - 0.04, c.y + 0.04, 0.01, c.x, c.y, c.r); pg.addColorStop(0, '#fff1c4'); pg.addColorStop(1, '#b8873a'); cx.fillStyle = pg; cx.beginPath(); cx.arc(c.x, c.y, c.r, 0, TAU); cx.fill(); if (hcm) { cx.strokeStyle = '#fff'; cx.lineWidth = 0.03; cx.stroke(); } return; }
+      if (c.kind === 'bumper') { var f = RUN.flash && RUN.flash[c.x + ',' + c.y] > 0; if (f) RUN.flash[c.x + ',' + c.y] -= 1 / 60;
+        cx.fillStyle = f ? '#d8fbff' : '#1f6f86'; cx.beginPath(); cx.arc(c.x, c.y, c.r, 0, TAU); cx.fill(); cx.strokeStyle = '#9fe8ff'; cx.lineWidth = 0.1; cx.beginPath(); cx.arc(c.x, c.y, c.r - 0.05, 0, TAU); cx.stroke();
+        cx.fillStyle = '#f3eadb'; cx.beginPath(); cx.arc(c.x, c.y, c.r * 0.35, 0, TAU); cx.fill(); return; }
+      if (c.kind === 'hub') { var wh = c.wheel, ang = E.wheelAngle(wh, t); cx.strokeStyle = 'rgba(200,150,62,0.25)'; cx.lineWidth = 0.05; cx.beginPath(); cx.arc(wh.x, wh.y, wh.R, 0, TAU); cx.stroke();
+        cx.fillStyle = '#f0a43a'; cx.beginPath(); cx.arc(wh.x, wh.y, c.r, 0, TAU); cx.fill();
+        var dir = wh.w > 0 ? 1 : -1, s0 = ang + 0.4; cx.strokeStyle = '#fff1cc'; cx.lineWidth = 0.05; cx.beginPath(); cx.arc(wh.x, wh.y, 0.42, min(s0, s0 + dir * 1.8), max(s0, s0 + dir * 1.8)); cx.stroke(); return; }
+      return;
+    }
+    if (c.kind === 'lid' || c.kind === 'cupwall' || c.kind === 'cupfloor') return;
+    if (c.kind === 'break' && G.broken[c.i]) return;
+    var s = seg(c, t, G);
+    if (c.kind === 'spoke') { cx.strokeStyle = '#d9a441'; cx.lineWidth = c.th * 2; cx.lineCap = 'round'; cx.beginPath(); cx.moveTo(s.x1, s.y1); cx.lineTo(s.x2, s.y2); cx.stroke(); return; }
+    if (c.kind === 'break') { cx.strokeStyle = 'rgba(160,235,255,0.75)'; cx.lineWidth = 0.16; cx.lineCap = 'butt'; cx.beginPath(); cx.moveTo(s.x1, s.y1); cx.lineTo(s.x2, s.y2); cx.stroke();
+      var hits = G.hits[c.i]; cx.strokeStyle = '#ffffff'; cx.lineWidth = 0.025; for (var k = 0; k < min(hits, 6); k++) { var u = (k + 1) / 7, mx = s.x1 + (s.x2 - s.x1) * u, my = s.y1 + (s.y2 - s.y1) * u; cx.beginPath(); cx.moveTo(mx - 0.1, my - 0.1); cx.lineTo(mx + 0.08, my + 0.12); cx.stroke(); } return; }
+    if (c.kind === 'gate') { var o = E.gateOpen(G, c, t); cx.strokeStyle = c.d.mode === 'switch' ? '#5fd0c8' : '#9aa0ad'; cx.lineWidth = c.th * 2; cx.lineCap = 'butt'; cx.beginPath(); cx.moveTo(s.x1, s.y1); cx.lineTo(s.x2, s.y2); cx.stroke();
+      cx.strokeStyle = '#1d1a24'; cx.setLineDash([0.18, 0.18]); cx.lineWidth = 0.05; cx.beginPath(); cx.moveTo(s.x1, s.y1); cx.lineTo(s.x2, s.y2); cx.stroke(); cx.setLineDash([]);
+      // timing ring: timer gates show their cycle; switch gates show the time left open
+      var gx = c.d.x1 + 0.35, gy = c.d.y1 + (c.d.y1 === c.d.y2 ? 0.45 : 0), frac;
+      if (c.d.mode === 'timer') frac = ((t / c.d.T + (c.d.ph || 0)) % 1); else frac = G.gateUntil[c.i] > t ? (G.gateUntil[c.i] - t) / (G.S.switches.filter(function (w) { return w.gate === c.i; })[0].dur * G.S.T.timer) : 0;
+      cx.strokeStyle = 'rgba(255,255,255,0.25)'; cx.lineWidth = 0.06; cx.beginPath(); cx.arc(gx, gy, 0.22, 0, TAU); cx.stroke();
+      if (c.d.mode === 'timer') { cx.strokeStyle = '#7ee08a'; cx.beginPath(); cx.arc(gx, gy, 0.22, PI / 2, PI / 2 - (c.d.open || 0.4) * TAU, true); cx.stroke(); cx.strokeStyle = '#fff'; cx.lineWidth = 0.04; cx.beginPath(); cx.moveTo(gx, gy); cx.lineTo(gx + 0.22 * cos(PI / 2 - frac * TAU), gy + 0.22 * sin(PI / 2 - frac * TAU)); cx.stroke(); }
+      else if (frac > 0) { cx.strokeStyle = '#5fd0c8'; cx.beginPath(); cx.arc(gx, gy, 0.22, PI / 2, PI / 2 - frac * TAU, true); cx.stroke(); }
+      return; }
+    if (c.kind === 'paddle') { cx.strokeStyle = '#b8693a'; cx.lineWidth = c.th * 2; cx.lineCap = 'round'; cx.beginPath(); cx.moveTo(s.x1, s.y1); cx.lineTo(s.x2, s.y2); cx.stroke(); return; }
+    if (c.oneway) { cx.strokeStyle = 'rgba(160,235,255,0.6)'; cx.lineWidth = 0.1; cx.beginPath(); cx.moveTo(s.x1, s.y1); cx.lineTo(s.x2, s.y2); cx.stroke();
+      var ow = c.oneway, n = max(2, round(Math.hypot(s.x2 - s.x1, s.y2 - s.y1) / 0.5)); cx.strokeStyle = '#bff4ff'; cx.lineWidth = 0.05;
+      for (var q = 0; q < n; q++) { var uu = (q + 0.5) / n, px = s.x1 + (s.x2 - s.x1) * uu, py = s.y1 + (s.y2 - s.y1) * uu; cx.beginPath(); cx.moveTo(px - ow[0] * 0.12 - ow[1] * 0.12, py - ow[1] * 0.12 + ow[0] * 0.12); cx.lineTo(px + ow[0] * 0.12, py + ow[1] * 0.12); cx.lineTo(px - ow[0] * 0.12 + ow[1] * 0.12, py - ow[1] * 0.12 - ow[0] * 0.12); cx.stroke(); } return; }
+    cx.strokeStyle = c.kind === 'rail' ? '#e9b44c' : (hcm ? '#ffffff' : '#c8963e'); cx.lineWidth = c.kind === 'rail' ? 0.12 : 0.16; cx.lineCap = 'round';
+    cx.beginPath(); cx.moveTo(s.x1, s.y1); cx.lineTo(s.x2, s.y2); cx.stroke();
+  }
+  function drawCup(G, c) {
+    var open = E.cupOpen(G, c), d = c.dir, x0 = c.x - c.hw - 0.08, x1 = c.x + c.hw + 0.08, y0 = c.y, y1 = c.y + d * c.hh;
+    cx.fillStyle = 'rgba(245,210,122,0.12)'; cx.fillRect(x0, min(y0, y1), x1 - x0, c.hh);
+    cx.strokeStyle = '#f5d27a'; cx.lineWidth = 0.16; cx.lineCap = 'round'; cx.beginPath(); cx.moveTo(x0, y1); cx.lineTo(x0, y0); cx.lineTo(x1, y0); cx.lineTo(x1, y1); cx.stroke();
+    cx.strokeStyle = 'rgba(255,255,255,0.5)'; cx.lineWidth = 0.04; cx.beginPath(); cx.moveTo(c.x - c.hw * 0.25, y0 + d * 0.06); cx.lineTo(c.x + c.hw * 0.25, y0 + d * 0.06); cx.stroke();  // bullseye band
+    if (!open) { cx.strokeStyle = '#d0402e'; cx.lineWidth = 0.1; cx.beginPath(); cx.moveTo(x0, y1); cx.lineTo(x1, y1); cx.stroke();
+      cx.fillStyle = '#d0402e'; cx.fillRect(c.x - 0.14, y1 + d * 0.05 - 0.12, 0.28, 0.24); cx.strokeStyle = '#d0402e'; cx.lineWidth = 0.05; cx.beginPath(); cx.arc(c.x, y1 + d * 0.05 + d * 0.12, 0.1, d > 0 ? 0 : PI, d > 0 ? PI : TAU); cx.stroke(); }
+  }
+  function drawHazard(z, t) {
+    var a = reduce ? 0 : t * z.w; cx.save(); cx.translate(z.x, z.y); cx.rotate(a);
+    cx.fillStyle = '#2a1416'; cx.beginPath(); for (var i = 0; i < 16; i++) { var r = i % 2 ? z.r * 0.78 : z.r; var u = i * TAU / 16; cx.lineTo(cos(u) * r, sin(u) * r); } cx.closePath(); cx.fill();
+    cx.strokeStyle = '#d0402e'; cx.lineWidth = 0.06; cx.stroke();
+    cx.strokeStyle = '#f0c03a'; cx.lineWidth = 0.07; cx.beginPath(); cx.moveTo(-z.r * 0.4, -z.r * 0.4); cx.lineTo(z.r * 0.4, z.r * 0.4); cx.moveTo(-z.r * 0.4, z.r * 0.4); cx.lineTo(z.r * 0.4, -z.r * 0.4); cx.stroke();
+    cx.restore();
+  }
+  function drawSwitch(G, w, i, t) { var on = G.gateUntil[w.gate] > t; cx.fillStyle = on ? '#5fd0c8' : '#2a5a5a'; cx.beginPath(); cx.arc(w.x, w.y, w.r, 0, TAU); cx.fill(); cx.strokeStyle = '#bff4ff'; cx.lineWidth = 0.05; cx.stroke(); cx.fillStyle = '#0d1230'; cx.fillRect(w.x - 0.04, w.y - w.r * 0.55, 0.08, w.r * 1.1); }
+  function drawLantern(L, lit, t) {
+    if (lit) { var g = cx.createRadialGradient(L.x, L.y, 0.05, L.x, L.y, L.r * 1.8); g.addColorStop(0, 'rgba(255,215,94,0.65)'); g.addColorStop(1, 'rgba(255,215,94,0)'); cx.fillStyle = g; cx.beginPath(); cx.arc(L.x, L.y, L.r * 1.8, 0, TAU); cx.fill(); }
+    cx.strokeStyle = lit ? '#ffd75e' : (SAVE.settings.contrast ? '#ffffff' : '#a8863a'); cx.lineWidth = 0.07; cx.setLineDash(lit ? [] : [0.12, 0.09]); cx.beginPath(); cx.arc(L.x, L.y, L.r, 0, TAU); cx.stroke(); cx.setLineDash([]);
+    var fl = reduce ? 0 : sin(t * 9 + L.x) * 0.02; cx.fillStyle = lit ? '#fff1c4' : 'rgba(168,134,58,0.6)'; cx.beginPath(); cx.moveTo(L.x, L.y + 0.16 + fl); cx.quadraticCurveTo(L.x + 0.1, L.y, L.x, L.y - 0.1); cx.quadraticCurveTo(L.x - 0.1, L.y, L.x, L.y + 0.16 + fl); cx.fill();
+  }
+  function drawToken(k, t) { var a = reduce ? 0 : t * 1.5; cx.save(); cx.translate(k.x, k.y); cx.rotate(a); cx.fillStyle = '#f0a43a'; cx.beginPath(); for (var i = 0; i < 12; i++) { var r = i % 2 ? 0.16 : 0.22, u = i * TAU / 12; cx.lineTo(cos(u) * r, sin(u) * r); } cx.closePath(); cx.fill(); cx.fillStyle = '#3a2a14'; cx.beginPath(); cx.arc(0, 0, 0.07, 0, TAU); cx.fill(); cx.restore(); }
+  function drawWells(S, t) {
+    S.wells.forEach(function (w) {
+      var g = cx.createRadialGradient(w.x, w.y, 0.1, w.x, w.y, w.R); g.addColorStop(0, 'rgba(170,110,255,0.35)'); g.addColorStop(1, 'rgba(120,80,220,0)'); cx.fillStyle = g; cx.beginPath(); cx.arc(w.x, w.y, w.R, 0, TAU); cx.fill();
+      cx.strokeStyle = 'rgba(190,150,255,0.5)'; cx.lineWidth = 0.04; for (var i = 1; i <= 3; i++) { var ph = reduce ? 0 : ((t * 0.5 + i / 3) % 1); var rr = w.R * (1 - ph) * 0.95 + 0.1; cx.beginPath(); cx.arc(w.x, w.y, rr, 0, TAU); cx.stroke(); }
+      cx.fillStyle = '#c9a6ff'; cx.beginPath(); cx.arc(w.x, w.y, 0.12, 0, TAU); cx.fill();
+    });
+  }
+  // gravity dial: arrow = direction, length = strength; outer arc = reserve
+  function drawDial() {
+    var dc = $('dial'), c = dc.getContext('2d'), w = dc.width, h = dc.height, R = min(w, h) / 2 - 4;
+    if (!RUN || !w) return; var G = RUN.G, pct = G.infinite ? 1 : G.energy / G.S.energyMax;
+    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, w, h); c.translate(w / 2, h / 2);
+    c.fillStyle = '#0d1230'; c.beginPath(); c.arc(0, 0, R, 0, TAU); c.fill();
+    c.strokeStyle = '#3a3f6a'; c.lineWidth = R * 0.1; c.beginPath(); c.arc(0, 0, R * 0.9, 0, TAU); c.stroke();
+    c.strokeStyle = pct < 0.25 ? '#e0603a' : '#f5d27a'; c.beginPath(); c.arc(0, 0, R * 0.9, -PI / 2, -PI / 2 + pct * TAU); c.stroke();
+    c.fillStyle = '#c8bfa4'; c.font = '700 ' + round(R * 0.16) + 'px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    [['▼', 0], ['◀', -45], ['▶', 45], ['▲', 180]].forEach(function (m) { var a = m[1] * PI / 180; c.fillText(m[0], sin(a) * R * 0.66, cos(a) * R * 0.66); });
+    var len = R * 0.5 * (G.gsv / 1), a = G.ga; c.save(); c.rotate(-a);
+    c.strokeStyle = G.empty ? '#8a8a8a' : '#ffe6a6'; c.fillStyle = c.strokeStyle; c.lineWidth = R * 0.08; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(0, len); c.stroke(); c.beginPath(); c.moveTo(0, len + R * 0.14); c.lineTo(R * 0.11, len - R * 0.02); c.lineTo(-R * 0.11, len - R * 0.02); c.closePath(); c.fill(); c.restore();
+    c.fillStyle = '#c8963e'; c.beginPath(); c.arc(0, 0, R * 0.09, 0, TAU); c.fill();
+  }
+  // ============================================================ title backdrop: a ball endlessly tumbling through a peg field (engine-driven)
+  var tc = $('t-canvas'), tcx = tc.getContext('2d'), titleT = 0, TG = null;
+  function sizeTitle() { var d = min(window.devicePixelRatio || 1, 2); tc.width = round((tc.clientWidth || 800) * d); tc.height = round((tc.clientHeight || 600) * d); }
+  function drawTitle() {
+    var w = tc.width, h = tc.height; if (!w) return;
+    if (!TG || TG.done || TG.failed || TG.phase !== 'roll') { TG = E.newGame('p01', 'silver', { practice: true }); E.setAim(TG, 3 + (floor(titleT * 7) % 7)); E.command(TG, 'drop'); TG.solver = true; }
+    if (!reduce) for (var i = 0; i < 4; i++) { E.step(TG); if (TG.phase !== 'roll' || TG.done || TG.failed) break; }
+    var g = tcx.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#1b2258'); g.addColorStop(1, '#090c1e'); tcx.setTransform(1, 0, 0, 1, 0, 0); tcx.fillStyle = g; tcx.fillRect(0, 0, w, h);
+    var s = min(w / 14, h / 19) * 0.95, ox = w * 0.62 - 6 * s, oy = h / 2 - 9 * s; tcx.setTransform(s, 0, 0, -s, ox, oy + 18 * s); tcx.globalAlpha = 0.55;
+    TG.S.cols.forEach(function (c) { if (c.t === 'c' && c.kind === 'peg') { tcx.fillStyle = '#c8963e'; tcx.beginPath(); tcx.arc(c.x, c.y, c.r, 0, TAU); tcx.fill(); } });
+    tcx.globalAlpha = 1; tcx.fillStyle = '#f3eadb'; tcx.beginPath(); tcx.arc(TG.b.x, TG.b.y, CFG.ballR, 0, TAU); tcx.fill();
+  }
+
+  // ============================================================ wiring
+  Array.prototype.forEach.call(document.querySelectorAll('input[name=tier]'), function (r) { r.addEventListener('change', function () { SAVE.tier = r.value; persist(); renderTitle(); }); });
+  $('b-begin').addEventListener('click', function () { audioOn(); renderList(); show('scr-list'); setTimeout(function () { var b = document.querySelector('#chapters button:not([disabled])'); if (b) b.focus(); }, 0); });
+  $('b-continue').addEventListener('click', function () { audioOn(); var nx = nextStage(track()); if (nx) startStage(nx.id); else { renderList(); show('scr-list'); } });
+  $('b-practice').addEventListener('click', function () { audioOn(); startStage('p01', { practice: true }); });
+  $('b-howto').addEventListener('click', function () { renderHowto(); openDialog('d-howto'); });
+  $('b-records').addEventListener('click', function () { renderRecords(); openDialog('d-records'); });
+  $('b-settings').addEventListener('click', openSettings);
+  $('l-back').addEventListener('click', function () { show('scr-title'); }); $('l-summary').addEventListener('click', renderCamp);
+  $('b-go').addEventListener('click', function () { if (RUN && RUN.failedShown) { restart(); return; } go(); });
+  $('b-demo').addEventListener('click', function () { if (RUN) startStage(RUN.id, { demo: true }); });
+  $('b-pause').addEventListener('click', function () { if (RUN && RUN.started) pause(); else if (RUN) quitToMenu(); });
+  $('dp-resume').addEventListener('click', function () { closeDialog('d-pause'); });
+  $('dp-restart').addEventListener('click', function () { closeDialog('d-pause'); restart(); });
+  $('dp-howto').addEventListener('click', function () { renderHowto(); openDialog('d-howto'); }); $('dp-settings').addEventListener('click', openSettings);
+  $('dp-quit').addEventListener('click', function () { closeDialog('d-pause'); confirmBox('Leave this stage?', 'This attempt will be lost. Completed stages stay saved.', 'Leave stage', quitToMenu); });
+  $('r-next').addEventListener('click', function () { var nx = STAGES[RUN.def.n]; if (nx) startStage(nx.id); });
+  $('r-retry').addEventListener('click', function () { startStage(RUN.id); });
+  $('r-list').addEventListener('click', function () { renderList(); show('scr-list'); }); $('r-title').addEventListener('click', function () { show('scr-title'); });
+  $('c-replay').addEventListener('click', function () { renderList(); show('scr-list'); }); $('c-title').addEventListener('click', function () { show('scr-title'); });
+  $('d-settings').addEventListener('close', function () { renderTitle(); });
+
+  load(); applySettings(); syncSettings(); sizeTitle(); show('scr-title');
+  if (window.matchMedia) { try { window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', applySettings); } catch (e) { } }
+  LOOP.starts++; requestAnimationFrame(frame);
+
+  // ============================================================ test hooks (only with ?dev=1; harmless otherwise because they are never created)
+  if (DEV) {
+    window.__kd = {
+      E: E, get G() { return RUN && RUN.G; }, get RUN() { return RUN; }, get SAVE() { return SAVE; }, KEY: KEY,
+      view: function () { return { screen: screen, s: VIEW.s, cw: VIEW.cw, ch: VIEW.ch, ox: VIEW.ox, oy: VIEW.oy, reduce: reduce }; },
+      startStage: startStage, go: go, restart: restart, cmd: cmd, manual: function (on) { LOOP.manual = !!on; LOOP.last = 0; },
+      run: function (ms, fps) { fps = fps || 60; var n = round(ms / 1000 * fps); for (var i = 0; i < n; i++) advance(1 / fps); draw(); return n; },
+      bench: function (n) { var t0 = performance.now(), worst = 0; for (var i = 0; i < n; i++) { var a = performance.now(); advance(1 / 60); draw(); worst = max(worst, performance.now() - a); } return { avg: (performance.now() - t0) / n, worst: worst }; },
+      autoplay: function () { if (!RUN) return false; var R0 = E.ROUTES[RUN.id] && E.ROUTES[RUN.id][RUN.G.tier]; if (!R0) return false; RUN.tape = E.decodeTape(R0.tape); E.setAim(RUN.G, RUN.tape.x); E.command(RUN.G, 'drop'); RUN.demo = true; RUN.autoRecord = true; return true; },
+      stats: function () { return { starts: LOOP.starts, frames: LOOP.frames, steps: LOOP.steps, hasAudio: !!AU.ctx }; }, input: function () { return { aimL: IN.aimL, aimR: IN.aimR }; },
+      alerts: function () { return alertLog.slice(); }, releaseAll: releaseAll, persist: persist, closeDialogs: closeDialogs, validate: validate, shareText: shareText, completeRun: completeRun
+    };
+  }
+})();
+
+</script>
+<!--
+TEST SUMMARY: Gamortal #016 Kinetic Drop (prototype, founder playtest, not published)
+Engine suite (Node, engine loaded from this very file): 17/17 passed.
+  Determinism, restitution, no tunnelling at maximum speed, fuzz stability,
+  gravity model, reserve accounting, mechanisms, ball-loss causes,
+  invalid input, scoring boundaries and tier resources.
+Solution replays: 45/45 (15 stages x Bronze/Silver/Gold) plus the Practice Chamber.
+  All use legal commands only, the same engine and real completion.
+  Scores were recomputed independently.
+Browser suite (Playwright Chromium, headless): 38/38 passed.
+  Governance and no network requests; keyboard, touch and drag controls.
+  Pause, focus loss and suspension: no fast-forward after suspension.
+  Six viewports, including phones in portrait and landscape:
+  no overlap and no sideways scroll.
+  Saving, and recovery from corrupt, invalid or blocked storage.
+  Reset confirmation; other DoorQuests keys untouched.
+  Practice, replays, reduced motion, high contrast, slow-motion assist and performance.
+Not tested: real devices, Safari or Firefox, a human playtest, listening to the audio. Endless Drop is not included.
+
+-->
+</body>
+</html>
