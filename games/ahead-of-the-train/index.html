@@ -1,0 +1,1738 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="doorquests:status" content="Prototype · Founder Playtest · Not Published">
+<meta name="description" content="Gamortal #013 · Ahead of the Train — build the way forward before it disappears beneath you. A DoorQuests real-time railway construction prototype for founder playtesting.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#1b1d4e">
+<title>Gamortal #013 — Ahead of the Train | DoorQuests</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231b1d4e'/%3E%3Crect x='6' y='44' width='52' height='4' fill='%23c08a3e'/%3E%3Crect x='12' y='26' width='26' height='14' rx='3' fill='%23b8743a'/%3E%3Crect x='36' y='18' width='14' height='22' rx='2' fill='%23324a3a'/%3E%3Crect x='16' y='16' width='6' height='10' fill='%23324a3a'/%3E%3Ccircle cx='20' cy='42' r='5' fill='%23e8c977'/%3E%3Ccircle cx='42' cy='42' r='5' fill='%23e8c977'/%3E%3C/svg%3E">
+<style>
+:root {
+  --indigo: #1b1d4e; --indigo2: #2a2f72; --brass: #c9a24a; --brass2: #e6c46e; --copper: #b8743a; --copper2: #d48f50; --forest: #2f4a34; --forest2: #46694a;
+  --earth: #7a5634; --iron: #5c636b; --iron2: #8b929a; --river: #4a86b8; --ivory: #fbf6ea; --ivory2: #f1e8d2; --ink: #2a2318; --ink2: #554a37; --mute: #75684f;
+  --ok: #2f7a3d; --bad: #b4382e; --warn: #a9670f;
+  --focus: 0 0 0 3px #fff, 0 0 0 6px #2a3fa8;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { background: var(--ivory2); }
+html.large { font-size: 118.75%; }
+body { min-height: 100vh; min-height: 100dvh; color: var(--ink); font: 1rem/1.5 var(--sans); display: flex; flex-direction: column; overflow-x: hidden; background: var(--ivory2) radial-gradient(ellipse at 50% 0%, #fdf7e8, #ece0c3 85%); }
+a { color: #6b3f12; }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 8px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--brass); color: #111; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 8px; }
+[hidden] { display: none !important; }
+.nojs { padding: 20px; }
+.top { display: flex; align-items: center; gap: 10px; padding: 6px 14px; background: var(--indigo); border-bottom: 3px solid var(--brass); flex-wrap: wrap; color: #f4efe2; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #f4efe2; font: 600 18px/1 var(--serif); }
+.brand-door { width: 16px; height: 22px; border: 2px solid var(--brass2); border-radius: 8px 8px 1px 1px; }
+.crumb { color: #d8d4ea; font-size: 14px; display: inline-flex; gap: 6px; }
+.crumb-col { color: var(--brass2); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; align-self: center; }
+.badge { margin-left: auto; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px dashed #ffbe6b; color: #ffcf8a; }
+main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
+.btn { appearance: none; border: 1px solid #b0925a; background: var(--ivory); color: var(--ink); border-radius: 10px; padding: 10px 16px; font: 600 .95rem/1.2 var(--sans); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; touch-action: manipulation; }
+.btn:hover:not([disabled]) { border-color: var(--indigo); }
+.btn-primary { background: linear-gradient(#2d3384, var(--indigo)); color: #fff6dc; border-color: var(--brass); }
+.btn-big { font-size: 1.08rem; padding: 13px 24px; }
+.btn-quiet { background: rgba(251, 246, 234, .85); }
+.btn-danger { border-color: var(--bad); color: #7a1d16; background: #fbe7e2; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.kbd { font: 600 .72rem/1 var(--sans); border: 1px solid #b0925a; border-radius: 4px; padding: 2px 5px; color: var(--ink2); background: #fff; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.row.tight { margin-top: 8px; gap: 6px; }
+.stack { display: grid; gap: 10px; margin: 12px 0; }
+.note { min-height: 1.3em; color: #7a4310; font-size: .9rem; margin: 8px 0 0; }
+.muted { color: var(--mute); } .small { font-size: .84rem; }
+.k { color: var(--mute); font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; display: block; }
+.kicker { margin: 0 0 6px; color: #8a5a14; font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; }
+
+/* ---------- title ---------- */
+.title-wrap { display: grid; grid-template-columns: minmax(0, 600px) minmax(0, 1fr); gap: 26px; padding: 22px 16px; max-width: 1200px; margin: 0 auto; width: 100%; align-items: center; }
+h1 { font: 600 clamp(38px, 6.4vw, 66px)/1.02 var(--serif); margin: 0 0 8px; color: var(--indigo); }
+.t-no { display: block; font: 700 .85rem/1.4 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: #8a5a14; margin-bottom: 6px; }
+.tagline { color: #6b3f12; font: italic 1.28rem/1.4 var(--serif); margin: 0 0 12px; }
+.tiers { border: 0; padding: 0; margin: 0 0 4px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tiers legend { font: 700 .8rem/1 var(--sans); color: #6b3f12; margin-bottom: 8px; letter-spacing: .06em; text-transform: uppercase; }
+.tier { display: flex; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid #c4ae7c; border-radius: 12px; background: var(--ivory); cursor: pointer; min-height: 52px; }
+.tier input { margin: 0; width: 18px; height: 18px; accent-color: var(--indigo); }
+.tier strong { display: block; font-size: .95rem; line-height: 1.1; } .tier small { color: var(--mute); font-size: .74rem; }
+.tier:has(input:checked) { border-color: var(--indigo); box-shadow: inset 0 0 0 2px var(--indigo); background: #f2f0ff; }
+.tier:has(input:focus-visible) { box-shadow: var(--focus); }
+.medal { width: 18px; height: 18px; border-radius: 50%; flex: none; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); }
+.tier-bronze .medal { background: #b8743a; } .tier-silver .medal { background: #b7bcc4; } .tier-gold .medal { background: #e0b84c; }
+.tiertext { min-height: 2.6em; margin: 6px 0 0; }
+.title-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.title-art { width: 100%; max-width: 620px; justify-self: center; border-radius: 18px; overflow: hidden; border: 3px solid var(--brass); background: var(--forest); box-shadow: 0 14px 30px rgba(27, 29, 78, .25); }
+.title-art canvas { display: block; width: 100%; height: auto; }
+.credit { margin-top: 16px; color: var(--mute); font-size: .82rem; }
+.credit p { margin: 2px 0; }
+.principle { font: 600 1rem/1.4 var(--serif); color: var(--forest); letter-spacing: .02em; }
+.motto { font: italic .95rem/1.4 var(--serif); color: var(--ink2); }
+
+/* ---------- frontier line ---------- */
+.line-wrap { width: min(1180px, 100%); margin: 0 auto; padding: 18px 16px 28px; }
+.line-head { display: flex; gap: 16px; align-items: end; justify-content: space-between; flex-wrap: wrap; }
+.line-head h2 { font: 600 1.9rem/1.2 var(--serif); color: var(--indigo); margin: 0; }
+.stage-list { list-style: none; padding: 0; margin: 16px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.stage-card { width: 100%; text-align: left; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; padding: 12px; border-radius: 14px; border: 1px solid #c4ae7c; background: var(--ivory); cursor: pointer; font: inherit; color: inherit; min-height: 92px; }
+.stage-card:hover:not([disabled]) { border-color: var(--indigo); }
+.stage-card[disabled] { opacity: .55; cursor: not-allowed; background: #efe7d4; }
+.stage-card .num { grid-row: span 3; font: 700 1.5rem/1 var(--serif); color: var(--copper); width: 2.2ch; }
+.stage-card strong { font: 600 1.02rem/1.2 var(--serif); color: var(--indigo); }
+.stage-card .ch { font-size: .8rem; color: var(--ink2); }
+.stage-card .best { font-size: .78rem; color: var(--mute); }
+.grade-chip { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: .72rem; font-weight: 700; margin-right: 4px; border: 1px solid; }
+.g-gold { background: #fff3cd; color: #7a5a00; border-color: #d8b24a; } .g-silver { background: #eef0f3; color: #4a5260; border-color: #a7aeb8; } .g-bronze { background: #f6e5d6; color: #7a4310; border-color: #c08a5a; } .g-derailed { background: #fbe7e2; color: #7a1d16; border-color: #d48a80; }
+
+/* ---------- game ---------- */
+#scr-game { background: #20243f; color: #f4efe2; }
+.hud-top { display: flex; align-items: center; gap: 14px; padding: 6px 12px; background: var(--indigo); border-bottom: 1px solid #3a3f86; flex-wrap: nowrap; }
+.hud-stage { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.hud-stage strong { font: 600 1.02rem/1.2 var(--serif); color: var(--brass2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-stage span { color: #c9c6e6 !important; }
+.hud-cell { display: flex; flex-direction: column; align-items: flex-end; }
+.hud-cell .k, .hud-side .k { color: #b9b5da; }
+.hud-cell strong { font-size: 1.02rem; font-variant-numeric: tabular-nums; }
+#scr-game .btn { background: #2a2f62; color: #f4efe2; border-color: #5a5fa8; }
+#scr-game .btn:hover:not([disabled]) { border-color: var(--brass2); }
+#scr-game .btn-primary { background: linear-gradient(#c9a24a, #a8812f); color: #1b1d4e; border-color: #f1d58a; }
+.playfield { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 260px; min-height: 0; }
+.canvas-wrap { position: relative; min-height: 0; min-width: 0; overflow: hidden; background: #2f4a34; }
+body.in-game { height: 100vh; height: 100dvh; overflow: hidden; }
+#board { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+#board:focus-visible { box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 6px #2a3fa8; border-radius: 0; }
+.hud-side { padding: 10px; display: flex; flex-direction: column; gap: 10px; background: #262b52; border-left: 1px solid #3a3f86; overflow-y: auto; }
+.ahead, .speed, .mats, .preview { background: #1e2245; border: 1px solid #3a3f86; border-radius: 12px; padding: 8px 10px; }
+.ahead-top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.ahead-top strong { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.meter { height: 10px; border-radius: 6px; background: #3b3f6a; overflow: hidden; margin: 6px 0 4px; }
+.meter span { display: block; height: 100%; width: 50%; background: #5fbf74; transition: width .15s linear; }
+.ahead.urgent { border-color: #e0a43a; } .ahead.urgent .meter span { background: #e0a43a; }
+.ahead.critical { border-color: #ff6a5a; background: #3a1d2a; } .ahead.critical .meter span { background: #ff6a5a; }
+.ahead.critical #h-ahead-state { color: #ffb0a6; font-weight: 700; } .ahead.urgent #h-ahead-state { color: #f6c97a; font-weight: 600; } .ahead #h-ahead-state { color: #9fdcab; }
+.notches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
+.notch { padding: 8px 4px; min-height: 48px; font-size: .86rem; }
+html.large .notch .lbl { display: none; } html.large .notch { font-size: 1.05rem; }
+.notch[aria-pressed="true"] { background: #f1d58a !important; color: #1b1d4e !important; border-color: #fff3c8 !important; }
+.mats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.mat { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 8px; background: #262b52; }
+.mat .ic { width: 22px; text-align: center; font-size: 1rem; }
+.mat strong { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.mat .nm { font-size: .7rem; color: #b9b5da; text-transform: uppercase; letter-spacing: .08em; display: block; }
+.mat.flash { animation: flash .6s ease-out; }
+.mat.low strong { color: #ffb0a6; }
+@keyframes flash { from { background: #5e5a1e; } to { background: #262b52; } }
+.reduce .mat.flash { animation: none; outline: 2px solid #f1d58a; }
+.preview { min-height: 64px; font-size: .86rem; line-height: 1.35; }
+.preview .ok { color: #9fdcab; } .preview .bad { color: #ffb0a6; }
+.preview b { color: #f1d58a; }
+.legend { color: #c9c6e6 !important; line-height: 1.5; }
+.warn { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; font: 700 .95rem/1.2 var(--sans); background: #3a1d2a; color: #ffd9d3; border: 2px solid #ff6a5a; box-shadow: 0 6px 18px rgba(0,0,0,.35); pointer-events: none; max-width: calc(100% - 20px); text-align: center; }
+.warn.urgent { background: #3b2a10; color: #ffe2a8; border-color: #e0a43a; }
+.warn.info { background: #1e2245; color: #dfe4ff; border-color: #8b92e0; font-weight: 600; }
+.warn .wi { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: currentColor; color: #3a1d2a; font-weight: 900; flex: none; }
+.warn.critical { animation: pulse .7s ease-in-out infinite alternate; }
+.reduce .warn.critical { animation: none; }
+@keyframes pulse { from { box-shadow: 0 0 0 0 rgba(255,106,90,.6); } to { box-shadow: 0 0 0 10px rgba(255,106,90,0); } }
+.survey { position: absolute; left: 12px; top: 12px; width: min(440px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow-y: auto; background: rgba(251, 246, 234, .97); color: var(--ink); border: 2px solid var(--brass); border-radius: 16px; padding: 14px 16px; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+.survey h2 { font: 600 1.45rem/1.2 var(--serif); color: var(--indigo); margin: 0 0 6px; }
+.survey .btn { background: var(--ivory) !important; color: var(--ink) !important; border-color: #b0925a !important; }
+.survey .btn-primary { background: linear-gradient(#2d3384, var(--indigo)) !important; color: #fff6dc !important; border-color: var(--brass) !important; }
+.sv-brief { margin: 0 0 8px; color: var(--ink2); }
+.sv-list { margin: 0; padding-left: 18px; font-size: .86rem; color: var(--ink2); }
+.sv-list li { margin: 2px 0; }
+.toast { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); background: rgba(27, 29, 78, .94); color: #fff6dc; border: 1px solid var(--brass); border-radius: 999px; padding: 8px 16px; font-size: .9rem; pointer-events: none; max-width: calc(100% - 20px); text-align: center; }
+
+/* ---------- results ---------- */
+.result-wrap { width: min(1100px, 100%); margin: 0 auto; padding: 20px 16px 28px; }
+.result-wrap h2 { font: 600 clamp(28px, 4.6vw, 44px)/1.1 var(--serif); color: var(--indigo); margin: 0; }
+.r-sub { color: var(--ink2); margin: 4px 0 6px; }
+.r-grade { font: 600 1.25rem/1.3 var(--serif); color: #8a5a14; margin: 6px 0 12px; }
+.result-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.stat { background: var(--ivory); border: 1px solid #d3c29a; border-radius: 12px; padding: 8px 10px; }
+.stat strong { display: block; font: 700 1.12rem/1.25 var(--sans); color: var(--ink); }
+.stat span { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); }
+.h3 { font: 600 1.05rem/1.3 var(--serif); color: var(--indigo); margin: 16px 0 6px; }
+.tbl { width: 100%; border-collapse: collapse; background: var(--ivory); border-radius: 12px; overflow: hidden; font-size: .88rem; }
+.tbl th, .tbl td { padding: 6px 8px; border-bottom: 1px solid #e5d8b8; text-align: left; vertical-align: top; }
+.tbl .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl .why { display: block; color: var(--mute); font-size: .78rem; }
+.tbl tr.total td { font-weight: 700; color: var(--indigo); }
+.objlist { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.objlist li { padding: 6px 10px; border-radius: 8px; background: var(--ivory); border: 1px solid #e0d1ad; }
+.objlist li.met::before { content: "✓ "; color: var(--ok); font-weight: 700; } .objlist li.miss::before { content: "○ "; color: var(--mute); }
+.share { white-space: pre-wrap; background: var(--ivory); border: 1px dashed #b0925a; border-radius: 12px; padding: 12px; font-size: .86rem; }
+
+/* ---------- dialogs ---------- */
+dialog { border: 2px solid var(--brass); border-radius: 16px; padding: 18px 20px; background: var(--ivory); color: var(--ink); max-width: min(560px, calc(100vw - 24px)); width: 100%; max-height: calc(100dvh - 24px); }
+dialog.wide { max-width: min(860px, calc(100vw - 24px)); }
+dialog::backdrop { background: rgba(14, 16, 40, .6); }
+dialog h2 { font: 600 1.5rem/1.2 var(--serif); color: var(--indigo); margin: 0 0 6px; }
+dialog h3 { font: 600 1.05rem/1.3 var(--serif); color: var(--indigo); margin: 14px 0 4px; }
+dialog p, dialog li { line-height: 1.5; }
+.chk, .slider, .sel { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.chk input { width: 22px; height: 22px; accent-color: var(--indigo); flex: none; }
+.slider input { flex: 1; min-width: 120px; }
+.sel select { font: inherit; padding: 8px; border-radius: 8px; border: 1px solid #b0925a; background: #fff; min-height: 44px; }
+.rtbl { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.rtbl th, .rtbl td { border-bottom: 1px solid #e5d8b8; padding: 4px 6px; text-align: center; }
+.rtbl th:first-child, .rtbl td:first-child { text-align: left; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 980px) {
+  .title-wrap { grid-template-columns: 1fr; }
+  .title-art { max-width: 560px; }
+  .result-grid { grid-template-columns: 1fr; }
+  .playfield { grid-template-columns: minmax(0, 1fr) 210px; }
+  .hud-side { padding: 8px; gap: 8px; }
+  .notch .lbl { display: none; } .notch { font-size: 1rem; }
+}
+/* phones in portrait: the line runs up the screen; controls sit below it */
+@media (max-width: 700px) and (orientation: portrait) {
+  .top { padding: 3px 10px; gap: 6px; flex-wrap: nowrap; } .brand { font-size: 15px; } .crumb { display: none; }
+  .badge { font-size: 10px; padding: 2px 7px; white-space: nowrap; }
+  .tiers { grid-template-columns: 1fr; }
+  .hud-top { gap: 8px; padding: 3px 8px; }
+  .hud-top .lbl, .hud-stage span { display: none; }
+  .hud-stage strong { font-size: .95rem; }
+  .hud-cell strong { font-size: .9rem; } .hud-cell .k { font-size: .6rem; }
+  #b-pause { min-height: 40px; padding: 6px 12px; }
+  .playfield { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
+  .hud-side { border-left: 0; border-top: 1px solid #3a3f86; display: grid; grid-template-columns: 1fr 1fr auto; grid-template-areas: "ahead speed speed" "mats mats mats" "preview preview btns"; gap: 6px; padding: 6px; overflow: visible; }
+  .ahead { grid-area: ahead; padding: 5px 8px; } .speed { grid-area: speed; padding: 5px 8px; } .mats { grid-area: mats; grid-template-columns: repeat(4, 1fr); padding: 4px; } .preview { grid-area: preview; min-height: 0; padding: 4px 8px; font-size: .76rem; max-height: 44px; overflow: hidden; }
+  .hud-side .row.tight { grid-area: btns; margin: 0; } #b-look, .legend { display: none !important; }
+  #b-undo { min-height: 44px; padding: 6px 10px; font-size: .82rem; } #b-undo .kbd { display: none; }
+  .ahead-top strong { font-size: 1rem; } .meter { margin: 4px 0 2px; } #h-ahead-state { font-size: .72rem; }
+  .notches { margin-top: 4px; } .notch { min-height: 44px; } .notch .lbl { display: none; }
+  .mat { flex-direction: column; gap: 0; padding: 2px; align-items: center; } .mat .ic { display: none; } .mat .nm { font-size: .6rem; } .mat strong { font-size: .95rem; }
+}
+/* phones in landscape: a narrow, compact side panel — the train controls and Remove last must stay on screen */
+@media (max-height: 520px) and (orientation: landscape) {
+  .top { padding: 2px 10px; } .brand { font-size: 14px; } .crumb { display: none; } .badge { font-size: 10px; padding: 1px 7px; }
+  .hud-top { padding: 2px 8px; gap: 10px; } .hud-stage span, .hud-top .lbl { display: none; }
+  .hud-cell .k { font-size: .58rem; } .hud-cell strong { font-size: .88rem; } #b-pause { min-height: 40px; padding: 4px 12px; }
+  .playfield { grid-template-columns: minmax(0, 1fr) 212px; }
+  .hud-side { padding: 5px; gap: 5px; }
+  .ahead, .speed, .mats, .preview { padding: 4px 7px; }
+  #h-ahead-state { display: none; } .meter { margin: 3px 0 0; } .ahead-top strong { font-size: .92rem; }
+  .notches { margin-top: 3px; gap: 4px; } .notch { min-height: 42px; padding: 4px; } .notch .lbl { display: none; }
+  .mats { grid-template-columns: repeat(4, 1fr); gap: 3px; } .mat { flex-direction: column; padding: 2px; gap: 0; align-items: center; } .mat .ic { display: none; } .mat .nm { font-size: .55rem; } .mat strong { font-size: .9rem; }
+  .hud-side .row.tight { order: 4; margin: 0; } #b-look, .legend { display: none !important; } #b-undo { min-height: 42px; width: 100%; } #b-undo .kbd { display: none; }
+  .preview { order: 5; min-height: 0; font-size: .72rem; }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) dialog { background: #fbf6ea; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header class="top">
+  <a class="brand" href="https://doorquests.com/" aria-label="DoorQuests home (opens doorquests.com)"><span class="brand-door" aria-hidden="true"></span><span class="brand-word">DoorQuests</span></a>
+  <span class="crumb"><span class="crumb-col">Gamortal #013</span><span aria-hidden="true">·</span><span>Ahead of the Train</span></span>
+  <span class="badge">Prototype · Founder Playtest · Not Published</span>
+</header>
+<noscript><p class="nojs">Ahead of the Train needs JavaScript to run.</p></noscript>
+
+<main id="main">
+  <!-- ============================ TITLE ============================ -->
+  <section id="scr-title" class="screen" aria-labelledby="t-h">
+    <div class="title-wrap">
+      <div class="title-text">
+        <p class="kicker">DoorQuests · Gamortals — Interactive Games</p>
+        <h1 id="t-h"><span class="t-no">Gamortal #013<span class="sr-only"> — </span></span>Ahead of the Train</h1>
+        <p class="tagline">Build the way forward. Before it disappears beneath you.</p>
+        <fieldset class="tiers" id="t-tiers"><legend>Difficulty</legend>
+          <label class="tier tier-bronze"><input type="radio" name="tier" value="bronze"><span class="medal" aria-hidden="true"></span><span><strong>Bronze</strong><small>Track Apprentice</small></span></label>
+          <label class="tier tier-silver"><input type="radio" name="tier" value="silver" checked><span class="medal" aria-hidden="true"></span><span><strong>Silver</strong><small>Railway Builder</small></span></label>
+          <label class="tier tier-gold"><input type="radio" name="tier" value="gold"><span class="medal" aria-hidden="true"></span><span><strong>Gold</strong><small>Iron Conductor</small></span></label>
+        </fieldset>
+        <p id="t-tiertext" class="small muted tiertext"></p>
+        <div class="title-actions">
+          <button id="b-begin" class="btn btn-primary btn-big" type="button">Begin the Frontier Line</button>
+          <button id="b-continue" class="btn btn-big" type="button" hidden>Continue Campaign</button>
+        </div>
+        <p id="t-progress" class="small muted"></p>
+        <div class="title-actions">
+          <button id="b-howto" class="btn btn-quiet" type="button">How to Play</button>
+          <button id="b-practice" class="btn btn-quiet" type="button">Practice Track</button>
+          <button id="b-endless" class="btn btn-quiet" type="button">Endless Rail</button>
+          <button id="b-records" class="btn btn-quiet" type="button">Records</button>
+          <button id="b-settings" class="btn btn-quiet" type="button">Sound &amp; Settings</button>
+          <a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a>
+        </div>
+        <p id="t-note" class="note" role="status" aria-live="polite"></p>
+        <footer class="credit"><p class="principle">Build fast. Think ahead. Keep moving.</p><p class="motto">Choose Your Path. Find the Truth. Unlock the Impossible.</p><p>Created by The Axiom Continuum.</p></footer>
+      </div>
+      <div class="title-art"><canvas id="t-canvas" width="640" height="420" aria-hidden="true"></canvas></div>
+    </div>
+  </section>
+
+  <!-- ============================ THE FRONTIER LINE (stage list) ============================ -->
+  <section id="scr-line" class="screen" aria-labelledby="l-h" hidden>
+    <div class="line-wrap">
+      <div class="line-head">
+        <div><p class="kicker" id="l-k">The Frontier Line</p><h2 id="l-h">Fifteen stages across the Iron Frontier</h2><p class="small muted" id="l-sub"></p></div>
+        <div class="row"><button id="l-summary" class="btn" type="button">Campaign results</button><button id="l-back" class="btn" type="button">Back to title</button></div>
+      </div>
+      <ol id="stage-list" class="stage-list"></ol>
+    </div>
+  </section>
+
+  <!-- ============================ GAME ============================ -->
+  <section id="scr-game" class="screen" aria-label="The line" hidden>
+    <div class="hud-top">
+      <div class="hud-stage"><strong id="h-stage">Stage</strong><span id="h-tier" class="small muted"></span></div>
+      <div class="hud-cell"><span class="k">Station</span><strong id="h-dest">—</strong></div>
+      <div class="hud-cell"><span class="k">Projected score</span><strong id="h-score">—</strong></div>
+      <button id="b-pause" class="btn" type="button" aria-label="Pause (Escape)">❚❚ <span class="lbl">Pause</span></button>
+    </div>
+    <div class="playfield">
+      <div class="canvas-wrap" id="cwrap">
+        <canvas id="board" tabindex="0" role="application" aria-roledescription="railway map" aria-label="The line. Arrow keys move the survey cursor; Enter lays track to it; R removes the last piece; B brakes; Shift accelerates; Escape pauses." aria-describedby="h-preview"></canvas>
+        <div id="warn" class="warn" hidden><span class="wi" aria-hidden="true">!</span><span id="warn-t"></span></div>
+        <div id="survey" class="survey" hidden>
+          <p class="kicker" id="sv-k"></p>
+          <h2 id="sv-h"></h2>
+          <p id="sv-brief" class="sv-brief"></p>
+          <ul id="sv-list" class="sv-list"></ul>
+          <div class="row"><button id="b-start" class="btn btn-primary btn-big" type="button">Start the train ▶</button><button id="b-svhide" class="btn" type="button">Hide card</button></div>
+          <p class="small muted">Plan ahead now — the crew starts building when the train starts. Key: G starts.</p>
+        </div>
+        <div id="toast" class="toast" hidden role="status"></div>
+      </div>
+      <aside class="hud-side" aria-label="Train and materials">
+        <div class="ahead" id="ahead-box">
+          <div class="ahead-top"><span class="k">Track ahead</span><strong id="h-ahead">—</strong></div>
+          <div class="meter" aria-hidden="true"><span id="h-meter"></span></div>
+          <span id="h-ahead-state" class="small"></span>
+        </div>
+        <div class="speed">
+          <div class="ahead-top"><span class="k">Speed</span><strong id="h-speed">—</strong></div>
+          <div class="notches" role="group" aria-label="Throttle">
+            <button id="b-slow" class="btn notch" type="button" aria-label="Brake to Slow (B) — uses fuel">▼ <span class="lbl">Brake</span></button>
+            <button id="b-cruise" class="btn notch" type="button" aria-label="Cruise (C)">● <span class="lbl">Cruise</span></button>
+            <button id="b-fast" class="btn notch" type="button" aria-label="Accelerate to Fast (Shift)">▲ <span class="lbl">Fast</span></button>
+          </div>
+        </div>
+        <div class="mats" id="mats" role="group" aria-label="Materials"></div>
+        <div class="preview" id="h-preview" aria-live="polite"></div>
+        <div class="row tight"><button id="b-undo" class="btn" type="button">↶ Remove last <span class="kbd">R</span></button><button id="b-look" class="btn" type="button" aria-pressed="false">Survey legend</button></div>
+        <p id="legend" class="legend small muted" hidden></p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================ STAGE RESULT ============================ -->
+  <section id="scr-result" class="screen" aria-labelledby="r-h" hidden>
+    <div class="result-wrap">
+      <p class="kicker" id="r-k"></p>
+      <h2 id="r-h"></h2>
+      <p class="r-sub" id="r-sub"></p>
+      <p class="r-grade" id="r-grade"></p>
+      <div class="result-grid">
+        <div><div class="stats" id="r-stats"></div><h3 class="h3">Optional objectives</h3><ul id="r-opt" class="objlist"></ul></div>
+        <div><h3 class="h3">How the score was made</h3><table class="tbl" id="r-score"></table><p class="small muted" id="r-rules"></p></div>
+      </div>
+      <div class="row">
+        <button id="r-next" class="btn btn-primary" type="button">Continue to the next stage</button>
+        <button id="r-retry" class="btn" type="button">Retry stage</button>
+        <button id="r-line" class="btn" type="button">The Frontier Line</button>
+        <button id="r-title" class="btn" type="button">Title</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ CAMPAIGN RESULTS ============================ -->
+  <section id="scr-camp" class="screen" aria-labelledby="c-h" hidden>
+    <div class="result-wrap">
+      <p class="kicker" id="c-k">Campaign results</p>
+      <h2 id="c-h">The Frontier Line</h2>
+      <p class="r-sub" id="c-sub"></p>
+      <div class="stats" id="c-stats"></div>
+      <div class="row">
+        <button id="c-copy" class="btn btn-primary" type="button">Copy result</button>
+        <button id="c-line" class="btn" type="button">The Frontier Line</button>
+        <button id="c-title" class="btn" type="button">Title</button>
+        <a class="btn" href="https://doorquests.com/">Return to DoorQuests</a>
+      </div>
+      <p id="c-note" class="note" role="status" aria-live="polite"></p>
+      <pre id="c-share" class="share" aria-label="Result text"></pre>
+    </div>
+  </section>
+</main>
+
+<p id="live" class="sr-only" role="status" aria-live="polite"></p>
+<p id="alert" class="sr-only" role="alert"></p>
+
+<!-- ============================ DIALOGS ============================ -->
+<dialog id="d-pause" aria-labelledby="dp-h">
+  <h2 id="dp-h">Paused</h2>
+  <p class="small muted" id="dp-sub">The train and the crew are stopped. Track cannot be laid while paused.</p>
+  <div class="stack">
+    <button id="dp-resume" class="btn btn-primary" type="button">Resume (Esc)</button>
+    <button id="dp-restart" class="btn" type="button">Restart this stage</button>
+    <button id="dp-howto" class="btn" type="button">How to Play</button>
+    <button id="dp-settings" class="btn" type="button">Sound &amp; Settings</button>
+    <button id="dp-quit" class="btn btn-danger" type="button">Leave the stage…</button>
+  </div>
+  <p class="small muted">Progress is saved between stages. Leaving or refreshing during a stage restarts that stage.</p>
+</dialog>
+
+<dialog id="d-howto" class="wide" aria-labelledby="dh-h">
+  <h2 id="dh-h">How to Play</h2>
+  <div id="dh-body"></div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button></div>
+</dialog>
+
+<dialog id="d-records" class="wide" aria-labelledby="dr-h">
+  <h2 id="dr-h">Records</h2>
+  <p class="small muted">Kept in this browser only (key <code>doorquests.gamortal.013.ahead-of-the-train.v1</code>). No accounts, no leaderboards.</p>
+  <div id="dr-body"></div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button><button id="dr-reset" class="btn btn-danger" type="button">Reset records…</button></div>
+</dialog>
+
+<dialog id="d-settings" aria-labelledby="dse-h">
+  <h2 id="dse-h">Sound &amp; Settings</h2>
+  <div class="stack">
+    <label class="chk"><input type="checkbox" id="s-sound"> <span>Sound (M)</span></label>
+    <label class="slider">Volume <input type="range" id="s-vol" min="0" max="100" step="5"> <span id="s-vol-v"></span></label>
+    <label class="sel">Motion <select id="s-motion"><option value="auto">Follow device setting</option><option value="reduced">Reduced (no steam, sparks or clouds)</option><option value="full">Full</option></select></label>
+    <label class="chk"><input type="checkbox" id="s-assist"> <span>Assisted Bronze: the train runs 25 % slower on Bronze (scores are marked “assisted”)</span></label>
+    <label class="chk"><input type="checkbox" id="s-marks"> <span>Terrain symbols on every tile</span></label>
+    <label class="chk"><input type="checkbox" id="s-large"> <span>Larger text</span></label>
+  </div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Done</button></div>
+</dialog>
+
+<dialog id="d-confirm" aria-labelledby="dc-h">
+  <h2 id="dc-h">Are you sure?</h2>
+  <p id="dc-p"></p>
+  <div class="row"><button id="dc-yes" class="btn btn-danger" type="button">Yes</button><button id="dc-no" class="btn" type="button">Cancel</button></div>
+</dialog>
+
+<script id="at-engine">
+/* Ahead of the Train — engine (window.TrainEngine).
+   Deterministic and DOM-free: the page draws it, the tests run it in Node. Simulation time advances only in fixed 1/60 s steps.
+   Sections: 1 configuration · 2 terrain · 3 stage recipes & generation · 4 map validation (route search) · 5 track geometry
+             6 track connectivity & construction rules · 7 resource economy · 8 train movement · 9 speed & braking
+             10 hazard detection · 11 stage progression · 12 scoring · 13 endless rail · 14 bot (demonstration driver) */
+(function (root) {
+  'use strict';
+
+  /* ================================================================ 1 · configuration */
+  var H = 9;                  // the line runs east through a band nine tiles wide
+  var LOOK = 11;              // track may be planned up to 11 columns beyond the train (always on screen)
+  var STEP = 1 / 60;          // fixed simulation step (seconds)
+  var ACCEL = 0.35, DECEL = 0.6, EMER = 1.4;   // tiles / s²: throttle up, brake down, emergency brake
+  var OVERSPEED = 1.08;       // Gold only: entering a curve above 108 % of its limit derails the train
+  var FUEL_SLOW = 1;          // fuel burnt per second while running Slow
+  var DX = [1, 0, -1, 0], DY = [0, 1, 0, -1], DIRN = ['east', 'south', 'west', 'north'];
+  var TIER_IDS = ['bronze', 'silver', 'gold'];
+  var TIERS = {
+    bronze: { id: 'bronze', k: 0, label: 'Bronze', title: 'Track Apprentice', speeds: [0.5, 0.7, 0.95], crew: 1.3, stops: 3, governor: true, refund: 1, scatter: 0.5,
+      text: 'Slower train, more materials, a faster crew, 3 emergency stops per stage, automatic curve braking, full refunds.' },
+    silver: { id: 'silver', k: 1, label: 'Silver', title: 'Railway Builder', speeds: [0.6, 0.85, 1.15], crew: 1, stops: 1, governor: true, refund: 0.75, scatter: 1,
+      text: 'The intended line: standard speed and materials, 1 emergency stop per stage, automatic curve braking, 75 % refunds.' },
+    gold: { id: 'gold', k: 2, label: 'Gold', title: 'Iron Conductor', speeds: [0.7, 1.0, 1.35], crew: 0.9, stops: 0, governor: false, refund: 0.5, scatter: 1.5,
+      text: 'Faster train, tighter materials, extra obstacles, no emergency stops, and you brake for curves yourself. 50 % refunds.' }
+  };
+  var NOTCH = ['Slow', 'Cruise', 'Fast'];
+  var RES = ['rails', 'wood', 'steel', 'fuel'];
+
+  function h32(s) { var h = 2166136261 >>> 0; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+
+  /* ================================================================ 2 · terrain */
+  // pass: may hold track · rails/wood/steel: cost · time: crew seconds (Silver) · speed: train speed factor on it
+  // straight: only straight track (bridges, tunnels, platforms) · orient: allowed directions of travel · yieldWood: clearing gives wood
+  var TERRAIN = {
+    '.': { id: '.', name: 'Grassland', pass: true, rails: 1, wood: 0, steel: 0, time: 0.8, speed: 1, kind: 'plain', mark: '' },
+    ',': { id: ',', name: 'Desert plain', pass: true, rails: 1, wood: 0, steel: 0, time: 0.8, speed: 1, kind: 'plain', mark: '∴' },
+    'f': { id: 'f', name: 'Forest', pass: true, rails: 1, wood: 0, steel: 0, time: 1.6, speed: 1, kind: 'plain', yieldWood: 1, mark: '♣', note: 'Clearing takes longer but gives 1 wood.' },
+    'h': { id: 'h', name: 'Rocky hills', pass: true, rails: 2, wood: 0, steel: 0, time: 1.4, speed: 0.8, kind: 'plain', mark: '^', note: 'Two rails per tile; the train climbs at 80 % speed.' },
+    'm': { id: 'm', name: 'Marsh', pass: true, rails: 1, wood: 1, steel: 0, time: 1.8, speed: 0.85, kind: 'reinforced', mark: '‴', note: 'Needs reinforced track (1 wood); slow to build; the train runs at 85 %.' },
+    'w': { id: 'w', name: 'River', pass: true, rails: 1, wood: 2, steel: 1, time: 2.4, speed: 1, kind: 'bridge', straight: true, mark: '≈', note: 'Needs a bridge: 2 wood and 1 steel, straight across.' },
+    'M': { id: 'M', name: 'Mountain', pass: true, rails: 1, wood: 0, steel: 1, time: 3, speed: 1, kind: 'tunnel', straight: true, mark: '▲', note: 'Needs a tunnel: 1 steel per tile, straight through, slow to dig.' },
+    'd': { id: 'd', name: 'Steep grade', pass: true, rails: 1, wood: 0, steel: 0, time: 0.8, speed: 1.4, kind: 'plain', mark: '↘', note: 'Downhill: the train runs 40 % faster here.' },
+    'u': { id: 'u', name: 'Abandoned settlement', pass: true, rails: 1, wood: 0, steel: 0, time: 0.8, speed: 1, kind: 'plain', mark: '⌂', note: 'Old salvage lies here.' },
+    'D': { id: 'D', name: 'Supply depot', pass: true, rails: 1, wood: 0, steel: 0, time: 0.8, speed: 1, kind: 'depot', mark: '▣', note: 'Build through it to receive its supplies.' },
+    'T': { id: 'T', name: 'Waystation', pass: true, rails: 1, wood: 0, steel: 0, time: 0.8, speed: 1, kind: 'station', straight: true, orient: [0, 2], mark: '⌂', note: 'A platform: run straight through, east or west.' },
+    'E': { id: 'E', name: 'Destination station', pass: true, rails: 1, wood: 0, steel: 0, time: 0.8, speed: 1, kind: 'terminal', straight: true, orient: [0], mark: '★', note: 'Arrive here from the west to complete the stage.' },
+    'l': { id: 'l', name: 'Lake', pass: false, mark: '≋', why: 'Lakes cannot be crossed.' },
+    '^': { id: '^', name: 'Mountain peak', pass: false, mark: '⛰', why: 'Peaks are too steep to tunnel.' },
+    'c': { id: 'c', name: 'Coastal cliff', pass: false, mark: '⌇', why: 'Cliffs cannot carry track.' },
+    's': { id: 's', name: 'Sea', pass: false, mark: '≋', why: 'The sea cannot be crossed.' }
+  };
+
+  /* ================================================================ 3 · stage recipes & generation */
+  // Every stage is generated from its recipe and a fixed seed, so it is identical for every player.
+  // Tiers scatter a different number of small obstacles (Bronze ½, Silver 1, Gold 1½) — always validated (section 4, section 14, tests).
+  // res: [Bronze, Silver, Gold] for rails, wood, steel, fuel.
+  var STAGES = [
+    { id: 1, name: 'The First Rail', challenge: 'Learn basic construction', L: 44, ty: 4,
+      res: { rails: [52, 46, 44], wood: [2, 1, 0], steel: [0, 0, 0], fuel: [20, 16, 12] },
+      brief: 'Open grassland. Tap or click the tile in front of the line to lay track; the crew builds it before the train arrives. Keep track ahead of the wheels.',
+      optional: [{ t: 'crates' }, { t: 'noStops' }],
+      build: function (a) { a.scatter(8, 40, 0, 8, 'f', 7); a.scatter(10, 38, 0, 8, 'h', 3); a.blob(22, 1, 2, 1, 'l'); a.blob(33, 7, 2, 1, 'l'); a.item(15, 2, 'crate', { rails: 3 }); a.item(29, 6, 'crate', { rails: 3 }); } },
+    { id: 2, name: 'The Gentle Bend', challenge: 'Introduce curves', L: 48, ty: 1,
+      res: { rails: [58, 52, 50], wood: [2, 1, 0], steel: [0, 0, 0], fuel: [20, 16, 12] },
+      brief: 'A lake sits across the straight line and the station lies to the north. Click a tile to the side and the game lays the curve for you.',
+      optional: [{ t: 'crates' }, { t: 'pace' }],
+      build: function (a) { a.blob(17, 4, 3, 2.3, 'l'); a.blob(33, 6, 4, 2.2, 'l'); a.blob(30, 1, 1.5, 1, 'f'); a.scatter(6, 44, 0, 8, 'f', 8); a.item(24, 1, 'crate', { rails: 3, wood: 1 }); a.item(40, 4, 'crate', { rails: 2 }); } },
+    { id: 3, name: 'Across Greenvale', challenge: 'Build longer connected routes', L: 64, ty: 6,
+      res: { rails: [76, 68, 64], wood: [3, 2, 1], steel: [0, 0, 0], fuel: [22, 18, 14] },
+      brief: 'Ponds and woods across a long valley. A waystation to the north offers supplies — worth the bend?',
+      optional: [{ t: 'stations' }, { t: 'crates' }],
+      build: function (a) { a.blob(14, 2, 2, 1.5, 'l'); a.blob(26, 6, 3, 1.6, 'l'); a.blob(45, 3, 3, 2, 'l'); a.blob(20, 0, 3, 1.2, 'f'); a.blob(37, 7, 4, 1.2, 'f'); a.blob(54, 5, 3, 2, 'f'); a.scatter(6, 60, 0, 8, 'h', 4); a.item(34, 2, 'station', { rails: 6, fuel: 4 }); a.item(10, 6, 'crate', { rails: 2 }); a.item(50, 7, 'crate', { rails: 3 }); } },
+    { id: 4, name: 'Timber Country', challenge: 'Balance forest clearing and resources', L: 70, ty: 3,
+      res: { rails: [84, 76, 72], wood: [1, 0, 0], steel: [1, 1, 1], fuel: [22, 18, 14] },
+      brief: 'Dense forest: clearing is slow but every cleared tile gives 1 wood. You start with none, and the creek ahead needs a bridge (2 wood, 1 steel). Find the clearings to keep ahead.',
+      optional: [{ t: 'left', r: 'wood', n: 4 }, { t: 'noStops' }],
+      build: function (a) { for (var i = 0; i < 8; i++) a.blob(9 + i * 7, 1 + Math.floor(a.rng() * 7), 3 + a.rng() * 2, 2 + a.rng() * 1.5, 'f'); a.scatter(6, 66, 0, 8, 'f', 22); a.river(55, { wiggle: 0.25 }); a.scatter(8, 50, 0, 8, 'h', 3); a.item(30, 7, 'crate', { rails: 3 }); } },
+    { id: 5, name: 'The River Crossing', challenge: 'Construct a bridge', L: 64, ty: 5,
+      res: { rails: [80, 72, 70], wood: [5, 3, 2], steel: [2, 1, 1], fuel: [22, 18, 14] },
+      brief: 'A broad river: two tiles wide almost everywhere — two bridges — but only one tile wide at its far northern bend. Bronze carries steel for the direct crossing.',
+      optional: [{ t: 'noStops' }, { t: 'left', r: 'rails', n: 6 }],
+      build: function (a) { for (var y = 0; y < H; y++) { var off = y >= 4 && y <= 6 ? 1 : 0; a.set(30 + off, y, 'w'); if (y >= 2) a.set(31 + off, y, 'w'); } a.blob(12, 7, 3, 1.3, 'f'); a.blob(46, 1, 3, 1.3, 'f'); a.scatter(6, 60, 0, 8, 'f', 6); a.scatter(6, 60, 0, 8, 'h', 3); a.item(20, 1, 'crate', { rails: 3 }); } },
+    { id: 6, name: 'Two Roads Forward', challenge: 'Compare alternate routes', L: 80, ty: 4,
+      res: { rails: [104, 96, 92], wood: [6, 4, 3], steel: [2, 1, 1], fuel: [24, 20, 16] },
+      brief: 'A long lake splits the valley. North: rocky hills (two rails a tile, slow) and a waystation. South: a river bridge and marsh. Both reach the station.',
+      optional: [{ t: 'stations' }, { t: 'left', r: 'rails', n: 8 }],
+      build: function (a) { for (var x = 16; x <= 62; x++) for (var y = 3; y <= 5; y++) a.set(x, y, 'l'); a.blob(16, 4, 1.5, 1.2, 'l'); a.blob(62, 4, 1.5, 1.2, 'l'); a.rect(26, 0, 34, 2, 'h'); for (var y2 = 6; y2 < H; y2++) a.set(42, y2, 'w'); a.rect(50, 7, 56, 8, 'm'); a.blob(20, 7, 2, 1, 'f'); a.blob(46, 1, 3, 1, 'f'); a.item(40, 1, 'station', { rails: 6, fuel: 4 }); a.scatter(4, 76, 0, 8, 'f', 5); } },
+    { id: 7, name: 'The Narrow Pass', challenge: 'Navigate constrained terrain', L: 80, ty: 4,
+      res: { rails: [104, 96, 92], wood: [3, 2, 2], steel: [1, 0, 0], fuel: [24, 20, 16] },
+      brief: 'Peaks on both sides leave a winding valley two tiles wide. Read the bends early — there is little room to correct.',
+      optional: [{ t: 'noUndo' }, { t: 'noStops' }],
+      build: function (a) { a.rect(10, 0, 72, 8, '^'); var c = 3; for (var x = 9; x <= 73; x++) { var nc = c; if (x > 12 && x < 70 && x % 3 === 0) { var r = a.rng(); nc = clamp(c + (r < 0.4 ? -1 : r > 0.6 ? 1 : 0), 1, 6); } a.set(x, c, '.'); a.set(x, c + 1, '.'); a.set(x, nc, '.'); a.set(x, nc + 1, '.'); c = nc; } a.rect(70, 3, 73, 5, '.'); for (var x2 = 70; x2 <= 73; x2++) { for (var y = 1; y <= 6; y++) a.set(x2, y, '.'); } a.scatterOn(14, 68, 'h', 6, '.'); a.scatterOn(14, 68, 'f', 6, '.'); a.item(40, -1, 'crateOnPath', { rails: 4 }); } },
+    { id: 8, name: 'The Long Descent', challenge: 'Manage speed and track preparation', L: 90, ty: 4,
+      res: { rails: [124, 112, 108], wood: [2, 1, 1], steel: [0, 0, 0], fuel: [34, 28, 44] },
+      brief: 'A long downhill grade: the train runs 40 % faster on it, and a slalom of peaks forces curves. Slow costs fuel — save it for the bends.',
+      optional: [{ t: 'left', r: 'fuel', n: 8 }, { t: 'noStops' }],
+      build: function (a) { a.rect(18, 0, 70, 8, 'd'); [28, 40, 52, 64].forEach(function (x, i) { if (i % 2 === 0) a.rect(x, 0, x, 5, '^'); else a.rect(x, 3, x, 8, '^'); }); a.scatterOn(18, 72, 'f', 4, 'd'); a.scatter(4, 86, 0, 8, 'h', 3); a.item(46, 7, 'crate', { fuel: 6 }); } },
+    { id: 9, name: 'The Supply Run', challenge: 'Route through a depot', L: 100, ty: 4,
+      res: { rails: [76, 64, 60], wood: [3, 2, 2], steel: [1, 0, 0], fuel: [26, 20, 16] },
+      brief: 'Not enough rails to reach the station. The supply depot to the north holds 40 more — build the line through it.',
+      optional: [{ t: 'crates' }, { t: 'left', r: 'rails', n: 5 }],
+      build: function (a) { a.item(44, 1, 'depot', { rails: 40, fuel: 6, wood: 1 }); a.blob(24, 4, 3, 1.4, 'l'); a.blob(62, 5, 3, 1.6, 'l'); a.blob(80, 2, 3, 1.2, 'f'); a.blob(34, 7, 3, 1.2, 'f'); a.scatter(6, 96, 0, 8, 'f', 10); a.scatter(6, 96, 0, 8, 'h', 5); a.item(20, 7, 'crate', { rails: 3 }); a.item(60, 1, 'crate', { rails: 3 }); a.item(84, 6, 'crate', { rails: 3 }); } },
+    { id: 10, name: 'Marshland Mile', challenge: 'Handle costly terrain', L: 100, ty: 4,
+      res: { rails: [126, 118, 114], wood: [14, 9, 8], steel: [0, 0, 0], fuel: [28, 24, 30] },
+      brief: 'A mile of marsh: every marsh tile needs a wood plank and builds slowly. An old embankment zigzags across dry — long, but cheap and quick. Cut its corners with planks where it pays.',
+      optional: [{ t: 'left', r: 'wood', n: 3 }, { t: 'noStops' }],
+      build: function (a) { a.rect(22, 0, 80, 8, 'm'); var pts = [[20, 4], [29, 4], [29, 1], [41, 1], [41, 7], [53, 7], [53, 1], [65, 1], [65, 7], [76, 7], [76, 4], [84, 4]];
+        for (var q = 1; q < pts.length; q++) { var p0 = pts[q - 1], p1 = pts[q]; for (var x = Math.min(p0[0], p1[0]); x <= Math.max(p0[0], p1[0]); x++) for (var y = Math.min(p0[1], p1[1]); y <= Math.max(p0[1], p1[1]); y++) a.set(x, y, '.'); }
+        [[35, 1], [47, 7], [59, 1], [70, 7]].forEach(function (g) { a.set(g[0], g[1], 'm'); });
+        a.blob(35, 4, 1.6, 1.2, 'f'); a.blob(59, 4, 1.6, 1.2, 'f'); a.blob(14, 1, 3, 1.5, 'f'); a.blob(14, 7, 3, 1.5, 'f'); a.blob(88, 2, 3, 1.5, 'f'); a.scatterOn(24, 78, 'l', 8, 'm'); a.item(47, 4, 'crate', { wood: 3 }); } },
+    { id: 11, name: 'The Iron Ridge', challenge: 'Navigate mountain barriers', L: 110, ty: 2,
+      res: { rails: [140, 128, 124], wood: [3, 2, 2], steel: [4, 3, 2], fuel: [26, 22, 18] },
+      brief: 'A mountain ridge three tiles thick. Tunnel straight through (1 steel per tile, slow) or swing south to the pass. Gold carries too little steel to tunnel.',
+      optional: [{ t: 'tunnel' }, { t: 'stations' }],
+      build: function (a) { a.rect(50, 0, 52, 7, 'M'); a.rect(50, 0, 52, 0, '^'); a.rect(49, 0, 53, 0, '^'); a.blob(40, 7, 3, 1.2, 'h'); a.rect(78, 0, 79, 4, '^'); a.blob(30, 2, 3, 1.4, 'f'); a.blob(66, 1, 3, 1.4, 'f'); a.scatter(6, 104, 0, 8, 'h', 5); a.scatter(6, 104, 0, 8, 'f', 6); a.item(66, 6, 'station', { rails: 8, fuel: 4 }); a.item(92, 7, 'crate', { rails: 4 }); } },
+    { id: 12, name: 'A Bridge Too Far', challenge: 'Plan construction materials carefully', L: 120, ty: 4,
+      res: { rails: [150, 138, 134], wood: [8, 6, 5], steel: [3, 2, 2], fuel: [28, 22, 18] },
+      brief: 'Three rivers and steel for two bridges. The middle river dries out in the south — round it through the marsh, or spend a bridge.',
+      optional: [{ t: 'left', r: 'steel', n: 1 }, { t: 'noStops' }],
+      build: function (a) { a.river(30, { wiggle: 0.3 }); a.river(60, { wiggle: 0.3, to: 5 }); a.river(92, { wiggle: 0.3 }); a.rect(56, 7, 66, 8, 'm'); a.blob(44, 2, 3, 1.3, 'f'); a.blob(76, 6, 3, 1.3, 'f'); a.blob(106, 2, 3, 1.3, 'l'); a.scatter(6, 116, 0, 8, 'h', 5); a.scatter(6, 116, 0, 8, 'f', 8); a.item(70, 1, 'crate', { wood: 2, rails: 3 }); } },
+    { id: 13, name: 'The Racing Clock', challenge: 'Maintain progress under time pressure', L: 120, ty: 6, speedMul: 1.15,
+      res: { rails: [150, 136, 132], wood: [4, 3, 2], steel: [1, 1, 1], fuel: [30, 24, 20] },
+      brief: 'An express timetable: the train runs 15 % faster all stage. Mostly open country — keep the crew on cheap ground.',
+      optional: [{ t: 'pace' }, { t: 'noStops' }],
+      build: function (a) { a.scatter(6, 116, 0, 8, 'f', 22); a.scatter(6, 116, 0, 8, 'h', 10); a.blob(36, 2, 3, 1.4, 'l'); a.blob(70, 6, 3, 1.4, 'l'); a.blob(98, 3, 2, 1.2, 'l'); a.item(52, 4, 'crate', { rails: 4, fuel: 4 }); a.item(88, 1, 'crate', { rails: 4 }); } },
+    { id: 14, name: 'The Last Supply Depot', challenge: 'Balance remaining resources', L: 130, ty: 2,
+      res: { rails: [92, 76, 72], wood: [3, 2, 2], steel: [1, 0, 0], fuel: [28, 22, 18] },
+      brief: 'Rails for barely half the way, and one depot in the south with rails, wood and steel. A river near the end needs a bridge.',
+      optional: [{ t: 'left', r: 'rails', n: 5 }, { t: 'crates' }],
+      build: function (a) { a.item(64, 7, 'depot', { rails: 60, wood: 3, steel: 1, fuel: 8 }); a.river(98, { wiggle: 0.3 }); a.blob(30, 2, 3, 1.4, 'f'); a.blob(48, 5, 3, 1.4, 'l'); a.blob(80, 3, 4, 1.4, 'f'); a.blob(112, 6, 3, 1.4, 'h'); a.scatter(6, 126, 0, 8, 'f', 10); a.scatter(6, 126, 0, 8, 'h', 6); a.item(38, 7, 'crate', { rails: 3 }); a.item(86, 7, 'crate', { rails: 3 }); } },
+    { id: 15, name: 'The Horizon Express', challenge: 'Combine all major mechanics', L: 160, ty: 4,
+      res: { rails: [200, 182, 178], wood: [8, 6, 5], steel: [4, 3, 2], fuel: [34, 28, 24] },
+      brief: 'Everything at once: forest, a river, marsh, a mountain ridge with a pass, a long descent and two waystations. The depot lies past the ridge.',
+      optional: [{ t: 'stations' }, { t: 'noStops' }],
+      build: function (a) { for (var i = 0; i < 3; i++) a.blob(12 + i * 7, 2 + i * 2, 3, 2, 'f'); a.river(36, { wiggle: 0.3 }); a.item(48, 2, 'station', { rails: 8, fuel: 4 }); a.rect(56, 3, 70, 8, 'm'); a.blob(63, 5, 2, 1, '.'); a.rect(82, 0, 84, 7, 'M'); a.rect(81, 0, 85, 0, '^'); a.item(92, 6, 'depot', { rails: 30, wood: 3, steel: 1, fuel: 6 }); a.rect(98, 0, 128, 8, 'd'); a.rect(106, 0, 106, 5, '^'); a.rect(118, 3, 118, 8, '^'); a.item(134, 6, 'station', { rails: 6, fuel: 4 }); a.river(146, { wiggle: 0.3, to: 6 }); a.scatter(6, 156, 0, 8, 'h', 6); a.scatter(6, 156, 0, 8, 'f', 8); } }
+  ];
+  var PRACTICE = { id: 0, name: 'Practice Track', challenge: 'Learn every piece without risk', L: 70, ty: 4, practice: true,
+    res: { rails: [200, 200, 200], wood: [20, 20, 20], steel: [10, 10, 10], fuel: [99, 99, 99] },
+    brief: 'No score and no danger: the train stops itself at the end of the line and waits. Try curves, a forest, a bridge, marsh, a tunnel and the throttle.',
+    optional: [],
+    build: function (a) { a.blob(12, 1, 2, 1.2, 'f'); a.blob(14, 7, 2, 1.2, 'l'); a.river(22, { wiggle: 0 }); a.rect(30, 5, 35, 8, 'm'); a.rect(40, 0, 41, 6, 'M'); a.rect(40, 0, 41, 0, '^'); a.rect(48, 0, 56, 8, 'd'); a.rect(52, 0, 52, 4, '^'); a.blob(60, 2, 2, 1, 'h'); a.item(18, 4, 'crate', { rails: 2 }); } };
+
+  function idx(L, x, y) { return x * H + y; }   // column-major: endless rail appends columns
+  function generate(def, tier, extra) {
+    var L = def.L, g = new Array(L * H), items = {}, base = def.base || '.', locked = {};
+    for (var i = 0; i < g.length; i++) g[i] = base;
+    var rng = mulberry(h32('ahead-of-the-train:stage:' + def.id)), trng = mulberry(h32('ahead-of-the-train:stage:' + def.id + ':' + tier));
+    function inb(x, y) { return x >= 0 && x < L && y >= 0 && y < H; }
+    var a = {
+      L: L, rng: rng,
+      set: function (x, y, ch) { x = Math.round(x); y = Math.round(y); if (inb(x, y) && !locked[idx(L, x, y)]) g[idx(L, x, y)] = ch; },
+      get: function (x, y) { return inb(x, y) ? g[idx(L, x, y)] : null; },
+      rect: function (x0, y0, x1, y1, ch) { for (var x = x0; x <= x1; x++) for (var y = y0; y <= y1; y++) a.set(x, y, ch); },
+      blob: function (cx, cy, rx, ry, ch) { for (var x = Math.floor(cx - rx - 1); x <= Math.ceil(cx + rx + 1); x++) for (var y = Math.floor(cy - ry - 1); y <= Math.ceil(cy + ry + 1); y++) { var d = ((x - cx) / rx) * ((x - cx) / rx) + ((y - cy) / ry) * ((y - cy) / ry); if (d <= 1 + (rng() - 0.5) * 0.5) a.set(x, y, ch); } },
+      river: function (x0, o) { var x = x0, to = o.to === undefined ? H - 1 : o.to; for (var y = 0; y <= to; y++) { a.set(x, y, 'w'); if (y < to && rng() < (o.wiggle || 0)) { var nx = x + (rng() < 0.5 ? -1 : 1); a.set(nx, y, 'w'); x = nx; } } },
+      // tier-scaled scatter of small obstacles on open ground only (never on items, the start or the station approach)
+      scatter: function (x0, x1, y0, y1, ch, n) { var k = Math.round(n * TIERS[tier].scatter), tries = 0; while (k > 0 && tries++ < 400) { var x = x0 + Math.floor(trng() * (x1 - x0 + 1)), y = y0 + Math.floor(trng() * (y1 - y0 + 1)); if (a.get(x, y) === base && !locked[idx(L, x, y)]) { a.set(x, y, ch); k--; } } },
+      scatterOn: function (x0, x1, ch, n, on) { var k = Math.round(n * TIERS[tier].scatter), tries = 0; while (k > 0 && tries++ < 400) { var x = x0 + Math.floor(trng() * (x1 - x0 + 1)), y = Math.floor(trng() * H); if (a.get(x, y) === on && !locked[idx(L, x, y)]) { a.set(x, y, ch); k--; } } },
+      item: function (x, y, type, give) {
+        if (type === 'crateOnPath') { for (var yy = 0; yy < H; yy++) if (a.get(x, yy) === '.') { y = yy; break; } type = 'crate'; }
+        var ch = type === 'depot' ? 'D' : type === 'station' ? 'T' : (a.get(x, y) === 'f' || a.get(x, y) === 'h' || a.get(x, y) === 'd' || a.get(x, y) === 'm' ? a.get(x, y) : '.');
+        if (type === 'crate' && ch === '.' && rng() < 0.4) ch = 'u';
+        a.set(x, y, ch); items[idx(L, x, y)] = { type: type, x: x, y: y, give: give, taken: false }; locked[idx(L, x, y)] = true;
+        if (type === 'station') { a.set(x - 1, y, '.'); a.set(x + 1, y, '.'); locked[idx(L, x - 1, y)] = locked[idx(L, x + 1, y)] = true; }
+      }
+    };
+    def.build(a);
+    // the start (x 0–5) and the station approach are always open grassland; nothing else may sit there
+    var y0 = def.y0 === undefined ? 4 : def.y0, ty = def.ty;
+    for (var x = 0; x <= 6; x++) for (var y = y0 - 1; y <= y0 + 1; y++) if (y >= 0 && y < H && !items[idx(L, x, y)]) { g[idx(L, x, y)] = '.'; }
+    for (var x2 = L - 8; x2 < L; x2++) g[idx(L, x2, ty)] = '.';
+    for (var x3 = L - 8; x3 < L; x3++) { if (ty > 0 && !TERRAIN[g[idx(L, x3, ty - 1)]].pass) g[idx(L, x3, ty - 1)] = '.'; if (ty < H - 1 && !TERRAIN[g[idx(L, x3, ty + 1)]].pass) g[idx(L, x3, ty + 1)] = '.'; }
+    g[idx(L, L - 2, ty)] = 'E';
+    return { L: L, g: g, items: items, y0: y0, ty: ty };
+  }
+
+  /* ================================================================ 5 · track geometry */
+  // A piece is entered travelling in direction din and left in direction dout (dout = -1 while it is the open end of the line).
+  // Straight: dout = din (length 1). Curve: dout = din ± 90° (a quarter circle of radius ½ about the shared tile corner, length π/4).
+  function shapeOf(p) { return p.dout < 0 ? 'end' : p.dout === p.din ? 'straight' : p.dout === (p.din + 1) % 4 ? 'right' : 'left'; }
+  function isCurve(p) { return p.dout >= 0 && p.dout !== p.din; }
+  function pieceLen(p) { return isCurve(p) ? Math.PI / 4 : 1; }
+  function posOn(p, s) {   // world position (tile units, tile centre at +0.5) and heading at fraction s of the piece
+    var cx = p.x + 0.5, cy = p.y + 0.5, d = p.din;
+    if (!isCurve(p)) return { x: cx - 0.5 * DX[d] + s * DX[d], y: cy - 0.5 * DY[d] + s * DY[d], a: Math.atan2(DY[d], DX[d]) };
+    var e = p.dout, kx = cx - 0.5 * DX[d] + 0.5 * DX[e], ky = cy - 0.5 * DY[d] + 0.5 * DY[e], t = s * Math.PI / 2, c = Math.cos(t), sn = Math.sin(t);
+    return { x: kx + 0.5 * (-c * DX[e] + sn * DX[d]), y: ky + 0.5 * (-c * DY[e] + sn * DY[d]), a: Math.atan2(sn * DY[e] + c * DY[d], sn * DX[e] + c * DX[d]) };
+  }
+
+  /* ================================================================ 7 · resource economy (state creation) */
+  function stageDef(id) { return id === 0 ? PRACTICE : STAGES[id - 1]; }
+  function create(stageId, tier, opts) {
+    opts = opts || {};
+    if (stageId === 'endless') return createEndless(tier, opts);
+    var def = stageDef(stageId), T = TIERS[tier], gen = generate(def, def.practice ? 'bronze' : tier), k = T.k;
+    var st = {
+      v: 1, mode: def.practice ? 'practice' : 'campaign', stage: def.id, name: def.name, tier: tier, assist: !!opts.assist && tier === 'bronze',
+      L: gen.L, g: gen.g, items: gen.items, y0: gen.y0, ty: gen.ty, speedMul: def.speedMul || 1,
+      res: { rails: def.res.rails[k], wood: def.res.wood[k], steel: def.res.steel[k], fuel: def.res.fuel[k] },
+      track: [], init: 0, train: null, t: 0, run: 0, started: false, over: false, result: null, events: [], tick: 0,
+      stats: { collected: { rails: 0, wood: 0, steel: 0, fuel: 0 }, spent: { rails: 0, wood: 0, steel: 0 }, refunded: { rails: 0, wood: 0, steel: 0 }, hazards: 0, bridges: 0, tunnels: 0, stations: 0, stationsSeen: {}, undos: 0, stops: 0, curvesSlowed: 0, fuelUsed: 0, built: 0, maxAhead: 0 },
+      log: []
+    };
+    st.start = { rails: st.res.rails, wood: st.res.wood, steel: st.res.steel, fuel: st.res.fuel };
+    if (def.practice) st.tier = 'bronze';
+    layStart(st);
+    st.refLen = refLength(st);
+    return st;
+  }
+  function layStart(st) {
+    for (var x = 0; x <= 3; x++) st.track.push({ x: x, y: st.y0, din: 0, dout: x < 3 ? 0 : -1, status: 'built', prog: 1, cost: { rails: 0, wood: 0, steel: 0 }, kind: 'plain', terr: '.', init: true });
+    st.init = st.track.length;
+    st.train = { seg: 0, s: 0.25, v: 0, notch: 1, dist: 0, halted: false, braking: false, derailed: null, arrived: false };
+  }
+  function terrAt(st, x, y) { if (x < 0 || x >= st.L || y < 0 || y >= H) return null; return TERRAIN[st.g[idx(st.L, x, y)]]; }
+  function itemAt(st, x, y) { return st.items[idx(st.L, x, y)] || null; }
+  function tierOf(st) { return TIERS[st.tier]; }
+  function speeds(st) { var T = tierOf(st), m = st.speedMul * (st.assist ? 0.75 : 1); return [T.speeds[0] * m, T.speeds[1] * m, T.speeds[2] * m]; }
+  function curveLimit(st) { return speeds(st)[1]; }
+  function costOf(t) { return { rails: t.rails, wood: t.wood, steel: t.steel }; }
+  function affordable(res, c) { return res.rails >= c.rails && res.wood >= c.wood && res.steel >= c.steel; }
+  function value(r) { return r.rails + r.wood + 2 * r.steel; }
+
+  /* ================================================================ 6 · track connectivity & construction rules */
+  function occupied(st, x, y) { for (var i = 0; i < st.track.length; i++) if (st.track[i].x === x && st.track[i].y === y) return i; return -1; }
+  function endPiece(st) { return st.track[st.track.length - 1]; }
+  function trainPos(st) { var p = st.track[st.train.seg]; return posOn(p, st.train.s); }
+  function frontX(st) { return Math.floor(trainPos(st).x) + LOOK; }
+  function exitsFrom(p, terr) { var d = p.din; return terr && terr.straight ? [d] : [d, (d + 3) % 4, (d + 1) % 4]; }   // straight, left, right
+  // Can the next piece go on (x, y)? Returns { ok, reason, e (direction of travel into it), terr, cost }.
+  function check(st, x, y) {
+    if (st.over) return { ok: false, reason: 'The stage is over.' };
+    var end = endPiece(st), et = TERRAIN[st.g[idx(st.L, end.x, end.y)]] || TERRAIN['.'];
+    if (end.kind === 'terminal') return { ok: false, reason: 'The line has reached the station.' };
+    var t = terrAt(st, x, y);
+    if (!t) return { ok: false, reason: 'Outside the frontier.' };
+    if (occupied(st, x, y) >= 0) return { ok: false, reason: 'Track is already here.' };
+    var dx = x - end.x, dy = y - end.y, e = -1;
+    for (var k = 0; k < 4; k++) if (DX[k] === dx && DY[k] === dy) e = k;
+    if (e < 0) return { ok: false, reason: 'Not next to the end of the line.', far: true };
+    if (e === (end.din + 2) % 4) return { ok: false, reason: 'The line cannot turn back on itself.' };
+    if (exitsFrom(end, et).indexOf(e) < 0) return { ok: false, reason: et.name + ' track must run straight — continue ' + DIRN[end.din] + ' first.' };
+    if (!t.pass) return { ok: false, reason: t.name + ': ' + t.why };
+    if (t.orient && t.orient.indexOf(e) < 0) return { ok: false, reason: t.kind === 'terminal' ? 'Arrive at the station from the west (heading east).' : 'The waystation platform runs east–west — enter it heading east or west.' };
+    if (x > frontX(st)) return { ok: false, reason: 'Too far ahead — the survey reaches ' + LOOK + ' tiles beyond the train.' };
+    var c = costOf(t);
+    if (!affordable(st.res, c)) return { ok: false, reason: 'Not enough materials: ' + shortfall(st.res, c) + '.', cost: c, e: e, terr: t, poor: true };
+    return { ok: true, e: e, terr: t, cost: c };
+  }
+  function shortfall(r, c) { var out = []; ['rails', 'wood', 'steel'].forEach(function (k) { if (r[k] < c[k]) out.push(k + ' ' + r[k] + ' of ' + c[k]); }); return out.join(', '); }
+  function placeNext(st, x, y) {
+    var ck = check(st, x, y); if (!ck.ok) return ck;
+    var end = endPiece(st), t = ck.terr;
+    end.dout = ck.e;
+    ['rails', 'wood', 'steel'].forEach(function (k) { st.res[k] -= ck.cost[k]; st.stats.spent[k] += ck.cost[k]; });
+    st.track.push({ x: x, y: y, din: ck.e, dout: -1, status: 'planned', prog: 0, cost: ck.cost, kind: t.kind, terr: t.id, time: t.time });
+    st.events.push({ t: 'plan', i: st.track.length - 1 });
+    return { ok: true, piece: st.track[st.track.length - 1] };
+  }
+  // Route to a target tile: the cheapest-to-build connected route from the end of the line, up to 8 tiles, all within the survey.
+  // It is exactly what a click builds; nothing is charged unless every tile on it is affordable now.
+  function routeTo(st, x, y, maxLen) {
+    maxLen = maxLen || 8;
+    var tt = terrAt(st, x, y), end = endPiece(st);
+    if (!tt) return { ok: false, reason: 'Outside the frontier.' };
+    if (end.kind === 'terminal') return { ok: false, reason: 'The line has reached the station.' };
+    if (occupied(st, x, y) >= 0) return { ok: false, reason: 'Track is already here.' };
+    if (!tt.pass) return { ok: false, reason: tt.name + ': ' + tt.why };
+    if (x > frontX(st)) return { ok: false, reason: 'Too far ahead — the survey reaches ' + LOOK + ' tiles beyond the train.' };
+    var direct = check(st, x, y);
+    if (direct.ok) return { ok: true, cells: [{ x: x, y: y, e: direct.e, terr: direct.terr }], cost: direct.cost, time: direct.terr.time };
+    if (!direct.far && !direct.poor) return { ok: false, reason: direct.reason };
+    // uniform-cost search on (tile, direction) by build time, never crossing the line itself
+    var fx = frontX(st), occ = {}; st.track.forEach(function (p) { occ[p.x + ',' + p.y] = 1; });
+    var start = { x: end.x, y: end.y, d: end.din, time: 0, len: 0, par: null }, open = [start], best = {}, found = null;
+    best[end.x + ',' + end.y + ',' + end.din] = 0;
+    while (open.length) {
+      var bi = 0; for (var q = 1; q < open.length; q++) if (open[q].time < open[bi].time) bi = q;
+      var cur = open.splice(bi, 1)[0];
+      if (cur.x === x && cur.y === y && cur.len > 0) { found = cur; break; }
+      if (cur.len >= maxLen) continue;
+      var ct = cur.len === 0 ? (TERRAIN[st.g[idx(st.L, end.x, end.y)]] || TERRAIN['.']) : TERRAIN[st.g[idx(st.L, cur.x, cur.y)]];
+      var ex = ct.straight ? [cur.d] : [cur.d, (cur.d + 3) % 4, (cur.d + 1) % 4];
+      for (var j = 0; j < ex.length; j++) {
+        var e = ex[j], nx = cur.x + DX[e], ny = cur.y + DY[e], nt = terrAt(st, nx, ny);
+        if (!nt || !nt.pass || occ[nx + ',' + ny] || nx > fx || (nt.orient && nt.orient.indexOf(e) < 0) || (nt.kind === 'terminal' && !(nx === x && ny === y))) continue;
+        var onPath = false; for (var pp = cur; pp; pp = pp.par) if (pp.x === nx && pp.y === ny && pp.len > 0) { onPath = true; break; }
+        if (onPath) continue;
+        var nk = nx + ',' + ny + ',' + e, nti = cur.time + nt.time + 0.01;
+        if (best[nk] !== undefined && best[nk] <= nti) continue;
+        best[nk] = nti; open.push({ x: nx, y: ny, d: e, time: nti, len: cur.len + 1, par: cur });
+      }
+    }
+    if (!found) return { ok: false, reason: 'No connected route to that tile within ' + maxLen + ' tiles — build closer first.' };
+    var cells = []; for (var f = found; f && f.len > 0; f = f.par) cells.unshift({ x: f.x, y: f.y, e: f.d, terr: TERRAIN[st.g[idx(st.L, f.x, f.y)]] });
+    var cost = { rails: 0, wood: 0, steel: 0 }, time = 0;
+    cells.forEach(function (c) { cost.rails += c.terr.rails; cost.wood += c.terr.wood; cost.steel += c.terr.steel; time += c.terr.time; });
+    if (!affordable(st.res, cost)) return { ok: false, reason: 'Not enough materials for this route: ' + shortfall(st.res, cost) + '.', cells: cells, cost: cost, poor: true };
+    return { ok: true, cells: cells, cost: cost, time: time };
+  }
+  function buildRoute(st, x, y) {
+    var r = routeTo(st, x, y); if (!r.ok) return r;
+    for (var i = 0; i < r.cells.length; i++) { var res = placeNext(st, r.cells[i].x, r.cells[i].y); if (!res.ok) return res; }
+    return { ok: true, n: r.cells.length, cost: r.cost };
+  }
+  // Undo removes the last piece of the line — never one the train is on or about to need (it must be ≥ 2 pieces ahead of the train).
+  function canUndo(st) {
+    var k = st.track.length - 1;
+    if (st.over) return { ok: false, reason: 'The stage is over.' };
+    if (k < st.init) return { ok: false, reason: 'The starting track cannot be removed.' };
+    if (k < st.train.seg + 2) return { ok: false, reason: 'The train is too close — that track is needed.' };
+    var p = st.track[k], T = tierOf(st), full = p.status === 'planned' && p.prog === 0, r = full || st.mode === 'practice' ? 1 : T.refund, back = {};
+    ['rails', 'wood', 'steel'].forEach(function (key) { back[key] = Math.floor(p.cost[key] * r); });
+    return { ok: true, piece: p, refund: back, full: full || r === 1 };
+  }
+  function undo(st) {
+    var c = canUndo(st); if (!c.ok) return c;
+    st.track.pop(); endPiece(st).dout = -1;
+    ['rails', 'wood', 'steel'].forEach(function (k) { st.res[k] += c.refund[k]; st.stats.refunded[k] += c.refund[k]; });
+    st.stats.undos++; st.events.push({ t: 'undo', refund: c.refund });
+    return c;
+  }
+  function traversable(st, i) { var p = st.track[i]; return !!p && p.status === 'built' && (p.dout >= 0 || p.kind === 'terminal'); }
+
+  /* ================================================================ 8 · train movement · 9 · speed & braking · 10 · hazard detection */
+  function start(st) { if (!st.started && !st.over) { st.started = true; st.events.push({ t: 'whistle' }); } }
+  function setNotch(st, n) { n = clamp(n, 0, 2); if (n === 0 && st.res.fuel <= 0) { st.events.push({ t: 'noFuel' }); st.train.notch = 1; return false; } st.train.notch = n; return true; }
+  // distance (tiles) of safe track ahead of the train, and the upcoming pieces
+  function ahead(st) {
+    var tr = st.train, p = st.track[tr.seg];
+    if (p.kind === 'terminal') return { dist: Math.max(0, (0.5 - tr.s) * pieceLen(p)), pieces: 0, terminal: true };
+    var d = (1 - tr.s) * pieceLen(p), n = 0;
+    for (var i = tr.seg + 1; i < st.track.length; i++) {
+      var q = st.track[i];
+      if (q.kind === 'terminal' && q.status === 'built') return { dist: d + 0.5, pieces: n + 1, terminal: true };
+      if (!traversable(st, i)) break;
+      d += pieceLen(q); n++;
+    }
+    return { dist: d, pieces: n };
+  }
+  function nextCurve(st, within) {   // distance to the next curve entry on safe track (Infinity if none)
+    var tr = st.train, p = st.track[tr.seg], d = (1 - tr.s) * pieceLen(p);
+    for (var i = tr.seg + 1; i < st.track.length && traversable(st, i) && d <= within; i++) { if (isCurve(st.track[i])) return { d: d, i: i }; d += pieceLen(st.track[i]); }
+    return null;
+  }
+  function targetSpeed(st) {
+    var tr = st.train, sp = speeds(st), p = st.track[tr.seg], terr = TERRAIN[p.terr] || TERRAIN['.'];
+    var v = sp[tr.notch] * (terr.speed || 1);
+    tr.governed = false;
+    if (tierOf(st).governor || st.mode === 'practice') {   // automatic curve braking (Bronze, Silver, practice)
+      if (isCurve(p) && v > curveLimit(st)) { v = curveLimit(st); tr.governed = true; }
+      var c = nextCurve(st, 4); if (c) { var cap = Math.sqrt(curveLimit(st) * curveLimit(st) + 2 * DECEL * Math.max(0, c.d - 0.05)); if (cap < v) { v = cap; tr.governed = true; } }
+    }
+    return v;
+  }
+  function warnings(st) {
+    var w = [], a = ahead(st), tr = st.train;
+    if (!st.over && st.started) {
+      if (a.dist < 1.5) w.push({ k: 'end', level: 'critical', text: 'END OF TRACK — ' + a.dist.toFixed(1) + ' tiles!' });
+      else if (a.dist < 3) w.push({ k: 'end', level: 'urgent', text: 'Track running out — ' + a.dist.toFixed(1) + ' tiles ahead' });
+      var c = nextCurve(st, 3), lim = curveLimit(st);
+      if (c && tr.v > lim * 1.001) w.push({ k: 'curve', level: tierOf(st).governor || st.mode === 'practice' ? 'info' : 'critical', text: (tierOf(st).governor || st.mode === 'practice' ? 'Curve ahead — braking to ' : 'CURVE AHEAD — slow below ') + spd(lim) + ' (now ' + spd(tr.v) + ')' });
+      if (tr.notch === 0 && st.res.fuel < 3) w.push({ k: 'fuel', level: 'urgent', text: 'Fuel almost gone — Slow will end' });
+    }
+    return w;
+  }
+  function spd(v) { return Math.round(v * 40) + ' km/h'; }   // display scale: 1 tile/s ≈ 40 km/h on the miniature line
+
+  /* ================================================================ 11 · stage progression (one fixed step) */
+  function step(st) {
+    if (st.over) return;
+    st.tick++; st.t += STEP;
+    if (!st.started) return;
+    st.run += STEP;
+    var T = tierOf(st);
+    // construction crew: builds the first unbuilt piece of the line
+    for (var i = st.init; i < st.track.length; i++) {
+      var p = st.track[i]; if (p.status === 'built') continue;
+      p.status = 'building'; p.prog += STEP * (st.mode === 'practice' ? 1.3 : T.crew) / p.time;
+      if (p.prog >= 1) completePiece(st, i);
+      break;
+    }
+    // train
+    var tr = st.train, sp = speeds(st);
+    if (tr.notch === 0) { st.res.fuel = Math.max(0, st.res.fuel - FUEL_SLOW * STEP); st.stats.fuelUsed += FUEL_SLOW * STEP; if (st.res.fuel <= 0) { tr.notch = 1; st.events.push({ t: 'fuelOut' }); } }
+    var a = ahead(st), target = targetSpeed(st);
+    // emergency stop: on Bronze/Silver (and practice) the train brakes hard to stop exactly at the end of the line
+    var stopsLeft = st.mode === 'practice' ? Infinity : T.stops - st.stats.stops;
+    var cur = st.track[tr.seg];
+    if (!tr.braking && stopsLeft > 0 && !a.terminal && tr.v > 0 && a.dist <= tr.v * tr.v / (2 * EMER) + 0.02) { tr.braking = true; if (st.mode !== 'practice') st.stats.stops++; st.events.push({ t: 'emergency' }); }
+    if (tr.braking) {
+      if (a.dist > tr.v * tr.v / (2 * EMER) + 0.6) tr.braking = false;   // the line was extended: release
+      else { tr.v = Math.max(0, tr.v - EMER * STEP); if (tr.v === 0) { tr.halted = true; } }
+    }
+    if (tr.halted) { if (a.dist > 0.3) { tr.halted = false; tr.braking = false; st.events.push({ t: 'resume' }); } else return; }
+    if (!tr.braking) { if (tr.v < target) tr.v = Math.min(target, tr.v + ACCEL * STEP); else tr.v = Math.max(target, tr.v - DECEL * STEP); }
+    // advance along connected track only
+    var move = tr.v * STEP;
+    while (move > 0) {
+      var piece = st.track[tr.seg], len = pieceLen(piece), left = (1 - tr.s) * len;
+      if (piece.kind === 'terminal') { var toMid = (0.5 - tr.s) * len; if (move >= toMid && tr.s <= 0.5) { tr.s = 0.5; tr.dist += Math.max(0, toMid); arrive(st); return; } tr.s += move / len; tr.dist += move; break; }
+      if (move < left) { tr.s += move / len; tr.dist += move; break; }
+      tr.s = 1; tr.dist += left; move -= left;
+      if (!traversable(st, tr.seg) || !traversable(st, tr.seg + 1)) {
+        if (traversable(st, tr.seg) && st.track[tr.seg + 1] && st.track[tr.seg + 1].kind === 'terminal' && st.track[tr.seg + 1].status === 'built') { enterPiece(st, tr.seg + 1); continue; }
+        derail(st, 'end'); return;
+      }
+      enterPiece(st, tr.seg + 1); if (st.over) return;
+    }
+    var ahd = ahead(st), ah = ahd.dist; if (ahd.terminal) ah = 99; if (ah > st.stats.maxAhead && ah < 99) st.stats.maxAhead = ah; if (st.run > 4 && ah < 99) { if (st.stats.minAhead === undefined || ah < st.stats.minAhead) st.stats.minAhead = ah; st.stats.sumAhead = (st.stats.sumAhead || 0) + ah * STEP; }
+  }
+  function enterPiece(st, i) {
+    var tr = st.train, p = st.track[i], T = tierOf(st);
+    tr.seg = i; tr.s = 0;
+    if (isCurve(p) && !T.governor && st.mode !== 'practice' && tr.v > curveLimit(st) * OVERSPEED) { derail(st, 'curve'); return; }
+    if (p.kind === 'bridge' || p.kind === 'tunnel' || p.kind === 'reinforced' || p.terr === 'h') { st.stats.hazards++; }
+    if (p.kind === 'station' && !st.stats.stationsSeen[i]) { st.stats.stationsSeen[i] = true; st.stats.stations++; st.events.push({ t: 'station', i: i }); }
+    if (p.kind === 'bridge') st.events.push({ t: 'bridge' });
+  }
+  function completePiece(st, i) {
+    var p = st.track[i]; p.status = 'built'; p.prog = 1; st.stats.built++;
+    var gi = idx(st.L, p.x, p.y), terr = TERRAIN[st.g[gi]];
+    if (terr && terr.yieldWood && !p.cleared) { st.res.wood += terr.yieldWood; st.stats.collected.wood += terr.yieldWood; p.cleared = true; st.g[gi] = '.'; st.events.push({ t: 'timber', i: i, wood: terr.yieldWood }); }
+    var it = st.items[gi];
+    if (it && !it.taken) { it.taken = true; RES.forEach(function (k) { var n = it.give[k] || 0; if (n) { st.res[k] += n; st.stats.collected[k] += n; } }); st.events.push({ t: 'collect', i: i, item: it }); }
+    if (p.kind === 'bridge') st.stats.bridges++;
+    if (p.kind === 'tunnel') st.stats.tunnels++;
+    st.events.push({ t: 'built', i: i, kind: p.kind });
+  }
+  function derail(st, why) {
+    var tr = st.train; tr.derailed = why; tr.v = 0; st.over = true;
+    st.result = { fallen: true, why: why, text: why === 'curve' ? 'Derailed — the train entered a curve too fast.' : 'Derailed — the train ran off the end of the line.', score: scoreOf(st, false) };
+    st.events.push({ t: 'derail', why: why });
+  }
+  function arrive(st) {
+    var tr = st.train; tr.arrived = true; st.over = true; st.stats.stations++;
+    st.result = { fallen: false, text: 'Arrived at the station.', score: scoreOf(st, true) };
+    st.events.push({ t: 'arrive' });
+  }
+  function advance(st, seconds) { var n = Math.round(seconds / STEP); for (var i = 0; i < n && !st.over; i++) step(st); }
+
+  /* ================================================================ 12 · scoring */
+  // Every part is shown on the results screen with its formula. A longer route never scores more: route efficiency compares the
+  // line you laid with the shortest line your tier's materials allowed (computed by the route search in section 4).
+  var SCORE_TEXT = [
+    ['arrival', 300, 'Arrival', 'Reaching the destination station'],
+    ['route', 250, 'Route efficiency', 'shortest line your materials allowed ÷ track you laid'],
+    ['materials', 150, 'Materials conserved', 'rails + wood + 2 × steel left ÷ the same at start + collected'],
+    ['safety', 150, 'Safe running', '150 − 75 per emergency stop'],
+    ['pace', 150, 'Pace', 'average speed between Slow (0) and Fast (full)'],
+    ['optional', 100, 'Optional objectives', '50 for each of the stage’s two objectives']
+  ];
+  function optionalMet(st, o) {
+    var it = Object.keys(st.items).map(function (k) { return st.items[k]; }), sp = speeds(st);
+    switch (o.t) {
+      case 'crates': return it.filter(function (x) { return x.type === 'crate'; }).every(function (x) { return x.taken && st.track.some(function (p) { return p.x === x.x && p.y === x.y; }); });
+      case 'stations': return it.filter(function (x) { return x.type === 'station'; }).every(function (x) { var i = occupied(st, x.x, x.y); return i >= 0 && st.stats.stationsSeen[i]; });
+      case 'noStops': return st.stats.stops === 0;
+      case 'noUndo': return st.stats.undos === 0;
+      case 'left': return st.res[o.r] >= o.n;
+      case 'tunnel': return st.track.some(function (p) { return p.kind === 'tunnel'; });
+      case 'pace': return st.run > 0 && st.train.dist / st.run >= sp[1] * 0.95;
+    }
+    return false;
+  }
+  function optionalText(o) {
+    switch (o.t) {
+      case 'crates': return 'Collect every supply crate';
+      case 'stations': return 'Run through every waystation';
+      case 'noStops': return 'No emergency stops';
+      case 'noUndo': return 'No track removed';
+      case 'left': return 'Finish with at least ' + o.n + ' ' + o.r;
+      case 'tunnel': return 'Dig a tunnel through the ridge';
+      case 'pace': return 'Average at least 95 % of Cruise speed';
+    }
+    return '';
+  }
+  function scoreOf(st, arrived) {
+    var def = st.mode === 'endless' ? null : stageDef(st.stage), sp = speeds(st), laid = st.track.length - st.init;
+    var eff = arrived && st.refLen ? Math.min(1, st.refLen / Math.max(1, laid)) : 0;
+    var avail = value(st.start) + value(st.stats.collected), left = value(st.res), mat = arrived && avail > 0 ? Math.min(1, left / avail) : 0;
+    var avg = st.run > 0 ? st.train.dist / st.run : 0, pace = arrived ? clamp((avg - sp[0]) / (sp[2] - sp[0]), 0, 1) : 0;
+    var opt = def ? def.optional.map(function (o) { return { text: optionalText(o), met: arrived && optionalMet(st, o) }; }) : [];
+    var parts = { arrival: arrived ? 1 : 0, route: eff, materials: mat, safety: arrived ? Math.max(0, 150 - 75 * st.stats.stops) / 150 : 0, pace: pace, optional: opt.length ? opt.filter(function (o) { return o.met; }).length / opt.length : 0 };
+    var points = 0; SCORE_TEXT.forEach(function (r) { points += Math.round(parts[r[0]] * r[1]); });
+    var grade = !arrived ? 'derailed' : eff >= 0.92 && st.stats.stops === 0 && mat >= 0.2 ? 'gold' : eff >= 0.8 && st.stats.stops <= 1 ? 'silver' : 'bronze';
+    return { points: points, parts: parts, eff: eff, laid: laid, refLen: st.refLen, materialsFrac: mat, avg: avg, optional: opt, grade: grade };
+  }
+  var GRADE_TEXT = { gold: 'Gold Arrival', silver: 'Silver Arrival', bronze: 'Bronze Arrival', derailed: 'Derailed' };
+  var GRADE_RULE = { bronze: 'Bronze Arrival: reached the station.', silver: 'Silver Arrival: route efficiency ≥ 80 % and at most 1 emergency stop.', gold: 'Gold Arrival: route efficiency ≥ 92 %, no emergency stops and ≥ 20 % of materials left.' };
+
+  /* ================================================================ 4 · map validation: resource-aware route search */
+  // Label-setting search over (tile, direction of travel). A label carries the materials left after building to that tile, counting
+  // timber from cleared forest and supplies picked up on the way. A route exists only if every step was affordable in order.
+  function search(st, opt) {
+    opt = opt || {};
+    var objective = opt.obj || 'len', end = endPiece(st), occ = {}, cap = opt.cap || 6;
+    st.track.forEach(function (p) { occ[p.x + ',' + p.y] = 1; });
+    var res0 = opt.res || st.res, heap = [], labels = {}, n = 0;
+    function key(l) { return objective === 'len' ? l.len * 1000 + l.time : l.time + l.len * 0.05; }
+    function push(l) { heap.push(l); var i = heap.length - 1; while (i > 0) { var pi = (i - 1) >> 1; if (key(heap[pi]) <= key(heap[i])) break; var t = heap[pi]; heap[pi] = heap[i]; heap[i] = t; i = pi; } }
+    function pop() { var top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; var i = 0; for (;;) { var l = 2 * i + 1, r = l + 1, m = i; if (l < heap.length && key(heap[l]) < key(heap[m])) m = l; if (r < heap.length && key(heap[r]) < key(heap[m])) m = r; if (m === i) break; var t = heap[m]; heap[m] = heap[i]; heap[i] = t; i = m; } } return top; }
+    var goal = opt.goal || function (x, y) { return st.g[idx(st.L, x, y)] === 'E'; };
+    push({ x: end.x, y: end.y, d: end.din, len: 0, time: 0, r: res0.rails, w: res0.wood, s: res0.steel, par: null });
+    while (heap.length && n++ < (opt.limit || 400000)) {
+      var cur = pop();
+      if (cur.len > 0 && goal(cur.x, cur.y, cur)) { var cells = []; for (var f = cur; f && f.len > 0; f = f.par) cells.unshift({ x: f.x, y: f.y, d: f.d }); return { len: cur.len, time: cur.time, cells: cells, left: { rails: cur.r, wood: cur.w, steel: cur.s } }; }
+      if (cur.dead) continue;
+      var ct = TERRAIN[st.g[idx(st.L, cur.x, cur.y)]], ex = ct.straight ? [cur.d] : [cur.d, (cur.d + 3) % 4, (cur.d + 1) % 4];
+      if (ct.kind === 'terminal') continue;
+      for (var j = 0; j < ex.length; j++) {
+        var e = ex[j], nx = cur.x + DX[e], ny = cur.y + DY[e];
+        if (nx < 0 || ny < 0 || ny >= H || nx >= st.L || (opt.maxX !== undefined && nx > opt.maxX)) continue;
+        var nt = TERRAIN[st.g[idx(st.L, nx, ny)]];
+        if (!nt.pass || occ[nx + ',' + ny] || (nt.orient && nt.orient.indexOf(e) < 0)) continue;
+        var r = cur.r - nt.rails, w = cur.w - nt.wood, s = cur.s - nt.steel;
+        if (r < 0 || w < 0 || s < 0) continue;
+        if (nt.yieldWood) w += nt.yieldWood;
+        var it = st.items[idx(st.L, nx, ny)]; if (it && !it.taken) { r += it.give.rails || 0; w += it.give.wood || 0; s += it.give.steel || 0; }
+        var self = false; for (var pp = cur; pp; pp = pp.par) if (pp.x === nx && pp.y === ny) { self = true; break; }
+        if (self) continue;
+        var nl = { x: nx, y: ny, d: e, len: cur.len + 1, time: cur.time + nt.time, r: r, w: w, s: s, par: cur }, k = nx + ',' + ny + ',' + e, list = labels[k] || (labels[k] = []), dom = false;
+        for (var q = 0; q < list.length; q++) { var o = list[q]; if (key(o) <= key(nl) && o.r >= r && o.w >= w && o.s >= s) { dom = true; break; } }
+        if (dom) continue;
+        for (var q2 = list.length - 1; q2 >= 0; q2--) { var o2 = list[q2]; if (key(nl) <= key(o2) && r >= o2.r && w >= o2.w && s >= o2.s) { o2.dead = true; list.splice(q2, 1); } }
+        if (list.length >= cap) {   // full: keep the richest labels — evict the one with the least materials, or drop this one
+          var wi = 0, wv = Infinity; for (var q3 = 0; q3 < list.length; q3++) { var vv = list[q3].r + list[q3].w + 2 * list[q3].s; if (vv < wv) { wv = vv; wi = q3; } }
+          if (r + w + 2 * s <= wv) continue; list[wi].dead = true; list.splice(wi, 1);
+        }
+        list.push(nl); push(nl);
+      }
+    }
+    return null;
+  }
+  function refLength(st) { var r = search(st, { obj: 'len' }); return r ? r.len : 0; }
+  function validate(st) {   // structural checks + a resource-feasible route must exist
+    var problems = [], L = st.L;
+    var e = 0; for (var i = 0; i < st.g.length; i++) if (st.g[i] === 'E') e++;
+    if (e !== 1) problems.push('needs exactly one destination station');
+    for (var x = 0; x <= 6; x++) if (!TERRAIN[st.g[idx(L, x, st.y0)]].pass) problems.push('start blocked at ' + x);
+    var r = search(st, { obj: 'len' }); if (!r) problems.push('no resource-feasible route');
+    return { ok: problems.length === 0, problems: problems, route: r };
+  }
+
+  /* ================================================================ 13 · endless rail (validated procedural chunks) */
+  var CHUNK = 24;
+  function createEndless(tier, opts) {
+    var T = TIERS[tier], k = T.k, seed = (opts.seed >>> 0) || 1;
+    var st = { v: 1, mode: 'endless', stage: 'endless', name: 'Endless Rail', tier: tier, assist: !!opts.assist && tier === 'bronze', seed: seed,
+      L: 0, g: [], items: {}, y0: 4, ty: -1, speedMul: 1, res: { rails: [40, 34, 30][k], wood: [4, 3, 2][k], steel: [2, 1, 1][k], fuel: [30, 24, 20][k] },
+      track: [], init: 0, train: null, t: 0, run: 0, started: false, over: false, result: null, events: [], tick: 0, chunks: 0, laneEnd: 4,
+      stats: { collected: { rails: 0, wood: 0, steel: 0, fuel: 0 }, spent: { rails: 0, wood: 0, steel: 0 }, refunded: { rails: 0, wood: 0, steel: 0 }, hazards: 0, bridges: 0, tunnels: 0, stations: 0, stationsSeen: {}, undos: 0, stops: 0, curvesSlowed: 0, fuelUsed: 0, built: 0, maxAhead: 0 }, log: [] };
+    st.start = { rails: st.res.rails, wood: st.res.wood, steel: st.res.steel, fuel: st.res.fuel };
+    for (var c = 0; c < 3; c++) addChunk(st);
+    layStart(st); st.refLen = 0;
+    return st;
+  }
+  // Each chunk carries a guaranteed open lane (grassland, never water or peaks) joined to the previous chunk's lane, with a supply
+  // depot on it holding more rails than the lane needs. Obstacles never overwrite the lane, so a feasible line always exists.
+  function addChunk(st) {
+    for (var attempt = 0; attempt < 6; attempt++) { if (genChunk(st, attempt)) { st.chunks++; return true; } }
+    genChunk(st, -1); st.chunks++; return true;   // fallback: an open chunk (never needed in tests, but never impossible)
+  }
+  function genChunk(st, attempt) {
+    var c = st.chunks, x0 = st.L, rng = mulberry(h32('ahead-of-the-train:endless:' + st.seed + ':' + c + ':' + attempt)), diff = attempt < 0 ? 0 : Math.min(1, c / 12), W = CHUNK, saveL = st.L, saveG = st.g.length, saveLane = st.laneEnd;
+    for (var i = 0; i < W * H; i++) st.g.push(rng() < 0.08 ? ',' : '.');
+    st.L += W; var L = st.L;
+    function set(x, y, ch) { if (x >= x0 && x < L && y >= 0 && y < H) st.g[idx(L, x, y)] = ch; }
+    function get(x, y) { return st.g[idx(L, x, y)]; }
+    function blob(cx, cy, rx, ry, ch) { for (var x = Math.floor(cx - rx - 1); x <= Math.ceil(cx + rx + 1); x++) for (var y = Math.floor(cy - ry - 1); y <= Math.ceil(cy + ry + 1); y++) { var d = ((x - cx) / rx) * ((x - cx) / rx) + ((y - cy) / ry) * ((y - cy) / ry); if (d <= 1 + (rng() - 0.5) * 0.5) set(x, y, ch); } }
+    var nf = attempt < 0 ? 0 : 2 + Math.floor(rng() * 3 + diff * 2);
+    for (var f = 0; f < nf; f++) { var r = rng(), ch = r < 0.35 ? 'f' : r < 0.55 ? 'l' : r < 0.7 ? 'h' : r < 0.82 ? 'm' : r < 0.92 ? '^' : 'f'; blob(x0 + 2 + rng() * (W - 4), rng() * H, 1.5 + rng() * 2.5, 1 + rng() * 1.5, ch); }
+    if (rng() < 0.4 + diff * 0.3) { var rx = x0 + 6 + Math.floor(rng() * (W - 12)), top = rng() < 0.5, len = 3 + Math.floor(rng() * 4); for (var y = 0; y < len; y++) set(rx, top ? y : H - 1 - y, 'w'); }
+    if (c > 0 && rng() < 0.3 + diff * 0.2) { var gx = x0 + 4 + Math.floor(rng() * (W - 8)); for (var x = gx; x < Math.min(L, gx + 4); x++) for (var yy = 0; yy < H; yy++) if (get(x, yy) === '.' || get(x, yy) === ',') set(x, yy, 'd'); }
+    // the lane
+    var y0 = st.laneEnd, y1 = y0, lane = [];
+    for (var lx = x0; lx < L; lx++) {
+      lane.push([lx, y1]);
+      if (lx > x0 + 1 && lx < L - 2 && rng() < 0.3) { var ny = clamp(y1 + (rng() < 0.5 ? -1 : 1) * (1 + Math.floor(rng() * 2)), 0, H - 1), stp = ny > y1 ? 1 : -1; for (var yv = y1 + stp; yv !== ny + stp; yv += stp) lane.push([lx, yv]); y1 = ny; }
+    }
+    lane.forEach(function (p) { var t = get(p[0], p[1]); if (!TERRAIN[t].pass || t === 'w' || t === 'M' || t === 'm' || t === 'h') set(p[0], p[1], '.'); });
+    if (c === 0) for (var sx = 0; sx <= 6; sx++) for (var sy = 3; sy <= 5; sy++) set(sx, sy, '.');
+    var dp = lane[Math.floor(lane.length * (0.35 + rng() * 0.3))];
+    set(dp[0], dp[1], 'D'); st.items[idx(L, dp[0], dp[1])] = { type: 'depot', x: dp[0], y: dp[1], give: { rails: lane.length + 8, wood: 2, steel: 1, fuel: 6 }, taken: false };
+    // validate this chunk before accepting it: the lane must be open track ground joined to the last chunk, the depot on it
+    // must cover the lane, and the next chunk must be able to start; otherwise the chunk is rejected and regenerated
+    var ok = lane.every(function (p) { var t = TERRAIN[get(p[0], p[1])]; return t && t.pass && !t.straight && t.kind !== 'reinforced' && t.rails === 1; })
+      && lane[0][1] === y0 && st.items[idx(L, dp[0], dp[1])].give.rails >= lane.length;
+    if (!ok && attempt >= 0) { st.g.length = saveG; st.L = saveL; st.laneEnd = saveLane; Object.keys(st.items).forEach(function (k) { if (st.items[k].x >= x0) delete st.items[k]; }); return false; }
+    st.laneEnd = y1; st.lanes = (st.lanes || []).concat([lane]); st.rejected = (st.rejected || 0) + (attempt > 0 ? attempt : 0);
+    return true;
+  }
+  function endlessTick(st) {   // keep at least two chunks of terrain ahead of the train; speed rises gently with distance
+    if (st.mode !== 'endless') return;
+    var tx = trainPos(st).x; while (st.L - tx < CHUNK * 2) addChunk(st);
+    st.speedMul = 1 + Math.min(0.3, Math.floor(tx / CHUNK) * 0.025);
+  }
+  function validateEndless(seed, tier, n) {   // n chunks ahead must hold a line the starting materials (plus depots on the way) can build
+    var st = create('endless', tier || 'silver', { seed: seed }); while (st.chunks < n) addChunk(st);
+    var lanesOk = st.lanes.every(function (lane) { return lane.every(function (p) { var t = TERRAIN[st.g[idx(st.L, p[0], p[1])]]; return t.pass && t.kind !== 'bridge' && t.kind !== 'tunnel'; }); });
+    var gl = function (x) { return x >= st.L - 1; }, r = search(st, { obj: 'len', cap: 4, limit: 3e6, goal: gl }) || search(st, { obj: 'len', cap: 8, limit: 3e6, goal: gl });
+    var blockedStart = false; for (var x = 0; x <= 6; x++) if (!TERRAIN[st.g[idx(st.L, x, st.y0)]].pass) blockedStart = true;
+    return { ok: !!r && lanesOk && !blockedStart, route: !!r, lanes: lanesOk, len: r ? r.len : 0, L: st.L, st: st };
+  }
+  function stepAny(st) { if (st.mode === 'endless') { endlessTick(st); stepEndless(st); } else step(st); }
+  function stepEndless(st) { step(st); if (st.over && st.result) { st.result.distance = Math.floor(st.train.dist); st.result.score.points = Math.floor(st.train.dist) * 10 + st.stats.stations * 0; } }
+
+  /* ================================================================ 14 · bot (demonstration driver used by the tests) */
+  // Plans its route once with the resource-aware search, then plays the stage in real time with the same rules as a player:
+  // it may only lay track inside the survey distance, must afford every tile when it lays it, and steers with the same throttle.
+  function autoplay(st, opt) {
+    opt = opt || {};
+    var endless = st.mode === 'endless';
+    function reroute() { if (endless) endlessTick(st); var gx = st.L - 2; var gf = function (x, y, l) { return x >= gx && l.r >= CHUNK + 4; }, gl = function (x) { return x >= gx; }; return endless ? search(st, { obj: 'time', cap: 6, goal: gf }) || search(st, { obj: 'len', cap: 6, goal: gf }) || search(st, { obj: 'len', cap: 6, goal: gl }) : null; }
+    var route = opt.route || (endless ? reroute() : search(st, { obj: opt.obj || 'time', cap: 10 }) || search(st, { obj: 'len', cap: 10 }));
+    if (!route) return { ok: false, reason: 'no route' };
+    var k = 0, log = [], placed = 0, maxDist = opt.maxDist || Infinity;
+    function plan() { if (endless && k >= route.cells.length - 4) { var nr = reroute(); if (nr) { route = nr; k = 0; } } while (k < route.cells.length) { var c = route.cells[k], ck = check(st, c.x, c.y); if (!ck.ok) break; placeNext(st, c.x, c.y); log.push([st.tick, c.x, c.y]); k++; placed++; } }
+    plan(); start(st);
+    var guard = 0, T = tierOf(st);
+    while (!st.over && guard++ < 60 * 60 * 20 && st.train.dist < maxDist) {
+      if (st.tick % 3 === 0) plan();
+      var a = ahead(st), tr = st.train, sp = speeds(st), c = nextCurve(st, 3.5), lim = curveLimit(st), terr = TERRAIN[st.track[tr.seg].terr] || TERRAIN['.'];
+      var want = 1;
+      if (a.dist < (opt.low || 2.6) && st.res.fuel > (opt.reserve !== undefined ? opt.reserve : (T.governor ? 1 : 8))) want = 0;
+      else if (a.dist > (opt.high || 6.5) && !opt.noFast) want = 2;
+      if (!T.governor) {   // Gold: brake for curves the way a careful player would
+        var c2 = nextCurve(st, 5), fac = nextSpeedFactor(st);
+        if (c2) { var cap = lim * 0.98, need = Math.max(0, (tr.v * tr.v - cap * cap) / (2 * DECEL)); if (c2.d <= need + 0.45 || sp[want] * fac > tr.v + 0.01 && c2.d <= need + 1.2) { while (want > 0 && sp[want] * fac > cap) want--; } }
+        else if (isCurveAt(st, tr.seg) && want > 1) want = 1;
+      }
+      if (want !== tr.notch) setNotch(st, want);
+      stepAny(st);
+    }
+    return { ok: endless ? st.train.dist >= maxDist : !!(st.result && !st.result.fallen), result: st.result, placed: placed, log: log, route: route, dist: st.train.dist };
+  }
+  function isCurveAt(st, i) { return isCurve(st.track[i]); }
+  function nextSpeedFactor(st) { var tr = st.train, m = 1; for (var i = tr.seg; i < Math.min(st.track.length, tr.seg + 4); i++) { var t = TERRAIN[st.track[i].terr]; if (t && t.speed > m) m = t.speed; } return m; }
+
+  /* ================================================================ share text */
+  function shareText(c) {
+    return ['AHEAD OF THE TRAIN', 'DoorQuests · Gamortal #013', '', 'Tier: ' + c.tier, 'Stages Completed: ' + c.stages + '/15', 'Distance Traveled: ' + c.distance + ' tiles', 'Stations Reached: ' + c.stations, 'Track Efficiency: ' + c.eff + '%', 'Final Score: ' + c.score, '', 'Build fast. Think ahead. Keep moving.', '', 'doorquests.com/games/ahead-of-the-train/'].join('\n');
+  }
+
+  root.TrainEngine = {
+    H: H, LOOK: LOOK, STEP: STEP, ACCEL: ACCEL, DECEL: DECEL, EMER: EMER, OVERSPEED: OVERSPEED, FUEL_SLOW: FUEL_SLOW, DX: DX, DY: DY, DIRN: DIRN, CHUNK: CHUNK,
+    TIERS: TIERS, TIER_IDS: TIER_IDS, NOTCH: NOTCH, TERRAIN: TERRAIN, STAGES: STAGES, PRACTICE: PRACTICE, SCORE_TEXT: SCORE_TEXT, GRADE_TEXT: GRADE_TEXT, GRADE_RULE: GRADE_RULE,
+    h32: h32, mulberry: mulberry, idx: idx, generate: generate, create: create, stageDef: stageDef, terrAt: terrAt, itemAt: itemAt,
+    shapeOf: shapeOf, isCurve: isCurve, pieceLen: pieceLen, posOn: posOn, trainPos: trainPos, frontX: frontX, endPiece: endPiece, occupied: occupied,
+    check: check, placeNext: placeNext, routeTo: routeTo, buildRoute: buildRoute, canUndo: canUndo, undo: undo, traversable: traversable,
+    start: start, setNotch: setNotch, step: stepAny, advance: advance, ahead: ahead, nextCurve: nextCurve, targetSpeed: targetSpeed, warnings: warnings, speeds: speeds, curveLimit: curveLimit, spd: spd,
+    scoreOf: scoreOf, validateEndless: validateEndless, optionalText: optionalText, search: search, refLength: refLength, validate: validate, addChunk: addChunk, endlessTick: endlessTick,
+    autoplay: autoplay, shareText: shareText, value: value, clamp: clamp
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script id="at-app">
+/* Ahead of the Train — app layer: storage · audio · rendering · loop · input · HUD · screens.
+   The engine (TrainEngine) owns every rule and number; this layer draws it and passes the player's actions through. */
+(function () {
+  'use strict';
+  var E = window.TrainEngine, KEY = 'doorquests.gamortal.013.ahead-of-the-train.v1';
+  var QS = (function () { try { return new URLSearchParams(location.search); } catch (e) { return { get: function () { return null; } }; } })();
+  var DEV = QS.get('dev') === '1';
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function el(tag, attrs, text) { var e = document.createElement(tag); if (attrs) for (var k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); } if (text !== undefined && text !== null) e.textContent = text; return e; }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  var liveT = null; function announce(msg) { var l = $('#live'); clearTimeout(liveT); l.textContent = ''; liveT = setTimeout(function () { l.textContent = msg; }, 30); }
+  var alertT = null; function alertSR(msg) { var l = $('#alert'); clearTimeout(alertT); l.textContent = ''; alertT = setTimeout(function () { l.textContent = msg; }, 30); }
+
+  /* ================================================================ 1 · storage (validated; between stages only) */
+  var storageOk = true, memStore = null, notes = [];
+  function rawGet() { try { return localStorage.getItem(KEY); } catch (e) { storageOk = false; return memStore; } }
+  function rawSet(v) { try { localStorage.setItem(KEY, v); } catch (e) { storageOk = false; memStore = v; } }
+  var GRADES = ['bronze', 'silver', 'gold'];
+  function blankProg() { return { bronze: {}, silver: {}, gold: {} }; }
+  function blankRec() { return { arrivals: 0, derails: 0, furthest: { bronze: 0, silver: 0, gold: 0 }, bestEff: 0, bestStage: null }; }
+  function blank() { return { v: 1, prefs: { sound: true, volume: 70, motion: 'auto', assist: false, marks: true, large: false, tier: 'silver' }, progress: blankProg(), records: blankRec() }; }
+  function isInt(v, lo, hi) { return typeof v === 'number' && isFinite(v) && Math.floor(v) === v && v >= lo && v <= hi; }
+  function load() {
+    var s = blank(), raw = rawGet();
+    if (!storageOk) { notes.push('This browser is not saving data here — progress and records will last only until the page closes.'); return s; }
+    if (!raw) return s;
+    var d; try { d = JSON.parse(raw); } catch (e) { notes.push('Saved data could not be read and was set aside — starting fresh.'); return s; }
+    if (!d || typeof d !== 'object' || d.v !== 1) { notes.push('Saved data was from an unknown version and was set aside — starting fresh.'); return s; }
+    var bad = 0, p = d.prefs || {};
+    if (typeof p.sound === 'boolean') s.prefs.sound = p.sound; else if (p.sound !== undefined) bad++;
+    if (isInt(p.volume, 0, 100)) s.prefs.volume = p.volume; else if (p.volume !== undefined) bad++;
+    if (['auto', 'reduced', 'full'].indexOf(p.motion) >= 0) s.prefs.motion = p.motion; else if (p.motion !== undefined) bad++;
+    ['assist', 'marks', 'large'].forEach(function (k) { if (typeof p[k] === 'boolean') s.prefs[k] = p[k]; else if (p[k] !== undefined) bad++; });
+    if (E.TIERS[p.tier]) s.prefs.tier = p.tier; else if (p.tier !== undefined) bad++;
+    var pr = d.progress; if (pr && typeof pr === 'object') {
+      E.TIER_IDS.forEach(function (t) { var tt = pr[t]; if (!tt || typeof tt !== 'object') return; Object.keys(tt).forEach(function (k) { var n = +k, r = tt[k];
+        if (!isInt(n, 1, 15) || !r || typeof r !== 'object' || !isInt(r.best, 0, 1100) || GRADES.indexOf(r.grade) < 0 || !isInt(r.eff, 0, 100) || !isInt(r.dist, 0, 10000) || !isInt(r.stations, 0, 50) || (r.assisted !== undefined && typeof r.assisted !== 'boolean')) { bad++; return; }
+        s.progress[t][n] = { best: r.best, grade: r.grade, eff: r.eff, dist: r.dist, stations: r.stations, assisted: !!r.assisted }; }); });
+    } else if (pr !== undefined) bad++;
+    var rc = d.records; if (rc && typeof rc === 'object') {
+      if (isInt(rc.arrivals, 0, 1e6)) s.records.arrivals = rc.arrivals; else if (rc.arrivals !== undefined) bad++;
+      if (isInt(rc.derails, 0, 1e6)) s.records.derails = rc.derails; else if (rc.derails !== undefined) bad++;
+      if (isInt(rc.bestEff, 0, 100)) s.records.bestEff = rc.bestEff; else if (rc.bestEff !== undefined) bad++;
+      if (rc.furthest && typeof rc.furthest === 'object') E.TIER_IDS.forEach(function (t) { if (isInt(rc.furthest[t], 0, 1e6)) s.records.furthest[t] = rc.furthest[t]; else if (rc.furthest[t] !== undefined) bad++; });
+      var b = rc.bestStage; if (b && isInt(b.points, 0, 1100) && isInt(b.stage, 1, 15) && E.TIERS[b.tier]) s.records.bestStage = { points: b.points, stage: b.stage, tier: b.tier }; else if (b !== undefined && b !== null) bad++;
+    } else if (rc !== undefined) bad++;
+    if (bad) notes.push('Some saved values were invalid and were removed; everything else was kept.');
+    return s;
+  }
+  var SAVE = load(), saves = 0;
+  function persist() { saves++; try { rawSet(JSON.stringify({ v: 1, prefs: SAVE.prefs, progress: SAVE.progress, records: SAVE.records })); } catch (e) { storageOk = false; } }
+
+  /* ================================================================ 2 · motion & text size */
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { var m = SAVE.prefs.motion; return m === 'reduced' || (m === 'auto' && !!(mq && mq.matches)); }
+  function applyPrefs() { document.body.classList.toggle('reduce', reduced()); document.documentElement.classList.toggle('large', !!SAVE.prefs.large); }
+
+  /* ================================================================ 3 · audio (original Web Audio synthesis — never required) */
+  var AU = { ctx: null, master: null, noise: null, voices: 0 };
+  function audioInit() {
+    if (!SAVE.prefs.sound || AU.ctx) { if (AU.ctx && AU.ctx.state === 'suspended') try { AU.ctx.resume(); } catch (e) {} return; }
+    var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    try { AU.ctx = new AC(); AU.master = AU.ctx.createGain(); AU.master.connect(AU.ctx.destination); setVol();
+      var len = AU.ctx.sampleRate, buf = AU.ctx.createBuffer(1, len, AU.ctx.sampleRate), d = buf.getChannelData(0), seed = 7; for (var i = 0; i < len; i++) { seed = (seed * 16807) % 2147483647; d[i] = seed / 1073741823.5 - 1; } AU.noise = buf;
+    } catch (e) { AU.ctx = null; }
+  }
+  function setVol() { if (AU.master) AU.master.gain.value = (SAVE.prefs.volume / 100) * 0.9; }
+  function live() { return AU.ctx && SAVE.prefs.sound && AU.ctx.state !== 'closed'; }
+  function tone(f, d, type, v, w, f2) {
+    if (!live() || AU.voices > 24) return; var c = AU.ctx;
+    try { var t = c.currentTime + (w || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v || 0.05, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g); g.connect(AU.master); o.start(t); o.stop(t + d + 0.02); AU.voices++; o.onended = function () { AU.voices--; }; } catch (e) {}
+  }
+  function noise(d, v, freq, w, type, q) {
+    if (!live() || !AU.noise || AU.voices > 24) return; var c = AU.ctx;
+    try { var t = c.currentTime + (w || 0), s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = AU.noise; f.type = type || 'lowpass'; f.frequency.value = freq || 1000; if (q) f.Q.value = q;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v || 0.05, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      s.connect(f); f.connect(g); g.connect(AU.master); s.start(t, Math.random() * 0.5); s.stop(t + d + 0.02); AU.voices++; s.onended = function () { AU.voices--; }; } catch (e) {}
+  }
+  function whistle(w, len) { if (!live()) return; [740, 880].forEach(function (f) { tone(f, len || 0.8, 'sawtooth', 0.012, w); tone(f * 1.003, len || 0.8, 'triangle', 0.02, w); }); noise(len || 0.8, 0.01, 2500, w, 'bandpass', 3); }
+  var SND = {
+    place: function () { tone(1250, 0.05, 'square', 0.018); tone(1870, 0.05, 'triangle', 0.02, 0.025); },
+    connect: function () { tone(660, 0.08, 'triangle', 0.03); tone(990, 0.1, 'triangle', 0.025, 0.05); },
+    bridge: function () { [0, 0.09, 0.18].forEach(function (w) { tone(210, 0.07, 'triangle', 0.06, w, 120); }); },
+    collect: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, 0.18, 'triangle', 0.03, i * 0.06); }); },
+    whistle: function () { whistle(0, 0.9); },
+    bell: function () { tone(1568, 0.45, 'sine', 0.05); tone(2350, 0.35, 'sine', 0.018); },
+    brake: function () { noise(0.6, 0.05, 3200, 0, 'bandpass', 4); },
+    derail: function () { noise(0.9, 0.12, 700); tone(80, 0.7, 'sawtooth', 0.06, 0, 35); noise(0.5, 0.06, 2000, 0.15, 'bandpass', 1); },
+    arrive: function () { SND.bell(); tone(1568, 0.45, 'sine', 0.05, 0.5); whistle(0.9, 0.7); },
+    complete: function () { [523, 659, 784, 1047, 1319].forEach(function (f, i) { tone(f, 0.35, 'triangle', 0.035, 1.6 + i * 0.11); }); },
+    chug: function (v) { noise(0.09, 0.012 + v * 0.01, 650); },
+    no: function () { tone(150, 0.16, 'square', 0.025); },
+    tap: function () { tone(880, 0.04, 'sine', 0.02); },
+    undo: function () { tone(520, 0.08, 'triangle', 0.03, 0, 330); }
+  };
+
+  /* ================================================================ 4 · rendering (Canvas 2D, world units = tiles) */
+  // Landscape: the line runs east → right. Phones in portrait: the whole world turns so the line runs up the screen.
+  var TC = { '.': '#86a95c', ',': '#d9c48c', f: '#5c8a4d', h: '#a58f6a', m: '#6e8a63', w: '#4a86b8', l: '#3e72a3', M: '#918d84', '^': '#6b6f76', c: '#8a7a64', s: '#3a6c9a', d: '#94b268', u: '#86a95c', D: '#a8885c', T: '#86a95c', E: '#86a95c' };
+  function hash(x, y, k) { var h = (x * 374761393 + y * 668265263 + (k || 0) * 2147483647) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
+  function makeView(canvas, opt) {
+    var V = { cv: canvas, ctx: canvas.getContext('2d'), dpr: 1, w: 1, h: 1, ts: 40, portrait: false, viewLen: 15, cam: -0.5, camT: -0.5, ox: 0, oy: 0, fixed: opt && opt.fixed, puffs: [], sparks: [], clouds: [], hover: null, cursor: null, preview: null, t: 0 };
+    for (var i = 0; i < 4; i++) V.clouds.push({ x: Math.random() * 20, y: Math.random() * 9, r: 1.2 + Math.random() * 1.4, s: 0.15 + Math.random() * 0.12 });
+    V.layout = function () {
+      var r = (opt && opt.box ? opt.box() : canvas.getBoundingClientRect()), w = Math.max(50, r.width), h = Math.max(50, r.height), dpr = Math.min(2, window.devicePixelRatio || 1);
+      V.dpr = dpr; V.w = w; V.h = h; V.portrait = !V.fixed && h > w * 1.05;
+      if (V.fixed) { V.ts = h / 9; V.viewLen = w / V.ts; V.ox = 0; V.oy = 0; }
+      else if (!V.portrait) { V.ts = Math.min(72, h / 9.3); V.viewLen = w / V.ts; if (V.viewLen < 14.6) { V.ts = w / 14.6; V.viewLen = 14.6; } V.ox = 0; V.oy = (h - 9 * V.ts) / 2; }
+      else { V.ts = Math.min(72, w / 9.2); V.viewLen = h / V.ts; if (V.viewLen < 13.6) { V.ts = h / 13.6; V.viewLen = 13.6; } V.ox = (w - 9 * V.ts) / 2; V.oy = 0; }
+      var pw = Math.round(w * dpr), ph = Math.round(h * dpr); if (canvas.width !== pw || canvas.height !== ph) { canvas.width = pw; canvas.height = ph; }
+    };
+    V.world = function () { var c = V.ctx, d = V.dpr, t = V.ts; if (!V.portrait) c.setTransform(d * t, 0, 0, d * t, d * (V.ox - V.cam * t), d * V.oy); else c.setTransform(0, -d * t, d * t, 0, d * V.ox, d * (V.h + V.cam * t)); };
+    V.screen = function () { V.ctx.setTransform(V.dpr, 0, 0, V.dpr, 0, 0); };
+    V.toScreen = function (wx, wy) { return !V.portrait ? [V.ox + (wx - V.cam) * V.ts, V.oy + wy * V.ts] : [V.ox + wy * V.ts, V.h - (wx - V.cam) * V.ts]; };
+    V.toWorld = function (sx, sy) { return !V.portrait ? [(sx - V.ox) / V.ts + V.cam, (sy - V.oy) / V.ts] : [V.cam + (V.h - sy) / V.ts, (sx - V.ox) / V.ts]; };
+    V.frame = function () { return V.portrait ? { rx: 0, ry: 1, ux: 1, uy: 0 } : { rx: 1, ry: 0, ux: 0, uy: -1 }; };   // screen-right and screen-up in world terms
+    return V;
+  }
+  function P(f, cx, cy, r, u) { return [cx + r * f.rx + u * f.ux, cy + r * f.ry + u * f.uy]; }
+  function poly(c, pts) { c.beginPath(); c.moveTo(pts[0][0], pts[0][1]); for (var i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]); c.closePath(); }
+  function circ(c, x, y, r) { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); }
+  function ell(c, x, y, rx, ry) { c.beginPath(); c.ellipse(x, y, Math.max(0.001, rx), Math.max(0.001, ry), 0, 0, Math.PI * 2); }
+
+  function drawTile(V, st, ch, x, y, anim) {
+    var c = V.ctx, f = V.frame(), cx = x + 0.5, cy = y + 0.5, t = V.t, h1 = hash(x, y, 1), h2 = hash(x, y, 2), h3 = hash(x, y, 3);
+    c.fillStyle = TC[ch] || '#86a95c'; c.fillRect(x, y, 1.01, 1.01);
+    switch (ch) {
+      case '.': case 'u': case 'T': case 'E':
+        c.strokeStyle = 'rgba(60,90,40,.45)'; c.lineWidth = 0.03; for (var k = 0; k < 3; k++) { var tx = x + 0.15 + hash(x, y, 10 + k) * 0.7, ty = y + 0.15 + hash(x, y, 20 + k) * 0.7, a = P(f, tx, ty, -0.04, 0), b = P(f, tx, ty, 0, 0.09), d = P(f, tx, ty, 0.05, 0.02); c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.lineTo(d[0], d[1]); c.stroke(); }
+        if (ch === 'u') { c.fillStyle = '#7c6a55'; var q = [P(f, cx, cy, -0.25, -0.05), P(f, cx, cy, -0.25, 0.2), P(f, cx, cy, 0.05, 0.25), P(f, cx, cy, 0.05, 0.1), P(f, cx, cy, 0.25, 0.08), P(f, cx, cy, 0.25, -0.05)]; poly(c, q); c.fill(); c.fillStyle = '#5a4a3a'; poly(c, [P(f, cx, cy, -0.18, -0.05), P(f, cx, cy, -0.18, 0.1), P(f, cx, cy, -0.06, 0.1), P(f, cx, cy, -0.06, -0.05)]); c.fill(); }
+        break;
+      case ',': c.fillStyle = 'rgba(160,130,80,.5)'; for (var k2 = 0; k2 < 5; k2++) { circ(c, x + 0.1 + hash(x, y, 30 + k2) * 0.8, y + 0.1 + hash(x, y, 40 + k2) * 0.8, 0.025); c.fill(); } break;
+      case 'd': c.strokeStyle = 'rgba(240,250,210,.55)'; c.lineWidth = 0.05; for (var k3 = 0; k3 < 2; k3++) { var ax = x + 0.3 + k3 * 0.35; c.beginPath(); c.moveTo(ax - 0.08, y + 0.32); c.lineTo(ax + 0.06, y + 0.5); c.lineTo(ax - 0.08, y + 0.68); c.stroke(); } break;
+      case 'f':
+        for (var k4 = 0; k4 < 3; k4++) { var fx = x + 0.22 + hash(x, y, 50 + k4) * 0.56, fy = y + 0.22 + hash(x, y, 60 + k4) * 0.56, sw = anim ? Math.sin(t * 1.3 + h1 * 6 + k4) * 0.015 : 0, s0 = P(f, fx, fy, 0.04, -0.06);
+          c.fillStyle = 'rgba(20,40,20,.25)'; ell(c, s0[0], s0[1], 0.17, 0.17); c.fill(); c.fillStyle = k4 % 2 ? '#2f5a34' : '#3c6c3b'; circ(c, fx + sw, fy, 0.17 + h2 * 0.05); c.fill(); c.fillStyle = 'rgba(160,210,120,.25)'; var hl = P(f, fx + sw, fy, -0.05, 0.05); circ(c, hl[0], hl[1], 0.06); c.fill(); }
+        break;
+      case 'h': for (var k5 = 0; k5 < 2; k5++) { var hx = x + 0.3 + k5 * 0.38, hy = y + 0.35 + hash(x, y, 70 + k5) * 0.35; c.fillStyle = '#86704f'; poly(c, [P(f, hx, hy, -0.2, -0.1), P(f, hx, hy, -0.05, 0.16), P(f, hx, hy, 0.18, -0.1)]); c.fill(); c.fillStyle = 'rgba(255,240,210,.3)'; poly(c, [P(f, hx, hy, -0.05, 0.16), P(f, hx, hy, 0.02, 0.05), P(f, hx, hy, -0.12, -0.02)]); c.fill(); } break;
+      case 'm': c.fillStyle = 'rgba(80,120,140,.65)'; ell(c, x + 0.3 + h1 * 0.4, y + 0.3 + h2 * 0.4, 0.2, 0.12); c.fill(); c.strokeStyle = '#3e5a33'; c.lineWidth = 0.03; for (var k6 = 0; k6 < 4; k6++) { var mx = x + 0.15 + hash(x, y, 80 + k6) * 0.7, my = y + 0.2 + hash(x, y, 90 + k6) * 0.6, m1 = P(f, mx, my, 0, 0), m2 = P(f, mx, my, 0.02, 0.14); c.beginPath(); c.moveTo(m1[0], m1[1]); c.lineTo(m2[0], m2[1]); c.stroke(); } break;
+      case 'w': c.strokeStyle = 'rgba(220,240,255,.55)'; c.lineWidth = 0.035; for (var k7 = 0; k7 < 3; k7++) { var off = anim ? ((t * 0.35 + k7 / 3 + h1) % 1) : (k7 / 3 + 0.15); var wy = y + off; c.beginPath(); c.moveTo(x + 0.15 + h3 * 0.2, wy); c.quadraticCurveTo(x + 0.4, wy - 0.06, x + 0.6 + h2 * 0.2, wy); c.stroke(); } break;
+      case 'l': case 's': c.strokeStyle = 'rgba(210,235,255,.35)'; c.lineWidth = 0.03; var ph = anim ? Math.sin(t * 0.8 + h1 * 6) * 0.05 : 0; c.beginPath(); c.arc(x + 0.3 + h1 * 0.4, y + 0.4 + h2 * 0.2 + ph, 0.14, 0.2 * Math.PI, 0.8 * Math.PI); c.stroke(); break;
+      case 'M': case '^': var dark = ch === '^'; c.fillStyle = dark ? '#4f545b' : '#6d7178'; poly(c, [P(f, cx, cy, -0.45, -0.38), P(f, cx, cy, dark ? -0.05 : 0, dark ? 0.44 : 0.36), P(f, cx, cy, 0.45, -0.38)]); c.fill(); c.fillStyle = '#f2f2ee'; poly(c, [P(f, cx, cy, dark ? -0.16 : -0.13, dark ? 0.2 : 0.18), P(f, cx, cy, dark ? -0.05 : 0, dark ? 0.44 : 0.36), P(f, cx, cy, dark ? 0.07 : 0.13, dark ? 0.2 : 0.18)]); c.fill(); if (dark) { c.fillStyle = '#3e4248'; poly(c, [P(f, cx, cy, 0.05, -0.38), P(f, cx, cy, 0.3, 0.2), P(f, cx, cy, 0.48, -0.38)]); c.fill(); } break;
+      case 'D': c.fillStyle = '#7a5634'; poly(c, [P(f, cx, cy, -0.36, 0.05), P(f, cx, cy, -0.36, 0.38), P(f, cx, cy, 0.1, 0.38), P(f, cx, cy, 0.1, 0.05)]); c.fill(); c.fillStyle = '#b8743a'; poly(c, [P(f, cx, cy, -0.42, 0.3), P(f, cx, cy, -0.13, 0.46), P(f, cx, cy, 0.16, 0.3)]); c.fill(); break;
+      case 'c': c.strokeStyle = 'rgba(60,40,30,.5)'; c.lineWidth = 0.04; for (var k8 = 0; k8 < 3; k8++) { c.beginPath(); c.moveTo(x + 0.1, y + 0.25 + k8 * 0.25); c.lineTo(x + 0.9, y + 0.2 + k8 * 0.27); c.stroke(); } break;
+    }
+    if (ch === 'T' || ch === 'E') {   // platforms run east–west, like the track through them
+      c.fillStyle = '#c9b48a'; c.fillRect(x, y + 0.06, 1, 0.14); c.fillRect(x, y + 0.8, 1, 0.14);
+      if (ch === 'E') { c.fillStyle = '#7a3e2a'; c.fillRect(x + 0.1, y - 0.42, 0.8, 0.46); c.fillStyle = '#b8743a'; c.fillRect(x + 0.05, y - 0.5, 0.9, 0.12); c.fillStyle = '#f6e2a0'; for (var wi = 0; wi < 3; wi++) c.fillRect(x + 0.2 + wi * 0.24, y - 0.3, 0.1, 0.14); c.strokeStyle = '#3a3f46'; c.lineWidth = 0.03; c.beginPath(); c.moveTo(x + 0.85, y - 0.5); c.lineTo(x + 0.85, y - 0.9); c.stroke(); c.fillStyle = '#c9a24a'; poly(c, [[x + 0.85, y - 0.9], [x + 1.15, y - 0.82], [x + 0.85, y - 0.74]]); c.fill(); }
+      var glow = anim ? 0.55 + Math.sin(t * 2 + x) * 0.15 : 0.6; [[x + 0.12, y + 0.13], [x + 0.88, y + 0.87]].forEach(function (pp) { c.fillStyle = 'rgba(255,214,120,' + (glow * 0.45) + ')'; circ(c, pp[0], pp[1], 0.12); c.fill(); c.fillStyle = '#ffd678'; circ(c, pp[0], pp[1], 0.045); c.fill(); });
+    }
+  }
+  function drawItem(V, it) {
+    if (it.taken) return; var c = V.ctx, f = V.frame(), cx = it.x + 0.5, cy = it.y + 0.5;
+    if (it.type === 'crate') { var b = P(f, cx, cy, 0.18, 0.2); c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(b[0] - 0.12, b[1] - 0.12, 0.28, 0.28); c.fillStyle = '#b07a3e'; c.fillRect(b[0] - 0.14, b[1] - 0.14, 0.28, 0.28); c.strokeStyle = '#6b4520'; c.lineWidth = 0.03; c.strokeRect(b[0] - 0.14, b[1] - 0.14, 0.28, 0.28); c.beginPath(); c.moveTo(b[0] - 0.14, b[1] - 0.14); c.lineTo(b[0] + 0.14, b[1] + 0.14); c.stroke(); }
+    if (it.type === 'depot') { [[0.22, -0.25], [0.34, -0.12]].forEach(function (o) { var b2 = P(f, cx, cy, o[0], o[1]); c.fillStyle = '#c08a4a'; c.fillRect(b2[0] - 0.09, b2[1] - 0.09, 0.18, 0.18); c.strokeStyle = '#6b4520'; c.lineWidth = 0.025; c.strokeRect(b2[0] - 0.09, b2[1] - 0.09, 0.18, 0.18); }); }
+  }
+  function label(V, wx, wy, text, color, bg) { var s = V.toScreen(wx, wy), c = V.ctx; V.screen(); c.font = '600 11px system-ui, sans-serif'; var w = c.measureText(text).width + 8; s[0] = Math.max(w / 2 + 2, Math.min(V.w - w / 2 - 2, s[0])); s[1] = Math.max(11, Math.min(V.h - 9, s[1])); c.fillStyle = bg || 'rgba(27,29,78,.85)'; c.fillRect(s[0] - w / 2, s[1] - 9, w, 16); c.fillStyle = color || '#fff6dc'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, s[0], s[1] - 1); c.textAlign = 'start'; V.world(); }
+
+  // track: sample the piece's centre line, then draw bed, sleepers and two rails offset along the normal
+  function samples(p, s0, s1, n) { var out = []; for (var i = 0; i <= n; i++) out.push(E.posOn(p, s0 + (s1 - s0) * i / n)); return out; }
+  function strokeOffset(c, pts, off) { c.beginPath(); for (var i = 0; i < pts.length; i++) { var q = pts[i], nx = -Math.sin(q.a) * off, ny = Math.cos(q.a) * off; if (i === 0) c.moveTo(q.x + nx, q.y + ny); else c.lineTo(q.x + nx, q.y + ny); } c.stroke(); }
+  function drawPiece(V, p, mode, prog) {   // mode: 'solid' | 'ghost' | 'bad' | 'plan'
+    var c = V.ctx, shape = E.shapeOf(p), isEnd = shape === 'end', s1 = isEnd ? 0.62 : 1, n = E.isCurve(p) ? 10 : 4, pts = samples(p, 0, s1, n);
+    var ghost = mode !== 'solid', alpha = mode === 'plan' ? 0.55 : mode === 'ghost' ? 0.6 : mode === 'bad' ? 0.6 : 1;
+    c.save(); c.globalAlpha = alpha; c.lineCap = 'butt';
+    if (p.kind === 'tunnel' && !ghost) { c.fillStyle = 'rgba(20,20,26,.8)'; c.fillRect(p.x + 0.04, p.y + 0.04, 0.92, 0.92); }
+    if (p.kind === 'bridge') { c.strokeStyle = ghost ? '#c8a36b' : '#7a4f2a'; c.lineWidth = 0.62; strokeOffset(c, pts, 0); c.strokeStyle = '#3a3f46'; c.lineWidth = 0.05; strokeOffset(c, pts, 0.31); strokeOffset(c, pts, -0.31); }
+    else if (p.kind === 'reinforced') { c.strokeStyle = '#9c7a4a'; c.lineWidth = 0.66; strokeOffset(c, pts, 0); }
+    if (mode === 'bad') { c.strokeStyle = '#ff6a5a'; c.lineWidth = 0.5; strokeOffset(c, pts, 0); }
+    else { c.strokeStyle = ghost ? 'rgba(170,240,180,.9)' : p.kind === 'tunnel' ? '#2a2a30' : '#8f8068'; c.lineWidth = 0.5; strokeOffset(c, pts, 0); }
+    // sleepers
+    var len = E.pieceLen(p) * s1, ns = Math.max(2, Math.round(len / 0.2)); c.strokeStyle = ghost ? 'rgba(90,70,40,.7)' : '#5e4128'; c.lineWidth = 0.075;
+    for (var i = 0; i < ns; i++) { var q = E.posOn(p, ((i + 0.5) / ns) * s1), nx = -Math.sin(q.a) * 0.28, ny = Math.cos(q.a) * 0.28; c.beginPath(); c.moveTo(q.x - nx, q.y - ny); c.lineTo(q.x + nx, q.y + ny); c.stroke(); }
+    // rails (up to the build progress when under construction)
+    var rp = prog === undefined ? pts : samples(p, 0, s1 * Math.max(0.02, prog), n);
+    c.strokeStyle = ghost ? 'rgba(235,240,245,.85)' : '#cfd3d8'; c.lineWidth = 0.055; strokeOffset(c, rp, 0.17); strokeOffset(c, rp, -0.17);
+    if (!ghost) { c.strokeStyle = 'rgba(40,44,50,.6)'; c.lineWidth = 0.018; strokeOffset(c, rp, 0.2); strokeOffset(c, rp, -0.2); }
+    if (p.kind === 'tunnel' && !ghost) { [0, 1].forEach(function (s) { var e = E.posOn(p, s), nx = -Math.sin(e.a), ny = Math.cos(e.a); c.strokeStyle = '#8a8f96'; c.lineWidth = 0.1; c.beginPath(); c.moveTo(e.x + nx * 0.42, e.y + ny * 0.42); c.lineTo(e.x - nx * 0.42, e.y - ny * 0.42); c.stroke(); }); }
+    if (isEnd && mode === 'solid') { var b = E.posOn(p, 0.62), nx2 = -Math.sin(b.a) * 0.3, ny2 = Math.cos(b.a) * 0.3; c.strokeStyle = '#c0392b'; c.lineWidth = 0.12; c.beginPath(); c.moveTo(b.x - nx2, b.y - ny2); c.lineTo(b.x + nx2, b.y + ny2); c.stroke(); c.strokeStyle = '#fff'; c.lineWidth = 0.04; c.setLineDash([0.08, 0.08]); c.beginPath(); c.moveTo(b.x - nx2, b.y - ny2); c.lineTo(b.x + nx2, b.y + ny2); c.stroke(); c.setLineDash([]); }
+    c.restore();
+  }
+  function trainAlong(st, back) {   // a point `back` tiles behind the head of the train, following the real track
+    var tr = st.train, i = tr.seg, s = tr.s, rem = back;
+    while (rem > 0) { var p = st.track[i], l = E.pieceLen(p), avail = s * l; if (rem <= avail) { s -= rem / l; rem = 0; break; } rem -= avail; if (i === 0) { var q0 = E.posOn(p, 0); return { x: q0.x - Math.cos(q0.a) * rem, y: q0.y - Math.sin(q0.a) * rem, a: q0.a }; } i--; s = 1; }
+    return E.posOn(st.track[i], s);
+  }
+  function drawTrainCore(V, st, anim) {
+    var c = V.ctx, tr = st.train, der = tr.derailed, bob = anim && tr.v > 0.05 && !der ? Math.sin(V.t * 14) * 0.008 : 0, wheel = tr.dist * 3.2;
+    var cars = [{ k: 'cargo', b: 1.6, l: 0.56, w: 0.36 }, { k: 'tender', b: 0.98, l: 0.42, w: 0.34 }, { k: 'loco', b: 0.33, l: 0.62, w: 0.36 }];
+    cars.forEach(function (car, j) {
+      var q = trainAlong(st, car.b), a = q.a + Math.PI + (der ? (j % 2 ? 0.55 : -0.45) : 0);
+      c.save(); c.translate(q.x + (der ? 0.12 * (j - 1) : 0), q.y + bob); c.rotate(a);
+      c.fillStyle = 'rgba(0,0,0,.28)'; c.fillRect(-car.l / 2 + 0.04, -car.w / 2 + 0.05, car.l, car.w);
+      c.fillStyle = '#26282d'; [-0.3, 0.3].forEach(function (fx) { [-1, 1].forEach(function (sd) { c.fillRect(fx * car.l - 0.07, sd * (car.w / 2) - 0.035, 0.14, 0.07); }); });
+      c.strokeStyle = '#d9b860'; c.lineWidth = 0.02; [-0.3, 0.3].forEach(function (fx) { [-1, 1].forEach(function (sd) { var wx = fx * car.l, wy = sd * (car.w / 2); c.beginPath(); c.moveTo(wx + Math.cos(wheel) * 0.06, wy); c.lineTo(wx - Math.cos(wheel) * 0.06, wy); c.stroke(); }); });
+      if (car.k === 'loco') {
+        c.fillStyle = '#b8743a'; c.fillRect(-car.l / 2, -car.w / 2 + 0.035, car.l * 0.66, car.w - 0.07);
+        c.fillStyle = '#e6c46e'; [-0.2, -0.06, 0.06].forEach(function (bx) { c.fillRect(bx, -car.w / 2 + 0.035, 0.025, car.w - 0.07); });
+        c.fillStyle = '#2f4a34'; c.fillRect(car.l * 0.16, -car.w / 2, car.l * 0.34, car.w);
+        c.fillStyle = '#1e2a22'; c.fillRect(car.l * 0.22, -car.w / 2 + 0.06, 0.09, car.w - 0.12);
+        c.fillStyle = '#2a2c30'; circ(c, -car.l / 2 + 0.1, 0, 0.065); c.fill();
+        c.fillStyle = '#ffe9a8'; circ(c, -car.l / 2 - 0.01, 0, 0.042); c.fill();
+        if (!der) { var g = c.createLinearGradient(-car.l / 2, 0, -car.l / 2 - 0.9, 0); g.addColorStop(0, 'rgba(255,236,160,.42)'); g.addColorStop(1, 'rgba(255,236,160,0)'); c.fillStyle = g; c.beginPath(); c.moveTo(-car.l / 2, -0.06); c.lineTo(-car.l / 2 - 0.9, -0.3); c.lineTo(-car.l / 2 - 0.9, 0.3); c.lineTo(-car.l / 2, 0.06); c.closePath(); c.fill(); }
+      } else if (car.k === 'tender') { c.fillStyle = '#2f4a34'; c.fillRect(-car.l / 2, -car.w / 2, car.l, car.w); c.fillStyle = '#1b1b1d'; c.fillRect(-car.l / 2 + 0.05, -car.w / 2 + 0.05, car.l - 0.1, car.w - 0.1); }
+      else { c.fillStyle = '#7a5634'; c.fillRect(-car.l / 2, -car.w / 2, car.l, car.w); c.fillStyle = '#b08a5a'; c.fillRect(-car.l / 2 + 0.05, -car.w / 2 + 0.05, car.l * 0.4, car.w - 0.1); c.fillStyle = '#5c636b'; c.fillRect(0.02, -car.w / 2 + 0.06, car.l * 0.38, car.w - 0.12); }
+      c.restore();
+    });
+  }
+  function chimneyPos(st) { var q = trainAlong(st, 0.33); return { x: q.x + Math.cos(q.a) * 0.21, y: q.y + Math.sin(q.a) * 0.21, a: q.a }; }
+
+  function render(V, st, ui) {
+    var c = V.ctx, anim = !reduced(); ui = ui || {};
+    V.screen(); c.fillStyle = '#20243f'; c.fillRect(0, 0, V.w, V.h);
+    V.world();
+    var x0 = Math.max(0, Math.floor(V.cam) - 1), x1 = Math.min(st.L - 1, Math.ceil(V.cam + V.viewLen) + 1);
+    for (var x = x0; x <= x1; x++) for (var y = 0; y < E.H; y++) drawTile(V, st, st.g[E.idx(st.L, x, y)], x, y, anim);
+    if (V.cam < 0) { c.fillStyle = '#2b3a2c'; c.fillRect(V.cam - 1, 0, -V.cam + 1, E.H); }
+    // items
+    Object.keys(st.items).forEach(function (k) { var it = st.items[k]; if (it.x >= x0 && it.x <= x1) drawItem(V, it); });
+    // track
+    var tr = st.train;
+    st.track.forEach(function (p, i) { if (p.x < x0 - 1 || p.x > x1 + 1) return; if (p.status === 'built') drawPiece(V, p, 'solid'); else if (p.status === 'building') { drawPiece(V, p, 'plan'); drawPiece(V, p, 'solid', p.prog); } else drawPiece(V, p, 'plan'); });
+    // valid next tiles from the end of the line (dashed outlines)
+    if (!st.over && ui.showNext) { var end = E.endPiece(st); for (var d = 0; d < 4; d++) { var nx = end.x + E.DX[d], ny = end.y + E.DY[d]; if (nx < 0 || ny < 0 || ny >= E.H) continue; var ck = E.check(st, nx, ny); if (ck.ok) { c.strokeStyle = 'rgba(255,246,200,.85)'; c.lineWidth = 0.045; c.setLineDash([0.12, 0.09]); c.strokeRect(nx + 0.08, ny + 0.08, 0.84, 0.84); c.setLineDash([]); } } }
+    // preview route
+    var pv = ui.preview;
+    if (pv && pv.cells && pv.cells.length) {
+      var prev = E.endPiece(st), tmpEnd = { x: prev.x, y: prev.y, din: prev.din, dout: pv.cells[0].e, kind: prev.kind };
+      drawPiece(V, tmpEnd, pv.ok ? 'ghost' : 'bad');
+      pv.cells.forEach(function (cl, i) { var nxt = pv.cells[i + 1]; drawPiece(V, { x: cl.x, y: cl.y, din: cl.e, dout: nxt ? nxt.e : -1, kind: cl.terr.kind }, pv.ok ? 'ghost' : 'bad'); });
+    }
+    if (pv && pv.target) { var tg = pv.target; c.strokeStyle = pv.ok ? '#b8f5c2' : '#ff8a7a'; c.lineWidth = 0.07; c.strokeRect(tg.x + 0.05, tg.y + 0.05, 0.9, 0.9); if (!pv.ok) { c.beginPath(); c.moveTo(tg.x + 0.25, tg.y + 0.25); c.lineTo(tg.x + 0.75, tg.y + 0.75); c.moveTo(tg.x + 0.75, tg.y + 0.25); c.lineTo(tg.x + 0.25, tg.y + 0.75); c.stroke(); } }
+    if (ui.cursor) { var cu = ui.cursor; c.strokeStyle = '#f1d58a'; c.lineWidth = 0.08; c.strokeRect(cu.x + 0.04, cu.y + 0.04, 0.92, 0.92); c.strokeStyle = '#1b1d4e'; c.lineWidth = 0.025; c.strokeRect(cu.x + 0.1, cu.y + 0.1, 0.8, 0.8); }
+    // sparks at the piece under construction
+    var bi = -1; for (var b = st.init; b < st.track.length; b++) if (st.track[b].status === 'building') { bi = b; break; }
+    if (anim && bi >= 0 && st.started && !st.over) { var bp = st.track[bi], at = E.posOn(bp, Math.min(0.98, bp.prog || 0)); if (Math.random() < 0.5) V.sparks.push({ x: at.x, y: at.y, vx: (Math.random() - 0.5) * 1.6, vy: (Math.random() - 0.5) * 1.6, life: 0.35 }); }
+    if (bi >= 0 && st.started) { var bp2 = st.track[bi]; c.strokeStyle = '#f1d58a'; c.lineWidth = 0.05; c.beginPath(); c.arc(bp2.x + 0.5, bp2.y + 0.5, 0.42, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (bp2.prog || 0)); c.stroke(); }
+    V.sparks = V.sparks.filter(function (s) { s.life -= 1 / 60; s.x += s.vx / 60; s.y += s.vy / 60; if (s.life > 0) { c.fillStyle = 'rgba(255,' + Math.round(180 + 60 * s.life) + ',90,' + Math.min(1, s.life * 3) + ')'; c.fillRect(s.x - 0.02, s.y - 0.02, 0.04, 0.04); } return s.life > 0; });
+    // train + steam
+    drawTrainCore(V, st, anim);
+    if (anim && st.started && !tr.derailed && tr.v > 0.05 && Math.random() < 0.06 + tr.v * 0.12) { var ch = chimneyPos(st), fr = V.frame(); V.puffs.push({ x: ch.x, y: ch.y, r: 0.06, life: 0.9, vx: -Math.cos(ch.a) * tr.v * 0.6 + fr.ux * 0.25, vy: -Math.sin(ch.a) * tr.v * 0.6 + fr.uy * 0.25 }); }
+    if (anim && tr.derailed && Math.random() < 0.3) { var ch2 = chimneyPos(st); V.puffs.push({ x: ch2.x, y: ch2.y, r: 0.12, life: 1.4, vx: 0, vy: 0, dark: true }); }
+    V.puffs = V.puffs.filter(function (p) { p.life -= 1 / 60; p.r += 0.0035; p.x += p.vx / 60; p.y += p.vy / 60; if (p.life > 0) { c.fillStyle = p.dark ? 'rgba(60,60,60,' + p.life * 0.35 + ')' : 'rgba(245,245,240,' + p.life * 0.32 + ')'; circ(c, p.x, p.y, p.r); c.fill(); } return p.life > 0; });
+    if (V.puffs.length > 80) V.puffs.splice(0, V.puffs.length - 80);
+    // survey limit (beyond it track cannot be planned yet)
+    if (!st.over && ui.showLimit) { var fx = E.frontX(st) + 1; if (fx < V.cam + V.viewLen) { c.fillStyle = 'rgba(16,18,46,.42)'; c.fillRect(fx, 0, V.cam + V.viewLen + 2 - fx, E.H); c.strokeStyle = 'rgba(241,213,138,.9)'; c.lineWidth = 0.04; c.setLineDash([0.18, 0.12]); c.beginPath(); c.moveTo(fx, 0); c.lineTo(fx, E.H); c.stroke(); c.setLineDash([]); label(V, fx - 0.4, 0.5, 'Survey limit', '#f1d58a'); } }
+    // cloud shadows drifting over the land (subtle; none with reduced motion)
+    if (anim) V.clouds.forEach(function (cl) { cl.x += cl.s / 60; var wx = V.cam - 3 + ((cl.x % (V.viewLen + 6)) + V.viewLen + 6) % (V.viewLen + 6), g = c.createRadialGradient(wx, cl.y, 0, wx, cl.y, cl.r * 1.4); g.addColorStop(0, 'rgba(20,30,40,.09)'); g.addColorStop(1, 'rgba(20,30,40,0)'); c.fillStyle = g; ell(c, wx, cl.y, cl.r * 1.4, cl.r * 1.4); c.fill(); });
+    // labels for supplies and stations ahead
+    Object.keys(st.items).forEach(function (k) { var it = st.items[k]; if (it.taken || it.x < V.cam || it.x > V.cam + V.viewLen) return; var g = it.give, parts = []; ['rails', 'wood', 'steel', 'fuel'].forEach(function (r) { if (g[r]) parts.push('+' + g[r] + ' ' + r); }); label(V, it.x + 0.5, it.y + 0.02, (it.type === 'depot' ? 'Depot ' : it.type === 'station' ? 'Waystation ' : 'Crate ') + parts.join(' '), '#fff6dc', it.type === 'crate' ? 'rgba(107,69,32,.88)' : 'rgba(27,29,78,.88)'); });
+    // destination marker when off-screen
+    if (st.ty >= 0) { var ex = st.L - 2; if (ex > V.cam + V.viewLen - 0.5) { var sp = V.toScreen(V.cam + V.viewLen - 0.35, st.ty + 0.5); V.screen(); c.fillStyle = 'rgba(27,29,78,.9)'; var txt = '★ Station ' + Math.max(0, Math.round(ex - E.trainPos(st).x)) + ' →'; c.font = '700 12px system-ui, sans-serif'; var w = c.measureText(txt).width + 12; var bx = V.portrait ? sp[0] - w / 2 : sp[0] - w, by = V.portrait ? sp[1] : sp[1] - 10; c.fillRect(bx, by, w, 20); c.fillStyle = '#f1d58a'; c.fillText(V.portrait ? txt.replace('→', '↑') : txt, bx + 6, by + 14); V.world(); } else label(V, ex + 0.5, st.ty - 0.15, '★ Station', '#f1d58a'); }
+    // terrain symbols (shape cue that does not rely on colour)
+    if (ui.marks) { V.screen(); c.font = '700 ' + Math.round(Math.max(9, V.ts * 0.24)) + 'px system-ui, sans-serif'; c.textBaseline = 'top';
+      for (var mx = x0; mx <= x1; mx++) for (var my = 0; my < E.H; my++) { var t = E.TERRAIN[st.g[E.idx(st.L, mx, my)]]; if (!t.mark) continue; var corner = V.portrait ? V.toScreen(mx + 1, my) : V.toScreen(mx, my); c.fillStyle = 'rgba(255,255,255,.75)'; c.fillText(t.mark, corner[0] + 3, corner[1] + 2); }
+      c.textBaseline = 'alphabetic'; V.world(); }
+    V.screen();
+  }
+
+  /* ================================================================ 5 · game state & the single loop */
+  var G = { st: null, tier: SAVE.prefs.tier, screen: 'title', paused: false, modal: false, ptr: null, press: null, hover: null, cursor: null, preview: null, recorded: false, overAt: 0, lastWarn: '', lastAheadState: '', chug: 0, hudT: 0, mode: 'campaign', endlessSeed: 1 };
+  var view = null, tview = null, demo = null;
+  var LOOP = { last: 0, acc: 0, starts: 0, frames: 0, manual: false, steps: 0 };
+  function running() { return G.screen === 'game' && G.st && G.st.started && !G.st.over && !G.paused && !G.modal; }
+  function tick(now) {
+    var dt = LOOP.last ? (now - LOOP.last) / 1000 : 0; LOOP.last = now; dt = Math.min(Math.max(dt, 0), 0.25); LOOP.frames++;
+    if (G.screen === 'game' && G.st) {
+      var st = G.st;
+      if (running()) { LOOP.acc += dt; var n = 0; while (LOOP.acc >= E.STEP && n < 20) { E.step(st); LOOP.acc -= E.STEP; n++; LOOP.steps++; } if (n >= 20) LOOP.acc = 0; }
+      else LOOP.acc = 0;
+      drainEvents(st);
+      if (running()) { G.chug += dt * Math.max(0.3, st.train.v) * 3.2; if (G.chug >= 1) { G.chug = 0; SND.chug(st.train.v); } }
+      // camera: keep the train 2½ tiles from the back edge (the survey distance is always on screen)
+      view.t += dt; var tx = E.trainPos(st).x, want = st.started ? tx - (view.portrait ? 1.5 : 2.5) : -0.5; want = Math.max(-0.5, Math.min(want, st.L - view.viewLen + 0.5));
+      view.camT = want; view.cam += (view.camT - view.cam) * (1 - Math.exp(-dt * 5)); if (Math.abs(view.camT - view.cam) > 6) view.cam = view.camT;
+      if (G.press === null && G.cursor && G.inputMode === 'keys') refreshPreview();
+      render(view, st, { preview: G.preview, cursor: G.inputMode === 'keys' ? G.cursor : null, showNext: !st.over, showLimit: true, marks: SAVE.prefs.marks });
+      G.hudT -= dt; if (G.hudT <= 0) { G.hudT = 0.1; hud(); }
+      if (st.over && !G.recorded) { G.recorded = true; G.overAt = 1e-6; finishStage(); }
+      if (st.over && G.overAt) { G.overAt += dt; if (G.overAt > (reduced() ? 0.6 : 1.6)) { G.overAt = 0; showResult(); } }
+    } else if (G.screen === 'title' && tview && demo) {
+      if (!reduced()) { tview.t += dt; demoTick(dt); } else if (!demo.drawn) demo.drawn = true; else return;
+      var dx = E.trainPos(demo.st).x; tview.cam = Math.max(-0.5, Math.min(dx - 3, demo.st.L - tview.viewLen + 0.5));
+      render(tview, demo.st, { showNext: false, showLimit: false, marks: false });
+    }
+  }
+  function frame(now) { requestAnimationFrame(frame); if (!LOOP.manual) tick(now); }
+  // title diorama: the demonstration driver lays track ahead of a train on the practice line
+  function newDemo() { var st = E.create(1, 'bronze'); var route = E.search(st, { obj: 'time', cap: 6 }); demo = { st: st, route: route, k: 0, acc: 0, drawn: false }; E.start(st); }
+  function demoTick(dt) {
+    var d = demo; d.acc += Math.min(dt, 0.1); while (d.acc >= E.STEP) { d.acc -= E.STEP; if (d.route && d.st.tick % 20 === 0) { while (d.k < d.route.cells.length) { var c = d.route.cells[d.k]; if (!E.check(d.st, c.x, c.y).ok) break; E.placeNext(d.st, c.x, c.y); d.k++; } } E.step(d.st); }
+    if (d.st.over) newDemo();
+  }
+
+  /* ================================================================ 6 · engine events → sound, text, effects (every sound has a visual twin) */
+  function drainEvents(st) {
+    var ev = st.events; if (!ev.length) return; st.events = [];
+    ev.forEach(function (e) {
+      switch (e.t) {
+        case 'whistle': SND.whistle(); toast('The train is moving — keep the track ahead of it.'); break;
+        case 'built': if (e.kind === 'bridge') { SND.bridge(); toast('Bridge complete.'); } else if (e.kind === 'tunnel') { SND.bridge(); toast('Tunnel complete.'); } else SND.connect(); break;
+        case 'timber': flashMat('wood'); break;
+        case 'collect': SND.collect(); var g = e.item.give, parts = []; ['rails', 'wood', 'steel', 'fuel'].forEach(function (r) { if (g[r]) { parts.push('+' + g[r] + ' ' + r); flashMat(r); } }); var what = e.item.type === 'depot' ? 'Supply depot' : e.item.type === 'station' ? 'Waystation supplies' : 'Supply crate'; toast(what + ': ' + parts.join(', ')); announce(what + ' collected: ' + parts.join(', ') + '.'); break;
+        case 'station': SND.bell(); toast('Waystation reached.'); announce('Waystation reached.'); break;
+        case 'emergency': SND.brake(); toast('Emergency stop! The train braked at the end of the line.'); alertSR('Emergency stop at the end of the line. Lay more track to continue.'); break;
+        case 'resume': SND.whistle(); toast('Track ahead — the train moves on.'); break;
+        case 'fuelOut': SND.no(); toast('Out of fuel — the train returns to Cruise.'); alertSR('Out of fuel. Back to Cruise.'); break;
+        case 'noFuel': SND.no(); toast('No fuel left to run Slow.'); break;
+        case 'derail': SND.derail(); alertSR(e.why === 'curve' ? 'Derailed: the train took a curve too fast.' : 'Derailed: the train ran off the end of the line.'); break;
+        case 'arrive': SND.arrive(); SND.complete(); announce('Arrived at the station.'); break;
+        case 'undo': SND.undo(); break;
+      }
+    });
+  }
+  var toastT = null; function toast(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 2600); }
+  function flashMat(r) { var m = $('#mat-' + r); if (!m) return; m.classList.remove('flash'); void m.offsetWidth; m.classList.add('flash'); }
+
+  /* ================================================================ 7 · HUD */
+  var MATS = [['rails', 'Rails', '═'], ['wood', 'Wood', '▤'], ['steel', 'Steel', '◆'], ['fuel', 'Fuel', '▲']];
+  function buildMats() { var m = $('#mats'); m.textContent = ''; MATS.forEach(function (r) { var d = el('div', { class: 'mat', id: 'mat-' + r[0] }); d.appendChild(el('span', { class: 'ic', 'aria-hidden': 'true' }, r[2])); var s = el('span'); s.appendChild(el('span', { class: 'nm' }, r[1])); s.appendChild(el('strong', null, '0')); d.appendChild(s); m.appendChild(d); }); }
+  function hud() {
+    var st = G.st; if (!st) return; var T = E.TIERS[st.tier], a = E.ahead(st), tr = st.train, sp = E.speeds(st);
+    var def = st.mode === 'campaign' ? E.stageDef(st.stage) : null;
+    $('#h-stage').textContent = st.mode === 'campaign' ? 'Stage ' + pad2(st.stage) + ' · ' + st.name : st.name;
+    $('#h-tier').textContent = st.mode === 'practice' ? 'Practice — not scored' : T.label + ' — ' + T.title + (st.assist ? ' · assisted' : '');
+    $('#h-dest').textContent = st.mode === 'endless' ? Math.floor(tr.dist) + ' tiles' : Math.max(0, Math.round(st.L - 2 - E.trainPos(st).x)) + ' tiles';
+    $('#h-dest').previousElementSibling.textContent = st.mode === 'endless' ? 'Distance' : 'Station';
+    $('#h-score').textContent = st.mode === 'practice' ? '—' : st.mode === 'endless' ? String(Math.floor(tr.dist) * 10) : String(st.over && st.result ? st.result.score.points : E.scoreOf(st, true).points);
+    var box = $('#ahead-box'), state = !st.started ? 'ok' : a.terminal ? 'ok' : a.dist < 1.5 ? 'critical' : a.dist < 3 ? 'urgent' : 'ok';
+    $('#h-ahead').textContent = a.terminal ? 'to the station' : a.dist.toFixed(1) + ' tiles';
+    $('#h-meter').style.width = Math.min(100, (a.dist / E.LOOK) * 100) + '%';
+    box.classList.toggle('urgent', state === 'urgent'); box.classList.toggle('critical', state === 'critical');
+    var end = E.endPiece(st), building = st.track.filter(function (p) { return p.status !== 'built'; }).length;
+    $('#h-ahead-state').textContent = st.over ? (st.result && st.result.fallen ? 'Derailed' : 'Arrived') : !st.started ? 'Survey: plan your first stretch' : state === 'critical' ? 'END OF TRACK — lay track now!' : state === 'urgent' ? 'Running short — build or brake' : 'Safe' + (building ? ' · ' + building + ' tile' + (building > 1 ? 's' : '') + ' being built' : '');
+    if (st.started && state !== G.lastAheadState && state !== 'ok') { alertSR(state === 'critical' ? 'End of track! ' + a.dist.toFixed(1) + ' tiles left.' : 'Track running short: ' + a.dist.toFixed(1) + ' tiles ahead.'); if (state === 'critical') SND.bell(); }
+    G.lastAheadState = state;
+    $('#h-speed').textContent = E.spd(tr.v) + ' · ' + E.NOTCH[tr.notch] + (tr.governed ? ' (curve)' : '') + (tr.braking ? ' (emergency)' : '');
+    [['#b-slow', 0], ['#b-cruise', 1], ['#b-fast', 2]].forEach(function (b) { $(b[0]).setAttribute('aria-pressed', tr.notch === b[1] ? 'true' : 'false'); });
+    $('#b-slow').disabled = st.res.fuel <= 0 || st.over; $('#b-cruise').disabled = st.over; $('#b-fast').disabled = st.over;
+    MATS.forEach(function (r) { var m = $('#mat-' + r[0]); m.querySelector('strong').textContent = r[0] === 'fuel' ? Math.floor(st.res.fuel) : st.res[r[0]]; m.classList.toggle('low', r[0] === 'rails' ? st.res.rails < 4 : r[0] === 'fuel' ? st.res.fuel < 3 : false); });
+    var u = E.canUndo(st); $('#b-undo').disabled = !u.ok || G.paused;
+    $('#b-undo').title = u.ok ? 'Remove the last piece (refund ' + refundText(u.refund) + ')' : u.reason;
+    // warnings: visual banner (+ bell for critical ones)
+    var w = st.over ? [] : E.warnings(st), top = w.filter(function (x) { return x.level === 'critical'; })[0] || w.filter(function (x) { return x.level === 'urgent'; })[0] || w[0], wb = $('#warn');
+    if (top) { wb.hidden = false; wb.className = 'warn ' + top.level; $('#warn-t').textContent = top.text; if (top.k === 'curve' && top.level === 'critical' && G.lastWarn !== top.text.slice(0, 12)) { SND.bell(); alertSR(top.text); } G.lastWarn = top.text.slice(0, 12); }
+    else { wb.hidden = true; G.lastWarn = ''; }
+  }
+  function refundText(r) { var p = []; ['rails', 'wood', 'steel'].forEach(function (k) { if (r[k]) p.push(r[k] + ' ' + k); }); return p.length ? p.join(', ') : 'nothing'; }
+  function previewText(pv) {
+    var box = $('#h-preview'); box.textContent = '';
+    if (!pv) { box.appendChild(el('span', { class: 'muted' }, G.st && !G.st.over ? 'Point at a tile ahead (or move the cursor with the arrow keys) to preview a route.' : '')); return; }
+    if (!pv.ok) { box.appendChild(el('span', { class: 'bad' }, '✕ ' + pv.reason)); return; }
+    var c = pv.cost, n = pv.cells.length, parts = [], notes = [], crew = E.TIERS[G.st.tier].crew;
+    ['rails', 'wood', 'steel'].forEach(function (k) { if (c[k]) parts.push(c[k] + ' ' + k); });
+    var first = E.endPiece(G.st), shapes = [];
+    pv.cells.forEach(function (cl, i) { var d0 = i === 0 ? first.din : pv.cells[i - 1].e; if (cl.e !== d0) shapes.push(cl.e === (d0 + 1) % 4 ? 'right' : 'left'); var it = E.itemAt(G.st, cl.x, cl.y); if (cl.terr.kind === 'bridge') notes.push('bridge'); if (cl.terr.kind === 'tunnel') notes.push('tunnel'); if (cl.terr.kind === 'reinforced') notes.push('marsh planks'); if (cl.terr.yieldWood) notes.push('+1 wood from clearing'); if (it && !it.taken) notes.push(it.type + ' supplies'); if (cl.terr.kind === 'terminal') notes.push('reaches the station'); });
+    var ok = el('div', { class: 'ok' }); ok.appendChild(el('b', null, n + ' tile' + (n > 1 ? 's' : ''))); ok.appendChild(document.createTextNode(' → ' + pv.target.label + (shapes.length ? ' · curves ' + shapes.join(', ') : ' · straight')));
+    box.appendChild(ok); box.appendChild(el('div', null, 'Cost: ' + (parts.join(', ') || 'free') + ' · crew time ' + (pv.time / crew).toFixed(1) + ' s' + (notes.length ? ' · ' + notes.filter(function (x, i, a) { return a.indexOf(x) === i; }).join(', ') : '')));
+  }
+  function cellName(x, y) { return 'column ' + (x + 1) + ', row ' + 'ABCDEFGHI'[y]; }
+  function refreshPreview() {
+    var st = G.st, tgt = G.inputMode === 'keys' ? G.cursor : G.hover; if (!st || !tgt || st.over) { G.preview = null; previewText(null); return; }
+    var r = E.routeTo(st, tgt.x, tgt.y), t = E.terrAt(st, tgt.x, tgt.y);
+    G.preview = { ok: r.ok, reason: r.reason, cells: r.cells || (r.ok ? [] : null), cost: r.cost, time: r.time, target: { x: tgt.x, y: tgt.y, label: (t ? t.name : '') + ', ' + cellName(tgt.x, tgt.y) } };
+    if (!r.ok && !r.poor) G.preview.cells = null;
+    previewText(G.preview);
+  }
+
+  /* ================================================================ 8 · input */
+  function blocked() { return G.screen !== 'game' || !G.st || G.st.over || G.paused || G.modal || anyDialogOpen(); }
+  function anyDialogOpen() { return $$('dialog').some(function (d) { return d.open; }); }
+  function cellAt(ev) { var r = view.cv.getBoundingClientRect(), w = view.toWorld(ev.clientX - r.left, ev.clientY - r.top), x = Math.floor(w[0]), y = Math.floor(w[1]); if (y < 0 || y >= E.H || x < 0 || x >= G.st.L) return null; return { x: x, y: y }; }
+  function same(a, b) { return a && b && a.x === b.x && a.y === b.y; }
+  function layTo(cell) {
+    if (blocked() || !cell) { SND.no(); return false; }
+    var r = E.buildRoute(G.st, cell.x, cell.y);
+    if (!r.ok) { SND.no(); toast(r.reason); announce('Cannot build there: ' + r.reason); G.preview = null; refreshPreview(); return false; }
+    SND.place(); var a = E.ahead(G.st), end = E.endPiece(G.st);
+    announce('Laid ' + r.n + ' tile' + (r.n > 1 ? 's' : '') + ' to ' + cellName(end.x, end.y) + '. Track ahead ' + a.dist.toFixed(1) + ' tiles. Rails left ' + G.st.res.rails + '.');
+    if (G.inputMode === 'keys') { var nx = end.x + E.DX[end.din], ny = end.y + E.DY[end.din]; G.cursor = { x: Math.max(0, Math.min(G.st.L - 1, nx)), y: Math.max(0, Math.min(E.H - 1, ny)) }; }
+    refreshPreview(); return true;
+  }
+  function initInput() {
+    var cv = $('#board');
+    cv.addEventListener('pointerdown', function (e) {
+      audioInit(); if (blocked() || G.ptr !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      G.ptr = e.pointerId; G.inputMode = 'pointer'; try { cv.setPointerCapture(e.pointerId); } catch (er) {}
+      var c = cellAt(e); G.press = { cell: c, x: e.clientX, y: e.clientY }; G.hover = c; refreshPreview(); e.preventDefault();
+    });
+    cv.addEventListener('pointermove', function (e) {
+      if (G.ptr === null) { if (e.pointerType === 'mouse' && !blocked()) { var c = cellAt(e); G.inputMode = 'pointer'; if (!same(c, G.hover)) { G.hover = c; refreshPreview(); } } return; }
+      if (e.pointerId !== G.ptr) return; var c2 = cellAt(e); if (Math.hypot(e.clientX - G.press.x, e.clientY - G.press.y) > 12 && !same(c2, G.hover)) { G.hover = c2; refreshPreview(); }
+    });
+    function release(e, commit) {
+      if (G.ptr === null || e.pointerId !== G.ptr) return; var p = G.press; G.ptr = null; G.press = null;
+      if (!commit || !p) { if (e.pointerType !== 'mouse') { G.hover = null; refreshPreview(); } return; }
+      var moved = Math.hypot(e.clientX - p.x, e.clientY - p.y) > 12, target = moved ? cellAt(e) : p.cell;   // a still finger keeps the tile it pressed, even if the map scrolled under it
+      layTo(target); if (e.pointerType !== 'mouse') { G.hover = null; G.preview = null; previewText(null); }
+    }
+    cv.addEventListener('pointerup', function (e) { release(e, true); });
+    cv.addEventListener('pointercancel', function (e) { release(e, false); });
+    cv.addEventListener('lostpointercapture', function (e) { if (G.ptr === e.pointerId) { G.ptr = null; G.press = null; } });
+    cv.addEventListener('pointerleave', function (e) { if (G.ptr === null && e.pointerType === 'mouse') { G.hover = null; refreshPreview(); } });
+    cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    document.addEventListener('keydown', function (e) {
+      if (G.screen !== 'game' || !G.st) return;
+      var tag = (document.activeElement && document.activeElement.tagName) || '', inDialog = anyDialogOpen();
+      if (inDialog) return;   // dialogs handle their own keys (Escape closes them)
+      var k = e.key, typing = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA', onButton = tag === 'BUTTON' || tag === 'A';
+      if (typing) return;
+      if (k === 'Escape' || k === 'p' || k === 'P') { e.preventDefault(); if (!G.st.over) pause(); return; }
+      audioInit();
+      if (k === 'm' || k === 'M') { toggleSound(); return; }
+      if (G.st.over) return;
+      if (k === 'Shift' && !e.repeat) { notch(+1); return; }
+      if ((k === 'b' || k === 'B') && !e.repeat) { notch(-1); return; }
+      if ((k === 'c' || k === 'C') && !e.repeat) { notch(0, true); return; }
+      if ((k === 'g' || k === 'G') && !e.repeat) { startTrain(); return; }
+      if ((k === 'r' || k === 'R') && !e.repeat) { doUndo(); return; }
+      if (k.indexOf('Arrow') === 0) {
+        e.preventDefault(); if (!G.cursor || G.inputMode !== 'keys') { var end = E.endPiece(G.st); G.cursor = { x: end.x + E.DX[end.din], y: end.y + E.DY[end.din] }; G.inputMode = 'keys'; }
+        else { var d = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] }[k]; if (view.portrait) d = { ArrowRight: [0, 1], ArrowLeft: [0, -1], ArrowDown: [-1, 0], ArrowUp: [1, 0] }[k]; G.cursor = { x: Math.max(0, Math.min(G.st.L - 1, G.cursor.x + d[0])), y: Math.max(0, Math.min(E.H - 1, G.cursor.y + d[1])) }; }
+        if (document.activeElement !== $('#board')) $('#board').focus({ preventScroll: true });
+        var t = E.terrAt(G.st, G.cursor.x, G.cursor.y), it = E.itemAt(G.st, G.cursor.x, G.cursor.y);
+        refreshPreview(); announce(cellName(G.cursor.x, G.cursor.y) + ': ' + t.name + (it && !it.taken ? ', ' + it.type + ' supplies' : '') + (E.occupied(G.st, G.cursor.x, G.cursor.y) >= 0 ? ', track' : '') + '. ' + (G.preview && G.preview.ok ? 'Enter lays ' + G.preview.cells.length + ' tile' + (G.preview.cells.length > 1 ? 's' : '') + '.' : G.preview ? G.preview.reason : ''));
+        return;
+      }
+      if ((k === 'Enter' || k === ' ') && !onButton) { e.preventDefault(); if (e.repeat) return; if (!G.cursor) { var en = E.endPiece(G.st); G.cursor = { x: en.x + E.DX[en.din], y: en.y + E.DY[en.din] }; G.inputMode = 'keys'; } layTo(G.cursor); return; }
+    });
+    // focus loss pauses a running stage; the accumulator is cleared so nothing jumps afterwards
+    document.addEventListener('visibilitychange', function () { if (document.hidden) { if (running()) pause(); LOOP.last = 0; } });
+    window.addEventListener('blur', function () { if (running()) pause(); LOOP.last = 0; });
+    window.addEventListener('resize', function () { if (view) view.layout(); if (tview) tview.layout(); });
+  }
+  function notch(dir, cruise) {
+    var st = G.st; if (!st || st.over || G.paused) return; audioInit();
+    var n = cruise ? 1 : Math.max(0, Math.min(2, st.train.notch + dir));
+    if (n === st.train.notch) { SND.no(); return; }
+    var ok = E.setNotch(st, n); if (ok) { (n === 0 ? SND.brake : SND.tap)(); announce('Throttle: ' + E.NOTCH[n] + (n === 0 ? ' — uses fuel.' : '.')); } hud();
+  }
+  function doUndo() { if (blocked()) return; var r = E.undo(G.st); if (!r.ok) { SND.no(); toast(r.reason); return; } toast('Removed the last piece — refunded ' + refundText(r.refund) + '.'); announce('Removed the last piece. Refunded ' + refundText(r.refund) + '.'); refreshPreview(); hud(); }
+  function startTrain() { var st = G.st; if (!st || st.started || st.over) return; audioInit(); E.start(st); $('#survey').hidden = true; $('#board').focus({ preventScroll: true }); hud(); }
+
+  /* ================================================================ 9 · screens */
+  function show(id) { $$('.screen').forEach(function (s) { s.hidden = s.id !== 'scr-' + id; }); G.screen = id; document.body.classList.toggle('in-game', id === 'game'); if (id === 'game' && view) { view.layout(); } if (id === 'title' && tview) { tview.layout(); if (demo) demo.drawn = false; } }
+  function tierLabel(t) { var T = E.TIERS[t]; return T.label + ' — ' + T.title; }
+  function prog(t) { return SAVE.progress[t]; }
+  function completed(t) { return Object.keys(prog(t)).map(Number).filter(function (n) { return n >= 1 && n <= 15; }); }
+  function unlocked(t, n) { return n === 1 || !!prog(t)[n - 1]; }
+  function nextStage(t) { for (var n = 1; n <= 15; n++) if (!prog(t)[n]) return n; return null; }
+  function toTitle() {
+    G.st = null; G.paused = false; closeAll(); show('title');
+    var t = G.tier; $$('input[name=tier]').forEach(function (i) { i.checked = i.value === t; }); $('#t-tiertext').textContent = E.TIERS[t].text;
+    var n = completed(t).length, nx = nextStage(t), cb = $('#b-continue');
+    cb.hidden = n === 0; cb.textContent = nx ? 'Continue Campaign — Stage ' + pad2(nx) : 'Continue Campaign — all 15 complete';
+    $('#t-progress').textContent = n ? tierLabel(t) + ': ' + n + ' of 15 stages complete.' : 'No ' + E.TIERS[t].label + ' stages completed yet.';
+    $('#t-note').textContent = notes.join(' ');
+  }
+  function openLine() {
+    var t = G.tier, list = $('#stage-list'); list.textContent = ''; show('line');
+    $('#l-k').textContent = 'The Frontier Line · ' + tierLabel(t); var n = completed(t).length;
+    $('#l-sub').textContent = n + ' of 15 complete. Each stage unlocks the next. Progress saves between stages.';
+    $('#l-summary').disabled = n === 0;
+    E.STAGES.forEach(function (d) {
+      var li = el('li'), b = el('button', { class: 'stage-card', type: 'button', 'data-stage': String(d.id) }), p = prog(t)[d.id], open = unlocked(t, d.id);
+      b.appendChild(el('span', { class: 'num' }, pad2(d.id))); b.appendChild(el('strong', null, d.name)); b.appendChild(el('span', { class: 'ch' }, d.challenge));
+      var best = el('span', { class: 'best' }); if (p) { best.appendChild(el('span', { class: 'grade-chip g-' + p.grade }, E.GRADE_TEXT[p.grade])); best.appendChild(document.createTextNode(p.best + ' pts' + (p.assisted ? ' (assisted)' : ''))); } else best.textContent = open ? 'Not yet completed' : 'Locked — complete stage ' + pad2(d.id - 1);
+      b.appendChild(best); if (!open) b.disabled = true;
+      b.setAttribute('aria-label', 'Stage ' + d.id + ': ' + d.name + '. ' + d.challenge + '. ' + best.textContent);
+      b.addEventListener('click', function () { startStage(d.id); }); li.appendChild(b); list.appendChild(li);
+    });
+    var first = list.querySelector('button:not([disabled])'); if (first) first.focus();
+  }
+  function startStage(id, mode) {
+    audioInit(); mode = mode || 'campaign'; G.mode = mode;
+    var t = mode === 'practice' ? 'bronze' : G.tier;
+    if (mode === 'endless') { G.endlessSeed = (Date.now() % 1000000) + 1; G.st = E.create('endless', t, { seed: G.endlessSeed, assist: SAVE.prefs.assist }); }
+    else G.st = E.create(mode === 'practice' ? 0 : id, t, { assist: SAVE.prefs.assist && mode === 'campaign' });
+    G.recorded = false; G.overAt = 0; G.paused = false; G.cursor = null; G.hover = null; G.preview = null; G.inputMode = 'pointer'; G.lastAheadState = ''; G.ptr = null; G.press = null;
+    show('game'); view.cam = -0.5; view.camT = -0.5; view.puffs = []; view.sparks = []; LOOP.acc = 0; LOOP.last = 0;
+    var st = G.st, def = mode === 'campaign' ? E.stageDef(id) : mode === 'practice' ? E.PRACTICE : null, T = E.TIERS[st.tier];
+    $('#sv-k').textContent = mode === 'campaign' ? 'Stage ' + pad2(id) + ' of 15 · ' + tierLabel(t) : mode === 'practice' ? 'Practice Track · no score, no danger' : 'Endless Rail · ' + tierLabel(t);
+    $('#sv-h').textContent = mode === 'endless' ? 'Endless Rail' : def.name;
+    $('#sv-brief').textContent = mode === 'endless' ? 'The frontier never ends: the land keeps coming and the train slowly speeds up. Every stretch has a supply depot — build through them to keep your rails up. How far can you go?' : def.brief;
+    var ul = $('#sv-list'); ul.textContent = '';
+    function li(t2) { ul.appendChild(el('li', null, t2)); }
+    li('Materials: ' + st.res.rails + ' rails, ' + st.res.wood + ' wood, ' + st.res.steel + ' steel, ' + Math.floor(st.res.fuel) + ' fuel.');
+    li('Train: ' + E.spd(E.speeds(st)[1]) + ' cruise' + (st.speedMul > 1 ? ' (express: +15 %)' : '') + '. ' + (mode === 'practice' ? 'The train stops itself at the end of the line.' : T.stops ? T.stops + ' emergency stop' + (T.stops > 1 ? 's' : '') + ' this stage.' : 'No emergency stops — the end of the line derails the train.'));
+    li(T.governor || mode === 'practice' ? 'Curves: the train brakes for them automatically.' : 'Curves: slow below ' + E.spd(E.curveLimit(st)) + ' before each curve or the train derails (warnings show).');
+    if (def && def.optional.length) li('Optional: ' + def.optional.map(E.optionalText).join(' · ') + '.');
+    if (mode === 'campaign') li(E.GRADE_RULE.silver + ' ' + E.GRADE_RULE.gold);
+    $('#survey').hidden = false; $('#warn').hidden = true; $('#toast').hidden = true;
+    previewText(null); hud();
+    announce((mode === 'campaign' ? 'Stage ' + id + ': ' + def.name + '. ' : st.name + '. ') + 'Survey the line and plan track, then start the train.');
+    $('#b-start').focus();
+  }
+  function finishStage() {
+    var st = G.st, r = st.result; if (!r || G.mode === 'practice') return;
+    if (G.mode === 'endless') { var d = Math.floor(st.train.dist); if (d > SAVE.records.furthest[st.tier]) SAVE.records.furthest[st.tier] = d; persist(); return; }
+    if (r.fallen) { SAVE.records.derails++; persist(); return; }
+    var s = r.score, t = st.tier, p = prog(t)[st.stage], eff = Math.round(s.eff * 100);
+    var entry = { best: s.points, grade: s.grade, eff: eff, dist: Math.round(st.train.dist), stations: st.stats.stations, assisted: !!st.assist };
+    if (!p || s.points > p.best) { if (p && GRADES.indexOf(p.grade) > GRADES.indexOf(entry.grade)) entry.grade = p.grade; prog(t)[st.stage] = entry; }
+    else if (GRADES.indexOf(s.grade) > GRADES.indexOf(p.grade)) p.grade = s.grade;
+    SAVE.records.arrivals++; if (eff > SAVE.records.bestEff) SAVE.records.bestEff = eff;
+    if (!SAVE.records.bestStage || s.points > SAVE.records.bestStage.points) SAVE.records.bestStage = { points: s.points, stage: st.stage, tier: t };
+    persist();
+  }
+  function stat(box, k, v) { var d = el('div', { class: 'stat' }); d.appendChild(el('strong', null, v)); d.appendChild(el('span', null, k)); box.appendChild(d); }
+  function showResult() {
+    var st = G.st, r = st.result; if (!r) return; show('result');
+    var s = r.score, arrived = !r.fallen, def = G.mode === 'campaign' ? E.stageDef(st.stage) : null;
+    $('#r-k').textContent = G.mode === 'campaign' ? 'Stage ' + pad2(st.stage) + ' · ' + tierLabel(st.tier) + (st.assist ? ' · assisted' : '') : G.mode === 'practice' ? 'Practice Track' : 'Endless Rail · ' + tierLabel(st.tier);
+    $('#r-h').textContent = G.mode === 'endless' ? 'The line ends after ' + Math.floor(st.train.dist) + ' tiles' : (arrived ? 'Stage complete — ' : 'Derailed — ') + st.name;
+    $('#r-sub').textContent = r.text + (G.mode === 'practice' ? ' Practice is never scored or recorded.' : '');
+    $('#r-grade').textContent = G.mode === 'campaign' ? E.GRADE_TEXT[s.grade] + (arrived ? ' — ' + s.points + ' points' : ' — no points for this attempt') : G.mode === 'endless' ? 'Distance ' + Math.floor(st.train.dist) + ' tiles · record ' + SAVE.records.furthest[st.tier] + ' (' + E.TIERS[st.tier].label + ')' : '';
+    var box = $('#r-stats'); box.textContent = '';
+    stat(box, 'Distance traveled', Math.floor(st.train.dist) + ' tiles');
+    stat(box, 'Track laid', (st.track.length - st.init) + ' tiles');
+    if (G.mode === 'campaign') stat(box, 'Construction efficiency', arrived ? Math.round(s.eff * 100) + '% (' + s.refLen + ' / ' + s.laid + ')' : '—');
+    stat(box, 'Materials remaining', st.res.rails + ' rails · ' + st.res.wood + ' wood · ' + st.res.steel + ' steel · ' + Math.floor(st.res.fuel) + ' fuel');
+    stat(box, 'Hazards crossed', st.stats.hazards + ' (' + st.stats.bridges + ' bridge' + (st.stats.bridges === 1 ? '' : 's') + ', ' + st.stats.tunnels + ' tunnel' + (st.stats.tunnels === 1 ? '' : 's') + ')');
+    stat(box, 'Stations reached', String(st.stats.stations));
+    stat(box, 'Emergency stops', String(st.stats.stops));
+    stat(box, 'Time', Math.floor(st.run / 60) + ':' + pad2(Math.floor(st.run % 60)));
+    var ol = $('#r-opt'); ol.textContent = ''; (s.optional || []).forEach(function (o) { ol.appendChild(el('li', { class: o.met ? 'met' : 'miss' }, o.text)); }); if (!def || !def.optional.length) ol.appendChild(el('li', { class: 'miss' }, 'None for this mode.'));
+    var tb = $('#r-score'); tb.textContent = '';
+    if (G.mode === 'campaign') {
+      var h = el('tr'); ['Part', 'Value', 'Points'].forEach(function (x, i) { h.appendChild(el('th', i ? { class: 'n' } : null, x)); }); tb.appendChild(h);
+      E.SCORE_TEXT.forEach(function (row) { var v = s.parts[row[0]], tr = el('tr'), td = el('td'); td.appendChild(el('b', null, row[2])); td.appendChild(el('span', { class: 'why' }, row[3] + ' · up to ' + row[1])); tr.appendChild(td); tr.appendChild(el('td', { class: 'n' }, Math.round(v * 100) + '%')); tr.appendChild(el('td', { class: 'n' }, String(Math.round(v * row[1])))); tb.appendChild(tr); });
+      var tt = el('tr', { class: 'total' }); tt.appendChild(el('td', null, 'Stage score (out of 1,100)')); tt.appendChild(el('td')); tt.appendChild(el('td', { class: 'n' }, String(s.points))); tb.appendChild(tt);
+      $('#r-rules').textContent = E.GRADE_RULE.bronze + ' ' + E.GRADE_RULE.silver + ' ' + E.GRADE_RULE.gold;
+    } else { $('#r-rules').textContent = G.mode === 'endless' ? 'Endless Rail scores 10 points per tile travelled. The train speeds up 2.5 % every 24 tiles (up to +30 %).' : ''; }
+    var last = G.mode === 'campaign' && st.stage === 15, nb = $('#r-next');
+    nb.hidden = !(G.mode === 'campaign' && arrived); nb.textContent = last ? 'Campaign results' : 'Continue to stage ' + pad2(st.stage + 1);
+    $('#r-retry').textContent = G.mode === 'endless' ? 'Ride again' : G.mode === 'practice' ? 'Practice again' : 'Retry stage';
+    (nb.hidden ? $('#r-retry') : nb).focus();
+  }
+  function campaignStats(t) {
+    var done = completed(t), dist = 0, stations = 0, total = 0, effSum = 0, effN = 0, eff2 = 0, best = null;
+    done.forEach(function (n) { var p = prog(t)[n]; dist += p.dist; stations += p.stations; total += p.best; effSum += p.eff; effN++; if (p.grade !== 'bronze') eff2++; if (!best || p.best > best.best) best = { n: n, best: p.best }; });
+    return { tier: E.TIERS[t].label, stages: done.length, distance: dist, stations: stations, score: total, eff: effN ? Math.round(effSum / effN) : 0, efficient: eff2, best: best };
+  }
+  function openCampaign() {
+    var t = G.tier, c = campaignStats(t); show('camp');
+    $('#c-k').textContent = 'Campaign results · ' + tierLabel(t);
+    $('#c-sub').textContent = c.stages === 15 ? 'The Frontier Line is complete.' : c.stages + ' of 15 stages complete so far — totals use each stage’s best run.';
+    var box = $('#c-stats'); box.textContent = '';
+    stat(box, 'Stages completed', c.stages + ' / 15'); stat(box, 'Total distance', c.distance + ' tiles'); stat(box, 'Stations reached', String(c.stations)); stat(box, 'Total score', String(c.score));
+    stat(box, 'Efficient routes', c.efficient + ' (Silver or Gold Arrivals)'); stat(box, 'Track efficiency', c.eff + '% average');
+    stat(box, 'Best stage', c.best ? 'Stage ' + pad2(c.best.n) + ' · ' + c.best.best + ' pts' : '—');
+    var bs = SAVE.records.bestStage; stat(box, 'Personal record', (bs ? bs.points + ' pts (stage ' + pad2(bs.stage) + ', ' + E.TIERS[bs.tier].label + ')' : '—') + ' · Endless ' + SAVE.records.furthest[t] + ' tiles');
+    $('#c-share').textContent = E.shareText(c); $('#c-note').textContent = ''; $('#c-copy').focus();
+  }
+  function copyShare() { var txt = $('#c-share').textContent, note = $('#c-note'); function ok() { note.textContent = 'Result copied.'; } function fail() { if (fallbackCopy(txt)) ok(); else note.textContent = 'Copy is blocked here — select the text below and copy it.'; } if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, fail); else fail(); }
+  function fallbackCopy(txt) { try { var ta = el('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); var r = document.execCommand('copy'); document.body.removeChild(ta); return r; } catch (e) { return false; } }
+
+  /* ---------- dialogs ---------- */
+  var returnFocus = null;
+  function openDlg(id) { var d = $(id); if (d.open) return; returnFocus = document.activeElement; G.modal = true; try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } }
+  function closeDlg(id) { var d = $(id); if (d.open) d.close(); }
+  function closeAll() { $$('dialog').forEach(function (d) { if (d.open) d.close(); }); G.modal = false; }
+  function pause() { if (!G.st || G.st.over || G.paused) return; G.paused = true; G.ptr = null; G.press = null; SND.tap(); openDlg('#d-pause'); $('#dp-resume').focus(); announce('Paused.'); }
+  function resume() { G.paused = false; LOOP.last = 0; LOOP.acc = 0; closeDlg('#d-pause'); $('#board').focus({ preventScroll: true }); announce('Resumed.'); }
+  function confirmBox(title, text, yes, onYes) { $('#dc-h').textContent = title; $('#dc-p').textContent = text; $('#dc-yes').textContent = yes; G.onYes = onYes; openDlg('#d-confirm'); $('#dc-no').focus(); }
+  function howto() {
+    var b = $('#dh-body'); b.textContent = '';
+    function sec(h, items) { b.appendChild(el('h3', null, h)); var ul = el('ul'); items.forEach(function (t) { ul.appendChild(el('li', null, t)); }); b.appendChild(ul); }
+    sec('The idea', ['The train is moving. The track is not finished. Keep building.', 'Lay track ahead of the locomotive. A construction crew builds each tile in order; the train may only run on finished, connected track. If it reaches the end of the line, it derails (Bronze and Silver have emergency stops).', 'Reach the station (★) at the end of each stage.']);
+    sec('Laying track', ['Point at (or tap) any tile up to ' + E.LOOK + ' columns past the train: a ghost shows the route from the end of the line, with its cost and crew time. Release / click to lay it. The game picks straights and curves for you.', 'Touch: press and hold to see the ghost, slide to adjust, lift to build. Slide off the map to cancel.', 'Keyboard: arrow keys move the survey cursor, Enter or Space lays track to it, R removes the last piece.', 'Remove last (R) takes back the last piece if the train is at least two pieces away: full refund if the crew has not started it, otherwise Bronze 100 %, Silver 75 %, Gold 50 % (cleared forest and collected supplies stay collected).']);
+    sec('Terrain', ['Grassland and desert: 1 rail, quick. Forest: slow to clear, gives 1 wood. Rocky hills: 2 rails, the train climbs slower. Marsh: 1 rail + 1 wood (reinforced), slow. River: a straight bridge, 1 rail + 2 wood + 1 steel. Mountain: a straight tunnel, 1 rail + 1 steel per tile, very slow. Steep grade (↘): the train runs 40 % faster. Lakes, peaks, cliffs and the sea cannot be crossed.', 'Crates, depots and waystations give supplies when your track is built through their tile — once only.', 'Every terrain has a corner symbol as well as a colour.']);
+    sec('The train', ['Cruise is the normal speed. B brakes to Slow (burns 1 fuel per second); Shift accelerates to Fast (scores pace, but eats your lead); C returns to Cruise. Out of fuel, Slow ends.', 'Bronze and Silver brake for curves automatically. On Gold you must be at or below the curve limit when the train enters a curve — warnings appear in time.', 'Track ahead shows how much finished track lies in front of the wheels: green is safe, amber is short, red is the end.']);
+    sec('Scoring and grades', ['Arrival 300 · route efficiency 250 (the shortest line your tier’s materials allowed ÷ track you laid — detours never score more) · materials conserved 150 · safe running 150 · pace 150 · optional objectives 100.', E.GRADE_RULE.bronze + ' ' + E.GRADE_RULE.silver + ' ' + E.GRADE_RULE.gold]);
+    sec('Modes and saving', ['Campaign: 15 stages; each unlocks the next. Practice Track: no danger, no score. Endless Rail: validated terrain that never ends; scored by distance.', 'Progress saves between stages in this browser. Leaving or refreshing during a stage restarts that stage.', 'Escape pauses (and leaving the tab pauses too). M toggles sound. Sound is optional — every warning is also shown on screen.']);
+    openDlg('#d-howto'); $('#d-howto [data-close]').focus();
+  }
+  function openRecords() {
+    var b = $('#dr-body'); b.textContent = '';
+    var tbl = el('table', { class: 'rtbl' }), h = el('tr'); h.appendChild(el('th', null, 'Stage')); E.TIER_IDS.forEach(function (t) { h.appendChild(el('th', null, E.TIERS[t].label)); }); tbl.appendChild(h);
+    E.STAGES.forEach(function (d) { var tr = el('tr'); tr.appendChild(el('td', null, pad2(d.id) + ' ' + d.name)); E.TIER_IDS.forEach(function (t) { var p = prog(t)[d.id]; tr.appendChild(el('td', null, p ? E.GRADE_TEXT[p.grade].split(' ')[0] + ' · ' + p.best + (p.assisted ? '*' : '') : '—')); }); tbl.appendChild(tr); });
+    b.appendChild(tbl);
+    var r = SAVE.records, ul = el('ul');
+    E.TIER_IDS.forEach(function (t) { var c = campaignStats(t); ul.appendChild(el('li', null, E.TIERS[t].label + ': ' + c.stages + ' / 15 stages · total ' + c.score + ' · Endless Rail furthest ' + r.furthest[t] + ' tiles')); });
+    ul.appendChild(el('li', null, 'Successful arrivals: ' + r.arrivals + ' · derailments: ' + r.derails + ' · best construction efficiency: ' + r.bestEff + '%'));
+    ul.appendChild(el('li', null, 'Best stage: ' + (r.bestStage ? r.bestStage.points + ' points (stage ' + pad2(r.bestStage.stage) + ', ' + E.TIERS[r.bestStage.tier].label + ')' : '—') + ' · * = assisted'));
+    b.appendChild(ul); openDlg('#d-records'); $('#d-records [data-close]').focus();
+  }
+  function openSettings() {
+    $('#s-sound').checked = SAVE.prefs.sound; $('#s-vol').value = SAVE.prefs.volume; $('#s-vol-v').textContent = SAVE.prefs.volume + '%'; $('#s-motion').value = SAVE.prefs.motion;
+    $('#s-assist').checked = SAVE.prefs.assist; $('#s-marks').checked = SAVE.prefs.marks; $('#s-large').checked = SAVE.prefs.large;
+    openDlg('#d-settings'); $('#s-sound').focus();
+  }
+  function toggleSound() { SAVE.prefs.sound = !SAVE.prefs.sound; persist(); if (SAVE.prefs.sound) audioInit(); else if (AU.ctx) try { AU.ctx.suspend(); } catch (e) {} toast('Sound ' + (SAVE.prefs.sound ? 'on' : 'off') + '.'); announce('Sound ' + (SAVE.prefs.sound ? 'on' : 'off') + '.'); }
+
+  /* ================================================================ 10 · wiring */
+  function boot() {
+    applyPrefs(); buildMats();
+    view = makeView($('#board')); tview = makeView($('#t-canvas'), { fixed: true, box: function () { var r = $('#t-canvas').getBoundingClientRect(); return { width: r.width || 640, height: r.height || 420 }; } });
+    view.layout(); tview.layout(); newDemo(); initInput();
+    $$('input[name=tier]').forEach(function (i) { i.addEventListener('change', function () { G.tier = i.value; SAVE.prefs.tier = i.value; persist(); toTitle(); i.focus(); }); });
+    $('#b-begin').addEventListener('click', function () { audioInit(); openLine(); });
+    $('#b-continue').addEventListener('click', function () { audioInit(); var n = nextStage(G.tier); if (n) startStage(n); else openLine(); });
+    $('#b-howto').addEventListener('click', howto);
+    $('#b-practice').addEventListener('click', function () { startStage(0, 'practice'); });
+    $('#b-endless').addEventListener('click', function () { startStage(0, 'endless'); });
+    $('#b-records').addEventListener('click', openRecords);
+    $('#b-settings').addEventListener('click', openSettings);
+    $('#l-back').addEventListener('click', toTitle); $('#l-summary').addEventListener('click', openCampaign);
+    $('#b-start').addEventListener('click', startTrain); $('#b-svhide').addEventListener('click', function () { $('#survey').hidden = true; $('#board').focus({ preventScroll: true }); });
+    $('#b-pause').addEventListener('click', pause);
+    $('#b-slow').addEventListener('click', function () { notch(0 - G.st.train.notch); });
+    $('#b-cruise').addEventListener('click', function () { notch(0, true); });
+    $('#b-fast').addEventListener('click', function () { notch(2 - G.st.train.notch); });
+    $('#b-undo').addEventListener('click', doUndo);
+    $('#b-look').addEventListener('click', function () { var lg = $('#legend'), on = lg.hidden; lg.hidden = !on; this.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    $('#legend').textContent = Object.keys(E.TERRAIN).map(function (k) { var t = E.TERRAIN[k]; return (t.mark || '·') + ' ' + t.name + (t.pass ? '' : ' (blocked)'); }).join(' · ') + ' · ═ rails ▤ wood ◆ steel ▲ fuel';
+    $('#dp-resume').addEventListener('click', resume);
+    $('#d-pause').addEventListener('cancel', function (e) { e.preventDefault(); resume(); });
+    $('#dp-restart').addEventListener('click', function () { var st = G.st; closeAll(); startStage(st.mode === 'campaign' ? st.stage : 0, G.mode); });
+    $('#dp-howto').addEventListener('click', howto); $('#dp-settings').addEventListener('click', openSettings);
+    $('#dp-quit').addEventListener('click', function () { confirmBox('Leave this stage?', 'The stage will restart next time — nothing from this attempt is saved.', 'Leave', function () { closeAll(); if (G.mode === 'campaign') openLine(); else toTitle(); }); });
+    $('#r-next').addEventListener('click', function () { if (G.st.stage === 15) openCampaign(); else startStage(G.st.stage + 1); });
+    $('#r-retry').addEventListener('click', function () { startStage(G.mode === 'campaign' ? G.st.stage : 0, G.mode); });
+    $('#r-line').addEventListener('click', openLine); $('#r-title').addEventListener('click', toTitle);
+    $('#c-copy').addEventListener('click', copyShare); $('#c-line').addEventListener('click', openLine); $('#c-title').addEventListener('click', toTitle);
+    $('#dr-reset').addEventListener('click', function () { confirmBox('Reset records?', 'This clears campaign progress and records for every tier. Settings are kept.', 'Reset', function () { SAVE.progress = blankProg(); SAVE.records = blankRec(); persist(); closeAll(); toTitle(); toast('Records reset.'); }); });
+    $('#dc-yes').addEventListener('click', function () { var f = G.onYes; G.onYes = null; closeDlg('#d-confirm'); if (f) f(); });
+    $('#dc-no').addEventListener('click', function () { closeDlg('#d-confirm'); });
+    $$('dialog [data-close]').forEach(function (b) { b.addEventListener('click', function () { b.closest('dialog').close(); }); });
+    $$('dialog').forEach(function (d) { d.addEventListener('close', function () { G.modal = anyDialogOpen(); if (d.id !== 'd-pause' && G.paused && !$('#d-pause').open && G.st && !G.st.over && G.screen === 'game') { openDlg('#d-pause'); } if (returnFocus && document.contains(returnFocus) && !anyDialogOpen()) try { returnFocus.focus(); } catch (e) {} }); });
+    $('#s-sound').addEventListener('change', function (e) { SAVE.prefs.sound = e.target.checked; persist(); if (SAVE.prefs.sound) audioInit(); else if (AU.ctx) try { AU.ctx.suspend(); } catch (er) {} });
+    $('#s-vol').addEventListener('input', function (e) { SAVE.prefs.volume = +e.target.value; $('#s-vol-v').textContent = SAVE.prefs.volume + '%'; setVol(); persist(); });
+    $('#s-motion').addEventListener('change', function (e) { SAVE.prefs.motion = e.target.value; applyPrefs(); persist(); });
+    $('#s-assist').addEventListener('change', function (e) { SAVE.prefs.assist = e.target.checked; persist(); });
+    $('#s-marks').addEventListener('change', function (e) { SAVE.prefs.marks = e.target.checked; persist(); });
+    $('#s-large').addEventListener('change', function (e) { SAVE.prefs.large = e.target.checked; applyPrefs(); persist(); });
+    if (mq && mq.addEventListener) mq.addEventListener('change', applyPrefs);
+    G.tier = E.TIERS[SAVE.prefs.tier] ? SAVE.prefs.tier : 'silver';
+    toTitle();
+    LOOP.starts++; requestAnimationFrame(frame);
+    if (DEV) window.__at = { E: E, G: G, SAVE: function () { return SAVE; }, view: function () { return view; }, startStage: startStage, toTitle: toTitle, openLine: openLine, openCampaign: openCampaign, showResult: showResult, layTo: layTo, pause: pause, resume: resume,
+      manual: function (on) { LOOP.manual = !!on; LOOP.last = 0; }, run: function (ms, fps) { fps = fps || 60; var t = performance.now(); var n = Math.round(ms / 1000 * fps); LOOP.last = t; for (var i = 0; i < n; i++) { t += 1000 / fps; tick(t); } },
+      stats: function () { return { loops: LOOP.starts, frames: LOOP.frames, steps: LOOP.steps, hasAudio: !!AU.ctx, saves: saves, storageOk: storageOk }; }, persist: persist };
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+
+</script>
+</body>
+</html>
