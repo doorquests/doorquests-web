@@ -1,0 +1,1341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="doorquests:status" content="Prototype · Founder Playtest · Not Published">
+<meta name="description" content="Gamortal #011 · Portal Pinball — every gate changes the game. A DoorQuests physics pinball prototype for founder playtesting.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080a22">
+<title>Gamortal #011 — Portal Pinball | DoorQuests</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23080a22'/%3E%3Cellipse cx='32' cy='30' rx='14' ry='20' fill='none' stroke='%2366e3ff' stroke-width='4'/%3E%3Ccircle cx='32' cy='30' r='7' fill='%23f4efe2'/%3E%3Cpath d='M10 56 L28 48 M54 56 L36 48' stroke='%23d9b45a' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root {
+  --night: #080a22; --indigo: #0e1030; --panel: #131536; --panel2: #1b1e4e; --line: #2c3170;
+  --gold: #d9b45a; --gold2: #efd58f; --cyan: #66e3ff; --pale: #b9d7ff; --violet: #a58cff; --ivory: #f4efe2; --dim: #cfd4ea; --mute: #9ea5c8;
+  --ok: #8fe3c8; --bad: #ff8f8f; --warn: #ffc277;
+  --focus: 0 0 0 3px #080a22, 0 0 0 5px #66e3ff;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fs: 16px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { background: var(--night); font-size: var(--fs); }
+body.large { --fs: 19px; }
+html.large { font-size: 118.75%; }
+body { min-height: 100vh; min-height: 100dvh; color: var(--ivory); font: 1rem/1.5 var(--sans); display: flex; flex-direction: column; overflow-x: hidden; background: var(--night); }
+body.flying { height: 100dvh; overflow: hidden; }
+a { color: var(--gold2); }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 8px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--gold); color: #111; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 8px; }
+[hidden] { display: none !important; }
+.top { display: flex; align-items: center; gap: 10px; padding: 6px 14px; border-bottom: 1px solid #262a66; background: rgba(7, 8, 26, .95); flex-wrap: wrap; position: relative; z-index: 5; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ivory); font: 600 18px/1 var(--serif); }
+.brand-door { width: 16px; height: 22px; border: 2px solid var(--gold); border-radius: 8px 8px 1px 1px; }
+.crumb { color: var(--dim); font-size: 14px; display: inline-flex; gap: 6px; }
+.crumb-col { color: var(--gold2); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; align-self: center; }
+.badge { margin-left: auto; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px dashed #ffae4a; color: #ffae4a; }
+main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
+.btn { appearance: none; border: 1px solid #3a3f8e; background: var(--panel2); color: var(--ivory); border-radius: 10px; padding: 10px 16px; font: 600 .95rem/1.2 var(--sans); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
+.btn:hover:not([disabled]) { border-color: var(--gold); }
+.btn-primary { background: linear-gradient(#9fefff, #3fb6d8); color: #04121a; border-color: #c9f6ff; }
+.btn-big { font-size: 1.1rem; padding: 14px 26px; }
+.btn-quiet { background: rgba(14, 16, 48, .75); }
+.btn-danger { border-color: var(--bad); color: #ffd9cc; background: #3a1c26; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.stack { display: grid; gap: 10px; margin: 12px 0; }
+.note { min-height: 1.3em; color: var(--gold2); font-size: .9rem; margin: 8px 0 0; }
+.muted { color: var(--mute); } .small { font-size: .82rem; }
+.k { color: var(--mute); font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; }
+.kicker { margin: 0 0 6px; color: var(--gold2); font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; }
+
+/* ---------- title ---------- */
+#scr-title { flex: 1 0 auto; overflow: hidden; }
+.title-art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#scr-title::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7, 8, 26, .9) 0%, rgba(7, 8, 26, .75) 40%, rgba(7, 8, 26, 0) 70%); pointer-events: none; z-index: 1; }
+.title-wrap { position: relative; z-index: 2; padding: 22px 16px 20px; max-width: 640px; margin-left: max(16px, calc((100% - 1100px) / 2)); }
+h1 { font: 600 clamp(42px, 7vw, 72px)/1 var(--serif); margin: 0 0 8px; }
+.t-no { display: block; font: 700 .85rem/1.4 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.tagline { color: var(--gold2); font: italic 1.3rem/1.4 var(--serif); margin: 0 0 8px; }
+.lede { color: var(--dim); margin: 0 0 14px; }
+.tiers { border: 0; padding: 0; margin: 0 0 12px; display: grid; gap: 8px; }
+.tiers legend { font: 600 .9rem/1 var(--sans); color: var(--gold2); margin-bottom: 8px; }
+.tier { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: start; padding: 9px 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(14, 16, 48, .88); cursor: pointer; }
+.tier:has(input:checked) { border-color: var(--gold); background: rgba(30, 34, 90, .94); }
+.tier input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--gold); }
+.tier-medal { width: 22px; height: 22px; border-radius: 50%; }
+.tier-bronze .tier-medal { background: radial-gradient(circle at 35% 35%, #f0b37f, #a8642e); }
+.tier-silver .tier-medal { background: radial-gradient(circle at 35% 35%, #fff, #9aa4b8); }
+.tier-gold .tier-medal { background: radial-gradient(circle at 35% 35%, #fff0b0, #c8952a); }
+.tier-body { display: grid; gap: 2px; font-size: .88rem; color: var(--dim); }
+.tier-body strong { color: var(--ivory); font-size: .95rem; }
+.tier-stat { color: var(--gold2); font-size: .82rem; min-height: 1em; }
+.title-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.flights { margin-top: 10px; background: rgba(14, 16, 48, .8); border: 1px solid var(--line); border-radius: 12px; padding: 4px 12px; }
+.flights summary { cursor: pointer; color: var(--gold2); min-height: 36px; display: flex; align-items: center; }
+.flight-grid { list-style: none; margin: 6px 0 8px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.flight-grid button { width: 100%; text-align: left; background: var(--panel2); color: var(--ivory); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: .82rem/1.3 var(--sans); cursor: pointer; min-height: 44px; }
+.flight-grid button[disabled] { opacity: .45; cursor: not-allowed; }
+.flight-grid b { display: block; font-size: .78rem; color: var(--gold2); }
+.credit { margin-top: 18px; color: var(--mute); font-size: .82rem; }
+.credit p { margin: 2px 0; }
+.motto { font: italic .95rem/1.4 var(--serif); color: var(--dim); }
+
+/* ---------- final ---------- */
+.final-wrap { width: min(900px, 100%); margin: 0 auto; padding: 22px 16px 30px; }
+#f-h { font: 600 clamp(30px, 5vw, 46px)/1.05 var(--serif); margin: 0; }
+.o-sub { color: var(--dim); margin: 6px 0 0; }
+.pb { font: 600 1.1rem/1.3 var(--serif); color: var(--gold2); min-height: 1.3em; margin: 8px 0; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 12px 0; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.stat strong { display: block; font: 800 1.45rem/1.1 var(--sans); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--mute); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; }
+.tbl { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.tbl th, .tbl td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #262a66; }
+.tbl td.n, .tbl th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl tr.total td { font-weight: 800; color: var(--gold2); }
+.share { white-space: pre-wrap; background: #12143a; border: 1px dashed #3a3f8e; border-radius: 10px; padding: 10px 12px; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; color: var(--dim); margin-top: 12px; }
+
+dialog { border: 1px solid #3a3f8e; border-radius: 16px; background: #12143a; color: var(--ivory); padding: 18px 20px; width: min(460px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; }
+dialog.wide { width: min(720px, calc(100vw - 24px)); }
+dialog::backdrop { background: rgba(3, 4, 14, .78); }
+dialog h2 { font: 600 1.5rem/1.2 var(--serif); margin: 0 0 6px; }
+dialog h3 { font: 600 1.05rem/1.2 var(--serif); color: var(--gold2); margin: 14px 0 6px; }
+.howto { padding-left: 1.2em; } .howto li { margin: 4px 0; }
+.chk { display: flex; gap: 10px; align-items: flex-start; min-height: 32px; } .chk input { width: 20px; height: 20px; accent-color: var(--gold); margin-top: 2px; flex: none; }
+.slider, .sel { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.sel select { background: var(--panel2); color: var(--ivory); border: 1px solid #3a3f8e; border-radius: 8px; padding: 6px 8px; min-height: 36px; }
+
+body.reduce *, body.reduce *::before, body.reduce *::after { animation: none !important; transition-duration: .01s !important; }
+:root { --copper: #c8794a; --amber: #ffb547; }
+.nojs { padding: 20px; color: var(--gold2); }
+/* ---------- table screen ---------- */
+#scr-game { background: #05061a; }
+body.flying { height: 100vh; height: 100dvh; overflow: hidden; }
+.play { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(220px, 290px) minmax(0, 1fr); }
+.panel { padding: 10px 12px; background: rgba(8, 10, 34, .97); border-right: 1px solid #262a66; display: flex; flex-direction: column; gap: 10px; overflow: auto; }
+.p-score strong { display: block; font: 800 2rem/1.1 var(--sans); font-variant-numeric: tabular-nums; color: var(--gold2); }
+.p-row { display: flex; gap: 14px; flex-wrap: wrap; }
+.p-item { display: flex; flex-direction: column; }
+.p-item strong { font: 800 1.2rem/1.2 var(--sans); font-variant-numeric: tabular-nums; }
+#h-mult { color: var(--cyan); } #h-combo { color: var(--amber); }
+.p-flags { display: flex; flex-wrap: wrap; gap: 4px; min-height: 26px; }
+.flag { font: 700 .72rem/1 var(--sans); padding: 4px 7px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel2); color: var(--dim); }
+.flag.on { border-color: var(--gold); color: var(--gold2); }
+.flag.hot { border-color: var(--cyan); color: var(--cyan); }
+.objlist { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 5px; font-size: .84rem; color: var(--dim); }
+.objlist li { display: grid; grid-template-columns: 1.3em 1fr; gap: 4px; align-items: start; }
+.objlist li .m { color: var(--mute); }
+.objlist li.done .m { color: var(--ok); }
+.objlist li.lit .m { color: var(--gold2); }
+.objlist b { color: var(--ivory); font-weight: 700; }
+.p-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
+.ibtn { appearance: none; min-width: 44px; min-height: 44px; border-radius: 10px; border: 1px solid #3a3f8e; background: var(--panel); color: var(--ivory); display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; cursor: pointer; font: 600 14px/1 var(--sans); }
+.ibtn[aria-pressed="false"] { color: var(--mute); text-decoration: line-through; }
+.stage { position: relative; min-height: 0; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; background: radial-gradient(ellipse at 50% 40%, #12143e, #05061a 70%); }
+#table { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.chamber-hud { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); background: rgba(8, 10, 34, .92); border: 1px solid var(--gold); border-radius: 12px; padding: 6px 14px; display: flex; gap: 12px; align-items: baseline; z-index: 3; font-size: .9rem; color: var(--dim); white-space: nowrap; max-width: calc(100% - 16px); overflow: hidden; }
+.chamber-hud strong { font: 600 1.05rem/1.2 var(--serif); color: var(--gold2); }
+.ch-time { font: 800 1rem/1 var(--sans); font-variant-numeric: tabular-nums; color: var(--amber); }
+.toast { position: absolute; left: 50%; bottom: 10px; max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis; transform: translateX(-50%); background: rgba(8, 10, 34, .93); border: 1px solid var(--gold); color: var(--gold2); padding: 6px 14px; border-radius: 999px; font: 700 .92rem/1.2 var(--sans); z-index: 4; white-space: nowrap; pointer-events: none; }
+.callout { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); width: min(420px, calc(100% - 20px)); background: rgba(8, 10, 34, .95); border: 1px solid var(--cyan); color: var(--pale); padding: 10px 14px; border-radius: 14px; font: 600 .95rem/1.4 var(--sans); z-index: 4; text-align: center; pointer-events: none; }
+.intro { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); width: min(420px, calc(100% - 20px)); background: rgba(8, 10, 34, .94); border: 1px solid var(--gold); border-radius: 16px; padding: 12px 16px; z-index: 4; text-align: center; pointer-events: none; }
+.intro h2 { margin: 0 0 4px; font: 600 1.5rem/1.15 var(--serif); color: var(--gold2); }
+.intro p { margin: 4px 0; color: var(--dim); font-size: .92rem; }
+.controls { display: none; gap: 10px; padding: 8px 10px max(8px, env(safe-area-inset-bottom)); background: #0a0b26; border-top: 1px solid #262a66; position: relative; z-index: 3; touch-action: none; user-select: none; -webkit-user-select: none; }
+body.touch .controls { display: grid; grid-template-columns: 1fr auto 1fr; }
+.cbtn { appearance: none; min-height: 64px; border-radius: 16px; border: 1px solid #4a52a8; background: linear-gradient(#22266c, #151848); color: var(--ivory); font: 800 1rem/1.1 var(--sans); cursor: pointer; padding: 0 12px; touch-action: none; -webkit-touch-callout: none; }
+.cbtn.flip { background: linear-gradient(#5b4420, #2e220f); border-color: var(--gold); color: var(--gold2); min-height: 76px; }
+.cbtn.launch { min-width: 92px; background: linear-gradient(#9fefff, #3fb6d8); color: #04121a; border-color: #c9f6ff; }
+.cbtn.on { box-shadow: inset 0 0 0 3px #fff, 0 0 18px rgba(255, 220, 160, .6); filter: brightness(1.2); }
+.f-h3 { font: 600 1.1rem/1.2 var(--serif); color: var(--gold2); margin: 14px 0 4px; }
+.guide-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.guide-grid section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
+.guide-grid h3 { margin: 4px 0; }
+.guide-grid p, .guide-grid li { font-size: .88rem; color: var(--dim); margin: 4px 0; }
+.guide-grid ul { padding-left: 1.1em; margin: 4px 0; }
+.rtbl { width: 100%; border-collapse: collapse; font-size: .88rem; margin-top: 6px; }
+.rtbl th, .rtbl td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #262a66; }
+.rtbl td.n { text-align: right; font-variant-numeric: tabular-nums; }
+.ach { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ach span { font-size: .78rem; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--mute); }
+.ach span.got { border-color: var(--gold); color: var(--gold2); }
+@media (max-width: 860px) {
+  .crumb { display: none; }
+  .play { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .panel { border-right: 0; border-bottom: 1px solid #262a66; padding: 4px 8px; gap: 2px 10px; flex-direction: row; flex-wrap: wrap; align-items: center; overflow: visible; }
+  .p-score strong { font-size: 1.3rem; }
+  .p-row { gap: 10px; } .p-item strong { font-size: .95rem; }
+  .p-obj { display: none; }
+  .p-flags { order: 5; width: 100%; min-height: 0; }
+  .p-btns { margin: 0 0 0 auto; } .p-btns .lbl { display: none; } .ibtn { min-width: 44px; padding: 0 8px; }
+  #scr-title::before { background: rgba(8, 10, 34, .82); }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .top { padding: 2px 10px; } .brand { font-size: 15px; } .badge { font-size: 10px; padding: 1px 6px; }
+  .play { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .panel { grid-column: 3; grid-row: 1; flex-direction: column; flex-wrap: nowrap; border: 0; border-left: 1px solid #262a66; align-items: stretch; overflow: auto; padding: 4px 8px; gap: 4px; }
+  .p-btns { margin: 0; } .p-flags { order: 0; }
+  .stage { grid-column: 2; grid-row: 1; }
+  body.touch .controls { position: absolute; inset: auto 0 0 0; background: none; border: 0; display: block; padding: 0; pointer-events: none; z-index: 6; }
+  body.touch #c-left, body.touch #c-right { position: fixed; bottom: 10px; width: 22vw; min-height: 120px; pointer-events: auto; }
+  body.touch #c-left { left: 10px; } body.touch #c-right { right: 10px; }
+  body.touch #c-launch { position: fixed; right: 10px; bottom: 140px; width: 22vw; min-height: 56px; pointer-events: auto; }
+  body.touch .panel { padding-bottom: 200px; }
+}
+.pulse { box-shadow: 0 0 0 2px var(--cyan); border-radius: 8px; }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header class="top">
+  <a class="brand" href="https://doorquests.com/" aria-label="DoorQuests home (opens doorquests.com)"><span class="brand-door" aria-hidden="true"></span><span class="brand-word">DoorQuests</span></a>
+  <span class="crumb"><span class="crumb-col">Gamortal #011</span><span aria-hidden="true">·</span><span>Portal Pinball</span></span>
+  <span class="badge">Prototype · Founder Playtest · Not Published</span>
+</header>
+<noscript><p class="nojs">Portal Pinball needs JavaScript to run.</p></noscript>
+
+<main id="main">
+  <!-- ============================ TITLE ============================ -->
+  <section id="scr-title" class="screen" aria-labelledby="t-h">
+    <canvas id="title-art" class="title-art" aria-hidden="true"></canvas>
+    <div class="title-wrap">
+      <p class="kicker">DoorQuests · Gamortals — Interactive Games</p>
+      <h1 id="t-h"><span class="t-no">Gamortal #011<span class="sr-only"> — </span></span>Portal Pinball</h1>
+      <p class="tagline">Every gate changes the game.</p>
+      <p class="lede">The Impossible Machine is a brass-and-indigo pinball table whose portals carry the ball from one part of the playfield to another — and, if you earn the key, through the Hidden Door into chambers no ordinary table could hold.</p>
+      <fieldset class="tiers"><legend>Choose your tier</legend>
+        <label class="tier tier-bronze"><input type="radio" name="tier" value="bronze"><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Bronze — Apprentice Keeper</strong><span>Gentler ball, 15 s ball save, kickbacks on both outlanes, a centre post, portal routes drawn</span><span class="tier-stat" data-t="bronze"></span></span></label>
+        <label class="tier tier-silver"><input type="radio" name="tier" value="silver" checked><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Silver — Gate Operator</strong><span>The intended machine: standard physics, 8 s ball save, a left kickback</span><span class="tier-stat" data-t="silver"></span></span></label>
+        <label class="tier tier-gold"><input type="radio" name="tier" value="gold"><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Gold — Master of the Machine</strong><span>Faster ball, 4 s ball save, no kickbacks, harder keys and shorter chambers</span><span class="tier-stat" data-t="gold"></span></span></label>
+      </fieldset>
+      <div class="title-actions">
+        <button id="b-play" class="btn btn-primary btn-big" type="button">Play</button>
+      </div>
+      <div class="title-actions">
+        <button id="b-howto" class="btn btn-quiet" type="button">How to play</button>
+        <button id="b-guide" class="btn btn-quiet" type="button">Table guide</button>
+        <button id="b-records" class="btn btn-quiet" type="button">Records</button>
+        <button id="b-settings" class="btn btn-quiet" type="button">Sound &amp; settings</button>
+        <a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a>
+      </div>
+      <p id="t-note" class="note" role="status" aria-live="polite"></p>
+      <footer class="credit"><p class="motto">Choose Your Path. Find the Truth. Unlock the Impossible.</p><p>Created by The Axiom Continuum.</p></footer>
+    </div>
+  </section>
+
+  <!-- ============================ TABLE ============================ -->
+  <section id="scr-game" class="screen" aria-label="Portal Pinball — the table" hidden>
+    <div class="play">
+      <aside class="panel" aria-label="Status">
+        <div class="p-score"><span class="k">Score</span><strong id="h-score">0</strong></div>
+        <div class="p-row">
+          <div class="p-item"><span class="k">Ball</span><strong id="h-ball">1 / 3</strong></div>
+          <div class="p-item"><span class="k">Multiplier</span><strong id="h-mult">×1</strong></div>
+          <div class="p-item"><span class="k">Combo</span><strong id="h-combo">—</strong></div>
+        </div>
+        <div class="p-flags" id="h-flags" aria-live="off"></div>
+        <div class="p-obj"><span class="k">Objectives</span><ul id="h-objs" class="objlist"></ul></div>
+        <div class="p-btns">
+          <button id="b-pause" class="ibtn" type="button" aria-label="Pause (Esc)">❚❚ <span class="lbl">Pause</span></button>
+          <button id="b-mute" class="ibtn" type="button" aria-pressed="true" aria-label="Sound on (M)">♪ <span class="lbl">Sound</span></button>
+          <button id="b-guide2" class="ibtn" type="button" aria-label="Table guide">? <span class="lbl">Guide</span></button>
+        </div>
+      </aside>
+      <div class="stage" id="stage">
+        <canvas id="table" aria-label="The pinball table" role="img"></canvas>
+        <div id="chamber-hud" class="chamber-hud" hidden><strong id="ch-name">The Brass Vault</strong><span id="ch-goal"></span><span class="ch-time" id="ch-time"></span></div>
+        <div id="toast" class="toast" hidden></div>
+        <div id="callout" class="callout" hidden></div>
+        <div id="intro" class="intro" hidden>
+          <h2 id="in-h">Ball 1</h2>
+          <p id="in-p">Press <b>Space</b> (or tap <b>Launch</b>) to launch. <b>←</b>/<b>A</b> and <b>→</b>/<b>D</b> work the flippers.</p>
+        </div>
+      </div>
+    </div>
+    <div class="controls" id="controls" aria-label="Touch controls">
+      <button id="c-left" class="cbtn flip" type="button" aria-label="Left flipper (Left arrow or A)"><span aria-hidden="true">◀</span> Left flipper</button>
+      <button id="c-launch" class="cbtn launch" type="button" aria-label="Launch ball (Space or Enter; hold to charge)">Launch</button>
+      <button id="c-right" class="cbtn flip" type="button" aria-label="Right flipper (Right arrow or D)">Right flipper <span aria-hidden="true">▶</span></button>
+    </div>
+  </section>
+
+  <!-- ============================ RESULTS ============================ -->
+  <section id="scr-final" class="screen" aria-labelledby="f-h" hidden>
+    <div class="final-wrap">
+      <p class="kicker" id="f-k">Game over · Silver</p>
+      <h2 id="f-h">The machine falls silent</h2>
+      <p class="o-sub" id="f-sub"></p>
+      <p class="pb" id="f-pb"></p>
+      <div class="stats" id="f-stats"></div>
+      <h3 class="f-h3">Chambers</h3>
+      <ul class="objlist" id="f-ch"></ul>
+      <div class="row">
+        <button id="f-again" class="btn btn-primary" type="button">Replay</button>
+        <button id="f-copy" class="btn" type="button">Copy result</button>
+        <button id="f-title" class="btn" type="button">Return to title</button>
+        <a class="btn" href="https://doorquests.com/">Return to DoorQuests</a>
+      </div>
+      <p id="f-note" class="note" role="status" aria-live="polite"></p>
+      <pre id="f-share" class="share" aria-label="Result text"></pre>
+    </div>
+  </section>
+</main>
+
+<p id="live" class="sr-only" role="status" aria-live="polite"></p>
+
+<!-- ============================ DIALOGS ============================ -->
+<dialog id="d-pause" aria-labelledby="dp-h">
+  <h2 id="dp-h">Paused</h2>
+  <p id="dp-msg" class="muted">The ball is frozen where it was.</p>
+  <div class="stack">
+    <button id="dp-resume" class="btn btn-primary" type="button">Resume (Esc)</button>
+    <button id="dp-guide" class="btn" type="button">Table guide</button>
+    <button id="dp-settings" class="btn" type="button">Sound &amp; settings</button>
+    <button id="dp-restart" class="btn" type="button">Restart game</button>
+    <button id="dp-quit" class="btn" type="button">Return to title</button>
+  </div>
+</dialog>
+
+<dialog id="d-howto" class="wide" aria-labelledby="dh-h">
+  <h2 id="dh-h">How to play</h2>
+  <ol class="howto">
+    <li><b>Launch the ball</b> — Space or Enter (or the Launch button). Hold ↓/S (or hold Launch) to charge the plunger, release to fire. A lit rune lane hit straight from the plunger is a <b>skill shot</b>.</li>
+    <li><b>Keep it alive with the flippers</b> — ← or A for the left flipper, → or D for the right. Hold a flipper up to catch (cradle) the ball, then let it roll and flip again to aim: where the ball meets the flipper decides where it goes.</li>
+    <li><b>Hit bumpers, slingshots and targets</b> for points.</li>
+    <li><b>Enter portals</b> — the Twin Gates swap the ball between the left orbit and the upper right; the Ascension Gate lifts it to the top of the table.</li>
+    <li><b>Unlock the Hidden Door</b> — earn a chamber key and shoot the centre door to enter a hidden chamber. Chambers have their own flippers; the ball comes back to the table when you finish, when time runs out, or if it slips past.</li>
+    <li><b>Build the multiplier</b> — it multiplies every point. It resets when a ball drains.</li>
+    <li><b>Survive</b> — three balls per game. A drain soon after launch is caught by <b>ball save</b>.</li>
+  </ol>
+  <h3>Keys</h3>
+  <p class="small">← / A left flipper · → / D right flipper · Space / Enter launch · ↓ / S charge the plunger · Esc or P pause · M sound · T describe the table aloud.</p>
+  <h3>Records</h3>
+  <p class="small">Records are kept in this browser only. A game in progress is not saved: reloading the page ends it.</p>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button></div>
+</dialog>
+
+<dialog id="d-guide" class="wide" aria-labelledby="dg-h">
+  <h2 id="dg-h">Table guide — The Impossible Machine</h2>
+  <div id="dg-body"></div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button></div>
+</dialog>
+
+<dialog id="d-records" class="wide" aria-labelledby="dr-h">
+  <h2 id="dr-h">Records</h2>
+  <p class="small muted">Kept in this browser only (key <code>doorquests.gamortal.011.portal-pinball.v1</code>). No rankings, no accounts, nothing sent anywhere.</p>
+  <div id="dr-body"></div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Close</button><button id="dr-reset" class="btn btn-danger" type="button">Reset records…</button></div>
+</dialog>
+
+<dialog id="d-settings" aria-labelledby="ds-h">
+  <h2 id="ds-h">Sound &amp; settings</h2>
+  <div class="stack">
+    <label class="chk"><input type="checkbox" id="s-sound"> <span>Sound</span></label>
+    <label class="slider">Volume <input type="range" id="s-vol" min="0" max="100" step="5"> <span id="s-vol-v"></span></label>
+    <label class="sel">Motion <select id="s-motion"><option value="auto">Follow device setting</option><option value="reduced">Reduced (no flashes, trails or particles)</option><option value="full">Full</option></select></label>
+    <label class="sel">Game speed <select id="s-speed"><option value="1">Normal</option><option value="0.75">Assisted (75%)</option><option value="0.5">Assisted (50%)</option></select></label>
+    <label class="chk"><input type="checkbox" id="s-routes"> <span>Draw portal routes on the table (always on in Bronze)</span></label>
+    <label class="chk"><input type="checkbox" id="s-large"> <span>Larger text</span></label>
+    <p class="small muted">Assisted speed slows the whole machine equally — ball, flippers and timers — so every shot behaves exactly as at normal speed, only slower.</p>
+  </div>
+  <div class="row"><button class="btn btn-primary" type="button" data-close>Done</button></div>
+</dialog>
+
+<dialog id="d-confirm" aria-labelledby="dc-h">
+  <h2 id="dc-h">Are you sure?</h2>
+  <p id="dc-p"></p>
+  <div class="row"><button id="dc-yes" class="btn btn-danger" type="button">Yes</button><button id="dc-no" class="btn" type="button">Cancel</button></div>
+</dialog>
+
+<script id="pp-engine">
+/* Portal Pinball — authoritative engine (no DOM). Gamortal #011 · DoorQuests prototype.
+   Sections: 1 configuration · 2 geometry builders · 3 the main table (collision geometry) · 4 hidden chambers · 5 physics (ball, collisions)
+   · 6 flippers · 7 launcher · 8 portal routing · 9 objectives · 10 scoring & multipliers · 11 game flow (balls, drains, multiball, chambers)
+   · 12 autoplay bot (for tests) · 13 replay.
+   The physics (§5–§8) never reads the score; the rules (§9–§11) read physics events and switch table features on and off.
+   Rendering, input, audio and records live in app.js and only read this state. */
+(function (root) {
+  'use strict';
+  var VERSION = '1.0.0';
+
+  /* ================================================================ 1 · configuration */
+  var DT = 1 / 120;                          // fixed physics step (s); each step is split into substeps by speed
+  var BALL_R = 11;                           // ball radius (table units; the main table is 600 × 1100)
+  var MAX_SUB_MOVE = 0.45 * BALL_R;          // no ball (or flipper surface) moves more than this per substep → no tunnelling
+  var PHYS = {
+    damping: 0.06,                           // velocity loss per second (air + rolling)
+    wallE: 0.42, rubberE: 0.72, postE: 0.62, flipperE: 0.42, targetE: 0.5, mirrorE: 0.9,
+    friction: 0.03,                          // tangential velocity removed by an impact
+    restSpeed: 60,                           // approach speeds below this are resting/rolling contacts
+    hitSpeed: 45,                            // minimum approach speed (units/s) for a contact to count as a hit
+    bumperKick: 1150, slingKick: 950, slingMin: 140,
+    flipUp: 30, flipDown: 15,                // flipper angular speeds (rad/s) when pressed / released
+    ballBall: 0.9
+  };
+  var TIERS = {
+    bronze: { id: 'bronze', label: 'Bronze', name: 'Apprentice Keeper', balls: 3, gravity: 1650, vmax: 3300, save: 15, combo: 6.5, kickbacks: 'both', kickRelight: 20, bankForPrism: 1, rampsForHeart: 2, gatesForMultiball: 2, chamberTime: 50, heartTime: 32, guide: true },
+    silver: { id: 'silver', label: 'Silver', name: 'Gate Operator', balls: 3, gravity: 1900, vmax: 3600, save: 8, combo: 5, kickbacks: 'left', kickRelight: 0, bankForPrism: 1, rampsForHeart: 3, gatesForMultiball: 3, chamberTime: 40, heartTime: 26, guide: false },
+    gold: { id: 'gold', label: 'Gold', name: 'Master of the Machine', balls: 3, gravity: 2150, vmax: 3900, save: 4, combo: 4, kickbacks: 'none', kickRelight: 0, bankForPrism: 2, rampsForHeart: 4, gatesForMultiball: 4, chamberTime: 32, heartTime: 22, guide: false }
+  };
+  var TIER_IDS = ['bronze', 'silver', 'gold'];
+  var SCORE = { bumper: 100, sling: 50, target: 250, drop: 250, bank: 1000, doorBank: 1000, ramp: 750, portal: 500, ascension: 750, chamber: 5000, lane: 100, lanes: 1000,
+    skill: 2500, astral: 1500, vault: 500, prism: 1000, heartStep: 1000, jackpot: 2500, paradox: 7500, combo: 1000, kickback: 100, door: 50 };
+  var MULT_MAX = 5, SCORE_CAP = 9999999999;
+  var SURGE_TIME = 20, ASTRAL_TIME = 10, PARADOX_WINDOW = 8, SEARCH_AFTER = 4, LAUNCH = { min: 1500, max: 2750, standard: 0.5, charge: 1.0 };
+
+  /* ================================================================ 2 · geometry builders */
+  function V(x, y) { return { x: x, y: y }; }
+  function Field(id, w, h) { return { id: id, w: w, h: h, segs: [], circles: [], flippers: [], sensors: [], portals: [], movers: [], drainY: h - 10, deco: [] }; }
+  var SID = 0;
+  function seg(f, ax, ay, bx, by, o) { o = o || {}; var s = { sid: ++SID, ax: ax, ay: ay, bx: bx, by: by, kind: o.kind || 'wall', e: o.e !== undefined ? o.e : (o.kind === 'rubber' || o.kind === 'sling' ? PHYS.rubberE : o.kind === 'mirror' ? PHYS.mirrorE : o.kind === 'target' || o.kind === 'drop' || o.kind === 'door' ? PHYS.targetE : PHYS.wallE), id: o.id || null, oneWay: o.oneWay || null, group: o.group, label: o.label, look: o.look }; f.segs.push(s); return s; }
+  function poly(f, pts, o) { for (var i = 0; i + 1 < pts.length; i++) seg(f, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], o); }
+  function arcPts(cx, cy, r, a0, a1, n) { var out = []; for (var i = 0; i <= n; i++) { var a = a0 + (a1 - a0) * i / n; out.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } return out; }
+  function circ(f, x, y, r, o) { o = o || {}; var c = { sid: ++SID, x: x, y: y, r: r, kind: o.kind || 'post', e: o.e !== undefined ? o.e : PHYS.postE, id: o.id || null, label: o.label, tiers: o.tiers || null }; f.circles.push(c); return c; }
+  function flipper(f, id, px, py, len, side, o) { o = o || {}; var down = 0.5236, up = 0.5236; var fl = { sid: ++SID, id: id, side: side, px: px, py: py, len: len, r0: o.r0 || 13, r1: o.r1 || 7, rest: side === 'L' ? down : Math.PI - down, active: side === 'L' ? -up : Math.PI + up, button: o.button || side }; f.flippers.push(fl); return fl; }
+  function sensor(f, id, kind, x, y, r, o) { o = o || {}; var s = { id: id, kind: kind, x: x, y: y, r: r, dir: o.dir || null, label: o.label, group: o.group }; f.sensors.push(s); return s; }
+  function portal(f, id, kind, x, y, r, inDir, o) { o = o || {}; var p = { id: id, kind: kind, x: x, y: y, r: r, inDir: norm(inDir), minSpeed: o.minSpeed || 250, label: o.label, exit: o.exit || null, to: o.to || null }; f.portals.push(p); return p; }
+  function norm(d) { var l = Math.hypot(d[0], d[1]); return { x: d[0] / l, y: d[1] / l }; }
+
+  /* ================================================================ 3 · the main table — "The Impossible Machine" (600 × 1100) */
+  // Playfield x 20…550 (centre line x = 285), shooter lane x 550…590. The lower half is symmetric about x = 285.
+  function M(x) { return 570 - x; }
+  function buildMain() {
+    var f = Field('main', 600, 1100); f.drainY = 1095;
+    // outer walls: left wall, top arch, shooter lane outer wall
+    poly(f, [[20, 1100], [20, 300]]);
+    poly(f, arcPts(305, 300, 285, Math.PI, 2 * Math.PI, 44), { look: 'rail' });
+    poly(f, [[590, 300], [590, 1100]]);
+    // shooter lane: inner wall, plunger floor, one-way gate at the top (balls leave, never re-enter)
+    poly(f, [[550, 1100], [550, 330]]); circ(f, 550, 330, 4, { kind: 'post' });
+    seg(f, 550, 1062, 590, 1062, { id: 'plungerFloor' });
+    seg(f, 552, 312, 590, 296, { kind: 'gate', oneWay: { x: 0, y: -1 }, id: 'shooterGate' });
+    // ---- lower playfield (symmetric): inlane/outlane guides, slingshots, flippers
+    [1, -1].forEach(function (s) { var X = s > 0 ? function (x) { return x; } : M, side = s > 0 ? 'L' : 'R';
+      poly(f, [[X(54), 776], [X(54), 846], [X(58), 864], [X(70), 879], [X(90), 890], [X(187), 944]], { look: 'rail' }); circ(f, X(54), 776, 6, { kind: 'post' });
+      seg(f, X(104), 795, X(104), 860, { kind: 'rubber' }); seg(f, X(104), 860, X(160), 892, { kind: 'rubber' });
+      seg(f, X(104), 795, X(160), 892, { kind: 'sling', id: 'sling' + side }); circ(f, X(104), 795, 6); circ(f, X(104), 860, 6); circ(f, X(160), 892, 6);
+      // outlane floor deflector cosmetic lip & outlane sensor (kickback)
+      sensor(f, 'outlane' + side, 'outlane', X(37), 860, 16);
+      sensor(f, 'inlane' + side, 'inlane', X(79), 830, 14);
+    });
+    flipper(f, 'L', 190, 958, 86, 'L'); flipper(f, 'R', 380, 958, 86, 'R');
+    circ(f, 285, 1016, 7, { kind: 'post', tiers: ['bronze'], id: 'centerPost' });   // Bronze: a centre post between the flippers (wider safety margin)
+    // ---- left orbit: lane x 20…64; Twin Gate A inside it; one-way gate at the top; fall-back deflector at the mouth
+    poly(f, [[98, 612], [64, 560], [64, 262]], { look: 'rail' }); circ(f, 98, 612, 6, { kind: 'post' }); circ(f, 64, 262, 4);
+    seg(f, 20, 250, 64, 270, { kind: 'gate', oneWay: { x: 0, y: -1 }, id: 'orbitGate' });
+    seg(f, 20, 632, 44, 662, { kind: 'rubber' }); circ(f, 44, 662, 5);   // fall-back deflector: a ball dropping out of the orbit is pushed back toward the inlane
+    // ---- right side: the Gilded Ramp (lane x 500…550) with entry/exit switches and its own one-way exit gate
+    poly(f, [[466, 612], [500, 560], [500, 345]], { look: 'ramp' }); circ(f, 466, 612, 6, { kind: 'post' }); circ(f, 500, 345, 4);
+    seg(f, 502, 345, 548, 345, { kind: 'gate', oneWay: { x: 0, y: -1 }, id: 'rampGate' });
+    seg(f, 550, 632, 526, 662, { kind: 'rubber' }); circ(f, 526, 662, 5);
+    sensor(f, 'rampIn', 'ramp', 525, 540, 22); sensor(f, 'rampOut', 'ramp', 525, 380, 22);
+    // ---- drop-target bank (left, on the orbit wall) — "Prism Bank"
+    ['d1', 'd2', 'd3'].forEach(function (id, k) { var y = 410 + k * 44; seg(f, 70, y - 15, 70, y + 15, { kind: 'drop', id: id, group: 'drops' }); });
+    // ---- D-O-O-R standup targets (right, on the ramp wall)
+    ['D', 'O1', 'O2', 'R'].forEach(function (id, k) { var y = 395 + k * 42; seg(f, 494, y - 13, 494, y + 13, { kind: 'target', id: 'door' + id, group: 'door', label: id.charAt(0) }); });
+    // ---- the Hidden Door (centre scoop) — closed by a door panel until a chamber key is lit
+    poly(f, [[250, 580], [250, 520], [262, 505]], { look: 'rail' }); poly(f, [[320, 580], [320, 520], [308, 505]], { look: 'rail' }); seg(f, 262, 505, 308, 505, { look: 'rail' });
+    circ(f, 250, 580, 6); circ(f, 320, 580, 6);
+    seg(f, 252, 572, 318, 572, { kind: 'door', id: 'doorPanel' });
+    portal(f, 'hidden', 'hidden', 285, 538, 20, [0, -1], { minSpeed: 120, label: 'Hidden Door' });
+    // ---- the Ascension Gate (left-centre scoop, entered moving up-left); it releases the ball high on the left, aimed across the top at the Astral Star
+    poly(f, [[128, 424], [134, 366], [170, 350], [200, 404]], { look: 'rail' }); circ(f, 128, 424, 6); circ(f, 200, 404, 6);
+    portal(f, 'ascension', 'ascension', 158, 386, 18, [-0.33, -0.94], { minSpeed: 450, label: 'Ascension Gate', exit: { x: 118, y: 168, dir: [1, 0.06] } });
+    // ---- Twin Gates: A in the left orbit (entered moving up), B between two pillars right of centre (entered moving up-right)
+    portal(f, 'twinA', 'twin', 42, 470, 16, [0, -1], { minSpeed: 300, label: 'Twin Gate A', to: 'twinB', exit: { x: 42, y: 412, dir: [0, -1] } });
+    portal(f, 'twinB', 'twin', 432, 330, 16, [0.45, -0.89], { minSpeed: 300, label: 'Twin Gate B', to: 'twinA', exit: { x: 412, y: 372, dir: [-0.45, 0.89] } });
+    circ(f, 408, 316, 7, { kind: 'post' }); circ(f, 456, 344, 7, { kind: 'post' });  // the gate's two pillars
+    // ---- top rollover lanes (three runes) and pop bumpers
+    [215, 265, 315, 365].forEach(function (x) { seg(f, x, 92, x, 140, { look: 'rail' }); circ(f, x, 92, 4); circ(f, x, 140, 4); });
+    sensor(f, 'lane0', 'lane', 240, 118, 12, { label: '✦' }); sensor(f, 'lane1', 'lane', 290, 118, 12, { label: '◆' }); sensor(f, 'lane2', 'lane', 340, 118, 12, { label: '●' });
+    circ(f, 228, 222, 26, { kind: 'bumper', id: 'bumper1', e: PHYS.rubberE }); circ(f, 344, 222, 26, { kind: 'bumper', id: 'bumper2', e: PHYS.rubberE }); circ(f, 286, 300, 26, { kind: 'bumper', id: 'bumper3', e: PHYS.rubberE });
+    // ---- the Astral Star (upper right; the Ascension route's high-value target)
+    seg(f, 464, 150, 482, 184, { kind: 'target', id: 'astral1', group: 'astral', label: '★' });
+    // ---- exits
+    f.doorExit = { x: 300, y: 172, vx: -140, vy: 120 };   // where a ball returns from a chamber (above the bumpers, falling gently)
+    f.plunger = { x: 570, y: 1050 };
+    f.bounds = { x0: 14, y0: 8, x1: 596, y1: 1110 }; f.view = { x0: 0, y0: 0, w: 600, h: 1100 };
+    return f;
+  }
+
+  /* ================================================================ 4 · hidden chambers (separate, fully simulated playfields, 600 × 800) */
+  function chamberShell(id) {
+    var f = Field(id, 600, 800); f.drainY = 795;
+    poly(f, [[40, 800], [40, 200]]); poly(f, arcPts(300, 200, 260, Math.PI, 2 * Math.PI, 36), { look: 'rail' }); poly(f, [[560, 200], [560, 800]]);
+    // lower section: guides onto two flippers (no outlanes — a chamber drain returns the ball to the main table, it is never lost)
+    poly(f, [[40, 560], [199, 654]], { look: 'rail' }); poly(f, [[560, 560], [401, 654]], { look: 'rail' });
+    seg(f, 105, 470, 105, 535, { kind: 'rubber' }); seg(f, 105, 535, 160, 568, { kind: 'rubber' }); seg(f, 105, 470, 160, 568, { kind: 'sling', id: 'cslingL' }); circ(f, 105, 470, 6); circ(f, 105, 535, 6); circ(f, 160, 568, 6);
+    seg(f, 495, 470, 495, 535, { kind: 'rubber' }); seg(f, 495, 535, 440, 568, { kind: 'rubber' }); seg(f, 495, 470, 440, 568, { kind: 'sling', id: 'cslingR' }); circ(f, 495, 470, 6); circ(f, 495, 535, 6); circ(f, 440, 568, 6);
+    flipper(f, 'L', 203, 668, 80, 'L'); flipper(f, 'R', 397, 668, 80, 'R');
+    circ(f, 300, 722, 7, { kind: 'post', tiers: ['bronze'] });   // Bronze: a centre post between the chamber flippers
+    f.entry = { x: 70, y: 240, vx: 60, vy: 0 };   // the ball drops in at the upper left and rolls down the left guide onto the left flipper
+    f.bounds = { x0: 34, y0: -66, x1: 566, y1: 810 }; f.view = { x0: 30, y0: -70, w: 540, h: 870 };
+    return f;
+  }
+  function buildVault() { // Chamber 1 — The Brass Vault: precision targets struck in numbered order
+    var f = chamberShell('vault');
+    var pos = [[150, 260, 175, 236], [215, 190, 245, 178], [285, 160, 315, 160], [355, 178, 385, 190], [425, 236, 450, 260]];
+    pos.forEach(function (p, k) { seg(f, p[0], p[1], p[2], p[3], { kind: 'target', id: 'vault' + k, group: 'vault', label: String(k + 1) }); });
+    circ(f, 220, 330, 16, { kind: 'post', e: PHYS.rubberE }); circ(f, 380, 330, 16, { kind: 'post', e: PHYS.rubberE });
+    return f;
+  }
+  function buildPrism() { // Chamber 2 — The Prism Gallery: mirror rails and four prism targets; each raises the multiplier
+    var f = chamberShell('prism');
+    seg(f, 120, 330, 200, 290, { kind: 'mirror' }); seg(f, 480, 330, 400, 290, { kind: 'mirror' }); seg(f, 245, 418, 300, 394, { kind: 'mirror' }); seg(f, 300, 394, 355, 418, { kind: 'mirror' });
+    var pos = [[90, 215, 120, 185, '▲'], [215, 140, 255, 132, '◆'], [345, 132, 385, 140, '●'], [480, 185, 510, 215, '■']];
+    pos.forEach(function (p, k) { seg(f, p[0], p[1], p[2], p[3], { kind: 'target', id: 'prism' + k, group: 'prism', label: p[4] }); });
+    return f;
+  }
+  function buildHeart() { // Chamber 3 — The Clockwork Heart: a turning gear and a heart target sliding on a rail; a timed combo
+    var f = chamberShell('heart');
+    f.movers.push({ id: 'gear', kind: 'gear', cx: 300, cy: 370, len: 46, arms: 2, w: 1.3, e: PHYS.rubberE });
+    f.movers.push({ id: 'heart', kind: 'slider', y: 175, x0: 196, x1: 404, half: 32, period: 7, e: PHYS.targetE, label: '♥' });
+    seg(f, 150, 175, 170, 175); seg(f, 430, 175, 450, 175);  // rail stops
+    return f;
+  }
+  var TABLE = null; function table() { if (!TABLE) { SID = 0; TABLE = { main: buildMain(), vault: buildVault(), prism: buildPrism(), heart: buildHeart() }; } return TABLE; }
+  var CHAMBERS = [{ id: 'vault', name: 'The Brass Vault', focus: 'Precision targets', key: 'vault' }, { id: 'prism', name: 'The Prism Gallery', focus: 'Multipliers', key: 'prism' }, { id: 'heart', name: 'The Clockwork Heart', focus: 'Timed combo', key: 'heart' }];
+
+  /* ================================================================ 5 · physics */
+  function Ball(id, x, y) { return { id: id, x: x, y: y, vx: 0, vy: 0, px: x, py: y, field: 'main', live: true, lock: null, touching: {}, still: 0, inLane: true, launched: false, sensorsIn: {}, lastPortal: null }; }
+  function closest(ax, ay, bx, by, x, y) { var dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy, t = l2 ? ((x - ax) * dx + (y - ay) * dy) / l2 : 0; t = t < 0 ? 0 : t > 1 ? 1 : t; return { x: ax + dx * t, y: ay + dy * t, t: t }; }
+  // resolve one contact: push the ball out along n and reflect its velocity relative to the surface velocity (vsx, vsy)
+  function resolve(b, nx, ny, pen, e, vsx, vsy, mu) {
+    b.x += nx * pen; b.y += ny * pen; var rvx = b.vx - vsx, rvy = b.vy - vsy, vn = rvx * nx + rvy * ny;
+    if (vn < 0) { var tx = rvx - vn * nx, ty = rvy - vn * ny, ee = vn > -PHYS.restSpeed ? 0 : e, mm = vn > -PHYS.restSpeed ? 0 : mu; rvx -= (1 + ee) * vn * nx; rvy -= (1 + ee) * vn * ny; rvx -= tx * mm; rvy -= ty * mm; b.vx = rvx + vsx; b.vy = rvy + vsy; } // slow (resting/rolling) contacts neither bounce nor lose speed sideways
+    return -vn; // approach speed (positive when moving into the surface)
+  }
+
+  function Game(tierId, opts) {
+    opts = opts || {}; var T = table();
+    this.tier = TIERS[tierId]; this.tierId = tierId; this.T = T; this.t = 0; this.steps = 0; this.events = []; this.inputs = []; this.over = false; this.paused = false;
+    this.flip = {}; ['main', 'vault', 'prism', 'heart'].forEach(function (k) { this.flip[k] = T[k].flippers.map(function (fl) { return { a: fl.rest, w: 0 }; }); }, this);
+    this.score = 0; this.mult = 1; this.maxMult = 1; this.ballNo = 1; this.ballsLeft = this.tier.balls; this.ballsPlayed = 0;
+    this.combo = { n: 0, last: -99, best: 0 }; this.stats = { portals: 0, twin: 0, ascension: 0, chambersDone: 0, chambersEntered: 0, targets: 0, banks: 0, ramps: 0, bumpers: 0, slings: 0, multiballs: 0, secrets: 0, saves: 0, kickbacks: 0, drains: 0, skill: 0, lanes: 0, recovered: 0, searches: 0 };
+    this.found = {}; this.drops = [false, false, false]; this.dropReset = -1; this.doorLit = [false, false, false, false]; this.lanes = [false, false, false]; this.prismProgress = 0; this.rampCount = 0; this.gateCount = 0;
+    this.keys = { vault: false, prism: false, heart: false }; this.mbLit = false; this.surgeT = 0; this.astralT = 0; this.astralHit = {}; this.paradox = null; this.rampT = -99;
+    this.kick = { L: false, R: false, relightL: -1, relightR: -1 };
+    this.chamber = null; this.balls = []; this.nextBallId = 1; this.saveT = 0; this.saveArmed = false; this.mbQueue = 0; this.mbQueueT = 0; this.skillLane = 1; this.skillLive = false;
+    this.prevIn = { L: false, R: false, launch: false, charge: false }; this.charge = 0; this.chargeHeld = false; this.laneShiftLock = 0;
+    this.newBall(); this.armKickbacks(true);
+  }
+  var G = Game.prototype;
+  G.field = function () { return this.T[this.chamber ? this.chamber.id : 'main']; };
+  G.flips = function () { return this.flip[this.chamber ? this.chamber.id : 'main']; };
+  G.emit = function (type, o) { o = o || {}; o.type = type; o.t = this.t; this.events.push(o); if (this.events.length > 400) this.events.shift(); };
+  G.drain = function () { var e = this.events; this.events = []; return e; };
+  G.liveBalls = function () { return this.balls.filter(function (b) { return b.live; }); };
+
+  // the fixed step: input → flippers & launcher → substepped physics → rules → timers
+  // input: { L, R, launch (Space/Enter), charge (Down/S held) } — states, not edges; edges are derived here so key-repeat never matters
+  G.step = function (inp) {
+    if (this.over || this.paused) return; inp = inp || {}; this.inputs.push(encode(inp));
+    var pv = this.prevIn, self = this;
+    // lane change on a fresh flipper press (classic): lit runes shift left/right
+    if (!this.chamber && inp.L && !pv.L) this.shiftLanes(-1); if (!this.chamber && inp.R && !pv.R) this.shiftLanes(1);
+    if (inp.L && !pv.L) this.emit('flip', { side: 'L' }); if (inp.R && !pv.R) this.emit('flip', { side: 'R' });
+    this.launcher(inp);
+    this.prevIn = { L: !!inp.L, R: !!inp.R, launch: !!inp.launch, charge: !!inp.charge };
+    var F = this.field(), fl = this.flips(), balls = this.liveBalls().filter(function (b) { return b.field === F.id; });
+    balls.forEach(function (b) { b.px = b.x; b.py = b.y; });
+    // substeps: chosen so neither the fastest ball nor the fastest flipper surface moves more than MAX_SUB_MOVE per substep
+    var vm = 0; balls.forEach(function (b) { vm = Math.max(vm, Math.hypot(b.vx, b.vy)); });
+    var flipTip = PHYS.flipUp * 90; var n = Math.max(4, Math.ceil(Math.max(vm + this.tier.gravity * DT, flipTip) * DT / MAX_SUB_MOVE)); n = Math.min(n, 24);
+    var h = DT / n;
+    for (var k = 0; k < n; k++) {
+      this.moveFlippers(F, fl, inp, h); this.moveMovers(F, h);
+      for (var i = 0; i < balls.length; i++) if (balls[i].live) this.integrate(balls[i], F, h);
+      if (balls.length > 1) this.ballBall(balls);
+      for (var j = 0; j < balls.length; j++) if (balls[j].live) { this.collide(balls[j], F, fl, h); this.clamp(balls[j]); this.sense(balls[j], F); }
+    }
+    this.t = Math.round((this.steps + 1) * DT * 1e6) / 1e6; this.steps++;
+    balls.forEach(function (b) { if (b.live) self.watchdog(b, F, fl, inp); });
+    this.rules();
+  };
+  G.integrate = function (b, F, h) {
+    var g = this.tier.gravity; b.vy += g * h; var d = Math.exp(-PHYS.damping * h); b.vx *= d; b.vy *= d;
+    var sp = Math.hypot(b.vx, b.vy), vmax = this.tier.vmax; if (sp > vmax) { b.vx *= vmax / sp; b.vy *= vmax / sp; }
+    b.x += b.vx * h; b.y += b.vy * h;
+  };
+  G.clamp = function (b) { var sp = Math.hypot(b.vx, b.vy), vmax = this.tier.vmax; if (sp > vmax) { b.vx *= vmax / sp; b.vy *= vmax / sp; } };   // kicks and flippers never push past the tier's speed limit
+  G.segActive = function (s) {
+    if (s.kind === 'drop') return !this.drops[+s.id.charAt(1) - 1];
+    if (s.kind === 'door') return !this.doorOpen();
+    return true;
+  };
+  G.collide = function (b, F, fl, h) {
+    var R = BALL_R, touchNow = {}, self = this;
+    for (var it = 0; it < 2; it++) {
+      for (var i = 0; i < F.segs.length; i++) { var s = F.segs[i]; if (!this.segActive(s)) continue;
+        var q = closest(s.ax, s.ay, s.bx, s.by, b.x, b.y), dx = b.x - q.x, dy = b.y - q.y, d2 = dx * dx + dy * dy;
+        if (d2 >= (R + 0.75) * (R + 0.75)) continue; var d = Math.sqrt(d2), nx, ny;
+        if (d > 1e-6) { nx = dx / d; ny = dy / d; } else { nx = -(s.by - s.ay); ny = s.bx - s.ax; var l = Math.hypot(nx, ny); nx /= l; ny /= l; }
+        if (s.oneWay) { if (b.vx * s.oneWay.x + b.vy * s.oneWay.y > 0) continue; var side = (b.x - q.x) * s.oneWay.x + (b.y - q.y) * s.oneWay.y; if (side < 0) continue; } // a gate stops balls only from its closed side
+        touchNow[s.sid] = s;
+        if (d < R) { var ap = resolve(b, nx, ny, R - d, s.e, 0, 0, PHYS.friction); this.contact(b, s, ap, nx, ny); }
+      }
+      for (var c = 0; c < F.circles.length; c++) { var C = F.circles[c]; if (C.tiers && C.tiers.indexOf(this.tierId) < 0) continue; var cx = b.x - C.x, cy = b.y - C.y, cd = Math.hypot(cx, cy), rr = R + C.r;
+        if (cd >= rr + 0.75) continue; touchNow[C.sid] = C; if (cd < rr) { var cnx = cd > 1e-6 ? cx / cd : 0, cny = cd > 1e-6 ? cy / cd : -1; var ap2 = resolve(b, cnx, cny, rr - cd, C.e, 0, 0, PHYS.friction); this.contact(b, C, ap2, cnx, cny); } }
+      for (var m = 0; m < F.movers.length; m++) this.collideMover(b, F, F.movers[m], touchNow);
+      for (var f = 0; f < F.flippers.length; f++) this.collideFlipper(b, F.flippers[f], fl[f], touchNow);
+    }
+    // contacts that ended this substep are forgotten (so the next touch can score again)
+    var was = b.touching; b.touching = {}; for (var key in touchNow) b.touching[key] = was[key] || { t: this.t, scored: false };
+  };
+  // a contact: hits are counted once per contact (not per substep), only with a real approach speed
+  G.contact = function (b, s, ap, nx, ny) {
+    var rec = b.touching[s.sid];
+    if (s.kind === 'bumper') { var vn = b.vx * nx + b.vy * ny; if (vn < PHYS.bumperKick) { b.vx += (PHYS.bumperKick - vn) * nx; b.vy += (PHYS.bumperKick - vn) * ny; } }
+    if (s.kind === 'sling' && ap > PHYS.slingMin && !(rec && rec.scored)) { var vn2 = b.vx * nx + b.vy * ny; if (vn2 < PHYS.slingKick) { b.vx += (PHYS.slingKick - vn2) * nx; b.vy += (PHYS.slingKick - vn2) * ny; } }
+    if (rec && rec.scored) return; if (ap < PHYS.hitSpeed && s.kind !== 'bumper') return;
+    if (!rec) { rec = { t: this.t, scored: false }; b.touching[s.sid] = rec; } rec.scored = true;
+    if (s.kind !== 'wall' || s.id) this.physEvent({ type: 'hit', kind: s.kind, id: s.id, group: s.group, ball: b.id, speed: ap, x: b.x, y: b.y });
+    else if (ap > 600) this.emit('clack', { speed: ap });
+  };
+  G.collideFlipper = function (b, fl, st, touchNow) {
+    var R = BALL_R, ca = Math.cos(st.a), sa = Math.sin(st.a), tx = fl.px + ca * fl.len, ty = fl.py + sa * fl.len;
+    var q = closest(fl.px, fl.py, tx, ty, b.x, b.y), rr = fl.r0 + (fl.r1 - fl.r0) * q.t, dx = b.x - q.x, dy = b.y - q.y, d = Math.hypot(dx, dy);
+    if (d >= R + rr + 0.75) return; touchNow[fl.sid] = fl; if (d >= R + rr) return;
+    var nx = d > 1e-6 ? dx / d : -sa, ny = d > 1e-6 ? dy / d : ca; if (d <= 1e-6 && fl.side === 'R') { nx = sa; ny = -ca; }
+    var px = q.x - fl.px + nx * rr, py = q.y - fl.py + ny * rr;        // contact point relative to the pivot
+    var vsx = -st.w * py, vsy = st.w * px;                               // surface velocity of the moving flipper there (ω × r)
+    var ap = resolve(b, nx, ny, R + rr - d, PHYS.flipperE, vsx, vsy, PHYS.friction);
+    var rec = b.touching[fl.sid]; if (!(rec && rec.scored) && ap > 300) { if (!rec) { rec = { t: this.t, scored: false }; b.touching[fl.sid] = rec; } rec.scored = true; this.emit('flipHit', { side: fl.side, speed: ap, at: q.t }); }
+  };
+  G.collideMover = function (b, F, mv, touchNow) {
+    var R = BALL_R, self = this, segsOf = this.moverSegs(mv);
+    segsOf.forEach(function (s) { var q = closest(s.ax, s.ay, s.bx, s.by, b.x, b.y), dx = b.x - q.x, dy = b.y - q.y, d = Math.hypot(dx, dy), rr = s.r || 0;
+      if (d >= R + rr + 0.75) return; touchNow[s.sid] = s; if (d >= R + rr) return; var nx = d > 1e-6 ? dx / d : 0, ny = d > 1e-6 ? dy / d : -1;
+      var vs = s.vel(q.x, q.y), ap = resolve(b, nx, ny, R + rr - d, mv.e, vs.x, vs.y, PHYS.friction); if (mv.kind === 'slider') self.contact(b, s, ap, nx, ny); else if (ap > 600) self.emit('clack', { speed: ap }); });
+  };
+  G.moverSegs = function (mv) { // current geometry of a moving mechanism, with the surface velocity at any point
+    var t = this.t, out = [];
+    if (mv.kind === 'gear') { var a0 = (this.chamberT || 0) * mv.w; for (var k = 0; k < mv.arms; k++) { var a = a0 + k * Math.PI / mv.arms, c = Math.cos(a) * mv.len, s = Math.sin(a) * mv.len;
+      out.push({ sid: 'gear' + k, ax: mv.cx - c, ay: mv.cy - s, bx: mv.cx + c, by: mv.cy + s, r: 7, kind: 'gear', vel: function (x, y) { return { x: -mv.w * (y - mv.cy), y: mv.w * (x - mv.cx) }; } }); } }
+    if (mv.kind === 'slider') { var ph = (this.chamberT || 0) / mv.period * 2 * Math.PI, mid = (mv.x0 + mv.x1) / 2, amp = (mv.x1 - mv.x0) / 2, x = mid + amp * Math.sin(ph), vx = amp * Math.cos(ph) * 2 * Math.PI / mv.period;
+      out.push({ sid: 'heartT', ax: x - mv.half, ay: mv.y, bx: x + mv.half, by: mv.y, r: 5, kind: 'target', id: 'heart', group: 'heart', vel: function () { return { x: vx, y: 0 }; } }); }
+    return out;
+  };
+  G.moveMovers = function (F, h) { if (this.chamber) this.chamberT = (this.chamberT || 0) + h; };
+  G.ballBall = function (balls) { for (var i = 0; i < balls.length; i++) for (var j = i + 1; j < balls.length; j++) { var a = balls[i], b = balls[j]; if (!a.live || !b.live) continue; var dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy); if (d >= 2 * BALL_R || d < 1e-6) continue;
+    var nx = dx / d, ny = dy / d, pen = (2 * BALL_R - d) / 2; a.x -= nx * pen; a.y -= ny * pen; b.x += nx * pen; b.y += ny * pen; var rv = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny; if (rv < 0) { var j2 = -(1 + PHYS.ballBall) * rv / 2; a.vx -= j2 * nx; a.vy -= j2 * ny; b.vx += j2 * nx; b.vy += j2 * ny; if (-rv > 300) this.emit('clack', { speed: -rv }); } } };
+
+  /* ================================================================ 6 · flippers */
+  G.moveFlippers = function (F, fl, inp, h) {
+    F.flippers.forEach(function (f, i) { var st = fl[i], on = f.button === 'L' ? !!inp.L : !!inp.R, target = on ? f.active : f.rest, sp = on ? PHYS.flipUp : PHYS.flipDown, d = target - st.a;
+      if (Math.abs(d) < 1e-9) { st.w = 0; return; } var stepA = Math.sign(d) * Math.min(Math.abs(d), sp * h); st.a += stepA; st.w = stepA / h; if (Math.abs(target - st.a) < 1e-9) st.a = target; });
+  };
+
+  /* ================================================================ 7 · launcher (shooter lane) */
+  G.launcher = function (inp) {
+    var pv = this.prevIn, b = this.balls.find(function (x) { return x.live && x.inLane && x.field === 'main'; });
+    if (b && !b.launched) this.skillLane = Math.floor(this.t / 0.6) % 3;   // the lit skill-shot lane cycles while the ball waits
+    if (inp.charge) { this.charge = Math.min(1, this.charge + DT / LAUNCH.charge); this.chargeHeld = true; }
+    var fire = null;
+    if (this.chargeHeld && !inp.charge) { fire = this.charge; this.chargeHeld = false; this.charge = 0; }
+    else if (inp.launch && !pv.launch && !this.chargeHeld) fire = LAUNCH.standard;
+    if (fire === null || !b) return;
+    if (b.y < 1000 || Math.hypot(b.vx, b.vy) > 60) return; // the plunger only fires a ball resting on it
+    var sp = LAUNCH.min + (LAUNCH.max - LAUNCH.min) * fire; b.vy = -sp; b.vx = 0; b.launched = true; this.saveArmed = true; this.saveT = this.tier.save; this.skillLive = true;
+    this.emit('launch', { power: fire, ball: b.id });
+  };
+  G.newBall = function (auto) { var p = this.T.main.plunger, b = Ball(this.nextBallId++, p.x, p.y); this.balls.push(b); this.emit('ballReady', { ball: b.id, auto: !!auto }); if (auto) { b.vy = -(LAUNCH.min + (LAUNCH.max - LAUNCH.min) * LAUNCH.standard); b.launched = true; this.emit('launch', { power: LAUNCH.standard, ball: b.id, auto: true }); } return b; };
+
+  /* ================================================================ 8 · sensors & portal routing */
+  G.sense = function (b, F) {
+    var self = this;
+    F.sensors.forEach(function (s) { var inside = Math.hypot(b.x - s.x, b.y - s.y) < s.r; if (inside && !b.sensorsIn[s.id]) self.physEvent({ type: 'sensor', id: s.id, kind: s.kind, ball: b.id, vx: b.vx, vy: b.vy }); b.sensorsIn[s.id] = inside; });
+    // a ball cleared of its exit gate may use portals again (exit clearance: ≥ 2.2 ball radii from the exit and ≥ 0.25 s)
+    if (b.lock && (Math.hypot(b.x - b.lock.x, b.y - b.lock.y) > b.lock.r || this.t - b.lock.t > 1.5) && this.t - b.lock.t > 0.25) b.lock = null;
+    if (b.lock) return;
+    for (var i = 0; i < F.portals.length; i++) { var p = F.portals[i]; if (!this.portalActive(p, b)) continue;
+      if (Math.hypot(b.x - p.x, b.y - p.y) > p.r) continue;
+      var along = b.vx * p.inDir.x + b.vy * p.inDir.y; if (along < p.minSpeed) continue;       // only a ball moving INTO the gate, fast enough, passes
+      this.traverse(b, p); return; }
+  };
+  G.portalActive = function (p, b) { if (p.kind === 'hidden') return this.doorOpen(); return true; };
+  // momentum is rotated from the entry direction to the exit direction; speed is kept (clamped to a useful range)
+  G.traverse = function (b, p) {
+    var F = this.field();
+    if (p.kind === 'hidden') { this.enterChamber(b); return; }
+    var dest = p.to ? F.portals.find(function (q) { return q.id === p.to; }) : null, ex = dest ? dest.exit : p.exit, dir = norm(ex.dir);   // a twin gate releases the ball from its partner
+    var sp = Math.hypot(b.vx, b.vy), out = Math.max(900, Math.min(sp, this.tier.vmax * 0.8));
+    var aIn = Math.atan2(p.inDir.y, p.inDir.x), aOut = Math.atan2(dir.y, dir.x), rot = aOut - aIn, c = Math.cos(rot), s = Math.sin(rot);
+    var vx = (b.vx * c - b.vy * s), vy = (b.vx * s + b.vy * c), l = Math.hypot(vx, vy) || 1; vx = vx / l * out; vy = vy / l * out;
+    b.x = b.px = ex.x; b.y = b.py = ex.y; b.vx = vx; b.vy = vy; b.touching = {}; b.sensorsIn = {}; b.lock = { x: ex.x, y: ex.y, r: BALL_R * 2.2 + (dest ? dest.r : 0), t: this.t };
+    this.emit('portal', { id: p.id, kind: p.kind, to: dest ? dest.id : 'upper', ball: b.id, from: { x: p.x, y: p.y }, at: { x: ex.x, y: ex.y } });
+    this.onPortal(p, b);
+  };
+
+  /* ================================================================ 9 · objectives (rules) */
+  G.physEvent = function (ev) { this.emit(ev.type === 'hit' ? 'hit' : 'sensor', ev); this.onEvent(ev); };
+  G.onEvent = function (ev) {
+    var id = ev.id, self = this;
+    if (ev.type === 'hit' && /bumper|sling|target|drop|door/.test(ev.kind)) this.skillLive = false;   // the skill shot needs the lit lane to be the first scoring switch
+    if (ev.type === 'hit') {
+      if (ev.kind === 'bumper') { this.award(SCORE.bumper, 'Pop bumper', ev); this.stats.bumpers++; }
+      else if (ev.kind === 'sling') { this.award(SCORE.sling, 'Slingshot', ev); this.stats.slings++; }
+      else if (ev.kind === 'drop') { var k = +id.charAt(1) - 1; if (!this.drops[k]) { this.drops[k] = true; this.stats.targets++; this.award(SCORE.drop, 'Drop target', ev); this.emit('drop', { id: id });
+        if (this.drops.every(Boolean)) { this.stats.banks++; this.award(SCORE.bank, 'Prism Bank complete', ev); this.raiseMult('Prism Bank complete'); this.prismProgress++; if (this.prismProgress >= this.tier.bankForPrism && !this.keys.prism) this.lightKey('prism'); this.major('Prism Bank'); this.dropReset = this.t + 1.2; } } }
+      else if (ev.group === 'door') { var di = ['doorD', 'doorO1', 'doorO2', 'doorR'].indexOf(id); this.stats.targets++; if (!this.doorLit[di]) { this.doorLit[di] = true; this.award(SCORE.target, 'Door target', ev); this.emit('letter', { i: di }); } else this.award(SCORE.target / 5, 'Door target', ev);
+        if (this.doorLit.every(Boolean)) { this.doorLit = [false, false, false, false]; this.award(SCORE.doorBank, 'D-O-O-R complete', ev); if (!this.keys.vault) this.lightKey('vault'); this.major('D-O-O-R'); } }
+      else if (ev.group === 'astral') { this.stats.targets++; var dbl = this.t < this.astralT; this.award(SCORE.astral * (dbl ? 2 : 1), dbl ? 'Astral target (double)' : 'Astral target', ev); }
+      else if (ev.kind === 'door') this.award(SCORE.door, 'Hidden Door (closed)', ev);
+      else if (ev.group === 'vault' || ev.group === 'prism' || ev.group === 'heart') this.chamberHit(ev);
+    } else if (ev.type === 'sensor') {
+      if (ev.kind === 'lane') { var li = +id.charAt(4); this.stats.lanes++; this.award(SCORE.lane, 'Rune lane', ev);
+        if (this.skillLive && li === this.skillLane) { this.award(SCORE.skill, 'Skill shot', ev); this.stats.skill++; this.emit('skill', {}); }
+        this.skillLive = false; if (!this.lanes[li]) { this.lanes[li] = true; this.emit('lane', { i: li }); }
+        if (this.lanes.every(Boolean)) { this.lanes = [false, false, false]; this.award(SCORE.lanes, 'Rune lanes complete', ev); this.surgeT = this.t + SURGE_TIME; this.emit('surge', { until: this.surgeT }); this.armKickbacks(false, true); this.major('Rune Lanes'); } }
+      else if (id === 'rampIn' && ev.vy < 0) { this.rampT = this.t; }
+      else if (id === 'rampOut' && ev.vy < 0 && this.t - this.rampT < 2.5) { this.rampT = -99; this.stats.ramps++; this.rampCount++; this.award(SCORE.ramp, 'Gilded Ramp', ev); this.emit('ramp', { n: this.rampCount });
+        if (this.rampCount % this.tier.rampsForHeart === 0 && !this.keys.heart) this.lightKey('heart'); this.major('Gilded Ramp'); }
+      else if (ev.kind === 'outlane') this.outlane(ev);
+      else this.skillLive = false;
+    }
+  };
+  G.shiftLanes = function (d) { if (this.lanes.every(function (x) { return !x; })) return; var a = this.lanes; this.lanes = d < 0 ? [a[1], a[2], a[0]] : [a[2], a[0], a[1]]; };
+  G.lightKey = function (k) { this.keys[k] = true; this.emit('key', { key: k, chamber: CHAMBERS.find(function (c) { return c.key === k; }).name }); };
+  G.armKickbacks = function (start, fromLanes) { var kb = this.tier.kickbacks; if (kb === 'both') { this.kick.L = true; this.kick.R = true; } else if (kb === 'left' && (start || fromLanes)) { if (!this.kick.L) this.emit('kickLit', {}); this.kick.L = true; } };
+  G.outlane = function (ev) { var side = ev.id === 'outlaneL' ? 'L' : 'R', b = this.balls.find(function (x) { return x.id === ev.ball; }); if (!b || b.vy < 0) return;
+    if (this.kick[side]) { this.kick[side] = false; b.vx = side === 'L' ? 40 : -40; b.vy = -2100; b.y = Math.min(b.y, 860); this.stats.kickbacks++; this.award(SCORE.kickback, 'Kickback', ev); this.emit('kickback', { side: side });
+      if (this.tier.kickRelight) this.kick['relight' + side] = this.t + this.tier.kickRelight; } };
+  G.doorOpen = function () { return !this.chamber && (this.keys.vault || this.keys.prism || this.keys.heart) && this.liveBalls().length === 1 && this.mbQueue === 0; };
+  G.doorTarget = function () { return this.keys.vault ? 'vault' : this.keys.prism ? 'prism' : this.keys.heart ? 'heart' : null; };
+  G.onPortal = function (p, b) {
+    this.stats.portals++; var surge = this.t < this.surgeT, base = SCORE.portal * (surge ? 3 : 1);
+    this.award(base, surge ? 'Portal (Surge ×3)' : 'Portal traversal', { x: p.x, y: p.y });
+    if (this.liveBalls().length > 1) { this.award(SCORE.jackpot, 'Multiball jackpot', { x: p.x, y: p.y }); this.emit('jackpot', {}); }
+    if (p.kind === 'twin') { this.stats.twin++; this.gateCount++;
+      if (this.gateCount >= this.tier.gatesForMultiball && !this.mbLit && this.liveBalls().length === 1) { this.mbLit = true; this.gateCount = 0; this.emit('mbLit', {}); }
+      if (this.paradox && this.paradox.from === p.to && this.t - this.paradox.t <= PARADOX_WINDOW && !this.found.paradoxBall) { this.found.paradoxBall = true; this.stats.secrets++; this.award(SCORE.paradox, 'Secret: Paradox Loop', { x: p.x, y: p.y }); this.emit('secret', { name: 'Paradox Loop' }); }
+      this.paradox = { from: p.id, t: this.t };
+      this.major(p.label); }
+    if (p.kind === 'ascension') { this.stats.ascension++; this.award(SCORE.ascension, 'Ascension', { x: p.x, y: p.y }); this.astralT = this.t + ASTRAL_TIME; this.emit('astral', { until: this.astralT });
+      if (this.mbLit && this.liveBalls().length === 1) { this.mbLit = false; this.startMultiball(); } this.major('Ascension Gate'); }
+  };
+
+  /* ================================================================ 10 · scoring & multipliers */
+  G.award = function (base, why, at) { var pts = Math.round(base * this.mult); this.score = Math.min(SCORE_CAP, this.score + pts); this.emit('score', { pts: pts, base: base, mult: this.mult, why: why, x: at && at.x, y: at && at.y, field: this.chamber ? this.chamber.id : 'main' }); return pts; };
+  G.raiseMult = function (why) { if (this.mult >= MULT_MAX) { this.emit('multMax', {}); return; } this.mult++; this.maxMult = Math.max(this.maxMult, this.mult); this.emit('mult', { mult: this.mult, why: why }); };
+  // a combo: major shots each within the tier's window of the previous one
+  G.major = function (name) {
+    if (this.t - this.combo.last <= this.tier.combo && this.combo.n >= 1) { this.combo.n++; var bonus = SCORE.combo * (this.combo.n - 1); this.award(bonus, 'Combo ×' + this.combo.n, null); this.emit('combo', { n: this.combo.n, shot: name }); }
+    else { if (this.combo.n >= 2) this.emit('comboEnd', { n: this.combo.n }); this.combo.n = 1; this.emit('comboStart', { shot: name }); }
+    this.combo.last = this.t; this.combo.best = Math.max(this.combo.best, this.combo.n);
+  };
+
+  /* ================================================================ 11 · game flow: chambers, multiball, drains, ball save */
+  G.enterChamber = function (b) {
+    var id = this.doorTarget(); if (!id) return; this.award(SCORE.portal, 'Hidden Door', { x: 285, y: 538 }); this.keys[id] = false; var C = this.T[id], self = this;
+    this.chamber = { id: id, until: this.t + (id === 'heart' ? this.tier.heartTime : this.tier.chamberTime), start: this.t, progress: 0, hits: 0, done: false, lit: 0, prismHit: [false, false, false, false] };
+    this.chamberT = 0; this.flip[id] = C.flippers.map(function (fl) { return { a: fl.rest, w: 0 }; });
+    b.field = id; b.x = b.px = C.entry.x; b.y = b.py = C.entry.y; b.vx = C.entry.vx; b.vy = C.entry.vy; b.touching = {}; b.sensorsIn = {}; b.lock = null; b.still = 0;
+    this.stats.chambersEntered++; this.found[id] = true; this.stats.portals++;
+    this.emit('chamber', { id: id, name: CHAMBERS.find(function (c) { return c.id === id; }).name, until: this.chamber.until }); this.major('Hidden Door');
+  };
+  G.chamberHit = function (ev) {
+    var c = this.chamber; if (!c || c.done) return; var id = ev.id;
+    if (c.id === 'vault') { var k = +id.slice(5); if (k === c.lit) { c.lit++; c.progress = c.lit; this.stats.targets++; this.award(SCORE.vault * c.lit, 'Vault target ' + c.lit, ev); this.emit('vault', { n: c.lit }); if (c.lit === 5) this.completeChamber(); } else this.award(SCORE.sling, 'Vault (out of order)', ev); }
+    if (c.id === 'prism') { var p = +id.slice(5); if (!c.prismHit[p]) { c.prismHit[p] = true; c.progress++; this.stats.targets++; this.raiseMult('Prism ' + (p + 1)); this.award(SCORE.prism, 'Prism target', ev); this.emit('prism', { i: p, n: c.progress }); if (c.progress === 4) this.completeChamber(); } else this.award(SCORE.sling, 'Prism (already lit)', ev); }
+    if (c.id === 'heart') { c.hits++; c.progress = c.hits; this.stats.targets++; this.award(SCORE.heartStep * c.hits, 'Heart strike ' + c.hits, ev); this.emit('heart', { n: c.hits }); if (c.hits === 5) this.completeChamber(); }
+  };
+  G.completeChamber = function () { var c = this.chamber; c.done = true; this.stats.chambersDone++; this.found[c.id + 'Done'] = true; this.award(SCORE.chamber, 'Chamber complete', null); this.emit('chamberDone', { id: c.id }); this.major('Chamber complete'); this.exitChamber('complete'); };
+  G.exitChamber = function (why) {
+    var c = this.chamber, b = this.balls.find(function (x) { return x.live && x.field === c.id; }), ex = this.T.main.doorExit; this.chamber = null;
+    if (b) { b.field = 'main'; b.x = b.px = ex.x; b.y = b.py = ex.y; b.vx = ex.vx; b.vy = ex.vy; b.touching = {}; b.sensorsIn = {}; b.lock = { x: ex.x, y: ex.y, r: 30, t: this.t }; b.still = 0; }
+    this.emit('chamberExit', { id: c.id, why: why });
+  };
+  G.startMultiball = function () { this.stats.multiballs++; this.mbQueue = 2; this.mbQueueT = this.t + 0.4; this.saveT = 8; this.saveArmed = true; this.emit('multiball', { balls: 3 }); };
+  G.rules = function () {
+    var self = this;
+    // drop bank reset (only when no ball sits where a target rises)
+    if (this.dropReset > 0 && this.t >= this.dropReset) { var clear = this.liveBalls().every(function (b) { return b.field !== 'main' || !(b.x < 90 && b.y > 380 && b.y < 530); }); if (clear) { this.drops = [false, false, false]; this.dropReset = -1; this.emit('dropsReset', {}); } }
+    // multiball: extra balls are fed into the shooter lane one at a time and launched automatically
+    if (this.mbQueue > 0 && this.t >= this.mbQueueT && !this.balls.some(function (b) { return b.live && b.inLane && b.field === 'main'; })) { this.mbQueue--; this.mbQueueT = this.t + 0.7; this.newBall(true); }
+    // kickback relight (Bronze)
+    ['L', 'R'].forEach(function (s) { if (self.kick['relight' + s] > 0 && self.t >= self.kick['relight' + s]) { self.kick['relight' + s] = -1; self.kick[s] = true; self.emit('kickLit', { side: s }); } });
+    // timers
+    if (this.saveT > 0) this.saveT = Math.max(0, this.saveT - DT);
+    if (this.combo.n >= 1 && this.t - this.combo.last > this.tier.combo) { if (this.combo.n >= 2) this.emit('comboEnd', { n: this.combo.n }); this.combo.n = 0; }
+    if (this.chamber && this.t >= this.chamber.until) { this.emit('chamberTimeout', { id: this.chamber.id }); this.exitChamber('timeout'); }
+    // lanes / shooter / drains
+    this.balls.forEach(function (b) { if (!b.live) return; var F = self.T[b.field];
+      if (b.field === 'main') { var inL = b.x > 552 && b.y > 330; if (b.inLane && !inL) { b.inLane = false; self.emit('leftLane', { ball: b.id }); } else if (!b.inLane && inL && b.y > 900) b.inLane = true; }
+      if (b.y > F.drainY + BALL_R) self.onDrain(b); });
+    if (this.paradox && this.t - this.paradox.t > PARADOX_WINDOW) this.paradox = null;
+  };
+  G.onDrain = function (b) {
+    if (b.field !== 'main') { this.emit('chamberDrain', { id: b.field }); this.exitChamber('drain'); return; }
+    var live = this.liveBalls().length;
+    if (this.saveT > 0 && this.saveArmed) { // ball save: the ball comes back to the shooter lane
+      this.stats.saves++; var p = this.T.main.plunger; b.x = b.px = p.x; b.y = b.py = p.y; b.vx = b.vy = 0; b.inLane = true; b.touching = {}; b.sensorsIn = {}; b.lock = null;
+      if (live > 1 || this.mbQueue > 0) { b.vy = -(LAUNCH.min + (LAUNCH.max - LAUNCH.min) * LAUNCH.standard); this.emit('save', { auto: true }); } else { this.saveArmed = false; this.saveT = 0; this.emit('save', { auto: false }); }
+      return; }
+    b.live = false; this.stats.drains++; this.emit('drain', { ball: b.id, left: live - 1 });
+    if (live - 1 >= 1 || this.mbQueue > 0) { if (live - 1 === 1 && this.mbQueue === 0) this.emit('multiballEnd', {}); return; }
+    // the last ball in play is gone: the ball is over
+    this.balls = this.balls.filter(function (x) { return x.live; }); this.ballsPlayed++; this.ballsLeft--; this.mult = 1; this.mbLit = false; this.surgeT = 0; this.astralT = 0;
+    if (this.combo.n >= 2) this.emit('comboEnd', { n: this.combo.n }); this.combo.n = 0; this.found.paradoxBall = false;
+    if (this.ballsLeft <= 0) { this.over = true; this.emit('gameOver', { score: this.score }); return; }
+    this.ballNo++; this.emit('ballOver', { next: this.ballNo }); this.newBall(); this.armKickbacks(true); this.saveT = 0; this.saveArmed = false;
+  };
+  // failsafes: a ball that sits still away from the flippers is nudged ("ball search"); a ball outside the cabinet is recovered
+  G.watchdog = function (b, F, fl, inp) {
+    var B = F.bounds; if (!(b.x > B.x0 && b.x < B.x1 && b.y > B.y0 && b.y < B.y1 + 40) || !isFinite(b.x + b.y + b.vx + b.vy)) { this.stats.recovered++; this.emit('recovered', {}); if (b.field !== 'main') { this.exitChamber('recovered'); return; } var p = this.T.main.plunger; b.x = b.px = p.x; b.y = b.py = p.y; b.vx = b.vy = 0; b.inLane = true; b.touching = {}; return; }
+    var cradled = F.flippers.some(function (f, i) { var held = f.button === 'L' ? inp.L : inp.R; return held && b.touching[f.sid]; });
+    if (b.inLane || cradled || Math.hypot(b.vx, b.vy) > 12) { b.still = 0; return; }
+    b.still += DT; if (b.still > SEARCH_AFTER) { b.still = 0; this.stats.searches++; var s = (this.stats.searches % 2) ? 1 : -1; b.vx = 260 * s; b.vy = -650; this.emit('search', { x: b.x, y: b.y, field: b.field }); }
+  };
+
+  /* ================================================================ snapshot helpers */
+  G.snapshot = function () { return { t: this.t, score: this.score, mult: this.mult, balls: this.liveBalls().map(function (b) { return [b.field, Math.round(b.x * 100) / 100, Math.round(b.y * 100) / 100]; }) }; };
+
+  /* ================================================================ 12 · autoplay (tests and attract mode) */
+  // A simple player: flips when a ball comes down onto a flipper, launches when a ball waits in the shooter lane. Seeded timing jitter.
+  function h32(s) { var h = 0x811c9dc5; s = String(s); for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; return h >>> 0; }
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function Autoplay(seed) { this.r = mulberry(h32('auto|' + seed)); this.hold = { L: 0, R: 0 }; this.wait = 0; this.delay = { L: 0, R: 0 }; }
+  Autoplay.prototype.input = function (g) {
+    var F = g.field(), fl = g.flips(), out = { L: false, R: false, launch: false }, self = this;
+    if (g.balls.some(function (b) { return b.live && b.inLane && b.field === 'main' && b.y > 1000 && Math.hypot(b.vx, b.vy) < 30; }) && !g.chamber) { this.wait += DT; if (this.wait > 0.3 + this.r() * 0.6) { out.launch = true; this.wait = 0; } }
+    F.flippers.forEach(function (f, i) { var side = f.button; if (self.hold[side] > 0) { self.hold[side] -= DT; out[side] = true; return; }
+      var hit = g.liveBalls().some(function (b) { if (b.field !== F.id) return false; var dx = b.x - f.px, dy = b.y - f.py, dist = Math.hypot(dx, dy); return dist < f.len + 20 && b.vy > -50 && (side === 'L' ? dx > -20 : dx < 20) && dy > -45 && dy < 50; });
+      if (hit) { if (self.delay[side] <= 0) self.delay[side] = 0.005 + self.r() * 0.07; self.delay[side] -= DT; if (self.delay[side] <= 0) { self.hold[side] = 0.16 + self.r() * 0.1; out[side] = true; } } else self.delay[side] = 0; });
+    return out;
+  };
+
+  /* ================================================================ 13 · replay & encoding */
+  function encode(i) { return (i.L ? 1 : 0) | (i.R ? 2 : 0) | (i.launch ? 4 : 0) | (i.charge ? 8 : 0); }
+  function decode(c) { return { L: !!(c & 1), R: !!(c & 2), launch: !!(c & 4), charge: !!(c & 8) }; }
+  function replay(tierId, codes) { var g = new Game(tierId); for (var i = 0; i < codes.length && !g.over; i++) g.step(decode(codes[i])); return g; }
+  function shareText(o) { return ['PORTAL PINBALL', 'DoorQuests · Gamortal #011', '', 'Tier: ' + TIERS[o.tier].label, 'Final Score: ' + o.score.toLocaleString('en-US'), 'Highest Multiplier: ×' + o.mult, 'Best Combo: ' + (o.combo >= 2 ? o.combo + '-shot combo' : 'none'), 'Portal Traversals: ' + o.portals, 'Hidden Chambers: ' + o.chambers + ' of 3 completed', '', 'Every gate changes the game.', '', 'doorquests.com/games/portal-pinball/'].join('\n'); }
+
+  root.PinballEngine = { VERSION: VERSION, DT: DT, BALL_R: BALL_R, PHYS: PHYS, TIERS: TIERS, TIER_IDS: TIER_IDS, SCORE: SCORE, MULT_MAX: MULT_MAX, SCORE_CAP: SCORE_CAP, LAUNCH: LAUNCH, SURGE_TIME: SURGE_TIME, ASTRAL_TIME: ASTRAL_TIME, PARADOX_WINDOW: PARADOX_WINDOW, CHAMBERS: CHAMBERS,
+    table: table, Game: Game, Ball: Ball, Autoplay: Autoplay, encode: encode, decode: decode, replay: replay, shareText: shareText, closest: closest, h32: h32, mulberry: mulberry };
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script id="pp-app">
+/* Portal Pinball — app layer: records · audio · rendering · HUD · input · screens.
+   The engine (PinballEngine) is the only authority on the ball, flippers, portals, chambers and score. */
+(function () {
+  'use strict';
+  var E = window.PinballEngine, DT = E.DT;
+  var KEY = 'doorquests.gamortal.011.portal-pinball.v1';
+  var QS = (function () { try { return new URLSearchParams(location.search); } catch (e) { return { get: function () { return null; } }; } })();
+  var DEV = QS.get('dev') === '1';
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function el(tag, attrs, text) { var e = document.createElement(tag); if (attrs) for (var k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); } if (text !== undefined && text !== null) e.textContent = text; return e; }
+  function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+  function now() { return performance.now(); }
+  var liveT = null;
+  function announce(msg) { var l = $('#live'); clearTimeout(liveT); l.textContent = ''; liveT = setTimeout(function () { l.textContent = msg; }, 40); }
+  var CH_NAME = { vault: 'The Brass Vault', prism: 'The Prism Gallery', heart: 'The Clockwork Heart' }, CH_IDS = ['vault', 'prism', 'heart'];
+
+  /* ================================================================ records (validated) */
+  var storageOk = true, memStore = null, notes = [];
+  function rawGet() { try { return localStorage.getItem(KEY); } catch (e) { storageOk = false; return memStore; } }
+  function rawSet(v) { try { localStorage.setItem(KEY, v); } catch (e) { storageOk = false; memStore = v; } }
+  var ACH = [['firstPortal', 'First portal'], ['allPortals', 'All three portals'], ['vault', 'Discovered the Brass Vault'], ['prism', 'Discovered the Prism Gallery'], ['heart', 'Discovered the Clockwork Heart'],
+    ['chamberDone', 'Completed a chamber'], ['allChambers', 'Completed all three chambers'], ['multiball', 'Multiball'], ['mult5', 'Reached ×5'], ['combo5', 'A 5-shot combo'], ['skill', 'Skill shot'], ['paradox', 'A secret of the gates'], ['million', '1,000,000 points']];
+  function blankR() { return { best: 0, games: 0, maxMult: 1, bestCombo: 0, bestPortals: 0, chambersDone: 0, discovered: [] }; }
+  function blank() { var r = {}; E.TIER_IDS.forEach(function (t) { r[t] = blankR(); }); return { v: 1, prefs: { sound: true, volume: 70, motion: 'auto', speed: 1, routes: false, large: false, tier: 'silver', seenGuide: false }, records: r, ach: [] }; }
+  function isInt(v, lo, hi) { return typeof v === 'number' && isFinite(v) && Math.floor(v) === v && v >= lo && v <= hi; }
+  function load() {
+    var s = blank(), raw = rawGet(); if (!raw) return s;
+    var d; try { d = JSON.parse(raw); } catch (e) { notes.push('Saved records could not be read and were reset.'); return s; }
+    if (!d || typeof d !== 'object' || d.v !== 1) { notes.push('Saved records were in an unknown format and were reset.'); return s; }
+    var bad = 0, p = d.prefs || {};
+    if (typeof p.sound === 'boolean') s.prefs.sound = p.sound; if (isInt(p.volume, 0, 100)) s.prefs.volume = p.volume;
+    if (['auto', 'reduced', 'full'].indexOf(p.motion) >= 0) s.prefs.motion = p.motion; if ([1, 0.75, 0.5].indexOf(p.speed) >= 0) s.prefs.speed = p.speed;
+    if (typeof p.routes === 'boolean') s.prefs.routes = p.routes; if (typeof p.large === 'boolean') s.prefs.large = p.large; if (E.TIERS[p.tier]) s.prefs.tier = p.tier; if (typeof p.seenGuide === 'boolean') s.prefs.seenGuide = p.seenGuide;
+    E.TIER_IDS.forEach(function (t) { var r = d.records && d.records[t]; if (!r) return;
+      var ok = isInt(r.best, 0, E.SCORE_CAP) && isInt(r.games, 0, 1e7) && isInt(r.maxMult, 1, E.MULT_MAX) && isInt(r.bestCombo, 0, 1000) && isInt(r.bestPortals, 0, 1e6) && isInt(r.chambersDone, 0, 1e7) && Array.isArray(r.discovered) && r.discovered.length <= 3 && r.discovered.every(function (x) { return CH_IDS.indexOf(x) >= 0; });
+      if (ok) s.records[t] = { best: r.best, games: r.games, maxMult: r.maxMult, bestCombo: r.bestCombo, bestPortals: r.bestPortals, chambersDone: r.chambersDone, discovered: r.discovered.filter(function (x, i, a) { return a.indexOf(x) === i; }) }; else bad++; });
+    if (Array.isArray(d.ach)) s.ach = d.ach.filter(function (a) { return ACH.some(function (x) { return x[0] === a; }); }); else if (d.ach !== undefined) bad++;
+    if (bad) notes.push('Some saved records were invalid and were removed.');
+    return s;
+  }
+  var SAVE = load(), saves = 0;
+  function persist() { saves++; try { rawSet(JSON.stringify(SAVE)); } catch (e) { storageOk = false; } }
+
+  /* ================================================================ motion / text size */
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { var m = SAVE.prefs.motion; return m === 'reduced' || (m === 'auto' && !!(mq && mq.matches)); }
+  function applyPrefs() { document.body.classList.toggle('reduce', reduced()); document.body.classList.toggle('large', !!SAVE.prefs.large); document.documentElement.classList.toggle('large', !!SAVE.prefs.large); STATIC = {}; }
+
+  /* ================================================================ audio (original Web Audio synthesis — never required) */
+  var AU = { ctx: null, master: null, voices: 0, unlocked: false, loops: {} };
+  function audioInit() {
+    AU.unlocked = true; if (!SAVE.prefs.sound) return;
+    if (!AU.ctx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; try { AU.ctx = new AC(); AU.master = AU.ctx.createGain(); AU.master.connect(AU.ctx.destination); } catch (e) { AU.ctx = null; return; } }
+    AU.master.gain.value = SAVE.prefs.volume / 100 * 0.6; if (AU.ctx.state === 'suspended') AU.ctx.resume().catch(function () {});
+  }
+  function live() { return AU.ctx && SAVE.prefs.sound && AU.ctx.state !== 'closed'; }
+  var noiseBuf = null;
+  function nbuf() { if (!noiseBuf) { var c = AU.ctx, n = c.sampleRate * 2, b = c.createBuffer(1, n, c.sampleRate), x = b.getChannelData(0), s = 7; for (var i = 0; i < n; i++) { s = (s * 16807) % 2147483647; x[i] = s / 1073741823.5 - 1; } noiseBuf = b; } return noiseBuf; }
+  function tone(f, d, type, v, w, f2) {
+    if (!live() || AU.voices > 24) return; var c = AU.ctx;
+    try { var t = c.currentTime + (w || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g); g.connect(AU.master); o.start(t); o.stop(t + d + 0.03); AU.voices++; o.onended = function () { AU.voices--; o.disconnect(); g.disconnect(); }; } catch (e) { /* optional */ }
+  }
+  function burst(d, f, q, v, type, w) {
+    if (!live() || AU.voices > 24) return; var c = AU.ctx;
+    try { var t = c.currentTime + (w || 0), s = c.createBufferSource(), fl = c.createBiquadFilter(), g = c.createGain(); s.buffer = nbuf(); fl.type = type || 'bandpass'; fl.frequency.value = f; fl.Q.value = q; g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d); s.connect(fl); fl.connect(g); g.connect(AU.master); s.start(t); s.stop(t + d + 0.02); AU.voices++; s.onended = function () { AU.voices--; s.disconnect(); fl.disconnect(); g.disconnect(); }; } catch (e) { /* optional */ }
+  }
+  function humOn() { if (!live() || AU.loops.hum) return; var c = AU.ctx; try { var o = c.createOscillator(), g = c.createGain(), lp = c.createBiquadFilter(); o.type = 'sawtooth'; o.frequency.value = 55; lp.type = 'lowpass'; lp.frequency.value = 180; g.gain.value = 0.0001; g.gain.setTargetAtTime(0.012, c.currentTime, 0.4); o.connect(lp); lp.connect(g); g.connect(AU.master); o.start(); AU.loops.hum = { s: o, fl: lp, g: g }; } catch (e) { /* optional */ } }
+  function loopOff(name) { var L = AU.loops[name]; if (!L) return; delete AU.loops[name]; try { L.g.gain.setTargetAtTime(0.0001, AU.ctx.currentTime, 0.05); setTimeout(function () { try { L.s.stop(); L.s.disconnect(); L.fl.disconnect(); L.g.disconnect(); } catch (e) { /* ignore */ } }, 250); } catch (e) { /* ignore */ } }
+  function allLoopsOff() { Object.keys(AU.loops).forEach(loopOff); }
+  var lastClack = 0;
+  var SND = {
+    launch: function (p) { burst(0.18, 600, 0.8, 0.12, 'lowpass'); tone(90 + 80 * p, 0.25, 'triangle', 0.06, 0, 50); },
+    flip: function () { burst(0.05, 1800, 1.5, 0.07); tone(70, 0.06, 'square', 0.03); },
+    clack: function (sp) { var t = now(); if (t - lastClack < 40) return; lastClack = t; burst(0.04, 3200, 4, Math.min(0.08, 0.02 + sp / 40000)); },
+    bumper: function () { tone(440, 0.12, 'square', 0.05, 0, 330); burst(0.08, 900, 1, 0.08); },
+    sling: function () { burst(0.06, 1400, 1, 0.09); tone(260, 0.06, 'square', 0.03); },
+    target: function () { tone(1046, 0.12, 'triangle', 0.05); burst(0.03, 2500, 3, 0.04); },
+    drop: function () { burst(0.09, 500, 1.2, 0.09); tone(196, 0.12, 'square', 0.03); },
+    lane: function () { tone(1568, 0.1, 'sine', 0.04); },
+    portal: function () { tone(220, 0.5, 'sine', 0.06, 0, 1760); tone(330, 0.4, 'triangle', 0.03, 0.05, 2640); burst(0.3, 3000, 0.7, 0.03, 'highpass'); },
+    chamber: function () { [196, 247, 294, 392].forEach(function (f, i) { tone(f, 0.9, 'triangle', 0.05, i * 0.09); }); burst(0.5, 400, 0.6, 0.06, 'lowpass'); },
+    mult: function () { [523, 659, 784, 1046].forEach(function (f, i) { tone(f, 0.25, 'square', 0.03, i * 0.06); }); },
+    combo: function (n) { tone(660 + 60 * Math.min(n, 10), 0.18, 'square', 0.035); tone(990 + 90 * Math.min(n, 10), 0.18, 'triangle', 0.03, 0.06); },
+    multiball: function () { [392, 523, 659, 784, 1046, 1318].forEach(function (f, i) { tone(f, 0.35, 'square', 0.035, i * 0.07); }); },
+    drain: function () { tone(330, 0.7, 'sawtooth', 0.05, 0, 82); burst(0.4, 300, 0.7, 0.06, 'lowpass'); },
+    over: function () { [392, 330, 262, 196].forEach(function (f, i) { tone(f, 0.6, 'triangle', 0.05, i * 0.22); }); },
+    save: function () { [784, 988].forEach(function (f, i) { tone(f, 0.25, 'triangle', 0.05, i * 0.1); }); },
+    key: function () { [988, 1319, 1760].forEach(function (f, i) { tone(f, 0.4, 'triangle', 0.04, i * 0.08); }); },
+    done: function () { [262, 330, 392, 523, 659, 784].forEach(function (f, i) { tone(f, 0.9, 'triangle', 0.045, i * 0.09); }); },
+    secret: function () { [880, 1175, 1480, 1760, 2349].forEach(function (f, i) { tone(f, 0.6, 'sine', 0.035, i * 0.08); }); },
+    tick: function () { tone(1760, 0.04, 'square', 0.02); },
+    kick: function () { burst(0.15, 500, 1, 0.12, 'lowpass'); tone(140, 0.15, 'square', 0.04, 0, 400); }
+  };
+  function setSound(on) { SAVE.prefs.sound = on; persist(); if (on) { audioInit(); ambient(); } else allLoopsOff(); if (AU.master) AU.master.gain.value = on ? SAVE.prefs.volume / 100 * 0.6 : 0; syncMute(); }
+  function syncMute() { var b = $('#b-mute'); b.setAttribute('aria-pressed', SAVE.prefs.sound ? 'true' : 'false'); b.setAttribute('aria-label', 'Sound ' + (SAVE.prefs.sound ? 'on' : 'off') + ' (M)'); }
+  function ambient() { var on = G.game && !G.paused && !G.ended && live(); if (on) humOn(); else loopOff('hum'); }
+
+  /* ================================================================ game state */
+  var G = { tier: 'silver', game: null, acc: 0, paused: false, ended: false, keys: {}, ptr: {}, launchHold: null, edges: {}, timeScale: 1, autoplay: null, flash: {}, pops: [], parts: [], trails: [], shake: 0, lastHud: 0, rec: null, guideStep: -1, guideT: 0, portalFx: [], chamberFade: 0, viewField: 'main' };
+  var LOOP = { running: false, id: 0, last: 0, starts: 0, frames: 0 };
+  var cv = $('#table'), ctx = cv.getContext('2d'), VIEW = { s: 1, ox: 0, oy: 0, dpr: 1, w: 1, h: 1 };
+  function startLoop() { if (LOOP.running) return; LOOP.running = true; LOOP.starts++; LOOP.last = now(); LOOP.id = requestAnimationFrame(frame); }
+  function stopLoop() { LOOP.running = false; if (LOOP.id) cancelAnimationFrame(LOOP.id); LOOP.id = 0; }
+  function frame(ts) {
+    if (!LOOP.running) return; LOOP.frames++;
+    var raw = Math.min(100, ts - LOOP.last); LOOP.last = ts;   // gaps over 0.1 s are not simulated
+    if (!$('#scr-title').hidden) drawTitle(raw / 1000);
+    if (G.game && !$('#scr-game').hidden) gameFrame(raw);
+    LOOP.id = requestAnimationFrame(frame);
+  }
+
+  /* ================================================================ input → engine */
+  function input() {
+    if (G.autoplay) return G.autoplay.input(G.game);
+    var k = G.keys, p = G.ptr;
+    var e = G.edges, inp = { L: !!(k.L || p.L || p.zL || e.L), R: !!(k.R || p.R || p.zR || e.R), launch: !!(k.launch || e.launch), charge: !!(k.charge || e.charge || (G.launchHold && G.launchHold.charging)) };   // a press shorter than a frame still counts for one step
+    G.edges = {}; return inp;
+  }
+  function gameFrame(rawMs) {
+    var g = G.game;
+    if (!G.paused && !G.ended) {
+      G.acc += rawMs / 1000 * SAVE.prefs.speed * G.timeScale;
+      if (G.launchHold && !G.launchHold.charging && now() - G.launchHold.t > 220) G.launchHold.charging = true;
+      var n = 0; while (G.acc >= DT && !g.over && n++ < 4000) { g.step(input()); G.acc -= DT; handleEvents(g.drain()); }
+      if (g.over && !G.ended) onGameOver();
+      if (G.guideStep >= 0) guideTick(rawMs / 1000);
+    }
+    draw(G.paused || G.ended ? 1 : Math.min(1, G.acc / DT));
+    if (now() - G.lastHud > 100) { hud(); G.lastHud = now(); }
+  }
+
+  /* ================================================================ events → sound, light, words */
+  var WHY = { vault: 'Brass Vault', prism: 'Prism Gallery', heart: 'Clockwork Heart' };
+  function handleEvents(evs) {
+    var g = G.game, red = reduced();
+    evs.forEach(function (e) {
+      switch (e.type) {
+        case 'flip': SND.flip(); break;
+        case 'launch': SND.launch(e.power || 0.5); hideIntro(); if (G.guideStep >= 0) endGuide(); break;
+        case 'clack': SND.clack(e.speed); break;
+        case 'hit':
+          if (e.id) G.flash[e.id] = now();
+          if (e.kind === 'bumper') { SND.bumper(); spark(e.x, e.y, '#ff8ff0', 6); } else if (e.kind === 'sling') SND.sling(); else if (e.kind === 'target' || e.kind === 'door') SND.target(); else if (e.kind === 'drop') SND.drop();
+          break;
+        case 'sensor': if (e.kind === 'lane') SND.lane(); break;
+        case 'score': if (e.pts >= 250 && e.x !== undefined && e.x !== null) pop(e.x, e.y, '+' + fmt(e.pts), e.field); break;
+        case 'portal': SND.portal(); G.portalFx.push({ a: e.from, b: e.at, t: now(), id: e.id }); if (G.portalFx.length > 6) G.portalFx.shift(); spark(e.at.x, e.at.y, '#66e3ff', 10); toast(e.kind === 'ascension' ? 'Ascension Gate ▲ — up to the Astral Star' : (e.id === 'twinA' ? 'Twin Gate A → B' : 'Twin Gate B → A')); announce(e.kind === 'ascension' ? 'Ascension Gate. The ball rises to the top of the table.' : 'Twin Gate. The ball crossed to gate ' + (e.id === 'twinA' ? 'B' : 'A') + '.'); break;
+        case 'drop': break;
+        case 'letter': toast('Door target ' + 'DOOR'.charAt(e.i) + ' lit'); break;
+        case 'lane': break;
+        case 'skill': toast('Skill shot! +' + fmt(E.SCORE.skill * g.mult)); SND.key(); announce('Skill shot.'); break;
+        case 'surge': toast('Portal Surge — portals ×3 for 20 s'); SND.mult(); announce('Rune lanes complete. Portal Surge: portals score three times for 20 seconds.'); break;
+        case 'key': SND.key(); toast('Key lit: ' + e.chamber + ' — shoot the Hidden Door'); announce('Chamber key lit: ' + e.chamber + '. The Hidden Door is open.'); break;
+        case 'mbLit': toast('Multiball lit at the Ascension Gate'); SND.key(); announce('Multiball is lit at the Ascension Gate.'); break;
+        case 'multiball': SND.multiball(); toast('MULTIBALL — every portal is a jackpot'); announce('Multiball! Three balls. Portals award a jackpot.'); G.shake = red ? 0 : 6; break;
+        case 'multiballEnd': toast('Multiball over'); announce('Multiball over.'); break;
+        case 'jackpot': toast('Jackpot +' + fmt(E.SCORE.jackpot * g.mult)); break;
+        case 'astral': break;
+        case 'mult': SND.mult(); toast('Multiplier ×' + e.mult + ' — ' + e.why); announce('Multiplier now times ' + e.mult + '.'); break;
+        case 'multMax': toast('Multiplier at maximum ×' + E.MULT_MAX); break;
+        case 'comboStart': break;
+        case 'combo': SND.combo(e.n); toast('Combo ×' + e.n + ' — ' + e.shot); if (e.n >= 3) announce('Combo of ' + e.n + ' shots.'); break;
+        case 'comboEnd': toast('Combo ended at ×' + e.n); break;
+        case 'chamber': SND.chamber(); hideIntro(); G.chamberFade = now(); toast('Through the Hidden Door: ' + e.name); announce('You entered ' + e.name + '. ' + chamberGoal(e.id) + ' Time: ' + Math.round(e.until - g.t) + ' seconds.'); G.flash = {}; break;
+        case 'vault': case 'prism': case 'heart': SND.target(); break;
+        case 'chamberDone': SND.done(); toast(CH_NAME[e.id] + ' complete! +' + fmt(E.SCORE.chamber * g.mult)); announce(CH_NAME[e.id] + ' complete.'); break;
+        case 'chamberTimeout': toast('Time — the chamber returns the ball'); announce('Chamber time is up. The ball returns to the table.'); break;
+        case 'chamberDrain': toast('The ball slipped past — returned to the table'); announce('The ball left the chamber and returns to the table. No ball lost.'); break;
+        case 'chamberExit': G.chamberFade = now(); break;
+        case 'secret': SND.secret(); toast('Secret: ' + e.name + '!'); announce('Secret found: ' + e.name + '.'); break;
+        case 'save': SND.save(); toast(e.auto ? 'Ball saved' : 'Ball saved — launch again'); announce('Ball saved.'); if (!e.auto) showIntro('Ball saved', 'Launch again — the same ball.'); break;
+        case 'kickback': SND.kick(); toast('Kickback!'); break;
+        case 'kickLit': break;
+        case 'drain': if (e.left >= 1) { SND.drain(); toast('A ball drained — ' + e.left + ' still in play'); } break;
+        case 'ballOver': SND.drain(); toast('Ball lost'); announce('Ball drained. Ball ' + e.next + ' of ' + g.tier.balls + '.'); showIntro('Ball ' + e.next + ' of ' + g.tier.balls, 'The multiplier resets to ×1. Launch when ready.'); break;
+        case 'gameOver': SND.drain(); SND.over(); break;
+        case 'search': toast('Ball search — the machine nudges a stuck ball'); break;
+        case 'recovered': toast('Ball recovered'); break;
+      }
+    });
+  }
+  function chamberGoal(id) { return id === 'vault' ? 'Hit the brass targets in order, 1 to 5.' : id === 'prism' ? 'Light the four prisms. Each raises your multiplier.' : 'Strike the moving heart five times before the clock runs out.'; }
+  function pop(x, y, txt, f) { if (G.pops.length > 12) G.pops.shift(); G.pops.push({ x: x, y: y, txt: txt, t: now(), f: f || 'main' }); }
+  function spark(x, y, col, n) { if (reduced()) return; for (var i = 0; i < n; i++) { if (G.parts.length >= 60) G.parts.shift(); var a = Math.random() * 6.283, s = 80 + Math.random() * 220; G.parts.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, t: now(), col: col, f: G.game.chamber ? G.game.chamber.id : 'main' }); } }
+  var toastT = null;
+  function toast(msg) { var t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 2200); }
+  function showIntro(h, p) { $('#in-h').textContent = h; $('#in-p').textContent = p; $('#intro').hidden = false; }
+  function hideIntro() { $('#intro').hidden = true; }
+
+  /* ================================================================ rendering */
+  var STATIC = {};
+  function resize() {
+    var st = $('#stage'), r = st.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    VIEW.dpr = dpr; VIEW.w = Math.max(1, r.width); VIEW.h = Math.max(1, r.height); cv.width = Math.round(VIEW.w * dpr); cv.height = Math.round(VIEW.h * dpr); STATIC = {};
+  }
+  function fit(F) { var v = F.view, s = Math.min(VIEW.w / v.w, VIEW.h / v.h) * 0.985; VIEW.s = s; VIEW.ox = (VIEW.w - v.w * s) / 2 - v.x0 * s; VIEW.oy = (VIEW.h - v.h * s) / 2 - v.y0 * s; }
+  function staticLayer(F) {
+    var key = F.id + '|' + cv.width + 'x' + cv.height + '|' + G.tier; if (STATIC[key]) return STATIC[key];
+    var c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; var g = c.getContext('2d');
+    g.setTransform(VIEW.dpr * VIEW.s, 0, 0, VIEW.dpr * VIEW.s, VIEW.dpr * VIEW.ox, VIEW.dpr * VIEW.oy); g.lineCap = 'round'; g.lineJoin = 'round';
+    // cabinet plate
+    var pl = g.createLinearGradient(0, 0, 0, F.h); pl.addColorStop(0, '#1b1d5a'); pl.addColorStop(0.55, '#141648'); pl.addColorStop(1, '#0c0d30');
+    g.fillStyle = pl; g.beginPath(); if (F.id === 'main') { g.moveTo(20, 1100); g.lineTo(20, 300); g.arc(305, 300, 285, Math.PI, 2 * Math.PI); g.lineTo(590, 1100); } else { g.moveTo(40, 800); g.lineTo(40, 200); g.arc(300, 200, 260, Math.PI, 2 * Math.PI); g.lineTo(560, 800); } g.closePath(); g.fill();
+    // cosmic clockwork engraving: faint gears and door arches
+    g.save(); g.globalAlpha = 0.09; g.strokeStyle = '#d9b45a'; g.lineWidth = 1.2;
+    var cogs = F.id === 'main' ? [[300, 690, 110], [120, 300, 60], [470, 470, 70], [285, 400, 40]] : [[300, 380, 120], [140, 260, 50], [460, 260, 50]];
+    cogs.forEach(function (q) { cog(g, q[0], q[1], q[2], 12); }); g.globalAlpha = 0.07; for (var i = 0; i < 5; i++) { g.beginPath(); g.arc(F.w / 2, F.id === 'main' ? 820 : 620, 60 + i * 40, Math.PI * 1.15, Math.PI * 1.85); g.stroke(); } g.restore();
+    if (F.id === 'main') mainInserts(g);
+    // geometry
+    F.segs.forEach(function (s) { if (s.kind === 'drop' || s.kind === 'door' || s.kind === 'target' || s.kind === 'sling' || s.kind === 'mirror') return; var w = s.kind === 'gate' ? 3 : s.kind === 'rubber' ? 5 : s.look === 'ramp' ? 7 : 6;
+      g.strokeStyle = s.kind === 'gate' ? '#8fe3c8' : s.kind === 'rubber' ? '#f4efe2' : s.look === 'ramp' ? '#efd58f' : '#c9a45c'; g.lineWidth = w; g.beginPath(); g.moveTo(s.ax, s.ay); g.lineTo(s.bx, s.by); g.stroke();
+      if (s.kind !== 'gate' && s.kind !== 'rubber') { g.strokeStyle = 'rgba(255,240,200,.35)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(s.ax, s.ay); g.lineTo(s.bx, s.by); g.stroke(); } });
+    F.circles.forEach(function (o) { if (o.kind === 'bumper') return; if (o.tiers && o.tiers.indexOf(G.tier) < 0) return; g.fillStyle = '#c8794a'; g.beginPath(); g.arc(o.x, o.y, o.r, 0, 6.283); g.fill(); g.strokeStyle = '#f4efe2'; g.lineWidth = 1.5; g.stroke(); });
+    if (F.id === 'main') { // ramp chevrons and shooter lane
+      g.fillStyle = 'rgba(239,213,143,.22)'; for (var y = 400; y < 560; y += 40) { g.beginPath(); g.moveTo(512, y + 14); g.lineTo(525, y); g.lineTo(538, y + 14); g.lineTo(525, y + 6); g.closePath(); g.fill(); }
+      g.fillStyle = 'rgba(102,227,255,.12)'; for (var y2 = 380; y2 < 620; y2 += 40) { g.beginPath(); g.moveTo(30, y2 + 14); g.lineTo(42, y2); g.lineTo(54, y2 + 14); g.lineTo(42, y2 + 6); g.closePath(); g.fill(); }
+      g.fillStyle = '#5a4020'; g.fillRect(556, 1062, 28, 30);
+      g.fillStyle = 'rgba(244,239,226,.5)'; g.font = '600 13px system-ui, sans-serif'; g.textAlign = 'center'; g.save(); g.translate(522, 470); g.rotate(-Math.PI / 2); g.fillText('GILDED RAMP', 0, 0); g.restore(); g.save(); g.translate(42, 320); g.rotate(-Math.PI / 2); g.fillText('ORBIT', 0, 4); g.restore();
+    }
+    STATIC[key] = c; return c;
+  }
+  function cog(g, x, y, r, n) { g.beginPath(); for (var i = 0; i <= n * 2; i++) { var a = i / (n * 2) * 6.283, rr = i % 2 ? r : r * 0.86; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.closePath(); g.stroke(); g.beginPath(); g.arc(x, y, r * 0.35, 0, 6.283); g.stroke(); }
+  function mainInserts(g) { // painted (unlit) inserts — lit versions are drawn live
+    g.fillStyle = 'rgba(244,239,226,.08)'; [0, 1, 2, 3, 4].forEach(function (k) { insert(g, 205 + k * 40, 740, 13); });
+    g.fillStyle = 'rgba(244,239,226,.55)'; g.font = '700 10px system-ui, sans-serif'; g.textAlign = 'center'; [0, 1, 2, 3, 4].forEach(function (k) { g.fillText('×' + (k + 1), 205 + k * 40, 744); });
+    g.font = '700 10px system-ui, sans-serif'; g.fillText('SHOOT AGAIN', 285, 1052); g.fillText('KICK', 37, 900); g.fillText('KICK', 533, 900);
+  }
+  function insert(g, x, y, r) { g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill(); }
+  function X(x) { return x; }
+  function draw(alpha) {
+    var g = G.game; if (!g) return; var c = ctx, F = g.field(), red = reduced(), tn = now();
+    fit(F); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height);
+    var sh = G.shake > 0 ? G.shake : 0; if (sh) G.shake = Math.max(0, G.shake - 0.5);
+    c.drawImage(staticLayer(F), 0, 0);
+    c.setTransform(VIEW.dpr * VIEW.s, 0, 0, VIEW.dpr * VIEW.s, VIEW.dpr * (VIEW.ox + (sh ? (Math.random() - 0.5) * sh : 0)), VIEW.dpr * VIEW.oy); c.lineCap = 'round'; c.lineJoin = 'round';
+    if (F.id === 'main') drawMainLive(c, g, tn, red); else drawChamberLive(c, g, F, tn, red);
+    // flippers (brass)
+    var fl = g.flips(); F.flippers.forEach(function (f, i) { var a = fl[i].a, tx = f.px + Math.cos(a) * f.len, ty = f.py + Math.sin(a) * f.len, nx = -Math.sin(a), ny = Math.cos(a);
+      c.fillStyle = '#e8c068'; c.strokeStyle = '#6b4a14'; c.lineWidth = 2; c.beginPath(); c.moveTo(f.px + nx * f.r0, f.py + ny * f.r0); c.lineTo(tx + nx * f.r1, ty + ny * f.r1); c.lineTo(tx - nx * f.r1, ty - ny * f.r1); c.lineTo(f.px - nx * f.r0, f.py - ny * f.r0); c.closePath(); c.fill(); c.stroke();
+      c.beginPath(); c.arc(tx, ty, f.r1, 0, 6.283); c.fill(); c.stroke(); c.beginPath(); c.arc(f.px, f.py, f.r0, 0, 6.283); c.fill(); c.stroke(); c.strokeStyle = '#fff3c4'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(f.px + nx * (f.r0 - 3), f.py + ny * (f.r0 - 3)); c.lineTo(tx + nx * (f.r1 - 2), ty + ny * (f.r1 - 2)); c.stroke();
+      c.fillStyle = '#fff3c4'; c.beginPath(); c.arc(f.px, f.py, 4, 0, 6.283); c.fill(); });
+    // balls (interpolated between the last two physics steps)
+    g.liveBalls().forEach(function (b) { if (b.field !== F.id) return; var x = b.px + (b.x - b.px) * alpha, y = b.py + (b.y - b.py) * alpha;
+      if (!red) { var tr = G.trails[b.id] || (G.trails[b.id] = []); tr.push([x, y]); if (tr.length > 6) tr.shift(); tr.forEach(function (p, i) { c.fillStyle = 'rgba(200,230,255,' + (0.05 * i) + ')'; c.beginPath(); c.arc(p[0], p[1], E.BALL_R * (0.5 + i * 0.07), 0, 6.283); c.fill(); }); }
+      var gr = c.createRadialGradient(x - 4, y - 5, 1, x, y, E.BALL_R); gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.35, '#dfe6f2'); gr.addColorStop(0.8, '#8590a8'); gr.addColorStop(1, '#3a4258');
+      c.fillStyle = gr; c.beginPath(); c.arc(x, y, E.BALL_R, 0, 6.283); c.fill(); c.strokeStyle = '#05061a'; c.lineWidth = 1.5; c.stroke(); });
+    // particles & score pops
+    var fid = F.id; G.parts = G.parts.filter(function (p) { var a = (tn - p.t) / 500; if (a > 1) return false; if (p.f !== fid) return true; c.fillStyle = p.col; c.globalAlpha = 1 - a; c.beginPath(); c.arc(p.x + p.vx * a * 0.5, p.y + p.vy * a * 0.5, 2.2, 0, 6.283); c.fill(); c.globalAlpha = 1; return true; });
+    G.pops = G.pops.filter(function (p) { var a = (tn - p.t) / 900; if (a > 1) return false; if (p.f !== fid) return true; c.globalAlpha = 1 - a * a; c.fillStyle = '#ffe6a0'; c.strokeStyle = '#05061a'; c.lineWidth = 3; c.font = '800 15px system-ui, sans-serif'; c.textAlign = 'center'; var yy = p.y - (red ? 0 : a * 30) - 16; c.strokeText(p.txt, p.x, yy); c.fillText(p.txt, p.x, yy); c.globalAlpha = 1; return true; });
+    // chamber transition veil
+    var cf = (tn - G.chamberFade) / 350; if (cf < 1 && !red) { c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = 'rgba(5,6,26,' + (1 - cf).toFixed(3) + ')'; c.fillRect(0, 0, cv.width, cv.height); }
+    if (G.guideStep >= 0) drawGuide(c);
+  }
+  function lit(c, x, y, r, col, on, label, lcol) { c.fillStyle = on ? col : 'rgba(244,239,226,.08)'; if (on) { c.shadowColor = col; c.shadowBlur = 12; } c.beginPath(); c.arc(x, y, r, 0, 6.283); c.fill(); c.shadowBlur = 0; if (label) { c.fillStyle = on ? (lcol || '#1a1200') : 'rgba(244,239,226,.55)'; c.font = '800 ' + Math.round(r * 1.05) + 'px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(label, x, y + 0.5); c.textBaseline = 'alphabetic'; } }
+  function flashOn(id, ms) { return now() - (G.flash[id] || -1e9) < (ms || 140); }
+  function drawMainLive(c, g, tn, red) {
+    var F = g.T.main, blink = red ? true : Math.floor(tn / 250) % 2 === 0, ph = red ? 0 : tn / 1000;
+    // multiplier ladder, ball save, kickbacks
+    for (var k = 0; k < 5; k++) if (g.mult >= k + 1) lit(c, 205 + k * 40, 740, 13, '#66e3ff', true, '×' + (k + 1));
+    if (g.saveT > 0 && g.saveArmed) lit(c, 285, 1036, 9, '#8fe3c8', blink || g.saveT > 2, null);
+    if (g.kick.L) lit(c, 37, 916, 8, '#ffb547', true); if (g.kick.R) lit(c, 533, 916, 8, '#ffb547', true);
+    // rune lanes (skill-shot lane blinks while the ball waits)
+    var waiting = g.balls.some(function (b) { return b.live && b.inLane && !b.launched; });
+    ['✦', '◆', '●'].forEach(function (s, i) { var on = g.lanes[i] || (waiting && g.skillLane === i && blink); lit(c, 240 + i * 50, 160, 10, waiting && g.skillLane === i ? '#8fe3c8' : '#efd58f', on, s); });
+    // bumpers
+    F.circles.forEach(function (o) { if (o.kind !== 'bumper') return; var f = flashOn(o.id, 120); var gr = c.createRadialGradient(o.x, o.y, 2, o.x, o.y, o.r); gr.addColorStop(0, f ? '#fff' : '#ffd1f4'); gr.addColorStop(0.55, f ? '#ff9ef0' : '#c04aa6'); gr.addColorStop(1, '#4a1250');
+      c.fillStyle = gr; c.beginPath(); c.arc(o.x, o.y, o.r, 0, 6.283); c.fill(); c.strokeStyle = f ? '#fff' : '#f4efe2'; c.lineWidth = f ? 4 : 2.5; c.stroke(); c.strokeStyle = 'rgba(217,180,90,.9)'; c.lineWidth = 2; c.beginPath(); c.arc(o.x, o.y, o.r * 0.55, 0, 6.283); c.stroke(); });
+    // slingshots, standups, drops, door panel
+    F.segs.forEach(function (s) {
+      if (s.kind === 'sling') { var f = flashOn(s.id, 120); c.strokeStyle = f ? '#fff' : '#ffe58a'; c.lineWidth = f ? 7 : 5; c.beginPath(); c.moveTo(s.ax, s.ay); c.lineTo(s.bx, s.by); c.stroke(); }
+      if (s.kind === 'target') { var on = s.group === 'door' ? g.doorLit[['doorD', 'doorO1', 'doorO2', 'doorR'].indexOf(s.id)] : (s.group === 'astral' && g.t < g.astralT && blink); var fl2 = flashOn(s.id, 140);
+        c.strokeStyle = fl2 ? '#fff' : on ? '#ffd27a' : '#66e3ff'; c.lineWidth = 8; c.beginPath(); c.moveTo(s.ax, s.ay); c.lineTo(s.bx, s.by); c.stroke();
+        if (s.label) { var mx = (s.ax + s.bx) / 2 - (s.group === 'door' ? 18 : 16), my = (s.ay + s.by) / 2; lit(c, mx, my, 9, '#ffd27a', on, s.label); } }
+      if (s.kind === 'drop') { var dn = g.drops[+s.id.charAt(1) - 1]; c.strokeStyle = dn ? 'rgba(255,143,200,.18)' : '#ff8fc8'; c.lineWidth = dn ? 3 : 9; c.beginPath(); c.moveTo(s.ax, s.ay); c.lineTo(s.bx, s.by); c.stroke(); lit(c, s.ax + 18, (s.ay + s.by) / 2, 6, '#ff8fc8', dn); }
+      if (s.kind === 'door' && !g.doorOpen()) { c.fillStyle = '#7a4a24'; c.fillRect(252, 556, 66, 18); c.strokeStyle = '#c8794a'; c.lineWidth = 2; c.strokeRect(252, 556, 66, 18); c.fillStyle = '#ffd27a'; c.beginPath(); c.arc(306, 565, 2.5, 0, 6.283); c.fill(); }
+    });
+    // keys beside the door
+    ['vault', 'prism', 'heart'].forEach(function (k, i) { lit(c, 254 + i * 31, 604, 10, k === 'vault' ? '#e8b45a' : k === 'prism' ? '#a58cff' : '#ff6f8f', g.keys[k], k === 'vault' ? '▣' : k === 'prism' ? '◆' : '♥'); });
+    // portals
+    F.portals.forEach(function (p) { var active = g.portalActive(p), col = p.kind === 'twin' ? '102,227,255' : p.kind === 'ascension' ? '165,140,255' : '255,181,71', hot = (p.kind === 'ascension' && g.mbLit) || (p.kind === 'twin' && g.t < g.surgeT) || (p.kind === 'hidden' && active);
+      var r = p.r + 6; c.strokeStyle = 'rgba(' + col + ',' + (active ? 0.95 : 0.25) + ')'; c.lineWidth = 3; c.beginPath(); c.arc(p.x, p.y, r, 0, 6.283); c.stroke();
+      if (active) { c.save(); c.setLineDash([6, 7]); c.lineDashOffset = -ph * 30; c.lineWidth = 2; c.strokeStyle = 'rgba(' + col + ',0.8)'; c.beginPath(); c.arc(p.x, p.y, r + 5, 0, 6.283); c.stroke(); c.restore();
+        var gr = c.createRadialGradient(p.x, p.y, 1, p.x, p.y, r); gr.addColorStop(0, 'rgba(' + col + ',' + (hot && blink ? 0.55 : 0.32) + ')'); gr.addColorStop(1, 'rgba(' + col + ',0)'); c.fillStyle = gr; c.beginPath(); c.arc(p.x, p.y, r, 0, 6.283); c.fill(); }
+      c.fillStyle = 'rgba(244,239,226,' + (active ? 0.95 : 0.4) + ')'; c.font = '800 12px system-ui, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(p.kind === 'twin' ? (p.id === 'twinA' ? 'A' : 'B') : p.kind === 'ascension' ? '▲' : '⌂', p.x, p.y); c.textBaseline = 'alphabetic';
+      // entry arrow
+      c.strokeStyle = 'rgba(' + col + ',' + (active ? 0.7 : 0.25) + ')'; c.lineWidth = 2; var ax = p.x - p.inDir.x * (r + 14), ay = p.y - p.inDir.y * (r + 14); c.beginPath(); c.moveTo(ax - p.inDir.x * 14, ay - p.inDir.y * 14); c.lineTo(ax, ay); c.lineTo(ax - p.inDir.x * 7 - p.inDir.y * 5, ay - p.inDir.y * 7 + p.inDir.x * 5); c.moveTo(ax, ay); c.lineTo(ax - p.inDir.x * 7 + p.inDir.y * 5, ay - p.inDir.y * 7 - p.inDir.x * 5); c.stroke(); });
+    // portal exits (where a ball will emerge)
+    [['twinA', 42, 412], ['twinB', 412, 372], ['asc', 118, 168], ['door', 300, 172]].forEach(function (q) { c.strokeStyle = 'rgba(244,239,226,.35)'; c.lineWidth = 1.5; c.setLineDash([3, 4]); c.beginPath(); c.arc(q[1], q[2], 13, 0, 6.283); c.stroke(); c.setLineDash([]); });
+    // portal routes (always on in Bronze; optional otherwise)
+    if (g.tier.guide || SAVE.prefs.routes) { c.save(); c.setLineDash([5, 8]); c.lineWidth = 2; [[42, 470, 412, 372, '102,227,255', 120], [432, 330, 42, 412, '102,227,255', -90], [158, 386, 118, 168, '165,140,255', 60]].forEach(function (r) { c.strokeStyle = 'rgba(' + r[4] + ',.45)'; c.beginPath(); c.moveTo(r[0], r[1]); c.quadraticCurveTo((r[0] + r[2]) / 2 + r[5], (r[1] + r[3]) / 2 - 80, r[2], r[3]); c.stroke(); }); c.restore(); }
+    // teleport flash
+    G.portalFx = G.portalFx.filter(function (fx) { var a = (tn - fx.t) / 450; if (a > 1) return false; if (red) return true; c.strokeStyle = 'rgba(160,240,255,' + (1 - a) + ')'; c.lineWidth = 3; [fx.a, fx.b].forEach(function (p) { c.beginPath(); c.arc(p.x, p.y, 10 + a * 30, 0, 6.283); c.stroke(); }); return true; });
+    // plunger
+    var b0 = g.balls.find(function (b) { return b.live && b.inLane; }), pull = g.chargeHeld ? g.charge : 0; c.fillStyle = '#c9a45c'; c.fillRect(562, 1064 + pull * 26, 16, 26); c.fillStyle = '#f4efe2'; c.fillRect(562, 1064 + pull * 26, 16, 4);
+  }
+  function drawChamberLive(c, g, F, tn, red) {
+    var ch = g.chamber, blink = red ? true : Math.floor(tn / 250) % 2 === 0; if (!ch) return;
+    F.segs.forEach(function (s) {
+      if (s.kind === 'sling') { var f = flashOn(s.id, 120); c.strokeStyle = f ? '#fff' : '#ffe58a'; c.lineWidth = 5; c.beginPath(); c.moveTo(s.ax, s.ay); c.lineTo(s.bx, s.by); c.stroke(); }
+      if (s.kind === 'mirror') { c.strokeStyle = flashOn(s.sid, 120) ? '#fff' : '#bfe9ff'; c.lineWidth = 6; c.beginPath(); c.moveTo(s.ax, s.ay); c.lineTo(s.bx, s.by); c.stroke(); c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = 1.5; c.stroke(); }
+      if (s.kind === 'target') { var k = +s.id.replace(/\D/g, ''), on, col;
+        if (ch.id === 'vault') { on = k < ch.lit; col = '#e8b45a'; var next = k === ch.lit; c.strokeStyle = on ? '#e8b45a' : next && blink ? '#fff' : '#8a6a30'; }
+        else { on = ch.prismHit[k]; col = ['#ff6f6f', '#ffd27a', '#66e3ff', '#a58cff'][k]; c.strokeStyle = on ? col : 'rgba(244,239,226,.5)'; }
+        c.lineWidth = 10; c.beginPath(); c.moveTo(s.ax, s.ay); c.lineTo(s.bx, s.by); c.stroke();
+        var mx = (s.ax + s.bx) / 2, my = (s.ay + s.by) / 2 + 22; lit(c, mx, my, 11, col, on || (ch.id === 'vault' && k === ch.lit && blink), s.label); } });
+    F.movers.forEach(function (mv) { g.moverSegs(mv).forEach(function (s) { if (mv.kind === 'gear') { c.strokeStyle = '#c8794a'; c.lineWidth = 14; c.beginPath(); c.moveTo(s.ax, s.ay); c.lineTo(s.bx, s.by); c.stroke(); c.strokeStyle = '#efd58f'; c.lineWidth = 2; c.stroke(); } else { var f = flashOn('heart', 160); c.strokeStyle = f ? '#fff' : '#ff6f8f'; c.lineWidth = 12; c.beginPath(); c.moveTo(s.ax, s.ay); c.lineTo(s.bx, s.by); c.stroke(); lit(c, (s.ax + s.bx) / 2, s.ay - 22, 12, '#ff6f8f', true, '♥', '#2a0010'); } }); if (mv.kind === 'gear') { c.fillStyle = '#efd58f'; c.beginPath(); c.arc(mv.cx, mv.cy, 9, 0, 6.283); c.fill(); } });
+    if (ch.id === 'heart') { c.strokeStyle = 'rgba(255,111,143,.35)'; c.lineWidth = 2; c.beginPath(); c.moveTo(190, 175); c.lineTo(410, 175); c.stroke(); for (var i = 0; i < 5; i++) lit(c, 240 + i * 30, 470, 9, '#ff6f8f', i < ch.hits, '♥', '#2a0010'); }
+    // the time left, as a brass dial
+    var left = Math.max(0, ch.until - g.t), tot = ch.until - ch.start; c.strokeStyle = 'rgba(244,239,226,.2)'; c.lineWidth = 6; c.beginPath(); c.arc(505, 740, 26, 0, 6.283); c.stroke(); c.strokeStyle = left < 6 && blink ? '#ff8f8f' : '#ffb547'; c.beginPath(); c.arc(505, 740, 26, -Math.PI / 2, -Math.PI / 2 + 6.283 * left / tot); c.stroke();
+    c.fillStyle = '#f4efe2'; c.font = '800 13px system-ui, sans-serif'; c.textAlign = 'center'; c.fillText(Math.ceil(left), 505, 745);
+  }
+
+  /* ================================================================ guided first launch */
+  var GUIDE = [['Left flipper: ← or A (or the left button).', 230, 975], ['Right flipper: → or D (or the right button).', 340, 975], ['The launcher: Space or Enter. Hold ↓ or S to charge.', 570, 1040], ['Portals glow. Shoot the ball into one and it comes out somewhere else.', 42, 470], ['Your score, ball and multiplier are in the panel.', -1, -1]];
+  function startGuide() { G.guideStep = 0; G.guideT = 0; showGuideStep(); }
+  function guideTick(dt) { G.guideT += dt; if (G.guideT > 2.6) { G.guideT = 0; G.guideStep++; if (G.guideStep >= GUIDE.length) endGuide(); else showGuideStep(); } }
+  function showGuideStep() { var s = GUIDE[G.guideStep], co = $('#callout'); co.textContent = s[0]; co.hidden = false; $$('.panel .p-score, .panel .p-row').forEach(function (n) { n.classList.toggle('pulse', s[1] < 0); }); }
+  function endGuide() { G.guideStep = -1; $('#callout').hidden = true; $$('.pulse').forEach(function (n) { n.classList.remove('pulse'); }); if (!SAVE.prefs.seenGuide) { SAVE.prefs.seenGuide = true; persist(); } }
+  function drawGuide(c) { var s = GUIDE[G.guideStep]; if (!s || s[1] < 0 || G.game.chamber) return; var pul = reduced() ? 0 : Math.sin(now() / 200) * 4; c.strokeStyle = '#66e3ff'; c.lineWidth = 4; c.beginPath(); c.arc(s[1], s[2], 34 + pul, 0, 6.283); c.stroke(); }
+
+  /* ================================================================ HUD and objectives */
+  function objectives(g) {
+    var t = g.tier, o = [], ch = g.chamber;
+    if (ch) { o.push(['lit', CH_NAME[ch.id] + ': ' + chamberGoal(ch.id)]); return o; }
+    var letters = 'DOOR'.split('').map(function (L, i) { return g.doorLit[i] ? L : '·'; }).join(' ');
+    o.push([g.keys.vault ? 'done' : '', '<b>D-O-O-R</b> targets ' + letters + ' → Brass Vault key']);
+    o.push([g.keys.prism ? 'done' : '', '<b>Prism Bank</b> drops ' + g.drops.filter(Boolean).length + '/3' + (t.bankForPrism > 1 ? ' (bank ' + Math.min(g.prismProgress, t.bankForPrism) + '/' + t.bankForPrism + ')' : '') + ' → ×+1 and Prism key']);
+    o.push([g.keys.heart ? 'done' : '', '<b>Gilded Ramp</b> ' + (g.rampCount % t.rampsForHeart) + '/' + t.rampsForHeart + ' → Clockwork key']);
+    o.push([g.mbLit ? 'lit' : '', '<b>Twin Gates</b> ' + (g.mbLit ? 'Multiball lit at the Ascension Gate' : g.gateCount + '/' + t.gatesForMultiball + ' → Multiball')]);
+    o.push([g.t < g.surgeT ? 'lit' : '', '<b>Rune lanes</b> ' + ['✦', '◆', '●'].map(function (s, i) { return g.lanes[i] ? s : '·'; }).join(' ') + ' → Portal Surge']);
+    var door = g.doorTarget(); o.push([door && g.doorOpen() ? 'lit' : '', '<b>Hidden Door</b> ' + (door ? (g.doorOpen() ? 'OPEN → ' + CH_NAME[door] : 'closed during multiball') : 'closed — light a key')]);
+    return o;
+  }
+  var lastObj = '';
+  function hud() {
+    var g = G.game; if (!g) return;
+    $('#h-score').textContent = fmt(g.score); $('#h-ball').textContent = Math.min(g.ballNo, g.tier.balls) + ' / ' + g.tier.balls; $('#h-mult').textContent = '×' + g.mult;
+    $('#h-combo').textContent = g.combo.n >= 2 ? '×' + g.combo.n : (g.combo.n === 1 ? 'started' : '—');
+    var flags = []; if (g.saveT > 0 && g.saveArmed) flags.push(['hot', 'Ball save ' + Math.ceil(g.saveT) + ' s']); if (g.t < g.surgeT) flags.push(['hot', 'Surge ' + Math.ceil(g.surgeT - g.t) + ' s']); if (g.t < g.astralT) flags.push(['on', 'Astral ×2']);
+    if (g.liveBalls().length > 1 || g.mbQueue) flags.push(['hot', 'Multiball']); if (g.kick.L) flags.push(['on', 'Kickback L']); if (g.kick.R) flags.push(['on', 'Kickback R']);
+    var fh = flags.map(function (f) { return f[0] + '|' + f[1]; }).join(','); var box = $('#h-flags'); if (box.dataset.v !== fh) { box.dataset.v = fh; box.textContent = ''; flags.forEach(function (f) { box.appendChild(el('span', { class: 'flag ' + f[0] }, f[1])); }); }
+    var ob = objectives(g), key = JSON.stringify(ob); if (key !== lastObj) { lastObj = key; var ul = $('#h-objs'); ul.textContent = ''; ob.forEach(function (o) { var li = el('li', { class: o[0] }); li.appendChild(el('span', { class: 'm', 'aria-hidden': 'true' }, o[0] === 'done' ? '✓' : o[0] === 'lit' ? '★' : '○')); var sp = el('span'); setRich(sp, o[1]); li.appendChild(sp); ul.appendChild(li); }); }
+    var ch = g.chamber, chh = $('#chamber-hud'); if (ch) { chh.hidden = false; $('#ch-name').textContent = CH_NAME[ch.id]; $('#ch-goal').textContent = ch.id === 'vault' ? 'Target ' + Math.min(5, ch.lit + 1) + ' of 5' : ch.id === 'prism' ? ch.progress + ' of 4 prisms' : ch.hits + ' of 5 strikes'; $('#ch-time').textContent = Math.ceil(Math.max(0, ch.until - g.t)) + ' s'; } else chh.hidden = true;
+  }
+  function setRich(node, html) { // only our own fixed strings, split on <b> — never untrusted text
+    html.split(/(<b>.*?<\/b>)/).forEach(function (part) { if (!part) return; var m = /^<b>(.*)<\/b>$/.exec(part); node.appendChild(m ? el('b', null, m[1]) : document.createTextNode(part)); });
+  }
+  function statusText() {
+    var g = G.game; if (!g) return ''; var parts = ['Score ' + fmt(g.score) + '.', 'Ball ' + Math.min(g.ballNo, g.tier.balls) + ' of ' + g.tier.balls + '.', 'Multiplier times ' + g.mult + '.'];
+    if (g.chamber) parts.push('In ' + CH_NAME[g.chamber.id] + ', ' + Math.ceil(g.chamber.until - g.t) + ' seconds left.');
+    var bs = g.liveBalls(); bs.forEach(function (b) { if (b.inLane && b.field === 'main') parts.push('A ball waits in the launcher.'); else parts.push('Ball ' + (b.y > (g.field().h * 0.7) ? 'low, near the flippers' : b.y > g.field().h * 0.35 ? 'mid-table' : 'high on the table') + (b.x < g.field().w * 0.4 ? ', left side.' : b.x > g.field().w * 0.6 ? ', right side.' : ', centre.')); });
+    objectives(g).forEach(function (o) { parts.push(o[1].replace(/<\/?b>/g, '') + '.'); }); return parts.join(' ');
+  }
+
+  /* ================================================================ input */
+  var KEYMAP = { ArrowLeft: 'L', a: 'L', A: 'L', ShiftLeft: 'L', ArrowRight: 'R', d: 'R', D: 'R', ShiftRight: 'R', ' ': 'launch', Enter: 'launch', ArrowDown: 'charge', s: 'charge', S: 'charge' };
+  function keyOf(ev) { if (ev.code === 'ShiftLeft' || ev.code === 'ShiftRight') return KEYMAP[ev.code]; return KEYMAP[ev.key]; }
+  function anyDialog() { return $$('dialog').some(function (d) { return d.open; }); }
+  window.addEventListener('keydown', function (ev) {
+    if (!AU.unlocked) audioInit();
+    if (anyDialog()) { if ($('#d-pause').open && !$('#d-guide').open && !$('#d-settings').open && !$('#d-confirm').open && (ev.key === 'p' || ev.key === 'P') && !ev.repeat) { ev.preventDefault(); resume(); } return; }
+    if ($('#scr-game').hidden || !G.game || G.ended) return;
+    var k = keyOf(ev), tag = document.activeElement && document.activeElement.tagName;
+    if (k) { ev.preventDefault(); if (G.paused) return; G.keys[k] = true; if (!ev.repeat) G.edges[k] = true; return; }   // game keys never activate a focused button
+    if (ev.repeat) return;
+    if (ev.key === 'Escape' || ev.key === 'p' || ev.key === 'P') { ev.preventDefault(); if (G.paused) resume(); else pause('menu'); return; }
+    if (ev.key === 'm' || ev.key === 'M') { setSound(!SAVE.prefs.sound); return; }
+    if (ev.key === 't' || ev.key === 'T') { announce(statusText()); return; }
+  });
+  window.addEventListener('keyup', function (ev) { var k = keyOf(ev); if (k) G.keys[k] = false; });
+  // pointer controls: buttons and the two halves of the table (each pointer tracked separately → true multi-touch)
+  var PTR = {};
+  function ptrDown(ev, zone) { if (!AU.unlocked) audioInit(); if (G.paused || !G.game || G.ended) return; ev.preventDefault(); try { ev.target.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ } PTR[ev.pointerId] = zone; syncPtr(); if (zone !== 'launch') G.edges[zone === 'zL' ? 'L' : zone === 'zR' ? 'R' : zone] = true; if (zone === 'launch') G.launchHold = { t: now(), charging: false }; }
+  function ptrUp(ev) { var z = PTR[ev.pointerId]; if (z === undefined) return; delete PTR[ev.pointerId]; if (z === 'launch' && G.launchHold) { if (!G.launchHold.charging && ev.type === 'pointerup') G.edges.launch = true; G.launchHold = null; } syncPtr(); }
+  function syncPtr() { var p = {}; Object.keys(PTR).forEach(function (id) { p[PTR[id]] = true; }); G.ptr = p; $('#c-left').classList.toggle('on', !!(p.L || p.zL)); $('#c-right').classList.toggle('on', !!(p.R || p.zR)); $('#c-launch').classList.toggle('on', !!p.launch); }
+  [['#c-left', 'L'], ['#c-right', 'R'], ['#c-launch', 'launch']].forEach(function (q) { var b = $(q[0]); b.addEventListener('pointerdown', function (ev) { ptrDown(ev, q[1]); }); ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (t) { b.addEventListener(t, ptrUp); }); b.addEventListener('contextmenu', function (e) { e.preventDefault(); }); b.addEventListener('click', function (e) { e.preventDefault(); }); b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') e.preventDefault(); }); });
+  cv.addEventListener('pointerdown', function (ev) { if (ev.pointerType === 'mouse' && ev.button !== 0) return; var r = cv.getBoundingClientRect(); ptrDown(ev, ev.clientX - r.left < r.width / 2 ? 'zL' : 'zR'); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (t) { cv.addEventListener(t, ptrUp); });
+  cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  document.addEventListener('touchmove', function (e) { if (!$('#scr-game').hidden && !anyDialog()) e.preventDefault(); }, { passive: false });
+  function releaseAll() { G.keys = {}; G.edges = {}; PTR = {}; G.launchHold = null; syncPtr(); }
+  window.addEventListener('blur', function () { releaseAll(); pause('blur'); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { releaseAll(); pause('hidden'); } });
+  function detectTouch() { var t = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.matchMedia && matchMedia('(pointer: coarse)').matches); document.body.classList.toggle('touch', !!t); }
+
+  /* ================================================================ screens & flow */
+  function show(id) { ['#scr-title', '#scr-game', '#scr-final'].forEach(function (s) { $(s).hidden = s !== id; }); document.body.classList.toggle('flying', id === '#scr-game'); if (id === '#scr-game') { requestAnimationFrame(function () { resize(); }); } }
+  function selectedTier() { var r = $('input[name=tier]:checked'); return r ? r.value : 'silver'; }
+  function startGame(tier) {
+    closeDialogs(); G.tier = tier; SAVE.prefs.tier = tier; persist(); G.game = new E.Game(tier); G.acc = 0; G.paused = false; G.ended = false; G.flash = {}; G.pops = []; G.parts = []; G.trails = {}; G.portalFx = []; G.chamberFade = -1e9; releaseAll(); lastObj = '';
+    show('#scr-game'); showIntro('Ball 1 of ' + G.game.tier.balls, ''); setIntroText(); handleEvents(G.game.drain()); STATIC = {}; resize(); hud(); startLoop(); ambient();
+    if (!SAVE.prefs.seenGuide && !G.autoplay) startGuide(); announce('Portal Pinball, ' + G.game.tier.label + '. Ball 1 of ' + G.game.tier.balls + '. Press Space to launch.');
+  }
+  function setIntroText() { var p = $('#in-p'); p.textContent = ''; var touch = document.body.classList.contains('touch'); [touch ? 'Tap Launch (hold to charge), or press Space. ' : 'Press Space or Enter to launch (hold ↓/S to charge). ', touch ? 'Hold the flipper buttons — or touch the left or right half of the table.' : '← / A and → / D work the flippers.'].forEach(function (t) { p.appendChild(document.createTextNode(t)); }); }
+  function pause(reason) { if (!G.game || G.paused || G.ended || $('#scr-game').hidden) return; G.paused = true; releaseAll(); ambient(); $('#dp-msg').textContent = (reason === 'hidden' ? 'You left the page, so the machine paused. ' : reason === 'blur' ? 'The window lost focus, so the machine paused. ' : '') + 'The ball is frozen where it was.'; openDlg('#d-pause'); }
+  function resume() { closeDialogs(); G.paused = false; releaseAll(); LOOP.last = now(); ambient(); if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }
+  function closeDialogs() { $$('dialog').forEach(function (d) { if (d.open) d.close(); }); }
+  function openDlg(s) { var d = $(s); if (!d.open) { try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } } }
+  function toTitle() { closeDialogs(); G.game = null; G.ended = false; G.paused = false; releaseAll(); allLoopsOff(); show('#scr-title'); refreshTitle(); startLoop(); $('#b-play').focus(); }
+  function onGameOver() {
+    var g = G.game; G.ended = true; releaseAll(); allLoopsOff(); var t = g.tierId, r = SAVE.records[t], prevBest = r.best;
+    r.games++; r.best = Math.max(r.best, g.score); r.maxMult = Math.max(r.maxMult, g.maxMult); r.bestCombo = Math.max(r.bestCombo, g.combo.best); r.bestPortals = Math.max(r.bestPortals, g.stats.portals); r.chambersDone += g.stats.chambersDone;
+    CH_IDS.forEach(function (c) { if (g.found[c] && r.discovered.indexOf(c) < 0) r.discovered.push(c); });
+    var got = []; function ach(k, ok) { if (ok && SAVE.ach.indexOf(k) < 0) { SAVE.ach.push(k); got.push(k); } }
+    ach('firstPortal', g.stats.portals > 0); ach('allPortals', g.stats.twin > 0 && g.stats.ascension > 0 && g.stats.chambersEntered > 0); CH_IDS.forEach(function (c) { ach(c, !!g.found[c]); }); ach('chamberDone', g.stats.chambersDone > 0);
+    ach('allChambers', !!(g.found.vaultDone && g.found.prismDone && g.found.heartDone)); ach('multiball', g.stats.multiballs > 0); ach('mult5', g.maxMult >= 5); ach('combo5', g.combo.best >= 5); ach('skill', g.stats.skill > 0); ach('paradox', g.stats.secrets > 0); ach('million', g.score >= 1e6);
+    persist(); G.rec = { prevBest: prevBest, isBest: g.score > prevBest, got: got };
+    setTimeout(function () { if (G.game === g) showFinal(); }, DEV && G.timeScale > 1 ? 10 : 900);
+  }
+  function showFinal() {
+    var g = G.game, t = g.tierId, r = SAVE.records[t]; show('#scr-final');
+    $('#f-k').textContent = 'Game over · ' + g.tier.label + ' — ' + g.tier.name; $('#f-h').textContent = g.score >= 1e6 ? 'The Impossible Machine bows to you' : g.stats.chambersDone ? 'You walked through the Hidden Door' : 'The machine falls silent';
+    $('#f-sub').textContent = fmt(g.score) + ' points over ' + g.ballsPlayed + ' ball' + (g.ballsPlayed === 1 ? '' : 's') + '.';
+    $('#f-pb').textContent = G.rec.isBest ? (G.rec.prevBest ? 'A new personal best (previous ' + fmt(G.rec.prevBest) + ').' : 'Your first record on this tier.') : 'Personal best: ' + fmt(r.best) + '.';
+    var st = $('#f-stats'); st.textContent = '';
+    [['Final score', fmt(g.score)], ['Balls played', String(g.ballsPlayed)], ['Highest multiplier', '×' + g.maxMult], ['Best combo', g.combo.best >= 2 ? g.combo.best + ' shots' : '—'], ['Portal traversals', String(g.stats.portals)], ['Chambers completed', g.stats.chambersDone + ' (of ' + g.stats.chambersEntered + ' entered)'], ['Targets completed', String(g.stats.targets)], ['Personal best', fmt(r.best)]]
+      .forEach(function (q) { var d = el('div', { class: 'stat' }); d.appendChild(el('strong', null, q[1])); d.appendChild(el('span', null, q[0])); st.appendChild(d); });
+    var ul = $('#f-ch'); ul.textContent = ''; CH_IDS.forEach(function (c) { var li = el('li', { class: g.found[c + 'Done'] ? 'done' : g.found[c] ? 'lit' : '' }); li.appendChild(el('span', { class: 'm', 'aria-hidden': 'true' }, g.found[c + 'Done'] ? '✓' : g.found[c] ? '★' : '○')); li.appendChild(el('span', null, CH_NAME[c] + ' — ' + (g.found[c + 'Done'] ? 'completed' : g.found[c] ? 'discovered' : 'not found this game'))); ul.appendChild(li); });
+    if (G.rec.got.length) { var li2 = el('li', { class: 'lit' }); li2.appendChild(el('span', { class: 'm' }, '★')); li2.appendChild(el('span', null, 'New achievements: ' + G.rec.got.map(function (k) { return ACH.find(function (a) { return a[0] === k; })[1]; }).join(', '))); ul.appendChild(li2); }
+    $('#f-share').textContent = E.shareText({ tier: t, score: g.score, mult: g.maxMult, combo: g.combo.best, portals: g.stats.portals, chambers: g.stats.chambersDone }); $('#f-note').textContent = '';
+    announce('Game over. Final score ' + fmt(g.score) + '.'); $('#f-again').focus();
+  }
+  function copyShare() { var txt = $('#f-share').textContent, note = $('#f-note');
+    function ok() { note.textContent = 'Result copied.'; } function fail() { if (fallbackCopy(txt)) ok(); else note.textContent = 'Copy is blocked here — select the text below and copy it.'; }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, fail); else fail(); }
+  function fallbackCopy(txt) { try { var ta = el('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); var r = document.execCommand('copy'); document.body.removeChild(ta); return r; } catch (e) { return false; } }
+
+  /* ================================================================ title art & title screen */
+  var TA = { t: 0 }, tcv = $('#title-art'), tctx = tcv.getContext('2d');
+  function sizeTitle() { var r = tcv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1); tcv.width = Math.max(1, Math.round(r.width * d)); tcv.height = Math.max(1, Math.round(r.height * d)); TA.d = d; }
+  function drawTitle(dt) {
+    var c = tctx, W = tcv.width, H = tcv.height; if (W < 2) { sizeTitle(); return; } var red = reduced(); TA.t += red ? 0 : dt;
+    c.setTransform(1, 0, 0, 1, 0, 0); var gr = c.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#0b0c2e'); gr.addColorStop(1, '#05061a'); c.fillStyle = gr; c.fillRect(0, 0, W, H);
+    var s = Math.min(W / 1400, H / 820) * 1.1, cx = W * 0.72, cy = H * 0.52; c.setTransform(s, 0, 0, s, cx, cy); c.lineCap = 'round';
+    c.globalAlpha = 0.18; c.strokeStyle = '#d9b45a'; c.lineWidth = 2; cog(c, -230, -150, 120, 14); cog(c, 220, 170, 90, 12); c.globalAlpha = 1;
+    for (var i = 0; i < 4; i++) { var a = TA.t * (0.6 + i * 0.15) + i; c.strokeStyle = 'rgba(102,227,255,' + (0.6 - i * 0.12) + ')'; c.lineWidth = 6 - i; c.beginPath(); c.ellipse(-120, -40, 90 + i * 22, 140 + i * 30, 0, a, a + 4.6); c.stroke(); }
+    c.strokeStyle = 'rgba(165,140,255,.8)'; c.lineWidth = 5; c.beginPath(); c.ellipse(170, -150, 60, 92, 0, 0, 6.283); c.stroke();
+    var bx = -120 + Math.cos(TA.t * 1.3) * 40, by = -40 + Math.sin(TA.t * 1.7) * 60; var bg = c.createRadialGradient(bx - 8, by - 10, 2, bx, by, 26); bg.addColorStop(0, '#fff'); bg.addColorStop(0.5, '#cfd8e8'); bg.addColorStop(1, '#3a4258'); c.fillStyle = bg; c.beginPath(); c.arc(bx, by, 26, 0, 6.283); c.fill();
+    c.fillStyle = '#e8c068'; c.strokeStyle = '#6b4a14'; c.lineWidth = 3; [[-270, 250, 0.42], [130, 250, Math.PI - 0.42]].forEach(function (f) { c.save(); c.translate(f[0], f[1]); c.rotate(f[2]); c.beginPath(); c.moveTo(0, -18); c.lineTo(170, -9); c.arc(170, 0, 9, -Math.PI / 2, Math.PI / 2); c.lineTo(0, 18); c.arc(0, 0, 18, Math.PI / 2, -Math.PI / 2); c.fill(); c.stroke(); c.restore(); });
+  }
+  function refreshTitle() {
+    var t = SAVE.prefs.tier; $$('input[name=tier]').forEach(function (i) { i.checked = i.value === t; });
+    E.TIER_IDS.forEach(function (k) { var r = SAVE.records[k], s = $('.tier-stat[data-t="' + k + '"]'); s.textContent = r.games ? 'Best ' + fmt(r.best) + ' · ' + r.games + ' game' + (r.games === 1 ? '' : 's') + ' · chambers found ' + r.discovered.length + '/3' : ''; });
+    var n = notes.slice(); if (!storageOk) n.push('Your browser is not saving data here — records will not be kept after you leave.'); $('#t-note').textContent = n.join(' ');
+  }
+
+  /* ================================================================ dialogs */
+  function guideBody() {
+    var b = $('#dg-body'); b.textContent = ''; var t = E.TIERS[G.game ? G.game.tierId : selectedTier()], grid = el('div', { class: 'guide-grid' });
+    function sec(h, items) { var s = el('section'); s.appendChild(el('h3', null, h)); var ul = el('ul'); items.forEach(function (i) { ul.appendChild(el('li', null, i)); }); s.appendChild(ul); grid.appendChild(s); }
+    sec('Portal connections', ['Twin Gate A (left orbit, shoot it moving up) → the ball comes out of Twin Gate B, heading down toward the centre.', 'Twin Gate B (between the pillars right of centre, shoot it up-right) → out of Twin Gate A, continuing up the orbit and round the top.', 'The Ascension Gate (left scoop, shoot it up-left) → released high on the left, across the top toward the Astral Star (double value for 10 s).', 'Portals only take a ball travelling INTO them, fast enough. Speed is kept; direction turns with the gates.']);
+    sec('Hidden chambers', ['Brass Vault key: light D-O-O-R (the four right-side targets).', 'Prism Gallery key: knock down the Prism Bank (three left drops)' + (t.bankForPrism > 1 ? ' ' + t.bankForPrism + ' times.' : '.'), 'Clockwork Heart key: ' + t.rampsForHeart + ' Gilded Ramp shots.', 'With a key lit the Hidden Door (centre) opens; shoot it to go through. Chambers have their own flippers and a ' + t.chamberTime + ' s clock (Heart: ' + t.heartTime + ' s). Finish, run out of time or let the ball slip past — it returns to the main table, never lost. The door stays shut during multiball.']);
+    sec('Multiplier & combos', ['Multiplier ×1 → ×' + E.MULT_MAX + ': +1 for each completed Prism Bank and for each prism lit in the Prism Gallery. It multiplies every point and resets when a ball drains.', 'Combo: major shots (portals, ramp, completed banks, lanes, chambers) within ' + t.combo + ' s of each other build a combo; each extra shot pays 1,000 × (combo − 1) × multiplier.']);
+    sec('Special targets & modes', ['Rune lanes ✦ ◆ ● (top): light all three for Portal Surge — portals ×3 for ' + E.SURGE_TIME + ' s. Flippers move the lit runes.', 'Skill shot: from the plunger, roll through the blinking lane first.', 'Twin Gates ' + t.gatesForMultiball + ' times light Multiball at the Ascension Gate: three balls, and every portal pays a jackpot.', 'Some combinations are secret. The gates remember how you use them.']);
+    sec('Ball save & safety (' + t.label + ')', ['Ball save: ' + t.save + ' s after each launch — a drain returns the ball to the launcher.', t.kickbacks === 'both' ? 'Kickbacks on both outlanes, relit 20 s after use. A centre post guards the gap between the flippers.' : t.kickbacks === 'left' ? 'Left kickback lit at the start of each ball, relit by the rune lanes.' : 'No kickbacks.', 'Points: bumper 100 · slingshot 50 · target 250 · bank 1,000 · ramp 750 · portal 500 · chamber 5,000 (all × multiplier).']);
+    b.appendChild(grid);
+  }
+  function openRecords() {
+    var b = $('#dr-body'); b.textContent = ''; var tb = el('table', { class: 'rtbl' }), th = el('tr'); ['', 'Bronze', 'Silver', 'Gold'].forEach(function (h) { th.appendChild(el('th', null, h)); }); tb.appendChild(th);
+    [['Best score', function (r) { return fmt(r.best); }], ['Games played', function (r) { return r.games; }], ['Highest multiplier', function (r) { return '×' + r.maxMult; }], ['Best combo', function (r) { return r.bestCombo >= 2 ? r.bestCombo + ' shots' : '—'; }], ['Most portal traversals', function (r) { return r.bestPortals; }], ['Chambers discovered', function (r) { return r.discovered.length + ' / 3'; }], ['Chambers completed (total)', function (r) { return r.chambersDone; }]]
+      .forEach(function (q) { var tr = el('tr'); tr.appendChild(el('td', null, q[0])); E.TIER_IDS.forEach(function (t) { tr.appendChild(el('td', { class: 'n' }, String(q[1](SAVE.records[t])))); }); tb.appendChild(tr); });
+    b.appendChild(tb); b.appendChild(el('h3', null, 'Achievements')); var a = el('div', { class: 'ach' }); ACH.forEach(function (x) { a.appendChild(el('span', { class: SAVE.ach.indexOf(x[0]) >= 0 ? 'got' : '' }, (SAVE.ach.indexOf(x[0]) >= 0 ? '★ ' : '○ ') + (x[0] === 'paradox' && SAVE.ach.indexOf('paradox') < 0 ? 'A secret of the gates' : x[1]))); }); b.appendChild(a);
+    openDlg('#d-records');
+  }
+  function openSettings() { $('#s-sound').checked = SAVE.prefs.sound; $('#s-vol').value = SAVE.prefs.volume; $('#s-vol-v').textContent = SAVE.prefs.volume + '%'; $('#s-motion').value = SAVE.prefs.motion; $('#s-speed').value = String(SAVE.prefs.speed); $('#s-routes').checked = SAVE.prefs.routes; $('#s-large').checked = SAVE.prefs.large; openDlg('#d-settings'); }
+  var confirmFn = null; function confirmDlg(txt, fn) { $('#dc-p').textContent = txt; confirmFn = fn; openDlg('#d-confirm'); }
+
+  /* ================================================================ wiring */
+  $('#b-play').addEventListener('click', function () { audioInit(); startGame(selectedTier()); });
+  $$('input[name=tier]').forEach(function (i) { i.addEventListener('change', function () { SAVE.prefs.tier = selectedTier(); persist(); }); });
+  $('#b-howto').addEventListener('click', function () { openDlg('#d-howto'); });
+  $('#b-guide').addEventListener('click', function () { guideBody(); openDlg('#d-guide'); });
+  $('#b-guide2').addEventListener('click', function () { pause('menu'); guideBody(); openDlg('#d-guide'); });
+  $('#b-records').addEventListener('click', openRecords);
+  $('#b-settings').addEventListener('click', openSettings);
+  $('#b-pause').addEventListener('click', function () { pause('menu'); });
+  $('#b-mute').addEventListener('click', function () { audioInit(); setSound(!SAVE.prefs.sound); });
+  $('#dp-resume').addEventListener('click', resume);
+  $('#dp-guide').addEventListener('click', function () { guideBody(); openDlg('#d-guide'); });
+  $('#dp-settings').addEventListener('click', openSettings);
+  $('#dp-restart').addEventListener('click', function () { confirmDlg('Restart the game? This game will not be recorded.', function () { startGame(G.game.tierId); }); });
+  $('#dp-quit').addEventListener('click', function () { confirmDlg('Return to the title? This game will not be recorded.', toTitle); });
+  $('#dc-yes').addEventListener('click', function () { var f = confirmFn; confirmFn = null; $('#d-confirm').close(); if (f) f(); });
+  $('#dc-no').addEventListener('click', function () { confirmFn = null; $('#d-confirm').close(); });
+  $('#dr-reset').addEventListener('click', function () { confirmDlg('Erase all Portal Pinball records and achievements in this browser? Settings are kept.', function () { var p = SAVE.prefs; SAVE = blank(); SAVE.prefs = p; persist(); $('#d-records').close(); refreshTitle(); }); });
+  $$('dialog [data-close]').forEach(function (b) { b.addEventListener('click', function () { b.closest('dialog').close(); }); });
+  $$('dialog').forEach(function (d) { d.addEventListener('close', function () { if (d.id === 'd-pause' && G.paused && !G.ended && !$('#scr-game').hidden && !anyDialog()) resume(); if ((d.id === 'd-guide' || d.id === 'd-settings') && G.paused && !$('#d-pause').open && !anyDialog() && G.game && !G.ended) openDlg('#d-pause'); }); });
+  $('#s-sound').addEventListener('change', function (e) { audioInit(); setSound(e.target.checked); });
+  $('#s-vol').addEventListener('input', function (e) { SAVE.prefs.volume = +e.target.value; $('#s-vol-v').textContent = SAVE.prefs.volume + '%'; if (AU.master && SAVE.prefs.sound) AU.master.gain.value = SAVE.prefs.volume / 100 * 0.6; persist(); });
+  $('#s-motion').addEventListener('change', function (e) { SAVE.prefs.motion = e.target.value; persist(); applyPrefs(); });
+  $('#s-speed').addEventListener('change', function (e) { SAVE.prefs.speed = +e.target.value; persist(); });
+  $('#s-routes').addEventListener('change', function (e) { SAVE.prefs.routes = e.target.checked; persist(); });
+  $('#s-large').addEventListener('change', function (e) { SAVE.prefs.large = e.target.checked; persist(); applyPrefs(); setTimeout(resize, 50); });
+  $('#f-again').addEventListener('click', function () { startGame(G.game ? G.game.tierId : selectedTier()); });
+  $('#f-copy').addEventListener('click', copyShare);
+  $('#f-title').addEventListener('click', toTitle);
+  window.addEventListener('resize', function () { sizeTitle(); if (!$('#scr-game').hidden) resize(); detectTouch(); });
+  if (mq && mq.addEventListener) mq.addEventListener('change', applyPrefs);
+
+  // unsupported browsers: say so plainly instead of failing silently
+  if (!cv.getContext || !window.requestAnimationFrame) { $('#t-note').textContent = 'This browser cannot run Portal Pinball (Canvas and animation frames are required).'; $('#b-play').disabled = true; }
+  detectTouch(); applyPrefs(); syncMute(); refreshTitle(); sizeTitle(); startLoop();
+
+  if (DEV) window.__pp = { E: E, G: G, get SAVE() { return SAVE; }, saves: function () { return saves; }, start: startGame, toTitle: toTitle,
+    setAutoplay: function (on, seed) { G.autoplay = on ? new E.Autoplay(seed || 'dev') : null; }, setTimeScale: function (s) { G.timeScale = s; },
+    controls: function () { return { keys: Object.assign({}, G.keys), ptr: Object.assign({}, G.ptr), launchHold: !!G.launchHold }; }, view: function () { return Object.assign({}, VIEW); },
+    toClient: function (x, y) { var r = cv.getBoundingClientRect(); return { x: r.left + VIEW.ox + x * VIEW.s, y: r.top + VIEW.oy + y * VIEW.s }; },
+    stats: function () { return { hasAudio: !!AU.ctx, voices: AU.voices, loops: Object.keys(AU.loops), loopStarts: LOOP.starts, particles: G.parts.length, pops: G.pops.length, frames: LOOP.frames }; } };
+})();
+
+</script>
+</body>
+</html>
