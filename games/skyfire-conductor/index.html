@@ -1,0 +1,1208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="doorquests:status" content="Prototype · Founder Playtest · Not Published">
+<meta name="description" content="Gamortal #007 · Skyfire Conductor — launch fireworks, ignite chain reactions, conduct the night sky. DoorQuests prototype for founder playtesting.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#070820">
+<title>Skyfire Conductor | DoorQuests Gamortals</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23070820'/%3E%3Cg stroke='%23f3d98a' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M32 14v10M32 40v10M14 32h10M40 32h10M20 20l7 7M37 37l7 7M44 20l-7 7M27 37l-7 7'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='4' fill='%23c08cff'/%3E%3C/svg%3E">
+<style>
+:root {
+  --night: #070820; --indigo: #15163f; --panel: #11133a; --panel2: #1b1e4e; --line: #2c2f6e;
+  --gold: #e2b450; --gold2: #f3d98a; --amber: #ffae4a; --violet: #c08cff; --ivory: #f6f1e4; --dim: #c9c7dc; --mute: #a3a5c6;
+  --ok: #8fe3a2; --bad: #ff9a86;
+  --focus: 0 0 0 3px #070820, 0 0 0 5px #f3d98a;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { background: var(--night); }
+body { min-height: 100vh; min-height: 100dvh; color: var(--ivory); font: 16px/1.5 var(--sans); display: flex; flex-direction: column; overflow-x: hidden; background: var(--night); }
+a { color: var(--gold2); }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 8px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--gold); color: #111; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 8px; }
+[hidden] { display: none !important; }
+.top { display: flex; align-items: center; gap: 10px; padding: 7px 14px; border-bottom: 1px solid #23255a; background: rgba(7, 8, 32, .94); flex-wrap: wrap; position: relative; z-index: 5; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ivory); font: 600 18px/1 var(--serif); }
+.brand-door { width: 16px; height: 22px; border: 2px solid var(--gold); border-radius: 8px 8px 1px 1px; box-shadow: inset 0 0 6px rgba(226, 180, 80, .6); }
+.crumb { color: var(--dim); font-size: 14px; display: inline-flex; gap: 6px; }
+.crumb-col { color: var(--gold2); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; align-self: center; }
+.badge { margin-left: auto; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px dashed var(--amber); color: var(--amber); }
+main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
+.btn { appearance: none; border: 1px solid #3c3f8f; background: var(--panel2); color: var(--ivory); border-radius: 10px; padding: 10px 16px; font: 600 15px/1.2 var(--sans); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
+.btn:hover:not([disabled]) { border-color: var(--gold); }
+.btn-primary { background: linear-gradient(#f2d784, #d2a03a); color: #1b1606; border-color: #f3d98a; }
+.btn-big { font-size: 18px; padding: 14px 26px; }
+.btn-quiet { background: rgba(17, 19, 58, .7); }
+.btn-danger { border-color: var(--bad); color: #ffd9cc; background: #3a1c26; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.stack { display: grid; gap: 10px; margin: 12px 0; }
+.note { min-height: 1.3em; color: var(--gold2); font-size: 14px; margin: 8px 0 0; }
+.muted { color: var(--mute); } .small { font-size: 13px; }
+.k { color: var(--mute); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
+.kicker { margin: 0 0 6px; color: var(--gold2); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+
+/* ---------- title ---------- */
+.title-sky { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.title-wrap { position: relative; padding: 24px 16px 20px; max-width: 640px; margin-left: max(16px, calc((100% - 1100px) / 2)); }
+#scr-title { flex: 1 0 auto; overflow: hidden; }
+#scr-title::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7, 8, 32, .92) 0%, rgba(7, 8, 32, .8) 42%, rgba(7, 8, 32, 0) 72%); pointer-events: none; }
+h1 { font: 600 clamp(38px, 6vw, 64px)/1.02 var(--serif); margin: 0 0 8px; text-shadow: 0 0 34px rgba(192, 140, 255, .35); }
+.t-no { display: block; font: 700 14px/1.4 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+.tagline { color: var(--gold2); font: italic 21px/1.4 var(--serif); margin: 0 0 8px; }
+.lede { color: var(--dim); margin: 0 0 14px; }
+.tiers { border: 0; padding: 0; margin: 0 0 12px; display: grid; gap: 8px; }
+.tiers legend { font: 600 14px/1 var(--sans); color: var(--gold2); margin-bottom: 8px; }
+.tier { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; align-items: start; padding: 9px 12px; border: 1px solid var(--line); border-radius: 12px; background: rgba(17, 19, 58, .86); cursor: pointer; }
+.tier:has(input:checked) { border-color: var(--gold); background: rgba(40, 36, 100, .92); }
+.tier input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--gold); }
+.tier-medal { width: 22px; height: 22px; border-radius: 50%; }
+.tier-bronze .tier-medal { background: radial-gradient(circle at 35% 35%, #f0b37f, #a8642e); }
+.tier-silver .tier-medal { background: radial-gradient(circle at 35% 35%, #fff, #9aa4b8); }
+.tier-gold .tier-medal { background: radial-gradient(circle at 35% 35%, #fff0b0, #c8952a); }
+.tier-body { display: grid; gap: 2px; font-size: 14px; color: var(--dim); }
+.tier-body strong { color: var(--ivory); font-size: 15px; }
+.tier-stat { color: var(--gold2); font-size: 13px; min-height: 1em; }
+.title-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.credit { margin-top: 18px; color: var(--mute); font-size: 13px; }
+.credit p { margin: 2px 0; }
+.motto { font: italic 15px/1.4 var(--serif); color: var(--dim); }
+
+/* ---------- play ---------- */
+#scr-game { background: #05061a; }
+.hud { display: flex; align-items: center; gap: 4px 18px; padding: 6px 12px; background: rgba(10, 11, 36, .96); border-bottom: 1px solid #23255a; flex-wrap: wrap; position: relative; z-index: 3; }
+.hud-item, .hud-round { display: flex; flex-direction: column; line-height: 1.15; }
+.hud-round strong { font: 600 16px/1.2 var(--serif); color: var(--gold2); }
+.hud strong { font: 700 18px/1.15 var(--sans); font-variant-numeric: tabular-nums; }
+.pips { display: inline-flex; gap: 4px; align-items: center; min-height: 20px; }
+.pips i { width: 12px; height: 18px; border-radius: 6px 6px 3px 3px; background: linear-gradient(#ffe7a0, #d2a03a); display: inline-block; }
+.pips i.used { background: #2b2d63; }
+.pips b { font-size: 13px; color: var(--dim); margin-left: 4px; font-weight: 600; }
+.hud-btns { margin-left: auto; display: flex; gap: 6px; }
+.ibtn { appearance: none; min-width: 44px; min-height: 44px; border-radius: 10px; border: 1px solid #3c3f8f; background: var(--panel); color: var(--ivory); display: inline-flex; align-items: center; justify-content: center; padding: 0 10px; cursor: pointer; font: 600 15px/1 var(--sans); }
+.ibtn[aria-pressed="false"] { color: var(--mute); text-decoration: line-through; }
+.goalbar { position: relative; height: 6px; background: #17194a; }
+.goalbar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, #c08cff, #f3d98a); transition: width .2s; }
+.goalbar span { position: absolute; top: -3px; bottom: -3px; width: 2px; background: #fff; left: 60%; }
+.stage { flex: 1; position: relative; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #05061a; }
+#sky { display: block; touch-action: none; cursor: crosshair; border-radius: 4px; }
+#sky:focus-visible { box-shadow: inset 0 0 0 3px #f3d98a; }
+.intro { position: absolute; left: 50%; bottom: 3%; transform: translateX(-50%); text-align: center; pointer-events: none; background: rgba(7, 8, 32, .78); border: 1px solid rgba(226, 180, 80, .5); border-radius: 14px; padding: 10px 18px; max-width: 90%; animation: fadein .4s ease-out; }
+.intro h2 { margin: 0; font: 600 clamp(20px, 3.6vw, 30px)/1.15 var(--serif); color: var(--gold2); }
+.intro p { margin: 4px 0 0; color: var(--dim); font-size: 14px; }
+@keyframes fadein { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.pop { position: absolute; right: 12px; top: 10px; display: grid; gap: 6px; justify-items: end; pointer-events: none; }
+.pop span { background: rgba(7, 8, 32, .82); border: 1px solid var(--violet); color: #ead9ff; padding: 4px 10px; border-radius: 999px; font: 700 14px/1.2 var(--sans); animation: fadein2 .3s ease-out; }
+.pop span.gold { border-color: var(--gold); color: var(--gold2); }
+@keyframes fadein2 { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.result { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(560px, calc(100% - 20px)); max-height: calc(100% - 16px); overflow: auto; background: rgba(9, 10, 34, .95); border: 2px solid var(--gold); border-radius: 18px; padding: 16px 18px; box-shadow: 0 20px 70px rgba(0, 0, 0, .6); z-index: 4; }
+.result.fail { border-color: var(--bad); }
+.result h2 { margin: 0 0 8px; font: 600 26px/1.15 var(--serif); }
+.rstats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px; margin-bottom: 8px; }
+.rstat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; }
+.rstat strong { display: block; font: 800 19px/1.1 var(--sans); font-variant-numeric: tabular-nums; }
+.rstat span { color: var(--mute); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+.controls { display: flex; justify-content: center; gap: 8px; padding: 8px 10px max(8px, env(safe-area-inset-bottom)); background: #0a0b26; border-top: 1px solid #23255a; flex-wrap: wrap; position: relative; z-index: 3; touch-action: manipulation; }
+.cbtn { appearance: none; min-width: 64px; min-height: 48px; border-radius: 12px; border: 1px solid #4a4ea8; background: linear-gradient(#24286a, #171a4c); color: var(--ivory); font: 700 15px/1 var(--sans); cursor: pointer; padding: 0 14px; }
+.cbtn.big { min-width: 130px; background: linear-gradient(#f2d784, #d2a03a); color: #1b1606; border-color: #f3d98a; letter-spacing: .06em; font-size: 17px; }
+.cbtn.quiet { background: transparent; font-weight: 600; }
+.cbtn[disabled] { opacity: .45; cursor: not-allowed; }
+.a11y { background: #0a0b26; padding: 0 12px 8px; }
+.a11y summary { cursor: pointer; color: var(--gold2); font-size: 14px; padding: 6px 0; min-height: 32px; }
+.shell-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; max-height: 220px; overflow: auto; }
+.shell-list button { width: 100%; text-align: left; background: var(--panel); color: var(--ivory); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: 13px/1.3 var(--sans); cursor: pointer; min-height: 44px; }
+.shell-list button[aria-pressed="true"] { border-color: var(--gold); }
+
+/* ---------- final ---------- */
+.final-wrap { width: min(900px, 100%); margin: 0 auto; padding: 22px 16px 30px; }
+#f-h { font: 600 clamp(30px, 5vw, 46px)/1.05 var(--serif); margin: 0; }
+.o-sub { color: var(--dim); margin: 6px 0 0; }
+.pb { font: 600 18px/1.3 var(--serif); color: var(--gold2); min-height: 1.3em; margin: 8px 0; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 12px 0; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.stat strong { display: block; font: 800 24px/1.1 var(--sans); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--mute); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl th, .tbl td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #23255a; }
+.tbl td.n, .tbl th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl tr.total td { font-weight: 800; color: var(--gold2); }
+.share { white-space: pre-wrap; background: #0e1033; border: 1px dashed #3c3f8f; border-radius: 10px; padding: 10px 12px; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; color: var(--dim); margin-top: 12px; }
+
+/* ---------- dialogs ---------- */
+dialog { border: 1px solid #3a3d8a; border-radius: 16px; background: #10123a; color: var(--ivory); padding: 18px 20px; width: min(460px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; }
+dialog.wide { width: min(720px, calc(100vw - 24px)); }
+dialog::backdrop { background: rgba(3, 4, 16, .78); }
+dialog h2 { font: 600 24px/1.2 var(--serif); margin: 0 0 6px; }
+dialog h3 { font: 600 17px/1.2 var(--serif); color: var(--gold2); margin: 14px 0 6px; }
+.howto { padding-left: 1.2em; } .howto li { margin: 4px 0; }
+.types { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.types li { display: grid; grid-template-columns: 38px 1fr; gap: 10px; align-items: center; }
+.types canvas { width: 34px; height: 34px; }
+.chk { display: flex; gap: 10px; align-items: flex-start; min-height: 32px; } .chk input { width: 20px; height: 20px; accent-color: var(--gold); margin-top: 2px; }
+.slider, .sel { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.sel select { background: var(--panel2); color: var(--ivory); border: 1px solid #3c3f8f; border-radius: 8px; padding: 6px 8px; min-height: 36px; }
+
+body.reduce *, body.reduce *::before, body.reduce *::after { animation: none !important; transition-duration: .01s !important; }
+@media (max-width: 720px) {
+  .crumb { display: none; }
+  .hud { gap: 2px 12px; padding: 5px 8px; }
+  .hud strong { font-size: 15px; } .hud-round strong { font-size: 14px; }
+  .cbtn { min-width: 56px; padding: 0 10px; font-size: 14px; } .cbtn.big { min-width: 110px; }
+  #scr-title::before { background: rgba(7, 8, 32, .78); }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .top { padding: 2px 10px; } .brand { font-size: 15px; } .badge { font-size: 10px; padding: 1px 6px; }
+  .hud { flex-wrap: nowrap; gap: 0 12px; padding: 0 8px; overflow-x: auto; } .hud .k { font-size: 9px; } .hud strong, .hud-round strong { font-size: 14px; }
+  #scr-game { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+  #scr-game .hud, #scr-game .goalbar, #scr-game .a11y { grid-column: 1 / -1; }
+  #scr-game .stage { grid-column: 1; grid-row: 3; }
+  #scr-game .controls { grid-column: 2; grid-row: 3; flex-direction: column; flex-wrap: nowrap; justify-content: center; border-top: 0; border-left: 1px solid #23255a; padding: 4px 8px; }
+  .cbtn, .cbtn.big { min-width: 104px; }
+  .a11y summary { padding: 2px 0; min-height: 28px; font-size: 13px; }
+}
+@media (max-width: 720px), (max-height: 520px) {
+  .intro { padding: 5px 10px; bottom: 2%; } .intro h2 { font-size: 17px; } .intro p { font-size: 12px; } .intro .kicker { font-size: 10px; margin: 0; }
+}
+@media (max-width: 600px) and (orientation: portrait) {
+  .stage::after { content: "Tip: turn your phone sideways for a bigger sky."; position: absolute; top: 8px; left: 0; right: 0; text-align: center; color: var(--mute); font-size: 12px; pointer-events: none; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header class="top">
+  <a class="brand" href="https://doorquests.com/" aria-label="DoorQuests home (opens doorquests.com)"><span class="brand-door" aria-hidden="true"></span><span class="brand-word">DoorQuests</span></a>
+  <span class="crumb"><span class="crumb-col">Gamortal #007</span><span aria-hidden="true">·</span><span>Skyfire Conductor</span></span>
+  <span class="badge">Prototype · Founder Playtest · Not Published</span>
+</header>
+
+<main id="main">
+  <!-- ============================ TITLE ============================ -->
+  <section id="scr-title" class="screen" aria-labelledby="t-h">
+    <canvas id="title-sky" class="title-sky" aria-hidden="true"></canvas>
+    <div class="title-wrap">
+      <p class="kicker">DoorQuests · Gamortals — Interactive Games</p>
+      <h1 id="t-h"><span class="t-no">Gamortal #007</span>Skyfire Conductor</h1>
+      <p class="tagline">Conduct the night. Ignite the impossible.</p>
+      <p class="lede">Above the festival city of Luminara, every shell is a note. Launch a firework, light its neighbours, and turn one spark into a symphony.</p>
+      <fieldset class="tiers"><legend>Choose your tier</legend>
+        <label class="tier tier-bronze"><input type="radio" name="tier" value="bronze"><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Bronze — Festival Apprentice</strong><span>Bigger bursts, an extra launch, full reach preview</span><span class="tier-stat" data-t="bronze"></span></span></label>
+        <label class="tier tier-silver"><input type="radio" name="tier" value="silver" checked><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Silver — Sky Conductor</strong><span>Standard bursts and launches, reach ring only</span><span class="tier-stat" data-t="silver"></span></span></label>
+        <label class="tier tier-gold"><input type="radio" name="tier" value="gold"><span class="tier-medal" aria-hidden="true"></span><span class="tier-body"><strong>Gold — Celestial Maestro</strong><span>Smaller bursts, fewer launches, faster comets, no preview</span><span class="tier-stat" data-t="gold"></span></span></label>
+      </fieldset>
+      <div class="title-actions">
+        <button id="b-journey" class="btn btn-primary btn-big" type="button">Festival Journey</button>
+        <button id="b-new" class="btn" type="button" hidden>New Journey</button>
+        <button id="b-endless" class="btn" type="button">Endless Festival</button>
+      </div>
+      <p id="t-progress" class="small muted"></p>
+      <div class="title-actions">
+        <button id="b-howto" class="btn btn-quiet" type="button">How to play</button>
+        <button id="b-records" class="btn btn-quiet" type="button">Records</button>
+        <button id="b-settings" class="btn btn-quiet" type="button">Sound &amp; settings</button>
+        <a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a>
+      </div>
+      <p id="t-note" class="note" role="status" aria-live="polite"></p>
+      <footer class="credit"><p class="motto">Choose Your Path. Find the Truth. Unlock the Impossible.</p><p>Created by The Axiom Continuum.</p></footer>
+    </div>
+  </section>
+
+  <!-- ============================ PLAY ============================ -->
+  <section id="scr-game" class="screen" aria-label="Skyfire Conductor — round in progress" hidden>
+    <div class="hud" role="group" aria-label="Round status">
+      <div class="hud-round"><span class="k" id="h-mode">Round</span><strong id="h-round">01 · First Spark</strong></div>
+      <div class="hud-item"><span class="k">Launches</span><span id="h-launches" class="pips"></span></div>
+      <div class="hud-item"><span class="k">Score</span><strong id="h-score">0</strong></div>
+      <div class="hud-item"><span class="k">Goal</span><strong id="h-goal">—</strong></div>
+      <div class="hud-item"><span class="k">Multiplier</span><strong id="h-mult">×1.00</strong></div>
+      <div class="hud-item"><span class="k">Ignited</span><strong id="h-ign">0 / 0</strong></div>
+      <div class="hud-item"><span class="k">Depth</span><strong id="h-depth">0</strong></div>
+      <div class="hud-btns">
+        <button class="ibtn" id="b-pause" type="button" aria-label="Pause (Esc)">❚❚</button>
+        <button class="ibtn" id="b-mute" type="button" aria-pressed="true" aria-label="Sound (M)">♪</button>
+      </div>
+    </div>
+    <div class="goalbar" aria-hidden="true"><i id="goal-fill"></i><span id="goal-mark"></span></div>
+    <div class="stage" id="stage">
+      <canvas id="sky" tabindex="0" aria-label="The night sky. Arrow keys move the target, Q and E jump between shells, Space launches." aria-describedby="sky-desc"></canvas>
+      <p id="sky-desc" class="sr-only">Use the Shell targets list below the sky for a non-visual way to aim.</p>
+      <div class="intro" id="intro" hidden></div>
+      <div class="pop" id="pop" aria-hidden="true"></div>
+      <div class="result" id="result" hidden role="dialog" aria-modal="false" aria-labelledby="r-h">
+        <p class="kicker" id="r-k"></p>
+        <h2 id="r-h"></h2>
+        <div class="rstats" id="r-stats"></div>
+        <table class="tbl" id="r-parts"></table>
+        <div class="row" id="r-btns"></div>
+      </div>
+    </div>
+    <div class="controls" role="group" aria-label="Launch controls">
+      <button class="cbtn" id="c-prev" type="button" aria-label="Aim at previous shell (Q)">◀ Shell</button>
+      <button class="cbtn big" id="c-launch" type="button">Launch</button>
+      <button class="cbtn" id="c-next" type="button" aria-label="Aim at next shell (E)">Shell ▶</button>
+      <button class="cbtn quiet" id="c-end" type="button">End round</button>
+      <button class="cbtn quiet" id="c-restart" type="button">Restart</button>
+    </div>
+    <details class="a11y" id="a11y">
+      <summary>Shell targets (accessible list)</summary>
+      <p class="small muted" id="a11y-status" aria-live="polite"></p>
+      <ul class="shell-list" id="shell-list"></ul>
+    </details>
+  </section>
+
+  <!-- ============================ FINAL ============================ -->
+  <section id="scr-final" class="screen" aria-labelledby="f-h" hidden>
+    <div class="final-wrap">
+      <p class="kicker" id="f-k">Festival Journey complete</p>
+      <h2 id="f-h">The sky remembers</h2>
+      <p class="o-sub" id="f-sub"></p>
+      <p class="pb" id="f-pb" role="status"></p>
+      <div class="stats" id="f-stats"></div>
+      <table class="tbl" id="f-rounds"></table>
+      <div class="row">
+        <button class="btn btn-primary" id="f-again" type="button">Play again</button>
+        <button class="btn" id="f-copy" type="button">Copy result</button>
+        <button class="btn" id="f-image" type="button">Save finale image</button>
+        <button class="btn" id="f-endless" type="button">Endless Festival</button>
+        <button class="btn btn-quiet" id="f-title" type="button">Title</button>
+        <a class="btn btn-quiet" href="https://doorquests.com/">Return to DoorQuests</a>
+      </div>
+      <p class="note" id="f-note" role="status" aria-live="polite"></p>
+      <pre class="share" id="f-share" aria-label="Result summary"></pre>
+    </div>
+  </section>
+</main>
+
+<!-- ============================ DIALOGS ============================ -->
+<dialog id="d-pause" aria-labelledby="dp-h">
+  <h2 id="dp-h">Paused</h2>
+  <p id="dp-msg" class="muted">The sky is holding its breath. Nothing moves until you resume.</p>
+  <div class="stack">
+    <button class="btn btn-primary" id="dp-resume" type="button">Resume (Esc)</button>
+    <button class="btn" id="dp-restart" type="button">Restart this round</button>
+    <button class="btn" id="dp-howto" type="button">How to play</button>
+    <button class="btn" id="dp-settings" type="button">Sound &amp; settings</button>
+    <button class="btn btn-danger" id="dp-quit" type="button">Leave to title</button>
+  </div>
+</dialog>
+
+<dialog id="d-howto" aria-labelledby="dh-h" class="wide">
+  <h2 id="dh-h">How to play</h2>
+  <ol class="howto">
+    <li><strong>Survey the sky.</strong> Each glowing shell is a firework waiting for a spark. Its shape tells you its type; its letter is its musical note.</li>
+    <li><strong>Choose an ignition point</strong> and launch. Your rocket bursts there <strong>0.35 s</strong> later.</li>
+    <li><strong>Every shell the burst touches ignites,</strong> then explodes after its short fuse — and its burst can light more shells.</li>
+    <li><strong>Reach the goal</strong> with your limited launches. Unused launches are worth points if you clear the goal.</li>
+  </ol>
+  <h3>Shells</h3>
+  <ul class="types" id="dh-types"></ul>
+  <h3>Controls</h3>
+  <p><strong>Mouse:</strong> aim and click to launch. <strong>Touch:</strong> tap to launch (or switch to aim-then-launch in Settings). <strong>Keyboard:</strong> arrows move the target (Shift for big steps), Q / E jump between shells, Space or Enter launches, F ends the round, R restarts it, Esc pauses, M mutes. The <em>Shell targets</em> list under the sky lets you aim without seeing it.</p>
+  <h3>Scoring</h3>
+  <ul id="dh-score"></ul>
+  <p class="small muted">Generations: your rocket's burst is generation 0; shells it lights are generation 1; shells they light are generation 2, and so on. <em>Depth</em> is the deepest generation in a chain; <em>cascade width</em> is the largest single generation.</p>
+  <div class="row"><button class="btn btn-primary" data-close type="button">Close</button></div>
+</dialog>
+
+<dialog id="d-records" aria-labelledby="dr-h" class="wide">
+  <h2 id="dr-h">Records</h2>
+  <p class="small muted">Kept only in this browser. Not verified and not tamper-proof.</p>
+  <table class="tbl" id="dr-table"></table>
+  <div class="row"><button class="btn btn-primary" data-close type="button">Close</button><button class="btn btn-danger" id="dr-reset" type="button">Reset records…</button></div>
+</dialog>
+
+<dialog id="d-settings" aria-labelledby="ds-h">
+  <h2 id="ds-h">Sound &amp; settings</h2>
+  <div class="stack">
+    <label class="chk"><input type="checkbox" id="s-sound"> Sound and music</label>
+    <label class="slider">Volume <input type="range" id="s-vol" min="0" max="100" step="5"> <output id="s-vol-o">70%</output></label>
+    <label class="chk"><input type="checkbox" id="s-ambient"> Festival ambience (soft pad)</label>
+    <label class="sel">Effects <select id="s-motion"><option value="auto">Follow my system motion setting</option><option value="reduced">Reduced effects</option><option value="full">Full spectacle</option></select></label>
+    <label class="sel">Touch <select id="s-touch"><option value="tap">Tap to launch</option><option value="aim">Tap to aim, then press Launch</option></select></label>
+  </div>
+  <p class="small muted">Reduced effects: fewer particles, softer glow, no drifting clouds or camera motion, and clearer shell outlines. Collisions and scoring are identical.</p>
+  <div class="row"><button class="btn btn-primary" data-close type="button">Done</button></div>
+</dialog>
+
+<dialog id="d-confirm" aria-labelledby="dc-h">
+  <h2 id="dc-h">Are you sure?</h2>
+  <p id="dc-msg"></p>
+  <div class="row"><button class="btn btn-danger" id="dc-yes" type="button">Yes</button><button class="btn btn-primary" id="dc-no" type="button">Cancel</button></div>
+</dialog>
+
+<p class="sr-only" id="live" aria-live="polite"></p>
+<script id="sky-targets">
+/* Generated by tools/targets.js — Festival Journey goals = tier fraction of the greedy solver score (plans included as proof of reachability). */
+window.SkyTargets = {"bronze":[{"target":1050,"solver":2355,"plan":[{"t":0,"x":562.63,"y":249.47}]},{"target":700,"solver":1530,"plan":[{"t":0,"x":192.82,"y":253.32},{"t":1920,"x":714.86,"y":206.39}]},{"target":3700,"solver":8175,"plan":[{"t":0,"x":140,"y":430}]},{"target":3000,"solver":6685,"plan":[{"t":0,"x":640,"y":260}]},{"target":5750,"solver":12775,"plan":[{"t":0,"x":920,"y":360.53},{"t":7990,"x":500,"y":450}]},{"target":1950,"solver":4300,"plan":[{"t":1200,"x":459.56,"y":182.88},{"t":4140,"x":179.16,"y":240.76},{"t":5620,"x":828.84,"y":219.34}]},{"target":4150,"solver":9173,"plan":[{"t":0,"x":167.57,"y":346.11}]},{"target":2300,"solver":5145,"plan":[{"t":0,"x":707.84,"y":258.4},{"t":2160,"x":301.99,"y":319.84},{"t":4320,"x":500,"y":290}]},{"target":3050,"solver":6763,"plan":[{"t":0,"x":667.7,"y":272.2},{"t":3550,"x":877.42,"y":130.61}]},{"target":3600,"solver":7982,"plan":[{"t":1200,"x":660,"y":290},{"t":5320,"x":340,"y":290}]},{"target":2100,"solver":4614,"plan":[{"t":600,"x":777.22,"y":376.82},{"t":4420,"x":101.84,"y":138.21},{"t":5900,"x":867.11,"y":175.53},{"t":7340,"x":141.29,"y":448.77}]},{"target":1650,"solver":3661,"plan":[{"t":0,"x":250,"y":290},{"t":2520,"x":750,"y":270},{"t":5020,"x":560,"y":400}]},{"target":7100,"solver":15735,"plan":[{"t":0,"x":880,"y":160}]},{"target":6400,"solver":14260,"plan":[{"t":0,"x":500,"y":140}]},{"target":9950,"solver":22060,"plan":[{"t":0,"x":902.61,"y":124.37},{"t":8160,"x":500,"y":450},{"t":9580,"x":660,"y":230}]}],"silver":[{"target":1400,"solver":2355,"plan":[{"t":0,"x":461.02,"y":316.53}]},{"target":950,"solver":1620,"plan":[{"t":0,"x":327.69,"y":253.16},{"t":2030,"x":805.33,"y":265.74}]},{"target":4900,"solver":8175,"plan":[{"t":0,"x":140,"y":430}]},{"target":3050,"solver":5111,"plan":[{"t":0,"x":640,"y":260},{"t":3010,"x":360,"y":260}]},{"target":8200,"solver":13636,"plan":[{"t":0,"x":80,"y":290},{"t":9020,"x":500,"y":120}]},{"target":1600,"solver":2678,"plan":[{"t":600,"x":424.51,"y":188.79},{"t":3770,"x":776.1,"y":230.95}]},{"target":5750,"solver":9553,"plan":[{"t":0,"x":167.57,"y":346.11}]},{"target":1900,"solver":3158,"plan":[{"t":0,"x":217.12,"y":279.98},{"t":2110,"x":775.71,"y":288.64}]},{"target":4450,"solver":7443,"plan":[{"t":0,"x":330,"y":170},{"t":4600,"x":877.42,"y":130.61}]},{"target":4950,"solver":8231,"plan":[{"t":600,"x":660,"y":290},{"t":5230,"x":340,"y":290}]},{"target":1350,"solver":2225,"plan":[{"t":600,"x":693,"y":218},{"t":4360,"x":101.84,"y":138.21},{"t":5870,"x":867.11,"y":175.53}]},{"target":950,"solver":1593,"plan":[{"t":0,"x":431.86,"y":333.24},{"t":2010,"x":205.92,"y":220.06}]},{"target":4400,"solver":7345,"plan":[{"t":0,"x":401.12,"y":354.04}]},{"target":10850,"solver":18055,"plan":[{"t":1800,"x":500,"y":140}]},{"target":10800,"solver":18010,"plan":[{"t":1200,"x":500,"y":450},{"t":7000,"x":500,"y":110}]}],"gold":[{"target":1700,"solver":2420,"plan":[{"t":0,"x":551.68,"y":278.62}]},{"target":550,"solver":810,"plan":[{"t":0,"x":327.69,"y":253.16}]},{"target":5700,"solver":8175,"plan":[{"t":0,"x":140,"y":430}]},{"target":3550,"solver":5068,"plan":[{"t":0,"x":360,"y":260},{"t":2930,"x":640,"y":260}]},{"target":9450,"solver":13511,"plan":[{"t":0,"x":80,"y":290}]},{"target":1850,"solver":2678,"plan":[{"t":600,"x":429.73,"y":188.79},{"t":3590,"x":129.97,"y":243.65}]},{"target":6800,"solver":9695,"plan":[{"t":0,"x":167.57,"y":346.11}]},{"target":2200,"solver":3158,"plan":[{"t":0,"x":217.12,"y":279.98},{"t":2220,"x":775.71,"y":288.64}]},{"target":4150,"solver":5903,"plan":[{"t":0,"x":555.85,"y":183.91}]},{"target":4600,"solver":6549,"plan":[{"t":600,"x":580,"y":275},{"t":4410,"x":287.88,"y":240.27}]},{"target":1450,"solver":2100,"plan":[{"t":1200,"x":594.3,"y":272.2},{"t":3910,"x":101.84,"y":138.21},{"t":5450,"x":867.11,"y":175.53}]},{"target":1100,"solver":1593,"plan":[{"t":0,"x":431.86,"y":333.24},{"t":2080,"x":205.92,"y":220.06}]},{"target":5150,"solver":7390,"plan":[{"t":0,"x":401.12,"y":354.04}]},{"target":8850,"solver":12633,"plan":[{"t":2400,"x":500,"y":140},{"t":7830,"x":740.45,"y":186.49}]},{"target":6900,"solver":9834,"plan":[{"t":1200,"x":500,"y":330},{"t":5030,"x":893.29,"y":207.07},{"t":7420,"x":224.26,"y":148.12}]}]};
+
+</script>
+<script id="sky-engine">
+/* Skyfire Conductor — authoritative game engine (no DOM). Gamortal #007 · DoorQuests prototype.
+   Sections: 1 configuration · 2 seeded random · 3 shell generator (rounds & endless) · 4 simulation (fixed step:
+   physics, collision, chain propagation) · 5 scoring · 6 solver (target setting / reachability) · 7 campaign helpers.
+   Visual particles and sound live in app.js and never feed back into this state. */
+(function (root) {
+  'use strict';
+  var VERSION = '1.0.0';
+
+  /* ================================================================ 1 · configuration */
+  var W = 1000, H = 620, SKY_TOP = 50, SKY_BOTTOM = 490;          // world units; shells live in the sky band
+  var STEP = 10;                                                    // fixed simulation step (ms)
+  var C = {
+    shellHit: 10,              // a shell is reached when a burst's edge touches its 10-unit body
+    rocketMs: 350,             // player rocket flight time (fixed, so timing is predictable)
+    cooldownMs: 200,           // minimum gap between two launches (stops accidental double-taps)
+    growMs: 500, holdMs: 200,  // burst radius grows for 500 ms (ease-out), stays live 200 ms, then fades
+    echoDelay: 700,            // Echo shell: second pulse 700 ms after its first burst
+    maxShells: 40, settleCapMs: 60000
+  };
+  var TIERS = {
+    bronze: { id: 'bronze', label: 'Bronze', name: 'Festival Apprentice', radius: 1.15, comet: 0.85, launchAdj: 1, preview: 'full', targetFrac: 0.45, endlessFrac: 0.5 },
+    silver: { id: 'silver', label: 'Silver', name: 'Sky Conductor', radius: 1.0, comet: 1.0, launchAdj: 0, preview: 'ring', targetFrac: 0.6, endlessFrac: 0.62 },
+    gold:   { id: 'gold', label: 'Gold', name: 'Celestial Maestro', radius: 0.9, comet: 1.2, launchAdj: -1, preview: 'none', targetFrac: 0.7, endlessFrac: 0.72 }
+  };
+  var TIER_IDS = ['bronze', 'silver', 'gold'];
+  var PLAYER_R = 95;
+  // six shell behaviours; R = burst radius (Silver), fuse = delay between ignition and explosion
+  var TYPES = {
+    ember:     { name: 'Ember', R: 85, fuse: 260, shape: 'circle', blurb: 'The standard shell. Moderate burst, moderate fuse.' },
+    starburst: { name: 'Starburst', R: 140, fuse: 360, shape: 'star', blurb: 'A wide burst that reaches distant shells.' },
+    comet:     { name: 'Comet', R: 80, fuse: 220, shape: 'comet', blurb: 'Drifts across the sky; explodes wherever it is when its fuse ends.' },
+    echo:      { name: 'Echo', R: 75, R2: 135, fuse: 300, shape: 'rings', blurb: 'Bursts, then sends a wider second pulse 0.7 s later. Scored once.' },
+    prism:     { name: 'Prism', R: 95, fuse: 300, shape: 'diamond', blurb: 'Multicoloured burst. Bonus: 50 × the number of colours in its chain.' },
+    maestro:   { name: 'Maestro', R: 90, fuse: 320, shape: 'crown', blurb: 'Musical flourish. Bonus: +400 if its chain ignites 8 or more shells.' }
+  };
+  var TYPE_IDS = ['ember', 'starburst', 'comet', 'echo', 'prism', 'maestro'];
+  // colours map to a C-major pentatonic scale so any combination sounds consonant
+  var COLORS = {
+    ruby:     { name: 'Ruby', note: 'C', midi: 60, hex: '#ff5a6e' },
+    amber:    { name: 'Amber', note: 'D', midi: 62, hex: '#ffae4a' },
+    gold:     { name: 'Gold', note: 'E', midi: 64, hex: '#f3d98a' },
+    emerald:  { name: 'Emerald', note: 'G', midi: 67, hex: '#5fe0a0' },
+    sapphire: { name: 'Sapphire', note: 'A', midi: 69, hex: '#6aa8ff' },
+    violet:   { name: 'Violet', note: 'C′', midi: 72, hex: '#c08cff' }
+  };
+  var COLOR_IDS = ['ruby', 'amber', 'gold', 'emerald', 'sapphire', 'violet'];
+  var SCORE = { shell: 100, depth: 25, multStep: 0.05, multCap: 2.5, harmony: 60, prism: 50, maestro: 400, maestroMin: 8, launch: 250, perfect: 1000 };
+
+  /* ================================================================ 2 · seeded random */
+  function h32(s) { var h = 0x811c9dc5; s = String(s); for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16; return h >>> 0; }
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function stream(key) { return mulberry(h32(key)); }
+  function ri(r, a, b) { return a + Math.floor(r() * (b - a + 1)); }
+  function rf(r, a, b) { return a + r() * (b - a); }
+  function pick(r, a) { return a[Math.floor(r() * a.length)]; }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function mod(a, n) { return ((a % n) + n) % n; }
+  function round2(v) { return Math.round(v * 100) / 100; }
+
+  /* ================================================================ 3 · shell generator */
+  // A builder places shells with a minimum spacing so bodies never overlap and nothing sits outside the sky band.
+  function Builder(seed) { this.r = stream(seed); this.list = []; this.ci = 0; }
+  Builder.prototype.ok = function (x, y, minD) {
+    if (x < 40 || x > W - 40 || y < SKY_TOP + 20 || y > SKY_BOTTOM - 10) return false;
+    for (var i = 0; i < this.list.length; i++) { var s = this.list[i], dx = s.x - x, dy = s.y - y; if (dx * dx + dy * dy < minD * minD) return false; }
+    return true;
+  };
+  Builder.prototype.add = function (type, x, y, color, extra) {
+    if (this.list.length >= C.maxShells) return null;
+    var s = { type: type, x: round2(x), y: round2(y), color: color || COLOR_IDS[this.ci++ % 6] };
+    if (extra) for (var k in extra) s[k] = extra[k];
+    this.list.push(s); return s;
+  };
+  Builder.prototype.cluster = function (cx, cy, n, spread, opts) {
+    opts = opts || {}; var placed = 0, tries = 0, minD = opts.minD || 44;
+    while (placed < n && tries++ < 600) {
+      var a = this.r() * Math.PI * 2, d = Math.sqrt(this.r()) * spread, x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d * 0.8;
+      if (this.ok(x, y, minD)) { this.add(opts.type ? (typeof opts.type === 'function' ? opts.type(placed) : opts.type) : 'ember', x, y, opts.color ? (typeof opts.color === 'function' ? opts.color(placed) : opts.color) : null); placed++; }
+    }
+    return placed;
+  };
+  Builder.prototype.path = function (pts, n, opts) { // n shells evenly along a polyline
+    opts = opts || {}; var segs = [], total = 0;
+    for (var i = 1; i < pts.length; i++) { var dx = pts[i][0] - pts[i - 1][0], dy = pts[i][1] - pts[i - 1][1], L = Math.sqrt(dx * dx + dy * dy); segs.push(L); total += L; }
+    for (var k = 0; k < n; k++) { var d = n === 1 ? 0 : total * k / (n - 1), j = 0; while (j < segs.length - 1 && d > segs[j]) { d -= segs[j]; j++; } var u = segs[j] ? d / segs[j] : 0, x = pts[j][0] + (pts[j + 1][0] - pts[j][0]) * u, y = pts[j][1] + (pts[j + 1][1] - pts[j][1]) * u;
+      if (this.ok(x, y, opts.minD || 40)) this.add(opts.type ? (typeof opts.type === 'function' ? opts.type(k) : opts.type) : 'ember', x, y, opts.color ? (typeof opts.color === 'function' ? opts.color(k) : opts.color) : null); }
+  };
+  Builder.prototype.comet = function (x, y, vx, vy, color) { if (this.ok(x, y, 40)) this.add('comet', x, y, color, { vx: vx, vy: vy }); };
+  Builder.prototype.scatter = function (n, types, minD) { var tries = 0, placed = 0; while (placed < n && tries++ < 2000) { var x = rf(this.r, 60, W - 60), y = rf(this.r, SKY_TOP + 30, SKY_BOTTOM - 20); if (this.ok(x, y, minD || 60)) { var t = pick(this.r, types); if (t === 'comet') this.add('comet', x, y, null, { vx: pick(this.r, [-1, 1]) * rf(this.r, 35, 70), vy: rf(this.r, -18, 18) }); else this.add(t, x, y); placed++; } } };
+
+  var COLS = function (list) { return function (i) { return list[i % list.length]; }; };
+  var ROUNDS = [
+    { name: 'First Spark', emphasis: 'Basic ignition', launches: [2, 2, 1], build: function (b) { b.cluster(500, 270, 8, 95, { minD: 52, color: COLS(['gold', 'amber', 'ruby']) }); } },
+    { name: 'Lantern Chain', emphasis: 'Simple clusters', launches: [2, 2, 1], build: function (b) { b.cluster(260, 250, 5, 70, { minD: 50, color: 'ruby' }); b.cluster(740, 250, 5, 70, { minD: 50, color: 'sapphire' }); b.path([[345, 260], [500, 300], [655, 260]], 3, { color: 'gold' }); } },
+    { name: 'The Golden Arc', emphasis: 'Timing and spacing', launches: [2, 1, 1], build: function (b) { var pts = []; for (var i = 0; i <= 12; i++) { var a = Math.PI * i / 12; pts.push([500 - 360 * Math.cos(a), 430 - 300 * Math.sin(a)]); } b.path(pts, 15, { minD: 40, color: COLS(['gold', 'amber', 'gold', 'emerald']) }); } },
+    { name: 'Colors in Motion', emphasis: 'Multiple colours', launches: [3, 2, 2], build: function (b) { b.cluster(220, 200, 5, 70, { color: 'ruby' }); b.cluster(500, 330, 5, 70, { color: 'emerald' }); b.cluster(780, 200, 5, 70, { color: 'violet' }); b.add('starburst', 360, 260, 'amber'); b.add('starburst', 640, 260, 'sapphire'); } },
+    { name: 'River of Light', emphasis: 'Extended reactions', launches: [2, 2, 1], build: function (b) { var pts = []; for (var i = 0; i <= 20; i++) pts.push([80 + i * 42, 290 + 120 * Math.sin(i / 20 * Math.PI * 2.2)]); b.path(pts, 20, { minD: 40, color: COLS(COLOR_IDS) }); b.add('starburst', 500, 120, 'gold'); b.add('starburst', 500, 450, 'sapphire'); } },
+    { name: 'The Wandering Comets', emphasis: 'Moving shells', launches: [3, 2, 2], build: function (b) { b.cluster(170, 260, 5, 65, { color: 'ruby' }); b.cluster(500, 260, 5, 65, { color: 'gold' }); b.cluster(830, 260, 5, 65, { color: 'sapphire' }); b.comet(330, 120, 55, 0, 'violet'); b.comet(670, 420, -55, 0, 'emerald'); b.comet(330, 400, 45, -10, 'amber'); } },
+    { name: 'The Echoing Sky', emphasis: 'Secondary pulses', launches: [3, 2, 2], build: function (b) { b.cluster(180, 300, 5, 60, { color: 'amber' }); b.cluster(500, 180, 5, 60, { color: 'emerald' }); b.cluster(820, 300, 5, 60, { color: 'violet' }); b.add('echo', 300, 250, 'gold'); b.add('echo', 380, 215, 'gold'); b.add('echo', 620, 215, 'sapphire'); b.add('echo', 700, 250, 'sapphire'); } },
+    { name: 'Prism Garden', emphasis: 'Colour diversity', launches: [3, 2, 2], build: function (b) { var cs = [[230, 190, 'ruby'], [770, 190, 'emerald'], [230, 390, 'sapphire'], [770, 390, 'amber']]; cs.forEach(function (c) { b.cluster(c[0], c[1], 4, 55, { color: c[2] }); }); b.add('prism', 500, 290, 'violet'); b.add('prism', 370, 290, 'gold'); b.add('prism', 630, 290, 'gold'); } },
+    { name: "The Maestro's Call", emphasis: 'Musical amplification', launches: [2, 2, 1], build: function (b) { b.cluster(500, 280, 13, 175, { minD: 50, color: COLS(COLOR_IDS) }); b.add('maestro', 500, 280, 'gold'); b.add('maestro', 330, 170, 'violet'); b.cluster(850, 150, 3, 50, { color: 'emerald' }); } },
+    { name: 'Festival Crescendo', emphasis: 'Every shell together', launches: [3, 3, 2], build: function (b) { b.cluster(200, 200, 5, 70, { color: COLS(['ruby', 'amber']) }); b.cluster(800, 200, 5, 70, { color: COLS(['sapphire', 'violet']) }); b.cluster(500, 380, 6, 90, { color: COLS(['emerald', 'gold']) }); b.add('starburst', 500, 160, 'gold'); b.add('echo', 340, 290, 'amber'); b.add('echo', 660, 290, 'violet'); b.add('prism', 500, 260, 'sapphire'); b.add('maestro', 500, 420, 'ruby'); b.comet(150, 430, 50, 0, 'emerald'); } },
+    { name: 'Crossing Trails', emphasis: 'Timing and movement', launches: [4, 3, 3], build: function (b) { b.cluster(130, 140, 3, 45, { color: 'ruby' }); b.cluster(870, 140, 3, 45, { color: 'amber' }); b.cluster(130, 420, 3, 45, { color: 'sapphire' }); b.cluster(870, 420, 3, 45, { color: 'emerald' }); b.comet(250, 180, 60, 40, 'gold'); b.comet(750, 180, -60, 40, 'violet'); b.comet(250, 380, 60, -40, 'gold'); b.comet(750, 380, -60, -40, 'violet'); b.comet(500, 110, 0, 50, 'ruby'); b.comet(420, 290, 70, 0, 'sapphire'); } },
+    { name: 'The Wide Constellation', emphasis: 'Long-distance planning', launches: [3, 2, 2], build: function (b) { var cs = [[120, 150], [380, 420], [620, 140], [880, 400], [500, 270]]; cs.forEach(function (c, i) { b.cluster(c[0], c[1], 3, 45, { color: COLOR_IDS[i] }); }); b.add('starburst', 250, 290, 'gold'); b.add('starburst', 750, 270, 'violet'); b.add('starburst', 560, 400, 'ruby'); b.add('starburst', 420, 160, 'emerald'); } },
+    { name: 'Nightfall Overture', emphasis: 'One launch, perfectly placed', launches: [2, 1, 1], build: function (b) { var pts = [[120, 420], [260, 160], [420, 380], [580, 140], [740, 380], [880, 160]]; b.path(pts, 22, { minD: 40, color: COLS(COLOR_IDS) }); b.add('maestro', 500, 270, 'gold'); b.add('prism', 340, 270, 'violet'); } },
+    { name: 'The Grand Orchestra', emphasis: 'Complex chain optimisation', launches: [3, 3, 2], build: function (b) { b.cluster(200, 180, 6, 80, { color: COLS(['ruby', 'amber', 'gold']) }); b.cluster(800, 180, 6, 80, { color: COLS(['emerald', 'sapphire', 'violet']) }); b.cluster(500, 400, 7, 100, { color: COLS(COLOR_IDS) }); b.add('starburst', 500, 140, 'gold'); b.add('echo', 330, 300, 'amber'); b.add('echo', 670, 300, 'sapphire'); b.add('prism', 420, 240, 'violet'); b.add('prism', 580, 240, 'ruby'); b.add('maestro', 500, 300, 'emerald'); b.comet(120, 380, 50, -12, 'violet'); b.comet(880, 380, -50, -12, 'amber'); } },
+    { name: 'The Skyfire Finale', emphasis: 'Every mechanic at once', launches: [4, 3, 3], build: function (b) { b.cluster(160, 160, 6, 80, { color: COLS(['ruby', 'amber']) }); b.cluster(840, 160, 6, 80, { color: COLS(['sapphire', 'violet']) }); b.cluster(300, 400, 5, 70, { color: COLS(['emerald', 'gold']) }); b.cluster(700, 400, 5, 70, { color: COLS(['ruby', 'sapphire']) }); b.add('starburst', 500, 110, 'gold'); b.add('starburst', 500, 450, 'violet'); b.add('echo', 340, 230, 'emerald'); b.add('echo', 660, 230, 'amber'); b.add('prism', 500, 260, 'ruby'); b.add('prism', 420, 330, 'sapphire'); b.add('maestro', 580, 330, 'gold'); b.add('maestro', 500, 190, 'emerald'); b.comet(150, 300, 55, 0, 'gold'); b.comet(850, 300, -55, 0, 'emerald'); } }
+  ];
+
+  function finalizeShells(list, tier) {
+    var T = TIERS[tier];
+    return list.map(function (s, i) {
+      var ty = TYPES[s.type], sh = { id: i, type: s.type, color: s.color, x0: s.x, y0: s.y, vx: 0, vy: 0, R: round2(ty.R * T.radius), R2: ty.R2 ? round2(ty.R2 * T.radius) : 0, fuse: ty.fuse,
+        state: 'dormant', tIgnite: -1, tExplode: -1, ex: 0, ey: 0, gen: -1, chain: -1, by: -1 };
+      if (s.type === 'comet') { sh.vx = round2((s.vx || 0) * T.comet); sh.vy = round2((s.vy || 0) * T.comet); }
+      return sh;
+    });
+  }
+  function buildRound(index, tier) {
+    var def = ROUNDS[index], b = new Builder('SKYFIRE-CONDUCTOR|ROUND|' + (index + 1) + '|V1');
+    def.build(b);
+    var launches = Math.max(1, def.launches[TIER_IDS.indexOf(tier)]);
+    return { kind: 'journey', index: index, no: index + 1, name: def.name, emphasis: def.emphasis, tier: tier, launches: launches, shells: finalizeShells(b.list, tier), seed: 'R' + (index + 1) };
+  }
+  var ENDLESS_NAMES = ['Lantern Drift', 'Midnight Market', 'Bridge of Bells', 'Tower Waltz', 'River Carnival', 'The Silver Hour', 'Moonlit Fugue', 'Harbor Lights', 'The Quiet Crescendo', 'Starfall Parade', 'Velvet Overture', 'Clocktower Canon'];
+  function buildEndless(k, tier) {
+    var b = new Builder('SKYFIRE-CONDUCTOR|ENDLESS|' + k + '|V1'), r = b.r;
+    var n = Math.min(36, 14 + 2 * k), pool = ['ember', 'ember', 'ember', 'starburst'];
+    if (k >= 1) pool.push('comet'); if (k >= 2) pool.push('echo'); if (k >= 3) pool.push('prism'); if (k >= 4) pool.push('maestro'); if (k >= 6) pool.push('comet', 'echo');
+    var nc = 2 + (k % 3), placed = 0;
+    for (var c = 0; c < nc && placed < n; c++) { var cx = rf(r, 140, 860), cy = rf(r, 130, 420), m = Math.min(n - placed, Math.round(n * 0.7 / nc)); placed += b.cluster(cx, cy, m, rf(r, 60, 110), { minD: 46, type: function () { return pick(r, pool); }, color: function () { return pick(r, COLOR_IDS); } }); }
+    var before = b.list.length; b.scatter(n - placed, pool, 62); placed += b.list.length - before;
+    b.list.forEach(function (s) { if (s.type === 'comet' && !s.vx && !s.vy) { s.vx = pick(r, [-1, 1]) * rf(r, 35, 70); s.vy = rf(r, -18, 18); } });
+    var launches = Math.max(1, (k < 4 ? 3 : 2 + (k % 2)) + TIERS[tier].launchAdj);
+    return { kind: 'endless', index: k, no: k + 1, name: ENDLESS_NAMES[k % ENDLESS_NAMES.length] + (k >= ENDLESS_NAMES.length ? ' ' + romanish(Math.floor(k / ENDLESS_NAMES.length) + 1) : ''), emphasis: 'Endless Festival', tier: tier, launches: launches, shells: finalizeShells(b.list, tier), seed: 'E' + k };
+  }
+  function romanish(n) { return ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'][n] || String(n); }
+
+  /* ================================================================ 4 · simulation (fixed 10 ms steps) */
+  function posAt(s, t) { // comets drift on a bounce path inside the sky band; others are fixed
+    if (!s.vx && !s.vy) return { x: s.x0, y: s.y0 };
+    var tt = (s.state === 'exploding' || s.state === 'spent') ? s.tExplode : t, sec = tt / 1000;
+    return { x: bounce(s.x0, s.vx, sec, 40, W - 40), y: bounce(s.y0, s.vy, sec, SKY_TOP + 20, SKY_BOTTOM - 10) };
+  }
+  function bounce(p0, v, sec, lo, hi) { if (!v) return p0; var L = hi - lo, s = (v > 0 ? p0 - lo : 2 * L - (p0 - lo)) + Math.abs(v) * sec, u = mod(s, 2 * L); return u <= L ? lo + u : hi - (u - L); }
+  function radiusAt(b, t) { var u = clamp((t - b.t0) / C.growMs, 0, 1); return b.R * (1 - (1 - u) * (1 - u)); }
+
+  function Sim(spec) {
+    this.spec = spec; this.t = 0; this.shells = JSON.parse(JSON.stringify(spec.shells));
+    this.launchesLeft = spec.launches; this.launchesUsed = 0; this.lastLaunch = -1e9; this.launchLog = [];
+    this.rockets = []; this.bursts = []; this.pending = []; this.nextBurst = 0; this.events = []; this.log = [];
+    this.finishing = false; this.done = false; this.peakBursts = 0; this.result = null;
+  }
+  Sim.prototype.emit = function (e) { this.events.push(e); this.log.push(e); };
+  Sim.prototype.canLaunch = function () { return !this.done && this.launchesLeft > 0 && this.t - this.lastLaunch >= C.cooldownMs; };
+  Sim.prototype.launch = function (x, y) { // returns true if a launch was accepted (applied at the current step time)
+    if (!this.canLaunch()) return false;
+    x = round2(clamp(+x, 0, W)); y = round2(clamp(+y, 0, H)); if (!isFinite(x) || !isFinite(y)) return false;
+    this.launchesLeft--; this.launchesUsed++; this.lastLaunch = this.t;
+    var chain = this.launchLog.length; this.launchLog.push({ t: this.t, x: x, y: y });
+    this.rockets.push({ chain: chain, x: x, y: y, t0: this.t, tBurst: this.t + C.rocketMs });
+    this.emit({ type: 'launch', t: this.t, chain: chain, x: x, y: y });
+    return true;
+  };
+  Sim.prototype.finish = function () { if (!this.done) this.finishing = true; };
+  Sim.prototype.addBurst = function (x, y, R, gen, chain, kind, shellId) {
+    var b = { id: this.nextBurst++, x: x, y: y, R: R, t0: this.t, gen: gen, chain: chain, kind: kind, shell: shellId };
+    this.bursts.push(b); return b;
+  };
+  Sim.prototype.step = function () {
+    if (this.done) return;
+    this.t += STEP; var t = this.t, i, s;
+    // 1 · rockets reach their target and burst (generation 0)
+    for (i = 0; i < this.rockets.length; i++) { var rk = this.rockets[i]; if (!rk.burst && t >= rk.tBurst) { rk.burst = true; var pb = this.addBurst(rk.x, rk.y, round2(PLAYER_R * TIERS[this.spec.tier].radius), 0, rk.chain, 'launch', -1); this.emit({ type: 'burst', t: t, kind: 'launch', burst: pb.id, chain: rk.chain, x: rk.x, y: rk.y, R: pb.R }); } }
+    this.rockets = this.rockets.filter(function (r) { return !r.burst; });
+    // 2 · ignited shells whose fuse has run out explode at their position at this moment
+    for (i = 0; i < this.shells.length; i++) { s = this.shells[i];
+      if (s.state === 'ignited' && t >= s.tExplode) { var p = posAt(s, s.tExplode); s.state = 'exploding'; s.ex = round2(p.x); s.ey = round2(p.y);
+        var b = this.addBurst(s.ex, s.ey, s.R, s.gen, s.chain, s.type, s.id); this.emit({ type: 'explode', t: t, shell: s.id, burst: b.id, kind: s.type, color: s.color, gen: s.gen, chain: s.chain, x: s.ex, y: s.ey, R: s.R });
+        if (s.type === 'echo') this.pending.push({ t: s.tExplode + C.echoDelay, shell: s.id }); } }
+    // 3 · echo second pulses (same generation as the echo shell; the echo itself is not re-scored)
+    for (i = 0; i < this.pending.length; i++) { var pe = this.pending[i]; if (!pe.fired && t >= pe.t) { pe.fired = true; var es = this.shells[pe.shell], b2 = this.addBurst(es.ex, es.ey, es.R2, es.gen, es.chain, 'echo2', es.id); this.emit({ type: 'echo2', t: t, shell: es.id, burst: b2.id, x: es.ex, y: es.ey, R: es.R2, color: es.color }); } }
+    // 4 · continuous expanding-radius collision: bursts in creation order, shells in id order (deterministic tie-break)
+    var live = 0;
+    for (i = 0; i < this.bursts.length; i++) { var bu = this.bursts[i]; if (t < bu.t0 || t > bu.t0 + C.growMs + C.holdMs) continue; live++;
+      var rr = radiusAt(bu, t) + C.shellHit;
+      for (var j = 0; j < this.shells.length; j++) { s = this.shells[j]; if (s.state !== 'dormant') continue;
+        var q = posAt(s, t), dx = q.x - bu.x, dy = q.y - bu.y;
+        if (dx * dx + dy * dy <= rr * rr) { s.state = 'ignited'; s.tIgnite = t; s.tExplode = t + s.fuse; s.gen = bu.gen + 1; s.chain = bu.chain; s.by = bu.id; s.ix = round2(q.x); s.iy = round2(q.y);
+          this.emit({ type: 'ignite', t: t, shell: s.id, by: bu.id, gen: s.gen, chain: s.chain, x: s.ix, y: s.iy }); } } }
+    this.peakBursts = Math.max(this.peakBursts, live);
+    // 5 · retire bursts and spend shells once their light is gone
+    var self = this;
+    this.bursts = this.bursts.filter(function (b) { return t <= b.t0 + C.growMs + C.holdMs; });
+    for (i = 0; i < this.shells.length; i++) { s = this.shells[i]; if (s.state === 'exploding') { var endT = s.tExplode + C.growMs + C.holdMs + (s.type === 'echo' ? C.echoDelay : 0); if (t > endT) { s.state = 'spent'; self.emit({ type: 'spent', t: t, shell: s.id }); } } }
+    this.pending = this.pending.filter(function (p) { return !p.fired; });
+    // 6 · round end: launches gone (or the player finished, or the sky is empty) and nothing is still burning
+    var busy = this.rockets.length || this.bursts.length || this.pending.length || this.shells.some(function (z) { return z.state === 'ignited' || z.state === 'exploding'; });
+    var allSpent = this.shells.every(function (z) { return z.state === 'spent'; });
+    if (!busy && (this.launchesLeft === 0 || this.finishing || allSpent) && (this.launchesUsed > 0 || this.finishing)) { this.done = true; this.result = score(this); this.emit({ type: 'done', t: t }); }
+    if (this.t > C.settleCapMs && !busy && !this.done) { /* sky idle for a minute with launches left: keep waiting for the player */ }
+  };
+  Sim.prototype.advance = function (ms) { var n = Math.floor(ms / STEP); for (var i = 0; i < n && !this.done; i++) this.step(); return n; };
+  Sim.prototype.busy = function () { return !!(this.rockets.length || this.bursts.length || this.pending.length || this.shells.some(function (z) { return z.state === 'ignited' || z.state === 'exploding'; })); };
+  Sim.prototype.runToSettle = function (cap) { var n = 0; cap = cap || 20000; while (!this.done && n++ < cap) { this.step(); if (!this.busy()) break; } };
+  Sim.prototype.drain = function () { var e = this.events; this.events = []; return e; };
+  Sim.prototype.live = function () { return liveStats(this); };
+  Sim.prototype.clone = function () { var c = new Sim(this.spec), self = this; ['t', 'launchesLeft', 'launchesUsed', 'lastLaunch', 'nextBurst', 'finishing', 'done', 'peakBursts'].forEach(function (k) { c[k] = self[k]; });
+    c.shells = JSON.parse(JSON.stringify(this.shells)); c.rockets = JSON.parse(JSON.stringify(this.rockets)); c.bursts = JSON.parse(JSON.stringify(this.bursts)); c.pending = JSON.parse(JSON.stringify(this.pending)); c.launchLog = this.launchLog.slice(); c.log = []; return c; };
+  Sim.prototype.posOf = function (id) { return posAt(this.shells[id], this.t); };
+
+  /* ================================================================ 5 · scoring (computed only from the shells' recorded ignition data) */
+  function chainsOf(sim) {
+    var chains = []; for (var c = 0; c < sim.launchLog.length; c++) chains.push({ chain: c, shells: [], gens: {} });
+    sim.shells.forEach(function (s) { if (s.gen > 0 && s.chain >= 0 && chains[s.chain]) { chains[s.chain].shells.push(s); chains[s.chain].gens[s.gen] = (chains[s.chain].gens[s.gen] || 0) + 1; } });
+    return chains;
+  }
+  function chainScore(ch) {
+    var n = ch.shells.length, shellPts = SCORE.shell * n, depthPts = 0, colors = {}, prisms = 0, maestros = 0, depth = 0, width = 0;
+    ch.shells.forEach(function (s) { depthPts += SCORE.depth * s.gen; colors[s.color] = 1; if (s.type === 'prism') prisms++; if (s.type === 'maestro') maestros++; if (s.gen > depth) depth = s.gen; });
+    for (var g in ch.gens) width = Math.max(width, ch.gens[g]);
+    var nc = Object.keys(colors).length, mult = n ? Math.min(SCORE.multCap, 1 + SCORE.multStep * (n - 1)) : 1;
+    var reaction = Math.round((shellPts + depthPts) * mult), harmony = nc >= 2 ? SCORE.harmony * (nc - 1) : 0, prism = prisms * SCORE.prism * nc, maestro = n >= SCORE.maestroMin ? maestros * SCORE.maestro : 0;
+    return { chain: ch.chain, size: n, depth: depth, width: width, colors: nc, mult: Math.round(mult * 100) / 100, shellPts: shellPts, depthPts: depthPts, reaction: reaction, harmony: harmony, prism: prism, maestro: maestro, maestroCount: maestros, prismCount: prisms, total: reaction + harmony + prism + maestro };
+  }
+  function score(sim) {
+    var chains = chainsOf(sim).map(chainScore), ignited = sim.shells.filter(function (s) { return s.gen > 0; }).length, total = sim.shells.length;
+    var reaction = 0, harmony = 0, prism = 0, maestro = 0, best = null, depth = 0, width = 0, colors = {};
+    chains.forEach(function (c) { reaction += c.reaction; harmony += c.harmony; prism += c.prism; maestro += c.maestro; if (!best || c.size > best.size) best = c; depth = Math.max(depth, c.depth); width = Math.max(width, c.width); });
+    sim.shells.forEach(function (s) { if (s.gen > 0) colors[s.color] = 1; });
+    var base = reaction + harmony + prism + maestro, target = sim.spec.target || 0, perfect = ignited === total && total > 0;
+    var perfectPts = perfect ? SCORE.perfect : 0, efficiency = (base + perfectPts >= target) ? SCORE.launch * sim.launchesLeft : 0, sc = base + perfectPts + efficiency;
+    return { score: sc, cleared: sc >= target && target > 0, target: target, ignited: ignited, total: total, perfect: perfect, chains: chains, longestChain: best ? best.size : 0, depth: depth, width: width, peakBursts: sim.peakBursts, colors: Object.keys(colors).length,
+      parts: { reaction: reaction, harmony: harmony, prism: prism, maestro: maestro, musical: harmony + prism + maestro, efficiency: efficiency, perfect: perfectPts }, launchesUsed: sim.launchesUsed, launchesLeft: sim.launchesLeft };
+  }
+  function liveStats(sim) { // HUD figures while the sky is still burning (same formulas, provisional)
+    var chains = chainsOf(sim).map(chainScore), sc = 0, mult = 1, depth = 0;
+    chains.forEach(function (c) { sc += c.total; if (c.size) mult = Math.max(mult, c.mult); depth = Math.max(depth, c.depth); });
+    return { score: sc, ignited: sim.shells.filter(function (s) { return s.gen > 0; }).length, total: sim.shells.length, mult: mult, depth: depth };
+  }
+  function replay(spec, plan) { // plan: [{t, x, y}] launch times in ms (multiples of 10)
+    var sim = new Sim(spec), i = 0, guard = 0;
+    while (!sim.done && guard++ < 100000) { while (i < plan.length && plan[i].t <= sim.t) { sim.launch(plan[i].x, plan[i].y); i++; } if (i >= plan.length && !sim.busy()) { sim.finish(); } sim.step(); }
+    return sim;
+  }
+
+  /* ================================================================ 6 · solver: greedy search used to set reachable targets */
+  function candidates(sim, delays, pairs) {
+    var out = [];
+    delays.forEach(function (dt) {
+      var tb = sim.t + dt + C.rocketMs, dormant = sim.shells.filter(function (s) { return s.state === 'dormant'; });
+      dormant.forEach(function (s) { var p = posAt(s, tb); out.push({ dt: dt, x: round2(p.x), y: round2(p.y) }); });
+      if (pairs !== false) for (var a = 0; a < dormant.length; a++) for (var b = a + 1; b < dormant.length; b++) { var pa = posAt(dormant[a], tb), pb = posAt(dormant[b], tb), dx = pa.x - pb.x, dy = pa.y - pb.y; if (dx * dx + dy * dy < 170 * 170 && out.length < 400) out.push({ dt: dt, x: round2((pa.x + pb.x) / 2), y: round2((pa.y + pb.y) / 2) }); }
+    });
+    return out;
+  }
+  // Solver: greedy, one launch at a time (each launch chosen after the previous reaction settles).
+  // It is a lower bound on what a player can achieve (players may also launch mid-reaction).
+  // Written as a resumable worker so the browser can run it in small slices without freezing.
+  function Solver(spec, opts) {
+    opts = opts || {}; this.spec = spec; this.sim = new Sim(spec); this.plan = []; this.k = 0; this.cands = null; this.i = 0; this.best = null; this.done = false; this.evals = 0;
+    this.pairs = opts.pairs !== undefined ? opts.pairs : spec.kind !== 'endless';   // Endless uses a lighter search so goals are ready within the intro
+    this.delays = spec.shells.some(function (s) { return s.type === 'comet'; }) ? (opts.delays || (this.pairs ? [0, 600, 1200, 1800, 2400] : [0, 800, 1600])) : [0];
+  }
+  Solver.prototype.stepOne = function () {
+    if (this.done) return true;
+    if (this.k >= this.spec.launches) return this.finish();
+    if (!this.cands) { this.cands = candidates(this.sim, this.delays, this.pairs); this.i = 0; this.best = null; }
+    if (this.i < this.cands.length) {
+      var cd = this.cands[this.i++], c = this.sim.clone(); c.advance(cd.dt); c.launch(cd.x, cd.y); c.runToSettle(); this.evals++;
+      var g = chainScore(chainsOf(c)[c.launchLog.length - 1]).total; if (!this.best || g > this.best.g) this.best = { g: g, c: cd };
+      return false;
+    }
+    if (!this.best || this.best.g <= 0) return this.finish();
+    this.sim.advance(this.best.c.dt); this.plan.push({ t: this.sim.t, x: this.best.c.x, y: this.best.c.y }); this.sim.launch(this.best.c.x, this.best.c.y); this.sim.runToSettle();
+    this.k++; this.cands = null; return false;
+  };
+  Solver.prototype.finish = function () { this.sim.finish(); var g = 0; while (!this.sim.done && g++ < 100000) this.sim.step(); this.result = this.sim.result; this.done = true; return true; };
+  Solver.prototype.work = function (ms, now) { var t0 = now(); while (!this.done && now() - t0 < ms) this.stepOne(); return this.done; };
+  Solver.prototype.run = function () { while (!this.done) this.stepOne(); return { plan: this.plan, result: this.result, sim: this.sim }; };
+  function solve(spec, opts) { return new Solver(spec, opts).run(); }
+  function targetFrom(spec, solverResult) {
+    var base = solverResult.score - solverResult.parts.efficiency, frac = spec.kind === 'journey' ? TIERS[spec.tier].targetFrac : Math.min(0.8, TIERS[spec.tier].endlessFrac + spec.index * 0.01);
+    return Math.max(300, Math.round(base * frac / 50) * 50);
+  }
+  function applyTarget(spec, target, solverScore, plan) { spec.target = target; spec.solverScore = solverScore; spec.solverPlan = plan || null; return spec; }
+  // Journey targets are precomputed by tools/targets.js into SkyTargets (the tests check the table still matches this solver).
+  function round(index, tier) {
+    var spec = buildRound(index, tier), tbl = root.SkyTargets && root.SkyTargets[tier] && root.SkyTargets[tier][index];
+    if (tbl) return applyTarget(spec, tbl.target, tbl.solver, tbl.plan);
+    var sv = solve(spec); return applyTarget(spec, targetFrom(spec, sv.result), sv.result.score - sv.result.parts.efficiency, sv.plan);
+  }
+  function endless(k, tier) { var spec = buildEndless(k, tier), sv = solve(spec); return applyTarget(spec, targetFrom(spec, sv.result), sv.result.score - sv.result.parts.efficiency, sv.plan); }
+
+  /* ================================================================ 7 · campaign helpers */
+  function grade(total, targets) { var r = targets ? total / targets : 0; return r >= 1.6 ? 'S' : r >= 1.35 ? 'A' : r >= 1.15 ? 'B' : r >= 1 ? 'C' : 'D'; }
+  function shareText(o) {
+    return ['SKYFIRE CONDUCTOR', 'DoorQuests · Gamortal #007', '', 'Mode: ' + o.mode, 'Tier: ' + TIERS[o.tier].label, (o.mode === 'Festival Journey' ? 'Rounds Cleared: ' + o.cleared + '/15' : 'Rounds Cleared: ' + o.cleared), 'Final Score: ' + o.score.toLocaleString('en-US'),
+      'Longest Chain: ' + o.longest + ' shells', 'Best Cascade Depth: ' + o.depth, 'Perfect Clears: ' + o.perfects, '', 'Conduct the night. Ignite the impossible.', 'doorquests.com/games/skyfire-conductor/'].join('\n');
+  }
+
+  root.SkyEngine = { VERSION: VERSION, W: W, H: H, SKY_TOP: SKY_TOP, SKY_BOTTOM: SKY_BOTTOM, STEP: STEP, C: C, TIERS: TIERS, TIER_IDS: TIER_IDS, TYPES: TYPES, TYPE_IDS: TYPE_IDS, COLORS: COLORS, COLOR_IDS: COLOR_IDS, SCORE: SCORE, PLAYER_R: PLAYER_R,
+    ROUNDS: ROUNDS, buildRound: buildRound, buildEndless: buildEndless, finalizeShells: finalizeShells, round: round, endless: endless, Solver: Solver, targetFrom: targetFrom, applyTarget: applyTarget, Sim: Sim, score: score, chainScore: chainScore, chainsOf: chainsOf, replay: replay, solve: solve,
+    posAt: posAt, radiusAt: radiusAt, h32: h32, stream: stream, grade: grade, shareText: shareText };
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script id="sky-app">
+/* Skyfire Conductor — app layer: storage · audio · painter (canvas + pooled particles) · input · round/campaign flow · screens.
+   Nothing here changes the engine's authoritative state except through Sim.launch / Sim.finish / Sim.step. */
+(function () {
+  'use strict';
+  var E = window.SkyEngine, W = E.W, H = E.H, STEP = E.STEP;
+  var KEY = 'doorquests.gamortal.007.skyfire-conductor.v1';
+  var QS = (function () { try { return new URLSearchParams(location.search); } catch (e) { return { get: function () { return null; } }; } })();
+  var DEV = QS.get('dev') === '1';
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function el(tag, attrs, text) { var e = document.createElement(tag); if (attrs) for (var k in attrs) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); } if (text !== undefined && text !== null) e.textContent = text; return e; }
+  function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function announce(msg) { var l = $('#live'); l.textContent = ''; setTimeout(function () { l.textContent = msg; }, 30); }
+  function now() { return performance.now(); }
+
+  /* ================================================================ storage */
+  var storageOk = true, memStore = null, notes = [];
+  function rawGet() { try { return localStorage.getItem(KEY); } catch (e) { storageOk = false; return memStore; } }
+  function rawSet(v) { try { localStorage.setItem(KEY, v); } catch (e) { storageOk = false; memStore = v; } }
+  function blankJourney() { var r = []; for (var i = 0; i < 15; i++) r.push(null); return { next: 0, rounds: r, retries: 0 }; }
+  function blankRec() { return { journeyBest: 0, journeysDone: 0, endlessBest: 0, endlessRounds: 0, bestRound: 0, longest: 0, depth: 0, perfects: 0, roundsCleared: 0, roundsPlayed: 0, shells: 0 }; }
+  function blank() { var j = {}, r = {}; E.TIER_IDS.forEach(function (t) { j[t] = blankJourney(); r[t] = blankRec(); }); return { v: 1, prefs: { sound: true, volume: 70, ambient: false, motion: 'auto', touch: 'tap', tier: 'silver' }, journey: j, records: r, unlocked: false }; }
+  function isInt(v, lo, hi) { return typeof v === 'number' && isFinite(v) && Math.floor(v) === v && v >= lo && v <= hi; }
+  function validRound(x) { return x === null || (x && isInt(x.score, 0, 1e8) && typeof x.perfect === 'boolean' && isInt(x.longest, 0, 100) && isInt(x.depth, 0, 100)); }
+  function load() {
+    var s = blank(), raw = rawGet(); if (!raw) return s;
+    var d; try { d = JSON.parse(raw); } catch (e) { notes.push('Saved records could not be read and were reset.'); return s; }
+    if (!d || typeof d !== 'object' || d.v !== 1) { notes.push('Saved records were in an unknown format and were reset.'); return s; }
+    var bad = 0, p = d.prefs || {};
+    if (typeof p.sound === 'boolean') s.prefs.sound = p.sound; if (isInt(p.volume, 0, 100)) s.prefs.volume = p.volume; if (typeof p.ambient === 'boolean') s.prefs.ambient = p.ambient;
+    if (['auto', 'reduced', 'full'].indexOf(p.motion) >= 0) s.prefs.motion = p.motion; if (['tap', 'aim'].indexOf(p.touch) >= 0) s.prefs.touch = p.touch; if (E.TIERS[p.tier]) s.prefs.tier = p.tier;
+    E.TIER_IDS.forEach(function (t) {
+      var j = d.journey && d.journey[t];
+      if (j) { if (isInt(j.next, 0, 15) && Array.isArray(j.rounds) && j.rounds.length === 15 && j.rounds.every(validRound) && isInt(j.retries, 0, 1e7) && j.rounds.every(function (x, i) { return i < j.next ? x !== null : true; })) s.journey[t] = { next: j.next, rounds: j.rounds, retries: j.retries }; else bad++; }
+      var r = d.records && d.records[t];
+      if (r) { var ok = Object.keys(blankRec()).every(function (k) { return isInt(r[k], 0, 1e9); }); if (ok) s.records[t] = r; else bad++; }
+    });
+    if (typeof d.unlocked === 'boolean') s.unlocked = d.unlocked;
+    if (bad) notes.push('Some saved records were invalid and were removed.');
+    return s;
+  }
+  var SAVE = load();
+  function persist() { try { rawSet(JSON.stringify(SAVE)); } catch (e) { storageOk = false; } }
+
+  /* ================================================================ motion / effects */
+  var mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  function reduced() { var m = SAVE.prefs.motion; return m === 'reduced' || (m === 'auto' && !!(mq && mq.matches)); }
+  function applyMotion() { document.body.classList.toggle('reduce', reduced()); if (PLAY) PLAY.pool.setBudget(reduced() ? 700 : 2400); if (TITLE) TITLE.pool.setBudget(reduced() ? 250 : 900); }
+
+  /* ================================================================ audio (Web Audio, generated; starts after a gesture) */
+  var AU = { ctx: null, master: null, voices: 0, amb: null, unlocked: false, maxVoices: 28 };
+  function audioInit() {
+    AU.unlocked = true; if (!SAVE.prefs.sound) return;
+    if (!AU.ctx) { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; try { AU.ctx = new AC(); AU.master = AU.ctx.createGain(); var comp = AU.ctx.createDynamicsCompressor(); AU.master.connect(comp); comp.connect(AU.ctx.destination); } catch (e) { AU.ctx = null; return; } }
+    AU.master.gain.value = SAVE.prefs.volume / 100 * 0.5; if (AU.ctx.state === 'suspended') AU.ctx.resume().catch(function () {});
+  }
+  function live() { return AU.ctx && SAVE.prefs.sound && AU.ctx.state !== 'closed'; }
+  function hz(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+  function tone(f, d, type, v, w, glide) {
+    if (!live() || AU.voices >= AU.maxVoices) return; var c = AU.ctx;
+    try { var t = c.currentTime + (w || 0), o = c.createOscillator(), g = c.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (glide) o.frequency.exponentialRampToValueAtTime(glide, t + d);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g); g.connect(AU.master); o.start(t); o.stop(t + d + 0.03); AU.voices++;
+      o.onended = function () { AU.voices--; o.disconnect(); g.disconnect(); }; } catch (e) { /* optional */ }
+  }
+  var noiseBuf = null;
+  function noise(d, f, q, v, w, type, glideTo) {
+    if (!live() || AU.voices >= AU.maxVoices) return; var c = AU.ctx;
+    try { if (!noiseBuf) { var n = c.sampleRate, b = c.createBuffer(1, n, n), x = b.getChannelData(0), seed = 7; for (var i = 0; i < n; i++) { seed = (seed * 16807) % 2147483647; x[i] = seed / 1073741823.5 - 1; } noiseBuf = b; }
+      var t = c.currentTime + (w || 0), s = c.createBufferSource(), fl = c.createBiquadFilter(), g = c.createGain(); s.buffer = noiseBuf; fl.type = type || 'bandpass'; fl.frequency.setValueAtTime(f, t); if (glideTo) fl.frequency.exponentialRampToValueAtTime(glideTo, t + d); fl.Q.value = q;
+      g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d); s.connect(fl); fl.connect(g); g.connect(AU.master); s.start(t); s.stop(t + d + 0.02); AU.voices++;
+      s.onended = function () { AU.voices--; s.disconnect(); fl.disconnect(); g.disconnect(); }; } catch (e) { /* optional */ }
+  }
+  var MUS = {
+    launch: function () { noise(0.35, 600, 1.2, 0.08, 0, 'bandpass', 2400); },
+    burst: function () { noise(0.25, 180, 0.8, 0.18); tone(110, 0.2, 'sine', 0.08, 0, 70); },
+    note: function (type, colorId, gen) {
+      var m = E.COLORS[colorId].midi, v = Math.max(0.05, 0.11 - gen * 0.004);
+      if (type === 'starburst') { tone(hz(m - 12), 0.9, 'triangle', v * 1.1); tone(hz(m), 0.6, 'sine', v * 0.5); noise(0.3, 220, 0.9, 0.08); }
+      else if (type === 'comet') { tone(hz(m), 0.55, 'sine', v, 0, hz(m + 12)); }
+      else if (type === 'echo') { tone(hz(m), 0.5, 'triangle', v); tone(hz(m), 0.5, 'triangle', v * 0.45, 0.18); }
+      else if (type === 'prism') { [0, 4, 7, 12].forEach(function (s, i) { tone(hz(m + s), 0.7, 'sine', v * 0.7, i * 0.045); }); }
+      else if (type === 'maestro') { [0, 2, 4, 7, 9, 12].forEach(function (s, i) { tone(hz(m + s), 0.5, 'triangle', v * 0.75, i * 0.06); }); }
+      else { tone(hz(m), 0.6, 'triangle', v); tone(hz(m + 12), 0.25, 'sine', v * 0.3); }
+    },
+    echo2: function (colorId) { tone(hz(E.COLORS[colorId].midi + 12), 0.5, 'sine', 0.05); },
+    milestone: function () { [60, 64, 67, 72].forEach(function (m, i) { tone(hz(m), 0.9, 'triangle', 0.06, i * 0.07); }); },
+    finale: function () { [48, 55, 60, 64, 67, 72, 76].forEach(function (m, i) { tone(hz(m), 1.8, 'sine', 0.05, i * 0.05); }); },
+    win: function () { [60, 64, 67, 72, 76, 79].forEach(function (m, i) { tone(hz(m), 0.6, 'triangle', 0.07, i * 0.09); }); },
+    fail: function () { [67, 64, 62, 60].forEach(function (m, i) { tone(hz(m), 0.5, 'sine', 0.06, i * 0.16); }); }
+  };
+  function ambStart() {
+    if (AU.amb || !live() || !SAVE.prefs.ambient) return; var c = AU.ctx;
+    try { var g = c.createGain(), f = c.createBiquadFilter(), oscs = [48, 55, 60].map(function (m) { var o = c.createOscillator(); o.type = 'sine'; o.frequency.value = hz(m); o.connect(f); o.start(); return o; });
+      f.type = 'lowpass'; f.frequency.value = 600; f.connect(g); g.gain.value = 0.02; g.connect(AU.master); AU.amb = { oscs: oscs, nodes: [f, g] }; } catch (e) { AU.amb = null; }
+  }
+  function ambStop() { if (!AU.amb) return; try { AU.amb.oscs.forEach(function (o) { o.stop(); o.disconnect(); }); AU.amb.nodes.forEach(function (n) { n.disconnect(); }); } catch (e) { /* ignore */ } AU.amb = null; }
+  function setSound(on) { SAVE.prefs.sound = on; persist(); if (on) { audioInit(); if (G.sim && !G.paused) ambStart(); } else ambStop(); if (AU.master) AU.master.gain.value = on ? SAVE.prefs.volume / 100 * 0.5 : 0; syncMute(); }
+  function syncMute() { var b = $('#b-mute'); b.setAttribute('aria-pressed', SAVE.prefs.sound ? 'true' : 'false'); b.setAttribute('aria-label', 'Sound ' + (SAVE.prefs.sound ? 'on' : 'off') + ' (M)'); }
+
+  /* ================================================================ particles (fixed pool, ring-buffer reuse; visual only) */
+  function Pool(max) { this.cap = 2400; this.budget = max; this.x = new Float32Array(this.cap); this.y = new Float32Array(this.cap); this.vx = new Float32Array(this.cap); this.vy = new Float32Array(this.cap); this.life = new Float32Array(this.cap); this.max = new Float32Array(this.cap); this.size = new Float32Array(this.cap); this.col = new Uint8Array(this.cap); this.grav = new Float32Array(this.cap); this.head = 0; this.alive = 0; this.peak = 0; }
+  Pool.prototype.setBudget = function (n) { this.budget = Math.min(this.cap, n); };
+  Pool.prototype.spawn = function (x, y, vx, vy, life, size, col, grav) { var i = this.head; this.head = (this.head + 1) % this.budget; this.x[i] = x; this.y[i] = y; this.vx[i] = vx; this.vy[i] = vy; this.life[i] = life; this.max[i] = life; this.size[i] = size; this.col[i] = col; this.grav[i] = grav; };
+  Pool.prototype.update = function (dt) { var a = 0, drag = Math.pow(0.35, dt); for (var i = 0; i < this.budget; i++) { if (this.life[i] <= 0) continue; this.life[i] -= dt; if (this.life[i] <= 0) continue; a++; this.vx[i] *= drag; this.vy[i] = this.vy[i] * drag + this.grav[i] * dt; this.x[i] += this.vx[i] * dt; this.y[i] += this.vy[i] * dt; } for (var j = this.budget; j < this.cap; j++) this.life[j] = 0; this.alive = a; this.peak = Math.max(this.peak, a); };
+  Pool.prototype.clear = function () { this.life.fill(0); this.alive = 0; };
+  var PCOL = E.COLOR_IDS.map(function (c) { return E.COLORS[c].hex; }).concat(['#fff6d0', '#f6f1e4', '#9fe8ff', '#ff7ad9']); // 6 ivory=7 cyan=8 magenta=9 ; 6 = warm white
+  function colIndex(id) { return E.COLOR_IDS.indexOf(id); }
+
+  /* ================================================================ painter */
+  function Painter(canvas, cover) { this.c = canvas; this.ctx = canvas.getContext('2d'); this.cover = !!cover; this.pool = new Pool(cover ? 900 : 2400); this.labels = []; this.rings = []; this.k = 1; this.ox = 0; this.oy = 0; this.bg = null; this.sprites = null; this.t = 0; this.flash = 0; }
+  Painter.prototype.resize = function (cssW, cssH) {
+    var dpr = Math.min(2, window.devicePixelRatio || 1), c = this.c;
+    c.style.width = cssW + 'px'; c.style.height = cssH + 'px'; c.width = Math.max(1, Math.round(cssW * dpr)); c.height = Math.max(1, Math.round(cssH * dpr));
+    if (this.cover) { this.k = Math.max(c.width / W, c.height / H); this.ox = (c.width - W * this.k) / 2; this.oy = (c.height - H * this.k) / 2; } else { this.k = c.width / W; this.ox = 0; this.oy = 0; }
+    this.bg = buildBackdrop(c.width, c.height, this.k, this.ox, this.oy); this.sprites = buildSprites(Math.max(8, Math.round(16 * this.k)));
+  };
+  function buildSprites(px) { return PCOL.map(function (hex) { var s = document.createElement('canvas'); s.width = s.height = px * 2; var g = s.getContext('2d'), gr = g.createRadialGradient(px, px, 0, px, px, px); gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.25, hex); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, px * 2, px * 2); return s; }); }
+  function buildBackdrop(w, h, k, ox, oy) {
+    var cv = document.createElement('canvas'); cv.width = w; cv.height = h; var g = cv.getContext('2d'), r = E.stream('luminara-backdrop');
+    var sky = g.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, '#05061a'); sky.addColorStop(0.55, '#141244'); sky.addColorStop(0.8, '#2a1d55'); sky.addColorStop(1, '#0a0b26'); g.fillStyle = sky; g.fillRect(0, 0, w, h);
+    g.save(); g.translate(ox, oy); g.scale(k, k);
+    for (var i = 0; i < 220; i++) { var x = r() * W, y = r() * 470, s = r() < 0.08 ? 1.3 : 0.6; g.globalAlpha = 0.25 + r() * 0.55; g.fillStyle = r() < 0.15 ? '#d9cbff' : '#f6f1e4'; g.beginPath(); g.arc(x, y, s, 0, 6.283); g.fill(); }
+    g.globalAlpha = 1; var mg = g.createRadialGradient(880, 80, 0, 880, 80, 70); mg.addColorStop(0, 'rgba(246,241,228,.9)'); mg.addColorStop(0.35, 'rgba(246,241,228,.25)'); mg.addColorStop(1, 'rgba(246,241,228,0)'); g.fillStyle = mg; g.beginPath(); g.arc(880, 80, 70, 0, 6.283); g.fill();
+    g.fillStyle = '#f3ecd8'; g.beginPath(); g.arc(880, 80, 18, 0, 6.283); g.fill(); g.fillStyle = '#141244'; g.beginPath(); g.arc(888, 74, 16, 0, 6.283); g.fill();
+    // skyline of Luminara (kept below the shell band)
+    var base = 576; g.fillStyle = '#0b0b24';
+    for (var x2 = 0; x2 < W;) { var bw = 24 + r() * 46, bh = 14 + r() * 30; if (r() < 0.12) bh += 14; g.fillRect(x2, base - bh, bw, bh + 4); if (r() < 0.2) { g.beginPath(); g.moveTo(x2, base - bh); g.lineTo(x2 + bw / 2, base - bh - 8 - r() * 8); g.lineTo(x2 + bw, base - bh); g.fill(); }
+      g.fillStyle = 'rgba(243,217,138,.55)'; for (var wy = base - bh + 6; wy < base - 6; wy += 9) for (var wx = x2 + 4; wx < x2 + bw - 4; wx += 8) if (r() < 0.22) g.fillRect(wx, wy, 2.4, 3.2); g.fillStyle = '#0b0b24'; x2 += bw + 2 + r() * 6; }
+    // towers
+    [[160, 52], [520, 60], [770, 48]].forEach(function (tw) { g.fillStyle = '#0d0d2a'; g.fillRect(tw[0] - 9, base - tw[1], 18, tw[1]); g.beginPath(); g.moveTo(tw[0] - 12, base - tw[1]); g.lineTo(tw[0], base - tw[1] - 16); g.lineTo(tw[0] + 12, base - tw[1]); g.fill(); g.fillStyle = '#f3d98a'; g.globalAlpha = 0.8; g.fillRect(tw[0] - 2, base - tw[1] + 10, 4, 5); g.globalAlpha = 1; });
+    // river with festival lanterns and reflections
+    var rv = g.createLinearGradient(0, base, 0, H); rv.addColorStop(0, '#11123a'); rv.addColorStop(1, '#070820'); g.fillStyle = rv; g.fillRect(0, base, W, H - base);
+    for (var l = 0; l < 26; l++) { var lx = 20 + l * 38 + r() * 10, ly = base + 6 + r() * 4; g.fillStyle = l % 3 ? '#ffae4a' : '#ff5a6e'; g.globalAlpha = 0.85; g.beginPath(); g.arc(lx, ly, 2.2, 0, 6.283); g.fill(); g.globalAlpha = 0.2; g.fillRect(lx - 1, ly + 4, 2, 14 + r() * 10); }
+    g.globalAlpha = 1; g.fillStyle = '#060616';
+    for (var p = 0; p < 70; p++) { var px = p * 14.5 + r() * 6, ph = 9 + r() * 5; g.beginPath(); g.arc(px, H - ph - 4, 3.2, 0, 6.283); g.fill(); g.fillRect(px - 3.5, H - ph - 2, 7, ph + 2); }
+    g.restore();
+    return cv;
+  }
+  Painter.prototype.w2s = function (x, y) { return { x: this.ox + x * this.k, y: this.oy + y * this.k }; };
+  Painter.prototype.explode = function (x, y, colorId, type, big) {
+    var p = this.pool, red = reduced(), n = red ? 14 : (type === 'starburst' ? 90 : type === 'prism' ? 80 : type === 'maestro' ? 70 : type === 'launch' ? 36 : type === 'echo2' ? 26 : 56), ci = colorId ? colIndex(colorId) : 6, sp = (type === 'starburst' ? 230 : 160) * (big || 1);
+    for (var i = 0; i < n; i++) { var a = (i / n) * 6.283 + Math.random() * 0.3, v = sp * (0.45 + Math.random() * 0.6), c = type === 'prism' ? (i % 6) : type === 'maestro' ? (i % 3 ? 2 : ci) : type === 'launch' ? (i % 4 ? 6 : 7) : ci;
+      p.spawn(x, y, Math.cos(a) * v, Math.sin(a) * v, 0.9 + Math.random() * 0.8, 1 + Math.random() * 1.2, c, 60); }
+    if (!red && type !== 'echo2') for (var j = 0; j < n / 3; j++) p.spawn(x + (Math.random() - 0.5) * 30, y + (Math.random() - 0.5) * 30, (Math.random() - 0.5) * 30, 20 + Math.random() * 30, 1.6 + Math.random() * 1.2, 0.7, type === 'prism' ? 8 : 6, 25);
+  };
+  Painter.prototype.label = function (x, y, text, color) { this.labels.push({ x: x, y: y, text: text, color: color, life: 1.4 }); if (this.labels.length > 50) this.labels.shift(); };
+  Painter.prototype.drawParticles = function (dt) {
+    var g = this.ctx, p = this.pool, k = this.k, sp = this.sprites, ox = this.ox, oy = this.oy, red = reduced();
+    p.update(dt); g.save(); g.globalCompositeOperation = red ? 'source-over' : 'lighter';
+    for (var i = 0; i < p.budget; i++) { if (p.life[i] <= 0) continue; var a = p.life[i] / p.max[i], s = sp[p.col[i]], sz = s.width * (0.35 + 0.65 * a) * p.size[i] * (red ? 0.6 : 0.8); g.globalAlpha = Math.min(1, a * 1.3) * (red ? 0.7 : 1); g.drawImage(s, ox + p.x[i] * k - sz / 2, oy + p.y[i] * k - sz / 2, sz, sz); }
+    g.restore();
+  };
+
+  /* shell glyphs: type = shape, colour = fill + note letter, so nothing relies on colour alone */
+  function shellPath(g, type, x, y, r) {
+    g.beginPath();
+    if (type === 'starburst') { for (var i = 0; i < 16; i++) { var a = i * Math.PI / 8 - Math.PI / 2, rr = i % 2 ? r * 0.55 : r * 1.25; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.closePath(); }
+    else if (type === 'prism') { g.moveTo(x, y - r * 1.25); g.lineTo(x + r * 1.05, y); g.lineTo(x, y + r * 1.25); g.lineTo(x - r * 1.05, y); g.closePath(); }
+    else if (type === 'maestro') { g.moveTo(x - r, y + r * 0.8); g.lineTo(x - r * 1.1, y - r * 0.6); g.lineTo(x - r * 0.45, y - r * 0.05); g.lineTo(x, y - r * 1.05); g.lineTo(x + r * 0.45, y - r * 0.05); g.lineTo(x + r * 1.1, y - r * 0.6); g.lineTo(x + r, y + r * 0.8); g.closePath(); }
+    else g.arc(x, y, r, 0, 6.283);
+  }
+  Painter.prototype.drawShell = function (s, pos, t, hl) {
+    var g = this.ctx, k = this.k, P = this.w2s(pos.x, pos.y), r = Math.max(11 * k, 7 * Math.min(2, window.devicePixelRatio || 1)), col = E.COLORS[s.color].hex, red = reduced();
+    if (s.type === 'comet' && s.state === 'dormant') { var sp = Math.sqrt(s.vx * s.vx + s.vy * s.vy) || 1, tx = -s.vx / sp, ty = -s.vy / sp; var gr = g.createLinearGradient(P.x, P.y, P.x + tx * 46 * k, P.y + ty * 46 * k); gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.strokeStyle = gr; g.lineWidth = 5 * k; g.lineCap = 'round'; g.beginPath(); g.moveTo(P.x, P.y); g.lineTo(P.x + tx * 46 * k, P.y + ty * 46 * k); g.stroke(); }
+    if (!red) { g.save(); g.globalAlpha = 0.35 + 0.15 * Math.sin(t / 300 + s.id); g.drawImage(this.sprites[colIndex(s.color)], P.x - r * 2.6, P.y - r * 2.6, r * 5.2, r * 5.2); g.restore(); }
+    if (s.type === 'echo') { g.strokeStyle = col; g.lineWidth = 2 * k; g.beginPath(); g.arc(P.x, P.y, r * 1.55, 0, 6.283); g.stroke(); }
+    shellPath(g, s.type, P.x, P.y, r);
+    g.fillStyle = s.type === 'prism' ? (function () { var pg = g.createLinearGradient(P.x - r, P.y - r, P.x + r, P.y + r); pg.addColorStop(0, '#ff5a6e'); pg.addColorStop(0.33, '#f3d98a'); pg.addColorStop(0.66, '#5fe0a0'); pg.addColorStop(1, '#6aa8ff'); return pg; })() : col;
+    g.fill(); g.lineWidth = Math.max(1.5, 2.2 * k); g.strokeStyle = hl ? '#ffffff' : '#0a0b26'; g.stroke();
+    if (s.type === 'prism') { g.strokeStyle = col; g.lineWidth = 1.4 * k; g.stroke(); }
+    g.fillStyle = '#0a0b26'; g.font = '700 ' + Math.max(8, Math.round(r)) + 'px system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(E.COLORS[s.color].note, P.x, P.y + (s.type === 'maestro' ? 2 * k : 0.5 * k));
+    if (s.state === 'ignited') { var u = Math.max(0, Math.min(1, (s.tExplode - t) / s.fuse)); g.strokeStyle = '#ffffff'; g.lineWidth = 2.4 * k; g.beginPath(); g.arc(P.x, P.y, r * 1.9, -Math.PI / 2, -Math.PI / 2 + 6.283 * u); g.stroke(); }
+    if (hl) { g.strokeStyle = 'rgba(255,255,255,.9)'; g.setLineDash([4 * k, 3 * k]); g.lineWidth = 1.6 * k; g.beginPath(); g.arc(P.x, P.y, r * 2.1, 0, 6.283); g.stroke(); g.setLineDash([]); }
+  };
+  Painter.prototype.drawBurst = function (b, t) {
+    var g = this.ctx, k = this.k, P = this.w2s(b.x, b.y), r = E.radiusAt(b, t) * k, age = (t - b.t0) / (E.C.growMs + E.C.holdMs), a = Math.max(0, 1 - age * 0.8), red = reduced();
+    var col = b.kind === 'launch' ? '#fff6d0' : b.shell >= 0 && G.sim ? E.COLORS[G.sim.shells[b.shell].color].hex : '#f3d98a';
+    if (!red) { var gr = this.ctx.createRadialGradient(P.x, P.y, 0, P.x, P.y, Math.max(1, r)); gr.addColorStop(0, 'rgba(255,255,255,' + (0.18 * a) + ')'); gr.addColorStop(0.7, hexA(col, 0.10 * a)); gr.addColorStop(1, hexA(col, 0)); g.fillStyle = gr; g.beginPath(); g.arc(P.x, P.y, Math.max(1, r), 0, 6.283); g.fill(); }
+    g.lineWidth = (b.kind === 'echo2' ? 2 : 3) * k; if (b.kind === 'echo2') g.setLineDash([8 * k, 6 * k]);
+    if (b.kind === 'prism') { for (var i = 0; i < 6; i++) { g.strokeStyle = hexA(PCOL[i], 0.9 * a); g.beginPath(); g.arc(P.x, P.y, Math.max(1, r), i * Math.PI / 3, (i + 1) * Math.PI / 3); g.stroke(); } }
+    else { g.strokeStyle = hexA(col, 0.9 * a); g.beginPath(); g.arc(P.x, P.y, Math.max(1, r), 0, 6.283); g.stroke(); }
+    g.setLineDash([]);
+  };
+  function hexA(hex, a) { var n = parseInt(hex.slice(1), 16); return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + Math.max(0, Math.min(1, a)).toFixed(3) + ')'; }
+  Painter.prototype.drawLabels = function (dt) {
+    var g = this.ctx, k = this.k; g.save(); g.textAlign = 'center'; g.textBaseline = 'middle';
+    for (var i = this.labels.length - 1; i >= 0; i--) { var L = this.labels[i]; L.life -= dt; L.y -= 26 * dt; if (L.life <= 0) { this.labels.splice(i, 1); continue; } var P = this.w2s(L.x, L.y); g.globalAlpha = Math.min(1, L.life); g.font = '700 ' + Math.round(14 * k) + 'px system-ui, sans-serif'; g.fillStyle = '#0a0b26'; g.fillText(L.text, P.x + k, P.y + k); g.fillStyle = L.color; g.fillText(L.text, P.x, P.y); }
+    g.restore();
+  };
+
+  /* ================================================================ game state */
+  var G = { mode: null, tier: 'silver', spec: null, sim: null, acc: 0, paused: false, reticle: { x: 500, y: 300 }, aimIdx: -1, solver: null, ready: false, ended: false, endless: null, chainMarks: {}, timeScale: 1, finaleAt: {}, launchClick: 0 };
+  var PLAY = null, TITLE = null;
+  var LOOP = { running: false, id: 0, last: 0, starts: 0, frames: 0 };
+
+  function startLoop() { if (LOOP.running) return; LOOP.running = true; LOOP.starts++; LOOP.last = now(); LOOP.id = requestAnimationFrame(frame); }
+  function stopLoop() { LOOP.running = false; if (LOOP.id) cancelAnimationFrame(LOOP.id); LOOP.id = 0; }
+  function frame(ts) {
+    if (!LOOP.running) return; LOOP.frames++;
+    var raw = Math.min(100, ts - LOOP.last); LOOP.last = ts; var dt = raw / 1000;
+    if (!$('#scr-title').hidden) titleFrame(dt);
+    else if (G.sim && !$('#scr-game').hidden) gameFrame(raw, dt);
+    if (LOOP.running) LOOP.id = requestAnimationFrame(frame);
+  }
+
+  /* ---------------- round setup */
+  function startRound(spec) {
+    G.spec = spec; G.sim = new E.Sim(spec); G.acc = 0; G.ended = false; G.chainMarks = {}; G.finaleAt = {}; G.aimIdx = -1; G.lastHud = ''; G.paused = false;
+    PLAY.pool.clear(); PLAY.labels = []; $('#result').hidden = true; $('#pop').textContent = '';
+    G.ready = spec.target > 0; G.solver = G.ready ? null : new E.Solver(spec);
+    var idt = $('#intro'); idt.innerHTML = ''; var lab = spec.kind === 'journey' ? 'Round ' + pad2(spec.no) + ' of 15' : 'Endless Festival · ' + pad2(spec.no);
+    idt.appendChild(el('p', { class: 'kicker' }, lab)); idt.appendChild(el('h2', null, spec.name)); idt.appendChild(el('p', { id: 'intro-goal' }, introGoal()));
+    idt.hidden = false; clearTimeout(G.introT); G.introT = setTimeout(function () { $('#intro').hidden = true; }, 2600);
+    $('#h-mode').textContent = spec.kind === 'journey' ? 'Round ' + pad2(spec.no) + ' / 15' : 'Endless ' + pad2(spec.no); $('#h-round').textContent = spec.name;
+    hud(true); buildShellList(); announce(lab + ': ' + spec.name + '. ' + introGoal());
+    sizeStage(); startLoop(); ambStart();
+  }
+  function introGoal() { var s = G.spec; return (s.emphasis ? s.emphasis + ' · ' : '') + (s.target ? 'Goal ' + fmt(s.target) : 'Setting the goal…') + ' · ' + s.launches + ' launch' + (s.launches > 1 ? 'es' : '') + ' · ' + s.shells.length + ' shells'; }
+  function restartRound() { if (!G.spec) return; if (G.spec.kind === 'journey' && !G.ended) { SAVE.journey[G.tier].retries++; persist(); } startRound(G.spec); }
+
+  /* ---------------- per frame */
+  function gameFrame(rawMs, dt) {
+    var sim = G.sim;
+    if (!G.ready && G.solver) { if (G.solver.work(10, now)) { var r = G.solver.result; E.applyTarget(G.spec, E.targetFrom(G.spec, r), r.score - r.parts.efficiency, G.solver.plan); sim.spec.target = G.spec.target; G.ready = true; G.solver = null; var ig = $('#intro-goal'); if (ig) ig.textContent = introGoal(); hud(true); } }
+    if (G.ready && !G.paused && !sim.done) {
+      if (DEVS.autoplay) autoplay();
+      G.acc += rawMs * G.timeScale;
+      var n = 0; while (G.acc >= STEP && !sim.done && n++ < 400) { sim.step(); G.acc -= STEP; handleEvents(sim.drain()); if (DEVS.autoplay) autoplay(); }
+      if (sim.done && !G.ended) onRoundDone();
+    } else if (sim.done) handleEvents(sim.drain());
+    draw(dt);
+    hud(false);
+  }
+  function handleEvents(evs) {
+    var sim = G.sim;
+    for (var i = 0; i < evs.length; i++) { var e = evs[i];
+      if (e.type === 'launch') { MUS.launch(); }
+      else if (e.type === 'burst') { PLAY.explode(e.x, e.y, null, 'launch'); MUS.burst(); }
+      else if (e.type === 'explode') { PLAY.explode(e.x, e.y, e.color, e.kind); MUS.note(e.kind, e.color, e.gen); PLAY.label(e.x, e.y - 18, E.COLORS[e.color].note, E.COLORS[e.color].hex); chainMilestones(e.chain); }
+      else if (e.type === 'echo2') { PLAY.explode(e.x, e.y, e.color, 'echo2'); MUS.echo2(e.color); }
+    }
+    if (evs.length) G.lastHud = '';
+  }
+  function chainMilestones(chain) {
+    var ch = E.chainScore(E.chainsOf(G.sim)[chain]), m = G.chainMarks[chain] || (G.chainMarks[chain] = {});
+    [5, 10, 15, 25].forEach(function (n) { if (ch.size >= n && !m['s' + n]) { m['s' + n] = 1; popup('Chain of ' + n + '!', n >= 15 ? 'gold' : ''); if (n >= 15) { MUS.finale(); finale(); } else MUS.milestone(); } });
+    if (ch.maestroCount && ch.size >= E.SCORE.maestroMin && !m.maestro) { m.maestro = 1; popup('Orchestration +' + (E.SCORE.maestro * ch.maestroCount), 'gold'); }
+    if (ch.prismCount && ch.colors >= 3 && (m.prism || 0) < ch.colors) { m.prism = ch.colors; popup('Prism harmony · ' + ch.colors + ' colours'); }
+  }
+  function finale() { if (reduced()) return; for (var i = 0; i < 6; i++) PLAY.explode(150 + i * 140, 90 + (i % 2) * 40, E.COLOR_IDS[i], 'starburst', 0.6); }
+  var popT = null;
+  function popup(text, cls) { var p = $('#pop'), s = el('span', cls ? { class: cls } : null, text); p.appendChild(s); while (p.children.length > 4) p.removeChild(p.firstChild); setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 2400); announce(text); }
+
+  function draw(dt) {
+    var P = PLAY, g = P.ctx, sim = G.sim, t = sim.t + G.acc, k = P.k;
+    g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.drawImage(P.bg, 0, 0);
+    if (!reduced()) drawClouds(P, LOOP.last / 1000);
+    // rockets
+    sim.rockets.forEach(function (rk) { var u = Math.min(1, (t - rk.t0) / E.C.rocketMs), sx = 500 + (rk.x - 500) * 0.15, sy = 600, x = sx + (rk.x - sx) * u, y = sy + (rk.y - sy) * (1 - Math.pow(1 - u, 2)), Pp = P.w2s(x, y); g.fillStyle = '#fff6d0'; g.beginPath(); g.arc(Pp.x, Pp.y, 3 * k, 0, 6.283); g.fill(); if (Math.random() < 0.8) P.pool.spawn(x, y, (Math.random() - 0.5) * 20, 40, 0.5, 0.6, 6, 0); });
+    sim.bursts.forEach(function (b) { if (t >= b.t0) P.drawBurst(b, Math.min(t, b.t0 + E.C.growMs + E.C.holdMs)); });
+    P.drawParticles(dt);
+    // preview (Bronze: ring + direct hits; Silver: ring; Gold: none)
+    var pv = E.TIERS[G.tier].preview, R = E.PLAYER_R * E.TIERS[G.tier].radius, rp = P.w2s(G.reticle.x, G.reticle.y), hits = {};
+    if (pv === 'full' && !sim.done) sim.shells.forEach(function (s) { if (s.state !== 'dormant') return; var q = E.posAt(s, sim.t + E.C.rocketMs), dx = q.x - G.reticle.x, dy = q.y - G.reticle.y; if (dx * dx + dy * dy <= (R + E.C.shellHit) * (R + E.C.shellHit)) hits[s.id] = 1; });
+    sim.shells.forEach(function (s) { if (s.state === 'spent' || s.state === 'exploding') return; P.drawShell(s, E.posAt(s, Math.min(t, s.state === 'ignited' ? s.tExplode : t)), t, hits[s.id] || (G.aimIdx === s.id && G.kbdAim)); });
+    if (!sim.done) {
+      if (pv !== 'none') { g.strokeStyle = 'rgba(243,217,138,.55)'; g.lineWidth = 1.5 * k; g.setLineDash([6 * k, 6 * k]); g.beginPath(); g.arc(rp.x, rp.y, R * k, 0, 6.283); g.stroke(); g.setLineDash([]); }
+      var can = sim.canLaunch() && G.ready; g.strokeStyle = can ? '#ffffff' : 'rgba(255,255,255,.35)'; g.lineWidth = 2 * k; g.beginPath(); g.arc(rp.x, rp.y, 9 * k, 0, 6.283); g.moveTo(rp.x - 16 * k, rp.y); g.lineTo(rp.x - 5 * k, rp.y); g.moveTo(rp.x + 5 * k, rp.y); g.lineTo(rp.x + 16 * k, rp.y); g.moveTo(rp.x, rp.y - 16 * k); g.lineTo(rp.x, rp.y - 5 * k); g.moveTo(rp.x, rp.y + 5 * k); g.lineTo(rp.x, rp.y + 16 * k); g.stroke();
+    }
+    P.drawLabels(dt);
+  }
+  var CLOUDS = [[120, 110, 160], [520, 70, 200], [760, 170, 140]];
+  function drawClouds(P, sec) { var g = P.ctx; g.save(); g.globalAlpha = 0.07; g.fillStyle = '#c9c7dc'; CLOUDS.forEach(function (c, i) { var x = ((c[0] + sec * (6 + i * 3)) % 1200) - 100, Pp = P.w2s(x, c[1]); g.beginPath(); g.ellipse(Pp.x, Pp.y, c[2] * P.k, c[2] * 0.22 * P.k, 0, 0, 6.283); g.fill(); }); g.restore(); }
+
+  /* ---------------- HUD */
+  function hud(force) {
+    var sim = G.sim; if (!sim) return; var L = sim.done && sim.result ? { score: sim.result.score, ignited: sim.result.ignited, total: sim.result.total, mult: Math.max.apply(null, [1].concat(sim.result.chains.map(function (c) { return c.mult; }))), depth: sim.result.depth } : sim.live();
+    var key = [L.score, L.ignited, L.mult, L.depth, sim.launchesLeft, G.spec.target, sim.canLaunch(), G.ready].join('|'); if (!force && key === G.lastHud) return; G.lastHud = key;
+    var pips = $('#h-launches'); pips.innerHTML = ''; for (var i = 0; i < G.spec.launches; i++) pips.appendChild(el('i', i < sim.launchesLeft ? null : { class: 'used' })); pips.appendChild(el('b', null, sim.launchesLeft + ' left')); pips.setAttribute('aria-label', sim.launchesLeft + ' of ' + G.spec.launches + ' launches left');
+    $('#h-score').textContent = fmt(L.score); $('#h-goal').textContent = G.spec.target ? fmt(G.spec.target) : '…'; $('#h-mult').textContent = '×' + (L.mult || 1).toFixed(2); $('#h-ign').textContent = L.ignited + ' / ' + L.total; $('#h-depth').textContent = L.depth;
+    var top = Math.max(G.spec.target * 1.5, L.score, 1); $('#goal-fill').style.width = Math.min(100, L.score / top * 100) + '%'; $('#goal-mark').style.left = (G.spec.target / top * 100) + '%';
+    $('#c-launch').disabled = !(sim.canLaunch() && G.ready); $('#c-end').disabled = sim.done || !G.ready;
+    $('#a11y-status').textContent = (sim.done ? 'Round over. ' : '') + L.ignited + ' of ' + L.total + ' shells ignited · ' + sim.launchesLeft + ' launches left · score ' + fmt(L.score) + (G.spec.target ? ' (goal ' + fmt(G.spec.target) + ')' : '') + ' · target at ' + Math.round(G.reticle.x / 10) + '% across, ' + Math.round(G.reticle.y / H * 100) + '% down';
+    updateShellList();
+  }
+
+  /* ---------------- launching */
+  function tryLaunch(x, y, src) {
+    var sim = G.sim; if (!sim || G.paused || !G.ready || sim.done) return false;
+    if (x !== undefined) { G.reticle.x = clampX(x); G.reticle.y = clampY(y); }
+    var ok = sim.launch(G.reticle.x, G.reticle.y); if (ok) { $('#intro').hidden = true; G.lastHud = ''; hud(true); announce('Launched. ' + sim.launchesLeft + ' left.'); }
+    return ok;
+  }
+  function clampX(x) { return Math.max(10, Math.min(W - 10, x)); }
+  function clampY(y) { return Math.max(10, Math.min(E.SKY_BOTTOM + 20, y)); }
+  function endRound() { if (G.sim && G.ready && !G.sim.done && !G.paused) { G.sim.finish(); announce('Finishing the round.'); } }
+
+  /* ---------------- round result */
+  function onRoundDone() {
+    G.ended = true; var r = G.sim.result, spec = G.spec, rec = SAVE.records[G.tier];
+    rec.roundsPlayed++; rec.shells += r.ignited; rec.longest = Math.max(rec.longest, r.longestChain); rec.depth = Math.max(rec.depth, r.depth);
+    if (r.cleared) { rec.roundsCleared++; if (r.perfect) rec.perfects++; rec.bestRound = Math.max(rec.bestRound, r.score); }
+    var entry = { score: r.score, perfect: r.perfect, longest: r.longestChain, depth: r.depth };
+    if (spec.kind === 'journey') { var J = SAVE.journey[G.tier]; if (r.cleared) { var prev = J.rounds[spec.index]; if (!prev || prev.score < r.score) J.rounds[spec.index] = entry; if (J.next === spec.index) J.next = spec.index + 1; } else J.retries++; }
+    else if (r.cleared) { G.endless.rounds.push(entry); G.endless.total += r.score; }
+    persist();
+    setTimeout(function () { showResult(r); }, reduced() ? 300 : 900);
+    if (r.cleared) { MUS.win(); if (r.perfect) popup('Perfect clear! +' + fmt(E.SCORE.perfect), 'gold'); } else MUS.fail();
+  }
+  function showResult(r) {
+    if (!G.sim || G.sim.result !== r) return;
+    var spec = G.spec, box = $('#result'); box.className = 'result' + (r.cleared ? '' : ' fail');
+    $('#r-k').textContent = (spec.kind === 'journey' ? 'Round ' + pad2(spec.no) + ' · ' : 'Endless ' + pad2(spec.no) + ' · ') + spec.name;
+    $('#r-h').textContent = r.cleared ? (r.perfect ? 'Perfect clear!' : 'The sky answers!') : 'Not quite — goal ' + fmt(r.target);
+    var st = $('#r-stats'); st.textContent = '';
+    [['Score', fmt(r.score)], ['Goal', fmt(r.target)], ['Ignited', r.ignited + ' / ' + r.total], ['Longest chain', r.longestChain], ['Deepest generation', r.depth], ['Widest cascade', r.width], ['Peak bursts at once', r.peakBursts], ['Colours', r.colors + ' / 6'], ['Musical bonus', fmt(r.parts.musical)]].forEach(function (q) { var d = el('div', { class: 'rstat' }); d.appendChild(el('strong', null, String(q[1]))); d.appendChild(el('span', null, q[0])); st.appendChild(d); });
+    var tb = $('#r-parts'); tb.textContent = '';
+    [['Reaction (100 per shell + 25 × generation, × chain multiplier)', r.parts.reaction], ['Colour harmony', r.parts.harmony], ['Prism bonus', r.parts.prism], ['Maestro orchestration', r.parts.maestro], ['Unused launches', r.parts.efficiency], ['Perfect clear', r.parts.perfect]].forEach(function (q) { var tr = el('tr'); tr.appendChild(el('td', null, q[0])); tr.appendChild(el('td', { class: 'n' }, fmt(q[1]))); tb.appendChild(tr); });
+    var tt = el('tr', { class: 'total' }); tt.appendChild(el('td', null, 'Round score')); tt.appendChild(el('td', { class: 'n' }, fmt(r.score))); tb.appendChild(tt);
+    var bt = $('#r-btns'); bt.textContent = '';
+    function B(label, fn, primary) { var b = el('button', { class: 'btn' + (primary ? ' btn-primary' : ''), type: 'button' }, label); b.addEventListener('click', fn); bt.appendChild(b); return b; }
+    var first;
+    if (spec.kind === 'journey') {
+      if (r.cleared) { first = B(spec.index === 14 ? 'See the finale (Enter)' : 'Continue (Enter)', function () { nextJourney(); }, true); B('Replay round', function () { startRound(E.round(spec.index, G.tier)); }); }
+      else { first = B('Retry (Enter)', function () { startRound(E.round(spec.index, G.tier)); }, true); }
+    } else {
+      if (r.cleared) first = B('Next festival (Enter)', function () { startEndlessRound(G.endless.k + 1); }, true); else first = B('See results (Enter)', function () { finishEndless(); }, true);
+    }
+    B('Title', function () { toTitle(); });
+    box.hidden = false; first.focus(); G.resultBtn = first;
+    announce((r.cleared ? 'Round cleared. ' : 'Goal missed. ') + 'Score ' + fmt(r.score) + ', goal ' + fmt(r.target) + '. ' + r.ignited + ' of ' + r.total + ' shells ignited.');
+  }
+  function nextJourney() { var J = SAVE.journey[G.tier]; if (J.next >= 15) { showFinal('journey'); return; } startRound(E.round(J.next, G.tier)); }
+
+  /* ---------------- endless */
+  function startEndless() { G.mode = 'endless'; G.endless = { k: 0, total: 0, rounds: [] }; show('#scr-game'); startEndlessRound(0); }
+  function startEndlessRound(k) { G.endless.k = k; startRound(E.buildEndless(k, G.tier)); }
+  function finishEndless() { var rec = SAVE.records[G.tier], e = G.endless; rec.endlessBest = Math.max(rec.endlessBest, e.total); rec.endlessRounds = Math.max(rec.endlessRounds, e.rounds.length); persist(); showFinal('endless'); }
+
+  /* ---------------- final results */
+  function summary(mode) {
+    var rounds = mode === 'journey' ? SAVE.journey[G.tier].rounds.filter(Boolean) : G.endless.rounds, total = 0, longest = 0, depth = 0, perf = 0, best = 0;
+    rounds.forEach(function (x) { total += x.score; longest = Math.max(longest, x.longest); depth = Math.max(depth, x.depth); if (x.perfect) perf++; best = Math.max(best, x.score); });
+    return { mode: mode === 'journey' ? 'Festival Journey' : 'Endless Festival', tier: G.tier, cleared: rounds.length, score: total, longest: longest, depth: depth, perfects: perf, best: best };
+  }
+  function showFinal(mode) {
+    stopAmbient(); var s = summary(mode), rec = SAVE.records[G.tier], newBest = false;
+    if (mode === 'journey') { var targets = 0; for (var i = 0; i < 15; i++) targets += E.round(i, G.tier).target; s.grade = E.grade(s.score, targets); if (s.score > rec.journeyBest) { newBest = rec.journeyBest > 0 || true; rec.journeyBest = s.score; } rec.journeysDone++; SAVE.unlocked = true; persist(); }
+    else newBest = s.score >= rec.endlessBest && s.score > 0;
+    $('#f-k').textContent = mode === 'journey' ? 'Festival Journey complete' : 'Endless Festival'; $('#f-h').textContent = mode === 'journey' ? 'The sky remembers' : 'The festival rests';
+    $('#f-sub').textContent = E.TIERS[G.tier].label + ' · ' + E.TIERS[G.tier].name + ' — ' + (mode === 'journey' ? s.cleared + ' of 15 rounds cleared' + (s.grade ? ' · grade ' + s.grade : '') : s.cleared + ' festival' + (s.cleared === 1 ? '' : 's') + ' cleared');
+    $('#f-pb').textContent = newBest ? 'New personal best!' : 'Personal best: ' + fmt(mode === 'journey' ? rec.journeyBest : rec.endlessBest);
+    var st = $('#f-stats'); st.textContent = '';
+    [['Final score', fmt(s.score)], ['Rounds cleared', s.cleared + (mode === 'journey' ? ' / 15' : '')], ['Perfect clears', s.perfects], ['Best chain', s.longest + ' shells'], ['Deepest propagation', s.depth + ' generations'], ['Best round', fmt(s.best)]].forEach(function (q) { var d = el('div', { class: 'stat' }); d.appendChild(el('strong', null, String(q[1]))); d.appendChild(el('span', null, q[0])); st.appendChild(d); });
+    var tb = $('#f-rounds'); tb.textContent = ''; var hr = el('tr'); ['Round', 'Score', 'Chain', 'Depth', ''].forEach(function (h, i) { hr.appendChild(el('th', i && i < 4 ? { class: 'n' } : null, h)); }); tb.appendChild(hr);
+    var list = mode === 'journey' ? SAVE.journey[G.tier].rounds : G.endless.rounds;
+    list.forEach(function (x, i) { if (!x) return; var tr = el('tr'); tr.appendChild(el('td', null, pad2(i + 1) + ' · ' + (mode === 'journey' ? E.ROUNDS[i].name : E.buildEndless(i, G.tier).name))); tr.appendChild(el('td', { class: 'n' }, fmt(x.score))); tr.appendChild(el('td', { class: 'n' }, String(x.longest))); tr.appendChild(el('td', { class: 'n' }, String(x.depth))); tr.appendChild(el('td', null, x.perfect ? '✦ perfect' : '')); tb.appendChild(tr); });
+    G.finalSummary = s; $('#f-share').textContent = E.shareText(s); $('#f-note').textContent = storageOk ? '' : 'Your browser is not saving data here, so this record will not be kept.';
+    $('#f-endless').hidden = !SAVE.unlocked; G.finalMode = mode;
+    G.finalImageSource = PLAY ? PLAY.c : null; show('#scr-final'); stopLoop(); startLoop(); $('#f-again').focus();
+  }
+  function stopAmbient() { ambStop(); }
+  $('#f-again').addEventListener('click', function () { if (G.finalMode === 'journey') { SAVE.journey[G.tier] = blankJourneyKeep(); persist(); beginJourney(); } else startEndless(); });
+  function blankJourneyKeep() { var j = blankJourney(); j.retries = 0; return j; }
+  $('#f-title').addEventListener('click', function () { toTitle(); });
+  $('#f-endless').addEventListener('click', function () { startEndless(); });
+  $('#f-copy').addEventListener('click', function () {
+    var text = $('#f-share').textContent, done = function (ok) { $('#f-note').textContent = ok ? 'Result copied.' : 'Copy failed — select the text below and copy it.'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallbackCopy(text)); }); else done(fallbackCopy(text));
+  });
+  function fallbackCopy(text) { try { var ta = el('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); var ok = document.execCommand('copy'); ta.remove(); return ok; } catch (e) { return false; } }
+  $('#f-image').addEventListener('click', function () {
+    try { var url = finaleImage(); G.lastImage = url; var a = el('a', { href: url, download: 'skyfire-conductor-finale.png' }); document.body.appendChild(a); a.click(); a.remove(); $('#f-note').textContent = 'Finale image saved (skyfire-conductor-finale.png).'; }
+    catch (e) { $('#f-note').textContent = 'This browser could not create the image. The text result above still works.'; }
+  });
+  function finaleImage() {
+    var s = G.finalSummary, cv = document.createElement('canvas'); cv.width = 1200; cv.height = 744; var P = new Painter(cv, true); P.resize(1200, 744); cv.style.width = ''; cv.style.height = ''; cv.width = 1200; cv.height = 744; P.k = 1.2; P.ox = 0; P.oy = 0; P.bg = buildBackdrop(1200, 744, 1.2, 0, 0); P.sprites = buildSprites(20);
+    var g = P.ctx; g.drawImage(P.bg, 0, 0); var r = E.stream('finale|' + s.score);
+    for (var i = 0; i < 9; i++) { var x = 120 + r() * 760, y = 90 + r() * 340, ci = i % 6; g.save(); g.globalCompositeOperation = 'lighter'; for (var j = 0; j < 70; j++) { var a = j / 70 * 6.283, d = 30 + r() * (60 + i * 6); g.globalAlpha = 0.5 + r() * 0.5; g.drawImage(P.sprites[ci], (x + Math.cos(a) * d) * 1.2 - 8, (y + Math.sin(a) * d) * 1.2 - 8, 16, 16); } g.restore(); }
+    g.fillStyle = 'rgba(7,8,32,.72)'; g.fillRect(0, 560, 1200, 184); g.fillStyle = '#f3d98a'; g.font = '700 22px system-ui, sans-serif'; g.fillText('DoorQuests · Gamortal #007', 40, 600); g.fillStyle = '#f6f1e4'; g.font = '600 48px Georgia, serif'; g.fillText('Skyfire Conductor', 40, 650);
+    g.fillStyle = '#c9c7dc'; g.font = '600 22px system-ui, sans-serif'; g.fillText(s.mode + ' · ' + E.TIERS[s.tier].label + ' · Score ' + fmt(s.score) + ' · ' + s.cleared + (s.mode === 'Festival Journey' ? '/15' : '') + ' rounds · chain ' + s.longest + ' · perfect ' + s.perfects, 40, 692);
+    g.fillStyle = '#f3d98a'; g.font = 'italic 20px Georgia, serif'; g.fillText('Conduct the night. Ignite the impossible.', 40, 726);
+    return cv.toDataURL('image/png');
+  }
+
+  /* ================================================================ accessible shell list */
+  var listIds = '';
+  function shellLabel(s) { var p = E.posAt(s, G.sim.t), reach = 0, R = s.R + E.C.shellHit; G.sim.shells.forEach(function (o) { if (o.id === s.id || o.state !== 'dormant') return; var q = E.posAt(o, G.sim.t), dx = q.x - p.x, dy = q.y - p.y; if (dx * dx + dy * dy <= R * R) reach++; });
+    return E.TYPES[s.type].name + ' · ' + E.COLORS[s.color].name + ' (' + E.COLORS[s.color].note + ') · ' + Math.round(p.x / 10) + '% across, ' + Math.round(p.y / H * 100) + '% down' + (s.type === 'comet' ? ' · moving' : '') + ' · reaches ' + reach + ' shell' + (reach === 1 ? '' : 's'); }
+  function dormantSorted() { var sim = G.sim; return sim.shells.filter(function (s) { return s.state === 'dormant'; }).sort(function (a, b) { var pa = E.posAt(a, sim.t), pb = E.posAt(b, sim.t); return pa.x - pb.x || pa.y - pb.y; }); }
+  function buildShellList() { listIds = ''; updateShellList(true); }
+  function updateShellList(force) {
+    if (!$('#a11y').open && !force) return; var ds = dormantSorted(), ids = ds.map(function (s) { return s.id; }).join(','), ul = $('#shell-list');
+    if (ids !== listIds) { listIds = ids; ul.textContent = ''; ds.forEach(function (s) { var li = el('li'), b = el('button', { type: 'button', 'data-shell': s.id, 'aria-pressed': 'false' }); li.appendChild(b); ul.appendChild(li); }); }
+    $$('button', ul).forEach(function (b) { var s = G.sim.shells[+b.getAttribute('data-shell')]; if (s && (force || LOOP.frames % 30 === 0)) b.textContent = 'Aim at ' + shellLabel(s); b.setAttribute('aria-pressed', G.aimIdx === +b.getAttribute('data-shell') ? 'true' : 'false'); });
+  }
+  $('#shell-list').addEventListener('click', function (ev) { var b = ev.target.closest('button[data-shell]'); if (!b) return; aimAt(+b.getAttribute('data-shell')); announce('Aimed at ' + shellLabel(G.sim.shells[G.aimIdx]) + '. Press Launch.'); });
+  $('#a11y').addEventListener('toggle', function () { updateShellList(true); });
+  function aimAt(id) { var s = G.sim.shells[id]; if (!s) return; var p = E.posAt(s, G.sim.t + E.C.rocketMs); G.aimIdx = id; G.kbdAim = true; G.reticle.x = clampX(p.x); G.reticle.y = clampY(p.y); G.lastHud = ''; }
+  function cycleAim(dir) { var ds = dormantSorted(); if (!ds.length) return; var i = ds.findIndex(function (s) { return s.id === G.aimIdx; }); i = i < 0 ? (dir > 0 ? 0 : ds.length - 1) : (i + dir + ds.length) % ds.length; aimAt(ds[i].id); }
+
+  /* ================================================================ input */
+  var sky = $('#sky');
+  function skyXY(ev) { var r = sky.getBoundingClientRect(); return { x: (ev.clientX - r.left) / r.width * W, y: (ev.clientY - r.top) / r.height * H }; }
+  sky.addEventListener('pointermove', function (ev) { if (!G.sim) return; if (ev.pointerType === 'mouse' || ev.buttons) { var p = skyXY(ev); G.reticle.x = clampX(p.x); G.reticle.y = clampY(p.y); G.kbdAim = false; G.aimIdx = -1; } });
+  sky.addEventListener('pointerdown', function (ev) {
+    if (!AU.unlocked) audioInit(); if (!G.sim) return; ev.preventDefault(); sky.focus({ preventScroll: true });
+    var p = skyXY(ev); G.reticle.x = clampX(p.x); G.reticle.y = clampY(p.y); G.kbdAim = false; G.aimIdx = -1;
+    if (ev.pointerType !== 'mouse' && SAVE.prefs.touch === 'aim') { announce('Aimed. Press Launch.'); return; }
+    tryLaunch(undefined, undefined, ev.pointerType);
+  });
+  $('#stage').addEventListener('touchmove', function (ev) { if (G.sim && !$('#scr-game').hidden && ev.target === sky) ev.preventDefault(); }, { passive: false });
+  $('#c-launch').addEventListener('click', function () { audioInit(); tryLaunch(); });
+  $('#c-prev').addEventListener('click', function () { cycleAim(-1); });
+  $('#c-next').addEventListener('click', function () { cycleAim(1); });
+  $('#c-end').addEventListener('click', endRound);
+  $('#c-restart').addEventListener('click', function () { restartRound(); });
+  function anyDialog() { return $$('dialog').some(function (d) { return d.open; }); }
+  window.addEventListener('keydown', function (ev) {
+    if (!AU.unlocked) audioInit();
+    if (anyDialog()) return;
+    var scr = currentScreen();
+    if (scr !== 'game' || !G.sim) return;
+    if (!$('#result').hidden) { if (ev.key === 'Enter' && document.activeElement === document.body) { ev.preventDefault(); G.resultBtn && G.resultBtn.click(); } if (ev.key === 'Escape') { ev.preventDefault(); toTitle(); } return; }
+    var tag = (document.activeElement && document.activeElement.tagName) || '', onBtn = tag === 'BUTTON' || tag === 'A' || tag === 'SUMMARY' || tag === 'INPUT' || tag === 'SELECT';
+    if (ev.key === 'Escape') { ev.preventDefault(); pause('menu'); return; }
+    if (ev.key === 'm' || ev.key === 'M') { setSound(!SAVE.prefs.sound); return; }
+    var step = ev.shiftKey ? 48 : 12, mv = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[ev.key];
+    if (mv && !onBtn) { ev.preventDefault(); G.reticle.x = clampX(G.reticle.x + mv[0]); G.reticle.y = clampY(G.reticle.y + mv[1]); G.kbdAim = false; G.aimIdx = -1; G.lastHud = ''; return; }
+    if ((ev.key === ' ' || ev.key === 'Enter') && !onBtn) { ev.preventDefault(); if (!ev.repeat) tryLaunch(undefined, undefined, 'key'); return; }
+    if (ev.key === 'q' || ev.key === 'Q' || ev.key === '[') { ev.preventDefault(); cycleAim(-1); return; }
+    if (ev.key === 'e' || ev.key === 'E' || ev.key === ']') { ev.preventDefault(); cycleAim(1); return; }
+    if (ev.key === 'f' || ev.key === 'F') { endRound(); return; }
+    if (ev.key === 'r' || ev.key === 'R') { restartRound(); return; }
+  });
+
+  /* ================================================================ pause */
+  function pause(reason) {
+    if (!G.sim || G.paused || G.ended || currentScreen() !== 'game') return; G.paused = true; G.pauseReason = reason; ambStop();
+    $('#dp-msg').textContent = (reason === 'hidden' ? 'You left the page, so the festival paused. ' : reason === 'blur' ? 'The window lost focus, so the festival paused. ' : '') + 'The sky is holding its breath — nothing moves until you resume.';
+    if (!$('#d-pause').open) $('#d-pause').showModal();
+  }
+  function resume() { if (!G.paused) return; if ($('#d-pause').open) $('#d-pause').close(); G.paused = false; LOOP.last = now(); ambStart(); sky.focus({ preventScroll: true }); }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') pause('hidden'); });
+  window.addEventListener('blur', function () { pause('blur'); });
+  window.addEventListener('pagehide', function () { stopLoop(); });
+  $('#b-pause').addEventListener('click', function () { pause('menu'); });
+  $('#dp-resume').addEventListener('click', resume);
+  $('#d-pause').addEventListener('cancel', function (ev) { ev.preventDefault(); resume(); });
+  $('#dp-restart').addEventListener('click', function () { $('#d-pause').close(); G.paused = false; restartRound(); });
+  $('#dp-howto').addEventListener('click', function () { openDlg($('#d-howto')); });
+  $('#dp-settings').addEventListener('click', openSettings);
+  $('#dp-quit').addEventListener('click', function () { $('#d-pause').close(); G.paused = false; toTitle(); });
+  $('#b-mute').addEventListener('click', function () { audioInit(); setSound(!SAVE.prefs.sound); });
+
+  /* ================================================================ screens */
+  function currentScreen() { return !$('#scr-game').hidden ? 'game' : !$('#scr-final').hidden ? 'final' : 'title'; }
+  function show(id) { ['#scr-title', '#scr-game', '#scr-final'].forEach(function (s) { $(s).hidden = s !== id; }); if (id === '#scr-game') sizeStage(); if (id === '#scr-title') sizeTitle(); window.scrollTo(0, 0); }
+  function sizeStage() { var st = $('#stage'); if ($('#scr-game').hidden) return; var r = st.getBoundingClientRect(), w = Math.max(200, r.width - 8), h = Math.max(140, r.height - 8), cw = Math.min(w, h * W / H), ch = cw * H / W; PLAY.resize(Math.floor(cw), Math.floor(ch)); }
+  function sizeTitle() { var r = $('#scr-title').getBoundingClientRect(); TITLE.resize(Math.max(100, Math.floor(r.width)), Math.max(100, Math.floor(r.height))); }
+  window.addEventListener('resize', function () { if (!$('#scr-game').hidden) sizeStage(); if (!$('#scr-title').hidden) sizeTitle(); });
+  function selectedTier() { var r = $('input[name="tier"]:checked'); return r ? r.value : 'silver'; }
+  function closeDialogs() { $$('dialog').forEach(function (d) { if (d.open) d.close(); }); }
+  function beginJourney() { closeDialogs(); audioInit(); G.mode = 'journey'; G.tier = selectedTierOr(G.tier); show('#scr-game'); var J = SAVE.journey[G.tier]; if (J.next >= 15) { SAVE.journey[G.tier] = blankJourneyKeep(); persist(); } startRound(E.round(SAVE.journey[G.tier].next, G.tier)); }
+  function selectedTierOr(t) { return !$('#scr-title').hidden ? selectedTier() : t; }
+  function toTitle() { closeDialogs(); G.sim = null; G.paused = false; ambStop(); show('#scr-title'); refreshTitle(); startLoop(); }
+  function refreshTitle() {
+    E.TIER_IDS.forEach(function (id) { var r = SAVE.records[id], J = SAVE.journey[id], s = $('.tier-stat[data-t="' + id + '"]'); var bits = []; if (J.next > 0 && J.next < 15) bits.push('Journey: round ' + (J.next + 1) + ' next'); if (r.journeyBest) bits.push('Best journey ' + fmt(r.journeyBest)); if (r.endlessBest) bits.push('Endless ' + fmt(r.endlessBest)); s.textContent = bits.join(' · '); });
+    var rr = $('input[name="tier"][value="' + SAVE.prefs.tier + '"]'); if (rr) rr.checked = true; tierChanged();
+    var msg = notes.slice(); if (!storageOk) msg.push('This browser is not saving data, so progress and records will not be kept after you leave.'); $('#t-note').textContent = msg.join(' ');
+  }
+  function tierChanged() {
+    var t = selectedTier(), J = SAVE.journey[t]; G.tier = t;
+    if (J.next > 0 && J.next < 15) { $('#b-journey').textContent = 'Continue Journey — Round ' + (J.next + 1); $('#b-new').hidden = false; $('#t-progress').textContent = J.next + ' of 15 rounds cleared on ' + E.TIERS[t].label + '. Progress is saved after each cleared round.'; }
+    else { $('#b-journey').textContent = 'Festival Journey'; $('#b-new').hidden = true; $('#t-progress').textContent = J.next >= 15 ? 'Journey complete on ' + E.TIERS[t].label + ' — play again for a higher score.' : '15 rounds above Luminara.'; }
+    var be = $('#b-endless'); be.disabled = !SAVE.unlocked; be.textContent = SAVE.unlocked ? 'Endless Festival' : 'Endless Festival 🔒 (finish a Journey)';
+  }
+  $$('input[name="tier"]').forEach(function (r) { r.addEventListener('change', function () { SAVE.prefs.tier = selectedTier(); persist(); tierChanged(); }); });
+  $('#b-journey').addEventListener('click', beginJourney);
+  $('#b-new').addEventListener('click', function () { confirmDlg('Start a new ' + E.TIERS[selectedTier()].label + ' Journey from round 1? Your current progress on this tier will be cleared (records stay).', function () { SAVE.journey[selectedTier()] = blankJourneyKeep(); persist(); beginJourney(); }); });
+  $('#b-endless').addEventListener('click', function () { if (!SAVE.unlocked) return; audioInit(); G.tier = selectedTier(); startEndless(); });
+
+  /* ---------------- title sky (decorative only) */
+  var titleT = 0;
+  function titleFrame(dt) {
+    var P = TITLE, g = P.ctx; titleT -= dt; g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.drawImage(P.bg, 0, 0);
+    if (!reduced()) drawClouds(P, LOOP.last / 1000);
+    if (titleT <= 0) { titleT = reduced() ? 2.4 : 0.9 + Math.random() * 0.6; var ci = Math.floor(Math.random() * 6); P.explode(580 + Math.random() * 380, 80 + Math.random() * 300, E.COLOR_IDS[ci], pickType(), 0.9); }
+    P.drawParticles(dt);
+  }
+  function pickType() { return ['ember', 'starburst', 'prism', 'maestro', 'ember'][Math.floor(Math.random() * 5)]; }
+
+  /* ================================================================ dialogs */
+  function openDlg(d) { if (!d.open) d.showModal(); }
+  $$('dialog [data-close]').forEach(function (b) { b.addEventListener('click', function () { b.closest('dialog').close(); }); });
+  $('#b-howto').addEventListener('click', function () { openDlg($('#d-howto')); });
+  $('#b-records').addEventListener('click', openRecords);
+  $('#b-settings').addEventListener('click', openSettings);
+  (function howto() {
+    var ul = $('#dh-types'); E.TYPE_IDS.forEach(function (t, i) { var li = el('li'), cv = el('canvas', { width: 68, height: 68, 'aria-hidden': 'true' }), g = cv.getContext('2d'), fake = { k: 2.2, ctx: g, w2s: function (x, y) { return { x: x, y: y }; }, sprites: buildSprites(20) }; var s = { id: i, type: t, color: E.COLOR_IDS[i], state: 'dormant', vx: t === 'comet' ? 50 : 0, vy: 0 };
+      Painter.prototype.drawShell.call(fake, s, { x: 34, y: 34 }, 0, false); li.appendChild(cv); var d = el('div'); d.appendChild(el('strong', null, E.TYPES[t].name + ' — ')); d.appendChild(document.createTextNode(E.TYPES[t].blurb)); li.appendChild(d); ul.appendChild(li); });
+    var li2 = el('li'); li2.appendChild(el('span', null, '♪')); li2.appendChild(el('div', null, 'Colours are notes of a pentatonic scale: Ruby C · Amber D · Gold E · Emerald G · Sapphire A · Violet C′ — the letter is printed on every shell, so colour is never needed.')); ul.appendChild(li2);
+    var S = E.SCORE, sc = $('#dh-score');
+    ['Every shell ignited: ' + S.shell + ' points, plus ' + S.depth + ' × its generation.', 'Chain multiplier: each chain (one launch and everything it lights) is multiplied by 1 + ' + S.multStep + ' × (shells − 1), up to ×' + S.multCap + '.',
+      'Colour harmony: ' + S.harmony + ' × (colours in the chain − 1).', 'Prism: ' + S.prism + ' × the number of colours in its chain.', 'Maestro: +' + S.maestro + ' if its chain lights ' + S.maestroMin + ' or more shells.',
+      'Unused launches: +' + S.launch + ' each — only when the goal is already reached.', 'Perfect clear (every shell ignited): +' + S.perfect + ', once.'].forEach(function (t) { sc.appendChild(el('li', null, t)); });
+  })();
+  function openRecords() {
+    var t = $('#dr-table'); t.textContent = ''; var h = el('tr'); ['', 'Bronze', 'Silver', 'Gold'].forEach(function (x, i) { h.appendChild(el('th', i ? { class: 'n' } : null, x)); }); t.appendChild(h);
+    [['Best Journey score', 'journeyBest'], ['Journeys completed', 'journeysDone'], ['Best Endless score', 'endlessBest'], ['Most Endless festivals', 'endlessRounds'], ['Best single round', 'bestRound'], ['Biggest chain (shells)', 'longest'], ['Deepest chain (generations)', 'depth'], ['Perfect clears', 'perfects'], ['Rounds cleared', 'roundsCleared'], ['Rounds played', 'roundsPlayed'], ['Shells ignited', 'shells']].forEach(function (q) {
+      var tr = el('tr'); tr.appendChild(el('td', null, q[0])); E.TIER_IDS.forEach(function (id) { var v = SAVE.records[id][q[1]]; tr.appendChild(el('td', { class: 'n' }, v ? fmt(v) : '—')); }); t.appendChild(tr); });
+    var tr2 = el('tr'); tr2.appendChild(el('td', null, 'Journey progress')); E.TIER_IDS.forEach(function (id) { tr2.appendChild(el('td', { class: 'n' }, SAVE.journey[id].next + ' / 15')); }); t.appendChild(tr2);
+    openDlg($('#d-records'));
+  }
+  $('#dr-reset').addEventListener('click', function () { confirmDlg('Erase all records and Journey progress in this browser? Settings are kept.', function () { var p = SAVE.prefs; SAVE = blank(); SAVE.prefs = p; persist(); refreshTitle(); if ($('#d-records').open) $('#d-records').close(); openRecords(); }); });
+  function openSettings() { var p = SAVE.prefs; $('#s-sound').checked = p.sound; $('#s-vol').value = p.volume; $('#s-vol-o').textContent = p.volume + '%'; $('#s-ambient').checked = p.ambient; $('#s-motion').value = p.motion; $('#s-touch').value = p.touch; openDlg($('#d-settings')); }
+  $('#s-sound').addEventListener('change', function () { audioInit(); setSound($('#s-sound').checked); });
+  $('#s-vol').addEventListener('input', function () { SAVE.prefs.volume = +$('#s-vol').value; $('#s-vol-o').textContent = SAVE.prefs.volume + '%'; if (AU.master) AU.master.gain.value = SAVE.prefs.sound ? SAVE.prefs.volume / 100 * 0.5 : 0; persist(); });
+  $('#s-ambient').addEventListener('change', function () { SAVE.prefs.ambient = $('#s-ambient').checked; persist(); if (SAVE.prefs.ambient && G.sim && !G.paused) { audioInit(); ambStart(); } else ambStop(); });
+  $('#s-motion').addEventListener('change', function () { SAVE.prefs.motion = $('#s-motion').value; persist(); applyMotion(); });
+  $('#s-touch').addEventListener('change', function () { SAVE.prefs.touch = $('#s-touch').value; persist(); });
+  var confirmCb = null;
+  function confirmDlg(msg, cb) { $('#dc-msg').textContent = msg; confirmCb = cb; openDlg($('#d-confirm')); }
+  $('#dc-yes').addEventListener('click', function () { $('#d-confirm').close(); var cb = confirmCb; confirmCb = null; if (cb) cb(); });
+  $('#dc-no').addEventListener('click', function () { $('#d-confirm').close(); confirmCb = null; });
+  if (mq && mq.addEventListener) mq.addEventListener('change', applyMotion);
+
+  /* ================================================================ dev hooks (only with ?dev=1) */
+  var DEVS = { autoplay: false, idx: 0 };
+  function autoplay() { var sim = G.sim, plan = G.spec.solverPlan; if (!plan) return; while (DEVS.idx < plan.length && plan[DEVS.idx].t <= sim.t) { var p = plan[DEVS.idx++]; G.reticle.x = p.x; G.reticle.y = p.y; sim.launch(p.x, p.y); } if (DEVS.idx >= plan.length && !sim.busy() && !sim.done && sim.t > 0) sim.finish(); }
+
+  /* ================================================================ boot */
+  PLAY = new Painter(sky, false); TITLE = new Painter($('#title-sky'), true);
+  applyMotion(); syncMute(); refreshTitle(); show('#scr-title'); startLoop();
+  window.addEventListener('pointerdown', function () { if (!AU.unlocked) audioInit(); }, { once: true });
+  if (DEV) {
+    var origStart = startRound;
+    window.__sc = { E: E, get G() { return G; }, get SAVE() { return SAVE; }, key: KEY, journey: function (tier, idx) { $('input[name="tier"][value="' + tier + '"]').checked = true; SAVE.prefs.tier = tier; if (idx !== undefined) { SAVE.journey[tier].next = idx; for (var i = 0; i < idx; i++) if (!SAVE.journey[tier].rounds[i]) SAVE.journey[tier].rounds[i] = { score: 1, perfect: false, longest: 1, depth: 1 }; } beginJourney(); },
+      endless: function (tier) { G.tier = tier; SAVE.unlocked = true; startEndless(); }, toTitle: toTitle, pause: pause, resume: resume, launch: function (x, y) { return tryLaunch(x, y, 'dev'); },
+      setAutoplay: function (on) { DEVS.autoplay = !!on; DEVS.idx = 0; }, setTimeScale: function (n) { G.timeScale = n; },
+      stats: function () { return { loopStarts: LOOP.starts, loopRunning: LOOP.running, frames: LOOP.frames, particles: PLAY.pool.alive, peakParticles: PLAY.pool.peak, budget: PLAY.pool.budget, labels: PLAY.labels.length, voices: AU.voices, hasAudio: !!AU.ctx, amb: !!AU.amb, pops: $('#pop').children.length }; },
+      lastImage: function () { return G.lastImage || null; } };
+    // reset autoplay plan index each round
+    startRound = function (spec) { DEVS.idx = 0; return origStart(spec); };
+  }
+})();
+
+</script>
+</body>
+</html>
