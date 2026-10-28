@@ -135,6 +135,11 @@ h1 { font: 600 clamp(40px, 8vw, 72px)/1.02 var(--serif); margin: 0 0 6px; color:
 .status.bad { color: #ffb0b0; } .status.ok { color: var(--mint); }
 .banner { position: absolute; left: 50%; top: 26%; transform: translate(-50%, -6px); padding: 8px 18px; border-radius: 999px; background: rgba(8,10,30,.86); border: 1px solid var(--gold2); color: var(--gold2); font: 600 1.15rem/1.2 var(--serif); opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; white-space: nowrap; max-width: 92%; overflow: hidden; text-overflow: ellipsis; }
 .banner.on { opacity: 1; transform: translate(-50%, 0); }
+.count { position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); min-width: 2.2em; padding: .05em .35em; text-align: center; border-radius: 24px; background: rgba(4,6,18,.82); border: 3px solid var(--gold2); color: #fff; font: 700 clamp(64px, 18vw, 132px)/1.1 var(--serif); text-shadow: 0 0 18px rgba(53,224,255,.75), 0 2px 0 #000; pointer-events: none; z-index: 3; }
+.count.go { color: var(--gold2); font-size: clamp(48px, 13vw, 100px); }
+.count.pop { animation: countpop .35s ease-out; }
+@keyframes countpop { from { transform: translate(-50%, -50%) scale(1.35); opacity: .3; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+html.contrast .count { background: #000; border-color: #fff; text-shadow: none; }
 .ovtop { position: absolute; left: 8px; right: 8px; top: 8px; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
 .ovtop .btn { pointer-events: auto; }
 .alerts { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; pointer-events: none; }
@@ -300,6 +305,7 @@ html.reduced * { transition: none !important; animation: none !important; scroll
       <div class="stage-wrap" id="g-wrap">
         <canvas id="g-cv" aria-label="The course. Draw the road ahead of the car from the glowing pen tip." role="img" tabindex="0"></canvas>
         <div class="banner" id="g-banner" aria-hidden="true"></div>
+        <div class="count" id="g-count" aria-hidden="true" hidden></div>
         <div class="ovtop">
           <div class="demobar" id="g-demobar" hidden><span id="g-demo-text">Validation run</span> <button id="b-demo-stop" class="btn btn-small" type="button">Stop</button></div>
           <div class="alerts" id="g-alerts" aria-hidden="true"></div>
@@ -1540,7 +1546,8 @@ function bindInput() {
 }
 
 /* ===== part 4: the run — fixed-step loop, events, HUD, warnings, coach, pause, results, records ===== */
-var G = { s: null, mode: 'play', kind: 'campaign', paused: false, acc: 0, last: 0, cmdQ: [], demo: null, ghost: null, showGhost: false, ending: 0, done: false, hold: false, opts: null, loops: 0, ticks: 0, firstStroke: false };
+var G = { s: null, mode: 'play', kind: 'campaign', paused: false, acc: 0, last: 0, cmdQ: [], demo: null, ghost: null, showGhost: false, ending: 0, done: false, hold: false, opts: null, loops: 0, ticks: 0, firstStroke: false, count: null };
+var COUNT_MS = 3000, GO_MS = 700;
 var DT_MS = 1000 / E.TPS;
 var WHY_TIPS = {
   'left the road': 'The car slid off the edge of the road. A curve that is too tight for your speed makes it skid outward; draw wider curves and start them earlier (route assist colours tight road amber, with chevrons).',
@@ -1563,6 +1570,7 @@ function startStage(id, tier, opts) {
   G.s = s; G.opts = { id: id, tier: tier, demo: opts.demo, demoKind: opts.demoKind, kind: opts.kind || (st.practice ? 'practice' : 'campaign'), ghost: opts.ghost, speed: opts.speed };
   G.mode = opts.demo ? 'demo' : 'play'; G.kind = G.opts.kind; G.paused = false; G.acc = 0; G.last = performance.now(); G.ending = 0; G.done = false; G.firstStroke = false; G.splitText = '';
   G.demo = opts.demo ? { log: E.decodeTape(opts.demo), li: 0 } : null;
+  G.count = G.mode === 'play' ? { left: COUNT_MS, goUntil: 0 } : null; // armed before the HUD is drawn
   G.ghost = null; G.showGhost = false;
   var gk = id + '/' + tier; if (!st.practice && store.ghosts[gk]) { G.ghost = E.readGhost(store.ghosts[gk]); G.showGhost = !!G.ghost && (G.kind === 'trial' || (opts.ghost !== false && store.settings.ghost)); }
   resetInput(); R.trail = []; R.parts = []; R.kowner = null;
@@ -1576,6 +1584,8 @@ function startStage(id, tier, opts) {
   banner(G.demo ? 'Validation run' : st.title, 1600);
   announce(stageLabel(st) + ', ' + TIER_NAMES[tier] + '. ' + st.intro);
   audioInit(); engineVoice(true);
+  // 3 → 2 → 1 → GO!: the course stays at tick 0 until the countdown ends (presentation layer only; the engine is untouched)
+  showCount(performance.now());
   render(s, 0, 0);
 }
 function restart() { if (!G.opts) return; var o = G.opts; closeDialog('d-pause'); startStage(o.id, o.tier, { kind: o.kind, ghost: o.ghost, speed: o.speed, demo: o.demo, demoKind: o.demoKind }); }
@@ -1584,7 +1594,12 @@ function frame(now) {
   if (!$('scr-title').hidden) drawTitle(now);
   if (!G.s || currentScreen() !== 'scr-game') { G.last = now; engineVoiceSet(0, false, true); return; }
   var dt = Math.min(250, now - G.last); G.last = now;
-  if (!G.paused && !anyDialogOpen() && !G.hold) { // G.hold is set only by the ?dev=1 test hook, to step the run tick by tick
+  var frozen = G.paused || anyDialogOpen() || G.hold; // G.hold is set only by the ?dev=1 test hook, to step the run tick by tick
+  if (G.count && G.count.left > 0) { // the starting countdown: no step of the simulation runs, so nothing moves, costs or times
+    if (!frozen) { G.count.left -= dt; if (G.count.left <= 0) { G.count.left = 0; G.count.goUntil = now + GO_MS; G.acc = 0; } }
+    showCount(now);
+  } else if (!frozen) {
+    if (G.count) showCount(now);
     G.acc += dt; var n = 0;
     while (G.acc >= DT_MS && n < 6) { G.acc -= DT_MS; n++; if (!tick()) { G.acc = 0; break; } }
     if (n >= 6) G.acc = 0; // a long stall (a slow device, a suspended tab) never fast-forwards the course
@@ -1643,7 +1658,7 @@ function updateHud(force) {
   b.className = 'bar' + (pr ? '' : s.charge < 12 ? ' crit' : f < 0.25 ? ' low' : '');
   b.setAttribute('aria-valuenow', Math.round(f * 100)); b.setAttribute('aria-valuetext', pr ? 'Unlimited (practice)' : Math.floor(s.charge) + ' of ' + s.cap + (cost ? ', this stroke about ' + Math.ceil(cost) : ''));
   setText($('mv-charge'), pr ? '∞ practice' : Math.floor(s.charge) + ' / ' + s.cap + (cost >= 1 ? '  (−' + Math.ceil(cost) + ')' : ''));
-  setText($('g-speed'), I.v.toFixed(1)); setText($('g-time'), clockT(s.tick));
+  setText($('g-speed'), counting() ? '0.0' : I.v.toFixed(1)); setText($('g-time'), clockT(s.tick)); // speed reads 0.0 while the car waits for GO!
   var pg = $('g-prog'); pg.firstChild.style.width = (I.progress * 100).toFixed(1) + '%'; pg.setAttribute('aria-valuenow', Math.round(I.progress * 100));
   // alerts — each has a word and a symbol, never colour alone
   var al = [];
@@ -1684,13 +1699,24 @@ function coach(s, I) {
   el.hidden = !msg; if (msg) setText(el, msg);
 }
 
+/* ---------- starting countdown ---------- */
+function showCount(now) {
+  var c = G.count, el = $('g-count'), txt = '';
+  if (c && c.left > 0) txt = String(Math.ceil(c.left / 1000)); else if (c && now < c.goUntil) txt = 'GO!';
+  if (c && txt === '' ) G.count = null;
+  if (el.getAttribute('data-k') === txt) return;
+  el.setAttribute('data-k', txt); el.textContent = txt; el.hidden = !txt; el.classList.toggle('go', txt === 'GO!');
+  if (txt) { el.classList.remove('pop'); void el.offsetWidth; if (!reducedMotion()) el.classList.add('pop'); announce(txt === 'GO!' ? 'Go!' : txt, true); if (txt === 'GO!') tone(1046, 0.35, 'triangle', 0.06); else tone(523, 0.18, 'triangle', 0.05); }
+}
+function counting() { return !!(G.count && G.count.left > 0); }
+
 /* ---------- pause ---------- */
 function pauseGame(on) {
   if (!G.s || G.mode === 'demo') return;
   if (on && G.s.phase === 'run') { G.paused = true; if (INPUT.down) onCancel({}); $('dp-text').textContent = stageLabel(G.s.stage) + ' · ' + TIER_NAMES[G.s.tier] + ' · ' + clockT(G.s.tick) + ' · charge ' + Math.floor(G.s.charge) + '. The course is frozen: nothing moves while paused.'; openDialog('d-pause'); $('dp-resume').focus(); }
   else if (!on) { closeDialog('d-pause'); G.paused = false; G.last = performance.now(); G.acc = 0; }
 }
-function stopDemo() { G.s = null; engineVoice(false); renderMap(); showScreen('scr-map'); }
+function stopDemo() { G.s = null; G.count = null; engineVoice(false); renderMap(); showScreen('scr-map'); }
 
 /* ---------- results, records, keyring ---------- */
 function finishRun() {
@@ -1873,7 +1899,7 @@ function init() {
   $('dp-restart').addEventListener('click', function () { G.paused = false; restart(); });
   $('dp-help').addEventListener('click', function () { $('dh-body').innerHTML = helpHtml(); openDialog('d-help'); });
   $('dp-settings').addEventListener('click', function () { syncSettings(); openDialog('d-settings'); });
-  $('dp-quit').addEventListener('click', function () { G.paused = false; closeDialog('d-pause'); G.s = null; engineVoice(false); openMap(G.kind === 'trial' ? 'trial' : 'campaign'); });
+  $('dp-quit').addEventListener('click', function () { G.paused = false; closeDialog('d-pause'); G.s = null; G.count = null; $('g-count').hidden = true; $('g-count').setAttribute('data-k', ''); engineVoice(false); openMap(G.kind === 'trial' ? 'trial' : 'campaign'); });
   each('#g-mode button', function (b) { b.addEventListener('click', function () { setMode(b.getAttribute('data-mode')); }); });
   $('d-settings').addEventListener('change', readSettings); $('d-settings').addEventListener('input', function (e) { if (e.target.id === 's-vol') readSettings(); });
   $('dr-reset').addEventListener('click', function () { confirmBox('Reset Neon Drifter progress?', 'This deletes your Neon Drifter records, Ghost Lines, unlocked courses and Keyring achievements in this browser. Your settings are kept. Nothing from any other DoorQuests game is touched. This cannot be undone.', 'Reset progress', resetProgress); });
@@ -1889,8 +1915,8 @@ function init() {
   if (!G.started) { G.started = true; requestAnimationFrame(function (t) { G.last = t; frame(t); }); }
   if (DEV) window.__nd = {
     E: E, G: G, R: R, INPUT: INPUT, store: function () { return store; }, persist: persist, KEY: KEY,
-    hold: function (on) { G.hold = !!on; G.acc = 0; },
-    fast: function (n) { var k = 0; for (; k < n; k++) { if (!G.s || currentScreen() !== 'scr-game') break; if (!tick() && G.s && G.s.phase === 'run') break; if (G.s && G.s.phase !== 'run' && G.done) break; } if (G.s && currentScreen() === 'scr-game') render(G.s, 1, 0); return k; },
+    hold: function (on) { G.hold = !!on; G.acc = 0; }, counting: function () { return counting(); }, count: function () { return G.count && { left: G.count.left, text: $('g-count').textContent, visible: !$('g-count').hidden }; },
+    fast: function (n) { if (G.count) { G.count.left = 0; G.count.goUntil = 0; showCount(performance.now()); } var k = 0; for (; k < n; k++) { if (!G.s || currentScreen() !== 'scr-game') break; if (!tick() && G.s && G.s.phase === 'run') break; if (G.s && G.s.phase !== 'run' && G.done) break; } if (G.s && currentScreen() === 'scr-game') render(G.s, 1, 0); return k; },
     cam: function () { var b = R.cv.getBoundingClientRect(); return { camY: R.camY, scale: R.scale, ox: R.ox, h: R.h, w: R.w, left: b.left, top: b.top }; },
     client: function (x, y) { var b = R.cv.getBoundingClientRect(); return { x: b.left + SX(x), y: b.top + SY(y) }; },
     openAll: function () { store.unlocked = E.STAGES.length - 1; persist(); }, startStage: startStage, sfx: function () { return AU.ok; }
@@ -1901,7 +1927,9 @@ init();
 })();
 </script>
 <!--
-TEST SUMMARY — Gamortal #027 Neon Drifter · Prototype · Founder Playtest · Not Published · 2026-10-27
+TEST SUMMARY — Gamortal #027 Neon Drifter · Prototype · Founder Playtest · Not Published · 2026-10-27, corrected 2026-10-28
+CORRECTION 2026-10-28: a 3 → 2 → 1 → GO! starting countdown before every playable run (Campaign, Time Trial, Practice Grid, restarts).
+  It lives in the interface loop only: no engine step runs until GO!, so the run starts at its normal tick 0. The engine is unchanged.
 
 SIMULATION: deterministic fixed 60 Hz engine (no randomness, clock, storage or network). The player never steers: inputs only queue points
   for the road pen; the car drives the road the pen built, with curvature-limited speed, skids, drift, collisions and charge costs.
@@ -1913,12 +1941,14 @@ EXECUTED (automated, Node + headless Chromium, against this exact file):
     hazard: 8/8
     validation: 2/2
     technical: 7/7
-  Browser tests: 26/26 passed: all 45 drawn demonstrations replayed by mouse drags and 18 by touch drags,
+  Browser tests: 28/28 passed: all 45 drawn demonstrations replayed by mouse drags and 18 by touch drags,
     all 45 waypoint demonstrations by keyboard alone and 4 by taps, each to the identical command log, tick and hash; release-mode preview
     equals the built road; disconnected strokes refused; pointer cancellation; pause/resume; tab suspension and stall cap; one rAF loop and
     stable heap after 55 restarts; single recording of a finish; Ghost Line non-interference; Time Trial; Practice Grid; corrupt and blocked
     storage; confirmed reset sparing other keys; six viewports (planning horizon >= 28 units ahead); resize mid-run; accessibility; audio
-    only after a gesture; settings persistence; text warnings; zero network requests.
+    only after a gesture; settings persistence; text warnings; zero network requests; the starting countdown (3 → 2 → 1 → GO!, the course held
+    at tick 0, a stroke begun during it built from tick 0, pause freezes it, restart resets it, quitting clears it, none for validation runs,
+    also in Time Trial and Practice Grid).
 
 REQUIRED VALIDATION — 45 of 45 stage x tier configurations have reproducible successful runs, drawn AND by waypoints:
   legal commands from the normal start, charge paid for every unit, real hazards, real handling, the genuine finish line.
