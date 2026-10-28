@@ -1,0 +1,1822 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="doorquests:status" content="Prototype · Founder Playtest · Not Published">
+<meta name="description" content="Gamortal #022 · Orbital Shepherd — every moon changes the heavens. A DoorQuests orbital-physics puzzle prototype for founder playtesting.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1030">
+<title>Gamortal #022 — Orbital Shepherd | DoorQuests</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b1030'/%3E%3Ccircle cx='32' cy='32' r='10' fill='%23e9b44c'/%3E%3Cellipse cx='32' cy='32' rx='24' ry='14' fill='none' stroke='%23f6eedb' stroke-width='2'/%3E%3Ccircle cx='54' cy='30' r='4' fill='%23cfe3ff'/%3E%3C/svg%3E">
+<style>
+:root {
+  --navy: #0d1230; --navy2: #141a40; --indigo: #1d2350; --indigo2: #2b3274; --brass: #c8963e; --gold: #e9b44c; --gold2: #f5d27a; --ivory: #f6eedb; --ivory2: #ece0c3;
+  --ink: #1d1a24; --ink2: #4a4352; --mute: #6c6474; --ok: #2f7a3d; --bad: #b4382e; --warn: #a8640f;
+  --panel: #141a42; --panel2: #1e2552; --pline: #3a4180; --ptext: #ece6d6; --pmute: #b4b0cc;
+  --focus: 0 0 0 3px #fff, 0 0 0 6px #e9b44c;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { background: var(--navy); }
+html.large { font-size: 118.75%; }
+body { min-height: 100vh; min-height: 100dvh; color: var(--ink); font: 1rem/1.5 var(--sans); display: flex; flex-direction: column; overflow-x: hidden; background: radial-gradient(ellipse at 50% 0%, #252c66 0%, #121738 55%, #090c20 100%) fixed; }
+a { color: #7a4a10; }
+:focus-visible { outline: none; box-shadow: var(--focus); border-radius: 8px; }
+.sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--gold); color: #111; padding: 8px 12px; border-radius: 8px; z-index: 50; }
+.skip:focus { left: 8px; }
+[hidden] { display: none !important; }
+.nojs { padding: 20px; color: #fff; }
+.top { display: flex; align-items: center; gap: 10px; padding: 6px 14px; background: #0a0e26; border-bottom: 3px solid var(--brass); flex-wrap: wrap; color: #f4efe2; position: relative; z-index: 5; }
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #f4efe2; font: 600 18px/1 var(--serif); }
+.brand-door { width: 16px; height: 22px; border: 2px solid var(--gold2); border-radius: 8px 8px 1px 1px; }
+.crumb { color: #d8d4ea; font-size: 14px; display: inline-flex; gap: 6px; }
+.crumb-col { color: var(--gold2); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; align-self: center; }
+.badge { margin-left: auto; font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px dashed #ffbe6b; color: #ffcf8a; }
+.gamebtn { background: #f5d27a; border-color: #fff1c4; color: #1d1406; }
+main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.screen { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; }
+.btn { appearance: none; border: 1px solid #a07a3c; background: var(--ivory); color: var(--ink); border-radius: 10px; padding: 10px 16px; font: 600 .95rem/1.2 var(--sans); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; touch-action: manipulation; }
+.btn:hover:not([disabled]) { border-color: var(--gold2); }
+.btn-primary { background: linear-gradient(#3a2d12, #241a08); color: #ffe6a6; border-color: var(--gold); }
+.btn-big { font-size: 1.08rem; padding: 13px 24px; }
+.btn-small { padding: 8px 12px; font-size: .88rem; }
+.btn-danger { border-color: var(--bad); color: #7a1d16; background: #fbe7e2; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+.stack { display: grid; gap: 8px; margin: 12px 0; }
+.note { min-height: 1.3em; color: #7a4310; font-size: .9rem; margin: 8px 0 0; }
+.muted { color: var(--mute); } .small { font-size: .84rem; }
+.k { color: var(--mute); font-size: .66rem; text-transform: uppercase; letter-spacing: .1em; display: block; line-height: 1.2; }
+.kicker { margin: 0 0 6px; color: #8a5a14; font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; }
+.check { display: flex; align-items: center; gap: 8px; min-height: 36px; }
+.check input { width: 20px; height: 20px; accent-color: #8a5a14; }
+select, input[type=range] { font: inherit; min-height: 36px; }
+
+/* ---------- title ---------- */
+#scr-title { overflow-y: auto; }
+.title-wrap { padding: 26px 16px 32px; max-width: 1100px; margin: 0 auto; width: 100%; }
+.title-card { position: relative; max-width: 700px; background: linear-gradient(160deg, #fbf5e6, #efe3c6); border-radius: 6px; padding: 24px 24px 20px; box-shadow: 0 18px 40px rgba(0,0,0,.5), 0 0 0 1px #c8ad86, 0 0 0 6px rgba(233,180,76,.18); }
+.ovl { border: 1px solid #c8ad86; border-radius: 10px; margin: 8px 0; } .ovl legend { font-weight: 700; padding: 0 4px; }
+.t-art { position: absolute; right: 14px; top: 14px; width: 120px; height: 120px; opacity: .95; }
+h1 { font: 600 clamp(38px, 7vw, 66px)/1.02 var(--serif); margin: 0 0 6px; color: #241b06; max-width: calc(100% - 120px); }
+.t-no { display: block; font: 700 .85rem/1.4 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: #8a5a14; margin-bottom: 6px; }
+.tagline { color: #8a3d12; font: italic 1.3rem/1.4 var(--serif); margin: 0 0 12px; }
+.lede { margin: 0 0 14px; color: var(--ink2); }
+.tiers { border: 0; padding: 0; margin: 0 0 4px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tiers legend { font: 700 .8rem/1 var(--sans); color: #6b3f12; margin-bottom: 8px; letter-spacing: .06em; text-transform: uppercase; }
+.tier { display: flex; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid #c8ad86; border-radius: 12px; background: #fffaf0; cursor: pointer; min-height: 52px; }
+.tier input { margin: 0; width: 18px; height: 18px; accent-color: #6b3f12; }
+.tier strong { display: block; font-size: .95rem; line-height: 1.1; } .tier small { color: var(--mute); font-size: .74rem; }
+.tier:has(input:checked) { border-color: #6b3f12; box-shadow: inset 0 0 0 2px #6b3f12; background: #fff1d0; }
+.tier:has(input:focus-visible) { box-shadow: var(--focus); }
+.medal { width: 18px; height: 18px; border-radius: 50%; flex: none; box-shadow: inset 0 -3px 0 rgba(0,0,0,.2); }
+.tier-bronze .medal { background: #b8743a; } .tier-silver .medal { background: #b7bcc4; } .tier-gold .medal { background: #e0b84c; }
+.tiertext { min-height: 2.6em; margin: 6px 0 0; color: var(--ink2); font-size: .92rem; }
+.title-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.credit { margin-top: 14px; color: var(--mute); font-size: .82rem; } .credit p { margin: 2px 0; }
+
+/* ---------- campaign ---------- */
+#scr-map, #scr-result { overflow-y: auto; }
+.list-wrap { width: min(1180px, 100%); margin: 0 auto; padding: 18px 16px 28px; }
+.list-head { display: flex; gap: 16px; align-items: end; justify-content: space-between; flex-wrap: wrap; color: #f4efe2; }
+.list-head .kicker { color: var(--gold2); } .list-head .muted { color: #c9c3dd; }
+.list-head h2 { font: 600 1.9rem/1.2 var(--serif); color: #fff1cc; margin: 0; }
+.lightsel { color: #f4efe2; display: inline-flex; gap: 6px; align-items: center; }
+.lightsel.check input { accent-color: var(--gold); }
+.lightnote { color: #b9b4d4; }
+.chapter { margin: 18px 0 0; }
+.chapter h3 { font: 600 1.2rem/1.3 var(--serif); color: #fff1cc; margin: 0 0 8px; }
+.chapter h3 span { color: var(--gold2); font: 700 .74rem/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.card { text-align: left; background: linear-gradient(160deg, #fbf5e6, #efe3c6); border: 1px solid #c8ad86; border-radius: 12px; padding: 12px 14px; cursor: pointer; font: inherit; color: var(--ink); display: grid; gap: 4px; min-height: 120px; }
+.card:hover:not([disabled]) { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(233,180,76,.5); }
+.card[disabled] { opacity: .55; cursor: not-allowed; background: #cfc6b1; }
+.card .num { font: 700 .72rem/1 var(--sans); letter-spacing: .12em; color: #8a5a14; text-transform: uppercase; }
+.card strong { font: 600 1.1rem/1.2 var(--serif); }
+.card .desc { font-size: .84rem; color: var(--ink2); }
+.marks { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.mk { font-size: .7rem; padding: 2px 7px; border-radius: 999px; border: 1px solid #b9a57c; color: #5a4a2a; background: #fffaf0; }
+.mk.radiant { background: #3a2d12; color: #ffe6a6; border-color: var(--gold); }
+.mk.brass { background: #f3dfae; } .mk.stone { background: #e6e1d6; }
+
+/* ---------- observatory ---------- */
+#scr-game { color: var(--ptext); }
+.game { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto auto auto auto auto auto 1fr; grid-template-areas: "view head" "view launch" "view sim" "view status" "view corr" "view demo" "view keys"; gap: 8px 14px; padding: 10px 12px; width: min(1240px, 100%); margin: 0 auto; align-content: start; }
+.view { grid-area: view; position: sticky; top: 8px; align-self: start; display: flex; justify-content: center; align-items: flex-start; }
+#cv { display: block; touch-action: none; border-radius: 50%; box-shadow: 0 0 0 2px #6b5326, 0 0 0 7px #2a2245, 0 0 0 9px #8a6a2e, 0 18px 40px rgba(0,0,0,.6); background: #070a1e; cursor: crosshair; }
+.banner { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); background: rgba(10,14,38,.92); border: 1px solid var(--gold); color: #fff1cc; padding: 8px 16px; border-radius: 10px; font: 600 1.05rem/1.3 var(--serif); text-align: center; pointer-events: none; opacity: 0; transition: opacity .25s; max-width: 86%; }
+.banner.on { opacity: 1; }
+.panel { background: var(--panel); border: 1px solid var(--pline); border-radius: 10px; padding: 8px 10px; }
+.panel .k { color: var(--pmute); }
+.ph { font: 600 1rem/1.3 var(--serif); color: #fff1cc; margin: 0 0 4px; }
+.p-head { grid-area: head; } .p-head strong { font: 600 1.1rem/1.2 var(--serif); color: #fff1cc; display: block; }
+.obs { display: grid; grid-template-columns: 1fr; gap: 3px; margin-top: 6px; font-size: .84rem; }
+.bar { height: 10px; border-radius: 6px; background: #2a2f5a; border: 1px solid #4b5296; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #f5d27a, #fff3c8); }
+.p-launch { grid-area: launch; } .p-sim { grid-area: sim; display: flex; flex-wrap: wrap; gap: 6px; } .p-status { grid-area: status; } .p-corr { grid-area: corr; } .p-demo { grid-area: demo; border-color: var(--gold); }
+.p-launch.done .ctlrow, .p-launch.done .launchb, .p-launch.done .predict { display: none; }
+.ctlrow { margin: 6px 0; } .ctlrow label { display: flex; justify-content: space-between; font-weight: 600; font-size: .88rem; }
+.ctlrow output { font-variant-numeric: tabular-nums; color: #fff1cc; }
+.portsel, .slide { display: grid; grid-template-columns: 44px 1fr 44px; gap: 6px; align-items: center; margin-top: 3px; }
+.portsel select { min-height: 40px; border-radius: 8px; background: #20275a; color: #fff1cc; border: 1px solid #4b5296; padding: 0 6px; }
+.slide input[type=range] { width: 100%; accent-color: var(--gold); min-height: 36px; }
+.stepb { padding: 4px; }
+.hint { margin: 2px 0 0; color: var(--pmute); }
+.predict { font-size: .82rem; background: #20275a; border: 1px solid #3f4790; border-radius: 8px; padding: 6px 8px; margin: 6px 0; min-height: 3.2em; }
+.predict.bad { border-color: #ff7b66; background: #3a1d2a; } .predict.warn { border-color: #f0b54a; }
+.predict b { color: #fff1cc; }
+.launchb { width: 100%; }
+.launchb.armed { box-shadow: 0 0 0 3px #ffd36b; }
+.moons { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: .84rem; }
+.moons li { display: grid; grid-template-columns: 16px 1fr; gap: 6px; align-items: start; padding: 4px 6px; border-radius: 6px; background: #1b2150; cursor: pointer; }
+.moons li.sel { outline: 2px solid var(--gold2); }
+.moons .dot { width: 14px; height: 14px; border-radius: 50%; margin-top: 2px; }
+.moons .st-ok::before { content: "✓ "; color: #9fe39f; } .moons .st-warn::before { content: "⚠ "; color: #ffcf6b; } .moons .st-bad::before { content: "✕ "; color: #ff9a88; } .moons .st-wait::before { content: "◌ "; color: #cfd3ef; }
+.status { margin: 6px 0 0; font-size: .85rem; font-weight: 600; }
+.corrbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+.corrrow select { width: 100%; min-height: 40px; border-radius: 8px; background: #20275a; color: #fff1cc; border: 1px solid #4b5296; }
+.keys { grid-area: keys; color: var(--pmute); margin: 0; }
+.p-sim .btn, .p-corr .btn, .p-demo .btn, .portsel .btn, .slide .btn { background: #262e66; color: #fff1cc; border-color: #5a62a8; }
+.p-sim .btn[aria-pressed="true"] { background: #5a4316; border-color: var(--gold); }
+
+/* ---------- result ---------- */
+.result { color: #f4efe2; }
+.result .kicker { color: var(--gold2); }
+.result h2 { font: 600 2rem/1.2 var(--serif); color: #fff1cc; margin: 0 0 6px; }
+.r-lede { color: #d6d1ea; max-width: 760px; }
+.r-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 12px; }
+.r-card { background: linear-gradient(160deg, #fbf5e6, #efe3c6); color: var(--ink); border-radius: 12px; padding: 14px 16px; border: 1px solid #c8ad86; }
+.r-card h3 { font: 600 1.15rem/1.2 var(--serif); margin: 0 0 8px; }
+table.score { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.score th, .score td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #d9c9a2; vertical-align: top; }
+.score td:last-child, .score tfoot td { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.score tfoot th, .score tfoot td { font-size: 1rem; border-bottom: 0; }
+.r-mark { font: 600 1.1rem/1.3 var(--serif); margin: 10px 0 4px; }
+.stats { display: grid; grid-template-columns: auto auto; gap: 4px 14px; margin: 0; font-size: .88rem; }
+.stats dt { color: var(--mute); } .stats dd { margin: 0; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.newseal { margin-top: 10px; padding: 8px 10px; border-radius: 10px; background: #3a2d12; color: #ffe6a6; }
+
+/* ---------- dialogs ---------- */
+dialog { border: 0; border-radius: 14px; padding: 0; max-width: min(560px, calc(100vw - 24px)); width: 100%; background: linear-gradient(160deg, #fbf5e6, #efe3c6); color: var(--ink); box-shadow: 0 24px 60px rgba(0,0,0,.6); max-height: calc(100dvh - 24px); }
+dialog.wide { max-width: min(860px, calc(100vw - 24px)); }
+dialog::backdrop { background: rgba(5,8,22,.72); }
+.dlg { padding: 18px 20px; overflow-y: auto; max-height: calc(100dvh - 24px); }
+.dlg h2 { font: 600 1.5rem/1.2 var(--serif); margin: 0 0 8px; }
+.lesson { padding: 8px 10px; border-left: 3px solid var(--gold); background: #fff6dc; border-radius: 0 8px 8px 0; }
+.newthings { display: grid; gap: 8px; margin: 10px 0; }
+.thing { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; background: #fffaf0; border: 1px solid #d9c9a2; border-radius: 10px; padding: 6px 8px; }
+.thing canvas { width: 44px; height: 44px; background: #0b0f26; border-radius: 8px; }
+.thing strong { display: block; }
+.help h3 { font: 600 1.1rem/1.3 var(--serif); margin: 14px 0 4px; }
+.help p, .help li { font-size: .92rem; }
+.help ul { padding-left: 20px; margin: 4px 0; }
+.help .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+.tablewrap { overflow-x: auto; }
+table.rec { width: 100%; border-collapse: collapse; font-size: .84rem; margin-top: 10px; }
+.rec th, .rec td { padding: 5px 6px; border-bottom: 1px solid #d9c9a2; text-align: left; }
+.seals { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+.seal { border: 1px solid #c8ad86; border-radius: 10px; padding: 8px 10px; background: #fffaf0; }
+.seal.got { background: #3a2d12; color: #ffe6a6; border-color: var(--gold); }
+.seal strong { display: block; } .seal span { font-size: .8rem; }
+.seal.got span { color: #f3e2b4; }
+
+/* ---------- contrast & motion ---------- */
+html.contrast .hud, html.contrast .queue, html.contrast .towerbox { border-color: #fff; background: #050820; }
+html.contrast .ctl { border-color: #fff; background: #050820; }
+html.contrast .status { background: #050820; border-width: 2px; }
+html.contrast .k, html.contrast .route-line, html.contrast .keys { color: #fff; }
+html.reduced * { transition: none !important; animation: none !important; }
+
+/* ---------- responsive ---------- */
+html.contrast .panel { border-color: #fff; background: #050820; }
+@media (max-width: 900px) {
+  .game { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "view" "launch" "sim" "status" "corr" "demo"; padding: 6px 8px 14px; gap: 6px; }
+  .view { position: relative; top: 0; }
+  .keys { display: none; }
+  .top { padding: 4px 10px; gap: 6px; }
+  .crumb { display: none; }
+  .badge { font-size: 10.5px; padding: 2px 7px; }
+  .top .btn-small { padding: 6px 10px; min-height: 36px; }
+  .p-head { padding: 6px 8px; } .p-head strong { display: inline; margin-left: 6px; }
+}
+@media (max-width: 440px) { .brand-word { display: none; } .top { flex-wrap: nowrap; } .badge { font-size: 9px; padding: 2px 5px; white-space: nowrap; } .top .btn-small { padding: 4px 8px; font-size: .78rem; min-height: 32px; } .gm-long { display: none; } .t-art { width: 72px; height: 72px; } h1 { max-width: calc(100% - 70px); } }
+@media (max-width: 920px) and (orientation: landscape) and (max-height: 500px) {
+  .game { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "view head" "view launch" "view sim" "view status" "view corr" "view demo"; }
+}
+.status.ok { color: #9fe39f; } .status.warn { color: #ffcf6b; } .status.bad { color: #ff9a88; }
+.status.ok::before { content: "✓ "; } .status.warn::before { content: "⚠ "; } .status.bad::before { content: "✕ "; }
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the game</a>
+<header class="top">
+  <a class="brand" href="https://doorquests.com/" aria-label="DoorQuests home (opens doorquests.com)"><span class="brand-door" aria-hidden="true"></span><span class="brand-word">DoorQuests</span></a>
+  <span class="crumb"><span class="crumb-col">Gamortal #022</span><span aria-hidden="true">·</span><span>Orbital Shepherd</span></span>
+  <span class="badge">Prototype · Founder Playtest · Not Published</span>
+  <button id="g-menu" class="btn btn-small gamebtn" type="button" aria-haspopup="dialog"><span class="gm-long">Game </span>menu</button>
+</header>
+<noscript><p class="nojs">Orbital Shepherd needs JavaScript to run.</p></noscript>
+
+<main id="main">
+  <!-- ============ TITLE ============ -->
+  <section id="scr-title" class="screen" aria-labelledby="t-h">
+    <div class="title-wrap">
+      <div class="title-card">
+        <canvas id="t-art" class="t-art" width="240" height="240" aria-hidden="true"></canvas>
+        <p class="kicker">DoorQuests · Gamortals — Interactive Games</p>
+        <h1 id="t-h"><span class="t-no">Gamortal #022</span>Orbital Shepherd</h1>
+        <p class="tagline">Every moon changes the heavens.</p>
+        <p class="lede">Launch moons into orbit around a small planet. Every moon pulls on every other, so each new arrival can unsettle the ones already circling. Shape a whole miniature system that holds together through each stage's observation window.</p>
+        <fieldset class="tiers" id="t-tiers"><legend>Difficulty</legend>
+          <label class="tier tier-bronze"><input type="radio" name="tier" value="bronze"><span class="medal" aria-hidden="true"></span><span><strong>Bronze</strong><small>Wide bands</small></span></label>
+          <label class="tier tier-silver"><input type="radio" name="tier" value="silver" checked><span class="medal" aria-hidden="true"></span><span><strong>Silver</strong><small>Balanced</small></span></label>
+          <label class="tier tier-gold"><input type="radio" name="tier" value="gold"><span class="medal" aria-hidden="true"></span><span><strong>Gold</strong><small>Tight tolerances</small></span></label>
+        </fieldset>
+        <p id="t-tiertext" class="tiertext" aria-live="polite"></p>
+        <div class="title-actions">
+          <button id="t-continue" class="btn btn-primary btn-big" type="button" hidden>Continue</button>
+          <button id="t-play" class="btn btn-primary btn-big" type="button">Campaign</button>
+          <button id="t-help" class="btn" type="button">How to play</button>
+          <button id="t-records" class="btn" type="button">Records &amp; Seals</button>
+          <button id="t-settings" class="btn" type="button">Settings</button>
+        </div>
+        <p id="t-note" class="note" role="status"></p>
+        <div class="credit">
+          <p>Original concept: Claude · Creative origin: The Axiom Continuum · Built for DoorQuests.com</p>
+          <p>Progress is stored only in this browser. No accounts, no network, no tracking.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CAMPAIGN ============ -->
+  <section id="scr-map" class="screen" aria-labelledby="m-h" hidden>
+    <div class="list-wrap">
+      <div class="list-head">
+        <div><p class="kicker">Fifteen systems · Five chapters</p><h2 id="m-h">The Campaign</h2><p class="muted" id="m-sub"></p></div>
+        <div class="row">
+          <label class="lightsel">Difficulty <select id="m-tier"><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option></select></label>
+          <button id="m-back" class="btn btn-small" type="button">Back</button>
+        </div>
+      </div>
+      <div id="m-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ OBSERVATORY ============ -->
+  <section id="scr-game" class="screen" aria-labelledby="g-h" hidden>
+    <h2 id="g-h" class="sr-only">Observatory</h2>
+    <div class="game" id="g-game">
+      <div class="view" id="g-wrap">
+        <canvas id="cv" role="img" aria-label="The orbital chart"></canvas>
+        <div id="g-banner" class="banner" aria-hidden="true"></div>
+      </div>
+      <div class="panel p-head">
+        <span class="k" id="g-num">Stage 001</span><strong id="g-name">A Moon for the Night</strong>
+        <div class="obs"><div class="bar" aria-hidden="true"><i id="g-obsbar"></i></div><span id="g-obs">Observation not started</span></div>
+      </div>
+      <div class="panel p-launch" id="g-launchbox" role="group" aria-labelledby="g-launch-h">
+        <h3 id="g-launch-h" class="ph">Next moon: <span id="g-next">—</span></h3>
+        <p id="g-nextinfo" class="small"></p>
+        <div class="ctlrow">
+          <label for="i-port">Insertion point</label>
+          <div class="portsel"><button class="btn btn-small" type="button" id="b-portprev" aria-label="Previous insertion point">◀</button><select id="i-port"></select><button class="btn btn-small" type="button" id="b-portnext" aria-label="Next insertion point">▶</button></div>
+        </div>
+        <div class="ctlrow">
+          <label for="i-dir">Direction <output id="o-dir" for="i-dir">0°</output></label>
+          <div class="slide"><button class="btn btn-small stepb" type="button" data-adj="dir:-1" aria-label="Aim 1 degree inward">−</button><input type="range" id="i-dir" step="1"><button class="btn btn-small stepb" type="button" data-adj="dir:1" aria-label="Aim 1 degree outward">+</button></div>
+          <p class="small muted hint">0° = straight along the orbit (prograde); + aims outward, − aims inward.</p>
+        </div>
+        <div class="ctlrow">
+          <label for="i-spd">Speed <output id="o-spd" for="i-spd">0 L/s</output></label>
+          <div class="slide"><button class="btn btn-small stepb" type="button" data-adj="spd:-1" aria-label="Decrease speed by 0.1">−</button><input type="range" id="i-spd" step="1"><button class="btn btn-small stepb" type="button" data-adj="spd:1" aria-label="Increase speed by 0.1">+</button></div>
+          <p class="small muted hint" id="g-guide"></p>
+        </div>
+        <div class="predict" id="g-predict" aria-live="polite"></div>
+        <button class="btn btn-primary btn-big launchb" type="button" id="b-launch">Launch moon</button>
+      </div>
+      <div class="panel p-sim" role="group" aria-label="Simulation controls">
+        <button class="btn btn-small" type="button" id="b-play" aria-pressed="false">Pause</button>
+        <button class="btn btn-small" type="button" id="b-speed">Speed ×1</button>
+        <button class="btn btn-small" type="button" id="b-recall">Recall last launch</button>
+        <button class="btn btn-small" type="button" id="b-restart">Restart</button>
+        <button class="btn btn-small" type="button" id="b-describe">Describe</button>
+      </div>
+      <div class="panel p-status">
+        <h3 class="ph">System status</h3>
+        <ul id="g-moons" class="moons"></ul>
+        <p id="g-status" class="status" aria-live="polite"></p>
+      </div>
+      <div class="panel p-corr" role="group" aria-labelledby="g-corr-h">
+        <h3 id="g-corr-h" class="ph">Orbital corrections <span id="g-corrleft"></span></h3>
+        <div class="corrrow"><label for="i-corrmoon" class="sr-only">Moon to correct</label><select id="i-corrmoon"></select></div>
+        <div class="corrbtns">
+          <button class="btn btn-small" type="button" data-corr="P">Prograde +2</button>
+          <button class="btn btn-small" type="button" data-corr="R">Retrograde −2</button>
+          <button class="btn btn-small" type="button" data-corr="O">Outward</button>
+          <button class="btn btn-small" type="button" data-corr="I">Inward</button>
+        </div>
+      </div>
+      <div class="panel p-demo" id="g-demobar" hidden>
+        <p class="small" id="g-demo-text"></p>
+        <div class="row"><button class="btn btn-small" type="button" id="b-dspeed">Speed ×1</button><button class="btn btn-small" type="button" id="b-dstop">Stop watching</button></div>
+      </div>
+      <p class="small muted keys">Keys: ←/→ direction · ↑/↓ speed (Shift ×10) · [ ] insertion point · Space launch · P pause · 1–4 sim speed · U recall · M select moon · Q/E/Z/X prograde/retrograde/inward/outward correction · I describe · R restart</p>
+    </div>
+    <div id="live" class="sr-only" aria-live="polite"></div>
+    <div id="live2" class="sr-only" aria-live="assertive"></div>
+  </section>
+
+  <!-- ============ RESULT ============ -->
+  <section id="scr-result" class="screen" aria-labelledby="r-h" hidden>
+    <div class="list-wrap result">
+      <p class="kicker" id="r-kicker">Stage complete</p>
+      <h2 id="r-h">The system holds</h2>
+      <p id="r-lede" class="r-lede"></p>
+      <div class="r-grid">
+        <div class="r-card">
+          <h3>Score</h3>
+          <table class="score"><caption class="sr-only">Score breakdown</caption><thead><tr><th scope="col">Part</th><th scope="col">How it was counted</th><th scope="col">Points</th></tr></thead><tbody id="r-lines"></tbody><tfoot><tr><th scope="row" colspan="2">Total</th><td id="r-total">0</td></tr></tfoot></table>
+          <p id="r-mark" class="r-mark"></p>
+          <p class="small muted">Stars describe how cleanly you won and are separate from the difficulty you chose. Brilliant: no recalls, no corrections and the optional objective. Bright: at most one recall and the optional objective or a 35% stability margin. Faint: any win.</p>
+        </div>
+        <div class="r-card">
+          <h3>Observation report</h3>
+          <dl id="r-stats" class="stats"></dl>
+          <div id="r-seals"></div>
+        </div>
+      </div>
+      <div class="row">
+        <button id="r-next" class="btn btn-primary btn-big" type="button">Next stage</button>
+        <button id="r-retry" class="btn" type="button">Play again</button>
+        <button id="r-map" class="btn" type="button">Campaign</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ DIALOGS ============ -->
+<dialog id="d-brief" aria-labelledby="db-h">
+  <div class="dlg">
+    <p class="kicker" id="db-k">Chapter I · Stage 001</p>
+    <h2 id="db-h">A Moon for the Night</h2>
+    <p id="db-brief"></p>
+    <p id="db-lesson" class="lesson"></p>
+    <div id="db-objs"></div>
+    <p id="db-tier" class="small muted"></p>
+    <div class="row">
+      <button class="btn btn-primary btn-big" id="db-start" type="button">Open the observatory</button>
+      <button class="btn" id="db-watch" type="button">Watch validation run</button>
+      <button class="btn" data-close type="button">Back</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="d-pause" aria-labelledby="dp-h">
+  <div class="dlg">
+    <h2 id="dp-h">Paused</h2>
+    <p class="small muted">The simulation is frozen. You can still aim and launch from the panel.</p>
+    <div class="stack">
+      <button class="btn btn-primary" id="dp-resume" type="button">Resume</button>
+      <button class="btn" id="dp-restart" type="button">Restart stage</button>
+      <button class="btn" id="dp-help" type="button">How to play</button>
+      <button class="btn" id="dp-settings" type="button">Settings</button>
+      <button class="btn" id="dp-quit" type="button">Save and leave to the campaign</button>
+      <button class="btn" id="dp-title" type="button">Title screen</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="d-help" aria-labelledby="dh-h" class="wide">
+  <div class="dlg">
+    <h2 id="dh-h">How to play</h2>
+    <div id="dh-body" class="help"></div>
+    <div class="row"><button class="btn btn-primary" data-close type="button">Close</button></div>
+  </div>
+</dialog>
+
+<dialog id="d-records" aria-labelledby="dr-h" class="wide">
+  <div class="dlg">
+    <h2 id="dr-h">Records &amp; Seals</h2>
+    <p class="small muted">Stored only in this browser under its own DoorQuests key. These are game-local seals; they are not connected to any external Keyring.</p>
+    <div id="dr-seals" class="seals"></div>
+    <div class="tablewrap"><table class="rec"><caption class="sr-only">Best results per stage and difficulty</caption><thead><tr><th scope="col">Stage</th><th scope="col">Bronze</th><th scope="col">Silver</th><th scope="col">Gold</th></tr></thead><tbody id="dr-rows"></tbody></table></div>
+    <p id="dr-note" class="note" role="status"></p>
+    <div class="row">
+      <button class="btn" id="dr-unlock" type="button">Open all stages for playtesting</button>
+      <button class="btn btn-danger" id="dr-reset" type="button">Reset all progress…</button>
+      <button class="btn btn-primary" data-close type="button">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="d-settings" aria-labelledby="ds-h">
+  <div class="dlg">
+    <h2 id="ds-h">Settings</h2>
+    <div class="stack">
+      <label class="check"><input type="checkbox" id="s-sound"> Sound effects</label>
+      <label class="check"><input type="checkbox" id="s-ambient"> Quiet celestial ambience</label>
+      <label>Volume <input type="range" id="s-vol" min="0" max="100" step="5"></label>
+      <label>Motion <select id="s-motion"><option value="auto">Follow system setting</option><option value="full">Full effects</option><option value="reduced">Reduced motion</option></select></label>
+      <label class="check"><input type="checkbox" id="s-contrast"> High contrast</label>
+      <label class="check"><input type="checkbox" id="s-large"> Larger text</label>
+      <label>Launch on drag release <select id="s-release"><option value="mouse">With a mouse only (touch asks for the Launch button)</option><option value="always">Always</option><option value="never">Never (always press Launch)</option></select></label>
+    </div>
+    <fieldset class="ovl"><legend>Chart overlays</legend>
+      <label class="check"><input type="checkbox" data-ovl="trails"> Orbit trails</label>
+      <label class="check"><input type="checkbox" data-ovl="predict"> Predicted path</label>
+      <label class="check"><input type="checkbox" data-ovl="bands"> Target bands and safe zones</label>
+      <label class="check"><input type="checkbox" data-ovl="vectors"> Velocity vectors</label>
+      <label class="check"><input type="checkbox" data-ovl="influence"> Gravitational influence (Hill spheres)</label>
+      <label class="check"><input type="checkbox" data-ovl="labels"> Labels</label>
+      <label class="check"><input type="checkbox" data-ovl="grid"> Chart rings</label>
+    </fieldset>
+    <div class="row"><button class="btn btn-primary" data-close type="button">Done</button></div>
+  </div>
+</dialog>
+
+<dialog id="d-confirm" aria-labelledby="dc-h">
+  <div class="dlg">
+    <h2 id="dc-h">Are you sure?</h2>
+    <p id="dc-text"></p>
+    <div class="row"><button class="btn btn-danger" id="dc-yes" type="button">Yes</button><button class="btn btn-primary" id="dc-no" type="button" data-close>Cancel</button></div>
+  </div>
+</dialog>
+
+<dialog id="d-menu" aria-labelledby="dm-h">
+  <div class="dlg">
+    <h2 id="dm-h">Game menu</h2>
+    <div class="stack">
+      <button class="btn" id="dm-title" type="button">Title screen</button>
+      <button class="btn" id="dm-map" type="button">Campaign</button>
+      <button class="btn" id="dm-help" type="button">How to play</button>
+      <button class="btn" id="dm-records" type="button">Records &amp; Seals</button>
+      <button class="btn" id="dm-settings" type="button">Settings</button>
+      <button class="btn btn-primary" data-close type="button">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<script id="os-engine">
+/* Orbital Shepherd engine — deterministic 2-D gravitational simulation.
+   Units: distance in "leagues" (L), time in seconds (s), masses as fractions of the planet's mass.
+   Gravity: G·M_planet = MU. A moon of mass fraction m has gravitational parameter MU·m.
+   Approximation (documented): the planet is held fixed at the origin (moons are 0.02%–0.5% of its mass),
+   so total momentum is not conserved; total energy is (within the integrator's accuracy).
+   Integrator: velocity Verlet (kick–drift–kick leapfrog), fixed step of 1/480 s (8 substeps per 1/60 s tick).
+   Moon–moon gravity uses Plummer softening (ε = 1 L), far below collision distances.
+   Only + − × ÷ and Math.sqrt are used inside the simulation (IEEE-exact), so replays are bit-identical.
+   Sections: 1 constants & data · 2 bodies & trig table · 3 gravity · 4 integration · 5 launch mechanics ·
+   6 collisions & failures · 7 stability evaluation · 8 objectives & stages · 9 scoring & seals ·
+   10 prediction · 11 lifecycle / replay / tapes. */
+(function (root) {
+'use strict';
+var VERSION = 1, TPS = 60, SUB = 8, TICK = 1 / 60, DT = TICK / SUB;
+var MU = 40000, R_PLANET = 12, R_BOUND = 105, SOFT = 1, SOFT2 = SOFT * SOFT, VMAX = 260, DV = 2, PI = 3.141592653589793;
+
+/* ---------- 1. constants & data ---------- */
+var MOONS = {
+  pebble:   { name: 'Pebble Moon', mass: 0.0002, r: 1.6, desc: 'Small and light: weak pull on its neighbours.' },
+  silver:   { name: 'Silver Moon', mass: 0.0006, r: 2.2, desc: 'A balanced, ordinary moon.' },
+  iron:     { name: 'Iron Moon', mass: 0.0025, r: 3.0, desc: 'Dense and massive: about four times a Silver Moon, so it perturbs its neighbours strongly.' },
+  glass:    { name: 'Glass Moon', mass: 0.0004, r: 2.0, tidal: 8, roche: 22, desc: 'Fragile: it shatters if any other body passes within 8 L, or if it comes within 22 L of the planet’s centre.' },
+  twin:     { name: 'Twin Moon', mass: 0.0007, r: 2.2, desc: 'One of a pair that must share an orbital band while staying well apart around the planet.' },
+  shepherd: { name: 'Shepherd Moon', mass: 0.005, r: 2.8, desc: 'The heaviest moon (over 8× a Silver Moon). Its gravity can reshape another moon’s orbit in a close pass.' }
+};
+var TIERS = {
+  bronze: { name: 'Bronze', idx: 0, band: 1.35, sep: 0.75, window: 0.6, corr: 3, preview: 2.0, mass: 0.9, guide: true, settle: 4 },
+  silver: { name: 'Silver', idx: 1, band: 1.0, sep: 1.0, window: 1.0, corr: 1, preview: 1.0, mass: 1.0, guide: true, settle: 3 },
+  gold:   { name: 'Gold',   idx: 2, band: 0.8, sep: 1.2, window: 1.5, corr: 0, preview: 0.5, mass: 1.15, guide: false, settle: 3 }
+};
+var TIER_IDS = ['bronze', 'silver', 'gold'];
+
+/* ---------- 2. trig table (integer degrees, built by exact repeated rotation — no Math.sin/cos) ---------- */
+var COS = new Float64Array(360), SIN = new Float64Array(360);
+(function () {
+  var c1 = 0.9998476951563913, s1 = 0.01745240643728351, c = 1, s = 0;
+  for (var d = 0; d < 360; d++) {
+    if (d % 90 === 0) { var q = d / 90; c = [1, 0, -1, 0][q]; s = [0, 1, 0, -1][q]; }
+    COS[d] = c; SIN[d] = s; var nc = c * c1 - s * s1, ns = s * c1 + c * s1; c = nc; s = ns;
+  }
+})();
+function cosd(d) { return COS[((d % 360) + 360) % 360]; }
+function sind(d) { return SIN[((d % 360) + 360) % 360]; }
+
+/* Stage definitions. Distances in leagues (L), angles in whole degrees (0° = east, counter-clockwise), speeds in L/s.
+   ports: insertion points on the observatory's launch rings. dir: allowed launch angle from prograde (+ outward).
+   Objectives per moon: band [min, max] radius (scaled by tier unless given per tier), ecc [min, max], sma [min, max] (osculating semi-major axis).
+   window: observation interval in seconds at Silver (Bronze ×0.6, Gold ×1.5). minSep: closest allowed approach between any two moons (×0.75 / ×1 / ×1.2). */
+var STAGES = [
+{ id: 's01', num: 1, ch: 1, name: 'A Moon for the Night',
+  brief: 'One small moon and an empty sky. Launch it so that it circles the planet without falling in or flying away.',
+  lesson: 'Launching sideways (prograde) at about the circular speed for that height gives a near-circular orbit. Slower falls inward; faster swings outward.',
+  ports: [{ name: 'South port', r: 45, a: 270 }], dir: [-40, 40], speed: [10, 45],
+  queue: [{ type: 'pebble', label: 'Moon A', band: [32, 62] }],
+  window: 30, corr: [3, 2, 1], optional: { type: 'nocorr' } },
+
+{ id: 's02', num: 2, ch: 1, name: 'The Long Ellipse',
+  brief: 'This moon must swing in close and far out: a long ellipse that stays inside the safe region.',
+  lesson: 'Extra speed at the low point stretches the far side of the orbit. Eccentricity (e) measures the stretch: 0 is a circle.',
+  ports: [{ name: 'West port', r: 28, a: 180 }], dir: [-30, 30], speed: [20, 70],
+  queue: [{ type: 'silver', label: 'Moon A', band: [[18, 100], [20, 96], [21, 92]], ecc: [[0.3, 0.85], [0.4, 0.8], [0.5, 0.75]] }],
+  window: 40, corr: [3, 1, 0], optional: { type: 'margin', min: 0.4 } },
+
+{ id: 's03', num: 3, ch: 1, name: 'Two in the Sky',
+  brief: 'Two moons, two bands. Place both and keep them apart while they tug on each other.',
+  lesson: 'The second moon pulls on the first. Keeping their orbits well separated keeps that pull small.',
+  ports: [{ name: 'South port', r: 31, a: 270 }, { name: 'North port', r: 66, a: 90 }], dir: [-35, 35], speed: [12, 50],
+  queue: [{ type: 'pebble', label: 'Moon A', band: [24, 38] }, { type: 'silver', label: 'Moon B', band: [54, 78] }],
+  minSep: 10, window: 45, corr: [3, 1, 0], optional: { type: 'noreset' } },
+
+{ id: 's04', num: 4, ch: 2, name: 'Passing Neighbors',
+  brief: 'Two Silver Moons in neighbouring bands. Each time the inner one overtakes the outer, they pull hard on each other.',
+  lesson: 'Neighbouring orbits pass each other again and again. Rounder orbits keep the passes gentle.',
+  ports: [{ name: 'East port', r: 36, a: 0 }, { name: 'West port', r: 53, a: 180 }], dir: [-30, 30], speed: [15, 50],
+  queue: [{ type: 'silver', label: 'Moon A', band: [30, 42] }, { type: 'silver', label: 'Moon B', band: [47, 60] }],
+  minSep: 9, window: 50, corr: [3, 1, 0], optional: { type: 'sep', min: 11 } },
+
+{ id: 's05', num: 5, ch: 2, name: 'The Heavy Companion', lesson2: true,
+  brief: 'A small protected moon already circles close in. Add a heavy Iron Moon further out without dragging the little one out of its band.',
+  lesson: 'Mass matters: an Iron Moon pulls about four times harder than a Silver Moon at the same distance. Give it room.',
+  ports: [{ name: 'South port', r: 70, a: 270 }, { name: 'East port', r: 62, a: 0 }], dir: [-30, 30], speed: [12, 40],
+  protected: [{ type: 'pebble', label: 'Protected Moon P', r: 34, a: 90, band: [29, 40] }],
+  queue: [{ type: 'iron', label: 'Moon A', band: [58, 86] }],
+  minSep: 12, window: 60, corr: [3, 1, 0], optional: { type: 'margin', min: 0.45 } },
+
+{ id: 's06', num: 6, ch: 2, name: 'The Narrow Ring',
+  brief: 'Three Pebble Moons share one narrow ring. Launch them at the right moments so they spread out around it.',
+  lesson: 'Moons in the same orbit keep their spacing. When you launch decides where each one sits on the ring.',
+  ports: [{ name: 'South port', r: 48.5, a: 270 }], dir: [-20, 20], speed: [20, 40],
+  queue: [{ type: 'pebble', label: 'Moon A', band: [44, 53] }, { type: 'pebble', label: 'Moon B', band: [44, 53] }, { type: 'pebble', label: 'Moon C', band: [44, 53] }],
+  minSep: 14, window: 45, corr: [3, 1, 0], optional: { type: 'sep', min: 40 } },
+
+{ id: 's07', num: 7, ch: 3, name: 'Resonant Paths',
+  brief: 'The outer moon must take twice as long to circle the planet as the inner one: a 2 : 1 resonance.',
+  lesson: 'Orbit time grows with size: doubling the period needs about 1.59 times the orbit radius (Kepler’s third law).',
+  ports: [{ name: 'East port', r: 31, a: 0 }, { name: 'West port', r: 49, a: 180 }], dir: [-25, 25], speed: [15, 50],
+  queue: [{ type: 'silver', label: 'Moon A', band: [26, 36] }, { type: 'silver', label: 'Moon B', band: [40, 62] }],
+  resonance: { a: 'Moon A', b: 'Moon B', ratio: 2, tol: [0.3, 0.18, 0.1] },
+  minSep: 8, window: 50, corr: [3, 1, 0], optional: { type: 'noreset' } },
+
+{ id: 's08', num: 8, ch: 3, name: 'The Wandering Moon',
+  brief: 'Two protected moons already orbit. Slip a fragile Glass Moon into the gap between them without disturbing either.',
+  lesson: 'A Glass Moon shatters if anything passes within 8 L. The gap is wide enough only for a round orbit.',
+  ports: [{ name: 'North port', r: 56, a: 90 }, { name: 'South port', r: 56, a: 270 }], dir: [-20, 20], speed: [18, 36],
+  protected: [{ type: 'silver', label: 'Protected Moon P', r: 36, a: 0, band: [31, 42] }, { type: 'pebble', label: 'Protected Moon Q', r: 78, a: 180, band: [72, 86] }],
+  queue: [{ type: 'glass', label: 'Moon A', band: [50, 63] }],
+  minSep: 10, window: 60, corr: [3, 1, 0], optional: { type: 'margin', min: 0.5 } },
+
+{ id: 's09', num: 9, ch: 3, name: 'Three-Body Dance',
+  brief: 'Three Silver Moons in three bands, all pulling on each other, all held for a long observation.',
+  lesson: 'Every moon feels every other. Space the three orbits so no pair comes too close.',
+  ports: [{ name: 'North port', r: 29, a: 90 }, { name: 'South port', r: 48, a: 270 }, { name: 'East port', r: 72, a: 0 }], dir: [-30, 30], speed: [15, 55],
+  queue: [{ type: 'silver', label: 'Moon A', band: [24, 34] }, { type: 'silver', label: 'Moon B', band: [42, 54] }, { type: 'silver', label: 'Moon C', band: [64, 82] }],
+  minSep: 10, window: 70, corr: [3, 1, 0], optional: { type: 'nocorr' } },
+
+{ id: 's10', num: 10, ch: 4, name: 'The Inner Passage',
+  brief: 'A narrow passage runs between a small inner moon and a heavy Iron Moon. Thread a Glass Moon into it.',
+  lesson: 'The Iron Moon’s pull keeps nudging the glass. A round orbit in the middle of the passage gives the most room.',
+  ports: [{ name: 'North port', r: 45, a: 90 }], dir: [-15, 15], speed: [22, 40],
+  protected: [{ type: 'pebble', label: 'Protected Moon P', r: 24, a: 0, band: [20, 28] }, { type: 'iron', label: 'Protected Moon Q', r: 74, a: 180, band: [68, 80] }],
+  queue: [{ type: 'glass', label: 'Moon A', band: [37, 53] }],
+  minSep: 9, window: 60, corr: [3, 1, 0], optional: { type: 'noreset' } },
+
+{ id: 's11', num: 11, ch: 4, name: 'The Great Perturbation', lesson2: true,
+  brief: 'The protected moon circles too low. Use a heavy Shepherd Moon’s gravity in a close pass to lift its mean orbit into the target range.',
+  lesson: 'A close pass exchanges momentum: the heavier moon trades a little of its orbit for a large change in the lighter one’s.',
+  ports: [{ name: 'North port', r: 75, a: 90 }, { name: 'South port', r: 75, a: 270 }, { name: 'West port', r: 60, a: 180 }], dir: [-60, 60], speed: [10, 50],
+  protected: [{ type: 'pebble', label: 'Protected Moon P', r: 30, a: 0, band: [[18, 92], [18, 90], [19, 88]], sma: [[33, 60], [35, 56], [35, 54]] }],
+  queue: [{ type: 'shepherd', label: 'Shepherd S', band: [[16, 100], [18, 98], [20, 96]] }],
+  window: 40, corr: [3, 2, 1], optional: { type: 'nocorr' } },
+
+{ id: 's12', num: 12, ch: 4, name: 'The Silent Collision',
+  brief: 'Your moon’s long ellipse crosses the protected moon’s circle twice per orbit. Choose when to launch so the two are never there at the same time.',
+  lesson: 'Crossing orbits are safe only if the timing never lines up. Watch where the protected moon is before you launch.',
+  ports: [{ name: 'South port', r: 26, a: 270 }], dir: [-15, 15], speed: [30, 60],
+  protected: [{ type: 'silver', label: 'Protected Moon P', r: 46, a: 90, band: [41, 51] }],
+  queue: [{ type: 'pebble', label: 'Moon A', band: [[18, 100], [20, 98], [21, 96]], ecc: [[0.3, 0.8], [0.35, 0.75], [0.4, 0.72]] }],
+  minSep: 10, window: 50, corr: [3, 1, 0], optional: { type: 'sep', min: 14 } },
+
+{ id: 's13', num: 13, ch: 5, name: 'The Crown of Moons',
+  brief: 'Four moons in three bands. The two Twin Moons share the middle band and must stay well apart around the planet.',
+  lesson: 'Twins in the same orbit keep their angle apart. Launch the second when the first is on the far side.',
+  ports: [{ name: 'South port', r: 28, a: 270 }, { name: 'North port', r: 51, a: 90 }, { name: 'South-middle port', r: 51, a: 270 }, { name: 'East port', r: 80, a: 0 }], dir: [-25, 25], speed: [15, 55],
+  queue: [{ type: 'pebble', label: 'Moon A', band: [23, 33] }, { type: 'twin', label: 'Twin B', band: [46, 56] }, { type: 'twin', label: 'Twin C', band: [46, 56], twinOf: 1 }, { type: 'silver', label: 'Moon D', band: [72, 90] }],
+  twinMin: [90, 120, 140], minSep: 10, window: 70, corr: [3, 1, 0], optional: { type: 'nocorr' } },
+
+{ id: 's14', num: 14, ch: 5, name: 'The Delicate Accord', lesson2: true,
+  brief: 'A heavy Iron Moon, two Pebble Moons and a Glass Moon, each in a tight band. Unequal masses, little room.',
+  lesson: 'The Iron Moon dominates its neighbours, so it goes far out. Thread the fragile glass last, between the two pebbles, on the roundest orbit you can.',
+  ports: [{ name: 'East port', r: 88, a: 0 }, { name: 'North port', r: 26, a: 90 }, { name: 'West port', r: 53, a: 180 }, { name: 'South port', r: 39.5, a: 270 }], dir: [-25, 25], speed: [15, 50],
+  queue: [{ type: 'iron', label: 'Moon A', band: [82, 96] }, { type: 'pebble', label: 'Moon B', band: [22, 30] }, { type: 'pebble', label: 'Moon C', band: [48, 58] }, { type: 'glass', label: 'Moon D', band: [35, 44] }],
+  minSep: 9, window: 80, corr: [2, 1, 0], optional: { type: 'margin', min: 0.4 } },
+
+{ id: 's15', num: 15, ch: 5, name: 'Orbital Shepherd',
+  brief: 'The full system: a pair of twins close in, a fragile Glass Moon, a protected moon already circling, and a heavy Iron Moon far out — all held together through the longest observation of the campaign.',
+  lesson: 'Give every moon room in proportion to its mass: the Iron Moon needs the widest gap. Set the twins opposite each other, thread the glass between the twins and the protected moon, and launch the iron last.',
+  ports: [{ name: 'North port', r: 26, a: 90 }, { name: 'South port', r: 26, a: 270 }, { name: 'West port', r: 42, a: 180 }, { name: 'East port', r: 88, a: 0 }], dir: [-25, 25], speed: [15, 55],
+  protected: [{ type: 'silver', label: 'Protected Moon P', r: 60, a: 0, band: [[52, 68], [55, 66], [55.5, 65]] }],
+  queue: [{ type: 'twin', label: 'Twin A', band: [22, 30] }, { type: 'twin', label: 'Twin B', band: [22, 30], twinOf: 0 }, { type: 'glass', label: 'Moon C', band: [37, 47] }, { type: 'iron', label: 'Moon D', band: [81, 96] }],
+  twinMin: [90, 120, 140], minSep: 10, window: 100, corr: [3, 1, 0], optional: { type: 'noreset' } }
+];
+
+/* Validation tapes recorded by tools/solve.js: launch logs that complete each stage × tier through the real engine. */
+var TAPES = {"s01/bronze":{"score":1240,"stars":3,"ticks":1080,"launches":1,"tape":"0:L:0:5:267"},"s01/silver":{"score":1213,"stars":3,"ticks":1800,"launches":1,"tape":"0:L:0:5:277"},"s01/gold":{"score":1239,"stars":3,"ticks":2700,"launches":1,"tape":"0:L:0:1:287"},"s02/bronze":{"score":1177,"stars":3,"ticks":1440,"launches":1,"tape":"0:L:0:-7:469"},"s02/silver":{"score":899,"stars":2,"ticks":2400,"launches":1,"tape":"0:L:0:1:469"},"s02/gold":{"score":840,"stars":1,"ticks":3600,"launches":1,"tape":"0:L:0:7:467"},"s03/bronze":{"score":1398,"stars":3,"ticks":1662,"launches":2,"tape":"0:L:0:0:359 16:L:1:-4:257"},"s03/silver":{"score":1384,"stars":3,"ticks":2742,"launches":2,"tape":"0:L:0:0:359 16:L:1:-4:254"},"s03/gold":{"score":1360,"stars":3,"ticks":4102,"launches":2,"tape":"0:L:0:2:359 m:L:1:0:237"},"s04/bronze":{"score":1108,"stars":2,"ticks":1823,"launches":2,"tape":"0:L:0:1:338 n:L:1:-5:273"},"s04/silver":{"score":1298,"stars":3,"ticks":3023,"launches":2,"tape":"0:L:0:1:337 n:L:1:-5:274"},"s04/gold":{"score":1399,"stars":3,"ticks":4553,"launches":2,"tape":"0:L:0:0:333 1h:L:1:1:277"},"s05/bronze":{"score":1443,"stars":3,"ticks":2160,"launches":1,"tape":"0:L:0:1:233"},"s05/silver":{"score":1433,"stars":3,"ticks":3600,"launches":1,"tape":"0:L:0:1:235"},"s05/gold":{"score":1348,"stars":3,"ticks":5425,"launches":1,"tape":"p:L:1:-3:266"},"s06/bronze":{"score":1081,"stars":2,"ticks":2530,"launches":3,"tape":"0:L:0:-1:286 a5:L:0:1:286 t:L:0:1:281"},"s06/silver":{"score":1108,"stars":2,"ticks":3638,"launches":3,"tape":"0:L:0:0:286 ad:L:0:1:287 t:L:0:1:283"},"s06/gold":{"score":1564,"stars":3,"ticks":4444,"launches":3,"tape":"0:L:0:-1:287 7b:L:0:0:286 2t:L:0:0:290"},"s07/bronze":{"score":1452,"stars":3,"ticks":1828,"launches":2,"tape":"0:L:0:1:362 s:L:1:-5:292"},"s07/silver":{"score":1423,"stars":3,"ticks":3028,"launches":2,"tape":"0:L:0:1:361 s:L:1:-5:291"},"s07/gold":{"score":1310,"stars":3,"ticks":4543,"launches":2,"tape":"0:L:0:-1:359 17:L:1:-1:289"},"s08/bronze":{"score":1503,"stars":3,"ticks":2233,"launches":1,"tape":"21:L:0:-5:264"},"s08/silver":{"score":1359,"stars":3,"ticks":7044,"launches":1,"tape":"21:L:0:-5:265"},"s08/gold":{"score":1500,"stars":3,"ticks":5437,"launches":1,"tape":"11:L:0:2:267"},"s09/bronze":{"score":1603,"stars":3,"ticks":3019,"launches":3,"tape":"0:L:0:0:373 7j:L:1:-1:290 6c:L:2:-2:233"},"s09/silver":{"score":1565,"stars":3,"ticks":4697,"launches":3,"tape":"0:L:0:0:372 7h:L:1:-1:290 6c:L:2:-2:234"},"s09/gold":{"score":1498,"stars":3,"ticks":6515,"launches":3,"tape":"0:L:0:2:374 2b:L:1:0:289 3o:L:2:1:233"},"s10/bronze":{"score":1620,"stars":3,"ticks":2421,"launches":1,"tape":"79:L:0:-4:303"},"s10/silver":{"score":1606,"stars":3,"ticks":3861,"launches":1,"tape":"79:L:0:-4:302"},"s10/gold":{"score":1190,"stars":2,"ticks":9620,"launches":1,"tape":"3h:L:0:-4:298"},"s11/bronze":{"score":1181,"stars":3,"ticks":2591,"launches":1,"tape":"2t:L:0:3:168"},"s11/silver":{"score":1107,"stars":3,"ticks":4237,"launches":1,"tape":"31:L:2:-19:203"},"s11/gold":{"score":1296,"stars":3,"ticks":5430,"launches":1,"tape":"8:L:0:0:181"},"s12/bronze":{"score":1398,"stars":3,"ticks":1893,"launches":1,"tape":"2l:L:0:-1:478"},"s12/silver":{"score":1264,"stars":3,"ticks":3093,"launches":1,"tape":"2l:L:0:1:492"},"s12/gold":{"score":1315,"stars":3,"ticks":4613,"launches":1,"tape":"35:L:0:-2:486"},"s13/bronze":{"score":1782,"stars":3,"ticks":3500,"launches":4,"tape":"0:L:0:1:379 3b:L:2:0:279 jm:L:1:0:279 4b:L:3:-2:224"},"s13/silver":{"score":1757,"stars":3,"ticks":5095,"launches":4,"tape":"0:L:0:1:379 g:L:2:0:281 k1:L:1:0:279 4e:L:3:-2:224"},"s13/gold":{"score":1638,"stars":3,"ticks":7444,"launches":4,"tape":"0:L:0:2:378 7p:L:2:0:282 jd:L:1:0:282 4q:L:3:2:221"},"s14/bronze":{"score":1665,"stars":3,"ticks":4441,"launches":4,"tape":"0:L:0:-3:215 9m:L:1:2:393 vp:L:2:-2:275 22:L:3:-3:320"},"s14/silver":{"score":1564,"stars":3,"ticks":6361,"launches":4,"tape":"0:L:0:-3:215 9m:L:1:2:393 vp:L:2:-2:275 22:L:3:-3:320"},"s14/gold":{"score":1632,"stars":3,"ticks":9216,"launches":4,"tape":"0:L:0:0:214 k8:L:1:2:392 qy:L:2:-1:275 8u:L:3:1:317"},"s15/bronze":{"score":1788,"stars":3,"ticks":4450,"launches":4,"tape":"ae:L:0:2:395 52:L:0:1:394 20:L:2:1:310 66:L:3:-3:209"},"s15/silver":{"score":1787,"stars":3,"ticks":6693,"launches":4,"tape":"1:L:0:0:396 6z:L:1:-1:396 63:L:2:1:308 66:L:3:-1:213"},"s15/gold":{"score":1323,"stars":2,"ticks":24013,"launches":4,"tape":"8a:L:0:1:394 ai:L:0:0:395 k7:L:2:0:310 cy:L:3:1:214"}};
+
+var STAGE_BY_ID = {}; STAGES.forEach(function (st, i) { st.index = i; STAGE_BY_ID[st.id] = st; });
+
+function fnv(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return ('0000000' + h.toString(16)).slice(-8); }
+
+/* ---------- 8a. objectives resolved for a tier ---------- */
+function resolveObj(o, st, T, kind) {
+  var ti = T.idx, out = {};
+  if (o.band) {
+    var b = o.band;
+    if (Array.isArray(b[0])) out.band = b[ti].slice();
+    else { var c = (b[0] + b[1]) / 2, h = (b[1] - b[0]) / 2 * T.band; out.band = [Math.max(R_PLANET + 4, Math.round((c - h) * 10) / 10), Math.min(R_BOUND - 4, Math.round((c + h) * 10) / 10)]; }
+  }
+  if (o.ecc) out.ecc = Array.isArray(o.ecc[0]) ? o.ecc[ti].slice() : o.ecc.slice();
+  if (o.sma) out.sma = Array.isArray(o.sma[0]) ? o.sma[ti].slice() : o.sma.slice();
+  return out;
+}
+
+/* ---------- 2b. bodies ---------- */
+function makeBody(s, type, x, y, vx, vy, prot, label, obj) {
+  var d = MOONS[type];
+  var b = { i: s.bodies.length, type: type, label: label, x: x, y: y, vx: vx, vy: vy, ax: 0, ay: 0, m: d.mass * s.T.mass, r: d.r, prot: !!prot, alive: true, born: s.tick, obj: obj || {}, twin: -1 };
+  s.bodies.push(b); return b;
+}
+
+/* ---------- 3. gravity ---------- */
+/* acceleration of every live body: planet (fixed, inverse-square) + every other live moon (softened inverse-square) */
+function accelerate(B) {
+  var n = B.length, i, j;
+  for (i = 0; i < n; i++) {
+    var a = B[i]; if (!a.alive) continue;
+    var r2 = a.x * a.x + a.y * a.y, r = Math.sqrt(r2), k = -MU / (r2 * r);
+    a.ax = k * a.x; a.ay = k * a.y;
+  }
+  for (i = 0; i < n; i++) {
+    var p = B[i]; if (!p.alive) continue;
+    for (j = i + 1; j < n; j++) {
+      var q = B[j]; if (!q.alive) continue;
+      var dx = q.x - p.x, dy = q.y - p.y, d2 = dx * dx + dy * dy + SOFT2, inv = 1 / (d2 * Math.sqrt(d2));
+      var fp = MU * q.m * inv, fq = MU * p.m * inv;
+      p.ax += fp * dx; p.ay += fp * dy; q.ax -= fq * dx; q.ay -= fq * dy;
+    }
+  }
+}
+/* gravitational acceleration exerted on body p by body q (for tests and the info panel) */
+function pull(p, q) { var dx = q.x - p.x, dy = q.y - p.y, d2 = dx * dx + dy * dy + SOFT2; return MU * q.m / d2; }
+function energy(B) {
+  var E = 0, i, j;
+  for (i = 0; i < B.length; i++) { var a = B[i]; if (!a.alive) continue; E += 0.5 * a.m * (a.vx * a.vx + a.vy * a.vy) - MU * a.m / Math.sqrt(a.x * a.x + a.y * a.y); }
+  for (i = 0; i < B.length; i++) { if (!B[i].alive) continue; for (j = i + 1; j < B.length; j++) { if (!B[j].alive) continue; var dx = B[j].x - B[i].x, dy = B[j].y - B[i].y; E -= MU * B[i].m * B[j].m / Math.sqrt(dx * dx + dy * dy + SOFT2); } }
+  return E;
+}
+
+/* ---------- 4. integration (kick–drift–kick) ---------- */
+function substep(B, dt) {
+  var h = dt / 2, i, b;
+  for (i = 0; i < B.length; i++) { b = B[i]; if (!b.alive) continue; b.vx += b.ax * h; b.vy += b.ay * h; b.x += b.vx * dt; b.y += b.vy * dt; }
+  accelerate(B);
+  for (i = 0; i < B.length; i++) { b = B[i]; if (!b.alive) continue; b.vx += b.ax * h; b.vy += b.ay * h; }
+}
+
+/* ---------- osculating two-body elements about the planet ---------- */
+function elements(x, y, vx, vy) {
+  var r = Math.sqrt(x * x + y * y), v2 = vx * vx + vy * vy, rv = x * vx + y * vy;
+  var ex = ((v2 - MU / r) * x - rv * vx) / MU, ey = ((v2 - MU / r) * y - rv * vy) / MU, e = Math.sqrt(ex * ex + ey * ey);
+  var inva = 2 / r - v2 / MU, bound = inva > 0, a = bound ? 1 / inva : Infinity;
+  return { r: r, v: Math.sqrt(v2), a: a, e: e, bound: bound, peri: bound ? a * (1 - e) : r, apo: bound ? a * (1 + e) : Infinity, period: bound ? 2 * PI * Math.sqrt(a * a * a / MU) : Infinity, h: x * vy - y * vx };
+}
+function circularSpeed(r) { return Math.sqrt(MU / r); }
+function periodAt(a) { return 2 * PI * Math.sqrt(a * a * a / MU); }
+
+/* ---------- 5. launch mechanics ---------- */
+/* a launch: port index, direction offset in whole degrees from prograde (+ = outward), speed in tenths of L/s */
+function launchVector(st, port, dir, spd10) {
+  var P = st.ports[port], x = P.r * cosd(P.a), y = P.r * sind(P.a), sp = spd10 / 10;
+  var tx = -sind(P.a), ty = cosd(P.a), rx = cosd(P.a), ry = sind(P.a), c = cosd(dir), s = sind(dir);
+  return { x: x, y: y, vx: sp * (c * tx + s * rx), vy: sp * (c * ty + s * ry) };
+}
+function checkLaunch(s, port, dir, spd10) {
+  var st = s.stage;
+  if (s.phase !== 'launch') return { ok: false, code: 'phase', msg: 'All moons for this stage are already in the sky.' };
+  var q = s.queue[s.qi];
+  if (!(port >= 0 && port < st.ports.length && (port | 0) === port)) return { ok: false, code: 'port', msg: 'That insertion point does not exist.' };
+  if (q.ports && q.ports.indexOf(port) < 0) return { ok: false, code: 'port', msg: 'This moon must launch from insertion point ' + q.ports.map(function (p) { return st.ports[p].name; }).join(' or ') + '.' };
+  if ((dir | 0) !== dir || dir < st.dir[0] || dir > st.dir[1]) return { ok: false, code: 'dir', msg: 'Launch direction must be between ' + st.dir[0] + '° and +' + st.dir[1] + '° from prograde.' };
+  if ((spd10 | 0) !== spd10 || spd10 < st.speed[0] * 10 || spd10 > st.speed[1] * 10) return { ok: false, code: 'speed', msg: 'Launch speed must be between ' + st.speed[0] + ' and ' + st.speed[1] + ' L/s.' };
+  var L = launchVector(st, port, dir, spd10), r = MOONS[q.type].r;
+  for (var i = 0; i < s.bodies.length; i++) { var b = s.bodies[i]; if (!b.alive) continue; var dx = b.x - L.x, dy = b.y - L.y; if (Math.sqrt(dx * dx + dy * dy) < b.r + r + 3) return { ok: false, code: 'blocked', msg: 'Insertion point blocked: ' + b.label + ' is passing through it. Wait a moment.' }; }
+  return { ok: true, code: 'ok', msg: 'Ready to launch.', L: L, q: q };
+}
+function launch(s, port, dir, spd10) {
+  var c = checkLaunch(s, port, dir, spd10);
+  if (!c.ok) { s.ev.push({ t: 'refused', msg: c.msg }); return false; }
+  var q = c.q, b = makeBody(s, q.type, c.L.x, c.L.y, c.L.vx, c.L.vy, false, q.label, q.objR);
+  if (q.twinOf !== undefined) { var partner = s.bodies.filter(function (x) { return x.label === s.queue[q.twinOf].label; })[0]; if (partner) { b.twin = partner.i; partner.twin = b.i; } }
+  accelerate(s.bodies);
+  s.qi++; s.stats.launches++; s.lastLaunch = s.tick;
+  s.ev.push({ t: 'launch', i: b.i, label: b.label, type: b.type, port: port, dir: dir, spd: spd10 / 10 });
+  if (s.qi >= s.queue.length) { s.phase = 'observe'; s.obs = 0; s.obsStart = s.tick; s.ev.push({ t: 'observe', window: s.windowTicks }); resetWindowStats(s); }
+  return true;
+}
+function correct(s, bi, d) {
+  var b = s.bodies[bi];
+  if (s.phase === 'won' || s.phase === 'failed') return false;
+  if (!b || !b.alive || b.prot) { s.ev.push({ t: 'refused', msg: 'Only moons you launched can be corrected.' }); return false; }
+  if (s.corrLeft <= 0) { s.ev.push({ t: 'refused', msg: 'No orbital corrections remain.' }); return false; }
+  var v = Math.sqrt(b.vx * b.vx + b.vy * b.vy), r = Math.sqrt(b.x * b.x + b.y * b.y), ux, uy;
+  if (d === 'P' || d === 'R') { ux = b.vx / v; uy = b.vy / v; if (d === 'R') { ux = -ux; uy = -uy; } }
+  else if (d === 'O' || d === 'I') { ux = b.x / r; uy = b.y / r; if (d === 'I') { ux = -ux; uy = -uy; } }
+  else return false;
+  b.vx += DV * ux; b.vy += DV * uy; s.corrLeft--; s.stats.corrections++;
+  s.ev.push({ t: 'correct', i: bi, label: b.label, d: d }); return true;
+}
+
+/* ---------- 6. collisions, escapes and safeguards ---------- */
+function failures(s) {
+  var B = s.bodies, i, j;
+  for (i = 0; i < B.length; i++) {
+    var a = B[i]; if (!a.alive) continue;
+    if (!(isFinite(a.x) && isFinite(a.y) && isFinite(a.vx) && isFinite(a.vy))) return fail(s, 'numeric', a.label + ' reached an invalid numerical state and was stopped.', [i]);
+    var r = Math.sqrt(a.x * a.x + a.y * a.y), v = Math.sqrt(a.vx * a.vx + a.vy * a.vy);
+    if (r < R_PLANET + a.r) return fail(s, 'impact', a.label + ' struck the planet.', [i]);
+    if (r > R_BOUND) return fail(s, 'escape', a.label + ' escaped the system (beyond ' + R_BOUND + ' L).', [i]);
+    if (v > VMAX) return fail(s, 'speed', a.label + ' was flung faster than ' + VMAX + ' L/s.', [i]);
+    var gd = MOONS[a.type];
+    if (gd.roche && r < gd.roche) return fail(s, 'shatter', a.label + ' (glass) shattered: it came within ' + gd.roche + ' L of the planet.', [i]);
+  }
+  for (i = 0; i < B.length; i++) {
+    if (!B[i].alive) continue;
+    for (j = i + 1; j < B.length; j++) {
+      if (!B[j].alive) continue;
+      var dx = B[j].x - B[i].x, dy = B[j].y - B[i].y, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < B[i].r + B[j].r) return fail(s, 'collision', B[i].label + ' and ' + B[j].label + ' collided.', [i, j]);
+      var g1 = MOONS[B[i].type].tidal || 0, g2 = MOONS[B[j].type].tidal || 0, g = Math.max(g1, g2);
+      if (g && d < g) return fail(s, 'shatter', (g1 >= g2 ? B[i].label : B[j].label) + ' (glass) shattered: ' + (g1 >= g2 ? B[j].label : B[i].label) + ' passed within ' + g + ' L.', [i, j]);
+    }
+  }
+  return false;
+}
+function fail(s, code, msg, who) {
+  s.phase = 'failed'; s.fail = { code: code, msg: msg, who: who, tick: s.tick };
+  who.forEach(function (i) { s.bodies[i].alive = false; if (code === 'collision' || code === 'impact' || code === 'shatter') s.bodies[i].lost = code; });
+  s.ev.push({ t: 'fail', code: code, msg: msg, who: who }); return true;
+}
+
+/* ---------- 7. stability evaluation ---------- */
+function bodyStatus(s, b) {
+  var el = elements(b.x, b.y, b.vx, b.vy), o = b.obj, issues = [], margin = 1;
+  if (o.band) { var w = (o.band[1] - o.band[0]) / 2, m1 = Math.min(el.r - o.band[0], o.band[1] - el.r) / w; if (m1 < 0) issues.push(el.r < o.band[0] ? 'inside its band' : 'outside its band'); margin = Math.min(margin, m1); }
+  if (o.ecc) { var we = (o.ecc[1] - o.ecc[0]) / 2, m2 = Math.min(el.e - o.ecc[0], o.ecc[1] - el.e) / we; if (m2 < 0) issues.push(el.e < o.ecc[0] ? 'orbit too round (e ' + el.e.toFixed(2) + ')' : 'orbit too stretched (e ' + el.e.toFixed(2) + ')'); margin = Math.min(margin, m2); }
+  if (o.sma) { var wa = (o.sma[1] - o.sma[0]) / 2, m3 = el.bound ? Math.min(el.a - o.sma[0], o.sma[1] - el.a) / wa : -1; if (m3 < 0) issues.push('mean orbit radius ' + (el.bound ? el.a.toFixed(1) : '∞') + ' L outside ' + o.sma[0] + '–' + o.sma[1]); margin = Math.min(margin, m3); }
+  if (!el.bound) { issues.push('not bound to the planet'); margin = Math.min(margin, -1); }
+  return { el: el, issues: issues, margin: margin };
+}
+function evaluate(s) {
+  var B = s.bodies, st = s.stage, i, j, ok = true, reasons = [], margin = 1, minSep = Infinity, sepPair = null;
+  s.status = [];
+  for (i = 0; i < B.length; i++) {
+    var b = B[i]; if (!b.alive) { s.status.push(null); continue; }
+    var bs = bodyStatus(s, b); s.status.push(bs);
+    if (bs.issues.length) { ok = false; reasons.push(b.label + ' ' + bs.issues[0]); }
+    margin = Math.min(margin, bs.margin);
+  }
+  for (i = 0; i < B.length; i++) { if (!B[i].alive) continue; for (j = i + 1; j < B.length; j++) { if (!B[j].alive) continue; var dx = B[j].x - B[i].x, dy = B[j].y - B[i].y, d = Math.sqrt(dx * dx + dy * dy); if (d < minSep) { minSep = d; sepPair = [i, j]; } } }
+  if (s.minSep && minSep < s.minSep) { ok = false; reasons.push(B[sepPair[0]].label + ' and ' + B[sepPair[1]].label + ' closer than ' + s.minSep + ' L'); }
+  for (i = 0; i < B.length; i++) {
+    var t = B[i]; if (!t.alive || t.twin < 0 || t.twin < i || !B[t.twin].alive) continue; var u = B[t.twin];
+    var cs = (t.x * u.x + t.y * u.y) / (Math.sqrt(t.x * t.x + t.y * t.y) * Math.sqrt(u.x * u.x + u.y * u.y));
+    if (cs > s.twinCos) { ok = false; reasons.push(t.label + ' and ' + u.label + ' less than ' + s.twinMin + '° apart'); }
+  }
+  if (s.res) {
+    var p = B.filter(function (x) { return x.label === s.res.a; })[0], q = B.filter(function (x) { return x.label === s.res.b; })[0];
+    if (p && q && p.alive && q.alive) {
+      var e1 = s.status[p.i].el, e2 = s.status[q.i].el, ratio = e1.bound && e2.bound ? e2.period / e1.period : Infinity;
+      s.resNow = ratio;
+      var mr = Math.min(ratio - (s.res.ratio - s.res.tol), s.res.ratio + s.res.tol - ratio) / s.res.tol;
+      if (mr < 0) { ok = false; reasons.push('period ratio ' + (isFinite(ratio) ? ratio.toFixed(2) : '∞') + ' outside ' + (s.res.ratio - s.res.tol).toFixed(2) + '–' + (s.res.ratio + s.res.tol).toFixed(2)); }
+      margin = Math.min(margin, mr);
+    }
+  }
+  s.ok = ok; s.reasons = reasons; s.minSepNow = minSep; s.marginNow = margin;
+  if (s.phase === 'observe') {
+    if (ok) {
+      if (s.obs === 0) s.ev.push({ t: 'steady' });
+      s.obs++; s.wMargin += Math.max(0, Math.min(1, margin)); s.wN++; if (minSep < s.wMinSep) s.wMinSep = minSep;
+      if (s.obs >= s.windowTicks) { s.phase = 'won'; s.ev.push({ t: 'won' }); }
+    } else {
+      if (s.obs > 0) { s.stats.resets++; s.ev.push({ t: 'reset', reason: reasons[0], after: s.obs }); }
+      s.obs = 0; resetWindowStats(s);
+      if (s.tick - s.lastLaunch > s.settleTicks) fail(s, 'unsettled', 'The system did not hold its objectives for a full observation window within ' + Math.round(s.settleTicks / TPS) + ' s of the last launch. Last problem: ' + reasons[0] + '.', []);
+    }
+  }
+}
+function resetWindowStats(s) { s.wMargin = 0; s.wN = 0; s.wMinSep = Infinity; }
+
+/* ---------- 9. scoring & seals ---------- */
+function optionalMet(s) {
+  var o = s.stage.optional; if (!o || s.phase !== 'won') return false;
+  if (o.type === 'nocorr') return s.stats.corrections === 0;
+  if (o.type === 'margin') return s.wMargin / Math.max(1, s.wN) >= o.min;
+  if (o.type === 'noreset') return s.stats.resets === 0;
+  if (o.type === 'sep') return s.wMinSep >= o.min;
+  if (o.type === 'quick') return (s.lastLaunch / TPS) <= o.max;
+  return false;
+}
+function optionalText(o) {
+  if (!o) return '';
+  if (o.type === 'nocorr') return 'Win without using an orbital correction';
+  if (o.type === 'margin') return 'Keep an average stability margin of at least ' + Math.round(o.min * 100) + '% through the window';
+  if (o.type === 'noreset') return 'Hold the objectives from the very first moment of observation (no restarts of the window)';
+  if (o.type === 'sep') return 'Keep every pair of moons at least ' + o.min + ' L apart throughout the window';
+  if (o.type === 'quick') return 'Launch every moon within ' + o.max + ' s of the stage start';
+  return '';
+}
+function score(s) {
+  var won = s.phase === 'won', lines = [];
+  function add(key, label, detail, pts) { lines.push({ key: key, label: label, detail: detail, pts: pts }); }
+  var nReq = s.bodies.filter(function (b) { return b.alive; }).length;
+  add('moons', 'Moons held in their orbits', nReq + ' × 150', won ? nReq * 150 : 0);
+  add('window', 'Observation window completed', won ? (s.windowTicks / TPS) + ' s observed' : 'not completed', won ? 400 : 0);
+  var m = s.wN ? s.wMargin / s.wN : 0;
+  add('margin', 'Stability margin', 'average ' + Math.round(m * 100) + '% of the way from the nearest limit to the centre × 4', won ? Math.round(m * 400) : 0);
+  var sepRef = s.minSep || 10, sp = isFinite(s.wMinSep) ? Math.min(1, s.wMinSep / (2 * sepRef)) : 1;
+  add('sep', 'Closest approach', (isFinite(s.wMinSep) ? s.wMinSep.toFixed(1) + ' L' : 'single moon') + ' vs ' + (2 * sepRef) + ' L for full marks × 200', won ? Math.round(sp * 200) : 0);
+  add('corr', 'Orbital corrections used', s.stats.corrections + ' × −75', -75 * s.stats.corrections);
+  add('recall', 'Launches recalled', s.recalls + ' × −100', -100 * s.recalls);
+  add('resets', 'Window restarts', Math.min(10, s.stats.resets) + ' × −25 (max 10 counted)', -25 * Math.min(10, s.stats.resets));
+  var om = optionalMet(s);
+  add('optional', 'Optional objective', optionalText(s.stage.optional) + (om ? ' — met' : ' — not met'), om ? 250 : 0);
+  var total = Math.max(0, lines.reduce(function (a, l) { return a + l.pts; }, 0));
+  var stars = !won ? 0 : (s.recalls === 0 && s.stats.corrections === 0 && om) ? 3 : (s.recalls <= 1 && (om || m >= 0.35)) ? 2 : 1;
+  return { won: won, total: total, lines: lines, stars: stars, optional: om, margin: m };
+}
+var STARS = ['', 'Faint Star', 'Bright Star', 'Brilliant Star'];
+var SEALS = [
+  { id: 'firstorbit', name: 'First Orbit', desc: 'Stabilise your first moon (complete Stage 001).' },
+  { id: 'pair', name: 'Celestial Pair', desc: 'Hold two launched moons through an observation window together.' },
+  { id: 'lesson', name: 'Gravity Lesson', desc: 'Complete a stage built around strong mutual perturbation (005, 011 or 014).' },
+  { id: 'nocollision', name: 'No Collision', desc: 'Complete a Chapter IV or V stage without recalling a single launch.' },
+  { id: 'keeper', name: 'Keeper of Moons', desc: 'Complete all fifteen stages (any tier).' },
+  { id: 'harmony', name: 'Perfect Harmony', desc: 'Earn the Brilliant Star on 014 or 015 at Silver or Gold.' }
+];
+function sealsFor(s) {
+  var out = []; if (s.phase !== 'won') return out; var st = s.stage;
+  if (st.id === 's01') out.push('firstorbit');
+  if (s.bodies.filter(function (b) { return b.alive && !b.prot; }).length >= 2) out.push('pair');
+  if (st.lesson2) out.push('lesson');
+  if (st.ch >= 4 && s.recalls === 0) out.push('nocollision');
+  var sc = score(s); if ((st.id === 's14' || st.id === 's15') && s.tier !== 'bronze' && sc.stars === 3) out.push('harmony');
+  return out;
+}
+
+/* ---------- 11. lifecycle ---------- */
+function create(stageId, tier) {
+  var st = STAGE_BY_ID[stageId]; if (!st) throw new Error('unknown stage ' + stageId); var T = TIERS[tier]; if (!T) throw new Error('unknown tier ' + tier);
+  var s = { v: VERSION, stageId: stageId, stage: st, tier: tier, T: T, tick: 0, bodies: [], queue: [], qi: 0, phase: 'launch', obs: 0, lastLaunch: 0, recalls: 0,
+    corrLeft: st.corr ? st.corr[T.idx] : T.corr, minSep: st.minSep ? Math.round(st.minSep * T.sep * 10) / 10 : 0,
+    windowTicks: Math.round(st.window * T.window) * TPS, settleTicks: Math.round(st.window * T.window * T.settle + 20) * TPS,
+    twinMin: st.twinMin ? st.twinMin[T.idx] : 0, twinCos: 1, res: null, log: [], ev: [], fail: null, status: [], reasons: [], ok: false, wMargin: 0, wN: 0, wMinSep: Infinity,
+    stats: { launches: 0, corrections: 0, resets: 0 } };
+  if (s.twinMin) s.twinCos = cosd(s.twinMin);
+  if (st.resonance) s.res = { a: st.resonance.a, b: st.resonance.b, ratio: st.resonance.ratio, tol: st.resonance.tol[T.idx] };
+  (st.protected || []).forEach(function (p) {
+    var x = p.r * cosd(p.a), y = p.r * sind(p.a), v = Math.sqrt(MU / p.r) * (p.vf || 1);
+    makeBody(s, p.type, x, y, -sind(p.a) * v, cosd(p.a) * v, true, p.label, resolveObj(p, st, T));
+  });
+  st.queue.forEach(function (q, i) {
+    var qq = { type: q.type, label: q.label, ports: q.ports, objR: resolveObj(q, st, T), twinOf: q.twinOf };
+    s.queue.push(qq);
+  });
+  accelerate(s.bodies); evaluate(s); s.ev = [];
+  return s;
+}
+function step(s, inputs) {
+  s.ev = [];
+  if (s.phase === 'won' || s.phase === 'failed') return s.ev;
+  inputs = inputs || [];
+  for (var k = 0; k < inputs.length; k++) {
+    var inp = inputs[k]; s.log.push([s.tick].concat(inp));
+    if (inp[0] === 'L') launch(s, inp[1], inp[2], inp[3]);
+    else if (inp[0] === 'C') correct(s, inp[1], inp[2]);
+  }
+  for (var n = 0; n < SUB; n++) { substep(s.bodies, DT); if (failures(s)) break; }
+  s.tick++;
+  if (s.phase !== 'failed') evaluate(s);
+  if ((s.phase === 'won' || s.phase === 'failed') && !s.result) { s.result = score(s); s.ev.push({ t: 'end', phase: s.phase, score: s.result.total }); }
+  return s.ev;
+}
+function run(s, ticks) { for (var i = 0; i < ticks && s.phase !== 'won' && s.phase !== 'failed'; i++) step(s, []); return s; }
+function clone(s) {
+  var c = {}; for (var k in s) c[k] = s[k];
+  c.bodies = s.bodies.map(function (b) { var o = {}; for (var k2 in b) o[k2] = b[k2]; return o; });
+  c.log = s.log.slice(); c.stats = { launches: s.stats.launches, corrections: s.stats.corrections, resets: s.stats.resets }; c.ev = []; c.status = []; c.result = null;
+  return c;
+}
+
+/* ---------- 10. prediction (documented approximation of the same engine) ---------- */
+/* Copies the live system, adds the planned moon, and integrates every body with the same gravity
+   but a 4× coarser step (2 substeps per tick). Reports the planned moon's path, other moons' paths,
+   and the first predicted impact, escape, collision, shatter, close approach or band exit. */
+function predict(s, port, dir, spd10, seconds, opts) {
+  opts = opts || {};
+  var c = checkLaunch(s, port, dir, spd10);
+  var L = launchVector(s.stage, port, dir, spd10), q = s.queue[s.qi];
+  var B = s.bodies.filter(function (b) { return b.alive; }).map(function (b) { return { label: b.label, type: b.type, x: b.x, y: b.y, vx: b.vx, vy: b.vy, ax: 0, ay: 0, m: b.m, r: b.r, alive: true, obj: b.obj }; });
+  var nb = { label: q ? q.label : '?', type: q ? q.type : 'silver', x: L.x, y: L.y, vx: L.vx, vy: L.vy, ax: 0, ay: 0, m: MOONS[q ? q.type : 'silver'].mass * s.T.mass, r: MOONS[q ? q.type : 'silver'].r, alive: true, obj: q ? q.objR : {}, isNew: true };
+  B.push(nb); accelerate(B);
+  var el = elements(L.x, L.y, L.vx, L.vy);
+  var horizon = seconds || Math.max(3, Math.min(45, (el.bound ? el.period : 8) * s.T.preview));
+  var ticks = Math.round(horizon * TPS), sub = 2, dt = TICK / sub, path = [[L.x, L.y]], others = B.slice(0, -1).map(function (b) { return [[b.x, b.y]]; }), events = [], closest = Infinity, closestAt = null, leftBand = null;
+  var minSep = s.minSep || 0;
+  outer:
+  for (var t = 1; t <= ticks; t++) {
+    for (var k = 0; k < sub; k++) {
+      substep(B, dt);
+      var r = Math.sqrt(nb.x * nb.x + nb.y * nb.y);
+      if (r < R_PLANET + nb.r) { events.push({ type: 'impact', t: t / TPS, x: nb.x, y: nb.y, msg: 'Predicted to strike the planet after ' + (t / TPS).toFixed(1) + ' s.' }); break outer; }
+      if (r > R_BOUND) { events.push({ type: 'escape', t: t / TPS, x: nb.x, y: nb.y, msg: 'Predicted to escape the system after ' + (t / TPS).toFixed(1) + ' s.' }); break outer; }
+      var gd = MOONS[nb.type]; if (gd.roche && r < gd.roche) { events.push({ type: 'shatter', t: t / TPS, x: nb.x, y: nb.y, msg: 'Glass moon predicted to shatter near the planet after ' + (t / TPS).toFixed(1) + ' s.' }); break outer; }
+      for (var i = 0; i < B.length - 1; i++) {
+        var o = B[i], dx = o.x - nb.x, dy = o.y - nb.y, d = Math.sqrt(dx * dx + dy * dy);
+        if (d < o.r + nb.r) { events.push({ type: 'collision', t: t / TPS, x: nb.x, y: nb.y, with: o.label, msg: 'Predicted collision with ' + o.label + ' after ' + (t / TPS).toFixed(1) + ' s.' }); break outer; }
+        var g = Math.max(MOONS[o.type].tidal || 0, gd.tidal || 0);
+        if (g && d < g) { events.push({ type: 'shatter', t: t / TPS, x: nb.x, y: nb.y, with: o.label, msg: 'Predicted to pass within ' + g + ' L of ' + o.label + ' — a glass moon would shatter.' }); break outer; }
+        if (d < closest) { closest = d; closestAt = { t: t / TPS, x: nb.x, y: nb.y, with: o.label }; }
+      }
+    }
+    path.push([nb.x, nb.y]); for (var j = 0; j < B.length - 1; j++) others[j].push([B[j].x, B[j].y]);
+    var rr = Math.sqrt(nb.x * nb.x + nb.y * nb.y);
+    if (!leftBand && nb.obj && nb.obj.band && (rr < nb.obj.band[0] || rr > nb.obj.band[1]) && t > 3) leftBand = { t: t / TPS, x: nb.x, y: nb.y };
+  }
+  if (closestAt && minSep && closest < minSep && !events.length) events.push({ type: 'close', t: closestAt.t, x: closestAt.x, y: closestAt.y, with: closestAt.with, msg: 'Close approach: ' + closest.toFixed(1) + ' L from ' + closestAt.with + ' after ' + closestAt.t.toFixed(1) + ' s (limit ' + minSep + ' L).' });
+  if (leftBand && !events.length) events.push({ type: 'band', t: leftBand.t, x: leftBand.x, y: leftBand.y, msg: 'Leaves its band after ' + leftBand.t.toFixed(1) + ' s.' });
+  return { ok: c.ok, check: c, path: path, others: others, events: events, elements: el, horizon: horizon, closest: closest, approx: 'Same gravity, 4× coarser step; uncertain beyond the shown horizon.' };
+}
+
+/* ---------- replay, tapes, snapshots ---------- */
+function encodeLog(log) { var out = [], last = 0; log.forEach(function (e) { out.push((e[0] - last).toString(36) + ':' + e.slice(1).join(':')); last = e[0]; }); return out.join(' '); }
+function decodeTape(str) {
+  var log = [], t = 0;
+  String(str).split(' ').forEach(function (tok) { if (!tok) return; var p = tok.split(':'); t += parseInt(p[0], 36); var e = [t, p[1]]; if (p[1] === 'L') e.push(+p[2], +p[3], +p[4]); else if (p[1] === 'C') e.push(+p[2], p[3]); log.push(e); });
+  return log;
+}
+function replay(stageId, tier, log, upto) {
+  var s = create(stageId, tier), li = 0, end = upto === undefined ? Infinity : upto;
+  while (s.tick < end && s.phase !== 'won' && s.phase !== 'failed') {
+    var inp = []; while (li < log.length && log[li][0] === s.tick) inp.push(log[li++].slice(1));
+    if (end === Infinity && li >= log.length && s.phase === 'launch') break;
+    step(s, inp);
+  }
+  return s;
+}
+function runTape(stageId, tier, tape, limitTicks) {
+  var log = decodeTape(tape), s = create(stageId, tier), li = 0, lim = limitTicks || 60 * 60 * TPS;
+  while (s.phase !== 'won' && s.phase !== 'failed' && s.tick < lim) { var inp = []; while (li < log.length && log[li][0] === s.tick) inp.push(log[li++].slice(1)); step(s, inp); }
+  return s;
+}
+function recall(s) {
+  var idx = -1; for (var i = s.log.length - 1; i >= 0; i--) if (s.log[i][1] === 'L') { idx = i; break; }
+  if (idx < 0) return null;
+  var t = s.log[idx][0], keep = s.log.slice(0, idx), n = create(s.stageId, s.tier), li = 0;
+  while (n.tick < t) { var inp = []; while (li < keep.length && keep[li][0] === n.tick) inp.push(keep[li++].slice(1)); step(n, inp); }
+  n.recalls = s.recalls + 1; n.ev = [{ t: 'recalled' }]; return n;
+}
+function hash(s) {
+  var a = [s.tick, s.qi, s.phase, s.obs, s.corrLeft, s.stats.resets];
+  s.bodies.forEach(function (b) { a.push(b.alive ? 1 : 0, Math.round(b.x * 1e6), Math.round(b.y * 1e6), Math.round(b.vx * 1e6), Math.round(b.vy * 1e6)); });
+  return fnv(a.join(','));
+}
+function snapshot(s) { return { v: VERSION, stage: s.stageId, tier: s.tier, tick: s.tick, recalls: s.recalls, log: s.log.map(function (e) { return e.slice(); }), hash: hash(s) }; }
+function restore(snap) {
+  if (!snap || snap.v !== VERSION || !STAGE_BY_ID[snap.stage] || !TIERS[snap.tier] || !Array.isArray(snap.log) || typeof snap.tick !== 'number' || snap.tick < 0 || snap.tick > 1e6) return null;
+  for (var i = 0; i < snap.log.length; i++) {
+    var e = snap.log[i]; if (!Array.isArray(e) || typeof e[0] !== 'number' || (i && e[0] < snap.log[i - 1][0]) || e[0] >= snap.tick) return null;
+    if (e[1] === 'L') { if (e.length !== 5 || ![e[2], e[3], e[4]].every(function (v) { return typeof v === 'number' && isFinite(v); })) return null; }
+    else if (e[1] === 'C') { if (e.length !== 4 || typeof e[2] !== 'number' || ['P', 'R', 'O', 'I'].indexOf(e[3]) < 0) return null; }
+    else return null;
+  }
+  var s = create(snap.stage, snap.tier), li = 0;
+  while (s.tick < snap.tick && s.phase !== 'won' && s.phase !== 'failed') { var inp = []; while (li < snap.log.length && snap.log[li][0] === s.tick) inp.push(snap.log[li++].slice(1)); step(s, inp); }
+  if (s.phase === 'won' || s.phase === 'failed' || hash(s) !== snap.hash) return null;
+  s.recalls = Math.max(0, snap.recalls | 0); s.ev = [];
+  return s;
+}
+
+var API = {
+  VERSION: VERSION, TPS: TPS, SUB: SUB, DT: DT, MU: MU, R_PLANET: R_PLANET, R_BOUND: R_BOUND, SOFT: SOFT, VMAX: VMAX, DV: DV,
+  UNITS: { distance: 'league (L)', time: 'second (s)', mass: 'fraction of the planet’s mass', G_M: 'G·M(planet) = ' + MU + ' L³/s²' },
+  APPROX: 'Fixed central planet; velocity-Verlet integrator, dt = 1/480 s; Plummer softening ε = 1 L between moons; prediction uses a 4× coarser step.',
+  MOONS: MOONS, TIERS: TIER_IDS.reduce(function (o, k) { o[k] = TIERS[k]; return o; }, {}), TIER_IDS: TIER_IDS, STAGES: STAGES, TAPES: TAPES, SEALS: SEALS, STARS: STARS,
+  stage: function (id) { return STAGE_BY_ID[id]; },
+  create: create, step: step, run: run, clone: clone,
+  accelerate: accelerate, pull: pull, energy: energy, substep: substep, elements: elements, circularSpeed: circularSpeed, periodAt: periodAt, cosd: cosd, sind: sind,
+  launchVector: launchVector, checkLaunch: checkLaunch, predict: predict, bodyStatus: bodyStatus,
+  score: score, optionalText: optionalText, optionalMet: optionalMet, sealsFor: sealsFor,
+  encodeLog: encodeLog, decodeTape: decodeTape, replay: replay, runTape: runTape, recall: recall, hash: hash, snapshot: snapshot, restore: restore
+};
+root.OrbitalShepherdEngine = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function () {
+'use strict';
+/* ===== Orbital Shepherd interface — part 1: core, persistence, audio, dialogs ===== */
+var E = window.OrbitalShepherdEngine;
+var KEY = 'doorquests.gamortal.022.orbital-shepherd.v1';
+var $ = function (id) { return document.getElementById(id); };
+var DEV = /[?&]dev=1\b/.test(location.search);
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+function pad3(n) { return ('00' + n).slice(-3); }
+var TIER_NAMES = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold' };
+var CHAPTERS = ['The First Orbit', 'The Pull Between', 'Celestial Balance', 'The Shepherd\u2019s Art', 'The Living System'];
+var ROMAN = ['I', 'II', 'III', 'IV', 'V'];
+var TIER_TEXT = {
+  bronze: 'Bronze: target bands 35% wider, closest-approach limits 25% looser, observation windows 40% shorter, three corrections, a two-orbit prediction and a circular-speed guide. Moons are 10% lighter.',
+  silver: 'Silver: the balanced campaign. Standard bands and windows, one correction, a one-orbit prediction and the circular-speed guide.',
+  gold: 'Gold: bands 20% narrower, closest-approach limits 20% stricter, windows 50% longer, no corrections on most stages, a half-orbit prediction and no speed guide. Moons are 15% heavier, so they perturb each other more.'
+};
+
+/* ---------- persistence: one key, validated field by field, never touches other keys ---------- */
+var DEF_OVL = { trails: true, predict: true, bands: true, vectors: false, influence: false, labels: true, grid: true };
+var DEF_SETTINGS = { tier: 'silver', sound: true, ambient: false, vol: 60, motion: 'auto', contrast: false, large: false, release: 'mouse' };
+var storageOk = true, storageNote = '';
+function blankStore() { return { v: 1, settings: JSON.parse(JSON.stringify(DEF_SETTINGS)), ovl: JSON.parse(JSON.stringify(DEF_OVL)), unlocked: 0, openAll: false, best: {}, seals: {}, current: null, plays: 0, tutorial: false }; }
+function validBest(b) { return b && typeof b === 'object' && typeof b.score === 'number' && isFinite(b.score) && b.score >= 0 && b.score < 1e6 && [1, 2, 3].indexOf(b.stars) >= 0; }
+function loadStore() {
+  var st = blankStore(), raw = null;
+  try { raw = window.localStorage.getItem(KEY); } catch (e) { storageOk = false; storageNote = 'This browser is not allowing saved data, so progress will last only until the page closes.'; return st; }
+  if (!raw) return st;
+  var o; try { o = JSON.parse(raw); } catch (e) { storageNote = 'Saved Orbital Shepherd data could not be read and was set aside; a fresh record has been started.'; return st; }
+  if (!o || typeof o !== 'object' || o.v !== 1) { storageNote = 'Saved Orbital Shepherd data was from an unknown version; a fresh record has been started.'; return st; }
+  if (o.settings && typeof o.settings === 'object') for (var k in DEF_SETTINGS) if (typeof o.settings[k] === typeof DEF_SETTINGS[k]) st.settings[k] = o.settings[k];
+  if (!E.TIERS[st.settings.tier]) st.settings.tier = 'silver';
+  if (['auto', 'full', 'reduced'].indexOf(st.settings.motion) < 0) st.settings.motion = 'auto';
+  if (['mouse', 'always', 'never'].indexOf(st.settings.release) < 0) st.settings.release = 'mouse';
+  if (o.ovl && typeof o.ovl === 'object') for (var k2 in DEF_OVL) if (typeof o.ovl[k2] === 'boolean') st.ovl[k2] = o.ovl[k2];
+  st.tutorial = o.tutorial === true;
+  st.settings.vol = Math.max(0, Math.min(100, +st.settings.vol || 0));
+  st.unlocked = Math.max(0, Math.min(E.STAGES.length - 1, (o.unlocked | 0)));
+  st.openAll = o.openAll === true;
+  st.plays = Math.max(0, o.plays | 0);
+  if (o.best && typeof o.best === 'object') E.STAGES.forEach(function (sg) {
+    var b = o.best[sg.id]; if (!b || typeof b !== 'object') return;
+    E.TIER_IDS.forEach(function (t) { if (validBest(b[t])) { st.best[sg.id] = st.best[sg.id] || {}; st.best[sg.id][t] = { score: Math.round(b[t].score), stars: b[t].stars, date: String(b[t].date || '').slice(0, 10) }; } });
+  });
+  if (o.seals && typeof o.seals === 'object') E.SEALS.forEach(function (s) { if (typeof o.seals[s.id] === 'string') st.seals[s.id] = o.seals[s.id].slice(0, 10); });
+  if (o.current && typeof o.current === 'object') st.current = o.current;
+  return st;
+}
+var store = loadStore();
+function persist() {
+  if (!storageOk) return false;
+  try { window.localStorage.setItem(KEY, JSON.stringify(store)); return true; }
+  catch (e) { storageOk = false; storageNote = 'Saving failed (storage may be full or blocked). The game keeps running; progress may not survive a reload.'; announce(storageNote); return false; }
+}
+
+/* ---------- audio: synthesised, created only after the first interaction ---------- */
+var AU = { ctx: null, master: null, noise: null, ok: false, last: {} };
+function audioInit() {
+  if (AU.ctx || !(window.AudioContext || window.webkitAudioContext)) return;
+  try {
+    var C = new (window.AudioContext || window.webkitAudioContext)(); AU.ctx = C;
+    AU.master = C.createGain(); AU.master.gain.value = 0; AU.master.connect(C.destination);
+    var len = C.sampleRate, buf = C.createBuffer(1, len, C.sampleRate), d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    AU.noise = buf; AU.ok = true; audioApply();
+  } catch (e) { AU.ok = false; }
+}
+function audioApply() { if (!AU.ok) return; AU.master.gain.setTargetAtTime(store.settings.sound ? store.settings.vol / 100 * 0.7 : 0, AU.ctx.currentTime, 0.05); }
+function tone(f, dur, type, vol, when, slide) { if (!AU.ok || !store.settings.sound) return; var C = AU.ctx, t = C.currentTime + (when || 0), o = C.createOscillator(), g = C.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.15, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(g); g.connect(AU.master); o.start(t); o.stop(t + dur + 0.05); }
+function noise(dur, freq, q, vol, when, sweep) { if (!AU.ok || !store.settings.sound) return; var C = AU.ctx, t = C.currentTime + (when || 0), s = C.createBufferSource(), f = C.createBiquadFilter(), g = C.createGain(); s.buffer = AU.noise; f.type = 'bandpass'; f.frequency.setValueAtTime(freq, t); if (sweep) f.frequency.exponentialRampToValueAtTime(sweep, t + dur); f.Q.value = q; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); s.connect(f); f.connect(g); g.connect(AU.master); s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.05); }
+function throttled(name, ms) { var n = performance.now(); if (AU.last[name] && n - AU.last[name] < ms) return false; AU.last[name] = n; return true; }
+var SFX = {
+  launch: function () { noise(0.25, 900, 0.8, 0.12, 0, 2400); tone(330, 0.3, 'sine', 0.08, 0, 660); },
+  adjust: function () { if (throttled('adj', 60)) tone(1200, 0.025, 'sine', 0.02); },
+  correct: function () { noise(0.12, 2000, 2, 0.08); tone(880, 0.1, 'triangle', 0.05); },
+  warn: function () { if (throttled('warn', 900)) { tone(660, 0.12, 'triangle', 0.05); tone(520, 0.16, 'triangle', 0.05, 0.12); } },
+  fail: function () { noise(0.6, 400, 0.7, 0.3, 0, 120); tone(140, 0.6, 'sawtooth', 0.08, 0, 70); },
+  steady: function () { tone(784, 0.5, 'sine', 0.05); },
+  milestone: function () { tone(988, 0.4, 'sine', 0.05); tone(1318, 0.5, 'sine', 0.04, 0.1); },
+  reset: function () { tone(392, 0.2, 'triangle', 0.05); },
+  win: function () { [392, 523, 659, 784, 1046].forEach(function (f, i) { tone(f, 1.0, 'sine', 0.07, i * 0.14); }); },
+  bad: function () { tone(220, 0.15, 'triangle', 0.06); }
+};
+var AMB = { nodes: null };
+function ambient(on) {
+  if (!AU.ok) return;
+  if (on && store.settings.ambient && store.settings.sound && !AMB.nodes) {
+    var C = AU.ctx, g = C.createGain(); g.gain.value = 0.0001; g.connect(AU.master); g.gain.setTargetAtTime(0.025, C.currentTime, 2);
+    var o1 = C.createOscillator(), o2 = C.createOscillator(); o1.type = 'sine'; o2.type = 'sine'; o1.frequency.value = 110; o2.frequency.value = 164.8; o1.connect(g); o2.connect(g); o1.start(); o2.start(); AMB.nodes = [o1, o2, g];
+  } else if ((!on || !store.settings.ambient || !store.settings.sound) && AMB.nodes) { var n = AMB.nodes; AMB.nodes = null; n[2].gain.setTargetAtTime(0.0001, AU.ctx.currentTime, 0.3); setTimeout(function () { try { n[0].stop(); n[1].stop(); } catch (e) {} }, 1500); }
+}
+
+/* ---------- helpers ---------- */
+function reducedMotion() { return store.settings.motion === 'reduced' || (store.settings.motion === 'auto' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+function applySettings() {
+  document.documentElement.classList.toggle('large', !!store.settings.large);
+  document.documentElement.classList.toggle('contrast', !!store.settings.contrast);
+  document.documentElement.classList.toggle('reduced', reducedMotion());
+  audioApply();
+}
+function openDialog(id) { var d = $(id); if (!d.open) { try { d.showModal(); } catch (e) { d.setAttribute('open', ''); } } return d; }
+function closeDialog(id) { var d = $(id); if (d.open) { try { d.close(); } catch (e) { d.removeAttribute('open'); } } }
+function anyDialogOpen() { return Array.prototype.some.call(document.querySelectorAll('dialog'), function (d) { return d.open; }); }
+document.addEventListener('click', function (e) { var c = e.target.closest && e.target.closest('[data-close]'); if (c) { var d = c.closest('dialog'); if (d) { try { d.close(); } catch (x) { d.removeAttribute('open'); } } } });
+var confirmCb = null;
+function confirmBox(title, text, yes, cb) { $('dc-h').textContent = title; $('dc-text').textContent = text; $('dc-yes').textContent = yes; confirmCb = cb; openDialog('d-confirm'); $('dc-no').focus(); }
+var SCREENS = ['scr-title', 'scr-map', 'scr-game', 'scr-result'];
+function showScreen(id) { SCREENS.forEach(function (k) { $(k).hidden = k !== id; }); window.scrollTo(0, 0); }
+function currentScreen() { return SCREENS.filter(function (k) { return !$(k).hidden; })[0]; }
+var liveT = 0;
+function announce(msg, urgent) { var el = $(urgent ? 'live2' : 'live'); if (!el) return; el.textContent = ''; setTimeout(function () { el.textContent = msg; }, 30); }
+function stageLabel(st) { return 'Stage ' + pad3(st.num) + ' — ' + st.name; }
+
+/* ===== part 2: rendering — the orbital chart ===== */
+var R = { cv: null, ctx: null, size: 600, dpr: 1, scale: 1, bg: null };
+var VIEW_R = 108;
+var MCOL = { pebble: '#c9c2b4', silver: '#dfe7f2', iron: '#c07a4e', glass: '#9fe8ff', twin: '#ffd36b', shepherd: '#c49bff' };
+var LCOL = ['#ffd36b', '#7fe3ff', '#ff9ab3', '#a6f08a', '#c49bff', '#ffb36b', '#f6eedb'];
+function hc() { return document.documentElement.classList.contains('contrast'); }
+function sizeCanvas() {
+  var wrap = $('g-wrap'), mobile = window.innerWidth <= 900, land = window.innerWidth <= 920 && window.innerHeight <= 500 && window.innerWidth > window.innerHeight;
+  var top = wrap.getBoundingClientRect().top + window.scrollY, w = wrap.getBoundingClientRect().width, size;
+  if (land) size = Math.min(window.innerHeight - 16, window.innerWidth * 0.5);
+  else if (mobile) size = Math.min(w, Math.max(260, window.innerHeight - top - 230));
+  else size = Math.min(w, window.innerHeight - top - 16);
+  size = Math.max(240, Math.floor(size));
+  R.size = size; R.dpr = Math.min(3, window.devicePixelRatio || 1); R.scale = size / 2 / VIEW_R;
+  R.cv.style.width = size + 'px'; R.cv.style.height = size + 'px'; R.cv.width = Math.round(size * R.dpr); R.cv.height = Math.round(size * R.dpr);
+  R.ctx = R.cv.getContext('2d'); R.ctx.setTransform(R.dpr, 0, 0, R.dpr, 0, 0);
+  R.bg = makeBackground(size);
+}
+function sx(x) { return R.size / 2 + x * R.scale; } function sy(y) { return R.size / 2 - y * R.scale; }
+function wx(px) { return (px - R.size / 2) / R.scale; } function wy(py) { return (R.size / 2 - py) / R.scale; }
+function makeBackground(size) {
+  var c = document.createElement('canvas'), d = R.dpr; c.width = size * d; c.height = size * d; var x = c.getContext('2d'); x.scale(d, d);
+  var g = x.createRadialGradient(size * 0.5, size * 0.5, 0, size * 0.5, size * 0.5, size * 0.75); g.addColorStop(0, '#141a46'); g.addColorStop(1, '#05071a'); x.fillStyle = g; x.fillRect(0, 0, size, size);
+  var neb = [[0.22, 0.3, '#3b2a6e'], [0.78, 0.7, '#1e4a6e'], [0.65, 0.2, '#4a2a52']];
+  neb.forEach(function (n) { var ng = x.createRadialGradient(size * n[0], size * n[1], 0, size * n[0], size * n[1], size * 0.35); ng.addColorStop(0, n[2] + '88'); ng.addColorStop(1, n[2] + '00'); x.fillStyle = ng; x.fillRect(0, 0, size, size); });
+  var seed = 7; function rr() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+  for (var i = 0; i < 260; i++) { var a = rr(), b = rr(), m = rr(); x.fillStyle = 'rgba(255,248,230,' + (0.25 + m * 0.6) + ')'; x.beginPath(); x.arc(a * size, b * size, m < 0.9 ? 0.6 : 1.3, 0, 7); x.fill(); }
+  return c;
+}
+function labelColor(s, b) { var idx = s.bodies.indexOf(b); return LCOL[idx % LCOL.length]; }
+function queueColor(s, qi) { return LCOL[(s.bodies.length + (qi - s.qi)) % LCOL.length]; }
+function drawRing(ctx, r, style, w, dash) { ctx.save(); ctx.strokeStyle = style; ctx.lineWidth = w || 1; ctx.setLineDash(dash || []); ctx.beginPath(); ctx.arc(sx(0), sy(0), r * R.scale, 0, 7); ctx.stroke(); ctx.restore(); }
+function drawBand(ctx, band, col, alpha, label) {
+  var c = sx(0), d = sy(0);
+  ctx.save(); ctx.fillStyle = col; ctx.globalAlpha = alpha; ctx.beginPath(); ctx.arc(c, d, band[1] * R.scale, 0, 2 * Math.PI); ctx.moveTo(c + band[0] * R.scale, d); ctx.arc(c, d, band[0] * R.scale, 0, 2 * Math.PI, true); ctx.fill('evenodd');
+  ctx.globalAlpha = Math.min(1, alpha * 4); ctx.strokeStyle = col; ctx.setLineDash([4, 5]); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(c, d, band[0] * R.scale, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.arc(c, d, band[1] * R.scale, 0, 7); ctx.stroke();
+  if (label && store.ovl.labels) { ctx.setLineDash([]); ctx.globalAlpha = 0.9; ctx.fillStyle = col; ctx.font = '600 ' + Math.max(10, Math.round(R.size / 52)) + 'px system-ui'; ctx.textAlign = 'center'; ctx.fillText(label, c, d - band[1] * R.scale + 13); }
+  ctx.restore();
+}
+function drawPlanet(ctx, now) {
+  var c = sx(0), d = sy(0), r = E.R_PLANET * R.scale;
+  var glow = ctx.createRadialGradient(c, d, r * 0.8, c, d, r * 2.6); glow.addColorStop(0, 'rgba(233,180,76,.35)'); glow.addColorStop(1, 'rgba(233,180,76,0)');
+  ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(c, d, r * 2.6, 0, 7); ctx.fill();
+  var g = ctx.createRadialGradient(c - r * 0.35, d - r * 0.4, r * 0.1, c, d, r); g.addColorStop(0, '#fff3c8'); g.addColorStop(0.35, '#e9b44c'); g.addColorStop(0.75, '#8a4d2a'); g.addColorStop(1, '#3a1d28');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c, d, r, 0, 7); ctx.fill();
+  ctx.save(); ctx.beginPath(); ctx.arc(c, d, r, 0, 7); ctx.clip(); ctx.strokeStyle = 'rgba(255,240,200,.25)'; ctx.lineWidth = Math.max(1, r * 0.08);
+  for (var k = -2; k <= 2; k++) { ctx.beginPath(); ctx.ellipse(c, d + k * r * 0.35, r * 1.1, r * 0.12, 0, 0, 7); ctx.stroke(); }
+  ctx.restore();
+}
+function drawMoon(ctx, b, x, y, now, col) {
+  var r = Math.max(4, b.r * R.scale * 1.15), t = b.type;
+  ctx.save();
+  if (t === 'glass') { ctx.fillStyle = 'rgba(159,232,255,.35)'; ctx.strokeStyle = '#d8f8ff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x - r * 0.5, y - r * 0.1); ctx.lineTo(x + r * 0.1, y - r * 0.6); ctx.stroke(); }
+  else {
+    var g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.35, r * 0.1, x, y, r); g.addColorStop(0, '#ffffff'); g.addColorStop(0.4, MCOL[t]); g.addColorStop(1, 'rgba(20,16,40,1)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+    if (t === 'iron') { ctx.strokeStyle = '#ffb38a'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, r + 2, 0, 7); ctx.stroke(); }
+    if (t === 'shepherd') { ctx.strokeStyle = 'rgba(196,155,255,.8)'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.arc(x, y, r + 4, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
+    if (t === 'twin') { ctx.fillStyle = '#3a2d12'; ctx.beginPath(); ctx.arc(x, y, r * 0.35, 0, 7); ctx.fill(); }
+  }
+  if (b.prot) { ctx.strokeStyle = '#fff3c8'; ctx.lineWidth = 1.5; ctx.beginPath(); for (var i = 0; i < 6; i++) { var a = i * Math.PI / 3 + Math.PI / 6; ctx[i ? 'lineTo' : 'moveTo'](x + Math.cos(a) * (r + 4), y + Math.sin(a) * (r + 4)); } ctx.closePath(); ctx.stroke(); }
+  if (col) { ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + (b.prot ? 7 : 3), 0, 7); ctx.stroke(); }
+  ctx.restore();
+}
+function shortLabel(l) { var m = /([A-Z])$/.exec(l); return m ? m[1] : l; }
+function render(alpha, now) {
+  var s = G.s, ctx = R.ctx; if (!s || !ctx) return;
+  var size = R.size, hi = hc(), ov = store.ovl;
+  ctx.clearRect(0, 0, size, size); ctx.drawImage(R.bg, 0, 0, size, size);
+  if (ov.grid) { for (var gr = 20; gr <= 100; gr += 20) drawRing(ctx, gr, hi ? 'rgba(255,255,255,.35)' : 'rgba(200,150,62,.18)', 1); ctx.fillStyle = 'rgba(200,150,62,.5)'; ctx.font = '600 ' + Math.max(9, Math.round(size / 64)) + 'px system-ui'; ctx.textAlign = 'left'; for (gr = 20; gr <= 100; gr += 20) ctx.fillText(gr + ' L', sx(gr) + 3, sy(0) - 3); }
+  drawRing(ctx, E.R_BOUND, 'rgba(255,120,100,.45)', 1.5, [8, 6]);
+  /* bands: launched moons faint, the next moon bright */
+  if (ov.bands) {
+    s.bodies.forEach(function (b) { if (b.alive && b.obj.band) drawBand(ctx, b.obj.band, labelColor(s, b), 0.06, null); });
+    if (s.phase === 'launch') { var q = s.queue[s.qi]; if (q.objR.band) drawBand(ctx, q.objR.band, queueColor(s, s.qi), 0.14, q.label + ' band'); }
+    if (s.bodies.some(function (b) { return b.alive && b.type === 'glass'; }) || (s.phase === 'launch' && s.queue[s.qi].type === 'glass')) drawRing(ctx, E.MOONS.glass.roche, 'rgba(159,232,255,.55)', 1, [2, 4]);
+  }
+  drawPlanet(ctx, now);
+  /* trails */
+  if (ov.trails) s.bodies.forEach(function (b) {
+    var tr = G.trails[b.i]; if (!tr || tr.length < 2) return; var col = labelColor(s, b);
+    ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 1.4;
+    for (var i = 1; i < tr.length; i++) { ctx.globalAlpha = (i / tr.length) * 0.7; ctx.beginPath(); ctx.moveTo(sx(tr[i - 1][0]), sy(tr[i - 1][1])); ctx.lineTo(sx(tr[i][0]), sy(tr[i][1])); ctx.stroke(); }
+    ctx.restore();
+  });
+  /* ports */
+  s.stage.ports.forEach(function (p, i) {
+    var x = sx(p.r * E.cosd(p.a)), y = sy(p.r * E.sind(p.a)), sel = G.mode === 'play' && s.phase === 'launch' && G.aim.port === i, allowed = s.phase === 'launch' && (!s.queue[s.qi].ports || s.queue[s.qi].ports.indexOf(i) >= 0);
+    ctx.save(); ctx.translate(x, y); ctx.rotate(-p.a * Math.PI / 180); ctx.fillStyle = allowed ? (sel ? '#ffd36b' : '#c8963e') : 'rgba(200,150,62,.35)'; ctx.strokeStyle = '#2a1d06';
+    ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(-5, 6); ctx.lineTo(-5, -6); ctx.closePath(); ctx.fill(); ctx.stroke();
+    if (sel) { ctx.strokeStyle = '#fff3c8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 13, 0, 7); ctx.stroke(); }
+    ctx.restore();
+  });
+  /* prediction */
+  if (G.mode === 'play' && s.phase === 'launch' && ov.predict && G.pred) drawPrediction(ctx, G.pred);
+  /* aim vector */
+  if (G.mode === 'play' && s.phase === 'launch') {
+    var L = E.launchVector(s.stage, G.aim.port, G.aim.dir, G.aim.spd), k = aimScale();
+    ctx.save(); ctx.strokeStyle = '#fff3c8'; ctx.fillStyle = '#fff3c8'; ctx.lineWidth = 2.5; var x0 = sx(L.x), y0 = sy(L.y), x1 = x0 + L.vx * k, y1 = y0 - L.vy * k;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke(); var an = Math.atan2(y1 - y0, x1 - x0); ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 - 10 * Math.cos(an - 0.4), y1 - 10 * Math.sin(an - 0.4)); ctx.lineTo(x1 - 10 * Math.cos(an + 0.4), y1 - 10 * Math.sin(an + 0.4)); ctx.closePath(); ctx.fill(); ctx.restore();
+    drawMoon(ctx, { type: s.queue[s.qi].type, r: E.MOONS[s.queue[s.qi].type].r }, x0, y0, now, null);
+  }
+  /* moons */
+  s.bodies.forEach(function (b) {
+    if (!b.alive) return; var p = G.prev[b.i] || [b.x, b.y], x = p[0] + (b.x - p[0]) * alpha, y = p[1] + (b.y - p[1]) * alpha, X = sx(x), Y = sy(y), col = labelColor(s, b);
+    if (ov.influence) { var rr = Math.sqrt(b.x * b.x + b.y * b.y), rh = rr * Math.cbrt(b.m / 3); drawCircleAt(ctx, X, Y, rh * R.scale, 'rgba(196,155,255,.45)', [3, 4]); }
+    if (ov.vectors) { var k2 = aimScale() * 0.6; ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(X + b.vx * k2, Y - b.vy * k2); ctx.stroke(); ctx.restore(); }
+    drawMoon(ctx, b, X, Y, now, G.sel === b.i ? '#ffffff' : null);
+    var st = s.status[b.i];
+    if (st && st.issues.length) { ctx.save(); ctx.fillStyle = '#ffcf6b'; ctx.font = '700 ' + Math.max(11, Math.round(size / 46)) + 'px system-ui'; ctx.textAlign = 'center'; ctx.fillText('⚠', X, Y - b.r * R.scale - 10); ctx.restore(); }
+    if (ov.labels) { ctx.save(); ctx.fillStyle = col; ctx.font = '700 ' + Math.max(10, Math.round(size / 52)) + 'px system-ui'; ctx.textAlign = 'left'; ctx.fillText(shortLabel(b.label), X + b.r * R.scale + 6, Y + 4); ctx.restore(); }
+  });
+  /* lost moons and effects */
+  drawFx(ctx, now);
+  drawDial(ctx, s);
+}
+function drawCircleAt(ctx, x, y, r, col, dash) { ctx.save(); ctx.strokeStyle = col; ctx.setLineDash(dash || []); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.stroke(); ctx.restore(); }
+function aimScale() { return R.size * 0.42 / G.s.stage.speed[1]; }
+function drawPrediction(ctx, P) {
+  ctx.save();
+  if (P.others && G.s.T.preview >= 1) { ctx.strokeStyle = 'rgba(246,238,219,.18)'; ctx.lineWidth = 1; P.others.forEach(function (path) { ctx.beginPath(); path.forEach(function (p, i) { ctx[i ? 'lineTo' : 'moveTo'](sx(p[0]), sy(p[1])); }); ctx.stroke(); }); }
+  var bad = P.events.length && ['impact', 'escape', 'collision', 'shatter'].indexOf(P.events[0].type) >= 0;
+  ctx.strokeStyle = bad ? 'rgba(255,123,102,.95)' : 'rgba(255,243,200,.9)'; ctx.lineWidth = 2; ctx.setLineDash([6, 5]);
+  ctx.beginPath(); P.path.forEach(function (p, i) { ctx[i ? 'lineTo' : 'moveTo'](sx(p[0]), sy(p[1])); }); ctx.stroke(); ctx.setLineDash([]);
+  /* fade marker at the end of the horizon: prediction ends here */
+  var e = P.path[P.path.length - 1]; ctx.fillStyle = 'rgba(255,243,200,.8)'; ctx.beginPath(); ctx.arc(sx(e[0]), sy(e[1]), 3, 0, 7); ctx.fill();
+  P.events.forEach(function (ev) {
+    var x = sx(ev.x), y = sy(ev.y); ctx.lineWidth = 2.5;
+    if (ev.type === 'close' || ev.type === 'band') { ctx.strokeStyle = '#ffcf6b'; ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.stroke(); ctx.fillStyle = '#ffcf6b'; ctx.font = '700 13px system-ui'; ctx.textAlign = 'center'; ctx.fillText('!', x, y + 5); }
+    else { ctx.strokeStyle = '#ff7b66'; ctx.beginPath(); ctx.moveTo(x - 8, y - 8); ctx.lineTo(x + 8, y + 8); ctx.moveTo(x + 8, y - 8); ctx.lineTo(x - 8, y + 8); ctx.stroke(); }
+  });
+  ctx.restore();
+}
+function drawDial(ctx, s) {
+  var x = 34, y = 34, r = 24, f = s.phase === 'observe' ? s.obs / s.windowTicks : s.phase === 'won' ? 1 : 0;
+  ctx.save(); ctx.fillStyle = 'rgba(10,12,34,.75)'; ctx.beginPath(); ctx.arc(x, y, r + 6, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#6b5326'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.stroke();
+  ctx.strokeStyle = '#ffd36b'; ctx.beginPath(); ctx.arc(x, y, r, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * f); ctx.stroke();
+  ctx.fillStyle = '#fff1cc'; ctx.font = '700 11px system-ui'; ctx.textAlign = 'center'; ctx.fillText(Math.round(f * 100) + '%', x, y + 4); ctx.restore();
+}
+function addFx(f) { f.t0 = performance.now(); G.fx.push(f); if (G.fx.length > 60) G.fx.shift(); }
+function drawFx(ctx, now) {
+  var keep = [];
+  G.fx.forEach(function (f) {
+    var t = (now - f.t0) / f.dur; if (t >= 1) return; keep.push(f); var a = 1 - t;
+    ctx.save();
+    if (f.type === 'burst') { ctx.strokeStyle = 'rgba(255,140,110,' + a + ')'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(sx(f.x), sy(f.y), 6 + (reducedMotion() ? 10 : t * 30), 0, 7); ctx.stroke(); }
+    else if (f.type === 'pulse') { ctx.strokeStyle = 'rgba(255,211,107,' + a * 0.8 + ')'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(sx(f.x), sy(f.y), 4 + (reducedMotion() ? 6 : t * 18), 0, 7); ctx.stroke(); }
+    ctx.restore();
+  });
+  G.fx = keep;
+}
+function iconCanvas(type) {
+  var cv = document.createElement('canvas'); cv.width = 88; cv.height = 88; cv.setAttribute('aria-hidden', 'true');
+  var ctx = cv.getContext('2d'); ctx.scale(2, 2); ctx.fillStyle = '#0b0f26'; ctx.fillRect(0, 0, 44, 44);
+  var save = R.scale; R.scale = 4.5; drawMoon(ctx, { type: type, r: E.MOONS[type].r, prot: false }, 22, 22, 0, null); R.scale = save; return cv;
+}
+function drawTitleArt() {
+  var cv = $('t-art'); if (!cv) return; var ctx = cv.getContext('2d'), c = 120;
+  ctx.clearRect(0, 0, 240, 240); var g = ctx.createRadialGradient(c, c, 0, c, c, 120); g.addColorStop(0, '#1d2458'); g.addColorStop(1, '#070a1e'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c, c, 118, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#8a6a2e'; ctx.lineWidth = 3; ctx.stroke();
+  [[40, '#7fe3ff', 0.6], [70, '#ffd36b', 2.2], [98, '#ff9ab3', 4.1]].forEach(function (o) { ctx.strokeStyle = o[1] + '99'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(c, c, o[0], o[0] * 0.92, 0.3, 0, 7); ctx.stroke(); ctx.fillStyle = o[1]; ctx.beginPath(); ctx.arc(c + Math.cos(o[2]) * o[0], c + Math.sin(o[2]) * o[0] * 0.92, 5, 0, 7); ctx.fill(); });
+  var pg = ctx.createRadialGradient(c - 6, c - 6, 2, c, c, 20); pg.addColorStop(0, '#fff3c8'); pg.addColorStop(0.5, '#e9b44c'); pg.addColorStop(1, '#3a1d28'); ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(c, c, 20, 0, 7); ctx.fill();
+}
+
+/* ===== part 3: input — sliders, buttons, drag-to-launch, keyboard ===== */
+/* Every launch or correction becomes an engine input applied at the next fixed tick. */
+function stageLimits() { var st = G.s.stage; return { dmin: st.dir[0], dmax: st.dir[1], smin: Math.round(st.speed[0] * 10), smax: Math.round(st.speed[1] * 10) }; }
+function setAim(port, dir, spd, quiet) {
+  var s = G.s; if (!s) return; var L = stageLimits(), q = s.queue[s.qi];
+  if (port !== null && port !== undefined) { var allowed = q && q.ports ? q.ports : s.stage.ports.map(function (_, i) { return i; }); if (allowed.indexOf(port) < 0) port = allowed[0]; G.aim.port = port; }
+  if (dir !== null && dir !== undefined) G.aim.dir = Math.max(L.dmin, Math.min(L.dmax, Math.round(dir)));
+  if (spd !== null && spd !== undefined) G.aim.spd = Math.max(L.smin, Math.min(L.smax, Math.round(spd)));
+  syncAimControls(); G.predKey = ''; if (!quiet) SFX.adjust();
+}
+function syncAimControls() {
+  var a = G.aim; $('i-port').value = String(a.port); $('i-dir').value = String(a.dir); $('i-spd').value = String(a.spd);
+  $('o-dir').textContent = (a.dir > 0 ? '+' : '') + a.dir + '°'; $('o-spd').textContent = (a.spd / 10).toFixed(1) + ' L/s';
+  var s = G.s, p = s.stage.ports[a.port];
+  $('g-guide').textContent = s.T.guide ? 'Guide: circular speed at ' + p.name + ' (' + p.r + ' L) is ' + E.circularSpeed(p.r).toFixed(1) + ' L/s; escape speed is ' + Math.sqrt(2 * E.MU / p.r).toFixed(1) + ' L/s.' : 'Gold: no speed guide. Escape speed here is ' + Math.sqrt(2 * E.MU / p.r).toFixed(1) + ' L/s.';
+}
+function requestLaunch() {
+  var s = G.s; if (!s || G.mode !== 'play' || s.phase !== 'launch') return;
+  audioInit(); var c = E.checkLaunch(s, G.aim.port, G.aim.dir, G.aim.spd);
+  if (!c.ok) { say(c.msg, 'bad'); announce(c.msg, true); SFX.bad(); return; }
+  G.pending.push(['L', G.aim.port, G.aim.dir, G.aim.spd]); $('b-launch').classList.remove('armed');
+  if (G.paused) { G.paused = false; syncPlay(); }
+}
+function requestCorrection(d) {
+  var s = G.s; if (!s || G.mode !== 'play') return; audioInit();
+  var i = +$('i-corrmoon').value; if (!(i >= 0)) { say('Choose a moon you launched first.', 'bad'); return; }
+  G.pending.push(['C', i, d]);
+}
+function bindInputs() {
+  $('i-port').addEventListener('change', function () { setAim(+$('i-port').value, null, null); });
+  $('b-portprev').addEventListener('click', function () { cyclePort(-1); }); $('b-portnext').addEventListener('click', function () { cyclePort(1); });
+  $('i-dir').addEventListener('input', function () { setAim(null, +$('i-dir').value, null); });
+  $('i-spd').addEventListener('input', function () { setAim(null, null, +$('i-spd').value); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-adj]'), function (b) {
+    b.addEventListener('click', function () { var p = b.getAttribute('data-adj').split(':'), d = +p[1]; if (p[0] === 'dir') setAim(null, G.aim.dir + d, null); else setAim(null, null, G.aim.spd + d); });
+  });
+  $('b-launch').addEventListener('click', requestLaunch);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-corr]'), function (b) { b.addEventListener('click', function () { requestCorrection(b.getAttribute('data-corr')); }); });
+  $('i-corrmoon').addEventListener('change', function () { G.sel = +$('i-corrmoon').value; updateMoonList(true); });
+  /* drag-to-launch: press anywhere on the chart and drag; the arrow runs from the selected insertion point */
+  var drag = null;
+  R.cv.addEventListener('pointerdown', function (e) {
+    if (!G.s || G.mode !== 'play') return; audioInit();
+    var r = R.cv.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, s = G.s;
+    /* tap a moon to select it */
+    var hit = null; s.bodies.forEach(function (b) { if (!b.alive) return; var d = Math.hypot(sx(b.x) - px, sy(b.y) - py); if (d < 18 && (!hit || d < hit.d)) hit = { i: b.i, d: d }; });
+    var phit = null; s.stage.ports.forEach(function (p, i) { var d = Math.hypot(sx(p.r * E.cosd(p.a)) - px, sy(p.r * E.sind(p.a)) - py); if (d < 22 && (!phit || d < phit.d)) phit = { i: i, d: d }; });
+    if (phit && s.phase === 'launch') setAim(phit.i, null, null, true);
+    else if (hit) { selectBody(hit.i); return; }
+    if (s.phase !== 'launch') return;
+    drag = { id: e.pointerId, type: e.pointerType, moved: false, x0: px, y0: py }; try { R.cv.setPointerCapture(e.pointerId); } catch (x) {}
+  });
+  R.cv.addEventListener('pointermove', function (e) {
+    if (!drag || e.pointerId !== drag.id) return; var r = R.cv.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+    if (!drag.moved && Math.hypot(px - drag.x0, py - drag.y0) < 10) return; drag.moved = true;
+    aimFromPoint(px, py);
+  });
+  var end = function (e) {
+    if (!drag || e.pointerId !== drag.id) return; var d = drag; drag = null;
+    if (!d.moved) return;
+    var rel = store.settings.release;
+    if (rel === 'always' || (rel === 'mouse' && d.type === 'mouse')) requestLaunch();
+    else { $('b-launch').classList.add('armed'); say('Aim set. Press Launch moon to confirm.', ''); }
+  };
+  R.cv.addEventListener('pointerup', end); R.cv.addEventListener('pointercancel', function (e) { if (drag && e.pointerId === drag.id) drag = null; });
+}
+function aimFromPoint(px, py) {
+  var s = G.s, P = s.stage.ports[G.aim.port], x0 = sx(P.r * E.cosd(P.a)), y0 = sy(P.r * E.sind(P.a)), k = aimScale();
+  var vx = (px - x0) / k, vy = -(py - y0) / k, sp = Math.hypot(vx, vy);
+  var tx = -E.sind(P.a), ty = E.cosd(P.a), rx = E.cosd(P.a), ry = E.sind(P.a);
+  var along = vx * tx + vy * ty, out = vx * rx + vy * ry, ang = Math.atan2(out, along) * 180 / Math.PI;
+  setAim(null, ang, sp * 10, true);
+}
+function cyclePort(d) { var s = G.s, q = s.queue[s.qi]; if (!q) return; var allowed = q.ports || s.stage.ports.map(function (_, i) { return i; }), i = allowed.indexOf(G.aim.port); setAim(allowed[(i + d + allowed.length) % allowed.length], null, null); announce('Insertion point: ' + s.stage.ports[G.aim.port].name + '.'); }
+document.addEventListener('keydown', function (e) {
+  if (currentScreen() !== 'scr-game' || !G.s || anyDialogOpen()) return;
+  var t = e.target; if (t && (t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.tagName === 'INPUT') && e.key !== ' ' && e.key !== 'Escape') return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  var k = e.key, big = e.shiftKey ? 10 : 1, s = G.s;
+  if (k === 'p' || k === 'P' || k === 'Escape') { e.preventDefault(); if (G.mode === 'demo') stopDemo(); else pauseGame(true); return; }
+  if (G.mode !== 'play') return;
+  var launching = s.phase === 'launch';
+  if (k === 'ArrowLeft' && launching) { e.preventDefault(); setAim(null, G.aim.dir - big, null); }
+  else if (k === 'ArrowRight' && launching) { e.preventDefault(); setAim(null, G.aim.dir + big, null); }
+  else if (k === 'ArrowUp' && launching) { e.preventDefault(); setAim(null, null, G.aim.spd + big); }
+  else if (k === 'ArrowDown' && launching) { e.preventDefault(); setAim(null, null, G.aim.spd - big); }
+  else if (k === '[' && launching) { e.preventDefault(); cyclePort(-1); }
+  else if (k === ']' && launching) { e.preventDefault(); cyclePort(1); }
+  else if (k === ' ') { if (t && t.tagName === 'BUTTON') return; e.preventDefault(); requestLaunch(); }
+  else if (k >= '1' && k <= '4') { setSpeed([1, 2, 4, 8][+k - 1]); }
+  else if (k === 'u' || k === 'U') { doRecall(); }
+  else if (k === 'r' || k === 'R') { restartAsk(); }
+  else if (k === 'i' || k === 'I') { describe(); }
+  else if (k === 'm' || k === 'M') { cycleBody(); }
+  else if ('qQeEzZxX'.indexOf(k) >= 0) { requestCorrection({ q: 'P', e: 'R', z: 'I', x: 'O' }[k.toLowerCase()]); }
+  else return;
+});
+
+/* ===== part 4: the observatory session — fixed-step loop, events, panels, pause, save, results ===== */
+var G = { s: null, mode: 'play', paused: false, speed: 1, acc: 0, last: 0, prev: {}, trails: {}, fx: [], aim: { port: 0, dir: 0, spd: 200 }, pred: null, predKey: '', predAt: -99, sel: null, demo: null, ending: 0, pending: [], saveAt: 0, lastMilestone: 0, listAt: 0 };
+var DT = 1000 / E.TPS;
+
+function startStage(id, tier, opts) {
+  opts = opts || {};
+  var s = opts.state || E.create(id, tier);
+  G.s = s; G.mode = opts.demo ? 'demo' : 'play'; G.paused = false; G.speed = 1; G.acc = 0; G.last = performance.now(); G.prev = {}; G.trails = {}; G.fx = []; G.pred = null; G.predKey = ''; G.sel = null; G.ending = 0; G.pending = []; G.saveAt = s.tick + 600; G.lastMilestone = 0;
+  G.demo = opts.demo ? { log: E.decodeTape(opts.demo.tape), li: 0 } : null;
+  $('g-num').textContent = 'Stage ' + pad3(s.stage.num) + ' · ' + TIER_NAMES[tier] + (G.demo ? ' · Validation run' : '');
+  $('g-name').textContent = s.stage.name;
+  ['g-launchbox', 'b-recall', 'b-restart'].forEach(function (k) { $(k).hidden = G.mode === 'demo'; });
+  document.querySelector('.p-corr').hidden = G.mode === 'demo'; $('g-demobar').hidden = G.mode !== 'demo';
+  if (G.demo) { $('g-demo-text').textContent = 'Validation run for ' + TIER_NAMES[tier] + ': the solver’s recorded launches, replayed through the ordinary launch mechanics. Nothing is recorded.'; $('b-dspeed').textContent = 'Speed ×1'; }
+  setupPorts(); newMoonAim();
+  showScreen('scr-game'); sizeCanvas(); syncPlay(); syncSpeed(); updatePanels(true);
+  if (G.mode === 'play' && !opts.state) { store.plays++; persist(); }
+  banner(G.demo ? 'Validation run' : s.stage.name, 1800);
+  announce(stageLabel(s.stage) + ', ' + TIER_NAMES[tier] + '. ' + objectiveSummary(s));
+  ambient(true);
+}
+function setupPorts() { var s = G.s; $('i-port').innerHTML = s.stage.ports.map(function (p, i) { return '<option value="' + i + '">' + esc(p.name) + ' (' + p.r + ' L)</option>'; }).join(''); var L = stageLimits(); $('i-dir').min = L.dmin; $('i-dir').max = L.dmax; $('i-spd').min = L.smin; $('i-spd').max = L.smax; }
+function newMoonAim() {
+  var s = G.s; if (s.phase !== 'launch') { updateLaunchBox(); return; }
+  var q = s.queue[s.qi], L = stageLimits(), port = q.ports ? q.ports[0] : Math.min(s.qi, s.stage.ports.length - 1);
+  G.aim = { port: port, dir: 0, spd: Math.round((L.smin + L.smax) / 2) }; syncAimControls(); updateLaunchBox();
+}
+function updateLaunchBox() {
+  var s = G.s, box = $('g-launchbox');
+  if (s.phase !== 'launch') { box.classList.add('done'); $('g-next').textContent = 'all moons launched'; $('g-nextinfo').textContent = s.phase === 'observe' ? 'Watch the observation window. Use a correction if a moon drifts, or recall the last launch.' : ''; return; }
+  box.classList.remove('done'); var q = s.queue[s.qi], d = E.MOONS[q.type];
+  $('g-next').textContent = q.label + ' — ' + d.name + ' (' + (s.qi + 1) + ' of ' + s.queue.length + ')';
+  $('g-nextinfo').textContent = 'Mass ' + (d.mass * s.T.mass * 100).toFixed(2) + '% of the planet. Target: ' + objText(q.objR) + '. ' + d.desc;
+}
+function objText(o) { var p = []; if (o.band) p.push('stay between ' + o.band[0] + ' and ' + o.band[1] + ' L'); if (o.ecc) p.push('eccentricity ' + o.ecc[0] + '–' + o.ecc[1]); if (o.sma) p.push('mean orbit radius (semi-major axis) ' + o.sma[0] + '–' + o.sma[1] + ' L'); return p.join(', '); }
+function objectiveSummary(s) {
+  var parts = []; s.bodies.forEach(function (b) { if (b.prot) parts.push(b.label + ' (protected): ' + objText(b.obj)); });
+  s.queue.forEach(function (q) { parts.push(q.label + ' (' + E.MOONS[q.type].name + '): ' + objText(q.objR)); });
+  if (s.minSep) parts.push('no two moons closer than ' + s.minSep + ' L'); if (s.twinMin) parts.push('twins at least ' + s.twinMin + '° apart'); if (s.res) parts.push('period of ' + s.res.b + ' ' + (s.res.ratio - s.res.tol).toFixed(2) + '–' + (s.res.ratio + s.res.tol).toFixed(2) + ' × ' + s.res.a);
+  parts.push('then hold everything for ' + s.windowTicks / E.TPS + ' s');
+  return parts.join('; ') + '.';
+}
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (!G.s || currentScreen() !== 'scr-game') { G.last = now; return; }
+  var dt = Math.min(250, now - G.last); G.last = now;
+  if (!G.paused && !anyDialogOpen()) {
+    G.acc += dt * G.speed; var n = 0;
+    while (G.acc >= DT && n < 80) { G.acc -= DT; n++; if (!tick()) { G.acc = 0; break; } }
+    if (n >= 80) G.acc = 0;
+  }
+  if (G.mode === 'play' && G.s && G.s.phase === 'launch') maybePredict();
+  if (G.s) render(G.paused ? 1 : Math.min(1, G.acc / DT), now);
+}
+function tick() {
+  var s = G.s; if (!s) return false;
+  if (s.phase === 'won' || s.phase === 'failed') { if (G.ending <= 0) G.ending = 70; if (--G.ending === 0) finishStage(); return false; }
+  var inp;
+  if (G.mode === 'demo') { inp = []; var d = G.demo; while (d.li < d.log.length && d.log[d.li][0] === s.tick) inp.push(d.log[d.li++].slice(1)); }
+  else inp = G.pending.splice(0, 2);
+  s.bodies.forEach(function (b) { G.prev[b.i] = [b.x, b.y]; });
+  var ev = E.step(s, inp);
+  s.bodies.forEach(function (b) { if (!b.alive) return; var tr = G.trails[b.i] || (G.trails[b.i] = []); if (s.tick % 3 === 0) { tr.push([b.x, b.y]); if (tr.length > 110) tr.shift(); } });
+  handleEvents(s, ev);
+  if (s.tick % 6 === 0 || ev.length) updatePanels(false);
+  if (G.mode === 'play' && s.tick >= G.saveAt && s.phase !== 'won' && s.phase !== 'failed') { saveCurrent(); G.saveAt = s.tick + 600; }
+  return true;
+}
+function handleEvents(s, ev) {
+  ev.forEach(function (e) {
+    switch (e.t) {
+      case 'launch': SFX.launch(); addFx({ type: 'pulse', x: s.bodies[e.i].x, y: s.bodies[e.i].y, dur: 600 }); announce(e.label + ' launched from ' + s.stage.ports[e.port].name + ' at ' + e.spd.toFixed(1) + ' L/s, ' + (e.dir > 0 ? '+' : '') + e.dir + '°.'); G.sel = e.i; newMoonAim(); G.predKey = ''; break;
+      case 'observe': banner('All moons launched — observation begins', 2200); say('Observation window: hold every objective for ' + e.window / E.TPS + ' s.', ''); announce('All moons launched. Observation window begins: every objective must hold for ' + e.window / E.TPS + ' seconds in a row.'); G.lastMilestone = 0; break;
+      case 'steady': SFX.steady(); say('All objectives met — observing.', 'ok'); announce('All objectives met. Observing.'); break;
+      case 'reset': SFX.reset(); say('Observation restarted: ' + e.reason + '.', 'warn'); announce('Observation restarted after ' + (e.after / E.TPS).toFixed(1) + ' s: ' + e.reason + '.', true); G.lastMilestone = 0; break;
+      case 'correct': SFX.correct(); announce('Correction applied to ' + e.label + ' (' + { P: 'prograde', R: 'retrograde', O: 'outward', I: 'inward' }[e.d] + ', 2 L/s).'); break;
+      case 'refused': SFX.bad(); say(e.msg, 'bad'); announce(e.msg, true); break;
+      case 'fail': SFX.fail(); (e.who || []).forEach(function (i) { var b = s.bodies[i]; addFx({ type: 'burst', x: b.x, y: b.y, dur: 900 }); }); banner('System failure', 2000); say(e.msg, 'bad'); announce('System failure: ' + e.msg, true); break;
+      case 'won': SFX.win(); banner('Stable over the observation window', 2400); announce('Observation window completed: the system stayed within every objective for the full ' + s.windowTicks / E.TPS + ' seconds tested.', true); break;
+    }
+  });
+  if (s.phase === 'observe' && s.obs > 0) { var f = s.obs / s.windowTicks, m = Math.floor(f * 4); if (m > G.lastMilestone && m < 4) { G.lastMilestone = m; SFX.milestone(); announce('Observation ' + (m * 25) + '% complete.'); } }
+}
+function maybePredict() {
+  var s = G.s, key = G.aim.port + ',' + G.aim.dir + ',' + G.aim.spd + ',' + s.qi;
+  if (key === G.predKey && s.tick - G.predAt < 20) return;
+  G.predKey = key; G.predAt = s.tick; G.pred = E.predict(s, G.aim.port, G.aim.dir, G.aim.spd);
+  var P = G.pred, el = P.elements, box = $('g-predict'), ev = P.events[0], cls = 'predict';
+  var txt = '<b>Estimated orbit</b> (two-body): ' + (el.bound ? 'low point ' + el.peri.toFixed(1) + ' L, high point ' + el.apo.toFixed(1) + ' L, e ' + el.e.toFixed(2) + ', period ' + el.period.toFixed(1) + ' s.' : 'not bound — it would leave the planet.') + '<br>';
+  if (!P.check.ok) { txt += '⚠ ' + esc(P.check.msg); cls += ' warn'; }
+  else if (ev) { var bad = ['impact', 'escape', 'collision', 'shatter'].indexOf(ev.type) >= 0; txt += (bad ? '✕ ' : '⚠ ') + esc(ev.msg); cls += bad ? ' bad' : ' warn'; }
+  else txt += '✓ No impact, escape or close approach predicted in the next ' + P.horizon.toFixed(1) + ' s.';
+  txt += '<br><span class="muted">Prediction uses the same gravity with a coarser step; it is less certain the further it looks ahead.</span>';
+  if (box.innerHTML !== txt) box.innerHTML = txt; box.className = cls;
+}
+var sayT = 0;
+function say(msg, kind) { var el = $('g-status'); el.textContent = msg; el.className = 'status' + (kind ? ' ' + kind : ''); }
+function updatePanels(force) {
+  var s = G.s; if (!s) return;
+  var f = s.phase === 'observe' ? s.obs / s.windowTicks : s.phase === 'won' ? 1 : 0, w = s.windowTicks / E.TPS;
+  $('g-obsbar').style.width = (f * 100).toFixed(1) + '%';
+  $('g-obs').textContent = s.phase === 'launch' ? 'Launch ' + (s.queue.length - s.qi) + ' more moon' + (s.queue.length - s.qi > 1 ? 's' : '') + ', then hold every objective for ' + w + ' s.' : s.phase === 'observe' ? 'Observed ' + (s.obs / E.TPS).toFixed(1) + ' of ' + w + ' s' + (s.ok ? ' — stable so far' : ' — waiting for all objectives') : s.phase === 'won' ? 'Window complete: stable over the tested ' + w + ' s.' : 'Failed: ' + (s.fail ? s.fail.msg : '');
+  $('g-corrleft').textContent = '(' + s.corrLeft + ' left)';
+  Array.prototype.forEach.call(document.querySelectorAll('[data-corr]'), function (b) { b.disabled = s.corrLeft <= 0 || G.mode !== 'play' || s.phase === 'won' || s.phase === 'failed'; });
+  $('b-recall').disabled = !s.log.some(function (e) { return e[1] === 'L'; }) || G.mode !== 'play';
+  $('b-launch').disabled = s.phase !== 'launch';
+  updateMoonList(force);
+}
+function updateMoonList(force) {
+  var s = G.s, html = '', opts = '';
+  s.bodies.forEach(function (b, i) {
+    var st = s.status[i], col = labelColor(s, b), cls, txt;
+    if (!b.alive) { cls = 'st-bad'; txt = b.lost ? 'lost (' + b.lost + ')' : 'lost'; }
+    else if (!st) { cls = 'st-wait'; txt = ''; }
+    else { var el = st.el; txt = 'r ' + el.r.toFixed(1) + ' L · e ' + el.e.toFixed(2) + (el.bound ? ' · period ' + el.period.toFixed(1) + ' s' : ' · unbound'); if (st.issues.length) { cls = 'st-warn'; txt += ' — ' + st.issues.join(', '); } else { cls = 'st-ok'; txt += ' — orbit within objectives'; } }
+    html += '<li data-body="' + i + '" class="' + (G.sel === i ? 'sel' : '') + '"><span class="dot" style="background:' + col + '" aria-hidden="true"></span><span class="' + cls + '"><strong>' + esc(b.label) + '</strong> ' + esc(E.MOONS[b.type].name) + (b.prot ? ' (protected)' : '') + ': ' + esc(txt) + '</span></li>';
+    if (b.alive && !b.prot) opts += '<option value="' + i + '"' + (G.sel === i ? ' selected' : '') + '>' + esc(b.label) + '</option>';
+  });
+  for (var k = s.qi; k < s.queue.length; k++) html += '<li><span class="dot" style="background:' + queueColor(s, k) + ';opacity:.5" aria-hidden="true"></span><span class="st-wait"><strong>' + esc(s.queue[k].label) + '</strong> ' + esc(E.MOONS[s.queue[k].type].name) + ': waiting to launch</span></li>';
+  if (s.reasons.length && s.phase === 'observe') html += '';
+  var ul = $('g-moons'); if (force || ul.innerHTML !== html) ul.innerHTML = html;
+  var sel = $('i-corrmoon'); if (sel.innerHTML !== opts) sel.innerHTML = opts || '<option value="-1">No launched moons yet</option>';
+}
+function selectBody(i) { G.sel = i; var s = G.s, b = s.bodies[i]; updateMoonList(true); if (b) { var st = s.status[i]; announce(b.label + ', ' + E.MOONS[b.type].name + (b.prot ? ', protected' : '') + '. ' + (st ? 'Distance ' + st.el.r.toFixed(1) + ' L, eccentricity ' + st.el.e.toFixed(2) + '. ' + (st.issues.length ? st.issues.join(', ') : 'Orbit within its objectives') + '.' : '')); } }
+function cycleBody() { var s = G.s, live = s.bodies.filter(function (b) { return b.alive; }); if (!live.length) return; var i = live.findIndex(function (b) { return b.i === G.sel; }); selectBody(live[(i + 1) % live.length].i); }
+function describe() {
+  var s = G.s, parts = [stageLabel(s.stage) + '.'];
+  s.bodies.forEach(function (b, i) { if (!b.alive) { parts.push(b.label + ' was lost.'); return; } var st = s.status[i]; if (!st) return; var el = st.el; parts.push(b.label + ' (' + E.MOONS[b.type].name + (b.prot ? ', protected' : '') + '): ' + el.r.toFixed(1) + ' L from the planet, ' + (el.bound ? 'orbit from ' + el.peri.toFixed(1) + ' to ' + el.apo.toFixed(1) + ' L, period ' + el.period.toFixed(1) + ' s' : 'not bound') + '. ' + (st.issues.length ? 'Problem: ' + st.issues.join(', ') + '.' : 'Within its objectives.')); });
+  if (isFinite(s.minSepNow)) parts.push('Closest pair of moons: ' + s.minSepNow.toFixed(1) + ' L apart' + (s.minSep ? ' (limit ' + s.minSep + ' L)' : '') + '.');
+  parts.push($('g-obs').textContent);
+  if (s.phase === 'launch' && G.pred) parts.push('Planned launch: ' + $('g-predict').textContent);
+  announce(parts.join(' '));
+}
+function setSpeed(v) { G.speed = v; syncSpeed(); }
+function syncSpeed() { $('b-speed').textContent = 'Speed ×' + G.speed; }
+function syncPlay() { $('b-play').textContent = G.paused ? 'Play' : 'Pause'; $('b-play').setAttribute('aria-pressed', G.paused ? 'true' : 'false'); }
+function banner(text, ms) { var b = $('g-banner'); b.textContent = text; b.classList.add('on'); clearTimeout(G.bannerT); G.bannerT = setTimeout(function () { b.classList.remove('on'); }, ms || 1500); }
+function doRecall() {
+  if (!G.s || G.mode !== 'play') return; var n = E.recall(G.s); if (!n) { say('No launch to recall.', 'bad'); return; }
+  G.s = n; G.prev = {}; G.trails = {}; G.pred = null; G.predKey = ''; G.pending = []; G.paused = true; syncPlay(); newMoonAim(); updatePanels(true);
+  say('Last launch recalled. The sky is back to the moment before it; the simulation is paused. Recalls: ' + n.recalls + ' (−100 points each).', 'warn'); announce('Launch recalled and simulation paused. ' + n.recalls + ' recall' + (n.recalls > 1 ? 's' : '') + ' so far.');
+}
+function restartAsk() { confirmBox('Restart this stage?', 'All launched moons will be cleared.', 'Restart', function () { closeDialog('d-pause'); var s = G.s; clearCurrent(); startStage(s.stageId, s.tier, {}); }); }
+
+/* ----- pause, save, resume ----- */
+function pauseGame(show) {
+  if (!G.s || G.s.phase === 'won' || G.s.phase === 'failed') return;
+  if (G.mode === 'demo') { stopDemo(); return; }
+  G.paused = true; syncPlay(); saveCurrent();
+  if (show) { openDialog('d-pause'); $('dp-resume').focus(); }
+}
+function resumeGame() { closeDialog('d-pause'); G.paused = false; syncPlay(); G.last = performance.now(); }
+function saveCurrent() { if (!G.s || G.mode !== 'play' || G.s.phase === 'won' || G.s.phase === 'failed') return; store.current = E.snapshot(G.s); persist(); }
+function clearCurrent() { store.current = null; persist(); }
+document.addEventListener('visibilitychange', function () { if (document.hidden && G.s && currentScreen() === 'scr-game' && G.mode === 'play' && G.s.phase !== 'won' && G.s.phase !== 'failed') { pauseGame(false); if (!$('d-pause').open) openDialog('d-pause'); } });
+window.addEventListener('pagehide', function () { if (G.s && currentScreen() === 'scr-game' && G.mode === 'play') saveCurrent(); });
+window.addEventListener('resize', function () { if (currentScreen() === 'scr-game') sizeCanvas(); });
+
+/* ----- demo ----- */
+function watchDemo(id, tier) { var rec = E.TAPES[id + '/' + tier]; if (!rec) { announce('No validation run is stored for this stage and difficulty.'); return; } startStage(id, tier, { demo: rec }); }
+function stopDemo() { G.s = null; G.demo = null; ambient(false); showScreen('scr-map'); renderMap(); }
+
+/* ----- results ----- */
+function finishStage() {
+  var s = G.s; if (!s || !s.result) return;
+  var res = s.result, won = res.won, st = s.stage, demo = G.mode === 'demo';
+  if (G.mode === 'play') clearCurrent();
+  var newSeals = [];
+  if (!demo) {
+    if (won) {
+      var b = store.best[st.id] = store.best[st.id] || {}, old = b[s.tier];
+      if (!old || res.total > old.score) b[s.tier] = { score: res.total, stars: res.stars, date: today() };
+      else if (res.stars > old.stars) old.stars = res.stars;
+      store.unlocked = Math.max(store.unlocked, Math.min(E.STAGES.length - 1, st.index + 1));
+    }
+    E.sealsFor(s).forEach(function (id) { if (!store.seals[id]) { store.seals[id] = today(); newSeals.push(id); } });
+    if (!store.seals.keeper && E.STAGES.every(function (sg) { return store.best[sg.id] && Object.keys(store.best[sg.id]).length; })) { store.seals.keeper = today(); newSeals.push('keeper'); }
+    persist();
+  }
+  $('r-kicker').textContent = stageLabel(st) + ' · ' + TIER_NAMES[s.tier] + (demo ? ' · Validation run (not recorded)' : '');
+  $('r-h').textContent = won ? 'The system holds' : 'The system broke apart';
+  $('r-lede').textContent = won ? 'Every objective held for the full ' + s.windowTicks / E.TPS + '-second observation window. That is stability over the tested interval, not a promise of forever.' : (s.fail ? s.fail.msg : '') + ' Try a different speed, direction, insertion point or launch moment.';
+  $('r-lines').innerHTML = res.lines.map(function (l) { return '<tr><th scope="row">' + esc(l.label) + '</th><td>' + esc(l.detail) + '</td><td>' + l.pts + '</td></tr>'; }).join('');
+  $('r-total').textContent = res.total;
+  $('r-mark').textContent = won ? '★'.repeat(res.stars) + '☆'.repeat(3 - res.stars) + ' ' + E.STARS[res.stars] : 'No star (stage not completed)';
+  var stats = [['Moons launched', s.stats.launches], ['Corrections used', s.stats.corrections], ['Launches recalled', s.recalls], ['Window restarts', s.stats.resets], ['Average stability margin', Math.round(res.margin * 100) + '%'], ['Closest approach in window', isFinite(s.wMinSep) ? s.wMinSep.toFixed(1) + ' L' : '—'], ['Simulated time', (s.tick / E.TPS).toFixed(0) + ' s']];
+  $('r-stats').innerHTML = stats.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(String(r[1])) + '</dd>'; }).join('');
+  $('r-seals').innerHTML = newSeals.map(function (id) { var sd = E.SEALS.filter(function (x) { return x.id === id; })[0]; return '<p class="newseal"><strong>Seal earned: ' + esc(sd.name) + '</strong><br>' + esc(sd.desc) + '</p>'; }).join('');
+  var nxt = E.STAGES[st.index + 1]; $('r-next').hidden = !won || !nxt || demo; if (nxt) $('r-next').textContent = 'Next: ' + nxt.name;
+  G.lastRun = { id: st.id, tier: s.tier }; G.s = null; ambient(false); showScreen('scr-result');
+  setTimeout(function () { $(won && nxt && !demo ? 'r-next' : 'r-retry').focus(); }, 30);
+  announce($('r-h').textContent + '. Score ' + res.total + '. ' + $('r-mark').textContent + '.' + (newSeals.length ? ' New seal earned.' : ''));
+}
+
+/* ===== part 5: title, campaign, briefing, help, records, settings, start-up ===== */
+function isUnlocked(i) { return store.openAll || i <= store.unlocked; }
+function renderTitle() {
+  Array.prototype.forEach.call(document.querySelectorAll('#t-tiers input'), function (r) { r.checked = r.value === store.settings.tier; });
+  $('t-tiertext').textContent = TIER_TEXT[store.settings.tier];
+  var cur = store.current, ok = cur && E.stage(cur.stage) && E.TIERS[cur.tier];
+  $('t-continue').hidden = !ok;
+  if (ok) $('t-continue').textContent = 'Continue: ' + E.stage(cur.stage).name + ' (' + TIER_NAMES[cur.tier] + ')';
+  $('t-note').textContent = storageNote;
+  drawTitleArt();
+}
+function renderMap() {
+  $('m-tier').value = store.settings.tier;
+  var done = E.STAGES.filter(function (s) { return store.best[s.id]; }).length;
+  $('m-sub').textContent = done + ' of 15 stages won · ' + Object.keys(store.seals).length + ' of ' + E.SEALS.length + ' seals' + (store.openAll ? ' · all stages open for playtesting' : '');
+  var html = '';
+  for (var ch = 1; ch <= 5; ch++) {
+    html += '<section class="chapter" aria-labelledby="ch' + ch + '"><h3 id="ch' + ch + '"><span>Chapter ' + ROMAN[ch - 1] + '</span>' + esc(CHAPTERS[ch - 1]) + '</h3><div class="cards">';
+    E.STAGES.filter(function (s) { return s.ch === ch; }).forEach(function (st) {
+      var open = isUnlocked(st.index), b = store.best[st.id] || {};
+      var marks = E.TIER_IDS.map(function (t) { return b[t] ? '<span class="mk' + (b[t].stars === 3 ? ' radiant' : b[t].stars === 2 ? ' brass' : '') + '">' + TIER_NAMES[t] + ': ' + '★'.repeat(b[t].stars) + ' · ' + b[t].score + '</span>' : ''; }).join('');
+      html += '<button class="card" type="button" data-stage="' + st.id + '"' + (open ? '' : ' disabled aria-disabled="true"') + '><span class="num">Stage ' + pad3(st.num) + (open ? '' : ' · locked') + '</span><strong>' + esc(st.name) + '</strong><span class="desc">' + esc(open ? st.brief : 'Win the previous stage on any difficulty to open this one.') + '</span><span class="marks">' + marks + '</span></button>';
+    });
+    html += '</div></section>';
+  }
+  $('m-list').innerHTML = html;
+}
+function openBrief(id) {
+  var st = E.stage(id), tier = store.settings.tier, s0 = E.create(id, tier), T = E.TIERS[tier];
+  G.briefId = id;
+  $('db-k').textContent = 'Chapter ' + ROMAN[st.ch - 1] + ' · ' + CHAPTERS[st.ch - 1] + ' · Stage ' + pad3(st.num);
+  $('db-h').textContent = st.name; $('db-brief').textContent = st.brief; $('db-lesson').textContent = st.lesson;
+  var box = $('db-objs'); box.innerHTML = '';
+  var h = document.createElement('p'); h.className = 'kicker'; h.textContent = 'Moons and objectives (' + TIER_NAMES[tier] + ')'; box.appendChild(h);
+  var list = document.createElement('div'); list.className = 'newthings';
+  s0.bodies.forEach(function (b) { list.appendChild(thing(b.type, b.label + ' — ' + E.MOONS[b.type].name + ' (protected, already in orbit)', objText(b.obj))); });
+  s0.queue.forEach(function (q) { list.appendChild(thing(q.type, q.label + ' — ' + E.MOONS[q.type].name + ' (you launch it)', objText(q.objR) + '. ' + E.MOONS[q.type].desc)); });
+  box.appendChild(list);
+  var extra = []; if (s0.minSep) extra.push('No two moons may come closer than ' + s0.minSep + ' L.'); if (s0.twinMin) extra.push('The twins must stay at least ' + s0.twinMin + '° apart around the planet.'); if (s0.res) extra.push('Resonance: ' + s0.res.b + '\u2019s period must be ' + (s0.res.ratio - s0.res.tol).toFixed(2) + '–' + (s0.res.ratio + s0.res.tol).toFixed(2) + ' times ' + s0.res.a + '\u2019s.');
+  extra.push('Observation window: ' + s0.windowTicks / E.TPS + ' s with every objective held at once. The stage fails if this does not happen within ' + Math.round(s0.settleTicks / E.TPS) + ' s of the last launch, or if any moon collides, strikes the planet or escapes.');
+  extra.push('Optional objective (+250): ' + E.optionalText(st.optional) + '.');
+  var p = document.createElement('p'); p.className = 'small'; p.textContent = extra.join(' '); box.appendChild(p);
+  $('db-tier').textContent = TIER_NAMES[tier] + ': ' + s0.corrLeft + ' correction' + (s0.corrLeft === 1 ? '' : 's') + ', prediction looks ' + T.preview + ' orbit' + (T.preview === 1 ? '' : 's') + ' ahead' + (T.guide ? ', circular-speed guide shown' : ', no speed guide') + '. Launch speed ' + st.speed[0] + '–' + st.speed[1] + ' L/s, direction ' + st.dir[0] + '° to +' + st.dir[1] + '° from prograde.';
+  $('db-watch').hidden = !E.TAPES[id + '/' + tier];
+  openDialog('d-brief'); $('db-start').focus();
+}
+function thing(type, title, text) { var d = document.createElement('div'); d.className = 'thing'; d.appendChild(iconCanvas(type)); var tx = document.createElement('div'); tx.innerHTML = '<strong>' + esc(title) + '</strong><span class="small">' + esc(text) + '</span>'; d.appendChild(tx); return d; }
+function helpHtml() {
+  var moons = Object.keys(E.MOONS).map(function (k) { var m = E.MOONS[k]; return '<div class="thing" data-icon="' + k + '"><div><strong>' + esc(m.name) + '</strong><span class="small">' + esc(m.desc) + ' Mass ' + (m.mass * 100).toFixed(2) + '% of the planet, radius ' + m.r + ' L.</span></div></div>'; }).join('');
+  return '<h3>The idea</h3><p>Each stage gives you a small planet, sometimes a protected moon already in orbit, and a queue of moons to launch. Every moon pulls on every other moon as well as being pulled by the planet. Your goal is a system in which every moon keeps to its objectives <strong>at the same time</strong> for the whole observation window.</p>' +
+    '<h3>Launching</h3><ul><li>Choose an <strong>insertion point</strong> (the brass markers), a <strong>direction</strong> (0° is straight along the orbit, counter-clockwise; + aims outward, − inward) and a <strong>speed</strong>.</li><li>Drag on the chart to draw the launch arrow from the selected insertion point, or use the sliders, the − / + buttons, or the keyboard.</li><li>The dashed line is the <strong>predicted path</strong>: the same gravity, with a coarser step, for a limited time. Red crosses mark predicted impacts, collisions or escapes; amber rings mark close approaches or leaving the band. Prediction is an estimate, not a guarantee.</li><li>Timing matters: the moons keep moving until you pause. Pause, aim, then launch at the moment you choose.</li><li>A launch roughly at the circular speed, straight along the orbit, gives a near-circular orbit. Slower falls inward; faster swings outward; around 1.41 × circular speed it escapes.</li></ul>' +
+    '<h3>Stability</h3><p>The coloured rings are each moon\u2019s target band. After the last launch, the observation window starts. If any moon leaves its band, breaks a closest-approach limit, or another objective slips, the window restarts from zero. Collisions, planet impacts, escapes beyond ' + E.R_BOUND + ' L and shattered glass end the attempt. Success means "stable over the tested interval", not stable for ever.</p>' +
+    '<h3>Corrections and recalls</h3><p>Corrections are small 2 L/s nudges (prograde, retrograde, outward or inward) to a moon you launched. They are limited and cost 75 points each. <strong>Recall</strong> rewinds the sky to just before your last launch (−100 points each).</p>' +
+    '<h3>Moons</h3><div class="grid2">' + moons + '</div>' +
+    '<h3>Physics</h3><p>' + esc(E.APPROX) + ' Units: distance in leagues (L), time in seconds. ' + esc(E.UNITS.G_M) + '. Circular speed at radius r is √(GM/r).</p>' +
+    '<h3>Scoring</h3><p>Moons held × 150, window completed +400, average stability margin up to +400, closest approach up to +200, optional objective +250; −75 per correction, −100 per recall, −25 per window restart (up to 10). Stars (Faint, Bright, Brilliant) describe how cleanly you won and are separate from the difficulty you chose.</p>' +
+    '<h3>Controls</h3><ul><li>Mouse: drag on the chart from anywhere to aim; release launches (configurable). Click an insertion point to select it, or a moon to inspect it.</li><li>Touch: drag to aim, then press <strong>Launch moon</strong> to confirm. Every setting also has sliders and large buttons.</li><li>Keyboard: ←/→ direction, ↑/↓ speed (Shift for ×10), [ and ] insertion point, Space launch, P or Escape pause, 1–4 simulation speed, U recall, M select a moon, Q/E/Z/X corrections, I describe the system, R restart.</li></ul>' +
+    '<h3>Difficulty</h3><p>' + esc(TIER_TEXT.bronze) + '</p><p>' + esc(TIER_TEXT.silver) + '</p><p>' + esc(TIER_TEXT.gold) + '</p>';
+}
+function openHelp() {
+  var b = $('dh-body'); b.innerHTML = helpHtml();
+  Array.prototype.forEach.call(b.querySelectorAll('[data-icon]'), function (el) { el.insertBefore(iconCanvas(el.getAttribute('data-icon')), el.firstChild); });
+  openDialog('d-help');
+}
+function openRecords() {
+  $('dr-seals').innerHTML = E.SEALS.map(function (s) { var got = store.seals[s.id]; return '<div class="seal' + (got ? ' got' : '') + '"><strong>' + (got ? '◆ ' : '◇ ') + esc(s.name) + '</strong><span>' + esc(s.desc) + (got ? ' — earned ' + esc(got) : ' — not yet earned') + '</span></div>'; }).join('');
+  $('dr-rows').innerHTML = E.STAGES.map(function (st) { var b = store.best[st.id] || {}; return '<tr><th scope="row">' + pad3(st.num) + ' ' + esc(st.name) + '</th>' + E.TIER_IDS.map(function (t) { return '<td>' + (b[t] ? b[t].score + ' · ' + '★'.repeat(b[t].stars) : '—') + '</td>'; }).join('') + '</tr>'; }).join('');
+  $('dr-note').textContent = storageNote;
+  $('dr-unlock').textContent = store.openAll ? 'Stages opened for playtesting (tap to restore normal unlocking)' : 'Open all stages for playtesting';
+  openDialog('d-records');
+}
+function openSettings() {
+  var st = store.settings;
+  $('s-sound').checked = st.sound; $('s-ambient').checked = st.ambient; $('s-vol').value = st.vol; $('s-motion').value = st.motion; $('s-contrast').checked = st.contrast; $('s-large').checked = st.large; $('s-release').value = st.release;
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ovl]'), function (c) { c.checked = !!store.ovl[c.getAttribute('data-ovl')]; });
+  openDialog('d-settings');
+}
+function wire() {
+  $('t-play').addEventListener('click', function () { audioInit(); showScreen('scr-map'); renderMap(); });
+  $('t-continue').addEventListener('click', function () {
+    audioInit(); var s = E.restore(store.current);
+    if (!s) { store.current = null; persist(); renderTitle(); $('t-note').textContent = 'The saved battle could not be restored (it was outdated or damaged) and has been cleared.'; return; }
+    startStage(s.stageId, s.tier, { state: s }); pauseGame(true);
+  });
+  $('t-help').addEventListener('click', openHelp); $('t-records').addEventListener('click', openRecords); $('t-settings').addEventListener('click', openSettings);
+  Array.prototype.forEach.call(document.querySelectorAll('#t-tiers input'), function (r) { r.addEventListener('change', function () { store.settings.tier = r.value; persist(); $('t-tiertext').textContent = TIER_TEXT[r.value]; }); });
+  $('m-back').addEventListener('click', function () { showScreen('scr-title'); renderTitle(); });
+  $('m-tier').addEventListener('change', function () { store.settings.tier = $('m-tier').value; persist(); });
+  $('m-list').addEventListener('click', function (e) { var b = e.target.closest('[data-stage]'); if (b && !b.disabled) openBrief(b.getAttribute('data-stage')); });
+  $('db-start').addEventListener('click', function () {
+    var id = G.briefId; closeDialog('d-brief');
+    var go = function () { startStage(id, store.settings.tier, {}); if (!store.tutorial) { store.tutorial = true; persist(); G.paused = true; syncPlay(); openHelp(); } };
+    if (store.current) confirmBox('Replace the saved battle?', 'Starting this stage replaces the system saved for Continue (' + E.stage(store.current.stage).name + ').', 'Start new battle', function () { clearCurrent(); go(); });
+    else go();
+  });
+  $('db-watch').addEventListener('click', function () { var id = G.briefId; closeDialog('d-brief'); watchDemo(id, store.settings.tier); });
+  $('dp-resume').addEventListener('click', resumeGame);
+  $('d-pause').addEventListener('cancel', function (e) { e.preventDefault(); resumeGame(); });
+  $('dp-restart').addEventListener('click', restartAsk);
+  $('dp-help').addEventListener('click', openHelp); $('dp-settings').addEventListener('click', openSettings);
+  $('dp-quit').addEventListener('click', function () { saveCurrent(); closeDialog('d-pause'); G.s = null; showScreen('scr-map'); renderMap(); });
+  $('dp-title').addEventListener('click', function () { saveCurrent(); closeDialog('d-pause'); G.s = null; showScreen('scr-title'); renderTitle(); });
+  $('dc-yes').addEventListener('click', function () { closeDialog('d-confirm'); var cb = confirmCb; confirmCb = null; if (cb) cb(); });
+  $('g-menu').addEventListener('click', function () { if (G.s && currentScreen() === 'scr-game') { pauseGame(true); return; } openDialog('d-menu'); });
+  $('dm-title').addEventListener('click', function () { closeDialog('d-menu'); showScreen('scr-title'); renderTitle(); });
+  $('dm-map').addEventListener('click', function () { closeDialog('d-menu'); showScreen('scr-map'); renderMap(); });
+  $('dm-help').addEventListener('click', function () { closeDialog('d-menu'); openHelp(); });
+  $('dm-records').addEventListener('click', function () { closeDialog('d-menu'); openRecords(); });
+  $('dm-settings').addEventListener('click', function () { closeDialog('d-menu'); openSettings(); });
+  $('dr-reset').addEventListener('click', function () {
+    confirmBox('Reset all Orbital Shepherd progress?', 'This permanently deletes your Orbital Shepherd records, seals, unlocked stages, tutorial status and saved system in this browser. Settings are kept. Other DoorQuests games are not affected.', 'Delete progress', function () {
+      var keep = store.settings, ko = store.ovl; store = blankStore(); store.settings = keep; store.ovl = ko; persist(); closeDialog('d-records'); renderTitle(); if (currentScreen() === 'scr-map') renderMap(); announce('Progress reset.');
+    });
+  });
+  $('dr-unlock').addEventListener('click', function () { store.openAll = !store.openAll; persist(); openRecords(); if (currentScreen() === 'scr-map') renderMap(); });
+  $('s-sound').addEventListener('change', function () { store.settings.sound = $('s-sound').checked; audioInit(); applySettings(); ambient(currentScreen() === 'scr-game'); persist(); });
+  $('s-ambient').addEventListener('change', function () { store.settings.ambient = $('s-ambient').checked; audioInit(); ambient(currentScreen() === 'scr-game'); persist(); });
+  $('s-vol').addEventListener('input', function () { store.settings.vol = +$('s-vol').value; applySettings(); persist(); });
+  $('s-motion').addEventListener('change', function () { store.settings.motion = $('s-motion').value; applySettings(); persist(); });
+  $('s-contrast').addEventListener('change', function () { store.settings.contrast = $('s-contrast').checked; applySettings(); persist(); });
+  $('s-large').addEventListener('change', function () { store.settings.large = $('s-large').checked; applySettings(); persist(); if (currentScreen() === 'scr-game') sizeCanvas(); });
+  $('s-release').addEventListener('change', function () { store.settings.release = $('s-release').value; persist(); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ovl]'), function (c) { c.addEventListener('change', function () { store.ovl[c.getAttribute('data-ovl')] = c.checked; persist(); }); });
+  $('b-play').addEventListener('click', function () { if (!G.s) return; G.paused = !G.paused; syncPlay(); if (G.paused) saveCurrent(); G.last = performance.now(); });
+  $('b-speed').addEventListener('click', function () { setSpeed(G.speed === 1 ? 2 : G.speed === 2 ? 4 : G.speed === 4 ? 8 : 1); });
+  $('b-recall').addEventListener('click', doRecall);
+  $('b-restart').addEventListener('click', restartAsk);
+  $('b-describe').addEventListener('click', describe);
+  $('g-moons').addEventListener('click', function (e) { var li = e.target.closest('[data-body]'); if (li) selectBody(+li.getAttribute('data-body')); });
+  $('b-dspeed').addEventListener('click', function () { G.speed = G.speed === 1 ? 2 : G.speed === 2 ? 4 : G.speed === 4 ? 8 : 1; $('b-dspeed').textContent = 'Speed ×' + G.speed; });
+  $('b-dstop').addEventListener('click', stopDemo);
+  $('r-next').addEventListener('click', function () { var lr = G.lastRun, st = E.stage(lr.id), nx = E.STAGES[st.index + 1]; if (nx) { showScreen('scr-map'); renderMap(); openBrief(nx.id); } });
+  $('r-retry').addEventListener('click', function () { var lr = G.lastRun; startStage(lr.id, lr.tier, {}); });
+  $('r-map').addEventListener('click', function () { showScreen('scr-map'); renderMap(); });
+  document.addEventListener('pointerdown', audioInit, { once: true });
+}
+function init() {
+  R.cv = $('cv');
+  bindInputs(); wire(); applySettings(); renderTitle(); showScreen('scr-title');
+  if (window.matchMedia) { var mq = window.matchMedia('(prefers-reduced-motion: reduce)'); if (mq.addEventListener) mq.addEventListener('change', applySettings); }
+  requestAnimationFrame(frame);
+  if (DEV) window.__ld = { G: G, store: function () { return store; }, E: E, start: startStage, finish: finishStage, persist: persist, save: saveCurrent, render: function () { render(1, performance.now()); }, audio: function () { return !!AU.ctx; }, setAim: setAim, launch: requestLaunch };
+}
+init();
+
+})();
+</script>
+<!--
+TEST SUMMARY — Gamortal #022 Orbital Shepherd · Prototype · Founder Playtest · Not Published · 2026-10-27
+
+PHYSICS MODEL: fixed central planet (documented approximation; moons are 0.02%–0.5% of its mass), full moon–moon Newtonian gravity
+  with Plummer softening 1 L, velocity-Verlet integration at dt = 1/480 s, IEEE-exact arithmetic (+ − × ÷ sqrt only) for bit-identical replays.
+
+EXECUTED (automated, Node + headless Chromium):
+  Engine tests: 27/27 passed against the engine inside this file.
+    physics: 12/12
+    stage: 13/13
+    validation: 2/2
+  Browser tests: 42/42 passed (governance, tutorial, keyboard aiming/launch/correction/recall, mouse drag launch, touch drag + confirm, pause/resume, restart, tab suspension, canvas resizing, repeated loading, save/continue, storage recovery, reset confirmation, results/progression, validation playback, overlays, six viewports, zero network requests).
+
+REQUIRED VALIDATION — 45 of 45 stage x tier configurations have a reproducible demonstration:
+  launch logs found by a beam-search solver using only legal launches through the public engine; replay runs full mutual gravity and completes the observation window.
+  stage tier    score stars margin restarts simulated window
+  s01 bronze 1240  3     0.60   0        18s       18s
+  s01 silver 1213  3     0.53   0        30s       30s
+  s01 gold   1239  3     0.60   0        45s       45s
+  s02 bronze 1177  3     0.44   0        24s       24s
+  s02 silver 899   2     0.37   0        40s       40s
+  s02 gold   840   1     0.23   0        60s       60s
+  s03 bronze 1398  3     0.62   0        28s       27s
+  s03 silver 1384  3     0.59   0        46s       45s
+  s03 gold   1360  3     0.53   0        68s       68s
+  s04 bronze 1108  2     0.62   0        30s       30s
+  s04 silver 1298  3     0.52   0        50s       50s
+  s04 gold   1399  3     0.77   0        76s       75s
+  s05 bronze 1443  3     0.73   0        36s       36s
+  s05 silver 1433  3     0.71   0        60s       60s
+  s05 gold   1348  3     0.53   0        90s       90s
+  s06 bronze 1081  2     0.39   1        42s       27s
+  s06 silver 1108  2     0.40   0        61s       45s
+  s06 gold   1564  3     0.66   0        74s       68s
+  s07 bronze 1452  3     0.75   0        30s       30s
+  s07 silver 1423  3     0.68   0        50s       50s
+  s07 gold   1310  3     0.43   0        76s       75s
+  s08 bronze 1503  3     0.56   0        37s       36s
+  s08 silver 1359  3     0.52   5        117s      60s
+  s08 gold   1500  3     0.64   0        91s       90s
+  s09 bronze 1603  3     0.76   0        50s       42s
+  s09 silver 1565  3     0.70   0        78s       70s
+  s09 gold   1498  3     0.62   0        109s      105s
+  s10 bronze 1620  3     0.80   0        40s       36s
+  s10 silver 1606  3     0.76   0        64s       60s
+  s10 gold   1190  2     0.56   1        160s      90s
+  s11 bronze 1181  3     0.08   0        43s       24s
+  s11 silver 1107  3     0.25   0        71s       40s
+  s11 gold   1296  3     0.52   0        91s       60s
+  s12 bronze 1398  3     0.62   0        32s       30s
+  s12 silver 1264  3     0.41   0        52s       50s
+  s12 gold   1315  3     0.50   0        77s       75s
+  s13 bronze 1782  3     0.83   0        58s       42s
+  s13 silver 1757  3     0.77   0        85s       70s
+  s13 gold   1638  3     0.51   0        124s      105s
+  s14 bronze 1665  3     0.60   0        74s       48s
+  s14 silver 1564  3     0.46   0        106s      80s
+  s14 gold   1632  3     0.70   0        154s      120s
+  s15 bronze 1788  3     0.48   0        74s       60s
+  s15 silver 1787  3     0.63   0        112s      100s
+  s15 gold   1323  2     0.50   6        400s      150s
+
+NOT TESTED (targets for the Founder playtest):
+  - Real devices: iPhone Safari, Android, iPad, Firefox and Safari desktop. Only Chromium was automated; touch was emulated.
+  - Cross-engine replay on Safari/JavaScriptCore: the simulation avoids trigonometry so results should match, but this was not run.
+  - Human difficulty: demonstrations come from a search that tries thousands of launches; how hard Silver and Gold feel to people is unmeasured.
+  - Sound (including the optional ambience) was not listened to; screen readers were not used (live-region text checked programmatically only).
+  - Stability is verified only over each stage’s observation window, never beyond it.
+-->
+</body>
+</html>
