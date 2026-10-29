@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Finortal #001 · The First Paycheck — a 90-day personal-finance simulation from DoorQuests. Prototype for founder playtest; not published.">
+<meta name="theme-color" content="#0a1326">
+<title>The First Paycheck · Finortal #001 · DoorQuests (Prototype)</title>
+<style>
+:root{
+  --navy:#0a1326;--midnight:#0f1b34;--panel:#132241;--panel2:#1a2c52;--line:#2b3f6b;
+  --gold:#e0bb62;--brass:#b98a3c;--ivory:#f5eedc;--text:#e9e4d6;--muted:#aab4ca;
+  --ok:#7fd6a4;--warn:#f3cd5c;--bad:#f08b7c;--focus:#ffd979;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:12px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(ellipse at 70% -10%,#22355f 0%,var(--navy) 55%) fixed,var(--navy);color:var(--text);font:16px/1.5 var(--sans);overflow-x:hidden}
+h1,h2,h3,h4{font-family:var(--serif);color:var(--ivory);font-weight:600;line-height:1.2;margin:0 0 .5em}
+h1{font-size:clamp(1.9rem,5vw,3rem);letter-spacing:.01em}
+h2{font-size:1.45rem}h3{font-size:1.15rem}h4{font-size:1rem}
+p{margin:0 0 .75em}
+a{color:var(--gold)}
+button,input,select{font:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+.proto{background:#3a2a0e;color:#ffe3a3;text-align:center;font-size:.85rem;padding:6px 12px;border-bottom:1px solid var(--brass);letter-spacing:.04em}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;flex-wrap:wrap}
+.brand{font-family:var(--serif);color:var(--gold);font-size:1.05rem;letter-spacing:.06em}
+.brand b{color:var(--ivory);font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4em;min-height:44px;padding:.55em 1.05em;border-radius:10px;border:1px solid var(--brass);background:linear-gradient(#e7c56f,#c9993f);color:#1b1406;font-weight:650;cursor:pointer;text-align:center}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;color:var(--gold)}
+.btn.quiet{background:var(--panel2);color:var(--ivory);border-color:var(--line)}
+.btn.small{min-height:36px;padding:.3em .75em;font-size:.9rem}
+.btn[disabled],.btn[aria-disabled=true]{opacity:.45;cursor:not-allowed;filter:none}
+.card{background:linear-gradient(180deg,var(--panel),var(--midnight));border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.grid{display:grid;gap:16px}
+.pill{display:inline-block;font-size:.75rem;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);letter-spacing:.03em}
+.pill.gold{border-color:var(--brass);color:var(--gold)}
+/* ---------- setup ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:center;padding:12px 0 24px}
+.hero .lede{font-size:1.1rem;color:var(--ivory);max-width:38em}
+.hero svg{width:100%;height:auto;max-height:360px}
+.choice-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.choice-row.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.choice{position:relative;display:block;cursor:pointer}
+.choice input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.choice .face{display:block;height:100%;border:1px solid var(--line);border-radius:var(--r);padding:14px;background:var(--panel)}
+.choice input:checked+.face{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset;background:var(--panel2)}
+.choice input:focus-visible+.face{outline:3px solid var(--focus);outline-offset:2px}
+.choice .face b{display:block;font-family:var(--serif);color:var(--ivory);font-size:1.05rem;margin-bottom:4px}
+.choice .face small{color:var(--muted);display:block}
+.choice input:checked+.face b::before{content:"✓ ";color:var(--gold)}
+fieldset{border:0;padding:0;margin:0 0 20px}
+legend{font-family:var(--serif);color:var(--gold);font-size:1.1rem;margin-bottom:8px}
+/* ---------- dashboard ---------- */
+.dash{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px}
+.stat .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.stat .v{font-family:var(--mono);font-size:1.05rem;color:var(--ivory);font-variant-numeric:tabular-nums}
+.stat .s{font-size:.78rem;color:var(--muted)}
+.stat.hl{border-color:var(--brass)}
+.bar{height:6px;border-radius:4px;background:#0a1430;overflow:hidden;margin-top:6px}
+.bar>i{display:block;height:100%;background:var(--gold)}
+.bar.debt>i{background:var(--bad)}
+/* ---------- game layout ---------- */
+.game{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px;align-items:start}
+.chapter{margin-bottom:12px}
+.chapter h3{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:1rem;margin-bottom:6px}
+.chapter h3 span{font-family:var(--sans);font-size:.78rem;color:var(--muted);font-weight:400}
+.cal{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px}
+.door{position:relative;min-height:52px;border:1px solid #3a4f7e;border-radius:14px 14px 4px 4px;background:linear-gradient(#1b2d55,#111d39);color:var(--muted);padding:3px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;font-size:.78rem;line-height:1.15}
+.door .n{font-family:var(--mono);font-size:.78rem;color:var(--ivory)}
+.door .g{font-size:.72rem;letter-spacing:.02em;margin-top:2px;color:var(--gold);min-height:1em}
+.door.past{background:#0d1730;border-color:#253661;opacity:.72}
+.door.past .n::after{content:" ✓";color:var(--ok)}
+.door.past.trouble .n::after{content:" !";color:var(--bad)}
+.door.today{border-color:var(--gold);box-shadow:0 0 14px rgba(224,187,98,.55);background:linear-gradient(#3b3220,#1a2440)}
+.door.sel{outline:2px solid var(--ivory);outline-offset:1px}
+.door.sealed .g{color:#8d7bd0}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.78rem;color:var(--muted);margin:6px 0 12px}
+.daypanel{margin-top:6px}
+.daypanel ul{margin:0;padding-left:1.1em}
+/* ---------- desk / decision ---------- */
+.deskbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.decision .kind{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.opts{display:grid;gap:8px;margin-top:12px}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:10px;padding:10px 12px;cursor:pointer;min-height:44px}
+.opt b{color:var(--ivory)}
+.opt small{display:block;color:var(--muted);margin-top:2px}
+.opt:hover:not([aria-disabled=true]){border-color:var(--gold)}
+.opt[aria-disabled=true]{cursor:not-allowed;opacity:.62}
+.opt[aria-disabled=true] b::before{content:"🔒 ";}
+.note{border-left:3px solid var(--gold);background:#1b2547;padding:10px 12px;border-radius:0 8px 8px 0;margin-top:12px}
+.note.bad{border-left-color:var(--bad)}
+.note.ok{border-left-color:var(--ok)}
+.hint{border:1px dashed var(--brass);border-radius:10px;padding:10px 12px;margin-top:12px;font-size:.92rem}
+.hint::before{content:"Hint · ";color:var(--gold);font-weight:650}
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin:20px 0 0}
+.tab{border:1px solid transparent;border-bottom:0;background:none;color:var(--muted);padding:10px 14px;border-radius:10px 10px 0 0;cursor:pointer;min-height:44px}
+.tab[aria-selected=true]{color:var(--ivory);background:var(--panel);border-color:var(--line)}
+.tabpanel{background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 var(--r) var(--r);padding:16px;margin-bottom:28px}
+/* ---------- forms ---------- */
+.wb-row{display:grid;grid-template-columns:minmax(0,1.3fr) 130px minmax(0,1fr);gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #22335c}
+.wb-row label{font-weight:600;color:var(--ivory)}
+.wb-row small{display:block;color:var(--muted);font-weight:400}
+.money{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:#0b1530;padding:0 8px}
+.money span{color:var(--muted)}
+.money input{border:0;background:none;color:var(--ivory);width:100%;padding:9px 4px;font-family:var(--mono);min-height:42px}
+.money input:focus{outline:none}
+.money:focus-within{outline:3px solid var(--focus);outline-offset:1px}
+input[type=range]{width:100%;accent-color:var(--gold);min-height:32px}
+select,.field{background:#0b1530;color:var(--ivory);border:1px solid var(--line);border-radius:8px;padding:9px;min-height:42px}
+.formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin:8px 0}
+.formrow label{display:flex;flex-direction:column;gap:4px;font-size:.88rem;color:var(--muted)}
+.consq{display:grid;gap:8px;margin-top:14px}
+.consq li{margin-bottom:4px}
+.err{color:var(--bad);font-weight:600}
+.okc{color:var(--ok)}
+.warnc{color:var(--warn)}
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:6px 8px;border-bottom:1px solid #22335c;text-align:left;vertical-align:top}
+th{color:var(--gold);font-weight:600;font-family:var(--serif)}
+td.r,th.r{text-align:right}
+.ledger{max-height:460px;overflow:auto}
+.chart svg{width:100%;height:auto;display:block}
+/* ---------- keyring / results ---------- */
+.keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.key{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--panel2)}
+.key.got{border-color:var(--gold)}
+.key .st{font-size:.8rem}
+.scores{display:grid;gap:10px}
+.score{display:grid;grid-template-columns:180px 52px minmax(0,1fr);gap:10px;align-items:center}
+.score .bar{height:10px;margin:0}
+.ending{border:1px solid var(--brass);border-radius:16px;padding:20px;background:radial-gradient(ellipse at top,#2d2a2a 0%,var(--panel) 70%);text-align:center}
+.ending .big{font-size:3rem;font-family:var(--serif);color:var(--gold)}
+dialog{border:1px solid var(--brass);border-radius:16px;background:var(--midnight);color:var(--text);max-width:min(680px,calc(100vw - 32px));width:100%;padding:20px;max-height:calc(100vh - 40px)}
+dialog::backdrop{background:rgba(4,8,20,.72)}
+.toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:#3b1d1d;border:1px solid var(--bad);color:#ffe;padding:10px 16px;border-radius:10px;max-width:calc(100vw - 32px);z-index:50;display:none}
+.toast.show{display:block}
+.toast.info{background:#1d2c3b;border-color:var(--gold)}
+footer{color:var(--muted);font-size:.82rem;padding:24px 0 40px;border-top:1px solid var(--line);margin-top:20px}
+.flick{animation:glow 1.6s ease-in-out infinite alternate}
+@keyframes glow{from{opacity:.75}to{opacity:1}}
+.fadein{animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:1080px){.dash{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:900px){.game,.hero{grid-template-columns:minmax(0,1fr)}.game .decision{order:-1}.hero svg{max-height:240px}}
+@media (max-width:680px){
+  .choice-row,.choice-row.four{grid-template-columns:minmax(0,1fr)}
+  .dash{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cal{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .wb-row{grid-template-columns:minmax(0,1fr) 130px}
+  .wb-row .rng{grid-column:1/-1}
+  .score{grid-template-columns:minmax(0,1fr) 44px}
+  .score .bar{grid-column:1/-1}
+  .tab{padding:8px 10px;font-size:.92rem}
+}
+</style>
+</head>
+<body>
+<div class="proto" role="note"><b>Prototype · Founder Playtest · Not Published</b></div>
+<a class="sr" href="#app">Skip to the simulation</a>
+<div class="wrap">
+<header class="top"><div class="brand">DOORQUESTS · <b>FINORTALS</b> · #001</div><div class="muted" style="font-size:.85rem">Choose Your Path. Find the Truth. Unlock the Impossible.</div></header>
+<main id="app" tabindex="-1"><noscript><p>This simulation needs JavaScript enabled.</p></noscript></main>
+<footer>Finortal #001 · The First Paycheck · Creative origin: The Axiom Continuum · DoorQuests.<br>All people, institutions, products, rates and the Commonwealth of Doorhaven are fictional. Payroll, interest and fee rules are simplified for teaching and stated in the Guide. This is not financial, tax or legal advice. No accounts, network requests, tracking or analytics. Progress is saved only in this browser.</footer>
+</div>
+<dialog id="dlg" aria-modal="true"></dialog>
+<div id="toast" class="toast" role="alert"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+/* ==========================================================================
+   FINORTALS ENGINE — Finortal #001 · The First Paycheck
+   Deterministic, integer-cent personal-finance simulation.
+   Sections: 1 Money helpers · 2 Assumptions (payroll, tiers) · 3 Scenarios
+             4 Ledger · 5 Schedule · 6 Day processing · 7 Decisions
+             8 Player actions · 9 Scoring & endings · 10 Persistence
+             11 Strategy bots · 12 Validation
+   ========================================================================== */
+(function (root) {
+'use strict';
+
+/* ---------- 1. MONEY HELPERS ---------------------------------------------
+   All money is integer cents. Rounding rule everywhere: half-up to the cent,
+   applied once per calculation step (never accumulated in floating point). */
+const VERSION = '1.0.0';
+const DAYS = 90;
+const STORAGE_KEY = 'doorquests.finortal.001.the-first-paycheck.v1';
+const PAYDAYS = [1, 15, 29, 43, 57, 71, 85];
+const CARD_DAYS = [25, 55, 85];
+const REVIEW_DAYS = [30, 60, 90];
+const ACCTS = ['checking', 'emergency', 'goal', 'card', 'loan'];
+const ECATS = ['housing', 'food', 'transport', 'debt'];
+const CATNAME = { housing: 'Housing & utilities', food: 'Food & essentials', transport: 'Transportation', debt: 'Debt obligations', discretionary: 'Discretionary', emergency: 'Emergency reserve', goal: 'Goal savings', income: 'Income', fees: 'Interest & fees', opportunity: 'Opportunity', community: 'Community', shock: 'Unexpected expense', transfer: 'Transfer' };
+
+function hu(n, d) { return Math.floor((2 * n + d) / (2 * d)); } // round-half-up of n/d, n>=0
+function isAmt(v) { return typeof v === 'number' && Number.isSafeInteger(v) && v >= 0; }
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function weekly(start) { const a = []; for (let d = start; d <= DAYS; d += 7) a.push(d); return a; }
+function fmt(c) {
+  const neg = c < 0; c = Math.abs(c);
+  const w = String(Math.floor(c / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (neg ? '−$' : '$') + w + '.' + String(c % 100).padStart(2, '0');
+}
+function clone(o) { return JSON.parse(JSON.stringify(o)); }
+function monthOf(d) { return Math.min(2, Math.floor((d - 1) / 30)); }
+
+/* ---------- 2. ASSUMPTIONS -------------------------------------------------
+   Fictional jurisdiction: the Commonwealth of Doorhaven. Illustrative only. */
+const PAYROLL = {
+  jurisdiction: 'Commonwealth of Doorhaven (fictional)',
+  allowance: 40000,   // first $400.00 of each biweekly paycheck is not subject to income tax
+  incomeBp: 1000,     // 10% income tax on gross above the allowance
+  socialBp: 765,      // 7.65% social insurance on all gross pay
+  regionalBp: 300     // 3% regional tax on all gross pay
+};
+function payroll(gross, health) {
+  const taxable = Math.max(0, gross - PAYROLL.allowance);
+  const income = hu(taxable * PAYROLL.incomeBp, 10000);
+  const social = hu(gross * PAYROLL.socialBp, 10000);
+  const regional = hu(gross * PAYROLL.regionalBp, 10000);
+  return { gross, income, social, regional, health, net: gross - income - social - regional - health };
+}
+function cardMin(balance, interestPosted) {
+  // Minimum = greater of $25.00 or (1% of balance + interest just posted), never above the balance.
+  if (balance <= 0) return 0;
+  return Math.min(balance, Math.max(2500, hu(balance, 100) + interestPosted));
+}
+function cardDailyInterest(balance, aprBp) { return balance > 0 ? hu(balance * aprBp, 3650000) : 0; }
+function loanMonthlyInterest(balance, aprBp) { return balance > 0 ? hu(balance * aprBp, 120000) : 0; }
+
+const TIERS = {
+  bronze: { id: 'bronze', name: 'Bronze — First Steps', shock: 75, preview: 30, grace: 1, aprAdd: 0, spike: false, renewal: false, delayShare: false, hoursAlt: false,
+    blurb: 'Gentler surprises, a 30-day look-ahead, one late fee forgiven, full guidance.' },
+  silver: { id: 'silver', name: 'Silver — Finding Balance', shock: 100, preview: 7, grace: 0, aprAdd: 0, spike: false, renewal: false, delayShare: false, hoursAlt: false,
+    blurb: 'Standard costs, a 7-day look-ahead, fewer hints, real tradeoffs between reserves and debt.' },
+  gold: { id: 'gold', name: 'Gold — Financial Crossroads', shock: 125, preview: 3, grace: 0, aprAdd: 300, spike: true, renewal: true, delayShare: true, hoursAlt: true,
+    blurb: 'Larger repair, a utility rate rise, an annual renewal, tighter timing, +3% card APR, 3-day look-ahead.' }
+};
+const PRIORITIES = {
+  security: { id: 'security', name: 'Security first', blurb: 'Protect the household against surprises.', dim: 'resilience' },
+  debt: { id: 'debt', name: 'Debt freedom', blurb: 'Shrink expensive debt while staying afloat.', dim: 'debt' },
+  opportunity: { id: 'opportunity', name: 'Open doors', blurb: 'Build toward a goal or a better future opportunity.', dim: 'goal' },
+  balance: { id: 'balance', name: 'Balanced life', blurb: 'Meet obligations and still live a life.', dim: 'flexibility' }
+};
+
+/* ---------- 3. SCENARIOS -------------------------------------------------- */
+const SCEN = {
+  A: {
+    id: 'A', name: 'Starting Independently', person: 'Rowan', short: 'Living alone · steady full-time job · a car and a student loan',
+    blurb: 'Rowan works full time at a print shop and has just moved into a one-bedroom apartment. Income is steady; every bill is Rowan’s alone.',
+    rate: 1850, hours: [80, 80, 80, 80, 80, 80, 80], hoursAlt: [80, 80, 80, 80, 80, 80, 80], health: 3500,
+    startChecking: 20000, creditLimit: 200000,
+    card: { name: 'Lanternstone credit card', balance: 85000, apr: 2290 },
+    loan: { name: 'Student loan', balance: 620000, apr: 550, payment: 12000, days: [15, 45, 75] },
+    goal: { name: 'Laptop for evening classes', target: 60000 }, reserveTarget: 50000, equip: 'car',
+    bills: [
+      { key: 'rent', name: 'Rent', cat: 'housing', amount: 105000, days: [3, 33, 63], type: 'bill', lateFee: 5000, cardOk: false },
+      { key: 'util', name: 'Electric & water', cat: 'housing', amount: 9500, days: [10, 40, 70], type: 'bill', lateFee: 1500, cardOk: true, util: true },
+      { key: 'phone', name: 'Phone & internet', cat: 'housing', amount: 6500, days: [12, 42, 72], type: 'bill', lateFee: 1000, cardOk: true },
+      { key: 'groc', name: 'Groceries', cat: 'food', amount: 7000, days: weekly(6), type: 'spend', cardOk: true },
+      { key: 'gas', name: 'Fuel', cat: 'transport', amount: 3500, days: weekly(7), type: 'spend', cardOk: true, car: true },
+      { key: 'ins', name: 'Car insurance', cat: 'transport', amount: 11000, days: [18, 48, 78], type: 'bill', lateFee: 2500, cardOk: true }
+    ],
+    incomes: [],
+    renewal: { key: 'renew', name: 'Vehicle registration renewal', cat: 'transport', amount: 6500 },
+    shock: { name: 'Brake repair', text: 'The brakes start grinding on the way to work. The mechanic says the pads and a rotor must be replaced before the car is safe to drive.', amount: 48000 },
+    alt: 'Park the car and ride transit until it can be fixed later ($65.00 passes on days 37 and 66; no fuel costs; the repair remains a future obligation).',
+    invite: { cost: 4500, text: 'A coworker’s birthday dinner downtown on Friday.' },
+    help: { amount: 12000, text: 'Your younger sibling is short on a required textbook for a course that starts next week.' },
+    training: { cost: 30000, raise: 100, name: 'Digital Prepress Certificate', text: 'Your employer will pay $1.00/hour more once you hold the certificate. Four weekend sessions.' },
+    opp: 'apartment'
+  },
+  B: {
+    id: 'B', name: 'Sharing Responsibilities', person: 'Jules', short: 'Shared apartment · part-time hours · roommate reimbursements',
+    blurb: 'Jules shares a two-bedroom with a roommate, Theo. Jules pays the landlord and utilities in full; Theo reimburses his share a few days later.',
+    rate: 1675, hours: [60, 60, 60, 60, 60, 60, 60], hoursAlt: [60, 60, 60, 60, 60, 60, 60], health: 2800,
+    startChecking: 30000, creditLimit: 250000,
+    card: { name: 'Lanternstone credit card', balance: 140000, apr: 2490 },
+    loan: { name: 'Phone financing plan', balance: 48000, apr: 990, payment: 4500, days: [20, 50, 80] },
+    goal: { name: 'Trip home for the holidays', target: 45000 }, reserveTarget: 40000, equip: 'laptop',
+    bills: [
+      { key: 'transit', name: 'Monthly transit pass', cat: 'transport', amount: 8600, days: [1, 31, 61], type: 'bill', lateFee: 0, cardOk: true },
+      { key: 'rent', name: 'Rent (whole apartment)', cat: 'housing', amount: 130000, days: [7, 37, 67], type: 'bill', lateFee: 5000, cardOk: false },
+      { key: 'util', name: 'Electric, gas & water (whole apartment)', cat: 'housing', amount: 15000, days: [10, 40, 70], type: 'bill', lateFee: 1500, cardOk: true, util: true },
+      { key: 'phone', name: 'Phone & internet', cat: 'housing', amount: 6000, days: [12, 42, 72], type: 'bill', lateFee: 1000, cardOk: true },
+      { key: 'groc', name: 'Groceries (your half)', cat: 'food', amount: 5500, days: weekly(6), type: 'spend', cardOk: true }
+    ],
+    incomes: [
+      { key: 'rentshare', name: 'Theo’s rent share', amount: 65000, days: [5, 35, 65], goldDays: [5, 40, 65] },
+      { key: 'utilshare', name: 'Theo’s utility share', amount: 7500, days: [14, 44, 74], utilShare: true }
+    ],
+    renewal: { key: 'renew', name: 'Required course materials', cat: 'food', amount: 7000 },
+    shock: { name: 'Laptop failure', text: 'Your laptop will not boot. You use it for remote shifts and coursework. A repair shop quotes a replacement logic board.', amount: 40000 },
+    alt: 'Use library computers for now (no cost, but remote shifts are not possible until the laptop is replaced).',
+    invite: { cost: 3500, text: 'Friends are going to a concert on Saturday.' },
+    help: { amount: 30000, text: 'Theo’s hours were cut. He asks whether you can cover $300 of his next rent share; he promises to repay you on day 85.', future: true },
+    training: { cost: 25000, raise: 100, name: 'Customer Systems Certification', text: 'Certified staff earn $1.00/hour more. Online modules plus an exam fee.' },
+    opp: 'match'
+  },
+  C: {
+    id: 'C', name: 'The Tight Margin', person: 'Avery', short: 'Variable hours · older car · no savings yet',
+    blurb: 'Avery works hourly at a warehouse, and the schedule changes every two weeks. There is no emergency fund yet and very little slack between paydays.',
+    rate: 1525, hours: [64, 72, 56, 70, 60, 74, 66], hoursAlt: [60, 70, 52, 68, 56, 72, 62], health: 0,
+    startChecking: 50000, creditLimit: 100000,
+    card: { name: 'Lanternstone credit card', balance: 60000, apr: 2790 },
+    loan: { name: 'Medical payment plan', balance: 90000, apr: 0, payment: 6000, days: [22, 52, 82] },
+    goal: { name: 'Holiday gifts fund', target: 25000 }, reserveTarget: 25000, equip: 'car',
+    bills: [
+      { key: 'rent', name: 'Rent', cat: 'housing', amount: 92500, days: [3, 33, 63], type: 'bill', lateFee: 4000, cardOk: false },
+      { key: 'util', name: 'Electric & heat', cat: 'housing', amount: 12500, days: [10, 40, 70], type: 'bill', lateFee: 1500, cardOk: true, util: true },
+      { key: 'phone', name: 'Prepaid phone', cat: 'housing', amount: 4000, days: [12, 42, 72], type: 'bill', lateFee: 0, cardOk: true },
+      { key: 'groc', name: 'Groceries', cat: 'food', amount: 7500, days: weekly(6), type: 'spend', cardOk: true },
+      { key: 'gas', name: 'Fuel', cat: 'transport', amount: 3000, days: weekly(7), type: 'spend', cardOk: true, car: true },
+      { key: 'ins', name: 'Car insurance', cat: 'transport', amount: 9000, days: [18, 48, 78], type: 'bill', lateFee: 2500, cardOk: true }
+    ],
+    incomes: [],
+    renewal: { key: 'renew', name: 'Vehicle registration renewal', cat: 'transport', amount: 5500 },
+    shock: { name: 'Dead battery and a worn tire', text: 'The car will not start, and the mechanic finds a tire worn to the cords. Both must be replaced before the car can be driven safely.', amount: 32000 },
+    alt: 'Ride the bus until it can be fixed later ($65.00 passes on days 37 and 66; no fuel costs; the repair remains a future obligation).',
+    invite: { cost: 2500, text: 'A friend’s birthday cookout; everyone is chipping in for food.' },
+    help: { amount: 6000, text: 'Your cousin needs $60 for bus fare to a job interview in another town.' },
+    training: { cost: 15000, raise: 125, name: 'Forklift Operator Certification', text: 'Certified operators earn $1.25/hour more and are scheduled at least 66 hours per paycheck.', stableHours: 66 },
+    opp: 'match'
+  }
+};
+
+/* ---------- 4. LEDGER ------------------------------------------------------
+   Every balance change is a transaction with explicit deltas per account.
+   Assets: checking, emergency, goal. Liabilities: card, loan (positive = owed).
+   Identity: balance = opening + Σ deltas. Transfers sum to zero across assets. */
+function tx(s, day, kind, desc, cat, deltas, extra) {
+  for (const k in deltas) {
+    if (!ACCTS.includes(k) || !Number.isSafeInteger(deltas[k])) throw new Error('Invalid ledger delta ' + k);
+    s.bal[k] += deltas[k];
+  }
+  const t = Object.assign({ seq: ++s.seq, day, kind, desc, cat, deltas: Object.assign({}, deltas) }, extra || {});
+  s.ledger.push(t);
+  return t;
+}
+function earmarked(s) { return ECATS.reduce((a, c) => a + s.earmark[c], 0); }
+function unearmarked(s) { return s.bal.checking - earmarked(s); }
+function cardAvail(s) { return Math.max(0, SCEN[s.config.scenario].creditLimit - s.bal.card); }
+function netWorth(s) { return s.bal.checking + s.bal.emergency + s.bal.goal - s.bal.card - s.bal.loan; }
+function liquid(s) { return s.bal.checking + s.bal.emergency + s.bal.goal; }
+/* Reduce envelopes after money leaves checking: own envelope first, then the
+   unassigned pool, then other envelopes (an autopay pulls from the account,
+   not the label). Caller guarantees checking >= amount before the payment. */
+function drawEnvelopes(s, amount, cat) {
+  let rem = amount;
+  if (ECATS.includes(cat)) { const t = Math.min(rem, s.earmark[cat]); s.earmark[cat] -= t; rem -= t; }
+  const free = Math.max(0, s.bal.checking - earmarked(s));
+  rem -= Math.min(rem, free);
+  for (const c of ECATS) { if (rem <= 0) break; const t = Math.min(rem, s.earmark[c]); s.earmark[c] -= t; rem -= t; }
+}
+function spendChecking(s, day, amount, kind, desc, cat, extraDeltas, extra) {
+  drawEnvelopes(s, amount, cat);
+  const deltas = Object.assign({ checking: -amount }, extraDeltas || {});
+  return tx(s, day, kind, desc, cat, deltas, extra);
+}
+function reconcile(s) {
+  const calc = Object.assign({}, s.open);
+  for (const t of s.ledger) for (const k in t.deltas) calc[k] += t.deltas[k];
+  const errs = ACCTS.filter(k => calc[k] !== s.bal[k]);
+  return { ok: errs.length === 0 && earmarked(s) <= s.bal.checking && ACCTS.every(k => Number.isSafeInteger(s.bal[k])), calc, errs };
+}
+
+/* ---------- 5. SCHEDULE (shared by processing and forecasting) ------------ */
+function sc(s) { return SCEN[s.config.scenario]; }
+function tr(s) { return TIERS[s.config.tier]; }
+function paycheckFor(s, d) {
+  const i = PAYDAYS.indexOf(d); if (i < 0) return null;
+  const S = sc(s), T = tr(s), f = s.flags;
+  let hours = (T.hoursAlt ? S.hoursAlt : S.hours)[i];
+  const raised = f.raiseFrom && d >= f.raiseFrom;
+  if (raised && S.training.stableHours) hours = Math.max(hours, S.training.stableHours);
+  if (f.extraShift && d === 57) hours += 16;
+  const rate = S.rate + (raised ? S.training.raise : 0);
+  return Object.assign({ number: i + 1, hours, rate }, payroll(hours * rate, S.health));
+}
+function inflowsFor(s, d) {
+  const S = sc(s), T = tr(s), f = s.flags, out = [];
+  const p = paycheckFor(s, d);
+  if (p) out.push({ kind: 'paycheck', key: 'pay', name: 'Paycheck #' + p.number, amount: p.net, to: 'checking', pay: p });
+  for (const inc of S.incomes) {
+    const days = (T.delayShare && inc.goldDays) ? inc.goldDays : inc.days;
+    if (!days.includes(d)) continue;
+    let amt = inc.amount;
+    if (inc.utilShare) amt = hu(utilAmount(s, d - 4) , 2);
+    if (inc.key === 'rentshare' && f.cover && d === days[2]) amt -= f.cover;
+    out.push({ kind: 'income', key: inc.key, name: inc.name, amount: amt, to: 'checking' });
+  }
+  if (f.cover && d === 85) out.push({ kind: 'income', key: 'repay', name: 'Theo repays what you covered', amount: f.cover, to: 'checking' });
+  if (f.match && d === 80 && s.bal.goal >= 10000) out.push({ kind: 'income', key: 'match', name: 'Starter savings match (credit union)', amount: 2500, to: 'goal' });
+  return out;
+}
+function utilAmount(s, d) {
+  const S = sc(s), T = tr(s), b = S.bills.find(x => x.util);
+  let amt = b.amount;
+  if (T.spike && d >= 40) amt = hu(amt * 130, 100);
+  if (s.flags.assist && d >= 10) amt = hu(amt * 60, 100);
+  return amt;
+}
+function outflowsFor(s, d) {
+  const S = sc(s), T = tr(s), f = s.flags, out = [];
+  for (const b of S.bills) {
+    let days = b.days;
+    if (b.key === 'rent' && f.dueShift) days = days.map(x => x === 33 ? 44 : x === 63 ? 74 : x);
+    if (!days.includes(d)) continue;
+    if (b.car && f.equipDown) continue;
+    const amt = b.util ? utilAmount(s, d) : b.amount;
+    out.push({ key: b.key, name: b.name, cat: b.cat, amount: amt, type: b.type, lateFee: b.lateFee || 0, cardOk: !!b.cardOk });
+  }
+  if (T.renewal && d === 58) out.push(Object.assign({}, S.renewal, { type: 'bill', lateFee: 2500, cardOk: true }));
+  if (f.equipDown && S.equip === 'car' && (d === 37 || d === 66)) out.push({ key: 'pass', name: 'Transit pass (car parked)', cat: 'transport', amount: 6500, type: 'bill', lateFee: 0, cardOk: true });
+  return out;
+}
+function debtDueFor(s, d, est) {
+  const S = sc(s), out = [];
+  if (S.loan.days.includes(d) && s.bal.loan > 0) {
+    const i = loanMonthlyInterest(s.bal.loan, S.loan.apr);
+    out.push({ key: 'loanpay', name: S.loan.name + ' payment', cat: 'debt', amount: Math.min(S.loan.payment, s.bal.loan + i), type: 'debt', debt: 'loan', lateFee: 1500, cardOk: false, interest: i });
+  }
+  if (CARD_DAYS.includes(d) && est) {
+    const daysLeft = d - s.day; const proj = s.cardAccrued + cardDailyInterest(s.bal.card, s.cardApr) * Math.max(0, daysLeft);
+    const m = cardMin(s.bal.card + proj, proj);
+    if (m > 0) out.push({ key: 'cardmin', name: 'Credit card minimum (estimate)', cat: 'debt', amount: m, type: 'debt', debt: 'card', estimate: true });
+  }
+  return out;
+}
+/* Forecast checking from known, scheduled items only (no unknown events). */
+function forecast(s, horizon) {
+  let bal = s.bal.checking; const rows = []; let min = bal, minDay = s.day;
+  const overdue = s.overdue.reduce((a, o) => a + o.owed, 0);
+  const end = Math.min(DAYS, s.day + horizon);
+  for (let d = s.day + 1; d <= end; d++) {
+    const inc = inflowsFor(s, d).filter(x => x.to === 'checking').reduce((a, x) => a + x.amount, 0);
+    const outs = outflowsFor(s, d).concat(debtDueFor(s, d, true));
+    const o = outs.reduce((a, x) => a + x.amount, 0);
+    bal += inc - o - (d === s.day + 1 ? overdue : 0);
+    rows.push({ day: d, inflow: inc, outflow: o, balance: bal, items: outs.map(x => x.name) });
+    if (bal < min) { min = bal; minDay = d; }
+  }
+  return { rows, min, minDay, start: s.bal.checking };
+}
+function nextPayday(s) { return PAYDAYS.find(d => d > s.day) || null; }
+function upcomingByCat(s, from, to) {
+  const r = { housing: 0, food: 0, transport: 0, debt: 0 };
+  for (let d = from; d <= Math.min(DAYS, to); d++) for (const o of outflowsFor(s, d).concat(debtDueFor(s, d, true))) r[o.cat] += o.amount;
+  return r;
+}
+/* Interest saved over 12 cycles (30 days each) by paying `extra` now, with
+   minimum payments every cycle — the same daily-interest rules as the engine. */
+function projectCard(balance, apr, extra) {
+  let b = Math.max(0, balance - extra), interest = 0;
+  for (let m = 0; m < 12; m++) {
+    let acc = 0; for (let d = 0; d < 30; d++) acc += cardDailyInterest(b, apr);
+    b += acc; interest += acc; b -= cardMin(b, acc);
+  }
+  return { interest, balance: b };
+}
+function interestSaved(s, extra) { const S = sc(s); return projectCard(s.bal.card, s.cardApr, 0).interest - projectCard(s.bal.card, s.cardApr, extra).interest; }
+function loanInterestSaved(s, extra) {
+  const S = sc(s); const run = (b) => { let i = 0; for (let m = 0; m < 12 && b > 0; m++) { const x = loanMonthlyInterest(b, S.loan.apr); i += x; b = b + x - Math.min(S.loan.payment, b + x); } return i; };
+  return run(s.bal.loan) - run(Math.max(0, s.bal.loan - extra));
+}
+
+/* ---------- 6. DAY PROCESSING --------------------------------------------- */
+function newState(config) {
+  const S = SCEN[config.scenario], T = TIERS[config.tier];
+  const open = { checking: S.startChecking, emergency: 0, goal: 0, card: S.card.balance, loan: S.loan.balance };
+  return {
+    v: VERSION, config: Object.assign({}, config), day: 0, bal: Object.assign({}, open), open,
+    earmark: { housing: 0, food: 0, transport: 0, debt: 0 }, cardApr: S.card.apr + T.aprAdd, cardAccrued: 0,
+    ledger: [], seq: 0, pending: [], overdue: [], flags: {}, graceLeft: T.grace,
+    stats: { late: 0, lateDebt: 0, avoidableLate: 0, shortfalls: 0, shortCh3: 0, cutbacks: 0, skips: 0, newCard: 0, discretionary: 0,
+      community: 0, cardInterest: 0, loanInterest: 0, fees: 0, feesWaived: 0, maxGoal: 0, maxEmergency: 0, lateByMonth: [0, 0, 0], shockMethod: null, extraDebt: 0, opportunity: [] },
+    reviews: [], history: [], achievements: {}, paychecks: [], cardPosts: [], loanPosts: [], payments: [], decided: [], complete: false, result: null
+  };
+}
+function processDay(s, d) {
+  const S = sc(s);
+  s.day = d;
+  for (const inc of inflowsFor(s, d)) {
+    if (inc.kind === 'paycheck') {
+      const p = inc.pay;
+      tx(s, d, 'paycheck', inc.name + ' — net pay', 'income', { checking: p.net }, { payroll: p });
+      s.paychecks.push(Object.assign({ day: d }, p));
+      s.pending.push({ id: 'payday-' + d, type: 'payday', day: d, payroll: p });
+    } else {
+      const deltas = {}; deltas[inc.to] = inc.amount;
+      if (inc.amount > 0) tx(s, d, 'income', inc.name, inc.to === 'goal' ? 'goal' : 'income', deltas);
+    }
+  }
+  retryOverdue(s, d);
+  for (const door of doorsFor(s, d)) s.pending.push(door);
+  // Loan: interest accrues monthly on the due date, then the fixed payment is due.
+  if (S.loan.days.includes(d) && s.bal.loan > 0) {
+    const i = loanMonthlyInterest(s.bal.loan, S.loan.apr);
+    if (i > 0) { tx(s, d, 'interest', S.loan.name + ' — monthly interest', 'fees', { loan: i }); s.stats.loanInterest += i; }
+    s.loanPosts.push({ day: d, interest: i });
+    attempt(s, d, { key: 'loanpay', name: S.loan.name + ' payment', cat: 'debt', amount: Math.min(S.loan.payment, s.bal.loan), type: 'debt', debt: 'loan', lateFee: 1500, cardOk: false, interest: i });
+  }
+  // Card: daily interest accrued so far is posted on the due date; the minimum is then due.
+  if (CARD_DAYS.includes(d)) {
+    const i = s.cardAccrued; s.cardAccrued = 0;
+    if (i > 0) { tx(s, d, 'interest', 'Credit card interest posted', 'fees', { card: i }); s.stats.cardInterest += i; }
+    s.cardPosts.push({ day: d, interest: i });
+    const m = cardMin(s.bal.card, i);
+    if (m > 0) attempt(s, d, { key: 'cardmin', name: 'Credit card minimum payment', cat: 'debt', amount: m, type: 'debt', debt: 'card', lateFee: 2900, cardOk: false, interest: i });
+  }
+  for (const o of outflowsFor(s, d)) attempt(s, d, o);
+  s.cardAccrued += cardDailyInterest(s.bal.card, s.cardApr); // end-of-day balance
+  endOfDay(s, d);
+}
+function attempt(s, d, o) {
+  o.due = d;
+  if (s.bal.checking >= o.amount) return payOb(s, d, o, false);
+  s.stats.shortfalls++; if (d > 60) s.stats.shortCh3++;
+  s.pending.push({ id: 'short-' + d + '-' + o.key, type: 'shortfall', day: d, ob: o });
+}
+function payOb(s, d, o, late) {
+  const extra = {}; if (o.debt) extra[o.debt] = -o.amount;
+  const label = o.debt ? 'payment' : (o.type === 'spend' ? 'spend' : 'bill');
+  spendChecking(s, d, o.amount, label, o.name + (late ? ' (paid late)' : ''), o.cat, extra, { obligation: o.key, due: o.due });
+  if (o.fee) { spendChecking(s, d, o.fee, 'fee', o.name + ' — late fee', 'fees', null); s.stats.fees += o.fee; }
+  s.payments.push({ key: o.key, due: o.due, paid: d, amount: o.amount, late: !!late });
+}
+function makeLate(s, d, o) {
+  let fee = o.lateFee || 0;
+  const avoidable = liquid(s) >= o.amount;
+  if (fee > 0 && s.graceLeft > 0) { s.graceLeft--; s.stats.feesWaived += fee; fee = 0; }
+  s.stats.late++; s.stats.lateByMonth[monthOf(d)]++; if (avoidable) s.stats.avoidableLate++; if (o.debt) s.stats.lateDebt++;
+  if (o.debt) {
+    if (fee > 0) { const dl = {}; dl[o.debt] = fee; tx(s, d, 'fee', o.name + ' — late fee added to balance', 'fees', dl); s.stats.fees += fee; }
+    s.overdue.push({ id: 'od-' + d + '-' + o.key, ob: Object.assign({}, o), owed: o.amount, since: d });
+  } else {
+    s.overdue.push({ id: 'od-' + d + '-' + o.key, ob: Object.assign({}, o, { fee }), owed: o.amount + fee, since: d });
+  }
+}
+function retryOverdue(s, d) {
+  for (const od of s.overdue.slice()) {
+    if (s.bal.checking >= od.owed) {
+      const o = od.ob; if (o.debt) o.amount = Math.min(o.amount, s.bal[o.debt]);
+      if (o.amount > 0 || o.fee) payOb(s, d, o, true);
+      s.overdue.splice(s.overdue.indexOf(od), 1);
+    }
+  }
+}
+function endOfDay(s, d) {
+  s.stats.maxGoal = Math.max(s.stats.maxGoal, s.bal.goal);
+  s.stats.maxEmergency = Math.max(s.stats.maxEmergency, s.bal.emergency);
+  s.history.push({ day: d, checking: s.bal.checking, emergency: s.bal.emergency, goal: s.bal.goal, card: s.bal.card, loan: s.bal.loan, net: netWorth(s) });
+  checkAchievements(s);
+  if (REVIEW_DAYS.includes(d)) {
+    const m = monthOf(d);
+    s.reviews.push({ day: d, chapter: m + 1, bal: Object.assign({}, s.bal), netWorth: netWorth(s), liquid: liquid(s), late: s.stats.lateByMonth[m],
+      interest: s.stats.cardInterest + s.stats.loanInterest, overdue: s.overdue.length });
+    if (s.stats.lateByMonth[m] === 0 && s.overdue.length === 0) award(s, 'calendar-keeper', d);
+  }
+}
+
+/* ---------- 7. DECISIONS (calendar doors) ---------------------------------- */
+function doorsFor(s, d) {
+  const S = sc(s), T = tr(s), f = s.flags, list = [];
+  const mk = (type, extra) => list.push(Object.assign({ id: type + '-' + d, type, day: d }, extra || {}));
+  if (S.id === 'C' && d === 4) mk('assist');
+  if (S.id === 'C' && d === 5) mk('duedate');
+  if (d === 8) mk('invite');
+  if (T.spike && d === 20) mk('notice');
+  if (d === 26) mk('interest');
+  if (d === 36) mk('shock', { amount: hu(S.shock.amount * T.shock, 100) });
+  if (d === 44) mk('shifts');
+  if (d === 50) mk('help');
+  if (d === 54) mk('training');
+  if (d === 68 && f.trainingPostponed) mk('training', { second: true });
+  if (d === 64) mk(S.opp);
+  if (d === 72) mk('debtdoor');
+  return list;
+}
+/* Calendar preview: which future days hold a door (titles hidden beyond the tier's look-ahead). */
+function doorDays(s) {
+  const S = sc(s), T = tr(s), r = {};
+  const add = (d, t) => { r[d] = r[d] || []; r[d].push(t); };
+  if (S.id === 'C') { add(4, 'assist'); add(5, 'duedate'); }
+  add(8, 'invite'); if (T.spike) add(20, 'notice'); add(26, 'interest'); add(36, 'shock'); add(44, 'shifts'); add(50, 'help'); add(54, 'training'); add(64, S.opp); add(72, 'debtdoor');
+  if (s.flags.trainingPostponed) add(68, 'training');
+  return r;
+}
+function opt(id, label, available, detail, reason) { return { id, label, available: !!available, detail: detail || '', reason: available ? '' : (reason || '') }; }
+function decisionView(s, dec) {
+  const S = sc(s), T = tr(s), c = s.bal.checking, e = s.bal.emergency, g = s.bal.goal, u = unearmarked(s), av = cardAvail(s);
+  switch (dec.type) {
+    case 'payday': {
+      const p = dec.payroll;
+      return { title: 'Payday — Paycheck #' + p.number, kind: 'Payday', text: `${p.hours} hours × ${fmt(p.rate)}/hour = ${fmt(p.gross)} gross. After withholding, ${fmt(p.net)} arrives in checking. Use the Allocation Workbench to give it direction, then continue.`,
+        options: [opt('done', 'Done allocating — continue', true, 'Money left unassigned stays in checking, which is a valid choice.')] };
+    }
+    case 'shortfall': {
+      const o = dec.ob, need = o.amount - c, half = Math.ceil(o.amount / 2);
+      const opts = [opt('paynow', 'Pay now from checking', c >= o.amount, `Checking now holds ${fmt(c)}.`, `Checking holds ${fmt(c)} of ${fmt(o.amount)}.`)];
+      if (c < o.amount) {
+        opts.push(opt('emergency', `Move ${fmt(need)} from emergency savings, then pay`, e >= need, 'Uses your reserve for exactly what it is for.', `Emergency savings hold ${fmt(e)}.`));
+        opts.push(opt('goal', `Move ${fmt(need)} from goal savings, then pay`, g >= need, `Delays “${S.goal.name}”.`, `Goal savings hold ${fmt(g)}.`));
+        opts.push(opt('savings', `Combine both savings accounts (${fmt(need)})`, e < need && g < need && e + g >= need, 'Draws emergency first, then goal.', e >= need || g >= need ? 'One account alone can cover it.' : `Savings total ${fmt(e + g)}.`));
+      }
+      if (o.cardOk) opts.push(opt('card', `Charge ${fmt(o.amount)} to the credit card`, av >= o.amount, `Interest at ${(s.cardApr / 100).toFixed(2)}% APR accrues daily until repaid.`, `Available credit is ${fmt(av)}.`));
+      if (o.type !== 'spend') {
+        const fee = o.lateFee || 0, waived = fee > 0 && s.graceLeft > 0;
+        opts.push(opt('late', 'Pay late', true, fee ? (waived ? `A ${fmt(fee)} late fee would normally apply; Bronze forgives your first one.` : `Adds a ${fmt(fee)} late fee. It will be paid automatically once checking can cover it.`) : 'No fee applies, but it counts as a late obligation. It will be paid automatically once checking can cover it.'));
+      } else {
+        opts.push(opt('cutback', `Stretch it — spend half (${fmt(half)})`, c >= half, 'Lean meals from the pantry this week.', `Checking holds ${fmt(c)}.`));
+        opts.push(opt('skip', 'Go without this time', true, 'Hard on the household; recorded as a hardship, not a failure.'));
+      }
+      return { title: `Short on cash: ${o.name}`, kind: 'Cash-flow gap', text: `${o.name} (${fmt(o.amount)}) is due today, but checking holds ${fmt(c)}. Total money is not the same as money available today. How will you cover the gap?`, options: opts };
+    }
+    case 'assist':
+      return { title: 'Utility Assistance Program', kind: 'Assistance door', text: 'The Doorhaven Energy Fund helps households in your income range. Approved households pay 40% less for electric and heat. The application takes an evening and a copy of your pay stub.',
+        options: [opt('apply', 'Apply for assistance', true, 'Your utility bills drop 40% starting with this month’s bill. Using available help is a legitimate financial strategy.'), opt('skip', 'Skip it', true, 'No change to your bills.')] };
+    case 'duedate':
+      return { title: 'Talk to the landlord about the due date', kind: 'Negotiation door', text: 'Rent is due on day 3 of each month, right after a payday that rarely covers it with room to spare. Your landlord, Mrs. Okafor, has moved due dates for other tenants with irregular pay.',
+        options: [opt('request', 'Ask to move rent to just after your next paycheck', true, 'Future rent moves from days 33 and 63 to days 44 and 74, one day after paydays. The amount stays the same, and no fee applies.'), opt('keep', 'Keep the current due date', true, 'Nothing changes.')] };
+    case 'invite': {
+      const cost = S.invite.cost, half = Math.round(cost / 2 / 100) * 100;
+      return { title: 'An invitation', kind: 'Community door', text: S.invite.text + ` Your share would be about ${fmt(cost)}.`,
+        options: [opt('join', `Go (${fmt(cost)})`, u >= cost, 'Time with people matters; this is spending with a purpose.', `Unassigned checking holds ${fmt(u)}.`),
+          opt('cheaper', `Go, but suggest a cheaper option (${fmt(half)})`, u >= half, 'Still there, but for less.', `Unassigned checking holds ${fmt(u)}.`),
+          opt('decline', 'Decline this time', true, 'Keeps the money; no judgment either way.')] };
+    }
+    case 'notice':
+      return { title: 'Utility rate notice', kind: 'Notice', text: 'A letter from the utility: rates rise 30% starting with bills due on or after day 40. Known costs can be planned for.', options: [opt('ok', 'Noted — I will plan for it', true, 'Upcoming utility bills in the calendar and forecast now show the new amount.')] };
+    case 'interest': {
+      const i = s.cardPosts.length ? s.cardPosts[s.cardPosts.length - 1].interest : 0;
+      return { title: 'The interest line', kind: 'Investigation door', text: `Your card statement shows ${fmt(i)} of interest for the last cycle on a ${fmt(s.bal.card)} balance at ${(s.cardApr / 100).toFixed(2)}% APR. Interest is charged daily on the balance you carry. Which choice would lower next cycle’s interest charge? (This is a prediction; no money moves.)`,
+        options: [opt('extra', 'Paying extra principal now', true), opt('min', 'Paying exactly the minimum on the due date', true), opt('save', 'Moving money into savings', true)] };
+    }
+    case 'shock': {
+      const amt = dec.amount, f = forecast(s, 14);
+      const opts = [
+        opt('emergency', `Pay from emergency savings (${fmt(amt)})`, e >= amt, 'What an emergency reserve is for. No new debt.', `Emergency savings hold ${fmt(e)}.`),
+        opt('goal', `Pay from goal savings`, g >= amt, `No new debt, but “${S.goal.name}” moves further away.`, `Goal savings hold ${fmt(g)}.`),
+        opt('checking', `Pay from checking`, c >= amt, `Checking would drop to ${fmt(c - amt)}. Before this, your lowest forecast balance in the next 14 days is ${fmt(f.min)} (day ${f.minDay}).`, `Checking holds ${fmt(c)}.`),
+        opt('split', 'Use all savings first, then the card for the rest', e + g < amt && e + g > 0 && e + g + av >= amt, `Savings cover ${fmt(Math.min(amt, e + g))}; the card covers ${fmt(Math.max(0, amt - e - g))}.`, e + g >= amt ? 'Savings alone can cover it.' : (e + g === 0 ? 'You have no savings to combine.' : 'Not enough savings and credit combined.')),
+        opt('card', `Charge it all to the card`, av >= amt, `The card balance becomes ${fmt(s.bal.card + amt)} at ${(s.cardApr / 100).toFixed(2)}% APR.`, `Available credit is ${fmt(av)}.`),
+        opt('alt', S.equip === 'car' ? 'Park the car for now' : 'Do without the laptop for now', true, S.alt)
+      ];
+      return { title: S.shock.name + ' — ' + fmt(amt), kind: 'The Unexpected', text: S.shock.text, options: opts };
+    }
+    case 'shifts': {
+      const down = s.flags.equipDown;
+      const p = paycheckFor(s, 57), extraGross = 16 * (S.rate + (s.flags.raiseFrom && 57 >= s.flags.raiseFrom ? S.training.raise : 0));
+      return { title: 'Extra shifts offered', kind: 'Opportunity door', text: `Your supervisor offers 16 extra hours before the day-57 paycheck: about ${fmt(extraGross)} gross before withholding. ${S.equip === 'car' ? 'The shifts are across town and require a working car.' : 'The shifts are remote and require a working laptop.'}`,
+        options: [opt('accept', 'Take the shifts', !down, 'Your paycheck on day 57 includes the extra hours. Your time has value too.', S.equip === 'car' ? 'Locked: the car is parked until it is repaired.' : 'Locked: no working laptop for remote shifts.'), opt('decline', 'Decline', true, 'Rest is a reasonable use of time.')] };
+    }
+    case 'help': {
+      const h = S.help, half = h.amount / 2;
+      if (h.future) return { title: 'Theo needs help', kind: 'Community door', text: h.text,
+        options: [opt('cover', `Cover ${fmt(h.amount)} of his share`, true, `Your day-65 reimbursement shrinks by ${fmt(h.amount)}; he repays on day 85. Plan for the gap.`), opt('half', `Cover ${fmt(half)}`, true, `Your day-65 reimbursement shrinks by ${fmt(half)}; he repays on day 85.`), opt('decline', 'Explain you can’t this time', true, 'Theo will borrow from family instead. Being unable to lend is not a failing.')] };
+      return { title: 'Someone you care about needs help', kind: 'Community door', text: h.text,
+        options: [opt('give', `Give ${fmt(h.amount)}`, u >= h.amount, 'Generosity is a legitimate use of money when you have the capacity.', `Unassigned checking holds ${fmt(u)}.`), opt('half', `Give ${fmt(half)}`, u >= half, 'Help within your means.', `Unassigned checking holds ${fmt(u)}.`), opt('decline', 'Decline kindly', true, 'Protecting your own obligations is not selfish.')] };
+    }
+    case 'training': {
+      const t = S.training, liq = g + e + u, ok = liq >= t.cost && s.overdue.length === 0;
+      const startPay = dec.second ? 85 : 71;
+      const winGain = PAYDAYS.filter(x => x >= startPay).reduce((a, x) => a + (t.stableHours ? Math.max((T.hoursAlt ? S.hoursAlt : S.hours)[PAYDAYS.indexOf(x)], t.stableHours) * (S.rate + t.raise) - (T.hoursAlt ? S.hoursAlt : S.hours)[PAYDAYS.indexOf(x)] * S.rate : (T.hoursAlt ? S.hoursAlt : S.hours)[PAYDAYS.indexOf(x)] * t.raise), 0);
+      const yearGain = t.raise * 26 * ((S.hours.reduce((a, b) => a + b, 0) / S.hours.length) | 0);
+      const reason = s.overdue.length ? 'Locked: resolve overdue obligations first.' : `Locked: costs ${fmt(t.cost)}; goal, emergency and unassigned checking together hold ${fmt(liq)}.`;
+      const opts = [opt('enroll', `Enroll (${fmt(t.cost)})`, ok, `Paid from goal savings first, then unassigned checking, then emergency savings. Raise starts with the day-${startPay} paycheck: about ${fmt(winGain)} more gross pay in the remaining days of this journey and roughly ${fmt(yearGain)} gross a year afterwards, if the job continues.`, reason)];
+      if (!dec.second) opts.push(opt('postpone', 'Postpone to the next session (day 68)', true, 'Same cost; the raise would start one paycheck later.'));
+      opts.push(opt('decline', 'Decline', true, 'Keeps your cash flexible now.'));
+      return { title: t.name, kind: 'Opportunity door', text: t.text + ` Cost: ${fmt(t.cost)}.`, options: opts };
+    }
+    case 'apartment': {
+      const dep = 70000, liq = g + e + u, ok = liq >= dep + 30000 && s.overdue.length === 0;
+      return { title: 'A studio closer to work', kind: 'Opportunity door', text: 'A studio opens up a short walk from work. Rent is $90.00 lower per month and fuel costs would fall by about $10.00 a week. Moving requires a $700.00 security deposit now. Your current deposit is refunded after you move out, beyond this 90-day window.',
+        options: [opt('move', 'Sign the lease (pay $700.00 deposit)', ok, 'Paid from goal savings, then emergency, then unassigned checking. Monthly savings begin after this journey ends.', s.overdue.length ? 'Locked: resolve overdue obligations first.' : `Locked: needs $700.00 plus a $300.00 cushion in liquid funds; you have ${fmt(liq)}.`), opt('decline', 'Stay put', true, 'Keeps your liquidity; the cheaper rent is the opportunity cost.')] };
+    }
+    case 'match':
+      return { title: 'Starter savings match', kind: 'Opportunity door', text: 'Your credit union adds $25.00 to your goal savings on day 80 if that account still holds at least $100.00 on that day.',
+        options: [opt('join', 'Join the program', true, 'No cost. The match depends on your goal savings on day 80.'), opt('skip', 'Not now', true, 'No change.')] };
+    case 'debtdoor': {
+      const pool = u + s.earmark.debt;
+      const opts = [10000, 25000, 50000].map(a => opt('pay' + a, `Pay ${fmt(a)} extra on the card`, pool >= a && s.bal.card >= a,
+        `Estimated interest saved over the next 12 months: ${fmt(interestSaved(s, a))}. Leaves ${fmt(pool - a)} in unassigned checking plus debt envelope.`, s.bal.card < a ? 'More than the balance owed.' : `Unassigned checking plus debt envelope hold ${fmt(pool)}.`));
+      opts.push(opt('none', 'Keep paying the minimum for now', true, 'Keeps cash available; interest continues on the full balance.'));
+      return { title: 'The Debt Reduction Door', kind: 'Debt door', text: `Your card balance is ${fmt(s.bal.card)} at ${(s.cardApr / 100).toFixed(2)}% APR. An extra principal payment lowers every future day’s interest, but the cash cannot then cover anything else.`, options: opts };
+    }
+  }
+  return { title: 'Unknown decision', text: '', options: [] };
+}
+function applyDecision(s, dec, oid) {
+  const S = sc(s), d = s.day, c = s.bal.checking, e = s.bal.emergency, g = s.bal.goal;
+  const take = (from, amt, desc, cat) => { const dl = {}; dl[from] = -amt; if (from === 'checking') return spendChecking(s, d, amt, 'spend', desc, cat); return tx(s, d, 'spend', desc, cat, dl); };
+  const fromSources = (amt, order, desc, cat) => { let rem = amt; for (const a of order) { const avail = a === 'checking' ? unearmarked(s) : s.bal[a]; const t = Math.min(rem, avail); if (t > 0) { take(a, t, desc, cat); rem -= t; } } return rem; };
+  switch (dec.type) {
+    case 'payday': award(s, 'first-deposit', d); break;
+    case 'shortfall': {
+      const o = dec.ob, need = o.amount - c;
+      if (oid === 'paynow') payOb(s, d, o, false);
+      else if (oid === 'emergency' || oid === 'goal') { tx(s, d, 'transfer', `Transfer from ${oid} savings to cover ${o.name}`, 'transfer', { [oid]: -need, checking: need }); payOb(s, d, o, false); }
+      else if (oid === 'savings') { const fe = Math.min(e, need); tx(s, d, 'transfer', 'Transfer from emergency savings', 'transfer', { emergency: -fe, checking: fe }); if (need - fe > 0) tx(s, d, 'transfer', 'Transfer from goal savings', 'transfer', { goal: -(need - fe), checking: need - fe }); payOb(s, d, o, false); }
+      else if (oid === 'card') { tx(s, d, 'charge', o.name + ' — charged to card', o.cat, { card: o.amount }); s.stats.newCard += o.amount; s.payments.push({ key: o.key, due: o.due, paid: d, amount: o.amount, late: false, card: true }); }
+      else if (oid === 'late') makeLate(s, d, o);
+      else if (oid === 'cutback') { const half = Math.ceil(o.amount / 2); payOb(s, d, Object.assign({}, o, { amount: half, name: o.name + ' (stretched)' }), false); s.stats.cutbacks++; }
+      else if (oid === 'skip') s.stats.skips++;
+      break;
+    }
+    case 'assist': if (oid === 'apply') s.flags.assist = true; break;
+    case 'duedate': if (oid === 'request') s.flags.dueShift = true; break;
+    case 'invite': { const cost = oid === 'join' ? S.invite.cost : oid === 'cheaper' ? Math.round(S.invite.cost / 2 / 100) * 100 : 0;
+      if (cost) { spendChecking(s, d, cost, 'spend', 'Invitation — ' + S.invite.text.split('.')[0], 'discretionary'); s.stats.discretionary += cost; } break; }
+    case 'notice': break;
+    case 'interest': if (oid === 'extra') award(s, 'interest-investigator', d); s.flags.interestAnswer = oid; break;
+    case 'shock': {
+      const amt = dec.amount, nm = S.shock.name;
+      if (oid === 'emergency' || oid === 'goal') { tx(s, d, 'spend', nm + ' — paid from ' + oid + ' savings', 'shock', { [oid]: -amt }); s.stats.shockMethod = 'savings'; }
+      else if (oid === 'checking') { spendChecking(s, d, amt, 'spend', nm + ' — paid from checking', 'shock'); s.stats.shockMethod = 'checking'; }
+      else if (oid === 'split') { let rem = amt; for (const a of ['emergency', 'goal']) { const t = Math.min(rem, s.bal[a]); if (t > 0) { tx(s, d, 'spend', nm + ' — from ' + a + ' savings', 'shock', { [a]: -t }); rem -= t; } } if (rem > 0) { tx(s, d, 'charge', nm + ' — remainder on card', 'shock', { card: rem }); s.stats.newCard += rem; } s.stats.shockMethod = 'split'; }
+      else if (oid === 'card') { tx(s, d, 'charge', nm + ' — charged to card', 'shock', { card: amt }); s.stats.newCard += amt; s.stats.shockMethod = 'card'; }
+      else if (oid === 'alt') { s.flags.equipDown = true; s.stats.shockMethod = 'alt'; }
+      break;
+    }
+    case 'shifts': if (oid === 'accept') s.flags.extraShift = true; break;
+    case 'help': {
+      const h = S.help;
+      if (h.future) { if (oid !== 'decline') { s.flags.cover = oid === 'cover' ? h.amount : h.amount / 2; s.stats.community += s.flags.cover; } }
+      else { const amt = oid === 'give' ? h.amount : oid === 'half' ? h.amount / 2 : 0; if (amt) { spendChecking(s, d, amt, 'spend', 'Help for family', 'community'); s.stats.community += amt; } }
+      break;
+    }
+    case 'training': {
+      if (oid === 'enroll') { const rem = fromSources(S.training.cost, ['goal', 'checking', 'emergency'], S.training.name + ' — tuition', 'opportunity'); if (rem) throw new Error('training funding'); s.flags.raiseFrom = dec.second ? 85 : 71; s.stats.opportunity.push('training'); }
+      else if (oid === 'postpone') s.flags.trainingPostponed = true;
+      award(s, 'opportunity-explorer', d); break;
+    }
+    case 'apartment': if (oid === 'move') { const rem = fromSources(70000, ['goal', 'emergency', 'checking'], 'Security deposit — studio near work', 'opportunity'); if (rem) throw new Error('deposit funding'); s.flags.moved = true; s.stats.opportunity.push('apartment'); }
+      award(s, 'opportunity-explorer', d); break;
+    case 'match': if (oid === 'join') s.flags.match = true; break;
+    case 'debtdoor': if (oid !== 'none') { const amt = parseInt(oid.slice(3), 10); payDebtCore(s, 'card', amt, 'Extra principal payment (Debt Reduction Door)'); } break;
+  }
+}
+function award(s, id, d) { if (!s.achievements[id]) s.achievements[id] = d; }
+function checkAchievements(s) {
+  const S = sc(s);
+  if (s.bal.emergency >= hu(S.reserveTarget, 2)) award(s, 'reserve-builder', s.day);
+  const firstRent = s.payments.find(p => p.key === 'rent');
+  if (firstRent && !firstRent.late && firstRent.paid === firstRent.due) award(s, 'bills-before-bells', firstRent.paid);
+}
+const ACHIEVEMENTS = [
+  { id: 'first-deposit', name: 'First Deposit', rule: 'Receive and allocate your first paycheck (finish the day-1 payday).' },
+  { id: 'bills-before-bells', name: 'Bills Before Bells', rule: 'Pay your first rent on its due date, without a late payment.' },
+  { id: 'reserve-builder', name: 'Reserve Builder', rule: 'Hold emergency savings of at least half the household’s reserve target.' },
+  { id: 'calendar-keeper', name: 'Calendar Keeper', rule: 'Complete a 30-day chapter with no late obligations and nothing overdue.' },
+  { id: 'interest-investigator', name: 'Interest Investigator', rule: 'Correctly identify which choice lowers next cycle’s card interest (day 26).' },
+  { id: 'opportunity-explorer', name: 'Opportunity Explorer', rule: 'Make an informed decision on a training or housing opportunity door.' },
+  { id: 'flexible-future', name: 'Flexible Future', rule: 'Finish all 90 days with nothing overdue and a Financial Flexibility score of 60 or more.' }
+];
+
+/* ---------- 8. PLAYER ACTIONS ---------------------------------------------- */
+function payDebtCore(s, debt, amt, desc) {
+  const fromEnv = Math.min(amt, s.earmark.debt);
+  s.earmark.debt -= fromEnv; // remainder comes from unassigned checking (validated by caller)
+  const dl = { checking: -amt }; dl[debt] = -amt;
+  tx(s, s.day, 'payment', desc, 'debt', dl);
+  s.stats.extraDebt += amt;
+}
+const ALLOC_FIELDS = ['housing', 'food', 'transport', 'debt', 'emergency', 'goal', 'discretionary', 'extra'];
+function act(game, a) {
+  const s = game.s;
+  const fail = (m) => ({ ok: false, error: m });
+  if (!a || typeof a !== 'object' || typeof a.type !== 'string') return fail('Invalid action.');
+  if (s.complete) return fail('The 90-day journey is complete. Start a new run to keep playing.');
+  switch (a.type) {
+    case 'advance':
+      if (s.pending.length) return fail('Resolve the open decision before advancing the calendar.');
+      if (s.day >= DAYS) return fail('The calendar has ended.');
+      processDay(s, s.day + 1); break;
+    case 'allocate': {
+      const al = a.alloc; if (!al || typeof al !== 'object') return fail('Missing allocation.');
+      let sum = 0;
+      for (const k of Object.keys(al)) if (!ALLOC_FIELDS.includes(k)) return fail('Unknown allocation category: ' + k);
+      for (const k of ALLOC_FIELDS) { const v = al[k] === undefined ? 0 : al[k]; if (!isAmt(v)) return fail('Amounts must be whole, non-negative cents.'); sum += v; }
+      if (sum === 0) return fail('Nothing to allocate.');
+      if (sum > unearmarked(s)) return fail(`That allocates ${fmt(sum)}, but only ${fmt(unearmarked(s))} is unassigned.`);
+      const ex = al.extra || 0;
+      if (ex > 0) { if (a.extraTarget !== 'card' && a.extraTarget !== 'loan') return fail('Choose which debt receives the extra payment.'); if (ex > s.bal[a.extraTarget]) return fail('Extra payment is more than the balance owed.'); }
+      for (const c of ECATS) s.earmark[c] += al[c] || 0;
+      if (al.emergency) tx(s, s.day, 'transfer', 'Transfer to emergency savings', 'transfer', { checking: -al.emergency, emergency: al.emergency });
+      if (al.goal) tx(s, s.day, 'transfer', 'Transfer to goal savings', 'transfer', { checking: -al.goal, goal: al.goal });
+      if (al.discretionary) { tx(s, s.day, 'spend', 'Discretionary spending (personal life)', 'discretionary', { checking: -al.discretionary }); s.stats.discretionary += al.discretionary; }
+      if (ex) { const dl = { checking: -ex }; dl[a.extraTarget] = -ex; tx(s, s.day, 'payment', 'Extra principal payment — ' + (a.extraTarget === 'card' ? 'credit card' : sc(s).loan.name), 'debt', dl); s.stats.extraDebt += ex; }
+      checkAchievements(s); break;
+    }
+    case 'release': {
+      if (!ECATS.includes(a.cat)) return fail('Unknown envelope.');
+      if (!isAmt(a.cents) || a.cents === 0) return fail('Enter a positive whole-cent amount.');
+      if (a.cents > s.earmark[a.cat]) return fail('That envelope holds only ' + fmt(s.earmark[a.cat]) + '.');
+      s.earmark[a.cat] -= a.cents; break;
+    }
+    case 'transfer': {
+      const ok = ['checking', 'emergency', 'goal'];
+      if (!ok.includes(a.from) || !ok.includes(a.to) || a.from === a.to) return fail('Choose two different accounts.');
+      if (!isAmt(a.cents) || a.cents === 0) return fail('Enter a positive whole-cent amount.');
+      const avail = a.from === 'checking' ? unearmarked(s) : s.bal[a.from];
+      if (a.cents > avail) return fail(`Only ${fmt(avail)} is available to move${a.from === 'checking' ? ' (envelope money must be released first)' : ''}.`);
+      tx(s, s.day, 'transfer', `Transfer ${a.from} → ${a.to}`, 'transfer', { [a.from]: -a.cents, [a.to]: a.cents });
+      retryOverdue(s, s.day); checkAchievements(s); break;
+    }
+    case 'payDebt': {
+      if (a.debt !== 'card' && a.debt !== 'loan') return fail('Unknown debt.');
+      if (!isAmt(a.cents) || a.cents === 0) return fail('Enter a positive whole-cent amount.');
+      if (a.cents > s.bal[a.debt]) return fail('That is more than the balance owed.');
+      const pool = unearmarked(s) + s.earmark.debt;
+      if (a.cents > pool) return fail(`Unassigned checking plus the debt envelope hold ${fmt(pool)}.`);
+      payDebtCore(s, a.debt, a.cents, 'Extra principal payment — ' + (a.debt === 'card' ? 'credit card' : sc(s).loan.name)); break;
+    }
+    case 'payOverdue': {
+      const od = s.overdue.find(x => x.id === a.id); if (!od) return fail('No such overdue item.');
+      if (s.bal.checking < od.owed) return fail(`Needs ${fmt(od.owed)}; checking holds ${fmt(s.bal.checking)}.`);
+      const o = od.ob; if (o.debt) o.amount = Math.min(o.amount, s.bal[o.debt]);
+      payOb(s, s.day, o, true); s.overdue.splice(s.overdue.indexOf(od), 1); break;
+    }
+    case 'resolve': {
+      const dec = s.pending.find(x => x.id === a.decision); if (!dec) return fail('That decision is not open.');
+      if (s.pending[0] !== dec) return fail('Resolve decisions in order.');
+      const view = decisionView(s, dec), o = view.options.find(x => x.id === a.option);
+      if (!o) return fail('Invalid choice.');
+      if (!o.available) return fail(o.reason || 'That choice is not available.');
+      applyDecision(s, dec, a.option);
+      s.pending.shift(); s.decided.push({ id: dec.id, type: dec.type, day: s.day, option: a.option, label: o.label });
+      retryOverdue(s, s.day); checkAchievements(s); break;
+    }
+    default: return fail('Unknown action type.');
+  }
+  game.actions.push(clone(a));
+  if (s.day === DAYS && s.pending.length === 0 && !s.complete) finalize(s);
+  return { ok: true };
+}
+
+/* ---------- 9. SCORING & ENDINGS ----------------------------------------- */
+function metrics(s) {
+  const S = sc(s), f = forecastAfterEnd(s);
+  return {
+    late: s.stats.late, unpaid: s.overdue.length, shortfalls: s.stats.shortfalls, shortCh3: s.stats.shortCh3, hardship: s.stats.cutbacks + s.stats.skips,
+    emergency: s.bal.emergency, target: S.reserveTarget, shockMethod: s.stats.shockMethod, lateDebt: s.stats.lateDebt,
+    startCard: s.open.card, endCard: s.bal.card, newCard: s.stats.newCard, maxGoal: s.stats.maxGoal, goalTarget: S.goal.target,
+    opportunity: s.stats.opportunity.length > 0, cardAvailPct: Math.floor(100 * cardAvail(s) / S.creditLimit), endCushion: f,
+    equipWorking: !s.flags.equipDown, avoidableLate: s.stats.avoidableLate, discretionary: s.stats.discretionary, priority: s.config.priority
+  };
+}
+function forecastAfterEnd(s) {
+  // Liquid cushion after the first two weeks of next month's known essentials (rent cycle repeats).
+  const S = sc(s); const ess = S.bills.filter(b => b.type === 'bill' && b.cat === 'housing').reduce((a, b) => a + b.amount, 0) / 2;
+  return s.bal.checking + s.bal.emergency - Math.round(ess);
+}
+function computeScores(m) {
+  const c = (v) => clamp(Math.round(v), 0, 100), r01 = (v) => clamp(v, 0, 1);
+  const shockPts = { savings: 30, checking: 30, split: 15, alt: 15, card: 5 }[m.shockMethod] || 0;
+  const cardRed = Math.max(0, m.startCard - m.endCard);
+  const sc = {
+    reliability: c(100 - 15 * m.late - 30 * m.unpaid),
+    stability: c(100 - 10 * m.shortfalls - 8 * m.hardship),
+    resilience: c(50 * r01(m.emergency / m.target) + shockPts + (m.shortCh3 === 0 ? 20 : 0)),
+    debt: c((m.lateDebt === 0 ? 40 : 10) + 30 * r01(cardRed / (0.5 * m.startCard)) + 30 * r01(m.emergency / (0.5 * m.target))),
+    goal: c(70 * r01(m.maxGoal / m.goalTarget) + (m.opportunity ? 30 : 0)),
+    flexibility: c(20 * [m.emergency >= 0.5 * m.target, m.cardAvailPct >= 50, m.unpaid === 0, m.endCushion >= 0, m.equipWorking].filter(Boolean).length)
+  };
+  const pdim = PRIORITIES[m.priority] ? PRIORITIES[m.priority].dim : 'flexibility';
+  sc.decision = c(100 - 20 * m.avoidableLate - (sc[pdim] < 60 ? 15 : 0));
+  sc.overall = c((sc.reliability + sc.stability + sc.resilience + sc.debt + sc.goal + sc.flexibility + sc.decision) / 7);
+  return sc;
+}
+const ENDINGS = {
+  resilient: { name: 'The Resilient Household', text: 'You put emergency readiness first and handled the unexpected without new debt or missed obligations.' },
+  debt: { name: 'The Debt Breakthrough', text: 'You cut expensive card debt at least in half while keeping enough liquidity to absorb a surprise.' },
+  opportunity: { name: 'The Opportunity Builder', text: 'You invested in a future opportunity while protecting essential obligations.' },
+  balanced: { name: 'The Balanced Path', text: 'You spread resources across obligations, reserves, a goal, debt reduction and your personal life.' },
+  steady: { name: 'The Steady Foundation', text: 'You met your obligations and built routines that will keep working beyond these 90 days.' },
+  lessons: { name: 'Lessons from the Ledger', text: 'Some obligations went unpaid or ran late. The ledger shows exactly where timing and choices created pressure, and a replay can test a different path.' }
+};
+function chooseEnding(m, scores) {
+  const cardRed = Math.max(0, m.startCard - m.endCard), rel = scores.reliability;
+  const q = {
+    resilient: m.emergency >= m.target && (m.shockMethod === 'savings' || m.shockMethod === 'checking') && rel >= 70 && m.unpaid === 0,
+    debt: cardRed >= 0.5 * m.startCard && m.emergency >= 0.4 * m.target && rel >= 70 && m.unpaid === 0,
+    opportunity: m.opportunity && rel >= 70 && m.unpaid === 0 && m.endCushion >= 0,
+    balanced: m.maxGoal >= 0.5 * m.goalTarget && m.discretionary > 0 && m.emergency >= 0.4 * m.target && cardRed > 0 && rel >= 70 && m.unpaid === 0,
+    steady: rel >= 55 && m.unpaid === 0
+  };
+  const pref = { security: 'resilient', debt: 'debt', opportunity: 'opportunity', balance: 'balanced' }[m.priority];
+  if (pref && q[pref]) return { id: pref, qualified: q };
+  for (const k of ['resilient', 'debt', 'opportunity', 'balanced', 'steady']) if (q[k]) return { id: k, qualified: q };
+  return { id: 'lessons', qualified: q };
+}
+function explain(m, sc) {
+  return {
+    reliability: `${m.late} late obligation(s); ${m.unpaid} unpaid at the end. Each late item −15, each unpaid item −30.`,
+    stability: `${m.shortfalls} day(s) when an obligation exceeded checking; ${m.hardship} time(s) groceries or fuel were stretched or skipped.`,
+    resilience: `Emergency savings ${fmt(m.emergency)} of a ${fmt(m.target)} target (scaled to this household). Shock handled by: ${m.shockMethod || 'n/a'}. Chapter III shortfalls: ${m.shortCh3}.`,
+    debt: `Card ${fmt(m.startCard)} → ${fmt(m.endCard)}. ${m.lateDebt ? 'A debt payment ran late.' : 'Every debt payment was on time.'} Liquidity counts here too: debt progress with no cushion is fragile.`,
+    goal: `Highest goal balance ${fmt(m.maxGoal)} of ${fmt(m.goalTarget)}.${m.opportunity ? ' You invested in a future opportunity.' : ''}`,
+    flexibility: `Checks: reserve ≥ half target, card ≥ 50% available (${m.cardAvailPct}%), nothing overdue, a cushion beyond next month’s first rent bills, and transportation or laptop working.`,
+    decision: `${m.avoidableLate} late fee(s) incurred while savings could have covered the bill. Your declared priority’s dimension ${sc[PRIORITIES[m.priority].dim] < 60 ? 'scored below 60 (−15)' : 'scored 60 or more'}.`
+  };
+}
+function finalize(s) {
+  const m = metrics(s), scores = computeScores(m), ending = chooseEnding(m, scores);
+  if (s.overdue.length === 0 && scores.flexibility >= 60) award(s, 'flexible-future', DAYS);
+  s.complete = true;
+  s.result = { metrics: m, scores, ending: ending.id, qualified: ending.qualified, explain: explain(m, scores), success: ending.id !== 'lessons', netWorth: netWorth(s), liquid: liquid(s) };
+}
+
+/* ---------- 10. GAME OBJECTS & PERSISTENCE ------------------------------ */
+function validConfig(c) { return c && SCEN[c.scenario] && TIERS[c.tier] && PRIORITIES[c.priority]; }
+function create(config) {
+  if (!validConfig(config)) throw new Error('Invalid configuration');
+  const game = { s: newState({ scenario: config.scenario, tier: config.tier, priority: config.priority }), actions: [] };
+  game.act = (a) => act(game, a);
+  return game;
+}
+function replay(config, actions) {
+  const g = create(config);
+  for (let i = 0; i < actions.length; i++) { const r = g.act(actions[i]); if (!r.ok) return { ok: false, error: `Action ${i + 1} rejected: ${r.error}`, game: g }; }
+  return { ok: true, game: g };
+}
+function serialize(game) { return JSON.stringify({ v: VERSION, key: STORAGE_KEY, config: game.s.config, actions: game.actions }); }
+/* The save stores only configuration + the action log. State (including
+   achievements) is always rebuilt by replay, so edited saves cannot forge results. */
+function deserialize(str) {
+  let o; try { o = JSON.parse(str); } catch (e) { return { ok: false, error: 'Save data is not valid JSON.' }; }
+  if (!o || typeof o !== 'object' || o.key !== STORAGE_KEY) return { ok: false, error: 'Save belongs to a different version.' };
+  if (!validConfig(o.config) || !Array.isArray(o.actions) || o.actions.length > 20000) return { ok: false, error: 'Save data is malformed.' };
+  const r = replay(o.config, o.actions);
+  return r.ok ? { ok: true, game: r.game } : { ok: false, error: r.error };
+}
+function storage() { try { const ls = root.localStorage; const t = '__dq_t'; ls.setItem(t, '1'); ls.removeItem(t); return ls; } catch (e) { return null; } }
+function save(game) { const ls = storage(); if (!ls) return false; try { ls.setItem(STORAGE_KEY, serialize(game)); return true; } catch (e) { return false; } }
+function load() { const ls = storage(); if (!ls) return { ok: false, error: 'Storage unavailable.' }; let raw; try { raw = ls.getItem(STORAGE_KEY); } catch (e) { return { ok: false, error: 'Storage unavailable.' }; } if (!raw) return { ok: false, error: 'No save.' }; return deserialize(raw); }
+function clearSave(confirmation) {
+  if (confirmation !== 'CONFIRM-RESET') return false;
+  const ls = storage(); if (!ls) return false; try { ls.removeItem(STORAGE_KEY); } catch (e) { return false; } return true; // only this game's key
+}
+function hashState(s) {
+  const str = JSON.stringify([s.bal, s.earmark, s.ledger.length, s.ledger.map(t => [t.day, t.kind, t.deltas]), s.result && s.result.scores, s.result && s.result.ending, s.achievements]);
+  let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(16).padStart(8, '0');
+}
+
+/* ---------- 11. STRATEGY BOTS (used by validation; play like a person) ---- */
+const STRATEGIES = {
+  security: { name: 'Reserve first', priority: 'security' },
+  debt: { name: 'Debt push', priority: 'debt' },
+  opportunity: { name: 'Open doors', priority: 'opportunity' },
+  balance: { name: 'Balanced life', priority: 'balance' },
+  neglect: { name: 'Neglect obligations (adversarial)', priority: 'security' }
+};
+function botAllocate(g, strat) {
+  const s = g.s, S = sc(s), np = nextPayday(s) || DAYS + 1;
+  const need = upcomingByCat(s, s.day + 1, np - 1 + (strat === 'neglect' ? 0 : 0));
+  const al = {}; let u = unearmarked(s);
+  if (strat === 'neglect') { if (u > 0) g.act({ type: 'allocate', alloc: { emergency: u } }); return; }
+  // Plan ahead: if this paycheck cannot cover everything due before the next one, move savings into checking now.
+  const deficit = ECATS.reduce((a, c) => a + Math.max(0, need[c] - s.earmark[c]), 0) + 2000 - u;
+  if (deficit > 0) {
+    let rem = deficit;
+    for (const from of (strat === 'opportunity' ? ['emergency', 'goal'] : ['goal', 'emergency'])) { const t = Math.min(rem, s.bal[from]); if (t > 0) { g.act({ type: 'transfer', from, to: 'checking', cents: t }); rem -= t; } }
+    u = unearmarked(s);
+  }
+  for (const c of ECATS) { const want = Math.max(0, need[c] - s.earmark[c]); const t = Math.min(want, u); if (t) { al[c] = t; u -= t; } }
+  const buffer = 3000; let R = Math.max(0, u - buffer);
+  const tgt = S.reserveTarget, room = (x) => Math.max(0, x);
+  if (strat === 'security') {
+    al.emergency = Math.min(room(tgt - s.bal.emergency), Math.floor(R * 0.7)); R -= al.emergency;
+    al.goal = Math.floor(R * 0.4); al.discretionary = Math.floor(R * 0.15);
+  } else if (strat === 'debt') {
+    al.emergency = Math.min(room(Math.ceil(tgt * 0.5) - s.bal.emergency), Math.floor(R * 0.5)); R -= al.emergency;
+    if (s.day > 38) { const ex = Math.min(s.bal.card, Math.floor(R * 0.8)); if (ex > 0) { al.extra = ex; R -= ex; } }
+    al.discretionary = Math.floor(R * 0.1);
+  } else if (strat === 'opportunity') {
+    al.emergency = Math.min(room(Math.ceil(tgt * 0.5) - s.bal.emergency), Math.floor(R * 0.35)); R -= al.emergency;
+    al.goal = Math.floor(R * 0.75); R -= al.goal; al.discretionary = Math.floor(R * 0.2);
+  } else if (strat === 'balance') {
+    al.emergency = Math.min(room(Math.ceil(tgt * 0.5) - s.bal.emergency), Math.floor(R * 0.4)); R -= al.emergency;
+    al.goal = Math.floor(R * 0.4); const ex = Math.min(s.bal.card, Math.floor(R * 0.25)); if (ex > 0) al.extra = ex; al.discretionary = Math.floor(R * 0.15);
+  }
+  for (const k of Object.keys(al)) if (!al[k]) delete al[k];
+  if (Object.keys(al).length) { const r = g.act({ type: 'allocate', alloc: al, extraTarget: 'card' }); if (!r.ok) throw new Error('bot allocate: ' + r.error); }
+}
+function botChoose(g, strat, dec) {
+  const s = g.s, v = decisionView(s, dec), av = (id) => { const o = v.options.find(x => x.id === id); return o && o.available; };
+  const first = (ids) => ids.find(av);
+  switch (dec.type) {
+    case 'payday': botAllocate(g, strat); return 'done';
+    case 'shortfall': return strat === 'neglect' ? first(['paynow', 'late', 'skip']) : first(['paynow', 'emergency', 'goal', 'savings', 'card', 'cutback', 'late', 'skip']);
+    case 'assist': return 'apply';
+    case 'duedate': return 'request';
+    case 'invite': return { security: first(['cheaper', 'decline']), debt: 'decline', opportunity: first(['join', 'cheaper', 'decline']), balance: first(['join', 'cheaper', 'decline']), neglect: 'decline' }[strat];
+    case 'notice': return 'ok';
+    case 'interest': return strat === 'neglect' ? 'min' : 'extra';
+    case 'shock': return strat === 'opportunity' ? first(['emergency', 'checking', 'split', 'card', 'alt']) : first(['emergency', 'goal', 'split', 'checking', 'card', 'alt']);
+    case 'shifts': return first(['accept', 'decline']);
+    case 'help': return first(['half', 'decline']);
+    case 'training': return strat === 'opportunity' ? first(['enroll', 'postpone', 'decline']) : 'decline';
+    case 'apartment': return strat === 'opportunity' ? first(['move', 'decline']) : 'decline';
+    case 'match': return 'join';
+    case 'debtdoor': return strat === 'debt' ? first(['pay50000', 'pay25000', 'pay10000', 'none']) : 'none';
+  }
+  return v.options.find(o => o.available).id;
+}
+function runBot(config, strat, maxSteps) {
+  const g = create(config); let steps = 0;
+  while (!g.s.complete && steps++ < (maxSteps || 5000)) {
+    if (g.s.pending.length) { const dec = g.s.pending[0]; const oid = botChoose(g, strat, dec); const r = g.act({ type: 'resolve', decision: dec.id, option: oid }); if (!r.ok) throw new Error(`bot resolve ${dec.id}/${oid}: ${r.error}`); }
+    else { const r = g.act({ type: 'advance' }); if (!r.ok) throw new Error('bot advance: ' + r.error); }
+  }
+  return g;
+}
+
+/* ---------- 12. VALIDATION -------------------------------------------------- */
+function runValidation() {
+  const results = []; const t = (group, name, fn) => { let pass = false, detail = ''; try { const r = fn(); pass = r === true || (r && r.pass); detail = (r && r.detail) || ''; } catch (e) { pass = false; detail = 'Threw: ' + e.message; } results.push({ group, name, pass, detail }); };
+  const cfg = (sc, tier, pr) => ({ scenario: sc, tier, priority: pr || 'balance' });
+  const toDay = (g, d, choose) => { while (g.s.day < d || g.s.pending.length) { if (g.s.pending.length) { const dec = g.s.pending[0]; g.act({ type: 'resolve', decision: dec.id, option: choose ? choose(dec) : decisionView(g.s, dec).options.find(o => o.available).id }); } else g.act({ type: 'advance' }); if (g.s.complete) break; } return g; };
+
+  // New card charges must fit available credit; posted interest and fees may push a balance over the limit, as on real cards.
+  const chargesWithinLimit = (st) => { let b = st.open.card; for (const x of st.ledger) { if (!x.deltas.card) continue; b += x.deltas.card; if (x.kind === 'charge' && b > SCEN[st.config.scenario].creditLimit) return false; } return true; };
+  // --- Replays: 9 combinations × strategies; 2 distinct successful paths required per combination
+  const replays = [];
+  const plan = { A: ['security', 'debt', 'opportunity'], B: ['security', 'debt', 'opportunity'], C: ['security', 'opportunity', 'balance'] };
+  for (const scn of ['A', 'B', 'C']) for (const tier of ['bronze', 'silver', 'gold']) {
+    for (const strat of plan[scn]) {
+      const config = cfg(scn, tier, STRATEGIES[strat].priority);
+      let row = { scenario: scn, tier, strategy: STRATEGIES[strat].name, priority: config.priority };
+      try {
+        const g = runBot(config, strat);
+        const rp = replay(config, g.actions); const g2 = rp.game;
+        const h1 = hashState(g.s), h2 = hashState(g2.s), rec = reconcile(g2.s);
+        const pays = g2.s.paychecks.length, posts = g2.s.cardPosts.length;
+        Object.assign(row, { complete: g2.s.complete, day: g2.s.day, actions: g.actions.length, ending: g2.s.result && g2.s.result.ending, success: !!(g2.s.result && g2.s.result.success),
+          overall: g2.s.result && g2.s.result.scores.overall, scores: g2.s.result && g2.s.result.scores, deterministic: rp.ok && h1 === h2, hash: h2, reconciled: rec.ok, paychecks: pays, cardPosts: posts,
+          netWorth: netWorth(g2.s), late: g2.s.stats.late, unpaid: g2.s.overdue.length, neverNegative: g2.s.history.every(h => h.checking >= 0 && h.emergency >= 0 && h.goal >= 0), withinCredit: chargesWithinLimit(g2.s) });
+        row.pass = row.complete && row.success && row.deterministic && row.reconciled && pays === 7 && posts === 3 && row.neverNegative && row.withinCredit;
+      } catch (e) { row.pass = false; row.error = e.message; }
+      replays.push(row);
+    }
+  }
+  for (const scn of ['A', 'B', 'C']) for (const tier of ['bronze', 'silver', 'gold']) {
+    const rows = replays.filter(r => r.scenario === scn && r.tier === tier && r.pass);
+    const endings = new Set(rows.map(r => r.ending));
+    t('Fairness', `${scn}/${tier}: ≥2 legitimate successful paths with different endings`, () => ({ pass: rows.length >= 2 && endings.size >= 2, detail: `${rows.length} successful; endings: ${[...endings].join(', ')}` }));
+  }
+
+  // --- Financial integrity
+  t('Integrity', 'Gross-to-net payroll (Scenario A paycheck)', () => { const p = payroll(148000, 3500); return { pass: p.income === 10800 && p.social === 11322 && p.regional === 4440 && p.net === 117938, detail: JSON.stringify(p) }; });
+  t('Integrity', 'Payroll under allowance pays no income tax', () => payroll(30000, 0).income === 0);
+  t('Integrity', 'Integer-cent precision across every replay', () => replays.every(r => r.pass) ? true : { pass: false, detail: 'A replay failed' });
+  t('Integrity', 'Transfer moves money without changing net worth', () => { const g = create(cfg('A', 'silver')); g.act({ type: 'advance' }); const nw = netWorth(g.s), c = g.s.bal.checking; const r = g.act({ type: 'transfer', from: 'checking', to: 'emergency', cents: 10000 }); return r.ok && netWorth(g.s) === nw && g.s.bal.checking === c - 10000 && g.s.bal.emergency === 10000; });
+  t('Integrity', 'Savings withdrawal back to checking', () => { const g = create(cfg('A', 'silver')); g.act({ type: 'advance' }); g.act({ type: 'transfer', from: 'checking', to: 'goal', cents: 5000 }); const r = g.act({ type: 'transfer', from: 'goal', to: 'checking', cents: 2000 }); return r.ok && g.s.bal.goal === 3000; });
+  t('Integrity', 'Ledger reconciles at every step of a full campaign', () => { const g = create(cfg('B', 'gold', 'debt')); let ok = true, n = 0; while (!g.s.complete && n++ < 5000) { if (g.s.pending.length) { const dec = g.s.pending[0]; g.act({ type: 'resolve', decision: dec.id, option: botChoose(g, 'debt', dec) }); } else g.act({ type: 'advance' }); if (!reconcile(g.s).ok) { ok = false; break; } } return ok && g.s.complete; });
+  t('Integrity', 'Scheduled rent paid on its due date', () => { const g = toDay(create(cfg('A', 'silver')), 3); const r = g.s.ledger.find(x => x.obligation === 'rent'); return r && r.day === 3 && r.deltas.checking === -105000; });
+  t('Integrity', 'Card daily interest and posting (A, days 1–25)', () => { const g = toDay(create(cfg('A', 'silver')), 25); const post = g.s.cardPosts[0];
+    const exp = g.s.history.filter(h => h.day <= 24).reduce((a, h) => a + cardDailyInterest(h.card, g.s.cardApr), 0); // one accrual per end-of-day balance, days 1–24
+    return { pass: post.day === 25 && post.interest === exp && cardDailyInterest(85000, 2290) === 53, detail: `posted ${post.interest}, expected ${exp}` }; });
+  t('Integrity', 'Loan interest and principal split (A, day 15)', () => { const g = toDay(create(cfg('A', 'silver')), 15); const i = g.s.loanPosts[0].interest; return { pass: i === 2842 && g.s.bal.loan === 620000 + 2842 - 12000, detail: `interest ${i}, balance ${g.s.bal.loan}` }; });
+  t('Integrity', 'Minimum payment rule', () => cardMin(85000, 1325) === 2500 && cardMin(250000, 1325) === 3825 && cardMin(1000, 0) === 1000 && cardMin(300000, 5000) === 8000 && cardMin(0, 0) === 0);
+  t('Integrity', 'Late fee applied exactly once, then paid when funds arrive', () => {
+    const g = create(cfg('C', 'silver')); g.act({ type: 'advance' });
+    g.act({ type: 'allocate', alloc: { emergency: unearmarked(g.s) - 1000 } }); g.act({ type: 'resolve', decision: 'payday-1', option: 'done' });
+    g.act({ type: 'advance' }); g.act({ type: 'advance' });
+    const dec = g.s.pending[0]; if (!dec || dec.type !== 'shortfall') return { pass: false, detail: 'no shortfall' };
+    g.act({ type: 'resolve', decision: dec.id, option: 'late' }); const fees1 = g.s.stats.fees; const owed = g.s.overdue[0].owed;
+    g.act({ type: 'transfer', from: 'emergency', to: 'checking', cents: g.s.bal.emergency });
+    const feeTx = g.s.ledger.filter(x => x.kind === 'fee');
+    return { pass: owed === 92500 + 4000 && g.s.overdue.length === 0 && feeTx.length === 1 && feeTx[0].deltas.checking === -4000, detail: `owed ${owed}, fees ${g.s.stats.fees}` };
+  });
+  t('Integrity', 'Forecast matches settled balances when no decisions intervene', () => { const g = create(cfg('A', 'silver')); g.act({ type: 'advance' }); g.act({ type: 'resolve', decision: 'payday-1', option: 'done' }); const f = forecast(g.s, 6); toDay(g, 7); return { pass: f.rows[5].balance === g.s.bal.checking, detail: `forecast ${f.rows[5].balance}, actual ${g.s.bal.checking}` }; });
+  t('Integrity', 'Month-end reviews at days 30, 60, 90 match recorded balances', () => { const g = runBot(cfg('A', 'silver', 'security'), 'security'); return g.s.reviews.length === 3 && g.s.reviews.every(r => { const h = g.s.history.find(x => x.day === r.day); return h && h.checking === r.bal.checking; }); });
+  t('Integrity', 'Net worth vs liquid cash reported separately', () => { const g = runBot(cfg('A', 'silver', 'security'), 'security'); const s = g.s; return s.result.netWorth === s.bal.checking + s.bal.emergency + s.bal.goal - s.bal.card - s.bal.loan && s.result.liquid === s.bal.checking + s.bal.emergency + s.bal.goal && s.result.netWorth !== s.result.liquid; });
+  t('Integrity', 'Idempotent events: 7 paychecks, 3 card posts, 3 loan posts, one payment per obligation occurrence', () => { const g = runBot(cfg('C', 'gold', 'opportunity'), 'opportunity'); const keys = g.s.payments.map(p => p.key + '@' + p.due); return { pass: g.s.paychecks.length === 7 && g.s.cardPosts.length === 3 && g.s.loanPosts.length === 3 && new Set(keys).size === keys.length, detail: `${keys.length} obligation payments` }; });
+  t('Integrity', 'Envelope money never exceeds checking', () => replays.every(r => r.reconciled));
+
+  // --- Adversarial
+  const fresh = () => { const g = create(cfg('A', 'silver')); g.act({ type: 'advance' }); return g; };
+  t('Adversarial', 'Negative allocation rejected', () => !fresh().act({ type: 'allocate', alloc: { goal: -500 } }).ok);
+  t('Adversarial', 'NaN / Infinity / fractional / string amounts rejected', () => { const g = fresh(); return [NaN, Infinity, 10.5, '100', null].every(v => !g.act({ type: 'allocate', alloc: { goal: v } }).ok); });
+  t('Adversarial', 'Over-allocation rejected', () => { const g = fresh(); return !g.act({ type: 'allocate', alloc: { goal: unearmarked(g.s) + 1 } }).ok; });
+  t('Adversarial', 'Unknown allocation category rejected', () => !fresh().act({ type: 'allocate', alloc: { crypto: 100 } }).ok);
+  t('Adversarial', 'Transfer of unavailable or envelope funds rejected', () => { const g = fresh(); g.act({ type: 'allocate', alloc: { housing: unearmarked(g.s) } }); return !g.act({ type: 'transfer', from: 'checking', to: 'goal', cents: 1 }).ok && !g.act({ type: 'transfer', from: 'emergency', to: 'checking', cents: 1 }).ok; });
+  t('Adversarial', 'Debt payment above balance or available cash rejected', () => { const g = fresh(); return !g.act({ type: 'payDebt', debt: 'card', cents: 85001 }).ok && !g.act({ type: 'payDebt', debt: 'loan', cents: 600000 }).ok; });
+  t('Adversarial', 'Repeated advance clicks cannot duplicate a paycheck', () => { const g = create(cfg('A', 'silver')); g.act({ type: 'advance' }); g.act({ type: 'advance' }); g.act({ type: 'advance' }); return g.s.paychecks.length === 1 && g.s.day === 1; });
+  t('Adversarial', 'Invalid decision ID and invalid option rejected', () => { const g = fresh(); return !g.act({ type: 'resolve', decision: 'payday-99', option: 'done' }).ok && !g.act({ type: 'resolve', decision: 'payday-1', option: 'win' }).ok; });
+  t('Adversarial', 'Unavailable (locked) option rejected', () => { const g = toDay(create(cfg('A', 'silver')), 35); g.act({ type: 'advance' }); const dec = g.s.pending.find(x => x.type === 'shock'); return dec && !g.act({ type: 'resolve', decision: dec.id, option: 'emergency' }).ok; });
+  t('Adversarial', 'Out-of-order decision resolution rejected', () => { const g = toDay(create(cfg('C', 'silver')), 3); g.act({ type: 'advance' }); g.act({ type: 'advance' }); return g.s.pending.length === 1 || !g.act({ type: 'resolve', decision: g.s.pending[1].id, option: 'keep' }).ok; });
+  t('Adversarial', 'Unknown action type and malformed action rejected', () => { const g = fresh(); return !g.act({ type: 'printMoney' }).ok && !g.act(null).ok && !g.act('advance').ok; });
+  t('Adversarial', 'No spending after the campaign is complete', () => { const g = runBot(cfg('A', 'bronze', 'security'), 'security'); return g.s.complete && !g.act({ type: 'advance' }).ok && !g.act({ type: 'transfer', from: 'emergency', to: 'checking', cents: 100 }).ok; });
+  t('Adversarial', 'Forged achievements and balances in a save are ignored', () => { const g = create(cfg('A', 'silver')); g.act({ type: 'advance' }); const o = JSON.parse(serialize(g)); o.achievements = { 'flexible-future': 1 }; o.bal = { checking: 99999999 }; const r = deserialize(JSON.stringify(o)); return r.ok && !r.game.s.achievements['flexible-future'] && r.game.s.bal.checking < 200000; });
+  t('Adversarial', 'Corrupted save data handled safely', () => !deserialize('{not json').ok && !deserialize(JSON.stringify({ key: STORAGE_KEY, config: { scenario: 'Z' }, actions: [] })).ok && !deserialize(JSON.stringify({ key: STORAGE_KEY, config: cfg('A', 'silver'), actions: [{ type: 'allocate', alloc: { goal: 9e9 } }] })).ok);
+  t('Adversarial', 'Out-of-sequence action log rejected on load', () => { const r = deserialize(JSON.stringify({ key: STORAGE_KEY, config: cfg('A', 'silver'), actions: [{ type: 'advance' }, { type: 'advance' }] })); return !r.ok; });
+  t('Adversarial', 'Card interest posted exactly three times per campaign', () => replays.every(r => !r.pass || r.cardPosts === 3));
+  t('Adversarial', 'Reset requires explicit confirmation', () => clearSave('yes') === false && clearSave() === false);
+  t('Adversarial', 'Ledger rejects non-integer deltas', () => { const s = newState(cfg('A', 'silver')); try { tx(s, 1, 'x', 'x', 'x', { checking: 0.5 }); return false; } catch (e) { return true; } });
+
+  // --- Outcome fairness
+  t('Fairness', 'Every scenario-tier combination has a successful strategy', () => ['A', 'B', 'C'].every(scn => ['bronze', 'silver', 'gold'].every(tier => replays.some(r => r.scenario === scn && r.tier === tier && r.pass))));
+  t('Fairness', 'Lower-income household can score as well as higher-income (targets scaled)', () => { const best = (scn) => Math.max(...replays.filter(r => r.scenario === scn && r.pass).map(r => r.overall)); return { pass: best('C') >= best('A') - 10 && SCEN.C.reserveTarget < SCEN.A.reserveTarget, detail: `best A ${best('A')}, best C ${best('C')}` }; });
+  const base = { late: 0, unpaid: 0, shortfalls: 0, shortCh3: 0, hardship: 0, emergency: 25000, target: 50000, shockMethod: 'savings', lateDebt: 0, startCard: 85000, endCard: 60000, newCard: 0, maxGoal: 30000, goalTarget: 60000, opportunity: false, cardAvailPct: 70, endCushion: 1000, equipWorking: true, avoidableLate: 0, discretionary: 0, priority: 'balance' };
+  t('Fairness', 'Necessary expenses and discretionary spending are not penalized', () => { const a = computeScores(base), b = computeScores(Object.assign({}, base, { discretionary: 40000, essentialSpent: 999999 })); return a.overall === b.overall; });
+  t('Fairness', 'Emergency savings are rewarded', () => computeScores(Object.assign({}, base, { emergency: 50000 })).resilience > computeScores(Object.assign({}, base, { emergency: 0 })).resilience);
+  t('Fairness', 'Debt reduction assessed alongside liquidity', () => computeScores(Object.assign({}, base, { endCard: 0, emergency: 0 })).debt < computeScores(Object.assign({}, base, { endCard: 0, emergency: 25000 })).debt);
+  t('Fairness', 'Ignoring essential obligations is not rewarded', () => { const g = runBot(cfg('A', 'silver', 'security'), 'neglect'); const r = g.s.result; return { pass: r.scores.reliability < 55 && !r.success && r.ending === 'lessons', detail: `reliability ${r.scores.reliability}, ending ${r.ending}, emergency ${fmt(g.s.bal.emergency)}` }; });
+  t('Fairness', 'Opportunity follows disclosed rules (raise on day-71 paycheck)', () => { const g = runBot(cfg('A', 'silver', 'opportunity'), 'opportunity'); const p = g.s.paychecks.find(x => x.day === 71); return { pass: g.s.flags.raiseFrom === 71 && p.rate === SCEN.A.rate + 100 && p.gross === p.hours * p.rate, detail: `rate ${p.rate}` }; });
+  t('Fairness', 'Higher score does not come from the largest balance alone', () => { const hoard = runBot(cfg('A', 'silver', 'security'), 'neglect'); const best = replays.filter(r => r.scenario === 'A' && r.tier === 'silver' && r.pass).sort((a, b) => b.overall - a.overall)[0]; return { pass: liquid(hoard.s) > 0 && hoard.s.result.scores.overall < best.overall, detail: `hoarder overall ${hoard.s.result.scores.overall} vs ${best.overall}` }; });
+
+  const passed = results.filter(r => r.pass).length;
+  return { version: VERSION, executed: new Date().toISOString(), replays, tests: results, summary: { tests: results.length, passed, failed: results.length - passed, replays: replays.length, replaysPassed: replays.filter(r => r.pass).length } };
+}
+
+const api = {
+  VERSION, DAYS, STORAGE_KEY, PAYDAYS, CARD_DAYS, ECATS, CATNAME, PAYROLL, TIERS, PRIORITIES, SCEN, ENDINGS, ACHIEVEMENTS, STRATEGIES,
+  fmt, hu, payroll, cardMin, cardDailyInterest, loanMonthlyInterest, create, replay, serialize, deserialize, save, load, clearSave,
+  decisionView, forecast, upcomingByCat, nextPayday, unearmarked, earmarked, cardAvail, netWorth, liquid, reconcile, interestSaved, loanInterestSaved,
+  outflowsFor, inflowsFor, debtDueFor, doorDays, computeScores, metrics, hashState, runBot, runValidation
+};
+root.FinortalsEngine = api;
+if (typeof module !== 'undefined' && module.exports) module.exports = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script>
+/* ==========================================================================
+   RENDERING & UI — reads only from FinortalsEngine state; every number shown
+   comes from the engine's ledger, balances or forecast functions.
+   ========================================================================== */
+(function () {
+'use strict';
+const E = window.FinortalsEngine, fmt = E.fmt;
+const $ = (sel, el) => (el || document).querySelector(sel);
+const esc = (v) => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const app = $('#app');
+let game = null, tab = 'workbench', selDay = null, lastNote = null, seenReviews = 0, hintOpen = false;
+const CHAP = ['Chapter I · The Envelope', 'Chapter II · The Unexpected', 'Chapter III · The Open Doors'];
+const DOORNAME = { assist: 'Assistance program', duedate: 'Landlord conversation', invite: 'An invitation', notice: 'Utility notice', interest: 'The interest line', shock: 'The unexpected', shifts: 'Extra shifts', help: 'Someone needs help', training: 'Training opportunity', apartment: 'Apartment opportunity', match: 'Savings match', debtdoor: 'Debt Reduction Door' };
+
+/* ---------- money input parsing: dollars text → integer cents or null ---- */
+function parseCents(str) {
+  const t = String(str).trim().replace(/[$,\s]/g, '');
+  if (t === '') return 0;
+  if (!/^\d{1,7}(\.\d{0,2})?$/.test(t)) return null;
+  const [w, f = ''] = t.split('.');
+  return parseInt(w, 10) * 100 + parseInt((f + '00').slice(0, 2), 10);
+}
+const dollars = (c) => (c / 100).toFixed(2);
+function toast(msg, info) { const t = $('#toast'); t.textContent = msg; t.className = 'toast show' + (info ? ' info' : ''); clearTimeout(toast.h); toast.h = setTimeout(() => t.className = 'toast', 4200); }
+function announce(msg) { $('#live').textContent = ''; setTimeout(() => $('#live').textContent = msg, 30); }
+
+/* ---------- actions ---------- */
+function doAct(a, quiet) {
+  const r = game.act(a);
+  if (!r.ok) { toast(r.error); announce(r.error); return false; }
+  if (!E.save(game) && !doAct.warned) { doAct.warned = true; toast('Browser storage is unavailable, so progress will not be saved. The simulation still works.', true); }
+  if (!quiet) render();
+  return true;
+}
+function resolve(dec, oid) {
+  const view = E.decisionView(game.s, dec), o = view.options.find(x => x.id === oid);
+  if (!o) return;
+  if (!o.available) { toast(o.reason || 'Not available.'); return; }
+  const before = { card: game.s.bal.card };
+  if (!doAct({ type: 'resolve', decision: dec.id, option: oid }, true)) return;
+  lastNote = noteFor(dec, o, before);
+  render(); const h = $('#deskhead'); if (h) h.focus();
+}
+function noteFor(dec, o, before) {
+  if (dec.type === 'payday') return null;
+  if (dec.type === 'interest') {
+    return o.id === 'extra' ? { cls: 'ok', text: 'Correct. Card interest is charged on each day’s balance, so lowering principal now lowers every remaining day’s charge. Paying the minimum on the due date leaves the balance high all cycle, and moving money to savings does not touch the card at all. The Interest Investigator seal is yours.' }
+      : { cls: 'bad', text: 'Not quite. Interest is charged daily on the balance you carry, so only reducing that balance sooner — an extra principal payment — lowers next cycle’s charge. (Whether to pay extra is a separate question: it also uses cash you might need.)' };
+  }
+  return { cls: '', text: 'You chose: ' + o.label + '. ' + (o.detail || '') };
+}
+function advance(toEvent) {
+  const s = game.s; if (s.pending.length || s.complete) return;
+  let n = 0;
+  if (doAct({ type: 'advance' }, true)) n++;
+  while (toEvent && !game.s.pending.length && !game.s.complete && game.s.day < E.DAYS && ![30, 60].includes(game.s.day) && n < 30) { if (!doAct({ type: 'advance' }, true)) break; n++; }
+  lastNote = null; selDay = null;
+  render(); announce('Day ' + game.s.day + '. ' + (game.s.pending.length ? 'A decision is waiting.' : 'No decision today.'));
+}
+
+/* ---------- setup screen ---------- */
+function setupScreen() {
+  const saved = E.load();
+  const sc = Object.values(E.SCEN).map((x, i) => `<label class="choice"><input type="radio" name="scn" value="${x.id}" ${i === 0 ? 'checked' : ''}><span class="face"><b>${esc(x.id + ' · ' + x.name)}</b><small>${esc(x.person)} — ${esc(x.short)}</small><small style="margin-top:6px">${esc(x.blurb)}</small></span></label>`).join('');
+  const tr = Object.values(E.TIERS).map((x, i) => `<label class="choice"><input type="radio" name="tier" value="${x.id}" ${i === 0 ? 'checked' : ''}><span class="face"><b>${esc(x.name)}</b><small>${esc(x.blurb)}</small></span></label>`).join('');
+  const pr = Object.values(E.PRIORITIES).map((x, i) => `<label class="choice"><input type="radio" name="pri" value="${x.id}" ${i === 3 ? 'checked' : ''}><span class="face"><b>${esc(x.name)}</b><small>${esc(x.blurb)}</small></span></label>`).join('');
+  app.innerHTML = `
+  <section class="hero fadein">
+    <div>
+      <p class="pill gold">Finortals · Personal Finance · #001</p>
+      <h1>The First Paycheck</h1>
+      <p class="lede"><em>Every dollar has a destination. Every choice has a consequence.</em></p>
+      <p>A paycheck sits in an envelope on the desk. Behind it, a brass calendar of ninety doors. Some hold bills, some hold opportunities, and at least one holds a surprise. Give each paycheck a direction, then open the days one at a time.</p>
+      <p class="muted">Success is not the biggest balance. It means meeting obligations, handling the unexpected, and keeping real choices open. Every household, institution and number here is fictional, and nothing here is financial advice.</p>
+      ${saved.ok && !saved.game.s.complete ? `<p><button class="btn" id="resume">Continue saved journey — ${esc(saved.game.s.config.scenario)} · ${esc(E.TIERS[saved.game.s.config.tier].name.split(' — ')[0])} · Day ${saved.game.s.day}</button></p>` : ''}
+    </div>
+    ${deskArt(null)}
+  </section>
+  <form id="setup" class="card fadein">
+    <fieldset><legend>1 · Choose a household</legend><div class="choice-row">${sc}</div></fieldset>
+    <fieldset><legend>2 · Choose a difficulty tier</legend><div class="choice-row">${tr}</div></fieldset>
+    <fieldset><legend>3 · Declare what matters most to you</legend><p class="muted" style="margin-top:-4px">Your priority shapes which ending you aim for and part of the Decision Quality score. No priority is “the right one.”</p><div class="choice-row four">${pr}</div></fieldset>
+    <p class="muted">Fair warning: every household meets at least one unexpected expense somewhere in Chapter II. Known bills are always visible on the calendar. Event doors are revealed as they come within your tier’s look-ahead window.</p>
+    <button class="btn" type="submit">Open the envelope</button>
+    ${saved.ok ? '<button class="btn ghost" type="button" id="resetSave" style="margin-left:8px">Delete saved progress…</button>' : ''}
+  </form>`;
+  $('#setup').onsubmit = (e) => { e.preventDefault(); const f = new FormData(e.target); startGame({ scenario: f.get('scn'), tier: f.get('tier'), priority: f.get('pri') }); };
+  if ($('#resume')) $('#resume').onclick = () => { game = saved.game; seenReviews = game.s.reviews.length; render(); };
+  if ($('#resetSave')) $('#resetSave').onclick = confirmReset;
+  if (!saved.ok && saved.error && !/No save|unavailable/.test(saved.error)) toast('A saved game could not be restored (' + saved.error + '). You can start fresh; nothing else was changed.', true);
+}
+function startGame(cfg) {
+  game = E.create(cfg); seenReviews = 0; lastNote = null; selDay = null; tab = 'workbench';
+  doAct({ type: 'advance' }, true); render(); const h = $('#deskhead'); if (h) h.focus();
+}
+function confirmReset() {
+  openDialog(`<h2>Delete saved progress?</h2><p>This removes only the saved journey for <i>The First Paycheck</i> (storage key <code>${esc(E.STORAGE_KEY)}</code>). No other DoorQuests data is touched. This cannot be undone.</p>
+  <div class="deskbar"><button class="btn" id="yesReset">Yes, delete it</button><button class="btn quiet" id="noReset">Keep it</button></div>`, (d) => {
+    $('#yesReset', d).onclick = () => { const ok = E.clearSave('CONFIRM-RESET'); d.close(); toast(ok ? 'Saved progress deleted.' : 'Storage unavailable; nothing was deleted.', true); game = null; setupScreen(); };
+    $('#noReset', d).onclick = () => d.close();
+  });
+}
+
+/* ---------- the desk illustration (bound to real balances) ---------- */
+function deskArt(s) {
+  const S = s ? E.SCEN[s.config.scenario] : null;
+  const ef = s ? Math.min(1, s.bal.emergency / S.reserveTarget) : 0.55, gf = s ? Math.min(1, s.bal.goal / S.goal.target) : 0.3;
+  const df = s ? Math.min(1, s.bal.card / S.creditLimit) : 0.4;
+  const pay = s && s.paychecks.length ? s.paychecks[s.paychecks.length - 1].net : null;
+  const jar = (x, f, label, val) => `<g transform="translate(${x},212)"><rect x="0" y="0" width="54" height="76" rx="10" fill="#14254a" stroke="#c9d6f0" stroke-opacity=".5"/><rect x="3" y="${3 + 70 * (1 - f)}" width="48" height="${70 * f}" rx="8" fill="#e0bb62" fill-opacity=".85"/><rect x="8" y="-7" width="38" height="9" rx="3" fill="#b98a3c"/><text x="27" y="96" text-anchor="middle" font-size="11" fill="#aab4ca" font-family="system-ui">${label}</text>${val ? `<text x="27" y="110" text-anchor="middle" font-size="11" fill="#f5eedc" font-family="ui-monospace,monospace">${val}</text>` : ''}</g>`;
+  const doors = []; for (let i = 0; i < 10; i++) { const lit = s ? (i * 9 + 1 <= s.day) : i < 3; doors.push(`<g transform="translate(${178 + i * 30},40)"><path d="M0 46 V10 a12 12 0 0 1 24 0 V46 Z" fill="${lit ? '#3b3220' : '#1b2d55'}" stroke="#b98a3c"/><text x="12" y="22" text-anchor="middle" font-size="9" fill="${lit ? '#e0bb62' : '#aab4ca'}" font-family="ui-monospace,monospace">${i * 9 + 1}</text></g>`); }
+  const ang = -90 + 180 * df;
+  return `<svg viewBox="0 0 520 330" role="img" aria-label="${s ? `The Paycheck Desk. Emergency jar ${Math.round(ef * 100)} percent of target, goal jar ${Math.round(gf * 100)} percent of target, card gauge at ${Math.round(df * 100)} percent of the credit limit.` : 'The Paycheck Desk: a lamp, a paycheck envelope, savings jars and a brass calendar of doors.'}">
+    <defs><radialGradient id="lamp" cx="22%" cy="20%" r="70%"><stop offset="0" stop-color="#f7d98a" stop-opacity=".42"/><stop offset="1" stop-color="#f7d98a" stop-opacity="0"/></radialGradient></defs>
+    <rect width="520" height="330" rx="18" fill="#0d1834"/><rect width="520" height="330" rx="18" fill="url(#lamp)"/>
+    <rect x="160" y="22" width="336" height="80" rx="10" fill="#101d3c" stroke="#b98a3c" stroke-opacity=".6"/>${doors.join('')}
+    <text x="328" y="116" text-anchor="middle" font-size="11" fill="#aab4ca" font-family="system-ui">${s ? 'Day ' + s.day + ' of 90' : '90 days · 3 chapters'}</text>
+    <g class="flick"><path d="M52 60 L96 60 L110 104 L38 104 Z" fill="#e0bb62"/><rect x="71" y="104" width="6" height="84" fill="#b98a3c"/><ellipse cx="74" cy="192" rx="30" ry="7" fill="#b98a3c"/></g>
+    <rect x="0" y="190" width="520" height="140" fill="#3a2614"/><rect x="0" y="190" width="520" height="6" fill="#5b3c1f"/>
+    <g transform="translate(26,216) rotate(-4)"><rect width="150" height="88" rx="6" fill="#f5eedc"/><path d="M0 0 L75 46 L150 0" fill="none" stroke="#b98a3c" stroke-width="2"/><text x="75" y="70" text-anchor="middle" font-size="12" fill="#2b2010" font-family="Georgia,serif">${pay ? 'Last net pay ' + fmt(pay) : 'Paycheck #1'}</text></g>
+    ${jar(210, ef, 'Emergency', s ? fmt(s.bal.emergency) : '')}${jar(282, gf, 'Goal', s ? fmt(s.bal.goal) : '')}
+    <g transform="translate(430,262)"><path d="M-46 0 A46 46 0 0 1 46 0" fill="none" stroke="#2b3f6b" stroke-width="10"/><path d="M-46 0 A46 46 0 0 1 46 0" fill="none" stroke="#f08b7c" stroke-width="10" stroke-dasharray="${(Math.PI * 46 * df).toFixed(1)} 400"/><line x1="0" y1="0" x2="0" y2="-38" stroke="#f5eedc" stroke-width="3" transform="rotate(${ang})"/><circle r="5" fill="#f5eedc"/><text y="22" text-anchor="middle" font-size="11" fill="#aab4ca" font-family="system-ui">Card used</text>${s ? `<text y="36" text-anchor="middle" font-size="11" fill="#f5eedc" font-family="ui-monospace,monospace">${fmt(s.bal.card)}</text>` : ''}</g>
+  </svg>`;
+}
+
+/* ---------- main render ---------- */
+function render() {
+  if (!game) return setupScreen();
+  const s = game.s;
+  if (s.reviews.length > seenReviews) { const rv = s.reviews[s.reviews.length - 1]; seenReviews = s.reviews.length; if (!s.complete) setTimeout(() => showReview(rv), 50); }
+  if (s.complete) return resultsScreen();
+  const S = E.SCEN[s.config.scenario], T = E.TIERS[s.config.tier];
+  app.innerHTML = `
+    <div class="fadein">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline">
+        <h2 style="margin:0">${esc(S.person)} · ${esc(S.name)} <span class="pill gold">${esc(T.name)}</span> <span class="pill">Priority: ${esc(E.PRIORITIES[s.config.priority].name)}</span></h2>
+        <div><button class="btn small ghost" id="newRun">New journey</button></div>
+      </div>
+      <p class="muted" style="margin:.3em 0 12px">${esc(CHAP[Math.min(2, Math.floor(Math.max(0, s.day - 1) / 30))])} — Day ${s.day} of ${E.DAYS}</p>
+      ${dashboard(s)}
+      <div class="game">
+        <section class="card" aria-labelledby="calhead"><h2 id="calhead">The Calendar</h2>${calendar(s)}</section>
+        <section class="card decision" aria-labelledby="deskhead">${desk(s)}</section>
+      </div>
+      ${tabs(s)}
+    </div>`;
+  bind(s);
+}
+function dashboard(s) {
+  const S = E.SCEN[s.config.scenario], np = E.nextPayday(s), un = E.unearmarked(s), env = E.earmarked(s);
+  const f = E.forecast(s, Math.max(1, (np || E.DAYS) - s.day));
+  const ef = Math.min(100, Math.round(100 * s.bal.emergency / S.reserveTarget)), gf = Math.min(100, Math.round(100 * s.bal.goal / S.goal.target));
+  return `<div class="dash" role="region" aria-label="Financial dashboard">
+    <div class="stat hl"><div class="k">Day</div><div class="v">${s.day} / ${E.DAYS}</div><div class="s">${np ? (np - s.day) + ' day(s) to payday' : 'No more paydays'}</div></div>
+    <div class="stat hl"><div class="k">Checking</div><div class="v">${fmt(s.bal.checking)}</div><div class="s">${fmt(un)} unassigned · ${fmt(env)} in envelopes</div></div>
+    <div class="stat"><div class="k">Emergency savings</div><div class="v">${fmt(s.bal.emergency)}</div><div class="bar" aria-hidden="true"><i style="width:${ef}%"></i></div><div class="s">${ef}% of ${fmt(S.reserveTarget)} target</div></div>
+    <div class="stat"><div class="k">Goal: ${esc(S.goal.name)}</div><div class="v">${fmt(s.bal.goal)}</div><div class="bar" aria-hidden="true"><i style="width:${gf}%"></i></div><div class="s">${gf}% of ${fmt(S.goal.target)}</div></div>
+    <div class="stat"><div class="k">Credit card</div><div class="v">${fmt(s.bal.card)}</div><div class="bar debt" aria-hidden="true"><i style="width:${Math.min(100, Math.round(100 * s.bal.card / S.creditLimit))}%"></i></div><div class="s">${(s.cardApr / 100).toFixed(2)}% APR · ${fmt(E.cardAvail(s))} available</div></div>
+    <div class="stat"><div class="k">${esc(S.loan.name)}</div><div class="v">${fmt(s.bal.loan)}</div><div class="s">${(S.loan.apr / 100).toFixed(2)}% APR · ${fmt(S.loan.payment)}/mo</div></div>
+    <div class="stat"><div class="k">Forecast low before payday</div><div class="v ${f.min < 0 ? 'err' : ''}">${f.min < 0 ? '⚠ ' : ''}${fmt(f.min)}</div><div class="s">Forecast · day ${f.minDay} · known items only</div></div>
+    <div class="stat"><div class="k">Net worth · Liquid</div><div class="v">${fmt(E.netWorth(s))}</div><div class="s">Liquid ${fmt(E.liquid(s))}${s.overdue.length ? ` · <span class="err">✕ ${s.overdue.length} overdue</span>` : ''}</div></div>
+  </div>`;
+}
+function dayItems(s, d) {
+  const T = E.TIERS[s.config.tier], items = [];
+  if (d <= s.day) {
+    for (const t of s.ledger.filter(x => x.day === d)) { const delta = Object.entries(t.deltas).map(([k, v]) => k + ' ' + (v > 0 ? '+' : '') + fmt(v)).join(', '); items.push({ t: 'Settled', text: t.desc + ' — ' + delta }); }
+    for (const x of s.decided.filter(x => x.day === d && x.type !== 'payday')) items.push({ t: 'Decision', text: (DOORNAME[x.type] || (x.type === 'shortfall' ? 'Cash-flow gap' : x.type)) + ': ' + x.label });
+    if (!items.length) items.push({ t: 'Settled', text: 'A quiet day. Nothing moved.' });
+    return items;
+  }
+  for (const i of E.inflowsFor(s, d)) items.push({ t: 'Expected', text: i.name + ' ' + fmt(i.amount) + (i.kind === 'paycheck' ? ' net (' + i.pay.hours + ' h)' : '') });
+  for (const o of E.outflowsFor(s, d).concat(E.debtDueFor(s, d, true))) items.push({ t: 'Due', text: o.name + ' ' + fmt(o.amount) + (o.type === 'spend' ? ' (typical spend)' : '') });
+  const dd = E.doorDays(s)[d];
+  if (dd) for (const k of dd) items.push({ t: 'Door', text: d - s.day <= T.preview ? DOORNAME[k] : 'A sealed door (revealed within ' + T.preview + ' days)' });
+  if ([30, 60, 90].includes(d)) items.push({ t: 'Review', text: 'End-of-month review' });
+  if (!items.length) items.push({ t: 'Expected', text: 'Nothing scheduled.' });
+  return items;
+}
+function calendar(s) {
+  const T = E.TIERS[s.config.tier], dd = E.doorDays(s);
+  const trouble = new Set(s.payments.filter(p => p.late).map(p => p.paid).concat(s.decided.filter(d => d.type === 'shortfall' && /late|skip/.test(d.option)).map(d => d.day)));
+  let html = '';
+  for (let c = 0; c < 3; c++) {
+    html += `<div class="chapter"><h3>${esc(CHAP[c])}<span>Days ${c * 30 + 1}–${c * 30 + 30}</span></h3><div class="cal" role="group" aria-label="${esc(CHAP[c])}">`;
+    for (let d = c * 30 + 1; d <= c * 30 + 30; d++) {
+      const past = d < s.day, today = d === s.day, future = d > s.day;
+      let g = '';
+      if (E.PAYDAYS.includes(d)) g += '$';
+      const bills = E.outflowsFor(s, d).filter(o => o.type !== 'spend').length + E.debtDueFor(s, d, false).length + (E.CARD_DAYS.includes(d) ? 1 : 0);
+      if (bills) g += '•'.repeat(Math.min(3, bills));
+      let sealed = false;
+      if (dd[d]) { if (!future || d - s.day <= T.preview) g += '★'; else { g += '?'; sealed = true; } }
+      if ([30, 60, 90].includes(d)) g += '◆';
+      const items = dayItems(s, d).map(i => i.t + ': ' + i.text).join('; ');
+      html += `<button type="button" class="door ${past ? 'past' : ''} ${today ? 'today' : ''} ${sealed ? 'sealed' : ''} ${selDay === d ? 'sel' : ''} ${trouble.has(d) ? 'trouble' : ''}" data-day="${d}" aria-label="Day ${d}${today ? ', today' : past ? ', past' : ''}. ${esc(items)}" aria-pressed="${selDay === d}"><span class="n">${d}</span><span class="g" aria-hidden="true">${g}</span></button>`;
+    }
+    html += '</div></div>';
+  }
+  const sd = selDay || s.day;
+  html += `<div class="legend" aria-hidden="true"><span>$ payday</span><span>• bill or debt due</span><span>★ decision door</span><span>? sealed door</span><span>◆ month review</span><span>✓ past day</span><span>! late or skipped</span></div>
+  <div class="daypanel note" aria-live="polite"><b>Day ${sd}${sd === s.day ? ' (today)' : ''}</b><ul>${dayItems(s, sd).map(i => `<li><span class="pill">${esc(i.t)}</span> ${esc(i.text)}</li>`).join('')}</ul></div>`;
+  return html;
+}
+function hintFor(s) {
+  const S = E.SCEN[s.config.scenario], np = E.nextPayday(s) || E.DAYS + 1, need = E.upcomingByCat(s, s.day + 1, np - 1);
+  const gaps = E.ECATS.filter(c => need[c] > s.earmark[c]).map(c => `${E.CATNAME[c]} (${fmt(need[c])} due, envelope ${fmt(s.earmark[c])})`);
+  const f = E.forecast(s, np - s.day);
+  if (s.pending.length && s.pending[0].type === 'shortfall') return 'Look at the Accounts tab: moving money from savings into checking now turns this gap into an ordinary payment. Paying late usually adds a fee, and the card adds interest.';
+  if (f.min < 0) return `Your checking forecast dips to ${fmt(f.min)} on day ${f.minDay}. Before then, move savings into checking or keep more of this paycheck unassigned.`;
+  if (gaps.length && E.unearmarked(s) > 0) return 'Bills due before your next paycheck are not fully set aside: ' + gaps.join('; ') + '. “Fill envelopes” in the Workbench reserves exactly those amounts.';
+  if (s.bal.emergency < S.reserveTarget / 2) return `A reserve of ${fmt(S.reserveTarget / 2)} would cover most of a typical repair for this household without borrowing.`;
+  return 'You are on track. Remember that money left unassigned in checking is still a choice. It keeps you flexible.';
+}
+function desk(s) {
+  const T = E.TIERS[s.config.tier];
+  const dec = s.pending[0];
+  const hint = (T.id === 'bronze' || hintOpen) ? `<div class="hint">${esc(hintFor(s))}</div>` : '';
+  const hintBtn = T.id !== 'bronze' ? `<button class="btn small quiet" id="hintBtn" aria-expanded="${hintOpen}">${hintOpen ? 'Hide hint' : 'Show a hint'}</button>` : '';
+  const note = lastNote ? `<div class="note ${lastNote.cls}" role="status">${esc(lastNote.text)}</div>` : '';
+  const art = `<div style="margin-bottom:10px">${deskArt(s)}</div>`;
+  if (!dec) {
+    return `${art}<h2 id="deskhead" tabindex="-1">The Paycheck Desk</h2>
+      <p>No decision is waiting. You can allocate money, move funds or pay extra on a debt below, or open the next day.</p>
+      ${note}${hint}
+      <div class="deskbar"><button class="btn" id="adv1">Open day ${s.day + 1} →</button><button class="btn quiet" id="advE">Advance to next event ⇥</button>${hintBtn}</div>
+      <p class="muted" style="font-size:.85rem;margin-top:8px">Each day settles exactly once: paychecks arrive, bills and card or loan payments draw from checking, and card interest accrues on that night’s balance.</p>`;
+  }
+  const v = E.decisionView(s, dec);
+  const opts = v.options.map(o => `<button type="button" class="opt" data-opt="${esc(o.id)}" aria-disabled="${!o.available}" ${!o.available ? `aria-describedby="r-${esc(o.id)}"` : ''}><b>${esc(o.label)}</b>${o.detail && o.available ? `<small>${esc(o.detail)}</small>` : ''}${!o.available ? `<small id="r-${esc(o.id)}">${esc(o.reason)}</small>` : ''}</button>`).join('');
+  return `${dec.type === 'payday' ? paycheckStub(dec.payroll) : ''}
+    <div class="kind">${esc(v.kind || 'Decision')} · Day ${s.day}</div>
+    <h2 id="deskhead" tabindex="-1">${esc(v.title)}</h2><p>${esc(v.text)}</p>
+    <div class="opts" role="group" aria-label="Choices">${opts}</div>${note}${hint}
+    <div class="deskbar">${hintBtn}${s.pending.length > 1 ? `<span class="muted">${s.pending.length - 1} more decision(s) waiting today</span>` : ''}</div>`;
+}
+function paycheckStub(p) {
+  return `<div class="card" style="background:#f5eedc;color:#2b2010;margin-bottom:12px" aria-label="Pay stub">
+    <div style="display:flex;justify-content:space-between;font-family:var(--serif)"><b>Pay stub · Paycheck #${p.number}</b><span>${esc(E.PAYROLL.jurisdiction)}</span></div>
+    <table style="color:#2b2010;margin-top:6px"><tbody>
+    <tr><td>Gross pay (${p.hours} h × ${fmt(p.rate)})</td><td class="r num">${fmt(p.gross)}</td></tr>
+    <tr><td>Income tax (10% of gross above ${fmt(E.PAYROLL.allowance)})</td><td class="r num">−${fmt(p.income)}</td></tr>
+    <tr><td>Social insurance (7.65%)</td><td class="r num">−${fmt(p.social)}</td></tr>
+    <tr><td>Regional tax (3%)</td><td class="r num">−${fmt(p.regional)}</td></tr>
+    ${p.health ? `<tr><td>Health plan premium</td><td class="r num">−${fmt(p.health)}</td></tr>` : ''}
+    <tr style="font-weight:700"><td>Net pay deposited to checking</td><td class="r num">${fmt(p.net)}</td></tr>
+    </tbody></table><small>Illustrative, simplified withholding for a fictional jurisdiction. Not a real payroll calculation.</small></div>`;
+}
+
+/* ---------- tabs ---------- */
+const TABS = [['workbench', 'Allocation Workbench'], ['accounts', 'Accounts & Debts'], ['forecast', 'Cash-Flow Forecast'], ['ledger', 'Ledger'], ['keyring', 'Keyring'], ['guide', 'Guide & Assumptions']];
+function tabs(s) {
+  const body = { workbench, accounts, forecastTab, ledger, keyring, guide }[{ workbench: 'workbench', accounts: 'accounts', forecast: 'forecastTab', ledger: 'ledger', keyring: 'keyring', guide: 'guide' }[tab]](s);
+  return `<div class="tabs" role="tablist" aria-label="Desk tools">${TABS.map(([id, n]) => `<button class="tab" role="tab" id="tab-${id}" aria-controls="panel" aria-selected="${tab === id}" tabindex="${tab === id ? 0 : -1}" data-tab="${id}">${n}</button>`).join('')}</div>
+    <div class="tabpanel" role="tabpanel" id="panel" aria-labelledby="tab-${tab}">${body}</div>`;
+}
+const WB = [
+  ['housing', 'Housing & utilities', 'Envelope inside checking for rent, utilities and phone'],
+  ['food', 'Food & household essentials', 'Envelope for groceries'],
+  ['transport', 'Transportation', 'Envelope for fuel, insurance, passes'],
+  ['debt', 'Debt obligations', 'Envelope for scheduled loan and card minimums'],
+  ['emergency', 'Emergency reserves', 'Transfer to the emergency savings account'],
+  ['goal', 'Financial goal', 'Transfer to goal savings'],
+  ['discretionary', 'Discretionary spending', 'Spent on your personal life now'],
+  ['extra', 'Extra debt payment', 'Extra principal on a debt, paid now']
+];
+function workbench(s) {
+  const np = E.nextPayday(s) || E.DAYS + 1, need = E.upcomingByCat(s, s.day + 1, np - 1), un = E.unearmarked(s);
+  const rows = WB.map(([k, n, d]) => {
+    const due = E.ECATS.includes(k) ? `<small>Due before next paycheck: ${fmt(need[k])} · envelope holds ${fmt(s.earmark[k])}</small>` : `<small>${d}</small>`;
+    const extraSel = k === 'extra' ? `<select id="extraTarget" aria-label="Debt that receives the extra payment"><option value="card">Credit card (${(s.cardApr / 100).toFixed(2)}% APR)</option><option value="loan">${esc(E.SCEN[s.config.scenario].loan.name)} (${(E.SCEN[s.config.scenario].loan.apr / 100).toFixed(2)}% APR)</option></select>` : '';
+    return `<div class="wb-row"><label for="wb-${k}">${n}${due}</label>
+      <div class="money"><span aria-hidden="true">$</span><input id="wb-${k}" data-k="${k}" inputmode="decimal" autocomplete="off" value="0.00" aria-describedby="wbsum"></div>
+      <div class="rng"><input type="range" min="0" max="${un}" step="100" value="0" data-r="${k}" aria-label="${n} slider" ${un <= 0 ? 'disabled' : ''}>${extraSel}</div></div>`;
+  }).join('');
+  return `<h2>Allocation Workbench</h2>
+    <p>Unassigned checking: <b class="num">${fmt(un)}</b>. Envelopes earmark money that <em>stays in checking</em>, and bills draw from their envelope first. Savings allocations are transfers, not expenses. You do not have to assign every cent. Money left unassigned stays available.</p>
+    <form id="wb">${rows}
+      <p id="wbsum" class="num" aria-live="polite" style="margin-top:12px"></p>
+      <div class="deskbar"><button class="btn" type="submit" id="wbApply">Apply allocation</button><button class="btn quiet" type="button" id="wbFill">Fill envelopes for bills due before next paycheck</button><button class="btn ghost" type="button" id="wbClear">Clear</button></div>
+    </form>
+    <div class="card consq" style="margin-top:14px"><h3>What this allocation changes</h3><ul id="consq"><li class="muted">Enter amounts to see the tradeoffs.</li></ul></div>`;
+}
+function readWB() {
+  const al = {}; let bad = false;
+  for (const [k] of WB) { const c = parseCents($('#wb-' + k).value); if (c === null) { bad = true; $('#wb-' + k).setAttribute('aria-invalid', 'true'); } else { $('#wb-' + k).removeAttribute('aria-invalid'); if (c) al[k] = c; } }
+  return { al, bad };
+}
+function updateWB() {
+  const s = game.s, S = E.SCEN[s.config.scenario], { al, bad } = readWB(), un = E.unearmarked(s);
+  const sum = Object.values(al).reduce((a, b) => a + b, 0), left = un - sum;
+  const target = $('#extraTarget') ? $('#extraTarget').value : 'card';
+  $('#wbsum').innerHTML = bad ? '<span class="err">✕ Use dollar amounts like 125 or 125.50.</span>' : `Allocating ${fmt(sum)} · <span class="${left < 0 ? 'err' : ''}">${left < 0 ? '✕ Over by ' + fmt(-left) : 'Left unassigned in checking: ' + fmt(left)}</span>`;
+  $('#wbApply').disabled = bad || left < 0 || sum === 0;
+  const L = [], np = E.nextPayday(s) || E.DAYS + 1, need = E.upcomingByCat(s, s.day + 1, np - 1);
+  const f = E.forecast(s, np - s.day), leaves = (al.emergency || 0) + (al.goal || 0) + (al.discretionary || 0) + (al.extra || 0);
+  if (sum) L.push(`Lowest forecast checking before the next paycheck: ${fmt(f.min - leaves)} (now ${fmt(f.min)}).${f.min - leaves < 0 ? ' <span class="err">✕ That would leave a bill uncovered unless you move money back.</span>' : ''}`);
+  for (const c of E.ECATS) { const have = s.earmark[c] + (al[c] || 0); if (need[c] > 0 && (al[c] || have < need[c])) L.push(`${E.CATNAME[c]}: ${fmt(have)} set aside for ${fmt(need[c])} due before payday ${have >= need[c] ? '<span class="okc">✓ covered</span>' : '<span class="warnc">⚠ short ' + fmt(need[c] - have) + '</span>'}.`); }
+  if (al.emergency) L.push(`Emergency reserve → ${fmt(s.bal.emergency + al.emergency)}, which is ${Math.round(100 * (s.bal.emergency + al.emergency) / S.reserveTarget)}% of the ${fmt(S.reserveTarget)} target. Reserves let a surprise be paid without new borrowing.`);
+  if (al.goal) { const gl = Math.max(0, S.goal.target - s.bal.goal - al.goal); L.push(`Goal “${esc(S.goal.name)}” → ${fmt(s.bal.goal + al.goal)}; ${gl ? fmt(gl) + ' still to go' : '<span class="okc">✓ fully funded</span>'}.`); }
+  if (al.discretionary) L.push(`Discretionary ${fmt(al.discretionary)} buys enjoyment now. The alternative was moving “${esc(S.goal.name)}” ${fmt(al.discretionary)} closer or adding that much to your reserve.`);
+  if (al.extra) { const saved = target === 'card' ? E.interestSaved(s, Math.min(al.extra, s.bal.card)) : E.loanInterestSaved(s, Math.min(al.extra, s.bal.loan)); L.push(`Extra ${fmt(al.extra)} on the ${target === 'card' ? 'card' : 'loan'} saves an estimated ${fmt(saved)} in interest over 12 months. That cash cannot then cover a repair, so weigh it against your reserve.`); }
+  if (left > 0 && sum) L.push(`${fmt(left)} stays unassigned in checking: flexible money for anything that comes up.`);
+  $('#consq').innerHTML = L.length ? L.map(x => `<li>${x}</li>`).join('') : '<li class="muted">Enter amounts to see the tradeoffs.</li>';
+}
+function accounts(s) {
+  const S = E.SCEN[s.config.scenario], pool = E.unearmarked(s) + s.earmark.debt;
+  const nextCard = E.CARD_DAYS.find(d => d > s.day), nextLoan = S.loan.days.find(d => d > s.day);
+  const od = s.overdue.length ? `<h3 class="err">✕ Overdue obligations</h3><ul>${s.overdue.map(o => `<li>${esc(o.ob.name)}: ${fmt(o.owed)} owed since day ${o.since} <button class="btn small" data-payod="${esc(o.id)}" ${s.bal.checking < o.owed ? 'disabled' : ''}>Pay now</button></li>`).join('')}</ul><p class="muted">Overdue items are paid automatically as soon as checking can cover them.</p>` : '';
+  return `<h2>Accounts &amp; Debts</h2>${od}
+    <div class="tablewrap"><table><caption class="sr">Account balances</caption><thead><tr><th>Account</th><th class="r">Balance</th><th>Details</th></tr></thead><tbody>
+      <tr><td>Checking</td><td class="r num">${fmt(s.bal.checking)}</td><td>Unassigned ${fmt(E.unearmarked(s))}; envelopes: ${E.ECATS.map(c => E.CATNAME[c].split(' ')[0] + ' ' + fmt(s.earmark[c])).join(' · ')}</td></tr>
+      <tr><td>Emergency savings</td><td class="r num">${fmt(s.bal.emergency)}</td><td>Separate account; transfers are instant here. Target ${fmt(S.reserveTarget)}</td></tr>
+      <tr><td>Goal savings</td><td class="r num">${fmt(s.bal.goal)}</td><td>${esc(S.goal.name)}: target ${fmt(S.goal.target)}</td></tr>
+      <tr><td>${esc(S.card.name)}</td><td class="r num">${fmt(s.bal.card)}</td><td>${(s.cardApr / 100).toFixed(2)}% APR, daily. Limit ${fmt(S.creditLimit)}, available ${fmt(E.cardAvail(s))}. Interest accrued this cycle (not yet posted): ${fmt(s.cardAccrued)}. ${nextCard ? 'Next due day ' + nextCard + '.' : 'No more due dates.'}</td></tr>
+      <tr><td>${esc(S.loan.name)}</td><td class="r num">${fmt(s.bal.loan)}</td><td>${(S.loan.apr / 100).toFixed(2)}% APR, monthly interest on the due date; fixed payment ${fmt(S.loan.payment)}. ${nextLoan ? 'Next due day ' + nextLoan + '.' : ''}</td></tr>
+    </tbody></table></div>
+    <h3 style="margin-top:16px">Move money between accounts</h3>
+    <form id="xfer" class="formrow"><label>From<select name="from"><option value="checking">Checking (unassigned)</option><option value="emergency">Emergency savings</option><option value="goal">Goal savings</option></select></label>
+      <label>To<select name="to"><option value="emergency">Emergency savings</option><option value="goal">Goal savings</option><option value="checking">Checking</option></select></label>
+      <label>Amount<div class="money"><span>$</span><input name="amt" inputmode="decimal" autocomplete="off" required></div></label><button class="btn" type="submit">Transfer</button></form>
+    <h3>Release money from an envelope</h3>
+    <form id="rel" class="formrow"><label>Envelope<select name="cat">${E.ECATS.map(c => `<option value="${c}">${E.CATNAME[c]} (${fmt(s.earmark[c])})</option>`).join('')}</select></label>
+      <label>Amount<div class="money"><span>$</span><input name="amt" inputmode="decimal" autocomplete="off" required></div></label><button class="btn quiet" type="submit">Release to unassigned</button></form>
+    <h3>Extra debt payment</h3><p class="muted">Paid from unassigned checking plus the debt envelope (${fmt(pool)} available). Scheduled payments still come due as normal.</p>
+    <form id="extra" class="formrow"><label>Debt<select name="debt"><option value="card">Credit card</option><option value="loan">${esc(S.loan.name)}</option></select></label>
+      <label>Amount<div class="money"><span>$</span><input name="amt" inputmode="decimal" autocomplete="off" required></div></label><button class="btn" type="submit">Pay extra principal</button></form>
+    <p id="extraPrev" class="muted" aria-live="polite"></p>`;
+}
+function chartSVG(points, opts) {
+  // points: [{day, value, kind:'settled'|'forecast'}]
+  const W = 720, H = 240, P = { l: 64, r: 12, t: 12, b: 28 };
+  const days = points.map(p => p.day), vals = points.map(p => p.value).concat([0]);
+  const x0 = Math.min(...days), x1 = Math.max(...days, x0 + 1), y0 = Math.min(...vals), y1 = Math.max(...vals, 1);
+  const X = d => P.l + (d - x0) / (x1 - x0) * (W - P.l - P.r), Y = v => P.t + (1 - (v - y0) / (y1 - y0 || 1)) * (H - P.t - P.b);
+  const path = (arr) => arr.map((p, i) => (i ? 'L' : 'M') + X(p.day).toFixed(1) + ' ' + Y(p.value).toFixed(1)).join(' ');
+  const set = points.filter(p => p.kind === 'settled'), fc = points.filter(p => p.kind === 'forecast');
+  if (set.length && fc.length) fc.unshift(set[set.length - 1]);
+  const ticks = []; for (let i = 0; i <= 4; i++) { const v = y0 + (y1 - y0) * i / 4; ticks.push(`<line x1="${P.l}" x2="${W - P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#22335c"/><text x="${P.l - 6}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="#aab4ca" font-family="ui-monospace,monospace">${fmt(Math.round(v / 100) * 100).replace('.00', '')}</text>`); }
+  const xt = []; for (let d = Math.ceil(x0 / 10) * 10; d <= x1; d += 10) xt.push(`<text x="${X(d)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="#aab4ca">day ${d}</text>`);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.label)}">${ticks.join('')}${xt.join('')}
+    <line x1="${P.l}" x2="${W - P.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="#f08b7c" stroke-dasharray="3 3"/><text x="${W - P.r}" y="${Y(0) - 4}" text-anchor="end" font-size="11" fill="#f08b7c">$0</text>
+    ${set.length > 1 ? `<path d="${path(set)}" fill="none" stroke="#e0bb62" stroke-width="2.5"/>` : ''}${fc.length > 1 ? `<path d="${path(fc)}" fill="none" stroke="#9fc3ff" stroke-width="2" stroke-dasharray="6 4"/>` : ''}
+    ${opts.minDay ? `<circle cx="${X(opts.minDay)}" cy="${Y(opts.min)}" r="5" fill="none" stroke="#f3cd5c" stroke-width="2"/>` : ''}</svg>
+    <div class="legend"><span><b style="color:#e0bb62">━</b> settled checking balance (from the ledger)</span><span><b style="color:#9fc3ff">╍</b> forecast from known scheduled items</span>${opts.minDay ? '<span>○ lowest forecast point</span>' : ''}</div>`;
+}
+function forecastTab(s) {
+  const f = E.forecast(s, 30);
+  const pts = s.history.slice(-30).map(h => ({ day: h.day, value: h.checking, kind: 'settled' })).concat(f.rows.map(r => ({ day: r.day, value: r.balance, kind: 'forecast' })));
+  const rows = f.rows.filter(r => r.inflow || r.outflow).map(r => `<tr><td class="num">${r.day}</td><td class="r num">${r.inflow ? '+' + fmt(r.inflow) : ''}</td><td class="r num">${r.outflow ? '−' + fmt(r.outflow) : ''}</td><td class="r num ${r.balance < 0 ? 'err' : ''}">${r.balance < 0 ? '⚠ ' : ''}${fmt(r.balance)}</td><td>${esc(r.items.join(', '))}</td></tr>`).join('');
+  return `<h2>Cash-Flow Forecast</h2>
+    <p>Settled values come from recorded transactions. The forecast covers the next 30 days and assumes only known, scheduled items: paychecks, bills, typical grocery and fuel spending, and estimated card minimums. It cannot see decisions or surprises you have not met yet. Lowest forecast checking: <b class="num ${f.min < 0 ? 'err' : ''}">${fmt(f.min)}</b> on day ${f.minDay}.</p>
+    <div class="chart">${chartSVG(pts, { label: `Checking balance: settled for recent days, then forecast for 30 days. Lowest forecast ${fmt(f.min)} on day ${f.minDay}. Full values in the table below.`, min: f.min, minDay: f.minDay })}</div>
+    <details open><summary>Forecast table (text alternative)</summary><div class="tablewrap"><table><thead><tr><th>Day</th><th class="r">In</th><th class="r">Out</th><th class="r">Checking after</th><th>Items</th></tr></thead><tbody>${rows || '<tr><td colspan="5">Nothing scheduled.</td></tr>'}</tbody></table></div></details>`;
+}
+function ledger(s) {
+  const rows = s.ledger.slice().reverse().map(t => { const d = t.deltas, c = (k) => d[k] ? `${d[k] > 0 ? '+' : ''}${fmt(d[k])}` : '';
+    return `<tr><td class="num">${t.day}</td><td>${esc(t.desc)}</td><td>${esc(E.CATNAME[t.cat] || t.cat)}</td><td class="r num">${c('checking')}</td><td class="r num">${c('emergency')}</td><td class="r num">${c('goal')}</td><td class="r num">${c('card')}</td><td class="r num">${c('loan')}</td></tr>`; }).join('');
+  const rec = E.reconcile(s);
+  return `<h2>Household Ledger</h2><p>${s.ledger.length} transactions, newest first. Every balance equals its opening balance plus these changes. Reconciliation check: <b class="${rec.ok ? 'okc' : 'err'}">${rec.ok ? '✓ balanced' : '✕ mismatch'}</b>. For debts, + means more owed.</p>
+    <div class="tablewrap ledger"><table><caption class="sr">All transactions with the change to each account</caption><thead><tr><th>Day</th><th>Description</th><th>Category</th><th class="r">Checking</th><th class="r">Emergency</th><th class="r">Goal</th><th class="r">Card owed</th><th class="r">Loan owed</th></tr></thead>
+    <tbody><tr><td>0</td><td>Opening balances</td><td>—</td><td class="r num">${fmt(s.open.checking)}</td><td class="r num">${fmt(s.open.emergency)}</td><td class="r num">${fmt(s.open.goal)}</td><td class="r num">${fmt(s.open.card)}</td><td class="r num">${fmt(s.open.loan)}</td></tr>${rows}</tbody></table></div>`;
+}
+function keyring(s) {
+  return `<h2>Finortal Keyring</h2><p class="muted">Seals for this game only, rebuilt from your recorded actions every time a save loads. This is not linked to any external Keyring service.</p><div class="keys">${E.ACHIEVEMENTS.map(a => { const d = s.achievements[a.id]; return `<div class="key ${d ? 'got' : ''}"><b>${d ? '🔑 ' : '○ '}${esc(a.name)}</b><div class="st ${d ? 'okc' : 'muted'}">${d ? '✓ Earned on day ' + d : 'Not yet earned'}</div><small class="muted">${esc(a.rule)}</small></div>`; }).join('')}</div>`;
+}
+function guide(s) {
+  const T = E.TIERS[s.config.tier], S = E.SCEN[s.config.scenario];
+  return `<h2>Guide &amp; Assumptions</h2>
+  <h3>How to play</h3><ol><li>On payday, read the stub, then use the Workbench to give the money a direction. Unassigned money stays in checking.</li><li>Open days one at a time, or advance to the next event. Bills draw from checking on their due date, starting with their envelope.</li><li>If checking cannot cover something, you choose: move savings, use the card, pay late or stretch spending.</li><li>Decision doors (★) offer opportunities and tradeoffs. Locked choices always state their condition.</li><li>Reviews arrive on days 30, 60 and 90. The journey ends after day 90.</li></ol>
+  <h3>This household: ${esc(S.person)}</h3><p>${esc(S.blurb)} Pay: ${fmt(S.rate)}/hour, ${S.hours.join(', ')} hours per biweekly paycheck${T.hoursAlt && S.hoursAlt.join() !== S.hours.join() ? ` (Gold: ${S.hoursAlt.join(', ')})` : ''}. Paydays: days ${E.PAYDAYS.join(', ')}.</p>
+  <h3>Tier: ${esc(T.name)}</h3><p>${esc(T.blurb)} Unexpected costs ×${T.shock / 100}. Look-ahead for sealed doors: ${T.preview} days. Forgiven late fees: ${T.grace}.</p>
+  <h3>Financial rules (fictional, simplified, auditable)</h3><ul>
+    <li><b>Money</b>: all amounts are whole cents. Each calculation rounds once, half-up to the cent.</li>
+    <li><b>Payroll</b> (${esc(E.PAYROLL.jurisdiction)}): income tax 10% of gross above ${fmt(E.PAYROLL.allowance)} per paycheck; social insurance 7.65% and regional tax 3% of gross; plus a fixed health premium where listed. Illustrative only.</li>
+    <li><b>Credit card</b>: interest accrues nightly at APR ÷ 365 on that day’s ending balance (rounded each day) and is posted on days ${E.CARD_DAYS.join(', ')}. The minimum due is the greater of $25.00 or 1% of the balance plus the interest just posted, capped at the balance. A late minimum adds a $29.00 fee to the balance. New charges cannot exceed available credit; posted interest can.</li>
+    <li><b>Installment loan</b>: on each due date, interest = balance × APR ÷ 12 is added, then the fixed payment is due. Interest is covered first and the rest reduces principal. Extra payments reduce principal immediately.</li>
+    <li><b>Late bills</b>: a late bill adds its stated fee and is paid automatically once checking can cover it. Late items lower Obligation Reliability.</li>
+    <li><b>Envelopes</b> are labels on checking money, not separate accounts. A bill pays from its own envelope first, then unassigned money, then other envelopes.</li>
+    <li><b>Net worth</b> = checking + savings − debts. <b>Liquid</b> = checking + savings. They differ, and both matter.</li></ul>
+  <h3>Scoring</h3><p>Seven dimensions from 0 to 100, averaged: Obligation Reliability, Cash-Flow Stability, Financial Resilience, Debt Stewardship, Goal Progress, Financial Flexibility and Decision Quality. Reserve and goal targets scale with each household, so a smaller income is never scored as a failing. Discretionary spending, generosity and necessary costs are not penalized, and the largest balance does not win by itself. Each result screen explains every score.</p>
+  <h3>Validation</h3><p>The engine includes an executable test suite: 27 full 90-day replays (3 strategies × 9 household–tier combinations), plus integrity, adversarial and fairness tests. It runs in your browser using the same engine you play. Developers can also call <code>FinortalsEngine.runValidation()</code> from the console.</p>
+  <button class="btn quiet" id="runVal">Run validation suite</button><div id="valOut" aria-live="polite"></div>
+  <p class="muted" style="margin-top:12px">Saved locally under <code>${esc(E.STORAGE_KEY)}</code>. <button class="btn small ghost" id="resetSave2">Delete saved progress…</button></p>`;
+}
+function validationReport(r) {
+  const rep = r.replays.map(x => `<tr><td>${x.scenario}</td><td>${x.tier}</td><td>${esc(x.strategy)}</td><td>${esc(x.ending ? E.ENDINGS[x.ending].name : '—')}</td><td class="r num">${x.overall ?? '—'}</td><td>${x.deterministic ? '✓' : '✕'}</td><td>${x.reconciled ? '✓' : '✕'}</td><td class="${x.pass ? 'okc' : 'err'}">${x.pass ? '✓ PASS' : '✕ FAIL ' + esc(x.error || '')}</td></tr>`).join('');
+  const tests = r.tests.map(t => `<tr><td>${esc(t.group)}</td><td>${esc(t.name)}</td><td class="${t.pass ? 'okc' : 'err'}">${t.pass ? '✓ PASS' : '✕ FAIL'}</td><td class="muted">${esc(t.detail)}</td></tr>`).join('');
+  return `<p><b>${r.summary.passed}/${r.summary.tests}</b> tests passed · <b>${r.summary.replaysPassed}/${r.summary.replays}</b> complete replays passed · executed ${esc(r.executed)}</p>
+    <div class="tablewrap"><table><thead><tr><th>Scn</th><th>Tier</th><th>Strategy</th><th>Ending</th><th class="r">Overall</th><th>Replay identical</th><th>Ledger</th><th>Result</th></tr></thead><tbody>${rep}</tbody></table></div>
+    <div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Group</th><th>Test</th><th>Result</th><th>Detail</th></tr></thead><tbody>${tests}</tbody></table></div>`;
+}
+
+/* ---------- reviews & results ---------- */
+function monthFlows(s, ch) {
+  const lo = ch * 30 + 1, hi = ch * 30 + 30, by = {}; let inc = 0;
+  for (const t of s.ledger) { if (t.day < lo || t.day > hi) continue; if (t.kind === 'transfer') continue;
+    if (t.kind === 'paycheck' || t.kind === 'income') { inc += (t.deltas.checking || 0) + (t.deltas.goal || 0); continue; }
+    const out = -(t.deltas.checking || 0) - (t.deltas.emergency || 0) - (t.deltas.goal || 0) + (t.kind === 'charge' ? t.deltas.card : 0) + (t.kind === 'interest' || (t.kind === 'fee' && !t.deltas.checking) ? (t.deltas.card || 0) + (t.deltas.loan || 0) : 0);
+    if (out > 0) by[t.cat] = (by[t.cat] || 0) + out; }
+  return { inc, by };
+}
+function showReview(rv) {
+  const s = game.s, m = monthFlows(s, rv.chapter - 1), prev = rv.chapter > 1 ? s.reviews[rv.chapter - 2] : null;
+  const rows = Object.entries(m.by).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<tr><td>${esc(E.CATNAME[k] || k)}</td><td class="r num">${fmt(v)}</td></tr>`).join('');
+  const nwPrev = prev ? prev.netWorth : (s.open.checking - s.open.card - s.open.loan);
+  openDialog(`<p class="pill gold">${esc(CHAP[rv.chapter - 1])} · complete</p><h2>Month ${rv.chapter} Review — Day ${rv.day}</h2>
+    <p>Income received this month: <b class="num">${fmt(m.inc)}</b>. Late obligations this month: <b>${rv.late}</b>${rv.overdue ? ` · <span class="err">✕ ${rv.overdue} still overdue</span>` : ''}.</p>
+    <div class="tablewrap"><table><caption class="sr">Where money went this month</caption><thead><tr><th>Where it went (incl. card charges)</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p style="margin-top:10px">Checking ${fmt(rv.bal.checking)} · Emergency ${fmt(rv.bal.emergency)} · Goal ${fmt(rv.bal.goal)} · Card ${fmt(rv.bal.card)} · Loan ${fmt(rv.bal.loan)}</p>
+    <p>Net worth ${fmt(rv.netWorth)} (${rv.netWorth - nwPrev >= 0 ? '+' : ''}${fmt(rv.netWorth - nwPrev)} this month) · Liquid ${fmt(rv.liquid)} · Interest charged so far ${fmt(rv.interest)}</p>
+    <p class="muted">${rv.chapter === 1 ? 'Chapter II tests how ready your plan is for the unexpected.' : rv.chapter === 2 ? 'Chapter III is where earlier choices start opening, or closing, doors.' : ''}</p>
+    <button class="btn" id="closeRv">Continue</button>`, (d) => { $('#closeRv', d).onclick = () => d.close(); });
+}
+function resultsScreen() {
+  const s = game.s, r = s.result, S = E.SCEN[s.config.scenario], en = E.ENDINGS[r.ending];
+  const DIM = [['reliability', 'Obligation Reliability'], ['stability', 'Cash-Flow Stability'], ['resilience', 'Financial Resilience'], ['debt', 'Debt Stewardship'], ['goal', 'Goal Progress'], ['flexibility', 'Financial Flexibility'], ['decision', 'Decision Quality']];
+  const qual = Object.entries(r.qualified).filter(([, v]) => v).map(([k]) => E.ENDINGS[k === 'balanced' ? 'balanced' : k].name);
+  const pts = s.history.map(h => ({ day: h.day, value: h.checking + h.emergency + h.goal, kind: 'settled' }));
+  app.innerHTML = `<div class="fadein">
+    <div class="ending"><p class="pill gold">Day 90 · ${esc(S.person)} · ${esc(E.TIERS[s.config.tier].name)}</p><h1>${esc(en.name)}</h1><p class="lede">${esc(en.text)}</p><div class="big num">${r.scores.overall}</div><p class="muted">Overall, the average of seven dimensions. Endings are not ranked by net worth.</p>
+    ${qual.length > 1 ? `<p>You also qualified for: ${esc(qual.filter(q => q !== en.name).join(', '))}. Your declared priority chose which ending to show.</p>` : ''}</div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));margin-top:16px">
+      <section class="card"><h2>How each dimension was assessed</h2><div class="scores">${DIM.map(([k, n]) => `<div><div class="score"><b>${n}</b><span class="num">${r.scores[k]}</span><div class="bar"><i style="width:${r.scores[k]}%"></i></div></div><small class="muted">${esc(r.explain[k])}</small></div>`).join('')}</div></section>
+      <section class="card"><h2>Final financial record</h2><div class="tablewrap"><table><tbody>
+        <tr><td>Checking</td><td class="r num">${fmt(s.bal.checking)}</td></tr><tr><td>Emergency savings</td><td class="r num">${fmt(s.bal.emergency)}</td></tr><tr><td>Goal savings (${esc(S.goal.name)})</td><td class="r num">${fmt(s.bal.goal)}</td></tr>
+        <tr><td>Credit card owed</td><td class="r num">${fmt(s.bal.card)} <span class="muted">(started ${fmt(s.open.card)})</span></td></tr><tr><td>${esc(S.loan.name)} owed</td><td class="r num">${fmt(s.bal.loan)} <span class="muted">(started ${fmt(s.open.loan)})</span></td></tr>
+        <tr><td><b>Liquid money</b></td><td class="r num"><b>${fmt(r.liquid)}</b></td></tr><tr><td><b>Net worth</b></td><td class="r num"><b>${fmt(r.netWorth)}</b> <span class="muted">(started ${fmt(s.open.checking - s.open.card - s.open.loan)})</span></td></tr>
+        <tr><td>Interest charged (card + loan)</td><td class="r num">${fmt(s.stats.cardInterest + s.stats.loanInterest)}</td></tr><tr><td>Fees paid · forgiven</td><td class="r num">${fmt(s.stats.fees)} · ${fmt(s.stats.feesWaived)}</td></tr>
+        <tr><td>Discretionary · Community</td><td class="r num">${fmt(s.stats.discretionary)} · ${fmt(s.stats.community)}</td></tr></tbody></table></div>
+        <div class="chart" style="margin-top:12px">${chartSVG(pts, { label: 'Liquid money (checking plus savings) for each of the 90 days, from recorded transactions.' })}</div></section>
+    </div>
+    <section class="card" style="margin-top:16px"><h2>Decisions that shaped this journey</h2><div class="tablewrap"><table><thead><tr><th>Day</th><th>Door</th><th>Your choice</th></tr></thead><tbody>${s.decided.filter(d => d.type !== 'payday').map(d => `<tr><td class="num">${d.day}</td><td>${esc(DOORNAME[d.type] || 'Cash-flow gap')}</td><td>${esc(d.label)}</td></tr>`).join('')}</tbody></table></div></section>
+    <section class="card" style="margin-top:16px">${keyring(s)}</section>
+    <div class="deskbar" style="margin:20px 0"><button class="btn" id="replaySame">Replay this household</button><button class="btn quiet" id="newRun">Choose a different path</button><button class="btn ghost" id="dlLog">Download run log (JSON)</button><button class="btn ghost" id="viewLedger">View full ledger</button></div>
+    <div id="fullLedger"></div></div>`;
+  $('#replaySame').onclick = () => startGame(s.config);
+  $('#newRun').onclick = () => { game = null; setupScreen(); };
+  $('#dlLog').onclick = () => { const b = new Blob([JSON.stringify({ engine: E.VERSION, config: s.config, actions: game.actions, result: r, hash: E.hashState(s) }, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'finortal-001-run-' + s.config.scenario + '-' + s.config.tier + '.json'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
+  $('#viewLedger').onclick = () => { $('#fullLedger').innerHTML = `<section class="card">${ledger(s)}</section>`; };
+  window.scrollTo(0, 0);
+}
+
+/* ---------- dialog helper (native <dialog>, focus returns to opener) ---- */
+function openDialog(html, wire) {
+  const d = $('#dlg'), opener = document.activeElement; d.innerHTML = html; wire(d);
+  d.onclose = () => { if (opener && opener.focus && document.contains(opener)) opener.focus(); };
+  if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+  const f = d.querySelector('button,input,select'); if (f) f.focus();
+}
+
+/* ---------- event binding ---------- */
+function bind(s) {
+  if ($('#newRun')) $('#newRun').onclick = () => { game = null; setupScreen(); };
+  if ($('#adv1')) $('#adv1').onclick = () => advance(false);
+  if ($('#advE')) $('#advE').onclick = () => advance(true);
+  if ($('#hintBtn')) $('#hintBtn').onclick = () => { hintOpen = !hintOpen; render(); $('#hintBtn').focus(); };
+  document.querySelectorAll('.door').forEach(b => b.onclick = () => { selDay = +b.dataset.day; render(); const nb = document.querySelector(`.door[data-day="${selDay}"]`); if (nb) nb.focus(); });
+  document.querySelectorAll('.opt').forEach(b => b.onclick = () => resolve(s.pending[0], b.dataset.opt));
+  const tl = document.querySelectorAll('.tab');
+  tl.forEach((b, i) => { b.onclick = () => { tab = b.dataset.tab; render(); $('#tab-' + tab).focus(); };
+    b.onkeydown = (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); const n = tl[(i + (e.key === 'ArrowRight' ? 1 : tl.length - 1)) % tl.length]; tab = n.dataset.tab; render(); $('#tab-' + tab).focus(); } }; });
+  if ($('#wb')) {
+    const un = E.unearmarked(s);
+    WB.forEach(([k]) => { const inp = $('#wb-' + k), rng = document.querySelector(`[data-r="${k}"]`);
+      inp.oninput = () => { const c = parseCents(inp.value); if (c !== null && rng) rng.value = Math.min(c, un); updateWB(); };
+      inp.onblur = () => { const c = parseCents(inp.value); if (c !== null) inp.value = dollars(c); };
+      if (rng) rng.oninput = () => { inp.value = dollars(+rng.value); updateWB(); }; });
+    if ($('#extraTarget')) $('#extraTarget').onchange = updateWB;
+    $('#wbFill').onclick = () => { const np = E.nextPayday(s) || E.DAYS + 1, need = E.upcomingByCat(s, s.day + 1, np - 1); let left = un;
+      for (const c of E.ECATS) { const v = Math.max(0, Math.min(left, need[c] - s.earmark[c])); left -= v; $('#wb-' + c).value = dollars(v); } updateWB(); };
+    $('#wbClear').onclick = () => { WB.forEach(([k]) => $('#wb-' + k).value = '0.00'); document.querySelectorAll('[data-r]').forEach(r => r.value = 0); updateWB(); };
+    $('#wb').onsubmit = (e) => { e.preventDefault(); const { al, bad } = readWB(); if (bad) return toast('Use dollar amounts like 125 or 125.50.');
+      if (doAct({ type: 'allocate', alloc: al, extraTarget: $('#extraTarget').value })) announce('Allocation applied.'); };
+    updateWB();
+  }
+  const amt = (form) => { const c = parseCents(form.amt.value); if (c === null || c === 0) { toast('Enter a positive dollar amount, like 50 or 50.25.'); return null; } return c; };
+  if ($('#xfer')) $('#xfer').onsubmit = (e) => { e.preventDefault(); const f = e.target, c = amt(f); if (c !== null && doAct({ type: 'transfer', from: f.from.value, to: f.to.value, cents: c })) announce('Transferred ' + fmt(c) + '.'); };
+  if ($('#rel')) $('#rel').onsubmit = (e) => { e.preventDefault(); const f = e.target, c = amt(f); if (c !== null && doAct({ type: 'release', cat: f.cat.value, cents: c })) announce('Released ' + fmt(c) + '.'); };
+  if ($('#extra')) { const f = $('#extra'); const prev = () => { const c = parseCents(f.amt.value); $('#extraPrev').textContent = c ? `Estimated interest saved over 12 months: ${fmt(f.debt.value === 'card' ? E.interestSaved(s, Math.min(c, s.bal.card)) : E.loanInterestSaved(s, Math.min(c, s.bal.loan)))}. Cash used: ${fmt(c)}, which will not be available for other needs.` : ''; };
+    f.amt.oninput = prev; f.debt.onchange = prev; f.onsubmit = (e) => { e.preventDefault(); const c = amt(f); if (c !== null && doAct({ type: 'payDebt', debt: f.debt.value, cents: c })) announce('Extra payment of ' + fmt(c) + ' applied.'); }; }
+  document.querySelectorAll('[data-payod]').forEach(b => b.onclick = () => doAct({ type: 'payOverdue', id: b.dataset.payod }));
+  if ($('#runVal')) $('#runVal').onclick = () => { $('#valOut').innerHTML = '<p>Running…</p>'; setTimeout(() => { $('#valOut').innerHTML = validationReport(E.runValidation()); }, 30); };
+  if ($('#resetSave2')) $('#resetSave2').onclick = confirmReset;
+}
+
+window.addEventListener('DOMContentLoaded', () => { render(); });
+})();
+</script>
+</body>
+</html>
