@@ -155,9 +155,20 @@ async function sync(){
   const selected=challenges.find(x=>x.number===day)||challenges.reduce((best,x)=>!best||x.number>best.number?x:best,null);
   if(selected){update('challenge',selected,selected.number,selected.number===day?"Unlock today's challenge →":"Unlock featured challenge →");
    if(selected.number!==day)$('challenge').querySelector('.daily-type').textContent='Featured Chaortal · No. '+String(selected.number).padStart(2,'0');}
-  const game=doc.querySelector('#today-gamortal');
-  if(game){const title=game.querySelector('#today-gamortal-title')?.textContent?.trim(),link=game.querySelector('a.btn')?.getAttribute('href'),description=game.querySelector('.logline')?.textContent?.trim();
-   if(title&&link)update('game',{title,url:link,description},1,"Play today's Gamortal →");}
+  // Match the calendar day to the same complete published Gamortal gallery as classic.
+  const games=Array.from(doc.querySelectorAll('#games .gamortals-wall a.card')).map(a=>{
+   const door=a.querySelector('.gamortal-door');
+   return {number:Number(door?.querySelector('.num')?.textContent),title:a.querySelector('.cap .t')?.textContent?.trim(),genre:a.querySelector('.cap .g')?.textContent?.trim(),url:a.getAttribute('href'),door};
+  }).filter(x=>Number.isInteger(x.number)&&x.number>=1&&x.number<=31&&x.title&&x.url&&x.door);
+  if(games.length===31&&new Set(games.map(g=>g.number)).size===31){
+   const chosen=games.find(g=>g.number===day);
+   if(chosen){
+    update('game',{title:chosen.title,url:chosen.url,description:'Today, play '+chosen.title+'. '+chosen.genre+'. Choose Bronze, Silver or Gold and earn your Gamortal Keyring seals.'},chosen.number,"Play today's Gamortal →");
+    const visual=$('game')?.querySelector('.daily-symbol');
+    if(visual){visual.className=chosen.door.className+' dq-door-instance dq-game dq-daily-door daily-symbol';visual.innerHTML=chosen.door.innerHTML;
+     const n=visual.querySelector('.num');if(n)n.classList.add('dq-daily-number');}
+   }
+  }
   document.getElementById('daily-sync-status').textContent='Daily doors selected from the classic DoorQuests published catalog.';
  }catch(e){document.getElementById('daily-sync-status').textContent='Daily catalog temporarily unavailable. Use the collection links to browse all published doors.';}
 }
