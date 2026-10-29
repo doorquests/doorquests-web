@@ -1292,4 +1292,33 @@ footer .legal-details{font-size:.84rem}
 <!-- Cloudflare Web Analytics -->
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3f72232588414cf087bd7c4ed5e4ddaa"}'></script>
 <!-- End Cloudflare Web Analytics -->
+
+<script>
+/* Daily Gamortal — published 31-card gallery is the sole source of truth. */
+(()=>{'use strict';
+ const feature=document.querySelector('#today-gamortal .feature');
+ const gallery=[...document.querySelectorAll('#games .gamortals-wall a.card')].map(a=>{
+  const door=a.querySelector('.gamortal-door'),num=Number(door?.querySelector('.num')?.textContent);
+  return {num,title:a.querySelector('.cap .t')?.textContent?.trim(),genre:a.querySelector('.cap .g')?.textContent?.trim(),href:a.getAttribute('href'),door};
+ }).filter(x=>Number.isInteger(x.num)&&x.num>=1&&x.num<=31&&x.title&&x.href&&x.door);
+ if(!feature||gallery.length!==31||new Set(gallery.map(x=>x.num)).size!==31)return;
+ function daily(){
+  const day=new Date().getDate(),g=gallery.find(x=>x.num===day);
+  if(!g)return;
+  const visual=feature.querySelector('a.gamortal-door'),heading=feature.querySelector('#today-gamortal-title'),eyebrow=feature.querySelector('.eyebrow');
+  if(!visual||!heading||!eyebrow)return;
+  visual.className=g.door.className;
+  visual.innerHTML=g.door.innerHTML;
+  visual.href=g.href;
+  visual.setAttribute('aria-label','Play Gamortal '+String(g.num).padStart(2,'0')+': '+g.title+' (opens in a new tab)');
+  eyebrow.textContent="Today's Gamortal · No. "+g.num;
+  heading.textContent=g.title;
+  const caption=feature.querySelector('.logline');
+  if(caption)caption.textContent='Today, play '+g.title+'. '+g.genre+'. Choose Bronze, Silver or Gold and earn your Gamortal Keyring seals.';
+  const genre=feature.querySelector('.facts li');if(genre)genre.textContent=g.genre;
+  const link=feature.querySelector('a.btn');if(link)link.href=g.href;
+ }
+ daily();setInterval(daily,60000);
+})();
+</script>
 </body></html>
