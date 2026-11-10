@@ -1,0 +1,2241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Map They Followed · Echortals #001 · DoorQuests</title>
+<meta name="description" content="Survey an unsettled island, ink its first map, and return over thirty years to trace what your marks set in motion.">
+<style>
+:root{
+  --navy:#0b1220; --navy2:#141e35; --navy3:#1e2a47;
+  --parch:#f3e9d2; --parch2:#e9dbb9; --parch3:#dccaa0;
+  --ink:#2a1c0f; --ink2:#5b4025; --red:#8c2a18; --brass:#d8b25e; --brass2:#f0d38f;
+  --text:#efe7d6; --muted:#c9bfa9; --sea:#a9bcc4; --sea2:#8ea5b0; --river:#3f6e88;
+  --ok:#1f6b3a; --bad:#8c2a18; --focus:#ffd479;
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", serif;
+  --body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--navy);color:var(--text);font-family:var(--body);font-size:1.0625rem;line-height:1.55;overflow-x:hidden}
+a{color:var(--brass2)}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:normal;line-height:1.25;margin:0 0 .5em}
+h1{font-size:clamp(1.7rem,6vw,2.6rem);color:var(--brass2)}
+h2{font-size:clamp(1.35rem,4.6vw,1.9rem);color:var(--brass2)}
+h3{font-size:1.2rem}
+p{margin:0 0 .8em}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--brass);color:var(--navy);padding:.6em 1em;z-index:10}
+.skip:focus{left:8px;top:8px}
+.vh{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+header.site{padding:14px 16px 10px;border-bottom:1px solid #2b3858;background:linear-gradient(180deg,#121b31,#0b1220)}
+.brandrow{display:flex;flex-wrap:wrap;gap:.25em 1em;align-items:baseline;justify-content:space-between}
+.brand{font-family:var(--serif);color:var(--brass);letter-spacing:.08em;text-transform:uppercase;font-size:.85rem}
+.desig{color:var(--muted);font-size:.85rem}
+.ttl{font-family:var(--serif);font-size:1.25rem;color:var(--parch);margin-top:2px}
+nav.steps ol{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:10px 0 0}
+nav.steps button{font:inherit;font-size:.85rem;min-height:44px;padding:.35em .8em;border-radius:22px;border:1px solid #3a4a72;background:var(--navy2);color:var(--text);cursor:pointer}
+nav.steps button[aria-current="step"]{background:var(--brass);color:var(--navy);border-color:var(--brass)}
+nav.steps button:disabled{opacity:.45;cursor:not-allowed}
+main{max-width:1180px;margin:0 auto;padding:16px}
+section.screen{animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){section.screen{animation:none}*{scroll-behavior:auto!important;transition:none!important}}
+.card{background:var(--parch);color:var(--ink);border-radius:10px;padding:16px;margin:0 0 16px;box-shadow:0 2px 0 #00000040,inset 0 0 40px #c9b28440}
+.card h2,.card h3,.card h4{color:var(--ink)}
+.card.dark{background:var(--navy2);color:var(--text);box-shadow:none;border:1px solid #2b3858}
+.card.dark h3,.card.dark h4{color:var(--brass2)}
+.letter{font-family:var(--serif);font-size:1.08rem}
+.letter .sig{font-style:italic;text-align:right}
+.btn{font:inherit;min-height:44px;padding:.55em 1.1em;border-radius:8px;border:2px solid var(--brass);background:var(--brass);color:#1a1205;cursor:pointer;font-weight:600}
+.btn.secondary{background:transparent;color:inherit;border-color:currentColor;font-weight:500}
+.card .btn.secondary{color:var(--ink)}
+.btn.small{min-height:44px;padding:.3em .8em;font-size:.92rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.grid2{display:grid;grid-template-columns:1fr;gap:16px}
+.grid2 > *{min-width:0}
+select{font:inherit;min-height:44px;padding:.3em .5em;border-radius:6px;border:1px solid #8b6b3a;background:#fbf4e2;color:var(--ink)}
+@media (min-width:860px){.grid2{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:start}.sticky{position:sticky;top:12px}}
+figure.mapfig{margin:0 0 16px;background:var(--parch2);border-radius:10px;padding:8px;color:var(--ink)}
+figure.mapfig svg{display:block;width:100%;height:auto;max-height:78vh}
+figure.mapfig figcaption{font-size:.9rem;padding:6px 4px 2px;color:var(--ink2)}
+.legend{list-style:none;padding:0;margin:8px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:4px 10px;font-size:.88rem}
+.legend li{display:flex;gap:6px;align-items:center}
+figure.mapfig .legend svg,.legend svg{flex:0 0 auto;width:36px;height:16px;max-height:16px}
+fieldset{border:1px solid var(--parch3);border-radius:8px;margin:0 0 14px;padding:10px 12px}
+.card fieldset{border-color:#b9a57a}
+legend{font-family:var(--serif);font-size:1.1rem;padding:0 6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:8px;margin:6px 0;border:1px solid transparent;cursor:pointer}
+.opt:hover{border-color:#b9a57a}
+.opt input{margin-top:.3em;width:1.25em;height:1.25em;flex:0 0 auto;accent-color:var(--red)}
+.opt .on{font-family:var(--serif);font-size:1.08rem;font-weight:bold}
+.opt .od{font-size:.95rem;color:var(--ink2)}
+.toggles{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.92rem}
+.toggles label{display:flex;gap:6px;align-items:center;min-height:44px}
+.toggles input{width:1.2em;height:1.2em;accent-color:var(--red)}
+.yearbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 12px}
+.yearbar .yb{font:inherit;font-size:.9rem;min-height:44px;padding:.3em .8em;border-radius:8px;border:1px solid #3a4a72;background:var(--navy2);color:var(--text);cursor:pointer}
+.yearbar .yb[aria-pressed="true"]{background:var(--parch);color:var(--ink);border-color:var(--parch)}
+.yearbar .yb:disabled{opacity:.4;cursor:not-allowed}
+.sitebtns{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.sitebtns button{font:inherit;font-size:.95rem;min-height:48px;text-align:left;padding:.4em .7em;border-radius:8px;border:1px solid #b9a57a;background:#fbf4e2;color:var(--ink);cursor:pointer}
+.sitebtns button[aria-pressed="true"]{border:2px solid var(--red)}
+.sitebtns .req{font-size:.78rem;color:var(--red)}
+.tag{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.03em;padding:.05em .5em;border-radius:4px;border:1px solid currentColor;margin-right:.4em;white-space:nowrap}
+.tag.obs{color:#1f4d6b}
+.tag.conj{color:#7a4a00}
+.notes{list-style:none;padding:0;margin:0}
+.notes li{padding:6px 0;border-bottom:1px dashed #c9b48a}
+.ev{border-left:4px solid var(--red);padding:8px 10px;margin:0 0 10px;background:#fbf4e2;border-radius:0 8px 8px 0}
+.ev h4{margin:0 0 .2em;font-size:1.05rem}
+.ev .meta{font-size:.82rem;color:var(--ink2);margin-bottom:.3em}
+.ev.cls-independent{border-left-style:dotted;border-left-color:#3f6e88}
+.ev.cls-correction,.ev.cls-community{border-left-style:double;border-left-width:6px;border-left-color:#1f6b3a}
+.pill{display:inline-block;font-size:.76rem;padding:.08em .5em;border-radius:10px;background:#00000014;margin-right:.3em}
+.trace{border:2px solid var(--red);border-radius:10px;padding:12px;background:#fffaf0;color:var(--ink);margin:0 0 16px}
+.trace ul{margin:.3em 0 .3em 0;padding-left:1.1em}
+.trace li{margin:.25em 0}
+.trace .why{display:block;font-size:.9rem;color:var(--ink2);font-style:italic}
+.trace .path{background:#f1e6cc;border-radius:6px;padding:8px;font-size:.95rem}
+.tablewrap{overflow-x:auto;max-width:100%;border:1px solid #b9a57a;border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;vertical-align:top;padding:6px 8px;border-bottom:1px solid #d4c299}
+th{background:#ead9b0;font-family:var(--serif);font-weight:normal}
+caption{text-align:left;font-family:var(--serif);font-size:1.05rem;padding:6px 8px}
+.status{min-height:1.4em;font-size:.95rem}
+.okmsg{color:var(--ok);font-weight:600}
+.badmsg{color:var(--bad);font-weight:600}
+.claim{border:1px solid #b9a57a;border-radius:8px;padding:10px;margin:0 0 12px;background:#fbf4e2}
+.claim .ct{font-family:var(--serif);font-size:1.06rem;margin-bottom:.4em}
+.claim .radios{display:flex;flex-direction:column;gap:2px}
+.claim label{display:flex;gap:8px;align-items:center;min-height:44px;cursor:pointer}
+.claim input{width:1.2em;height:1.2em;accent-color:var(--red)}
+.claim .fb{font-size:.92rem;margin-top:4px}
+.atlas{background:var(--parch);color:var(--ink);border-radius:10px;padding:18px;border:6px double #8b6b3a}
+.atlas h2{color:var(--ink);text-align:center}
+.atlas .sub{text-align:center;font-style:italic;color:var(--ink2)}
+.cols3{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){.cols3{grid-template-columns:repeat(3,1fr)}}
+.cols3 > div{background:#fbf4e2;border-radius:8px;padding:10px;border:1px solid #c9b48a}
+.endline{font-family:var(--serif);font-size:1.3rem;text-align:center;margin:18px 0 6px;color:var(--ink)}
+.credit{text-align:center;color:var(--muted);font-size:.9rem}
+footer.site{border-top:1px solid #2b3858;padding:16px;text-align:center;color:var(--muted);font-size:.88rem}
+footer .credit-line{font-family:var(--serif);color:var(--brass2);font-size:1rem}
+.notice{background:#1a2440;border:1px solid #3a4a72;border-radius:8px;padding:10px 12px;font-size:.92rem;color:var(--muted)}
+.cmpgrid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.cmpgrid{grid-template-columns:1fr 1fr}}
+.cmpgrid figure{margin:0}
+dialog{border:none;border-radius:12px;padding:0;max-width:min(520px,92vw);background:var(--parch);color:var(--ink)}
+dialog::backdrop{background:#000a}
+dialog .dbody{padding:18px}
+dialog h2{color:var(--ink)}
+.srclist{font-size:.92rem;padding-left:1.2em}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em}
+svg .pin{cursor:pointer}
+svg .pin:focus{outline:none}
+svg .pin:focus .pinring{stroke:#000;stroke-width:3}
+svg text{font-family:var(--serif)}
+.hint{font-size:.9rem;background:#f1e6cc;border-radius:6px;padding:6px 8px;margin-top:4px}
+.small{font-size:.88rem}
+.mt0{margin-top:0}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site" role="banner">
+  <div class="brandrow">
+    <span class="brand">DoorQuests</span>
+    <span class="desig">Tomortal · Echortals #001</span>
+  </div>
+  <div class="ttl">The Map They Followed</div>
+  <nav class="steps" aria-label="Progress">
+    <ol id="stepnav"></ol>
+  </nav>
+</header>
+
+<main id="main" tabindex="-1">
+  <div id="live" class="vh" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- INTRO -->
+  <section id="screen-intro" class="screen" aria-labelledby="h-intro">
+    <h1 id="h-intro" tabindex="-1">The Map They Followed</h1>
+    <p class="small" style="color:var(--muted)">Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+    <div class="card letter">
+      <p>To the cartographer,</p>
+      <p>Enclosed is the survey of an island no one has yet settled. Its coves, rivers and hills are real; only the names are missing. Ships are already being fitted at Ostrey for families who mean to go there, and every one of them will carry a single chart: yours.</p>
+      <p>Draw it as truly as you can. Name what needs naming. Show them the way in.</p>
+      <p class="sig">— The Chartroom at Ostrey</p>
+    </div>
+    <p>You will survey the island, ink its first edition, then return five, fifteen and thirty years later to see what people did with your marks — and what they did without them.</p>
+    <p class="notice" id="tabnotice"><strong>Progress lives only in this browser tab.</strong> Nothing is saved to your device or sent anywhere. Refreshing or closing the page starts the island over.</p>
+    <div class="btnrow"><button class="btn" id="btn-begin" type="button">Begin the survey</button></div>
+  </section>
+
+  <!-- SURVEY -->
+  <section id="screen-survey" class="screen" aria-labelledby="h-survey" hidden>
+    <h2 id="h-survey" tabindex="-1">Scene 1 · The island without names</h2>
+    <p>The survey boat has circled the island and walked its interior. Inspect the sites in your notebook. Some notes are things you saw; others are only your best guess.</p>
+    <div class="grid2">
+      <div class="sticky">
+        <figure class="mapfig">
+          <svg id="map-survey" role="group" aria-labelledby="cap-survey"></svg>
+          <figcaption id="cap-survey">Natural survey of Merrow Isle. Select a site on the map or from the list.</figcaption>
+        </figure>
+      </div>
+      <div>
+        <div class="card">
+          <h3>Survey sites</h3>
+          <p class="small" id="survey-progress"></p>
+          <div class="sitebtns" id="site-buttons"></div>
+        </div>
+        <div class="card" id="notebook" aria-live="polite">
+          <h3>Notebook</h3>
+          <p>Choose a site to read your survey notes.</p>
+        </div>
+        <div class="card">
+          <h3>Sort your notes before you ink</h3>
+          <p class="small">A chart prints what was <strong>observed</strong> differently from what is <strong>conjecture</strong>. Sort these four lines.</p>
+          <div id="sortbox"></div>
+          <div class="btnrow"><button class="btn secondary" type="button" id="btn-sortcheck">Check my notes</button></div>
+          <p class="status" id="sort-status" role="status"></p>
+        </div>
+        <div class="btnrow"><button class="btn" id="btn-to-ink" type="button" disabled>Take up the pen</button></div>
+        <p class="small" id="toink-why" style="color:var(--muted)"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- INK -->
+  <section id="screen-ink" class="screen" aria-labelledby="h-ink" hidden>
+    <h2 id="h-ink" tabindex="-1">Scene 2 · The first ink</h2>
+    <p>Three marks will travel on every ship. Your pen cannot change the river, the soil or the wind — only what readers believe about them.</p>
+    <div class="grid2">
+      <div class="sticky">
+        <figure class="mapfig">
+          <svg id="map-ink" role="group" aria-labelledby="cap-ink"></svg>
+          <figcaption id="cap-ink">First edition preview.</figcaption>
+        </figure>
+        <div class="card" id="ink-summary" aria-live="polite"></div>
+      </div>
+      <form id="ink-form" onsubmit="return false">
+        <div class="card" id="ink-fields"></div>
+        <div class="card">
+          <h3>Routes on the survey, compared</h3>
+          <div class="tablewrap"><table id="route-table"></table></div>
+        </div>
+        <div class="btnrow"><button class="btn" id="btn-seal" type="button" disabled>Seal the First Edition</button></div>
+        <p class="small" id="seal-why" style="color:var(--muted)"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="screen-history" class="screen" aria-labelledby="h-history" hidden>
+    <h2 id="h-history" tabindex="-1">The years</h2>
+    <div class="yearbar" role="group" aria-label="Time layer" id="yearbar"></div>
+    <div class="grid2">
+      <div class="sticky">
+        <figure class="mapfig">
+          <svg id="map-history" role="group" aria-labelledby="cap-history"></svg>
+          <figcaption id="cap-history"></figcaption>
+          <fieldset class="toggles" id="toggles">
+            <legend class="small">Map layers</legend>
+          </fieldset>
+          <ul class="legend" id="legend" aria-label="Map legend"></ul>
+        </figure>
+      </div>
+      <div>
+        <div id="trace-history"></div>
+        <div class="card" id="scene-card"></div>
+        <div class="card" id="places-card"></div>
+      </div>
+    </div>
+    <div class="card" id="ledger-card"></div>
+  </section>
+
+  <!-- CHALLENGE -->
+  <section id="screen-challenge" class="screen" aria-labelledby="h-challenge" hidden>
+    <h2 id="h-challenge" tabindex="-1">Scene 6 · The margin speaks</h2>
+    <div class="card letter">
+      <p>Before the Final Edition goes to press, the harbour archivist, Hollis Venn, asks you to sign off six statements for its preface. For each, say where it came from.</p>
+      <p class="sig">“A chart should know the difference between what it caused and what it merely watched.”</p>
+    </div>
+    <div id="trace-challenge"></div>
+    <form id="claim-form" onsubmit="return false" class="card">
+      <h3>Six statements about the island</h3>
+      <p class="small"><strong>(a) Your map</strong> — a consequence of your first-edition marks. <strong>(b) Independent</strong> — geography, weather or events that would have happened whatever you drew. <strong>(c) Community</strong> — a correction or decision the settlers made themselves (even if your map gave them reason to).</p>
+      <div id="claims"></div>
+      <div class="btnrow"><button class="btn" type="button" id="btn-check">Check classifications</button></div>
+      <p class="status" id="check-status" role="status"></p>
+    </form>
+    <div class="btnrow"><button class="btn" type="button" id="btn-to-final" disabled>Prepare the Final Edition</button></div>
+  </section>
+
+  <!-- FINAL -->
+  <section id="screen-final" class="screen" aria-labelledby="h-final" hidden>
+    <h2 id="h-final" tabindex="-1">Finale · The shared edition</h2>
+    <div id="final-prep"></div>
+    <div id="final-atlas"></div>
+  </section>
+
+  <!-- EDITIONS -->
+  <section id="screen-editions" class="screen" aria-labelledby="h-editions" hidden>
+    <h2 id="h-editions" tabindex="-1">Editions &amp; comparison</h2>
+    <p class="notice">Every edition below is the <strong>same island</strong> with the same rivers, soil and weather. Only the first ink — and what people did with it — differs. Editions are kept for this tab only.</p>
+    <div class="card" id="editions-list"></div>
+    <div class="card" id="compare-card"></div>
+  </section>
+</main>
+
+<footer class="site" role="contentinfo">
+  <p class="credit-line">Created by The Axiom Continuum.</p>
+  <p>DoorQuests · Tomortal · Echortals #001 — a fictional island; the simulation is illustrative, not navigation or survival advice.</p>
+  <p><button class="btn secondary small" type="button" id="btn-reset">Reset everything</button></p>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlg-title" aria-describedby="dlg-text">
+  <div class="dbody">
+    <h2 id="dlg-title"></h2>
+    <p id="dlg-text"></p>
+    <div class="btnrow">
+      <button class="btn" type="button" id="dlg-ok"></button>
+      <button class="btn secondary" type="button" id="dlg-cancel">Cancel</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- ================= MODEL (DOM-free) ================= -->
+<script id="echortals-model">
+/*MODEL-START*/
+(function (root) {
+'use strict';
+
+function deepFreeze(o) {
+  if (o && typeof o === 'object' && !Object.isFrozen(o)) {
+    Object.freeze(o);
+    Object.keys(o).forEach(function (k) { deepFreeze(o[k]); });
+  }
+  return o;
+}
+
+var ISLAND = 'Merrow Isle';
+
+/* ---------- Immutable geography (the control) ---------- */
+var NODES = deepFreeze([
+  { id:'cove', x:212, y:440, type:'harbour', survey:'Landing cove', lx:14, ly:6, anchor:'start',
+    desc:'A deep, sheltered cove on the south coast.',
+    notes:[['obs','Deep water to four fathoms, sheltered from the westerlies behind the south headland.'],
+           ['obs','No other safe anchorage seen in a full circuit of the coast.'],
+           ['conj','Fishing is likely good: gulls were working over the bay.']] },
+  { id:'lowbank', x:138, y:384, type:'terrace', survey:'Low east bank', lx:10, ly:16, anchor:'start',
+    desc:'A grass terrace on the east bank where the river meets the tide flats.',
+    notes:[['obs','Firm grass terrace on the east bank, a stride above the spring-tide wrack line.'],
+           ['conj','The highest tides may reach the terrace edge.']] },
+  { id:'ford', x:150, y:300, type:'crossing', survey:'Rock-shelf crossing', lx:12, ly:4, anchor:'start',
+    desc:'A rock shelf across the river: the only low crossing.',
+    notes:[['obs','A rock shelf crosses the river; it was knee-deep in late summer when surveyed.'],
+           ['obs','Flood wrack is lodged in the alders head-high above the water.'],
+           ['obs','Higher, dry ground continues up the east bank toward the upper narrows.'],
+           ['conj','Spring snowmelt probably closes the shelf for weeks. This was not witnessed.']] },
+  { id:'valley', x:92, y:226, type:'valley', survey:'Sheltered valley', lx:0, ly:-16, anchor:'middle',
+    desc:'A fertile valley west of the river, sheltered by its head.',
+    notes:[['obs','Dark loam; sheltered from the north wind by the valley head.'],
+           ['obs','Wild crab apples fruiting on the south-facing slope.'],
+           ['obs','Sedge and standing water on the lower meadow nearest the river.'],
+           ['conj','The lower meadow may flood when the river rises.']] },
+  { id:'flats', x:70, y:386, type:'marsh', survey:'Western tide flats', lx:0, ly:22, anchor:'middle',
+    desc:'Tidal reed beds where the river meets the sea.',
+    notes:[['obs','Tidal reed beds; redshank and curlew feeding.'],
+           ['obs','Spring tides cover the flats up to the low bank.'],
+           ['conj','Westerly storms may reshape the river mouth.']] },
+  { id:'woods', x:236, y:330, type:'woodland', survey:'Eastern woods', lx:12, ly:4, anchor:'start',
+    desc:'Oak and beech along the eastern margin.',
+    notes:[['obs','Oak and beech; deer tracks; a gentle grade north toward the narrows.'],
+           ['conj','Enough timber for building for many years.']] },
+  { id:'narrows', x:170, y:172, type:'gorge', survey:'Upper narrows', lx:12, ly:-4, anchor:'start',
+    desc:'A rock gorge where the river is squeezed narrow. No ford.',
+    notes:[['obs','The river runs between rock walls; the gap is about four metres. No ford.'],
+           ['conj','It could be bridged with two long timbers.']] },
+  { id:'heath', x:300, y:222, type:'heath', survey:'High heath', lx:-10, ly:-12, anchor:'end',
+    desc:'Thin-soiled upland heath with stone outcrops.',
+    notes:[['obs','Thin soil and heather; grey stone outcrops that split cleanly.'],
+           ['conj','Poor ground for crops; better for sheep.']] },
+  { id:'pass', x:246, y:118, type:'pass', survey:'Ridge pass', lx:10, ly:-8, anchor:'start',
+    desc:'A wind-scoured saddle over the ridge.',
+    notes:[['obs','A saddle at about 300 metres; turf scoured bare by wind.'],
+           ['conj','Snow is likely to close it in deep winter.']] },
+  { id:'spring', x:186, y:90, type:'spring', survey:'Headwater spring', lx:-10, ly:-8, anchor:'end',
+    desc:'The clear spring that is the river’s source.',
+    notes:[['obs','A clear spring rises from the hillside: the river’s source.'],
+           ['conj','It flows all year (seen only in late summer).']] }
+]);
+
+var EDGES = deepFreeze([
+  { id:'e_cove_lowbank', a:'cove', b:'lowbank', terrain:'shore lowland', risk:'spring tides reach the low bank', hours:1,
+    pts:[[212,440],[186,424],[160,408],[138,384]] },
+  { id:'e_lowbank_ford', a:'lowbank', b:'ford', terrain:'east riverbank', risk:'flood exposure', hours:1,
+    pts:[[138,384],[150,352],[158,322],[150,300]] },
+  { id:'e_ford_valley', a:'ford', b:'valley', terrain:'over the rock shelf, then the lower meadow', risk:'impassable in spring high water', hours:1,
+    pts:[[150,300],[130,280],[110,255],[92,226]] },
+  { id:'e_cove_woods', a:'cove', b:'woods', terrain:'rising grassland', risk:'none recorded', hours:1.5,
+    pts:[[212,440],[226,400],[233,362],[236,330]] },
+  { id:'e_woods_narrows', a:'woods', b:'narrows', terrain:'oak and beech woodland', risk:'steep final climb', hours:2,
+    pts:[[236,330],[222,280],[200,226],[170,172]] },
+  { id:'e_narrows_valley', a:'narrows', b:'valley', terrain:'across the narrows gorge', risk:'needs a bridge: no ford', hours:1,
+    pts:[[170,172],[140,190],[112,205],[92,226]] },
+  { id:'e_cove_heath', a:'cove', b:'heath', terrain:'ridge spine climb', risk:'wind', hours:2.5,
+    pts:[[212,440],[268,410],[300,352],[312,282],[300,222]] },
+  { id:'e_heath_pass', a:'heath', b:'pass', terrain:'exposed upland', risk:'snow in deep winter', hours:1.5,
+    pts:[[300,222],[286,170],[246,118]] },
+  { id:'e_pass_spring', a:'pass', b:'spring', terrain:'above the river’s source', risk:'wind', hours:0.5,
+    pts:[[246,118],[216,100],[186,90]] },
+  { id:'e_spring_valley', a:'spring', b:'valley', terrain:'down the valley head', risk:'none recorded', hours:2,
+    pts:[[186,90],[140,120],[108,170],[92,226]] },
+  { id:'e_ford_narrows', a:'ford', b:'narrows', terrain:'higher east-bank ground', risk:'longer but dry', hours:1.5,
+    pts:[[150,300],[172,262],[180,216],[170,172]] },
+  { id:'e_lowbank_flats', a:'lowbank', b:'flats', terrain:'marsh edge', risk:'tidal', hours:0.5,
+    pts:[[138,384],[104,382],[70,386]] },
+  { id:'e_heath_woods', a:'heath', b:'woods', terrain:'heath down to the woods', risk:'none recorded', hours:1.5,
+    pts:[[300,222],[276,270],[236,330]] }
+]);
+
+var RIVER = deepFreeze([[186,90],[180,130],[170,172],[166,215],[160,258],[150,300],[132,330],[100,350],[62,358],[28,356]]);
+var COAST = deepFreeze([[170,482],[190,474],[200,452],[214,448],[226,456],[240,474],[276,468],[320,442],[352,396],[366,332],[360,262],[342,192],[312,122],[266,72],[206,50],[150,56],[104,86],[70,136],[48,200],[38,266],[30,326],[26,372],[52,414],[94,448],[134,472]]);
+
+var PEOPLE = deepFreeze({
+  marr:   { name:'Ysolde Marr',  role:'carter' },
+  tamsin: { name:'Tamsin Reed',  role:'eel fisher' },
+  oswin:  { name:'Oswin Hale',   role:'mason' },
+  bethan: { name:'Bethan Coyle', role:'orchard grower' },
+  ifan:   { name:'Ifan Dray',    role:'shepherd' },
+  wren:   { name:'Wren Oake',    role:'pathkeeper and woodward' },
+  mags:   { name:'Mags Pellow',  role:'teacher' },
+  hollis: { name:'Hollis Venn',  role:'harbour archivist' }
+});
+
+var LAYERS = deepFreeze([
+  { i:0, id:'L0', short:'Survey',        title:'The island without names', year:'Survey' },
+  { i:1, id:'L1', short:'First Edition', title:'The first ink',            year:'Year 0' },
+  { i:2, id:'L2', short:'Year 5',        title:'Five years afterward',     year:'Year 5' },
+  { i:3, id:'L3', short:'Year 15',       title:'Fifteen years afterward',  year:'Year 15' },
+  { i:4, id:'L4', short:'Year 30',       title:'Thirty years afterward',   year:'Year 30' }
+]);
+
+var OPTIONS = deepFreeze({
+  A: { title:'Decision A · The rock-shelf crossing', target:'ford',
+       prompt:'How will you label the river crossing?',
+       opts:[
+    { id:'A1', label:'Old Stone Ford', symbol:'ford',
+      ink:'A solid ford symbol. Readers will take it as a dependable crossing.',
+      basis:'True of late summer. Your survey never saw spring water.' },
+    { id:'A2', label:'Seasonal Crossing', symbol:'seasonal',
+      ink:'A ford symbol with a note: “closed in spring high water (inferred).” Readers will plan around a season.',
+      basis:'Prints your conjecture, and says that it is one.' },
+    { id:'A3', label:'Flood-Warning Reach', symbol:'warning',
+      ink:'Warning hatching across the shelf. Readers will keep away — perhaps more than the evidence demands.',
+      basis:'Treats the flood wrack as the whole story.' } ] },
+  B: { title:'Decision B · The sheltered valley', target:'valley',
+       prompt:'What will you call the valley, and what will the name promise?',
+       opts:[
+    { id:'B1', label:'Greenhaven', ink:'Promises shelter and plenty. It will draw settlers quickly and in numbers. It says nothing about where to build.',
+      basis:'The loam and shelter are real; the wet lower meadow is not mentioned.' },
+    { id:'B2', label:'Orchard Reach', ink:'Points to the wild crab apples on the south slope. It will draw growers, who plant uphill; slow to fill.',
+      basis:'The apples are real; a name for growers attracts few others.' },
+    { id:'B3', label:'Common Meadow', ink:'Frames the valley as shared grazing. It will draw herders and invite shared rules rather than fences.',
+      basis:'The meadow is real; the name suggests how to use it.' } ] },
+  C: { title:'Decision C · The recommended route', target:'route',
+       prompt:'Which way inland will you draw from the cove to the valley?',
+       opts:[
+    { id:'C1', label:'The Riverside Way', edges:['e_cove_lowbank','e_lowbank_ford','e_ford_valley'],
+      ink:'The shortest line: about 3 hours on foot along the low bank beside the tide flats, crossing at the rock shelf.',
+      basis:'Depends on the crossing and runs beside the flats.' },
+    { id:'C2', label:'The Woods Margin Way', edges:['e_cove_woods','e_woods_narrows','e_narrows_valley'],
+      ink:'About 4½ hours through the eastern woods to the upper narrows, which has no crossing yet (the survey measured a 4-metre span).',
+      basis:'Avoids the shelf; someone will have to bridge the narrows.' },
+    { id:'C3', label:'The High Ridge Way', edges:['e_cove_heath','e_heath_pass','e_pass_spring','e_spring_valley'],
+      ink:'About 6½ hours over the high heath and the ridge pass, round the river’s source. No river crossing, but exposed to wind.',
+      basis:'Never touches the river; long and high.' } ] }
+});
+
+function optById(id) {
+  var k = id.charAt(0); var list = OPTIONS[k].opts;
+  for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+  return null;
+}
+function routeName(ch) { return optById(ch.C).label; }
+
+/* ---------- Survey-fact roots (L0) ---------- */
+var SURVEY_EVENTS = [
+  { id:'S_COVE',    at:'cove',    title:'Survey: the cove is the only safe anchorage', text:'Deep, sheltered water on the south coast; no other safe anchorage on a full circuit.' },
+  { id:'S_FORD',    at:'ford',    title:'Survey: the rock shelf and its flood wrack', text:'A rock shelf knee-deep in late summer; flood wrack head-high in the alders; dry higher ground up the east bank.' },
+  { id:'S_VALLEY',  at:'valley',  title:'Survey: loam, apples and a wet lower meadow', text:'Dark loam, shelter from the north, crab apples on the south slope, sedge on the lower meadow.' },
+  { id:'S_FLATS',   at:'flats',   title:'Survey: tidal reed beds', text:'Reed beds with feeding waders; spring tides cover the flats to the low bank.' },
+  { id:'S_WOODS',   at:'woods',   title:'Survey: oak and beech woods', text:'Oak and beech along the eastern margin, with an easy grade toward the narrows.' },
+  { id:'S_NARROWS', at:'narrows', title:'Survey: a four-metre gorge', text:'No ford at the narrows, but a span short enough to bridge with timber.' },
+  { id:'S_HEATH',   at:'heath',   title:'Survey: thin heath and good stone', text:'Thin soil and heather; grey stone that splits cleanly.' },
+  { id:'S_RIDGE',   at:'pass',    title:'Survey: a wind-scoured pass', text:'A saddle at about 300 m, turf scoured by wind; winter snow likely.' }
+];
+
+/* ---------- Event templates (L2–L4) ---------- */
+function has(v) { var opts = Array.prototype.slice.call(arguments, 1); return opts.indexOf(v) >= 0; }
+function by(ch, key, map) { return map[ch[key]]; }
+function siteFor(ch) { return { C1:'lowbank', C2:'woods', C3:'heath' }[ch.C]; }
+function siteParent(ch) {
+  if (ch.C === 'C1') return ch.A === 'A2' ? ['E3_THE_WAIT', 'The Wait already offered a roof at the low bank.']
+                                          : ['E2_ROUTE_WALKED', 'The low bank lay on the worn road from the cove.'];
+  if (ch.C === 'C2') return ['E2_WOODS_HAMLET', 'Woodsend was the next settlement along the route.'];
+  return ['E2_HEATH_QUARRY', 'Greystone was the next settlement along the route.'];
+}
+function siteWords(ch) { return { C1:'the low bank', C2:'Woodsend', C3:'Greystone on the heath' }[ch.C]; }
+function mainRoadEdges(ch) {
+  if (ch.C === 'C1' && ch.A === 'A3') return ['e_cove_lowbank','e_lowbank_ford','e_ford_narrows','e_narrows_valley'];
+  return optById(ch.C).edges.slice();
+}
+
+var T = [
+  /* ===== Layer 2 · Year 5 ===== */
+  { id:'E2_LANDING', L:2, o:1, when:function(){return true;}, cls:'independent', at:'cove',
+    title:'Cove Landing founded',
+    text:'Fisher families from the mainland anchor in the south cove and stay. They call the place Cove Landing. Your chart showed the cove, but every pilot already knew it: it is the island’s only dependable anchorage.',
+    claim:'Settlement on the island began at the south cove.',
+    parents:function(){ return [['S_COVE','Deep, sheltered water is the only safe anchorage; anyone arriving by sea lands here, map or no map.']]; },
+    fx:function(){ return [['settle','cove','Cove Landing','fishing hamlet']]; } },
+
+  { id:'E2_ROUTE_WALKED', L:2, o:2, when:function(){return true;}, cls:'response', at:function(ch){ return ch.C==='C3'?'heath':ch.C==='C2'?'woods':'lowbank'; },
+    title:function(ch){ return (ch.C==='C1'&&ch.A==='A3') ? 'Your route is walked — as far as the warning' : 'A trail is worn along your route'; },
+    text:function(ch){
+      if (ch.C==='C1' && ch.A==='A3') return 'Newcomers walk the Riverside Way from the cove to the low bank exactly where your ink ran. There it stops: walkers reach your hatched warning and will not wade.';
+      return { C1:'Newcomers walk the Riverside Way exactly where your ink ran: along the low bank, over the rock shelf and into the valley. A trail is worn into the turf.',
+               C2:'Newcomers walk the Woods Margin Way through the oaks to the upper narrows. A trail is worn under the trees.',
+               C3:'Newcomers walk the High Ridge Way over the heath and the pass. The climb is long; most make it only once a season.' }[ch.C]; },
+    claim:'A trail was worn along the route recommended on the first edition.',
+    parents:function(ch){
+      var p = [['D_C','Newcomers carried the First Edition and walked the line you drew.'],
+               ['E2_LANDING','Everyone heading inland set out from the landing.']];
+      if (ch.C==='C1' && ch.A==='A3') p.push(['D_A','The warning hatched across the crossing made walkers stop at the low bank.']);
+      return p; },
+    fx:function(ch){
+      if (ch.C==='C1' && ch.A==='A3') return [['edge','e_cove_lowbank','trail'],['edge','e_lowbank_ford','trail']];
+      return optById(ch.C).edges.map(function(e){ return ['edge',e,'trail']; }); } },
+
+  { id:'E2_EAST_BANK_DETOUR', L:2, o:3, when:function(ch){ return ch.C==='C1' && ch.A==='A3'; }, cls:'community', at:'ford', who:'wren',
+    title:'A pathkeeper’s detour up the east bank',
+    text:'Rather than wade the reach you warned against, Wren Oake, a pathkeeper, scouts the higher east bank up to the upper narrows. Families follow her blazes: two extra hours, dry feet.',
+    claim:'Settlers scouted their own path up the east bank to the narrows.',
+    parents:function(){ return [['E2_ROUTE_WALKED','Walkers had stalled at the low bank, where your usable line ended.'],
+                                ['S_NARROWS','Your survey had recorded a bridgeable span at the narrows.']]; },
+    fx:function(){ return [['edge','e_ford_narrows','trail']]; } },
+
+  { id:'E2_VALLEY_SETTLED', L:2, o:4, when:function(){return true;}, cls:'response', at:'valley',
+    title:function(ch){ return by(ch,'B',{B1:'Greenhaven fills fast',B2:'Growers come to Orchard Reach',B3:'Herders graze Common Meadow'}); },
+    text:function(ch){ return by(ch,'B',{
+      B1:'Drawn by the name, eleven households arrive within five years and build quickly on the flat lower meadow by the river. They keep your name: Greenhaven.',
+      B2:'Four households of growers come for the apples your label pointed to. They graft onto the wild crab trees and build among them on the south slope. They keep your name: Orchard Reach.',
+      B3:'Six herding households settle at the valley’s edges and graze its floor in common, with no fences. They keep your name: Common Meadow.' }); },
+    claim:function(ch){ return by(ch,'B',{
+      B1:'Many households settled the valley quickly, on its lower meadow.',
+      B2:'Growers settled the valley’s south slope and planted orchards.',
+      B3:'Herders settled the valley and grazed it in common.' }); },
+    parents:function(ch){
+      var reason = by(ch,'B',{ B1:'A name promising shelter and plenty drew many settlers in a hurry.',
+                               B2:'A name about apples drew growers to the apple slope.',
+                               B3:'A name about shared grazing drew herders.' });
+      var p = [['D_B', reason]];
+      if (ch.C==='C1' && ch.A==='A3') p.push(['E2_EAST_BANK_DETOUR','They reached the valley by the settlers’ detour.']);
+      else p.push(['E2_ROUTE_WALKED','They reached the valley by the worn trail.']);
+      return p; },
+    fx:function(ch){ return by(ch,'B',{
+      B1:[['settle','valley','Greenhaven','village of 11 households, on the lower meadow']],
+      B2:[['settle','valley','Orchard Reach','hamlet of 4 households, on the south slope']],
+      B3:[['settle','valley','Common Meadow','hamlet of 6 households, at the meadow edges']] }); } },
+
+  { id:'E2_SPRING_STRANDING', L:2, o:5, when:function(ch){ return ch.A==='A1' && ch.C==='C1'; }, cls:'response', at:'ford',
+    title:'A cart lost at the Old Stone Ford',
+    text:'In the spring of Year 3 a supply cart drives onto the Old Stone Ford in snowmelt. The water is chest-high over the shelf. The carter, Ysolde Marr, swims out, but the cart and a season’s flour are lost.',
+    claim:'A cart was lost at the river crossing in spring high water.',
+    parents:function(){ return [['D_A','The label promised a dependable ford, so the carter did not test the water.'],
+                                ['E2_ROUTE_WALKED','The recommended route ran straight across the shelf.'],
+                                ['S_FORD','Spring high water was always real; the flood wrack showed it.']]; },
+    fx:function(){ return [['hazard','ford','Cart lost in spring high water, Year 3']]; } },
+
+  { id:'E2_FORD_MARR_NOTE', L:2, o:6, when:function(ch){ return ch.A==='A1' && ch.C==='C1'; }, cls:'correction', at:'ford', who:'marr',
+    title:'“Not a ford in spring”',
+    text:'Ysolde Marr writes across your ford symbol in brown ink: “Not a ford in spring. Go up the east bank to the narrows (+2 hrs).” Carters copy her note into their own charts.',
+    claim:'A carter corrected the crossing label after a spring loss.',
+    parents:function(){ return [['E2_SPRING_STRANDING','She learned it by losing a cart.']]; },
+    fx:function(){ return [['annot','ford','Not a ford in spring. Go up the east bank to the narrows (+2 hrs).'],['edge','e_ford_narrows','detour']]; } },
+
+  { id:'E2_SHORTCUT', L:2, o:5, when:function(ch){ return ch.A==='A1' && ch.C!=='C1'; }, cls:'response', at:'ford',
+    title:'A shortcut over the Old Stone Ford',
+    text:function(ch){ return 'Carters on ' + routeName(ch) + ' notice your confident “Old Stone Ford” and cut across it instead, saving hours. A shortcut trail appears along the low bank.'; },
+    claim:'Travellers began cutting across the river crossing as a shortcut.',
+    parents:function(){ return [['D_A','A confident ford symbol invited a shortcut.'],
+                                ['D_C','The recommended way was longer, so a shortcut was tempting.']]; },
+    fx:function(){ return [['edge','e_cove_lowbank','shortcut'],['edge','e_lowbank_ford','shortcut'],['edge','e_ford_valley','shortcut']]; } },
+
+  { id:'E2_WAITING_CAMP', L:2, o:5, when:function(ch){ return ch.A==='A2' && ch.C==='C1'; }, cls:'response', at:'lowbank',
+    title:'A waiting camp at the low bank',
+    text:'Because your chart said the crossing closes in spring, travellers time their journeys, and those caught by high water camp on the low bank to wait. Tamsin Reed, an eel fisher, starts selling smoked eel to the waiting carts.',
+    claim:'A waiting camp grew at the low bank for travellers held up by high water.',
+    parents:function(){ return [['D_A','The seasonal note told travellers to expect a closure and wait it out.'],
+                                ['D_C','Your road ran to the crossing, so the waiting happened at the low bank.'],
+                                ['S_FORD','High water really did close the shelf each spring.']]; },
+    fx:function(){ return [['settle','lowbank','waiting camp','seasonal camp']]; } },
+
+  { id:'E2_SUMMER_SHORTCUT', L:2, o:5, when:function(ch){ return ch.A==='A2' && ch.C!=='C1'; }, cls:'response', at:'ford',
+    title:'A summer-only shortcut',
+    text:function(ch){ return 'Carters on ' + routeName(ch) + ' use your Seasonal Crossing as a summer shortcut and leave it alone in spring, just as the note advised.'; },
+    claim:'Travellers used the river crossing only in summer.',
+    parents:function(){ return [['D_A','The note said when the crossing was safe.'],
+                                ['D_C','The longer recommended way made a summer shortcut worthwhile.']]; },
+    fx:function(){ return [['edge','e_cove_lowbank','seasonal'],['edge','e_lowbank_ford','seasonal'],['edge','e_ford_valley','seasonal']]; } },
+
+  { id:'E2_FORD_SHUNNED', L:2, o:5, when:function(ch){ return ch.A==='A3' && ch.C!=='C1'; }, cls:'response', at:'ford',
+    title:'Nobody crosses the warned reach',
+    text:'Nobody crosses at your Flood-Warning Reach. The low bank and the tide flats see almost no feet.',
+    claim:'For years, nobody used the river crossing at all.',
+    parents:function(){ return [['D_A','The warning hatching kept travellers away.'],
+                                ['D_C','The recommended way never needed the crossing.']]; },
+    fx:function(){ return [['edge','e_lowbank_ford','unused'],['eco','flats','undisturbed: no foot traffic']]; } },
+
+  { id:'E2_NARROWS_BRIDGE', L:2, o:7, when:function(ch){ return ch.C==='C2' || (ch.C==='C1' && ch.A!=='A2'); }, cls:'community', at:'narrows', who:'oswin',
+    title:'Two oaks across the narrows',
+    text:'There is no crossing at the upper narrows, so settlers fell two oaks across the four-metre gap. Oswin Hale, a mason, sets stone footings under them.',
+    claim:'Settlers built a log bridge at the upper narrows.',
+    parents:function(ch){
+      if (ch.C==='C2') return [['E2_ROUTE_WALKED','Your route reached the narrows, but your map drew no bridge there.'],
+                               ['S_NARROWS','The survey had measured a bridgeable span.']];
+      if (ch.A==='A1') return [['E2_FORD_MARR_NOTE','Marr’s spring detour ended at the narrows.'],
+                               ['S_NARROWS','The survey had measured a bridgeable span.']];
+      return [['E2_EAST_BANK_DETOUR','The pathkeeper’s detour ended at the narrows.'],
+              ['S_NARROWS','The survey had measured a bridgeable span.']]; },
+    fx:function(ch){ return [['bridge','narrows','log bridge on stone footings'],['edge','e_narrows_valley', (ch.C==='C1'&&ch.A==='A1') ? 'detour' : 'trail']]; } },
+
+  { id:'E2_HEATH_QUARRY', L:2, o:8, when:function(ch){ return ch.C==='C3'; }, cls:'response', at:'heath',
+    title:'Quarry families stop on the heath',
+    text:'Walkers on the High Ridge Way find clean grey stone outcropping on the heath. Three quarrying households stop there instead of going on. They call the place Greystone.',
+    claim:'Quarry families settled on the high heath.',
+    parents:function(){ return [['D_C','Your route led walkers across the heath.'],
+                                ['S_HEATH','The survey recorded good building stone there.']]; },
+    fx:function(){ return [['settle','heath','Greystone','quarry hamlet of 3 households']]; } },
+
+  { id:'E2_WOODS_HAMLET', L:2, o:8, when:function(ch){ return ch.C==='C2'; }, cls:'response', at:'woods',
+    title:'Woodsend',
+    text:'Woodcutters following the Woods Margin Way settle where the trail enters the oaks, and call the place Woodsend.',
+    claim:'Woodcutters settled where the route entered the woods.',
+    parents:function(){ return [['D_C','Your route brought traffic past the woods.'],
+                                ['S_WOODS','Oak and beech were recorded along the margin.']]; },
+    fx:function(){ return [['settle','woods','Woodsend','woodcutters’ hamlet']]; } },
+
+  /* ===== Layer 3 · Year 15 ===== */
+  { id:'E3_PASS_SNOW', L:3, o:1, when:function(){return true;}, cls:'independent', at:'pass',
+    title:'Snow closes the ridge pass',
+    text:function(ch){ return 'In the winter of Year 9, snow closes the ridge pass for a month.' + (ch.C==='C3' ? ' Two travellers on the High Ridge Way shelter in a sheepfold until it clears.' : ' No one’s road crosses it, so few notice.'); },
+    claim:'Snow closed the ridge pass for a month in the winter of Year 9.',
+    parents:function(){ return [['S_RIDGE','The survey had noted wind scour and probable winter snow at the pass.']]; },
+    fx:function(){ return [['hazard','pass','Snow-closed for a month, winter of Year 9']]; } },
+
+  { id:'E3_GREAT_FLOOD', L:3, o:2, when:function(){return true;}, cls:'independent', at:'ford',
+    title:'The Great Flood of Year 11',
+    text:'Year 11 brings the highest water anyone on the island has seen. The river runs over the rock shelf for five weeks and the tide flats flood up to the low bank. No chart caused it, and none could have stopped it.',
+    claim:'A great flood covered the river crossing for five weeks in Year 11.',
+    parents:function(){ return [['S_FORD','Flood wrack in the alders showed the river could rise this high.'],
+                                ['S_FLATS','The flats were already known to flood on spring tides.']]; },
+    fx:function(){ return [['hazard','ford','River over the shelf for five weeks, Year 11'],['hazard','flats','Flooded to the low bank, Year 11']]; } },
+
+  { id:'E3_FLOCK_LOST', L:3, o:3, when:function(ch){ return ch.A==='A1' && ch.C!=='C1'; }, cls:'response', at:'ford', who:'ifan',
+    title:'A flock lost at the ford',
+    text:'Ifan Dray, a shepherd, drives forty ewes across the Old Stone Ford as the water rises, trusting the symbol. The flood takes most of the flock down to the flats.',
+    claim:'A shepherd lost a flock crossing the river during the flood.',
+    parents:function(){ return [['E2_SHORTCUT','Using the ford as a shortcut had become a habit.'],
+                                ['E3_GREAT_FLOOD','The flood made the shelf deadly.']]; },
+    fx:function(){ return [['hazard','ford','Flock swept away, Year 11']]; } },
+
+  { id:'E3_SUMMER_ONLY_POLES', L:3, o:4, when:function(ch){ return ch.A==='A1' && ch.C!=='C1'; }, cls:'correction', at:'ford', who:'ifan',
+    title:'“Summer only” — the flood poles',
+    text:'Ifan Dray sets marker poles at the shelf, painted at the flood’s height, and writes on the chart: “Summer only. If the water touches the red band, go round.”',
+    claim:'A shepherd marked the crossing “summer only” with flood poles.',
+    parents:function(){ return [['E3_FLOCK_LOST','He learned the river’s real limit the hard way.']]; },
+    fx:function(){ return [['annot','ford','Summer only. If the water touches the red band, go round.'],['edge','e_cove_lowbank','seasonal'],['edge','e_lowbank_ford','seasonal'],['edge','e_ford_valley','seasonal']]; } },
+
+  { id:'E3_MARR_BRIDGE', L:3, o:3, when:function(ch){ return ch.A==='A1' && ch.C==='C1'; }, cls:'community', at:'ford', who:'oswin',
+    title:'Marr’s Bridge',
+    text:'After the flood, Oswin Hale and the carters raise a timber bridge on stone piers above the flood line at the rock shelf. They name it Marr’s Bridge, after the carter who first wrote the truth on the chart.',
+    claim:'Settlers built a bridge above the flood line at the river crossing.',
+    parents:function(){ return [['E2_FORD_MARR_NOTE','Marr’s note had made the spring danger common knowledge.'],
+                                ['E3_GREAT_FLOOD','Five weeks cut off convinced everyone the crossing needed a bridge.']]; },
+    fx:function(){ return [['bridge','ford','timber bridge on stone piers'],['name','ford','Marr’s Bridge'],['edge','e_ford_valley','trail'],['edge','e_ford_narrows','unused']]; } },
+
+  { id:'E3_THE_WAIT', L:3, o:3, when:function(ch){ return ch.A==='A2' && ch.C==='C1'; }, cls:'community', at:'lowbank', who:'tamsin',
+    title:'The Wait',
+    text:'During the five-week flood, forty travellers sit it out at the low-bank camp. Tamsin Reed roofs her smokehouse and turns it into an inn. Everyone calls it The Wait.',
+    claim:'An inn called The Wait opened at the low bank.',
+    parents:function(){ return [['E2_WAITING_CAMP','The camp already existed because travellers planned to wait.'],
+                                ['E3_GREAT_FLOOD','The long flood held travellers for weeks.']]; },
+    fx:function(){ return [['settle','lowbank','The Wait','inn and a handful of houses'],['inst','The Wait (inn)','lowbank']]; } },
+
+  { id:'E3_SEASON_CONFIRMED', L:3, o:4, when:function(ch){ return ch.A==='A2'; }, cls:'correction', at:'ford', who:'marr',
+    title:'“True — watch the alder line”',
+    text:'Ysolde Marr, a carter, adds beside your note: “True. Closed five weeks in Year 11. When water reaches the alder roots, wait.” She sharpens your warning with a landmark anyone can see.',
+    claim:'A carter confirmed the crossing’s seasonal note and sharpened it with a landmark.',
+    parents:function(){ return [['D_A','Your note had promised a spring closure.'],
+                                ['E3_GREAT_FLOOD','The flood tested the note.']]; },
+    fx:function(){ return [['annot','ford','True. Closed five weeks in Year 11. When water reaches the alder roots, wait.']]; } },
+
+  { id:'E3_WARNING_AMENDED', L:3, o:3, when:function(ch){ return ch.A==='A3'; }, cls:'correction', at:'ford', who:'tamsin',
+    title:'“Knee-deep in August”',
+    text:'Tamsin Reed, a fisher, has waded the reach every late summer for a decade. She writes beside your hatching: “Knee-deep in August and September, and safe then. The warning is right for spring only.”',
+    claim:'A fisher corrected the crossing warning: it is safe in late summer.',
+    parents:function(ch){
+      var p = [['D_A','She was testing the claim your warning hatching made.'],
+               ['S_FORD','Late-summer low water had been observed in your own survey.']];
+      if (ch.C!=='C1') p.push(['E2_FORD_SHUNNED','Because everyone else avoided the reach, nobody had tested it.']);
+      return p; },
+    fx:function(ch){ var f = [['annot','ford','Knee-deep in August and September, and safe then. The warning is right for spring only.']];
+      if (ch.C!=='C1') f.push(['edge','e_cove_lowbank','seasonal'],['edge','e_lowbank_ford','seasonal']);
+      return f; } },
+
+  { id:'E3_REEDBEDS_SPREAD', L:3, o:5, when:function(ch){ return ch.A==='A3' && ch.C!=='C1'; }, cls:'response', at:'flats',
+    title:'Reed beds spread to the low bank',
+    text:'Left alone, the reed beds spread up to the low bank, and wading birds nest there in numbers.',
+    claim:'Reed beds spread up to the undisturbed low bank.',
+    parents:function(){ return [['E2_FORD_SHUNNED','With no traffic, the bank stayed undisturbed.']]; },
+    fx:function(){ return [['eco','flats','reed beds spread to the low bank; waders nesting']]; } },
+
+  { id:'E3_LOWER_MEADOW_FLOODED', L:3, o:6, when:function(ch){ return ch.B==='B1'; }, cls:'response', at:'valley',
+    title:'Greenhaven’s lower meadow under water',
+    text:'The flood fills Greenhaven’s lower meadow. Seven of its houses stand in water for a month.',
+    claim:'Houses on the valley’s lower meadow were flooded.',
+    parents:function(){ return [['E2_VALLEY_SETTLED','Families drawn quickly by the name had built on the flat ground nearest the river.'],
+                                ['E3_GREAT_FLOOD','The river rose over the lower meadow.']]; },
+    fx:function(){ return [['hazard','valley','Lower meadow houses flooded, Year 11']]; } },
+
+  { id:'E3_ABOVE_ALDERS', L:3, o:7, when:function(ch){ return ch.B==='B1'; }, cls:'correction', at:'valley', who:'oswin',
+    title:'“Build above the alders”',
+    text:'Oswin Hale writes on the valley: “Lower meadow floods. Build above the alders.” Greenhaven rebuilds on the west slope, and the lower meadow becomes hay fields.',
+    claim:'A mason corrected the valley on the map: build above the flood line.',
+    parents:function(){ return [['E3_LOWER_MEADOW_FLOODED','The flood showed where it was safe to build.']]; },
+    fx:function(){ return [['annot','valley','Lower meadow floods. Build above the alders.'],['settle','valley','Greenhaven','village of 14 households, rebuilt on the west slope']]; } },
+
+  { id:'E3_ORCHARD_SPARED', L:3, o:6, when:function(ch){ return ch.B==='B2'; }, cls:'response', at:'valley',
+    title:'The flood stops below the orchards',
+    text:'The flood reaches the foot of the slope but not Orchard Reach: growers who came for the apples had built among them, uphill. The first cider is pressed that autumn.',
+    claim:'The valley’s orchard houses escaped the flood because they stood uphill.',
+    parents:function(){ return [['E2_VALLEY_SETTLED','Settlers chose the apple slope because your label pointed them there.'],
+                                ['E3_GREAT_FLOOD','The flood tested where they had built.']]; },
+    fx:function(){ return [['settle','valley','Orchard Reach','hamlet of 9 households among the orchards'],['eco','valley','grafted orchards on the south slope']]; } },
+
+  { id:'E3_REACH_TOO_SMALL', L:3, o:7, when:function(ch){ return ch.B==='B2'; }, cls:'response', at:'valley', who:'mags',
+    title:'Too small for a school',
+    text:'With only nine households, Orchard Reach cannot keep a teacher. Mags Pellow walks the valley children down to lessons at Cove Landing.',
+    claim:'The valley was too small to keep its own school.',
+    parents:function(){ return [['E2_VALLEY_SETTLED','The orchard label drew few settlers, so the valley grew slowly.']]; },
+    fx:function(){ return []; } },
+
+  { id:'E3_MEADOW_MOOT', L:3, o:6, when:function(ch){ return ch.B==='B3'; }, cls:'community', at:'valley', who:'ifan',
+    title:'The Meadow Moot',
+    text:'Herders meet each spring to agree how many beasts each household may graze. They call the gathering the Meadow Moot, and Ifan Dray writes its first rules on the back of your map.',
+    claim:'Herders formed a council to share the valley grazing.',
+    parents:function(){ return [['E2_VALLEY_SETTLED','A name that framed the valley as shared ground invited shared rules.']]; },
+    fx:function(){ return [['inst','Meadow Moot (grazing council)','valley'],['settle','valley','Common Meadow','hamlet of 10 households around the commons']]; } },
+
+  { id:'E3_SCHOOL_VALLEY', L:3, o:8, when:function(ch){ return ch.B!=='B2'; }, cls:'community', at:'valley', who:'mags',
+    title:function(ch){ return ch.B==='B1' ? 'Greenhaven School' : 'Common Meadow School'; },
+    text:function(ch){ return ch.B==='B1' ? 'Greenhaven is now big enough for a schoolroom. Mags Pellow opens Greenhaven School in the rebuilt upper village.'
+                                         : 'The Moot gives its hall to Mags Pellow for a school. It becomes Common Meadow School.'; },
+    claim:'The valley opened its own school.',
+    parents:function(ch){ return ch.B==='B1'
+      ? [['E2_VALLEY_SETTLED','Rapid settlement had filled the valley with children.'],['E3_ABOVE_ALDERS','The school was built on the safe upper slope.']]
+      : [['E3_MEADOW_MOOT','The Moot had a hall and a habit of deciding things together.']]; },
+    fx:function(ch){ return [['inst', ch.B==='B1' ? 'Greenhaven School' : 'Common Meadow School', 'valley']]; } },
+
+  { id:'E3_FLATS_RUTTED', L:3, o:9, when:function(ch){ return ch.C==='C1'; }, cls:'response', at:'flats',
+    title:'Ruts along the reed margin',
+    text:'Carts on the Riverside Way cut ruts along the reed margin of the flats, where your line ran close to the water.',
+    claim:'Cart ruts cut into the reed margin of the tide flats.',
+    parents:function(){ return [['D_C','Your route hugged the low bank beside the flats.'],
+                                ['E2_ROUTE_WALKED','Traffic wore the line into ruts.']]; },
+    fx:function(){ return [['eco','flats','cart ruts along the reed margin']]; } },
+
+  { id:'E3_COPPICE', L:3, o:9, when:function(ch){ return ch.C==='C2'; }, cls:'community', at:'woods', who:'wren',
+    title:'A coppice rotation',
+    text:'Woodsend has cleared a wide swathe along the route. Wren Oake, now the woodward, sets a rule: cut one stand in seven each year and let the stumps regrow.',
+    claim:'The woodward introduced a coppice rotation in the woods.',
+    parents:function(){ return [['E2_WOODS_HAMLET','The woodcutters’ trade thinned the margin your route opened.']]; },
+    fx:function(){ return [['inst','Coppice rotation','woods'],['eco','woods','cleared swathe now cut in rotation']]; } },
+
+  { id:'E3_PASS_HUT', L:3, o:9, when:function(ch){ return ch.C==='C3'; }, cls:'correction', at:'pass', who:'wren',
+    title:'A winter rule for the pass',
+    text:'Wren Oake builds a stone refuge hut below the pass and writes on the chart: “Pass shut in deep winter. Do not start the climb after the first snow; shelter at the hut.”',
+    claim:'A pathkeeper corrected the ridge route with a winter warning and built a hut.',
+    parents:function(){ return [['E3_PASS_SNOW','The month-long closure showed the route’s limit.'],
+                                ['D_C','Your route sent travellers over the pass in every season.']]; },
+    fx:function(){ return [['annot','pass','Pass shut in deep winter. Do not start the climb after the first snow; shelter at the hut.'],['inst','Refuge hut','pass']]; } },
+
+  { id:'E3_STONE_TRADE', L:3, o:10, when:function(ch){ return ch.C==='C3'; }, cls:'response', at:'heath',
+    title:'Stone goes down to the cove',
+    text:'Greystone stone goes down the ridge path by pony to Cove Landing.',
+    claim:'Stone from the heath was carried down to the cove.',
+    parents:function(){ return [['E2_HEATH_QUARRY','The quarry existed because your route crossed the heath.']]; },
+    fx:function(){ return [['settle','heath','Greystone','quarry hamlet of 6 households']]; } },
+
+  /* ===== Layer 4 · Year 30 ===== */
+  { id:'E4_SANDBAR', L:4, o:1, when:function(){return true;}, cls:'independent', at:'flats',
+    title:'A sand bar across the river mouth',
+    text:'A winter storm in Year 27 throws up a sand bar across the mouth of the tide flats. The flats turn brackish and the eel run shifts north.',
+    claim:'A storm built a sand bar across the mouth of the tide flats.',
+    parents:function(){ return [['S_FLATS','The river mouth lay open to the westerly storms.']]; },
+    fx:function(){ return [['hazard','flats','Sand bar across the mouth, Year 27']]; } },
+
+  { id:'E4_OVERFLOW', L:4, o:2, when:function(ch){ return ch.B==='B1'; }, cls:'response', at:function(ch){ return siteFor(ch); },
+    title:'Greenhaven overflows',
+    text:function(ch){ return 'Greenhaven’s slope is full. Young families move out to ' + siteWords(ch) + ', the next settlement on the route your map drew.'; },
+    claim:'Families overflowing from the valley settled along the route.',
+    parents:function(ch){ return [['E3_ABOVE_ALDERS','Rebuilding on the slope left little room.'],
+                                  ['E2_VALLEY_SETTLED','The name had drawn more people than the slope could hold.'],
+                                  siteParent(ch)]; },
+    fx:function(ch){ var s = siteFor(ch);
+      return [['settle', s, ch.C==='C1' ? (ch.A==='A2' ? 'The Wait' : 'Lowbank') : null, 'village (grown with families from the valley)']]; } },
+
+  { id:'E4_PRESSING_DAY', L:4, o:2, when:function(ch){ return ch.B==='B2'; }, cls:'community', at:'valley', who:'bethan',
+    title:'Pressing Day',
+    text:function(ch){ return 'Bethan Coyle, the eldest grower, starts Pressing Day: every household brings apples to one shared press. The cider goes down to Cove Landing ' + (ch.C==='C3' ? 'by pony over the ridge, slowly.' : 'by cart.'); },
+    claim:'Growers began a shared pressing day for the harvest.',
+    parents:function(ch){ var p = [['E3_ORCHARD_SPARED','The orchards survived the flood and fruited.']];
+      if (ch.C==='C3') p.push(['D_C','The long ridge route made carting hard, so cider went by pony.']);
+      return p; },
+    fx:function(){ return [['inst','Pressing Day','valley']]; } },
+
+  { id:'E4_SCHOOL_COVE', L:4, o:3, when:function(ch){ return ch.B==='B2'; }, cls:'community', at:'cove', who:'mags',
+    title:'Cove School',
+    text:'Mags Pellow’s walking lessons become Cove School, at the landing.',
+    claim:'The island’s school opened at the cove, not in the valley.',
+    parents:function(){ return [['E3_REACH_TOO_SMALL','Valley children were already coming to the cove for lessons.'],
+                                ['E2_LANDING','The landing was the island’s largest settlement.']]; },
+    fx:function(){ return [['inst','Cove School','cove']]; } },
+
+  { id:'E4_GRAZING_RATIONED', L:4, o:2, when:function(ch){ return ch.B==='B3'; }, cls:'community', at:function(ch){ return siteFor(ch); }, who:'ifan',
+    title:'The Moot rations the grass',
+    text:function(ch){ return 'The commons cannot feed every herd. The Moot rations grazing, and three young households leave to farm at ' + siteWords(ch) + '.'; },
+    claim:'The grazing council rationed the commons, and some families moved away.',
+    parents:function(ch){ return [['E3_MEADOW_MOOT','The Moot had the authority to share, and limit, the grass.'], siteParent(ch)]; },
+    fx:function(ch){ var s = siteFor(ch);
+      return [['settle', s, ch.C==='C1' ? (ch.A==='A2' ? 'The Wait' : 'Lowbank') : null, 'hamlet (grown with families from the commons)']]; } },
+
+  { id:'E4_THE_SEASON', L:4, o:4, when:function(ch){ return ch.A==='A2'; }, cls:'community', at:'ford',
+    title:'“Is the Season open?”',
+    text:'Locals now call the crossing simply “the Season”. “Is the Season open?” is the first question of every spring.',
+    claim:'Locals nicknamed the crossing after its seasonal label.',
+    parents:function(){ return [['E3_SEASON_CONFIRMED','The confirmed note made the closure part of daily speech.']]; },
+    fx:function(){ return [['name','ford','the Season']]; } },
+
+  { id:'E4_WADERS_HALVED', L:4, o:5, when:function(ch){ return ch.C==='C1'; }, cls:'response', at:'flats', who:'tamsin',
+    title:'Half the waders',
+    text:'Tamsin Reed’s spring count of nesting waders on the flats is half what it was in Year 5.',
+    claim:'Nesting waders on the tide flats halved.',
+    parents:function(){ return [['E3_FLATS_RUTTED','Ruts and traffic along the margin disturbed the nesting ground.']]; },
+    fx:function(){ return [['eco','flats','nesting waders halved since Year 5']]; } },
+
+  { id:'E4_REED_MARGIN_NOTE', L:4, o:6, when:function(ch){ return ch.C==='C1'; }, cls:'correction', at:'lowbank', who:'tamsin',
+    title:'The road moves inland',
+    text:'Tamsin Reed redraws the road twenty paces inland on the chart: “Keep carts off the reed margin, April to June.” The carters move their road.',
+    claim:'A fisher moved the riverside road inland to protect nesting birds.',
+    parents:function(){ return [['E4_WADERS_HALVED','Her count showed the cost of a road beside the water.']]; },
+    fx:function(){ return [['annot','lowbank','Keep carts off the reed margin, April to June.'],['realign','e_cove_lowbank','moved twenty paces inland']]; } },
+
+  { id:'E4_WOODS_REGROW', L:4, o:5, when:function(ch){ return ch.C==='C2'; }, cls:'community', at:'woods',
+    title:'The woods grow back',
+    text:'Under the rotation, the cut stands regrow thickly. Bluebells and deer return to the woods margin.',
+    claim:'The woods margin regrew under the rotation.',
+    parents:function(){ return [['E3_COPPICE','The rotation let the stumps regrow.']]; },
+    fx:function(){ return [['eco','woods','coppice regrown; bluebells and deer returned']]; } },
+
+  { id:'E4_HARBOUR_WALL', L:4, o:5, when:function(ch){ return ch.C==='C3'; }, cls:'response', at:'cove',
+    title:'A harbour wall of heath stone',
+    text:'Greystone stone builds a harbour wall at Cove Landing.',
+    claim:'Heath stone built the cove’s harbour wall.',
+    parents:function(){ return [['E3_STONE_TRADE','Stone had been coming down from the heath for years.']]; },
+    fx:function(){ return [['inst','Harbour wall','cove']]; } },
+
+  { id:'E4_MAIN_ROAD', L:4, o:9, when:function(){return true;}, cls:function(ch){ return (ch.C==='C1'&&ch.A==='A3') ? 'community' : 'response'; },
+    at:function(ch){ return (ch.C==='C1'&&ch.A==='A3') ? 'narrows' : siteFor(ch); },
+    title:function(ch){ return (ch.C==='C1'&&ch.A==='A3') ? 'Wren’s Way becomes the main road' : 'Your route becomes the main road'; },
+    text:function(ch){
+      if (ch.C==='C1' && ch.A==='A1') return 'The Riverside Way, over Marr’s Bridge, is laid with stone and becomes the island’s main road.';
+      if (ch.C==='C1' && ch.A==='A2') return 'The Riverside Way is the island’s main road, with a spring halt at The Wait.';
+      if (ch.C==='C1') return 'The main road follows Wren Oake’s east-bank detour to the narrows bridge, not your line beyond the low bank. People call it Wren’s Way.';
+      if (ch.C==='C2') return 'The Woods Margin Way, over the narrows bridge, is laid with stone and becomes the island’s main road.';
+      return 'The High Ridge Way stays the main road for stone and wool, but valley folk walk it only in summer and call it the Long Way.'; },
+    claim:function(ch){ return (ch.C==='C1'&&ch.A==='A3') ? 'The main road follows the settlers’ detour, not the recommended riverside line.'
+                                                         : 'The recommended route became the island’s main road.'; },
+    parents:function(ch){
+      if (ch.C==='C1' && ch.A==='A1') return [['E2_ROUTE_WALKED','Traffic had worn your line for decades.'],['E3_MARR_BRIDGE','The bridge made the riverside line usable all year.']];
+      if (ch.C==='C1' && ch.A==='A2') return [['E2_ROUTE_WALKED','Traffic had worn your line for decades.'],['E3_THE_WAIT','The Wait gave the road its spring halt.']];
+      if (ch.C==='C1') return [['E2_EAST_BANK_DETOUR','The settlers’ detour was the way people actually walked.'],['E2_NARROWS_BRIDGE','The narrows bridge completed it.']];
+      if (ch.C==='C2') return [['E2_ROUTE_WALKED','Traffic had worn your line for decades.'],['E2_NARROWS_BRIDGE','The bridge settlers built completed your route.']];
+      return [['E2_ROUTE_WALKED','Traffic had worn your line for decades.'],['E3_PASS_HUT','The hut and the winter rule made the pass usable.']]; },
+    fx:function(ch){
+      var f = mainRoadEdges(ch).map(function(e){ return ['edge', e, 'road']; });
+      if (ch.C==='C1' && ch.A==='A3') f.push(['name','route','Wren’s Way']);
+      if (ch.C==='C3') f.push(['name','route','the Long Way']);
+      return f; } }
+];
+
+/* ---------- Simulation ---------- */
+function choiceKey(ch) { return ch.A + ch.B + ch.C; }
+function validChoice(ch) { return !!(ch && optById(ch.A||'X0') && optById(ch.B||'X0') && optById(ch.C||'X0') &&
+  ch.A.charAt(0)==='A' && ch.B.charAt(0)==='B' && ch.C.charAt(0)==='C'); }
+function resolve(v, ch) { return typeof v === 'function' ? v(ch) : v; }
+
+function simulate(choice) {
+  var ch = { A:choice.A, B:choice.B, C:choice.C };
+  if (!validChoice(ch)) throw new Error('Invalid choice ' + JSON.stringify(choice));
+  var events = [];
+  SURVEY_EVENTS.forEach(function (s, i) {
+    events.push({ id:s.id, layer:0, ord:i+1, cls:'survey', at:s.at, who:null, title:s.title, text:s.text, claim:null, parents:[], fx:[] });
+  });
+  var a = optById(ch.A), b = optById(ch.B), c = optById(ch.C);
+  events.push({ id:'D_A', layer:1, ord:1, cls:'cartographer', at:'ford', who:null,
+    title:'Your label: “' + a.label + '”', text:'You labelled the rock-shelf crossing “' + a.label + '”. ' + a.ink, claim:null, parents:[],
+    fx:[['label','ford',a.label]] });
+  events.push({ id:'D_B', layer:1, ord:2, cls:'cartographer', at:'valley', who:null,
+    title:'Your label: “' + b.label + '”', text:'You named the sheltered valley “' + b.label + '”. ' + b.ink, claim:null, parents:[],
+    fx:[['label','valley',b.label]] });
+  events.push({ id:'D_C', layer:1, ord:3, cls:'cartographer', at:'cove', who:null,
+    title:'Your route: ' + c.label, text:'You drew ' + c.label + ' from the cove to the valley. ' + c.ink, claim:null, parents:[],
+    fx:[['route', c.id]] });
+  T.forEach(function (t) {
+    if (!t.when(ch)) return;
+    events.push({ id:t.id, layer:t.L, ord:t.o, cls:resolve(t.cls, ch), at:resolve(t.at, ch), who:t.who || null,
+      title:resolve(t.title, ch), text:resolve(t.text, ch), claim:resolve(t.claim, ch),
+      parents:t.parents(ch).map(function (p) { return { id:p[0], reason:p[1] }; }),
+      fx:t.fx(ch) });
+  });
+  events.sort(function (x, y) { return x.layer - y.layer || x.ord - y.ord || (x.id < y.id ? -1 : 1); });
+  var byId = {};
+  events.forEach(function (e, i) { e.seq = i; byId[e.id] = e; });
+  return { choice:ch, key:choiceKey(ch), events:events, byId:byId };
+}
+
+function emptyState(layer) {
+  return { layer:layer, labels:{}, names:{}, route:null, routeEdges:[], edges:{}, realigned:{}, settlements:{}, bridges:{},
+           annotations:[], institutions:[], eco:{}, hazards:[], eventIds:[] };
+}
+
+function stateAt(sim, layer) {
+  var s = emptyState(layer);
+  sim.events.forEach(function (e) {
+    if (e.layer > layer) return;
+    s.eventIds.push(e.id);
+    e.fx.forEach(function (op) {
+      switch (op[0]) {
+        case 'label': s.labels[op[1]] = op[2]; s.names[op[1]] = op[2]; break;
+        case 'route': s.route = op[1]; s.routeEdges = optById(op[1]).edges.slice(); s.names.route = optById(op[1]).label; break;
+        case 'edge': s.edges[op[1]] = op[2]; break;
+        case 'realign': s.realigned[op[1]] = op[2]; break;
+        case 'settle':
+          var prev = s.settlements[op[1]];
+          s.settlements[op[1]] = { name: op[2] || (prev && prev.name) || op[1], size: op[3], since: prev ? prev.since : e.layer, by: e.id };
+          s.names[op[1]] = s.settlements[op[1]].name;
+          break;
+        case 'name': s.names[op[1]] = op[2]; break;
+        case 'bridge': s.bridges[op[1]] = { kind: op[2], by: e.id }; break;
+        case 'annot': s.annotations.push({ id:'N_' + e.id, n: s.annotations.length + 1, target: op[1], text: op[2], who: e.who, by: e.id, layer: e.layer }); break;
+        case 'inst': s.institutions.push({ name: op[1], at: op[2], by: e.id }); break;
+        case 'eco': s.eco[op[1]] = { text: op[2], by: e.id }; break;
+        case 'hazard': s.hazards.push({ at: op[1], text: op[2], by: e.id }); break;
+        default: throw new Error('Unknown op ' + op[0]);
+      }
+    });
+  });
+  return s;
+}
+
+/* ---------- Provenance ---------- */
+function ancestry(sim, id) {
+  var seen = {}, links = [], order = [];
+  (function walk(eid) {
+    var e = sim.byId[eid]; if (!e) return;
+    e.parents.forEach(function (p) {
+      links.push({ child: eid, parent: p.id, reason: p.reason });
+      if (!seen[p.id]) { seen[p.id] = true; order.push(p.id); walk(p.id); }
+    });
+  })(id);
+  return { ids: order, links: links };
+}
+function decisionRoots(sim, id) {
+  return ancestry(sim, id).ids.filter(function (x) { return sim.byId[x] && sim.byId[x].cls === 'cartographer'; }).sort();
+}
+function surveyRoots(sim, id) {
+  return ancestry(sim, id).ids.filter(function (x) { return sim.byId[x] && sim.byId[x].cls === 'survey'; }).sort();
+}
+function category(sim, id) {
+  var e = sim.byId[id]; var dr = decisionRoots(sim, id).length > 0;
+  switch (e.cls) {
+    case 'survey': return { key:'survey', label:'Survey fact' };
+    case 'cartographer': return { key:'cartographer', label:'Your first-edition choice' };
+    case 'response': return { key:'influenced', label:'Cartographer-influenced' };
+    case 'independent': return { key:'independent', label:'Independent of the map' };
+    case 'correction': return { key:'corrected', label:'Community correction' };
+    case 'community': return dr ? { key:'mixed', label:'Mixed: community decision shaped by the map' }
+                                : { key:'community', label:'Community initiative' };
+  }
+  return { key:'unknown', label:'Unknown' };
+}
+/* shortest path from the event up to a root, preferring a cartographer root */
+function onePath(sim, id) {
+  var queue = [[id]], seen = {}; seen[id] = true; var fallback = null;
+  while (queue.length) {
+    var path = queue.shift(); var cur = sim.byId[path[path.length - 1]];
+    if (cur.cls === 'cartographer') return path.slice().reverse();
+    if (!cur.parents.length && !fallback) fallback = path.slice().reverse();
+    cur.parents.forEach(function (p) { if (!seen[p.id]) { seen[p.id] = true; queue.push(path.concat([p.id])); } });
+  }
+  return fallback || [id];
+}
+function reasonFor(sim, child, parent) {
+  var e = sim.byId[child]; for (var i = 0; i < e.parents.length; i++) if (e.parents[i].id === parent) return e.parents[i].reason;
+  return '';
+}
+/* ---------- Describing changes ---------- */
+var STATUS_WORDS = { proposed:'proposed on the first edition', trail:'worn trail', road:'stone road', shortcut:'shortcut trail',
+  seasonal:'seasonal path (summer only)', detour:'spring detour', unused:'unused' };
+function nodeById(id) { for (var i = 0; i < NODES.length; i++) if (NODES[i].id === id) return NODES[i]; return null; }
+function edgeById(id) { for (var i = 0; i < EDGES.length; i++) if (EDGES[i].id === id) return EDGES[i]; return null; }
+function edgeName(id) { var e = edgeById(id); return nodeById(e.a).survey + ' → ' + nodeById(e.b).survey; }
+function describeFx(op) {
+  switch (op[0]) {
+    case 'label': return 'First edition labels ' + nodeById(op[1]).survey + ' “' + op[2] + '”.';
+    case 'route': return 'First edition recommends ' + optById(op[1]).label + '.';
+    case 'edge': return edgeName(op[1]) + ': now ' + STATUS_WORDS[op[2]] + '.';
+    case 'realign': return edgeName(op[1]) + ': ' + op[2] + '.';
+    case 'settle': return nodeById(op[1]).survey + ': settlement' + (op[2] ? ' “' + op[2] + '”' : '') + ' (' + op[3] + ').';
+    case 'name': return (op[1] === 'route' ? 'The main road' : nodeById(op[1]).survey) + ' is now called “' + op[2] + '”.';
+    case 'bridge': return nodeById(op[1]).survey + ': ' + op[2] + '.';
+    case 'annot': return 'Annotation written at ' + nodeById(op[1]).survey + '.';
+    case 'inst': return 'New institution: ' + op[1] + '.';
+    case 'eco': return nodeById(op[1]).survey + ' ecology: ' + op[2] + '.';
+    case 'hazard': return nodeById(op[1]).survey + ' hazard recorded: ' + op[2] + '.';
+  }
+  return '';
+}
+
+/* ---------- Comparison ---------- */
+function signature(sim) {
+  var s = stateAt(sim, 4);
+  var o = {
+    names: s.names,
+    settlements: Object.keys(s.settlements).sort().map(function (k) { return k + ':' + s.settlements[k].name + ':' + s.settlements[k].size; }),
+    edges: Object.keys(s.edges).sort().map(function (k) { return k + ':' + s.edges[k]; }),
+    bridges: Object.keys(s.bridges).sort(),
+    institutions: s.institutions.map(function (i) { return i.name; }).sort(),
+    annotations: s.annotations.map(function (a) { return a.target + ':' + a.who; }).sort(),
+    eco: Object.keys(s.eco).sort().map(function (k) { return k + ':' + s.eco[k].text; })
+  };
+  return JSON.stringify(o);
+}
+function flatFacts(s) {
+  var f = {};
+  ['ford','valley','route'].forEach(function (k) { if (s.labels[k]) f['First-edition label · ' + (k==='route'?'route':nodeById(k).survey)] = s.labels[k]; });
+  if (s.route) f['Recommended route'] = optById(s.route).label;
+  Object.keys(s.names).forEach(function (k) { f['Name in use · ' + (k === 'route' ? 'main road' : nodeById(k).survey)] = s.names[k]; });
+  Object.keys(s.settlements).forEach(function (k) { f['Settlement · ' + nodeById(k).survey] = s.settlements[k].name + ' (' + s.settlements[k].size + ')'; });
+  Object.keys(s.edges).forEach(function (k) { f['Path · ' + edgeName(k)] = STATUS_WORDS[s.edges[k]] + (s.realigned[k] ? ', ' + s.realigned[k] : ''); });
+  Object.keys(s.bridges).forEach(function (k) { f['Bridge · ' + nodeById(k).survey] = s.bridges[k].kind; });
+  s.institutions.forEach(function (i) { f['Institution · ' + i.name] = 'at ' + nodeById(i.at).survey; });
+  s.annotations.forEach(function (a) { f['Annotation · ' + nodeById(a.target).survey + ' · ' + PEOPLE[a.who].name] = a.text; });
+  Object.keys(s.eco).forEach(function (k) { f['Ecology · ' + nodeById(k).survey] = s.eco[k].text; });
+  return f;
+}
+function diffRuns(simA, simB, layer) {
+  var fa = flatFacts(stateAt(simA, layer)), fb = flatFacts(stateAt(simB, layer));
+  var keys = {}; Object.keys(fa).forEach(function (k) { keys[k] = 1; }); Object.keys(fb).forEach(function (k) { keys[k] = 1; });
+  return Object.keys(keys).sort().filter(function (k) { return fa[k] !== fb[k]; })
+    .map(function (k) { return { field: k, a: fa[k] === undefined ? '—' : fa[k], b: fb[k] === undefined ? '—' : fb[k] }; });
+}
+
+/* ---------- Time / trace reducer (TG-001 guard lives here) ---------- */
+function traceAllowed(sim, eventId, layer) {
+  var e = sim && sim.byId[eventId]; return !!e && e.layer <= layer;
+}
+function viewReduce(v, act, sim) {
+  var n = { layer: v.layer, reached: v.reached, traceId: v.traceId, closedByGuard: false };
+  switch (act.type) {
+    case 'setLayer':
+      if (act.layer < 0 || act.layer > v.reached) return v;
+      n.layer = act.layer; break;
+    case 'advance':
+      if (v.reached >= 4) return v;
+      n.reached = v.reached + 1; n.layer = n.reached; break;
+    case 'openTrace':
+      if (!traceAllowed(sim, act.id, v.layer)) return v;
+      n.traceId = act.id; break;
+    case 'closeTrace': n.traceId = null; break;
+    case 'switchRun': return { layer: act.layer, reached: act.reached, traceId: null, closedByGuard: false };
+    default: return v;
+  }
+  if (n.traceId && !traceAllowed(sim, n.traceId, n.layer)) { n.traceId = null; n.closedByGuard = true; }
+  return n;
+}
+
+/* ---------- Final challenge ---------- */
+var KEY_OF = { response:'map', independent:'independent', correction:'community', community:'community' };
+function claimKey(sim, id) { return KEY_OF[sim.byId[id].cls]; }
+function hash(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function claimsFor(sim) {
+  var have = function (id) { return !!sim.byId[id]; };
+  var first = function (list, filt) { for (var i = 0; i < list.length; i++) if (have(list[i]) && (!filt || filt(list[i]))) return list[i]; return null; };
+  var picks = [];
+  picks.push('E2_LANDING');
+  picks.push('E3_GREAT_FLOOD');
+  picks.push('E2_VALLEY_SETTLED');
+  picks.push(first(['E2_SPRING_STRANDING','E2_SHORTCUT','E2_WAITING_CAMP','E2_SUMMER_SHORTCUT','E2_FORD_SHUNNED','E3_FLATS_RUTTED','E2_ROUTE_WALKED']));
+  picks.push(first(sim.events.filter(function (e) { return e.cls === 'correction'; }).map(function (e) { return e.id; })));
+  picks.push(first(['E3_MEADOW_MOOT','E4_PRESSING_DAY','E3_MARR_BRIDGE','E2_EAST_BANK_DETOUR','E3_THE_WAIT','E3_COPPICE','E2_NARROWS_BRIDGE','E3_SCHOOL_VALLEY','E4_SCHOOL_COVE','E4_THE_SEASON']));
+  picks = picks.filter(Boolean);
+  picks.sort(function (x, y) { return hash(sim.key + x) - hash(sim.key + y); });
+  return picks.map(function (id) { return { id: id, text: sim.byId[id].claim }; });
+}
+function checkAnswers(sim, answers) {
+  var claims = claimsFor(sim); var per = {}; var ok = true;
+  claims.forEach(function (c) { var right = answers[c.id] === claimKey(sim, c.id); per[c.id] = right; if (!right) ok = false; });
+  return { ok: ok, per: per, total: claims.length, correct: claims.filter(function (c) { return per[c.id]; }).length };
+}
+
+/* ---------- Self-test (DOM-free) ---------- */
+function allChoices() {
+  var out = [];
+  OPTIONS.A.opts.forEach(function (a) { OPTIONS.B.opts.forEach(function (b) { OPTIONS.C.opts.forEach(function (c) { out.push({ A:a.id, B:b.id, C:c.id }); }); }); });
+  return out;
+}
+function qa() {
+  var results = [];
+  function t(id, name, fn) {
+    var r; try { r = fn(); } catch (err) { r = { pass:false, detail:'threw: ' + err.message }; }
+    results.push({ id:id, name:name, pass: !!r.pass, detail: r.detail || '' });
+  }
+  var combos = allChoices();
+  var geoBefore = JSON.stringify([NODES, EDGES, RIVER, COAST]);
+  var sims = combos.map(simulate);
+
+  t('Q01','Geography identical across all choices and replays', function () {
+    combos.forEach(function (c) { simulate(c); stateAt(simulate(c), 4); });
+    var after = JSON.stringify([NODES, EDGES, RIVER, COAST]);
+    return { pass: after === geoBefore && Object.isFrozen(NODES) && Object.isFrozen(EDGES[0].pts), detail: 'geography JSON ' + geoBefore.length + ' chars; frozen' };
+  });
+  t('Q02','Unique stable IDs (nodes, edges, events, annotations)', function () {
+    var ids = NODES.map(function (n) { return n.id; }).concat(EDGES.map(function (e) { return e.id; }));
+    var dupe = ids.filter(function (x, i) { return ids.indexOf(x) !== i; });
+    var tids = T.map(function (x) { return x.id; }).concat(SURVEY_EVENTS.map(function (x) { return x.id; }), ['D_A','D_B','D_C']);
+    var dupe2 = tids.filter(function (x, i) { return tids.indexOf(x) !== i; });
+    var bad = 0;
+    sims.forEach(function (s) { var a = stateAt(s, 4).annotations.map(function (x) { return x.id; });
+      if (a.some(function (x, i) { return a.indexOf(x) !== i; })) bad++; });
+    return { pass: !dupe.length && !dupe2.length && !bad, detail: ids.length + ' places/edges, ' + tids.length + ' event ids' };
+  });
+  t('Q03','Edge geometry meets declared endpoints; routes are contiguous cove→valley chains', function () {
+    var errs = [];
+    EDGES.forEach(function (e) {
+      var A = nodeById(e.a), B = nodeById(e.b);
+      if (!A || !B) errs.push(e.id + ' bad endpoint');
+      else { var p0 = e.pts[0], p1 = e.pts[e.pts.length - 1];
+        if (p0[0] !== A.x || p0[1] !== A.y || p1[0] !== B.x || p1[1] !== B.y) errs.push(e.id + ' geometry'); }
+    });
+    OPTIONS.C.opts.forEach(function (c) {
+      var cur = 'cove';
+      c.edges.forEach(function (eid) { var e = edgeById(eid); if (!e) { errs.push(eid + ' missing'); return; }
+        if (e.a === cur) cur = e.b; else if (e.b === cur) cur = e.a; else errs.push(c.id + ' break at ' + eid); });
+      if (cur !== 'valley') errs.push(c.id + ' ends at ' + cur);
+    });
+    combos.forEach(function (ch) { var s = stateAt(simulate(ch), 4);
+      Object.keys(s.edges).forEach(function (k) { if (!edgeById(k)) errs.push('state edge ' + k); });
+      var road = Object.keys(s.edges).filter(function (k) { return s.edges[k] === 'road'; });
+      var cur = 'cove', used = {}; var guard = 0;
+      while (cur !== 'valley' && guard++ < 10) {
+        var nxt = road.filter(function (k) { var e = edgeById(k); return !used[k] && (e.a === cur || e.b === cur); })[0];
+        if (!nxt) { errs.push(choiceKey(ch) + ' main road broken at ' + cur); break; }
+        used[nxt] = 1; var e = edgeById(nxt); cur = e.a === cur ? e.b : e.a;
+      }
+    });
+    return { pass: !errs.length, detail: errs.length ? errs.join('; ') : EDGES.length + ' edges, 3 routes, 27 main roads connected' };
+  });
+  t('Q04','All options valid; 27 initial-map combinations', function () {
+    return { pass: combos.length === 27 && combos.every(validChoice), detail: combos.length + ' combinations' };
+  });
+  t('Q05','Every combination yields finite, deterministic states at every layer', function () {
+    var bad = 0;
+    combos.forEach(function (c) { for (var L = 0; L <= 4; L++) {
+      if (JSON.stringify(stateAt(simulate(c), L)) !== JSON.stringify(stateAt(simulate(c), L))) bad++; } });
+    return { pass: bad === 0, detail: (27 * 5) + ' layer states compared twice' };
+  });
+  var sigs = {}; sims.forEach(function (s) { sigs[signature(s)] = (sigs[signature(s)] || []).concat([s.key]); });
+  t('Q06','At least six distinct ending signatures', function () {
+    var n = Object.keys(sigs).length; return { pass: n >= 6, detail: n + ' distinct Year-30 signatures across 27 combinations' };
+  });
+  t('Q06b','Each decision changes at least two observable Year-30 facts in some branch', function () {
+    var out = [];
+    ['A','B','C'].forEach(function (k) {
+      var best = 0;
+      combos.forEach(function (c) { OPTIONS[k].opts.forEach(function (o) {
+        if (o.id === c[k]) return; var c2 = { A:c.A, B:c.B, C:c.C }; c2[k] = o.id;
+        var d = diffRuns(simulate(c), simulate(c2), 4).filter(function (r) { return r.field.indexOf('First-edition') !== 0 && r.field !== 'Recommended route'; }).length;
+        if (d > best) best = d; }); });
+      out.push(k + ':' + best);
+      if (best < 2) out.push('FAIL ' + k);
+    });
+    return { pass: out.join(' ').indexOf('FAIL') < 0, detail: 'max non-label differences ' + out.join(', ') };
+  });
+  t('Q07','Parents exist, predate children, no cycles or dangling links', function () {
+    var errs = [];
+    sims.forEach(function (s) { s.events.forEach(function (e) { e.parents.forEach(function (p) {
+      var pe = s.byId[p.id];
+      if (!pe) errs.push(s.key + ' ' + e.id + ' dangling ' + p.id);
+      else if (!(pe.seq < e.seq && (pe.layer < e.layer || (pe.layer === e.layer && pe.ord < e.ord)))) errs.push(s.key + ' ' + e.id + ' order ' + p.id);
+      if (!p.reason || p.reason.length < 10) errs.push(s.key + ' ' + e.id + ' missing reason'); }); }); });
+    return { pass: !errs.length, detail: errs.slice(0, 4).join('; ') || 'all links checked in 27 runs' };
+  });
+  t('Q08','Every cartographer-influenced outcome traces to at least one decision root', function () {
+    var errs = [], n = 0;
+    sims.forEach(function (s) { s.events.forEach(function (e) {
+      if (e.cls === 'response') { n++; if (!decisionRoots(s, e.id).length) errs.push(s.key + ' ' + e.id); } }); });
+    return { pass: !errs.length, detail: n + ' response events; ' + (errs.join(', ') || 'all rooted') };
+  });
+  t('Q09','Independent events are never attributed to the map', function () {
+    var errs = [], n = 0;
+    sims.forEach(function (s) { s.events.forEach(function (e) {
+      if (e.cls === 'independent') { n++; if (decisionRoots(s, e.id).length) errs.push(s.key + ' ' + e.id); } }); });
+    return { pass: !errs.length, detail: n + ' independent events; ' + (errs.join(', ') || 'none map-rooted') };
+  });
+  t('Q10','Corrections have named settlers and target a prior first-edition mark', function () {
+    var errs = [], n = 0;
+    sims.forEach(function (s) {
+      var s1 = stateAt(s, 1); var marked = { ford:1, valley:1 };
+      s1.routeEdges.forEach(function (eid) { var e = edgeById(eid); marked[e.a] = 1; marked[e.b] = 1; });
+      var cnt = 0;
+      s.events.forEach(function (e) { if (e.cls !== 'correction') return; n++; cnt++;
+        if (!e.who || !PEOPLE[e.who]) errs.push(s.key + ' ' + e.id + ' unnamed');
+        var an = e.fx.filter(function (op) { return op[0] === 'annot'; });
+        if (!an.length) errs.push(s.key + ' ' + e.id + ' no annotation');
+        an.forEach(function (op) { if (!marked[op[1]]) errs.push(s.key + ' ' + e.id + ' targets unmarked ' + op[1]); }); });
+      if (!cnt) errs.push(s.key + ' has no correction'); });
+    return { pass: !errs.length, detail: n + ' corrections across 27 runs; ' + (errs.join(', ') || 'all named and targeted') };
+  });
+  t('Q11','Survey layer shows no future marks; first edition shows no settlement', function () {
+    var errs = [];
+    sims.forEach(function (s) {
+      var a = stateAt(s, 0);
+      if (Object.keys(a.settlements).length || Object.keys(a.edges).length || a.annotations.length || Object.keys(a.labels).length || a.route) errs.push(s.key + ' L0');
+      var b = stateAt(s, 1);
+      if (Object.keys(b.settlements).length || Object.keys(b.edges).length || b.annotations.length || b.institutions.length) errs.push(s.key + ' L1'); });
+    return { pass: !errs.length, detail: errs.join(', ') || '27 × L0/L1 clean' };
+  });
+  t('Q12','Rewind and re-advance show identical history', function () {
+    var bad = 0;
+    sims.forEach(function (s) { var x = JSON.stringify(stateAt(s, 4)); stateAt(s, 0); stateAt(s, 2);
+      if (JSON.stringify(stateAt(s, 4)) !== x) bad++; });
+    return { pass: !bad, detail: '27 runs' };
+  });
+  t('Q13','Trace exposure is time-bounded and never auto-reopens (TG-001 guard)', function () {
+    var s = sims[0]; var errs = [];
+    var v = { layer:4, reached:4, traceId:null };
+    var late = s.events.filter(function (e) { return e.layer === 4; })[0].id;
+    v = viewReduce(v, { type:'openTrace', id:late }, s);
+    if (v.traceId !== late) errs.push('open failed');
+    v = viewReduce(v, { type:'setLayer', layer:3 }, s);
+    if (v.traceId !== null || !v.closedByGuard) errs.push('not closed on rewind');
+    v = viewReduce(v, { type:'setLayer', layer:4 }, s);
+    if (v.traceId !== null) errs.push('auto-reopened');
+    var v2 = viewReduce({ layer:2, reached:4, traceId:null }, { type:'openTrace', id:late }, s);
+    if (v2.traceId) errs.push('future trace opened');
+    var early = 'E2_LANDING';
+    var v3 = viewReduce({ layer:4, reached:4, traceId:null }, { type:'openTrace', id:early }, s);
+    v3 = viewReduce(v3, { type:'setLayer', layer:2 }, s); if (v3.traceId !== early) errs.push('valid trace wrongly closed');
+    var v4 = viewReduce(v3, { type:'switchRun', layer:1, reached:1 }, s); if (v4.traceId) errs.push('trace survived run switch');
+    var v5 = viewReduce({ layer:1, reached:1, traceId:null }, { type:'setLayer', layer:3 }, s); if (v5.layer !== 1) errs.push('could view unreached layer');
+    var all = 0;
+    sims.forEach(function (sm) { sm.events.forEach(function (e) { for (var L = 0; L <= 4; L++) {
+      var w = viewReduce({ layer:L, reached:4, traceId:null }, { type:'openTrace', id:e.id }, sm);
+      if ((w.traceId === e.id) !== (e.layer <= L)) all++; } }); });
+    if (all) errs.push(all + ' eligibility mismatches');
+    return { pass: !errs.length, detail: errs.join('; ') || 'open/rewind/re-advance/switch/unreached all guarded' };
+  });
+  t('Q14','Every visible fact derives from an event in the same run', function () {
+    var errs = [];
+    sims.forEach(function (s) { var st = stateAt(s, 4);
+      Object.keys(st.settlements).forEach(function (k) { if (!s.byId[st.settlements[k].by]) errs.push(s.key + ' settle ' + k); });
+      st.annotations.forEach(function (a) { if (!s.byId[a.by] || s.byId[a.by].cls !== 'correction') errs.push(s.key + ' annot ' + a.id); });
+      st.institutions.forEach(function (i) { if (!s.byId[i.by]) errs.push(s.key + ' inst'); });
+      Object.keys(st.eco).forEach(function (k) { if (!s.byId[st.eco[k].by]) errs.push(s.key + ' eco'); });
+      s.events.forEach(function (e) { if (!nodeById(e.at)) errs.push(s.key + ' ' + e.id + ' place'); if (e.who && !PEOPLE[e.who]) errs.push(e.id + ' who');
+        if (!e.title || !e.text) errs.push(e.id + ' text'); }); });
+    return { pass: !errs.length, detail: errs.slice(0, 4).join('; ') || 'settlements, annotations, institutions, ecology, places all event-backed' };
+  });
+  t('Q15','Two editions compare without cross-contamination', function () {
+    var a = simulate({ A:'A1', B:'B1', C:'C1' }), b = simulate({ A:'A3', B:'B2', C:'C3' });
+    var before = JSON.stringify(stateAt(a, 4));
+    var d = diffRuns(a, b, 4); var same = diffRuns(a, simulate({ A:'A1', B:'B1', C:'C1' }), 4);
+    var after = JSON.stringify(stateAt(a, 4));
+    var shared = a.events.some(function (e) { return b.events.indexOf(e) >= 0; });
+    return { pass: d.length > 5 && same.length === 0 && before === after && !shared, detail: d.length + ' differences A1B1C1 vs A3B2C3; identical choices give 0' };
+  });
+  t('Q16','Replay of the same choices reproduces the same events', function () {
+    var bad = 0; combos.forEach(function (c) { if (JSON.stringify(simulate(c).events) !== JSON.stringify(simulate(c).events)) bad++; });
+    return { pass: !bad, detail: '27 replays' };
+  });
+  t('Q17','Evidence challenge: honest checking in every branch', function () {
+    var errs = [];
+    sims.forEach(function (s) {
+      var cl = claimsFor(s);
+      if (cl.length !== 6) errs.push(s.key + ' has ' + cl.length + ' claims');
+      var keys = cl.map(function (c) { return claimKey(s, c.id); });
+      ['map','independent','community'].forEach(function (k) { if (keys.indexOf(k) < 0) errs.push(s.key + ' missing ' + k); });
+      if (!cl.some(function (c) { return s.byId[c.id].cls === 'correction'; })) errs.push(s.key + ' no correction claim');
+      var right = {}; cl.forEach(function (c) { right[c.id] = claimKey(s, c.id); });
+      if (!checkAnswers(s, right).ok) errs.push(s.key + ' correct answers rejected');
+      var wrong = {}; cl.forEach(function (c, i) { wrong[c.id] = i === 0 ? (right[c.id] === 'map' ? 'independent' : 'map') : right[c.id]; });
+      if (checkAnswers(s, wrong).ok) errs.push(s.key + ' wrong answers accepted');
+      if (checkAnswers(s, {}).ok) errs.push(s.key + ' blank accepted');
+      cl.forEach(function (c) { if (!c.text) errs.push(s.key + ' blank claim'); });
+    });
+    return { pass: !errs.length, detail: errs.slice(0, 4).join('; ') || '27 branches × (correct pass, one-wrong fail, blank fail)' };
+  });
+  t('Q18','Claim answer key derives from provenance classes (not a fixed answer list)', function () {
+    var patterns = {}; sims.forEach(function (s) { patterns[claimsFor(s).map(function (c) { return c.id + '=' + claimKey(s, c.id); }).join('|')] = 1; });
+    var n = Object.keys(patterns).length; return { pass: n >= 6, detail: n + ' distinct claim/answer sets across 27 branches' };
+  });
+  t('Q19','Survey-fact roots appear behind independent events; one-path summaries end at roots', function () {
+    var errs = [];
+    sims.forEach(function (s) { s.events.forEach(function (e) {
+      if (e.layer < 2) return; var p = onePath(s, e.id); var root = s.byId[p[0]];
+      if (root.parents.length) errs.push(s.key + ' ' + e.id + ' path not rooted');
+      if (p[p.length - 1] !== e.id) errs.push(e.id + ' path end');
+      if (e.cls === 'independent' && !surveyRoots(s, e.id).length) errs.push(e.id + ' unsurveyed'); }); });
+    return { pass: !errs.length, detail: errs.slice(0, 4).join('; ') || 'all paths rooted' };
+  });
+  return { passed: results.filter(function (r) { return r.pass; }).length, failed: results.filter(function (r) { return !r.pass; }).length, results: results, signatures: Object.keys(sigs).length };
+}
+
+root.EchortalsModel = deepFreeze({
+  ISLAND: ISLAND, NODES: NODES, EDGES: EDGES, RIVER: RIVER, COAST: COAST, PEOPLE: PEOPLE, LAYERS: LAYERS, OPTIONS: OPTIONS,
+  STATUS_WORDS: STATUS_WORDS,
+  optById: optById, nodeById: nodeById, edgeById: edgeById, edgeName: edgeName, choiceKey: choiceKey, validChoice: validChoice,
+  simulate: simulate, stateAt: stateAt, ancestry: ancestry, decisionRoots: decisionRoots, surveyRoots: surveyRoots,
+  category: category, onePath: onePath, reasonFor: reasonFor, describeFx: describeFx, signature: signature,
+  flatFacts: flatFacts, diffRuns: diffRuns, viewReduce: viewReduce, traceAllowed: traceAllowed,
+  claimsFor: claimsFor, claimKey: claimKey, checkAnswers: checkAnswers, allChoices: allChoices, qa: qa
+});
+})(typeof window !== 'undefined' ? window : globalThis);
+/*MODEL-END*/
+</script>
+
+<!-- ================= UI ================= -->
+<script>
+(function () {
+'use strict';
+var M = window.EchortalsModel;
+var SVGNS = 'http://www.w3.org/2000/svg';
+var REQUIRED_SITES = ['cove','ford','valley','flats','woods','pass'];
+var SORT_LINES = [
+  { id:'s1', text:'Flood wrack hangs in the alders head-high above the water.', key:'obs' },
+  { id:'s2', text:'Spring snowmelt closes the rock shelf for weeks.', key:'conj' },
+  { id:'s3', text:'Wild crab apples are fruiting on the south slope.', key:'obs' },
+  { id:'s4', text:'The lower meadow floods when the river rises.', key:'conj' }
+];
+var CLS_LABEL = { survey:'Survey fact', cartographer:'Your choice', response:'Map consequence', independent:'Independent',
+                  correction:'Community correction', community:'Community decision' };
+var KEY_LABEL = { map:'(a) Your map', independent:'(b) Independent', community:'(c) Community' };
+
+/* ---------------- App state (in-memory only) ---------------- */
+var S;
+function freshState() {
+  return {
+    screen:'intro', unlocked:{ intro:true },
+    survey:{ visited:{}, current:null, sort:{}, sortPassed:false },
+    draft:{ A:null, B:null, C:null },
+    runs:[], activeId:null, nextRun:1,
+    view:{ layer:1, reached:1, traceId:null, closedByGuard:false },
+    toggles:{ natural:true, edition:true, settle:true, annot:true },
+    challengeTrace:null,
+    compare:{ a:null, b:null }
+  };
+}
+S = freshState();
+function active() { for (var i = 0; i < S.runs.length; i++) if (S.runs[i].id === S.activeId) return S.runs[i]; return null; }
+function runById(id) { for (var i = 0; i < S.runs.length; i++) if (S.runs[i].id === id) return S.runs[i]; return null; }
+
+/* ---------------- DOM helpers ---------------- */
+function $(id) { return document.getElementById(id); }
+function el(tag, attrs) {
+  var n = document.createElement(tag);
+  if (attrs) Object.keys(attrs).forEach(function (k) {
+    var v = attrs[k]; if (v === null || v === undefined || v === false) return;
+    if (k === 'text') n.textContent = v;
+    else if (k === 'class') n.className = v;
+    else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), v);
+    else if (v === true) n.setAttribute(k, '');
+    else n.setAttribute(k, v);
+  });
+  for (var i = 2; i < arguments.length; i++) add(n, arguments[i]);
+  return n;
+}
+function add(n, c) { if (c === null || c === undefined || c === false) return; if (Array.isArray(c)) { c.forEach(function (x) { add(n, x); }); return; }
+  n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); return n; }
+function sv(tag, attrs) { var n = document.createElementNS(SVGNS, tag);
+  if (attrs) Object.keys(attrs).forEach(function (k) { if (attrs[k] !== null && attrs[k] !== undefined) n.setAttribute(k, attrs[k]); });
+  for (var i = 2; i < arguments.length; i++) { var c = arguments[i]; if (c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+  return n; }
+function announce(msg) { var l = $('live'); l.textContent = ''; setTimeout(function () { l.textContent = msg; }, 30); }
+function layerName(L) { return M.LAYERS[L].short; }
+function personLabel(w) { return w ? M.PEOPLE[w].name + ', ' + M.PEOPLE[w].role : ''; }
+
+/* ---------------- Dialog ---------------- */
+var dlgReturn = null, dlgOnOk = null;
+function confirmDialog(title, text, okLabel, onOk) {
+  var d = $('dlg'); dlgReturn = document.activeElement; dlgOnOk = onOk;
+  $('dlg-title').textContent = title; $('dlg-text').textContent = text; $('dlg-ok').textContent = okLabel;
+  if (typeof d.showModal === 'function') { d.showModal(); $('dlg-cancel').focus(); }
+  else { if (window.confirm(title + '\n\n' + text)) onOk(); }
+}
+function closeDialog(ok) {
+  var d = $('dlg'); var fn = dlgOnOk; dlgOnOk = null;
+  if (d.open) d.close();
+  if (ok && fn) fn(); else if (dlgReturn && document.body.contains(dlgReturn)) dlgReturn.focus();
+}
+
+/* ---------------- Geometry ---------------- */
+function r1(v) { return Math.round(v * 10) / 10; }
+function smoothPath(p, closed) {
+  var n = p.length; var d = 'M' + p[0][0] + ',' + p[0][1];
+  function g(i) { return closed ? p[(i + n) % n] : p[Math.max(0, Math.min(n - 1, i))]; }
+  var last = closed ? n : n - 1;
+  for (var i = 0; i < last; i++) {
+    var p0 = g(i - 1), p1 = g(i), p2 = g(i + 1), p3 = g(i + 2);
+    d += ' C' + r1(p1[0] + (p2[0] - p0[0]) / 6) + ',' + r1(p1[1] + (p2[1] - p0[1]) / 6) + ' ' +
+         r1(p2[0] - (p3[0] - p1[0]) / 6) + ',' + r1(p2[1] - (p3[1] - p1[1]) / 6) + ' ' + p2[0] + ',' + p2[1];
+  }
+  return d + (closed ? 'Z' : '');
+}
+function blob(cx, cy, rx, ry, wob, k) {
+  var pts = []; for (var i = 0; i < 12; i++) { var a = i / 12 * Math.PI * 2; var w = 1 + wob * Math.sin(i * 2.3 + k);
+    pts.push([r1(cx + Math.cos(a) * rx * w), r1(cy + Math.sin(a) * ry * w)]); }
+  return smoothPath(pts, true);
+}
+
+/* ---------------- Map rendering ---------------- */
+var EDGE_STYLE = {
+  proposed:{ stroke:'#8c2a18', w:3, dash:'9 5', label:'First-edition route (your ink, arrow shows direction)' },
+  trail:   { stroke:'#5b3a1a', w:2.6, dash:'2 4', label:'Worn trail (dotted)' },
+  road:    { stroke:'#3a2410', w:5, dash:null, label:'Stone road (solid, thick)' },
+  shortcut:{ stroke:'#5b3a1a', w:2.4, dash:'10 3 2 3', label:'Shortcut trail (dash-dot)' },
+  seasonal:{ stroke:'#5b3a1a', w:2.4, dash:'6 6', label:'Seasonal path, summer only (long dash)' },
+  detour:  { stroke:'#1f5a37', w:2.6, dash:'4 2 1 2', label:'Settlers’ spring detour (fine dash)' },
+  unused:  { stroke:'#7d6a52', w:1.4, dash:'1 6', label:'Unused (faint dots)' }
+};
+
+function drawMap(svg, o) {
+  /* o: { sim, choice, layer, toggles, prefix, interactive, onNode, onPin, highlight, small } */
+  clear(svg);
+  var P = o.prefix;
+  svg.setAttribute('viewBox', '0 0 400 500');
+  var defs = sv('defs');
+  defs.appendChild(sv('pattern', { id:P + 'hatch', width:6, height:6, patternUnits:'userSpaceOnUse', patternTransform:'rotate(35)' },
+    sv('line', { x1:0, y1:0, x2:0, y2:6, stroke:'#5f7f6d', 'stroke-width':1.2 })));
+  defs.appendChild(sv('pattern', { id:P + 'warn', width:7, height:7, patternUnits:'userSpaceOnUse', patternTransform:'rotate(-45)' },
+    sv('line', { x1:0, y1:0, x2:0, y2:7, stroke:'#8c2a18', 'stroke-width':2 })));
+  defs.appendChild(sv('pattern', { id:P + 'heath', width:9, height:9, patternUnits:'userSpaceOnUse' },
+    sv('circle', { cx:2, cy:2, r:0.9, fill:'#7a5f7a' }), sv('circle', { cx:6.5, cy:6, r:0.9, fill:'#7a5f7a' })));
+  defs.appendChild(sv('marker', { id:P + 'arrow', viewBox:'0 0 10 10', refX:6, refY:5, markerWidth:5, markerHeight:5, orient:'auto-start-reverse' },
+    sv('path', { d:'M0,0 L10,5 L0,10 z', fill:'#8c2a18' })));
+  svg.appendChild(defs);
+  svg.appendChild(sv('rect', { x:0, y:0, width:400, height:500, fill:'#a9bcc4' }));
+  for (var w = 0; w < 9; w++) { var y = 30 + w * 55;
+    svg.appendChild(sv('path', { d:'M' + (10 + (w % 2) * 20) + ',' + y + ' q8,-4 16,0 t16,0', fill:'none', stroke:'#7f97a3', 'stroke-width':1, 'aria-hidden':'true' })); }
+  var coast = smoothPath(M.COAST, true);
+  svg.appendChild(sv('path', { d:coast, fill:'none', stroke:'#8ea5b0', 'stroke-width':9, 'stroke-linejoin':'round' }));
+  svg.appendChild(sv('path', { d:coast, fill:'#f1e4c3', stroke:'#6b5537', 'stroke-width':1.6 }));
+  var T = o.toggles; var L = o.layer;
+  if (T.natural) {
+    var g = sv('g', { 'aria-hidden':'true' });
+    [[46,110,1],[34,82,2],[22,56,3]].forEach(function (c) { g.appendChild(sv('path', { d:blob(312, 250, c[0], c[1], 0.06, c[2]), fill:'none', stroke:'#b39a6c', 'stroke-width':1 })); });
+    [[42,22,1],[28,13,2]].forEach(function (c) { g.appendChild(sv('path', { d:blob(214, 82, c[0], c[1], 0.08, c[2]), fill:'none', stroke:'#b39a6c', 'stroke-width':1 })); });
+    g.appendChild(sv('path', { d:blob(300, 222, 34, 26, 0.1, 4), fill:'url(#' + P + 'heath)', stroke:'none' }));
+    g.appendChild(sv('path', { d:blob(92, 228, 44, 56, 0.08, 2), fill:'#dcd7a0', stroke:'#a3a06a', 'stroke-width':1 }));
+    g.appendChild(sv('path', { d:blob(126, 262, 18, 26, 0.1, 6), fill:'#cfd3a9', stroke:'#8c9a77', 'stroke-dasharray':'2 2', 'stroke-width':0.8 }));
+    g.appendChild(sv('path', { d:smoothPath([[34,342],[86,344],[118,368],[104,404],[62,410],[36,388]], true), fill:'url(#' + P + 'hatch)', stroke:'#6e8a77', 'stroke-width':1 }));
+    var trees = [[220,300],[238,290],[252,310],[228,322],[212,340],[246,350],[260,330],[208,275],[224,262],[198,250],[236,272],[216,238]];
+    var cut = o.state && o.state.eco.woods;
+    trees.forEach(function (t, i) { var gone = cut && /cleared/.test(cut.text) && i % 3 === 0;
+      g.appendChild(sv('circle', { cx:t[0], cy:t[1], r:5.5, fill: gone ? 'none' : '#8fa577', stroke:'#5f744d', 'stroke-width':1, 'stroke-dasharray': gone ? '2 2' : null })); });
+    g.appendChild(sv('text', { x:340, y:110, 'font-size':10, fill:'#7d6a52', 'font-style':'italic', 'text-anchor':'end' }, 'ridge'));
+    svg.appendChild(g);
+  }
+  svg.appendChild(sv('path', { d:smoothPath(M.RIVER, false), fill:'none', stroke:'#3f6e88', 'stroke-width':3.4, 'stroke-linecap':'round', 'aria-hidden':'true' }));
+  /* compass */
+  svg.appendChild(sv('g', { transform:'translate(368,462)', 'aria-hidden':'true' },
+    sv('path', { d:'M0,-14 L4,0 L0,14 L-4,0 Z', fill:'#3a2a1a' }), sv('text', { x:0, y:-17, 'font-size':10, 'text-anchor':'middle', fill:'#3a2a1a' }, 'N')));
+
+  var st = o.state;
+  /* settler paths */
+  if (T.settle && L >= 2 && st) {
+    Object.keys(st.edges).forEach(function (eid) {
+      var s = EDGE_STYLE[st.edges[eid]]; var e = M.edgeById(eid);
+      var pts = e.pts;
+      if (st.realigned[eid]) pts = pts.map(function (p, i) { return (i === 0 || i === pts.length - 1) ? p : [p[0] + 8, p[1] + 6]; });
+      svg.appendChild(sv('path', { d:smoothPath(pts, false), fill:'none', stroke:s.stroke, 'stroke-width':s.w, 'stroke-dasharray':s.dash, 'stroke-linecap':'round', 'aria-hidden':'true' }));
+    });
+  }
+  /* first edition ink */
+  var ch = o.choice;
+  if (T.edition && L >= 1 && ch) {
+    if (ch.C) {
+      var edges = M.optById(ch.C).edges; var pts = [];
+      edges.forEach(function (eid, i) { var e = M.edgeById(eid); var seg = e.pts.slice();
+        var start = i === 0 ? 'cove' : null; void start;
+        if (pts.length && (pts[pts.length - 1][0] !== seg[0][0] || pts[pts.length - 1][1] !== seg[0][1])) seg.reverse();
+        pts = pts.concat(i === 0 ? seg : seg.slice(1)); });
+      var off = pts.map(function (p, i) { return (i === 0 || i === pts.length - 1) ? p : [p[0] - 4, p[1] - 3]; });
+      svg.appendChild(sv('path', { d:smoothPath(off, false), fill:'none', stroke:'#8c2a18', 'stroke-width':3, 'stroke-dasharray':'9 5', 'marker-end':'url(#' + P + 'arrow)', 'aria-hidden':'true' }));
+      var RL = { C1:[150,438,'end'], C2:[222,392,'end'], C3:[262,432,'end'] }[ch.C];
+      if (!o.small) svg.appendChild(inkText(RL[0], RL[1], M.optById(ch.C).label, RL[2], 10.5));
+    }
+    if (ch.A) {
+      var f = M.nodeById('ford'); var sym = M.optById(ch.A).symbol;
+      var g2 = sv('g', { 'aria-hidden':'true' });
+      if (sym === 'warning') g2.appendChild(sv('circle', { cx:f.x, cy:f.y, r:13, fill:'url(#' + P + 'warn)', stroke:'#8c2a18', 'stroke-width':1.5 }));
+      g2.appendChild(sv('line', { x1:f.x - 11, y1:f.y - 6, x2:f.x + 11, y2:f.y + 6, stroke:'#8c2a18', 'stroke-width':4, 'stroke-dasharray': sym === 'seasonal' ? '4 3' : null }));
+      svg.appendChild(g2);
+      if (!o.small) svg.appendChild(inkText(f.x - 16, f.y + 22, M.optById(ch.A).label, 'end', 11.5));
+    }
+    if (ch.B && !o.small) { var v = M.nodeById('valley'); svg.appendChild(inkText(v.x, v.y + 34, M.optById(ch.B).label, 'middle', 13)); }
+  }
+  /* bridges */
+  if (T.settle && L >= 2 && st) Object.keys(st.bridges).forEach(function (k) { var n = M.nodeById(k);
+    svg.appendChild(sv('g', { 'aria-hidden':'true' }, sv('rect', { x:n.x - 9, y:n.y - 3, width:18, height:6, fill:'#6b4a26', stroke:'#2a1c0f' }))); });
+  /* nodes */
+  M.NODES.forEach(function (n) {
+    var settled = T.settle && L >= 2 && st && st.settlements[n.id];
+    var g = sv('g', {});
+    if (settled) {
+      g.appendChild(sv('rect', { x:n.x - 6, y:n.y - 6, width:12, height:12, fill:'#2a1c0f', stroke:'#f1e4c3', 'stroke-width':1.5 }));
+    } else {
+      g.appendChild(sv('circle', { cx:n.x, cy:n.y, r:4, fill:'#f9f1dc', stroke:'#3a2a1a', 'stroke-width':1.4 }));
+    }
+    if (!o.small) {
+      var label = n.survey;
+      if (settled) label = st.settlements[n.id].name;
+      var showLbl = !(T.edition && L >= 1 && ch && ((n.id === 'ford' && ch.A) || (n.id === 'valley' && ch.B))) || settled && n.id !== 'valley';
+      if (n.id === 'valley' && settled && T.edition && ch && ch.B && st.settlements.valley.name === M.optById(ch.B).label) showLbl = false;
+      if (showLbl) {
+        var tx = sv('text', { x:n.x + n.lx, y:n.y + n.ly, 'font-size': settled ? 11.5 : 10, 'text-anchor':n.anchor, fill:'#2a1c0f', 'font-weight': settled ? 'bold' : null,
+          stroke:'#f1e4c3', 'stroke-width':3, 'paint-order':'stroke' }, label);
+        g.appendChild(tx);
+      }
+      if (n.id === 'ford' && st && T.settle && L >= 2 && st.names.ford && ch && st.names.ford !== M.optById(ch.A).label) {
+        g.appendChild(sv('text', { x:n.x + 14, y:n.y + 18, 'font-size':10.5, fill:'#1f3a5a', 'font-weight':'bold', stroke:'#f1e4c3', 'stroke-width':3, 'paint-order':'stroke' }, 'now: ' + st.names.ford));
+      }
+    }
+    g.setAttribute('aria-hidden', 'true');
+    svg.appendChild(g);
+  });
+  /* annotations */
+  if (T.annot && L >= 2 && st) {
+    st.annotations.forEach(function (a, i) { var n = M.nodeById(a.target); var dx = -22 - i % 2 * 8, dy = -18 + (i % 3) * 6;
+      if (n.id === 'pass') { dx = -26; dy = 6; }
+      var g = sv('g', { 'aria-hidden':'true' });
+      g.appendChild(sv('line', { x1:n.x, y1:n.y, x2:n.x + dx, y2:n.y + dy, stroke:'#1f5a37', 'stroke-width':1.2 }));
+      g.appendChild(sv('rect', { x:n.x + dx - 9, y:n.y + dy - 9, width:18, height:18, rx:3, fill:'#e6f0dc', stroke:'#1f5a37', 'stroke-width':1.6 }));
+      g.appendChild(sv('text', { x:n.x + dx, y:n.y + dy + 4, 'font-size':11, 'text-anchor':'middle', fill:'#1f5a37', 'font-weight':'bold', 'font-family':'system-ui, sans-serif' }, String(a.n)));
+      svg.appendChild(g); });
+  }
+  /* pins: interactive sites (survey) or change badges (history) */
+  if (o.interactive === 'sites') {
+    M.NODES.forEach(function (n) {
+      var visited = S.survey.visited[n.id];
+      var pin = sv('g', { class:'pin', tabindex:0, role:'button', 'aria-label':'Inspect ' + n.survey + (visited ? ' (inspected)' : ''), 'data-node':n.id });
+      pin.appendChild(sv('circle', { class:'pinring', cx:n.x, cy:n.y, r:13, fill: visited ? '#8c2a1822' : '#ffffff00', stroke: S.survey.current === n.id ? '#8c2a18' : '#3a2a1a88', 'stroke-width': S.survey.current === n.id ? 3 : 1.4 }));
+      pinHandlers(pin, function () { o.onNode(n.id); });
+      svg.appendChild(pin);
+    });
+  }
+  if (o.interactive === 'changes' && st && L >= 2) {
+    var byNode = {};
+    o.sim.events.forEach(function (e) { if (e.layer === L) (byNode[e.at] = byNode[e.at] || []).push(e); });
+    Object.keys(byNode).forEach(function (nid) { var n = M.nodeById(nid); var evs = byNode[nid];
+      var pin = sv('g', { class:'pin', tabindex:0, role:'button', 'aria-label':'Changes at ' + n.survey + ' in ' + layerName(L) + ': ' + evs.map(function (e) { return e.title; }).join('; ') + '. Opens the trace of the first.' });
+      var bx = n.x + 12, by2 = n.y - 14;
+      pin.appendChild(sv('path', { class:'pinring', d:'M' + bx + ',' + (by2 - 9) + ' l3,6 l7,1 l-5,5 l1,7 l-6,-3 l-6,3 l1,-7 l-5,-5 l7,-1 z', fill:'#d8b25e', stroke:'#2a1c0f', 'stroke-width':1.2 }));
+      pin.appendChild(sv('circle', { cx:bx, cy:by2, r:16, fill:'transparent' }));
+      pinHandlers(pin, function () { o.onPin(evs[0].id); });
+      svg.appendChild(pin);
+    });
+  }
+}
+function inkText(x, y, t, anchor, size) {
+  return sv('text', { x:x, y:y, 'font-size':size, 'font-style':'italic', 'text-anchor':anchor, fill:'#8c2a18', stroke:'#f1e4c3', 'stroke-width':3, 'paint-order':'stroke', 'aria-hidden':'true' }, t);
+}
+function pinHandlers(pin, fn) {
+  pin.addEventListener('click', fn);
+  pin.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); fn(); } });
+}
+
+/* ---------------- Navigation ---------------- */
+var SCREENS = [
+  { id:'survey', label:'Survey' }, { id:'ink', label:'First ink' }, { id:'history', label:'The years' },
+  { id:'challenge', label:'The margin' }, { id:'final', label:'Final edition' }, { id:'editions', label:'Editions' }
+];
+function computeUnlocks() {
+  var r = active(); var u = { intro:true };
+  if (S.screen !== 'intro' || S.survey.sortPassed || Object.keys(S.survey.visited).length) u.survey = true;
+  if (surveyDone()) u.ink = true;
+  if (r) u.history = true;
+  if (r && r.reached >= 4) u.challenge = true;
+  if (r && ((r.challenge.verdict && r.challenge.verdict.ok) || r.final.published)) u.final = true;
+  if (S.runs.length) u.editions = true;
+  S.unlocked = u;
+}
+function renderNav() {
+  computeUnlocks();
+  var ol = clear($('stepnav'));
+  SCREENS.forEach(function (s, i) {
+    var b = el('button', { type:'button', disabled: !S.unlocked[s.id], 'aria-current': S.screen === s.id ? 'step' : null,
+      onclick: function () { go(s.id); } }, (i < 5 ? (i + 1) + ' · ' : '') + s.label);
+    ol.appendChild(el('li', null, b));
+  });
+}
+function go(id, noFocus) {
+  computeUnlocks();
+  if (!S.unlocked[id]) return;
+  S.screen = id;
+  ['intro','survey','ink','history','challenge','final','editions'].forEach(function (x) { $('screen-' + x).hidden = x !== id; });
+  renderNav();
+  ({ intro:function(){}, survey:renderSurvey, ink:renderInk, history:renderHistory, challenge:renderChallenge, final:renderFinal, editions:renderEditions })[id]();
+  if (!noFocus) { var h = $('h-' + id); if (h) h.focus(); window.scrollTo(0, 0); }
+}
+
+/* ---------------- Survey ---------------- */
+function surveyDone() { return S.survey.sortPassed && REQUIRED_SITES.every(function (k) { return S.survey.visited[k]; }); }
+function renderSurvey() {
+  drawMap($('map-survey'), { prefix:'sv', layer:0, toggles:{ natural:true }, interactive:'sites', onNode:inspect, choice:null });
+  var box = clear($('site-buttons'));
+  M.NODES.forEach(function (n) {
+    var req = REQUIRED_SITES.indexOf(n.id) >= 0;
+    box.appendChild(el('button', { type:'button', 'aria-pressed': S.survey.current === n.id ? 'true' : 'false', id:'site-' + n.id,
+      onclick: function () { inspect(n.id); } },
+      (S.survey.visited[n.id] ? '✓ ' : '') + n.survey, req ? el('span', { class:'req' }, ' · key site') : null));
+  });
+  var nv = REQUIRED_SITES.filter(function (k) { return S.survey.visited[k]; }).length;
+  $('survey-progress').textContent = 'Key sites inspected: ' + nv + ' of ' + REQUIRED_SITES.length + '. The other four are optional.';
+  renderNotebook();
+  if (!$('sortbox').firstChild) buildSort();
+  updateToInk();
+}
+function inspect(id) {
+  S.survey.visited[id] = true; S.survey.current = id;
+  var focusId = document.activeElement && document.activeElement.id;
+  var fromPin = document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('data-node');
+  renderSurvey();
+  if (fromPin) { var p = document.querySelector('#map-survey [data-node="' + fromPin + '"]'); if (p) p.focus(); }
+  else if (focusId && $(focusId)) $(focusId).focus();
+}
+function renderNotebook() {
+  var nb = clear($('notebook'));
+  nb.appendChild(el('h3', null, 'Notebook'));
+  var id = S.survey.current;
+  if (!id) { nb.appendChild(el('p', null, 'Choose a site to read your survey notes.')); return; }
+  var n = M.nodeById(id);
+  nb.appendChild(el('h4', null, n.survey));
+  nb.appendChild(el('p', { class:'small' }, n.desc));
+  var ul = el('ul', { class:'notes' });
+  n.notes.forEach(function (x) { ul.appendChild(el('li', null,
+    el('span', { class:'tag ' + x[0] }, x[0] === 'obs' ? '✓ Observed' : '? Conjecture'), x[1])); });
+  nb.appendChild(ul);
+}
+function buildSort() {
+  var box = $('sortbox');
+  SORT_LINES.forEach(function (s) {
+    var fs = el('fieldset', null, el('legend', { class:'small' }, '“' + s.text + '”'));
+    [['obs','Observed'],['conj','Conjecture']].forEach(function (o) {
+      fs.appendChild(el('label', { class:'opt', style:'padding:4px 6px;margin:2px 0' },
+        el('input', { type:'radio', name:'sort-' + s.id, value:o[0], onchange: function () {
+          S.survey.sort[s.id] = o[0];
+          if (S.survey.sortPassed) { S.survey.sortPassed = SORT_LINES.every(function (z) { return S.survey.sort[z.id] === z.key; });
+            if (!S.survey.sortPassed) { $('sort-status').textContent = 'You changed an answer. Check your notes again.'; $('sort-status').className = 'status'; } }
+          updateToInk(); } }),
+        el('span', null, o[1])));
+    });
+    box.appendChild(fs);
+  });
+}
+function checkSort() {
+  var wrong = SORT_LINES.filter(function (s) { return S.survey.sort[s.id] !== s.key; });
+  var st = $('sort-status');
+  if (!wrong.length) { S.survey.sortPassed = true; st.textContent = 'Correct. You saw the wrack and the apples; the spring closure and the meadow flooding are inferences.'; st.className = 'status okmsg'; }
+  else { S.survey.sortPassed = false; st.textContent = wrong.length + ' line' + (wrong.length > 1 ? 's are' : ' is') + ' not sorted correctly yet. Ask: did the survey actually see this happen?'; st.className = 'status badmsg'; }
+  updateToInk(); renderNav();
+}
+function updateToInk() {
+  var ok = surveyDone(); $('btn-to-ink').disabled = !ok;
+  var missing = REQUIRED_SITES.filter(function (k) { return !S.survey.visited[k]; }).map(function (k) { return M.nodeById(k).survey; });
+  $('toink-why').textContent = ok ? '' : 'To continue: ' + (missing.length ? 'inspect ' + missing.join(', ') : '') + (missing.length && !S.survey.sortPassed ? '; and ' : '') + (!S.survey.sortPassed ? 'sort your notes correctly' : '') + '.';
+}
+
+/* ---------------- Ink ---------------- */
+var inkBuilt = false;
+function buildInk() {
+  var box = clear($('ink-fields'));
+  ['A','B','C'].forEach(function (k) {
+    var O = M.OPTIONS[k];
+    var fs = el('fieldset', { id:'fs-' + k }, el('legend', null, O.title), el('p', { class:'small mt0' }, O.prompt));
+    O.opts.forEach(function (o) {
+      fs.appendChild(el('label', { class:'opt' },
+        el('input', { type:'radio', name:'dec-' + k, value:o.id, id:'opt-' + o.id, onchange: function () { S.draft[k] = o.id; updateInk(); } }),
+        el('span', null, el('span', { class:'on' }, o.label), el('br'), el('span', { class:'od' }, o.ink), el('br'),
+          el('span', { class:'od' }, el('em', null, 'Survey basis: '), o.basis))));
+    });
+    box.appendChild(fs);
+  });
+  var tbl = clear($('route-table'));
+  tbl.appendChild(el('caption', null, 'What the survey says about each way inland'));
+  tbl.appendChild(el('thead', null, el('tr', null, el('th', { scope:'col' }, 'Route'), el('th', { scope:'col' }, 'Hours on foot'), el('th', { scope:'col' }, 'Passes'), el('th', { scope:'col' }, 'Known risks'))));
+  var tb = el('tbody');
+  M.OPTIONS.C.opts.forEach(function (o) {
+    var hrs = 0, via = [], risk = [];
+    o.edges.forEach(function (eid) { var e = M.edgeById(eid); hrs += e.hours; via.push(M.nodeById(e.b).survey); if (e.risk !== 'none recorded') risk.push(e.risk); });
+    tb.appendChild(el('tr', null, el('th', { scope:'row' }, o.label), el('td', null, String(hrs)), el('td', null, 'Landing cove → ' + via.join(' → ')), el('td', null, risk.join('; '))));
+  });
+  tbl.appendChild(tb);
+  inkBuilt = true;
+}
+function renderInk() {
+  if (!inkBuilt) buildInk();
+  ['A','B','C'].forEach(function (k) { M.OPTIONS[k].opts.forEach(function (o) { $('opt-' + o.id).checked = S.draft[k] === o.id; }); });
+  updateInk();
+}
+function updateInk() {
+  drawMap($('map-ink'), { prefix:'ik', layer:1, toggles:{ natural:true, edition:true }, choice:S.draft, interactive:null });
+  var sum = clear($('ink-summary'));
+  sum.appendChild(el('h3', null, 'Your first edition (preview)'));
+  var ul = el('ul');
+  ul.appendChild(el('li', null, 'Rock-shelf crossing: ', S.draft.A ? el('strong', null, M.optById(S.draft.A).label) : el('em', null, 'not yet labelled')));
+  ul.appendChild(el('li', null, 'Sheltered valley: ', S.draft.B ? el('strong', null, M.optById(S.draft.B).label) : el('em', null, 'not yet named')));
+  ul.appendChild(el('li', null, 'Route inland: ', S.draft.C ? el('strong', null, M.optById(S.draft.C).label) : el('em', null, 'not yet drawn')));
+  sum.appendChild(ul);
+  sum.appendChild(el('p', { class:'small' }, 'This preview shows only your ink. What people make of it is not yet known.'));
+  var ready = S.draft.A && S.draft.B && S.draft.C;
+  $('btn-seal').disabled = !ready;
+  $('seal-why').textContent = ready ? '' : 'Choose all three marks to seal the edition.';
+  $('cap-ink').textContent = 'First edition preview: ' + [S.draft.A, S.draft.B, S.draft.C].map(function (x) { return x ? M.optById(x).label : '—'; }).join(' · ') + '.';
+}
+function seal() {
+  var ch = { A:S.draft.A, B:S.draft.B, C:S.draft.C };
+  if (!M.validChoice(ch)) return;
+  confirmDialog('Seal the First Edition?', 'Your three marks — ' + [ch.A, ch.B, ch.C].map(function (x) { return M.optById(x).label; }).join(', ') +
+    ' — will be printed and sent on every ship. A sealed edition cannot be changed; you can start a new edition later.', 'Seal and send', function () {
+      var run = { id:'R' + S.nextRun, n:S.nextRun, choice:ch, sim:M.simulate(ch), reached:1,
+                  challenge:{ answers:{}, verdict:null, everPassed:false, hints:{} },
+                  final:{ credits:{}, dedication:null, published:false } };
+      S.nextRun++;
+      S.runs.push(run); S.activeId = run.id;
+      S.view = M.viewReduce(S.view, { type:'switchRun', layer:1, reached:1 }, run.sim);
+      S.challengeTrace = null;
+      announce('First Edition sealed.');
+      go('history');
+    });
+}
+
+/* ---------------- History ---------------- */
+function setView(action) {
+  var r = active(); if (!r) return;
+  var nv = M.viewReduce(S.view, action, r.sim);
+  if (nv === S.view) return false;
+  S.view = nv; r.reached = nv.reached; return true;
+}
+function renderHistory() {
+  var r = active(); if (!r) return;
+  var L = S.view.layer; var st = M.stateAt(r.sim, L);
+  /* year bar */
+  var yb = clear($('yearbar'));
+  M.LAYERS.forEach(function (ly) {
+    yb.appendChild(el('button', { type:'button', class:'yb', id:'yb-' + ly.i, 'aria-pressed': L === ly.i ? 'true' : 'false', disabled: ly.i > r.reached,
+      onclick: function () { changeLayer(ly.i); } }, ly.short));
+  });
+  if (r.reached < 4) yb.appendChild(el('button', { type:'button', class:'btn small', id:'btn-advance', disabled: L !== r.reached,
+    onclick: advance }, (r.reached === 1 ? 'Sail away — return in Year 5' : 'Return in ' + M.LAYERS[r.reached + 1].short) + ' →'));
+  else yb.appendChild(el('button', { type:'button', class:'btn small', id:'btn-go-challenge', onclick: function () { go('challenge'); } }, 'The margin speaks →'));
+  if (r.reached < 4 && L !== r.reached) yb.appendChild(el('span', { class:'small', style:'color:var(--muted)' }, 'Return to ' + layerName(r.reached) + ' to travel further.'));
+  $('h-history').textContent = 'Edition ' + r.n + ' · ' + M.LAYERS[L].title;
+  /* toggles */
+  var tg = $('toggles');
+  if (!tg.querySelector('input')) {
+    [['natural','Natural survey'],['edition','First edition (your ink)'],['settle','Settler paths & settlements'],['annot','Corrections / annotations']].forEach(function (t) {
+      tg.appendChild(el('label', null, el('input', { type:'checkbox', id:'tg-' + t[0], checked: S.toggles[t[0]], onchange: function (ev) {
+        S.toggles[t[0]] = ev.target.checked; renderMapOnly(); var rr = active(); renderPlaces(rr, S.view.layer, M.stateAt(rr.sim, S.view.layer)); } }), t[1]));
+    });
+  }
+  renderMapOnly();
+  renderTraceInto($('trace-history'), 'h');
+  renderScene(r, L, st);
+  renderPlaces(r, L, st);
+  renderLedger(r, L);
+}
+function renderMapOnly() {
+  var r = active(); var L = S.view.layer; var st = M.stateAt(r.sim, L);
+  drawMap($('map-history'), { prefix:'hi', layer:L, toggles:S.toggles, choice: L >= 1 ? r.choice : null, sim:r.sim, state:st,
+    interactive:'changes', onPin:function (id) { openTrace(id); } });
+  var parts = [];
+  if (S.toggles.natural) parts.push('natural survey');
+  if (S.toggles.edition && L >= 1) parts.push('your first-edition ink');
+  if (S.toggles.settle && L >= 2) parts.push('settler paths and settlements');
+  if (S.toggles.annot && L >= 2) parts.push(st.annotations.length + ' annotation' + (st.annotations.length === 1 ? '' : 's'));
+  $('cap-history').textContent = 'Merrow Isle at ' + M.LAYERS[L].year + '. Showing: ' + (parts.join(', ') || 'coastline and river only') + '. Stars mark changes new at this layer. Full text equivalent under “Places & routes”.';
+  renderLegend(L, st);
+}
+function legendSwatch(style) {
+  return sv('svg', { viewBox:'0 0 36 16', 'aria-hidden':'true' }, sv('line', { x1:2, y1:8, x2:34, y2:8, stroke:style.stroke, 'stroke-width':Math.min(style.w, 4), 'stroke-dasharray':style.dash }));
+}
+function renderLegend(L, st) {
+  var ul = clear($('legend'));
+  function item(sw, t) { ul.appendChild(el('li', null, sw, el('span', null, t))); }
+  item(sv('svg', { viewBox:'0 0 36 16', 'aria-hidden':'true' }, sv('line', { x1:2, y1:8, x2:34, y2:8, stroke:'#3f6e88', 'stroke-width':3 })), 'River (solid blue line)');
+  item(sv('svg', { viewBox:'0 0 36 16', 'aria-hidden':'true' }, sv('circle', { cx:18, cy:8, r:4, fill:'#f9f1dc', stroke:'#3a2a1a' })), 'Surveyed site (open circle)');
+  if (S.toggles.natural) item(sv('svg', { viewBox:'0 0 36 16', 'aria-hidden':'true' }, sv('rect', { x:4, y:2, width:28, height:12, fill:'#ccd6c6', stroke:'#6e8a77' }), sv('line', { x1:6, y1:14, x2:16, y2:2, stroke:'#5f7f6d' }), sv('line', { x1:16, y1:14, x2:26, y2:2, stroke:'#5f7f6d' })), 'Tide flats (diagonal hatching)');
+  if (S.toggles.edition && L >= 1) { item(legendSwatch(EDGE_STYLE.proposed), EDGE_STYLE.proposed.label); item(sv('svg', { viewBox:'0 0 36 16', 'aria-hidden':'true' }, sv('text', { x:2, y:12, 'font-size':11, 'font-style':'italic', fill:'#8c2a18' }, 'Name')), 'Your label (red italic ink)'); }
+  if (S.toggles.settle && L >= 2) {
+    var used = {}; Object.keys(st.edges).forEach(function (k) { used[st.edges[k]] = 1; });
+    Object.keys(used).forEach(function (k) { item(legendSwatch(EDGE_STYLE[k]), EDGE_STYLE[k].label); });
+    item(sv('svg', { viewBox:'0 0 36 16', 'aria-hidden':'true' }, sv('rect', { x:12, y:2, width:12, height:12, fill:'#2a1c0f' })), 'Actual settlement (filled square, bold name)');
+    if (Object.keys(st.bridges).length) item(sv('svg', { viewBox:'0 0 36 16', 'aria-hidden':'true' }, sv('rect', { x:9, y:5, width:18, height:6, fill:'#6b4a26', stroke:'#2a1c0f' })), 'Bridge (brown bar)');
+  }
+  if (S.toggles.annot && L >= 2 && st.annotations.length) item(sv('svg', { viewBox:'0 0 36 16', 'aria-hidden':'true' }, sv('rect', { x:10, y:0, width:16, height:16, rx:3, fill:'#e6f0dc', stroke:'#1f5a37' }), sv('text', { x:18, y:12, 'font-size':10, 'text-anchor':'middle', fill:'#1f5a37' }, '1')), 'Settler annotation (numbered green box)');
+  if (L >= 2) item(sv('svg', { viewBox:'0 0 36 16', 'aria-hidden':'true' }, sv('path', { d:'M18,1 l2,4 l5,1 l-4,3 l1,5 l-4,-2 l-4,2 l1,-5 l-4,-3 l5,-1 z', fill:'#d8b25e', stroke:'#2a1c0f' })), 'New at this layer (star; select to trace)');
+}
+function changeLayer(i) {
+  var r = active(); var before = S.view.traceId;
+  if (!setView({ type:'setLayer', layer:i })) return;
+  var msg = 'Viewing ' + M.LAYERS[i].year + '.';
+  if (S.view.closedByGuard) msg += ' The open trace was closed because that event has not happened yet at ' + M.LAYERS[i].year + '.';
+  void before;
+  renderHistory(); renderNav();
+  var b = $('yb-' + i); if (b) b.focus();
+  announce(msg);
+  void r;
+}
+function advance() {
+  var r = active();
+  if (!setView({ type:'advance' })) return;
+  renderHistory(); renderNav();
+  announce('Years pass. ' + M.LAYERS[S.view.layer].title + '.');
+  var sc = $('scene-card').querySelector('h3'); if (sc) { sc.setAttribute('tabindex', '-1'); sc.focus(); }
+  void r;
+}
+function renderScene(r, L, st) {
+  var c = clear($('scene-card'));
+  c.appendChild(el('h3', null, M.LAYERS[L].year + ' — ' + M.LAYERS[L].title));
+  if (L === 0) { c.appendChild(el('p', null, 'The island as surveyed: no names, no paths, no houses. Only rock, water, soil and weather.')); return; }
+  if (L === 1) { c.appendChild(el('p', null, 'Your First Edition is printed, sealed with brown wax, and packed into the first ships. It shows three things the island did not have before: a name for the crossing, a name for the valley, and a line inland.'));
+    r.sim.events.filter(function (e) { return e.layer === 1; }).forEach(function (e) { c.appendChild(evCard(r, e, false)); }); return; }
+  var intro = { 2:'You come back on the supply boat. The chart you sent is pinned up in the landing’s net shed, already soft with handling. Someone has written on it.',
+                3:'The harbour master sends you a copy of the chart as it hangs now, and a bundle of letters. More hands have written on it.',
+                4:'Hollis Venn, the harbour archivist, unrolls every chart the island has written on since your first, layer over layer. “They are yours,” she says, “and also not.”' }[L];
+  c.appendChild(el('p', { class:'letter' }, intro));
+  c.appendChild(el('h4', null, 'What changed by ' + M.LAYERS[L].year));
+  r.sim.events.filter(function (e) { return e.layer === L; }).forEach(function (e) { c.appendChild(evCard(r, e, true)); });
+}
+function evCard(r, e, traceBtn) {
+  var cat = M.category(r.sim, e.id);
+  return el('article', { class:'ev cls-' + e.cls, 'aria-label':e.title },
+    el('h4', null, e.title),
+    el('div', { class:'meta' }, el('span', { class:'pill' }, cat.label), M.nodeById(e.at).survey + (e.who ? ' · ' + personLabel(e.who) : '')),
+    el('p', { class:'mt0' }, e.text),
+    traceBtn ? el('button', { type:'button', class:'btn secondary small', id:'tr-' + e.id, onclick: function () { openTrace(e.id); } }, 'Trace how this happened') : null);
+}
+function renderPlaces(r, L, st) {
+  var c = clear($('places-card'));
+  c.appendChild(el('h3', null, 'Places & routes at ' + M.LAYERS[L].year));
+  c.appendChild(el('p', { class:'small' }, 'A complete text version of the map, following the layer switches above.'));
+  var ul = el('ul');
+  M.NODES.forEach(function (n) {
+    var bits = [el('strong', null, n.survey)];
+    if (S.toggles.natural) bits.push(' — ' + n.desc);
+    if (S.toggles.edition && L >= 1 && st.labels[n.id]) bits.push(el('br'), 'Your first-edition label: ', el('em', null, '“' + st.labels[n.id] + '”'));
+    if (S.toggles.settle && L >= 2) {
+      if (st.settlements[n.id]) bits.push(el('br'), 'Settlement: ' + st.settlements[n.id].name + ' (' + st.settlements[n.id].size + ')');
+      if (st.names[n.id] && st.labels[n.id] && st.names[n.id] !== st.labels[n.id] && !st.settlements[n.id]) bits.push(el('br'), 'Now called: ' + st.names[n.id] + ' (your label is kept as historical ink)');
+      if (st.bridges[n.id]) bits.push(el('br'), 'Bridge: ' + st.bridges[n.id].kind);
+      st.institutions.filter(function (i) { return i.at === n.id; }).forEach(function (i) { bits.push(el('br'), 'Institution: ' + i.name); });
+      if (st.eco[n.id]) bits.push(el('br'), 'Ecology: ' + st.eco[n.id].text);
+      st.hazards.filter(function (h) { return h.at === n.id; }).forEach(function (h) { bits.push(el('br'), 'Recorded hazard: ' + h.text); });
+    }
+    if (S.toggles.annot && L >= 2) st.annotations.filter(function (a) { return a.target === n.id; }).forEach(function (a) {
+      bits.push(el('br'), 'Annotation ' + a.n + ' (' + personLabel(a.who) + '): “' + a.text + '”'); });
+    var here = r.sim.events.filter(function (e) { return e.at === n.id && e.layer >= 2 && e.layer <= L; });
+    if (L >= 2 && here.length) {
+      var row = el('span', { style:'display:flex;flex-wrap:wrap;gap:6px;margin-top:4px' });
+      here.forEach(function (e) { row.appendChild(el('button', { type:'button', class:'btn secondary small', onclick: function () { openTrace(e.id); } },
+        'Trace: ' + e.title + (e.layer === L ? ' (new)' : ''))); });
+      bits.push(row);
+    }
+    ul.appendChild(el('li', { style:'margin-bottom:8px' }, bits));
+  });
+  c.appendChild(ul);
+  c.appendChild(el('h4', null, 'Routes'));
+  var ru = el('ul');
+  if (S.toggles.edition && L >= 1) ru.appendChild(el('li', null, 'Recommended on the First Edition: ' + M.optById(r.choice.C).label + ' (' +
+    M.optById(r.choice.C).edges.map(M.edgeName).join('; ') + ').'));
+  if (S.toggles.settle && L >= 2) {
+    var ks = Object.keys(st.edges);
+    if (!ks.length) ru.appendChild(el('li', null, 'No paths worn yet.'));
+    ks.forEach(function (k) { ru.appendChild(el('li', null, M.edgeName(k) + ': ' + M.STATUS_WORDS[st.edges[k]] + (st.realigned[k] ? ' (' + st.realigned[k] + ')' : ''))); });
+    if (st.names.route && st.names.route !== M.optById(r.choice.C).label) ru.appendChild(el('li', null, 'The main road is called “' + st.names.route + '”.'));
+  }
+  if (!ru.firstChild) ru.appendChild(el('li', null, L === 0 ? 'No routes: the survey shows only terrain.' : 'Turn on a layer to list routes.'));
+  c.appendChild(ru);
+}
+function renderLedger(r, L) {
+  var c = clear($('ledger-card'));
+  c.appendChild(el('h3', null, 'Ledger of the island to ' + M.LAYERS[L].year));
+  var wrap = el('div', { class:'tablewrap', tabindex:0, role:'region', 'aria-label':'Ledger table, scrolls sideways on small screens' });
+  var t = el('table');
+  t.appendChild(el('thead', null, el('tr', null, ['When','Event','Place','Provenance',''].map(function (h) { return el('th', { scope:'col' }, h); }))));
+  var tb = el('tbody');
+  r.sim.events.filter(function (e) { return e.layer <= L; }).forEach(function (e) {
+    tb.appendChild(el('tr', null, el('td', null, M.LAYERS[e.layer].short), el('th', { scope:'row' }, e.title), el('td', null, M.nodeById(e.at).survey),
+      el('td', null, M.category(r.sim, e.id).label),
+      el('td', null, e.layer >= 1 ? el('button', { type:'button', class:'btn secondary small', 'aria-label':'Trace ' + e.title, onclick: function () { openTrace(e.id); } }, 'Trace') : '')));
+  });
+  t.appendChild(tb); wrap.appendChild(t); c.appendChild(wrap);
+}
+
+/* ---------------- Trace ---------------- */
+var traceReturn = null;
+function openTrace(id) {
+  var r = active();
+  if (S.screen === 'challenge') { S.challengeTrace = id; traceReturn = document.activeElement; renderTraceInto($('trace-challenge'), 'c'); focusTrace('c'); return; }
+  if (!setView({ type:'openTrace', id:id })) { if (S.view.traceId === id) { focusTrace('h'); } return; }
+  traceReturn = document.activeElement;
+  renderTraceInto($('trace-history'), 'h');
+  focusTrace('h');
+  announce('Trace opened: ' + r.sim.byId[id].title + '.');
+}
+function focusTrace(p) { var h = $('trace-h-' + p); if (h) { h.focus(); h.scrollIntoView({ block:'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); } }
+function closeTrace(p) {
+  if (p === 'c') { S.challengeTrace = null; renderTraceInto($('trace-challenge'), 'c'); }
+  else { setView({ type:'closeTrace' }); renderTraceInto($('trace-history'), 'h'); }
+  if (traceReturn && document.body.contains(traceReturn)) traceReturn.focus();
+}
+function renderTraceInto(box, p) {
+  clear(box);
+  var r = active(); if (!r) return;
+  var id = p === 'c' ? S.challengeTrace : S.view.traceId;
+  if (!id) return;
+  var sim = r.sim; var e = sim.byId[id];
+  if (!e) return;
+  if (p === 'h' && !M.traceAllowed(sim, id, S.view.layer)) return; /* belt and braces */
+  var cat = M.category(sim, id);
+  var prev = M.stateAt(sim, Math.max(0, e.layer - 1));
+  var tr = el('section', { class:'trace', 'aria-labelledby':'trace-h-' + p, id:'trace-' + p });
+  tr.appendChild(el('h3', { id:'trace-h-' + p, tabindex:-1 }, 'Trace: ' + e.title));
+  tr.appendChild(el('p', { class:'small mt0' }, el('span', { class:'pill' }, cat.label), 'Observed by ' + M.LAYERS[e.layer].year + ' · ' + M.nodeById(e.at).survey + (e.who ? ' · ' + personLabel(e.who) : '') + ' · ID ', el('span', { class:'mono' }, e.id)));
+  tr.appendChild(el('p', null, e.text));
+  if (e.fx.length) {
+    tr.appendChild(el('h4', null, 'What changed from ' + M.LAYERS[Math.max(0, e.layer - 1)].year));
+    var ul = el('ul'); e.fx.forEach(function (op) { ul.appendChild(el('li', null, M.describeFx(op))); }); tr.appendChild(ul);
+    void prev;
+  }
+  var roots = M.decisionRoots(sim, id);
+  tr.appendChild(el('h4', null, 'Roots'));
+  tr.appendChild(el('p', { class:'small mt0' }, roots.length ? 'Your first-edition choices behind this: ' + roots.map(function (x) { return sim.byId[x].title.replace('Your label: ', '').replace('Your route: ', ''); }).join('; ') + '.'
+    : 'None of your choices is behind this. Its roots are survey facts: ' + M.surveyRoots(sim, id).map(function (x) { return sim.byId[x].title.replace('Survey: ', ''); }).join('; ') + '.'));
+  var path = M.onePath(sim, id);
+  if (path.length > 1) {
+    tr.appendChild(el('h4', null, 'One path through the chain'));
+    var pp = el('div', { class:'path' });
+    path.forEach(function (pid, i) { var pe = sim.byId[pid];
+      add(pp, el('strong', null, pe.title));
+      if (i < path.length - 1) add(pp, [' → ', el('em', null, '(' + M.reasonFor(sim, path[i + 1], pid) + ')'), ' → ']); });
+    tr.appendChild(pp);
+  }
+  tr.appendChild(el('h4', null, 'Full ancestry'));
+  var shown = {};
+  function tree(eid) {
+    var ev = sim.byId[eid]; var u = el('ul');
+    ev.parents.forEach(function (pr) { var pe = sim.byId[pr.id];
+      var li = el('li', null, el('strong', null, pe.title), ' ', el('span', { class:'pill' }, CLS_LABEL[pe.cls]), ' ', el('span', { class:'small' }, M.LAYERS[pe.layer].short),
+        el('span', { class:'why' }, 'because: ' + pr.reason));
+      if (shown[pr.id]) { if (pe.parents.length) li.appendChild(el('span', { class:'why' }, '(its own roots are listed above)')); }
+      else { shown[pr.id] = true; if (pe.parents.length) li.appendChild(tree(pr.id)); }
+      u.appendChild(li); });
+    return u;
+  }
+  tr.appendChild(e.parents.length ? tree(id) : el('p', null, 'This is a root: nothing in the record comes before it.'));
+  tr.appendChild(el('div', { class:'btnrow' }, el('button', { type:'button', class:'btn secondary small', id:'trace-close-' + p, onclick: function () { closeTrace(p); } }, 'Close trace')));
+  box.appendChild(tr);
+}
+
+/* ---------------- Challenge ---------------- */
+function renderChallenge() {
+  var r = active(); if (!r) return;
+  var claims = M.claimsFor(r.sim); var box = clear($('claims'));
+  var locked = r.final.published;
+  claims.forEach(function (c, i) {
+    var fs = el('fieldset', { class:'claim', id:'claim-' + c.id, disabled: locked });
+    fs.appendChild(el('legend', { class:'vh' }, 'Statement ' + (i + 1)));
+    fs.appendChild(el('div', { class:'ct' }, (i + 1) + '. ' + c.text));
+    var rad = el('div', { class:'radios' });
+    ['map','independent','community'].forEach(function (k) {
+      rad.appendChild(el('label', null, el('input', { type:'radio', name:'cl-' + c.id, value:k, checked: r.challenge.answers[c.id] === k,
+        onchange: function () { r.challenge.answers[c.id] = k;
+          if (r.challenge.verdict) { r.challenge.verdict = null; $('check-status').textContent = 'You changed an answer, so the previous check no longer applies. Check again.'; $('check-status').className = 'status';
+            clearFeedback(); renderNav(); updateToFinal(); } } }), KEY_LABEL[k]));
+    });
+    fs.appendChild(rad);
+    fs.appendChild(el('div', { class:'btnrow', style:'margin-top:4px' },
+      el('button', { type:'button', class:'btn secondary small', onclick: function () { openTrace(c.id); } }, 'Inspect the evidence'),
+      el('button', { type:'button', class:'btn secondary small', 'aria-expanded': r.challenge.hints[c.id] ? 'true' : 'false', onclick: function (ev) {
+        r.challenge.hints[c.id] = !r.challenge.hints[c.id]; ev.target.setAttribute('aria-expanded', r.challenge.hints[c.id] ? 'true' : 'false'); renderHint(c.id); } }, 'Hint')));
+    fs.appendChild(el('div', { class:'hintbox', id:'hint-' + c.id }));
+    fs.appendChild(el('div', { class:'fb', id:'fb-' + c.id, role:'status' }));    box.appendChild(fs);
+    renderHint(c.id);
+  });
+  $('btn-check').disabled = locked;
+  if (locked) { $('check-status').textContent = 'Locked: these answers are printed in your published Final Edition.'; $('check-status').className = 'status okmsg'; }
+  else if (r.challenge.verdict) showVerdict(r.challenge.verdict);
+  else { $('check-status').textContent = r.challenge.everPassed ? 'You verified these once before, then changed an answer. Check again.' : ''; $('check-status').className = 'status'; }
+  renderTraceInto($('trace-challenge'), 'c');
+  updateToFinal();
+}
+function renderHint(id) {
+  var r = active(); var b = $('hint-' + id); clear(b);
+  if (!r.challenge.hints[id]) return;
+  var roots = M.decisionRoots(r.sim, id); var e = r.sim.byId[id];
+  b.appendChild(el('p', { class:'hint' }, 'Hint: ' + (roots.length ? 'at least one of your first-edition choices sits among its roots.' : 'none of your choices sits among its roots.') +
+    ' ' + (e.who ? 'A named settler acted here.' : 'No single settler acted here.') + ' (No penalty for hints.)'));
+}
+function clearFeedback() { var r = active(); M.claimsFor(r.sim).forEach(function (c) { var f = $('fb-' + c.id); if (f) { f.textContent = ''; f.className = 'fb'; } }); }
+function checkClaims() {
+  var r = active(); var claims = M.claimsFor(r.sim);
+  var missing = claims.filter(function (c) { return !r.challenge.answers[c.id]; });
+  if (missing.length) { $('check-status').textContent = 'Classify all six statements first (' + missing.length + ' left).'; $('check-status').className = 'status badmsg'; return; }
+  var v = M.checkAnswers(r.sim, r.challenge.answers);
+  r.challenge.verdict = v; if (v.ok) r.challenge.everPassed = true;
+  showVerdict(v); renderNav(); updateToFinal();
+  announce(v.ok ? 'All six correct.' : v.correct + ' of ' + v.total + ' correct.');
+}
+function showVerdict(v) {
+  var r = active();
+  M.claimsFor(r.sim).forEach(function (c) {
+    var f = $('fb-' + c.id); var e = r.sim.byId[c.id]; var cat = M.category(r.sim, c.id);
+    if (v.per[c.id]) { f.className = 'fb okmsg'; f.textContent = '✓ Correct — ' + cat.label + '.' + (cat.key === 'mixed' ? ' The settlers decided this themselves, though your map gave them a reason.' : ''); }
+    else { f.className = 'fb badmsg'; f.textContent = '✗ Not this one. ' + (e.cls === 'independent' ? 'Look at its roots: are any of them your choices?' : e.cls === 'response' ? 'Who acted here: people following your ink, or people correcting it?' : 'Look at who wrote or decided this.') + ' Inspect the evidence and try again.'; }
+  });
+  var s = $('check-status');
+  if (v.ok) { s.textContent = 'All six correct. You can tell what your map caused, what it only watched, and what the settlers made their own.'; s.className = 'status okmsg'; }
+  else { s.textContent = v.correct + ' of ' + v.total + ' correct. Revise and check again; nothing is lost.'; s.className = 'status badmsg'; }
+}
+function updateToFinal() { var r = active(); $('btn-to-final').disabled = !(r && ((r.challenge.verdict && r.challenge.verdict.ok) || r.final.published)); }
+
+/* ---------------- Final edition ---------------- */
+function creditEvents(sim) { return sim.events.filter(function (e) { return (e.cls === 'correction' || e.cls === 'community') && e.who; }); }
+function renderFinal() {
+  var r = active(); if (!r) return;
+  var prep = clear($('final-prep')); var atlas = clear($('final-atlas'));
+  if (r.final.published) { prep.appendChild(el('p', { class:'notice' }, 'Edition ' + r.n + ' is published (inside the story). It is shown below as printed.')); buildAtlas(atlas, r); return; }
+  var corrections = r.sim.events.filter(function (e) { return e.cls === 'correction'; });
+  var card = el('form', { class:'card', id:'final-form', onsubmit: function (ev) { ev.preventDefault(); } });
+  card.appendChild(el('h3', null, 'How will the settlers’ corrections appear?'));
+  card.appendChild(el('p', { class:'small' }, 'Every correction is credited by name either way. Your original wording stays visible as historical ink.'));
+  corrections.forEach(function (e) {
+    var fs = el('fieldset', null, el('legend', null, M.PEOPLE[e.who].name + ': “' + e.fx.filter(function (o) { return o[0] === 'annot'; })[0][2] + '”'));
+    [['main','Print it in the main text, with their name beside it'],['margin','Keep it as a margin note in their own hand']].forEach(function (o) {
+      fs.appendChild(el('label', { class:'opt' }, el('input', { type:'radio', name:'cr-' + e.id, value:o[0], checked: r.final.credits[e.id] === o[0],
+        onchange: function () { r.final.credits[e.id] = o[0]; updatePublish(); } }), el('span', null, o[1])));
+    });
+    card.appendChild(fs);
+  });
+  var ded = el('fieldset', null, el('legend', null, 'The title-page dedication'));
+  DEDICATIONS.forEach(function (d, i) {
+    ded.appendChild(el('label', { class:'opt' }, el('input', { type:'radio', name:'ded', value:String(i), checked: r.final.dedication === i,
+      onchange: function () { r.final.dedication = i; updatePublish(); } }), el('span', null, d)));
+  });
+  card.appendChild(ded);
+  card.appendChild(el('div', { class:'btnrow' }, el('button', { type:'button', class:'btn', id:'btn-publish', onclick: publish }, 'Publish the Final Edition (in the story)')));
+  card.appendChild(el('p', { class:'small', id:'pub-why' }));
+  prep.appendChild(card);
+  updatePublish();
+}
+var DEDICATIONS = [
+  'Surveyed by its first cartographer; corrected, walked and named by the people of Merrow Isle.',
+  'For everyone who wrote in the margin.',
+  'A first chart, and the thirty years that answered it.'
+];
+function updatePublish() {
+  var r = active(); var corr = r.sim.events.filter(function (e) { return e.cls === 'correction'; });
+  var ok = r.final.dedication !== null && corr.every(function (e) { return r.final.credits[e.id]; }) && r.challenge.verdict && r.challenge.verdict.ok;
+  var b = $('btn-publish'); if (b) b.disabled = !ok;
+  var w = $('pub-why'); if (w) w.textContent = ok ? '' : 'Choose how each correction appears and pick a dedication.';
+}
+function publish() {
+  var r = active();
+  confirmDialog('Publish the Final Edition?', 'This is the in-story printing of the shared map. Once published, your evidence answers and credit choices are fixed for this edition. (Nothing leaves this page.)', 'Publish', function () {
+    r.final.published = true; renderFinal(); renderNav(); announce('Final Edition published.');
+    var h = $('atlas-title'); if (h) h.focus();
+  });
+}
+function buildAtlas(box, r) {
+  var sim = r.sim; var st = M.stateAt(sim, 4); var ch = r.choice;
+  var a = el('article', { class:'atlas', 'aria-labelledby':'atlas-title' });
+  a.appendChild(el('h2', { id:'atlas-title', tabindex:-1 }, 'Merrow Isle · The Final Edition'));
+  a.appendChild(el('p', { class:'sub' }, DEDICATIONS[r.final.dedication]));
+  var fig = el('figure', { class:'mapfig' }); var svg = sv('svg', { role:'img', 'aria-label':'Final Edition map of Merrow Isle at Year 30, with your first-edition ink, the roads and settlements, and numbered settler annotations. Details follow in text.' });
+  fig.appendChild(svg); a.appendChild(fig);
+  drawMap(svg, { prefix:'fa', layer:4, toggles:{ natural:true, edition:true, settle:true, annot:true }, choice:ch, sim:sim, state:st, interactive:null });
+  /* names */
+  var nt = el('table'); nt.appendChild(el('caption', null, 'Names: first edition and Year 30'));
+  nt.appendChild(el('thead', null, el('tr', null, el('th', { scope:'col' }, 'Feature'), el('th', { scope:'col' }, 'Your first-edition ink'), el('th', { scope:'col' }, 'In use at Year 30'))));
+  var nb = el('tbody');
+  [['ford','Rock-shelf crossing'],['valley','Sheltered valley'],['route','Route inland']].forEach(function (f) {
+    var first = f[0] === 'route' ? M.optById(ch.C).label : st.labels[f[0]]; var now = st.names[f[0]];
+    nb.appendChild(el('tr', null, el('th', { scope:'row' }, f[1]), el('td', null, el('em', null, first)), el('td', null, now === first ? now + (st.annotations.some(function (x) { return x.target === f[0]; }) ? ' (name kept; amended in the margin)' : ' (adopted)') : now + ' (superseded your wording, which is kept as historical ink)')));
+  });
+  nt.appendChild(nb); a.appendChild(el('div', { class:'tablewrap' }, nt));
+  /* routes */
+  var road = Object.keys(st.edges).filter(function (k) { return st.edges[k] === 'road'; });
+  a.appendChild(el('h3', null, 'Recommended route and the road people use'));
+  a.appendChild(el('p', null, el('strong', null, 'You recommended: '), M.optById(ch.C).label + ' — ' + M.optById(ch.C).edges.map(M.edgeName).join('; ') + '.'));
+  a.appendChild(el('p', null, el('strong', null, 'The main road at Year 30: '), road.map(M.edgeName).join('; ') + '.' + (st.realigned.e_cove_lowbank ? ' The shore section is ' + st.realigned.e_cove_lowbank + '.' : '')));
+  var other = Object.keys(st.edges).filter(function (k) { return st.edges[k] !== 'road'; });
+  if (other.length) a.appendChild(el('p', { class:'small' }, 'Other paths: ' + other.map(function (k) { return M.edgeName(k) + ' (' + M.STATUS_WORDS[st.edges[k]] + ')'; }).join('; ') + '.'));
+  /* credits */
+  a.appendChild(el('h3', null, 'Corrections and credits'));
+  var cl = el('ol');
+  r.sim.events.filter(function (e) { return e.cls === 'correction'; }).forEach(function (e) {
+    var note = e.fx.filter(function (o) { return o[0] === 'annot'; })[0][2];
+    cl.appendChild(el('li', null, el('strong', null, personLabel(e.who)), ' — “' + note + '” ', el('em', null, '(' + (r.final.credits[e.id] === 'main' ? 'printed in the main text' : 'kept as a margin note in their hand') + ')'),
+      el('br'), el('span', { class:'small' }, 'Why: ' + e.parents.map(function (p) { return p.reason; }).join(' ') + ' Recorded by ' + M.LAYERS[e.layer].year + '.')));
+  });
+  a.appendChild(cl);
+  var others = creditEvents(sim).filter(function (e) { return e.cls === 'community'; });
+  if (others.length) { a.appendChild(el('h4', null, 'Also made by the community')); var ou = el('ul');
+    others.forEach(function (e) { ou.appendChild(el('li', null, el('strong', null, personLabel(e.who)), ': ' + e.title + '.')); }); a.appendChild(ou); }
+  /* three columns */
+  var cols = el('div', { class:'cols3' });
+  var survey = el('div', null, el('h4', null, 'Observed in the survey'), el('ul', { class:'small' }, sim.events.filter(function (e) { return e.cls === 'survey'; }).map(function (e) { return el('li', null, e.text); })));
+  var asserted = el('div', null, el('h4', null, 'Asserted by the cartographer'), el('ul', { class:'small' }, sim.events.filter(function (e) { return e.cls === 'cartographer'; }).map(function (e) { return el('li', null, e.title.replace('Your label', 'Label').replace('Your route', 'Route')); })));
+  var est = el('div', null, el('h4', null, 'Established by community experience'), el('ul', { class:'small' }, sim.events.filter(function (e) { return e.cls === 'correction' || e.cls === 'community'; }).map(function (e) { return el('li', null, e.title + (e.who ? ' (' + M.PEOPLE[e.who].name + ')' : '')); })));
+  cols.appendChild(survey); cols.appendChild(asserted); cols.appendChild(est);
+  a.appendChild(el('h3', null, 'What this map knows, and how'));
+  a.appendChild(cols);
+  a.appendChild(el('p', { class:'endline' }, 'Your first lines are still there, under theirs — the way a path is still there under the road.'));
+  a.appendChild(el('p', { class:'small', style:'text-align:center' }, 'Created by The Axiom Continuum.'));
+  box.appendChild(a);
+  box.appendChild(el('div', { class:'btnrow' },
+    el('button', { type:'button', class:'btn', onclick: newEdition }, 'Start a new edition'),
+    el('button', { type:'button', class:'btn secondary', onclick: function () { go('editions'); } }, 'Compare editions')));
+}
+
+/* ---------------- Editions / compare ---------------- */
+function newEdition() {
+  confirmDialog('Start a new edition?', 'Edition ' + active().n + ' will be kept in this tab for comparison, exactly as it is. You will ink a fresh First Edition of the same island.', 'Start a new edition', function () {
+    S.draft = { A:null, B:null, C:null };
+    S.activeId = null; S.challengeTrace = null;
+    S.view = { layer:1, reached:1, traceId:null, closedByGuard:false };
+    announce('New edition started. The previous edition is archived.');
+    go('ink');
+  });
+}
+function renderEditions() {
+  var list = clear($('editions-list'));
+  list.appendChild(el('h3', null, 'Your editions'));
+  var ul = el('ul');
+  S.runs.forEach(function (r) {
+    ul.appendChild(el('li', null, el('strong', null, 'Edition ' + r.n + ': '), [r.choice.A, r.choice.B, r.choice.C].map(function (x) { return M.optById(x).label; }).join(' · '),
+      ' — seen to ' + M.LAYERS[r.reached].short + (r.final.published ? ', Final Edition published' : '') + (r.id === S.activeId ? ' (current)' : ' (archived, read-only)')));
+  });
+  list.appendChild(ul);
+  var act = el('div', { class:'btnrow' });
+  if (active() && active().reached >= 1) act.appendChild(el('button', { type:'button', class:'btn', onclick: newEdition }, 'Start a new edition'));
+  if (!active()) act.appendChild(el('button', { type:'button', class:'btn', onclick: function () { go('ink'); } }, 'Continue inking the new edition'));
+  list.appendChild(act);
+  renderCompare();
+}
+function renderCompare() {
+  var c = clear($('compare-card'));
+  c.appendChild(el('h3', null, 'Compare two editions'));
+  if (S.runs.length < 2) { c.appendChild(el('p', null, 'Seal a second edition to compare it with this one. The island will be the same; only the ink will differ.')); return; }
+  if (!runById(S.compare.a)) S.compare.a = S.runs[S.runs.length - 2].id;
+  if (!runById(S.compare.b) || S.compare.b === S.compare.a) S.compare.b = S.runs.filter(function (r) { return r.id !== S.compare.a; }).slice(-1)[0].id;
+  var row = el('div', { class:'btnrow' });
+  ['a','b'].forEach(function (k) {
+    var sel = el('select', { id:'cmp-' + k, onchange: function (ev) { S.compare[k] = ev.target.value; renderCompare(); var s = $('cmp-' + k); if (s) s.focus(); } });
+    S.runs.forEach(function (r) { sel.appendChild(el('option', { value:r.id, selected: S.compare[k] === r.id }, 'Edition ' + r.n)); });
+    row.appendChild(el('label', { style:'display:flex;gap:6px;align-items:center;min-height:44px' }, (k === 'a' ? 'Left' : 'Right') + ' edition', sel));
+  });
+  c.appendChild(row);
+  var A = runById(S.compare.a), B = runById(S.compare.b);
+  if (A.id === B.id) { c.appendChild(el('p', { class:'badmsg' }, 'Choose two different editions.')); return; }
+  var L = Math.min(A.reached, B.reached);
+  c.appendChild(el('p', { class:'small' }, 'Compared at ' + M.LAYERS[L].year + ', the furthest point both editions have reached. Same island, different first maps.'));
+  var grid = el('div', { class:'cmpgrid' });
+  [A, B].forEach(function (r, i) {
+    var svg = sv('svg', { role:'img', 'aria-label':'Edition ' + r.n + ' at ' + M.LAYERS[L].year + '. Differences are listed in the table below.' });
+    var fig = el('figure', { class:'mapfig' }, svg, el('figcaption', null, 'Edition ' + r.n + ': ' + [r.choice.A, r.choice.B, r.choice.C].map(function (x) { return M.optById(x).label; }).join(' · ')));
+    grid.appendChild(fig);
+    drawMap(svg, { prefix:'cm' + i, layer:L, toggles:{ natural:true, edition:true, settle:true, annot:true }, choice:r.choice, sim:r.sim, state:M.stateAt(r.sim, L), interactive:null, small:false });
+  });
+  c.appendChild(grid);
+  var d = M.diffRuns(A.sim, B.sim, L);
+  var t = el('table'); t.appendChild(el('caption', null, d.length + ' differences at ' + M.LAYERS[L].year));
+  t.appendChild(el('thead', null, el('tr', null, el('th', { scope:'col' }, 'Fact'), el('th', { scope:'col' }, 'Edition ' + A.n), el('th', { scope:'col' }, 'Edition ' + B.n))));
+  var tb = el('tbody'); d.forEach(function (x) { tb.appendChild(el('tr', null, el('th', { scope:'row' }, x.field), el('td', null, x.a), el('td', null, x.b))); });
+  if (!d.length) tb.appendChild(el('tr', null, el('td', { colspan:3 }, 'No differences: these editions made the same marks.')));
+  t.appendChild(tb);
+  c.appendChild(el('div', { class:'tablewrap', tabindex:0, role:'region', 'aria-label':'Differences table' }, t));
+}
+
+/* ---------------- Reset ---------------- */
+function resetAll() {
+  confirmDialog('Reset everything?', 'This clears every edition, answer, comparison and trace in this tab and returns to the beginning.', 'Reset everything', function () {
+    S = freshState(); inkBuilt = false; clear($('sortbox')); clear($('ink-fields')); clear($('toggles')).appendChild(el('legend', { class:'small' }, 'Map layers'));
+    clear($('trace-history')); clear($('trace-challenge')); $('sort-status').textContent = ''; $('check-status').textContent = '';
+    go('intro'); announce('Everything has been reset.');
+  });
+}
+
+/* ---------------- Wiring ---------------- */
+$('btn-begin').addEventListener('click', function () { S.unlocked.survey = true; S.screen = 'survey'; go('survey'); });
+$('btn-sortcheck').addEventListener('click', checkSort);
+$('btn-to-ink').addEventListener('click', function () { if (surveyDone()) go('ink'); });
+$('btn-seal').addEventListener('click', seal);
+$('btn-check').addEventListener('click', checkClaims);
+$('btn-to-final').addEventListener('click', function () { go('final'); });
+$('btn-reset').addEventListener('click', resetAll);
+$('dlg-ok').addEventListener('click', function () { closeDialog(true); });
+$('dlg-cancel').addEventListener('click', function () { closeDialog(false); });
+$('dlg').addEventListener('cancel', function (ev) { ev.preventDefault(); closeDialog(false); });
+document.addEventListener('keydown', function (ev) {
+  if (ev.key === 'Escape' && !$('dlg').open) {
+    if (S.screen === 'history' && S.view.traceId) closeTrace('h');
+    else if (S.screen === 'challenge' && S.challengeTrace) closeTrace('c');
+  }
+});
+go('intro', true);
+
+/* ---------------- Read-only audit surface ---------------- */
+window.EchortalsQA = Object.freeze({ run: function () { return M.qa(); } });
+window.__ECHORTALS_DEBUG__ = Object.freeze({
+  snapshot: function () {
+    var r = active();
+    return JSON.parse(JSON.stringify({
+      screen: S.screen, unlocked: S.unlocked, surveyVisited: Object.keys(S.survey.visited), sortPassed: S.survey.sortPassed,
+      draft: S.draft, view: S.view, challengeTrace: S.challengeTrace, compare: S.compare,
+      runs: S.runs.map(function (x) { return { id:x.id, n:x.n, choice:x.choice, reached:x.reached, challenge:{ answers:x.challenge.answers, verdict:x.challenge.verdict, everPassed:x.challenge.everPassed }, final:x.final }; }),
+      active: r ? r.id : null
+    }));
+  }
+});
+})();
+</script>
+</body>
+</html>
