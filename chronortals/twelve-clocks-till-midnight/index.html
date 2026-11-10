@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twelve Clocks Till Midnight · Chronortals · DoorQuests</title>
+<meta name="description" content="A clockmaker's midnight workshop. Observe twelve disagreeing clocks, diagnose offset and rate faults, and prove they agree across time. DoorQuests · Tomortal · Chronortals 001.">
+<style>
+:root{
+  --bg:#0a1124; --bg2:#0f1a35; --panel:#142140; --panel2:#1a2a50; --ink:#f0f2f8; --muted:#c3cbe0;
+  --brass:#ecc874; --brass2:#c99a3a; --line:#34477a; --ok:#93e8b6; --bad:#ffb8ac; --warn:#ffd98a;
+  --focus:#ffe58f; --glow:#8fd6ff; --btn:#1f2f58; --btnh:#2a3d70;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:600;line-height:1.2;color:var(--brass);margin:0 0 .5rem}
+h2{font-size:1.35rem} h3{font-size:1.1rem;margin-top:1rem}
+p{margin:.4rem 0 .8rem}
+a{color:var(--glow)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+
+/* ---------- Scene ---------- */
+.scene{position:relative;overflow:hidden;background:linear-gradient(180deg,#060c1e 0%,#0d1c44 70%,#16295a 100%);border-bottom:3px solid var(--brass2);min-height:210px}
+.sky .star{position:absolute;width:2px;height:2px;background:#dfe8ff;border-radius:50%;opacity:.8}
+.mullions{position:absolute;inset:0;pointer-events:none;
+  background:
+   linear-gradient(90deg,transparent calc(33.3% - 3px),#2a2015 calc(33.3% - 3px),#2a2015 calc(33.3% + 3px),transparent calc(33.3% + 3px)),
+   linear-gradient(90deg,transparent calc(66.6% - 3px),#2a2015 calc(66.6% - 3px),#2a2015 calc(66.6% + 3px),transparent calc(66.6% + 3px));
+  opacity:.75}
+.fountain{position:absolute;left:50%;bottom:0;width:180px;height:120px;transform:translateX(-50%)}
+.fountain .basin{position:absolute;bottom:6px;left:10px;right:10px;height:26px;border-radius:50%;background:#2a3557;border:2px solid #4a5684}
+.fountain .stem{position:absolute;bottom:24px;left:84px;width:12px;height:40px;background:#3a4672}
+.fountain .bowl{position:absolute;bottom:60px;left:55px;width:70px;height:14px;border-radius:0 0 50% 50%;background:#3a4672;border:2px solid #56628f}
+.fountain .jet{position:absolute;bottom:72px;left:86px;width:8px;height:44px;border-radius:4px;background:linear-gradient(#ffffff00,#9fdcff);opacity:0;transition:opacity .8s}
+.fountain .halo{position:absolute;left:-40px;right:-40px;bottom:-30px;height:120px;border-radius:50%;background:radial-gradient(closest-side,#8fd6ff88,#8fd6ff00);opacity:0;transition:opacity .8s}
+.fountain[data-state="stage1"] .halo{opacity:.45}
+.fountain[data-state="stage1"] .basin{background:#2f4f86;border-color:#8fd6ff}
+.fountain[data-state="full"] .halo{opacity:1}
+.fountain[data-state="full"] .jet{opacity:1}
+.fountain[data-state="full"] .basin{background:#3c6bb0;border-color:#c6ecff}
+.fountain[data-state="full"] .bowl{border-color:#c6ecff}
+@media (prefers-reduced-motion:no-preference){
+  .fountain[data-state="full"] .jet{animation:shimmer 2.4s ease-in-out infinite}
+  @keyframes shimmer{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.12)}}
+}
+.scene .title{position:relative;padding:22px 16px 120px;max-width:1120px;margin:0 auto}
+.brand{margin:0;color:var(--muted);font-size:.85rem;letter-spacing:.08em;text-transform:uppercase}
+.scene h1{font-size:clamp(1.7rem,6vw,2.6rem);margin:.2rem 0 .3rem;text-shadow:0 2px 12px #000}
+.plaza-text{margin:0;color:var(--muted);font-size:.95rem;max-width:36rem}
+
+/* ---------- Panels & controls ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin:16px 0}
+.panel.tight{padding:12px}
+.btn{min-height:44px;min-width:44px;padding:8px 12px;border-radius:8px;border:1px solid var(--brass2);background:var(--btn);color:var(--ink);font:inherit;cursor:pointer;line-height:1.2}
+.btn:hover{background:var(--btnh)}
+.btn.primary{background:var(--brass);color:#16110a;border-color:var(--brass);font-weight:600}
+.btn.primary:hover{background:#f6d88f}
+.btn.quiet{border-color:var(--line)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+label{font-weight:600}
+input[type=number],select{min-height:44px;font:inherit;background:#0e1834;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+input[type=number]{width:6.5rem}
+input[type=range]{width:100%;min-height:44px;accent-color:var(--brass)}
+.ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+
+/* Reference */
+.ref-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+.ref-time{font-family:Georgia,serif;font-size:clamp(2rem,9vw,2.8rem);font-variant-numeric:tabular-nums;color:#fff;letter-spacing:.02em}
+.ref-sub{color:var(--muted)}
+.stepper{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+@media(min-width:560px){.stepper{grid-template-columns:repeat(6,1fr)}}
+.jump{display:grid;gap:8px;grid-template-columns:minmax(0,1fr);margin-top:6px}
+.jump select{width:100%;min-width:0}
+@media(min-width:560px){.jump{grid-template-columns:auto minmax(0,1fr)}}
+
+/* Layout */
+.cols{display:grid;gap:0 16px}
+@media(min-width:920px){.cols{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}}
+
+/* Roster */
+.roster{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ros{width:100%;text-align:left;display:flex;gap:10px;align-items:center}
+.ros[aria-pressed="true"]{background:#33477f;border-color:var(--brass);box-shadow:inset 4px 0 0 var(--brass)}
+.ros .num{flex:0 0 2rem;height:2rem;border-radius:50%;display:grid;place-items:center;border:1px solid var(--brass2);font-family:Georgia,serif}
+.ros .st{display:block;font-size:.88rem;color:var(--muted)}
+.dark-wall{border:1px dashed var(--line);border-radius:8px;padding:10px;color:var(--muted)}
+
+/* Wall table */
+table{width:100%;border-collapse:collapse;font-size:.9rem;table-layout:fixed}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
+th{color:var(--brass);font-weight:600}
+
+/* Clock panel */
+.clock-kind{color:var(--muted);margin-top:-.3rem}
+.plate{border-left:3px solid var(--brass2);padding:6px 10px;background:#101b38;border-radius:0 8px 8px 0;font-style:italic}
+.dials{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:10px 0}
+.dialbox{text-align:center;flex:1 1 150px;max-width:220px}
+.dial{width:100%;max-width:190px;height:auto}
+.reading{font-family:Georgia,serif;font-size:1.35rem;font-variant-numeric:tabular-nums;color:#fff}
+.diff{font-weight:600}
+fieldset{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+legend{padding:0 6px;color:var(--brass);font-family:Georgia,serif;font-weight:600}
+.adjgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0}
+@media(min-width:520px){.adjgrid{grid-template-columns:repeat(6,1fr)}}
+.val{font-variant-numeric:tabular-nums}
+.result{border-radius:8px;padding:10px;margin-top:10px;background:#0f1936;border:1px solid var(--line)}
+.result.pass{border-color:var(--ok)} .result.fail{border-color:var(--bad)}
+.notes{list-style:none;padding:0;margin:6px 0;display:grid;gap:6px}
+.notes li{background:#0f1936;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:.92rem}
+.hints{margin:6px 0;padding-left:1.2rem}
+.confirm{background:#2a1f12;border:1px solid var(--brass2);border-radius:8px;padding:10px;margin-top:8px}
+
+/* Test & finale */
+.testlist{list-style:none;padding:0;margin:8px 0;display:grid;gap:8px}
+.testlist li{background:#0f1936;border:1px solid var(--line);border-radius:8px;padding:10px}
+.testlist li.pass{border-color:#3c8a62} .testlist li.fail{border-color:#9a5146}
+.banner{border:2px solid var(--brass);border-radius:12px;padding:14px;margin:12px 0;background:linear-gradient(180deg,#1d2c58,#142140)}
+.banner.full{border-color:#c6ecff;box-shadow:0 0 24px #8fd6ff55}
+.banner.past{border-style:dashed;border-color:var(--warn);background:#141f3c}
+.status-line{border-radius:8px;padding:10px;margin:10px 0;background:#0f1936;border:1px solid var(--line)}
+.status-line.ok{border-color:var(--ok)} .status-line.bad{border-color:var(--bad)} .status-line.warn{border-color:var(--warn)}
+.diag{margin-top:6px}
+.diag summary,.ledger-sec summary{min-height:44px}
+.diag table{margin-top:4px;font-size:.85rem}
+.ledger-sec{margin:10px 0}
+.led h4{font-family:Georgia,"Times New Roman",serif;color:var(--brass);font-size:1.05rem;margin:0 0 .4rem}
+.chimes{columns:2 220px;padding-left:1.2rem;margin:.4rem 0}
+.led{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0;background:#101b38}
+.led dl{display:grid;grid-template-columns:1fr;gap:2px 12px;margin:0}
+@media(min-width:620px){.led dl{grid-template-columns:10rem 1fr}}
+.led dt{color:var(--brass);font-weight:600}
+.led dd{margin:0 0 6px}
+.led ul{margin:0;padding-left:1.1rem}
+details summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--brass)}
+blockquote{margin:10px 0;padding:10px 14px;border-left:3px solid var(--brass);background:#101b38;font-family:Georgia,serif;font-size:1.1rem;font-style:italic}
+footer{color:var(--muted);text-align:center;padding:24px 16px 40px;font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media (forced-colors:active){.btn{border:1px solid ButtonText}.ros[aria-pressed="true"]{outline:2px solid Highlight}}
+</style>
+</head>
+<body>
+<header class="scene">
+  <div class="sky" aria-hidden="true">
+    <span class="star" style="left:8%;top:18%"></span><span class="star" style="left:21%;top:40%"></span>
+    <span class="star" style="left:37%;top:12%"></span><span class="star" style="left:58%;top:26%"></span>
+    <span class="star" style="left:71%;top:10%"></span><span class="star" style="left:86%;top:34%"></span>
+    <span class="star" style="left:93%;top:16%"></span><span class="star" style="left:46%;top:44%"></span>
+  </div>
+  <div class="fountain" id="fountain" data-state="dormant" aria-hidden="true">
+    <div class="halo"></div><div class="jet"></div><div class="bowl"></div><div class="stem"></div><div class="basin"></div>
+  </div>
+  <div class="mullions" aria-hidden="true"></div>
+  <div class="title">
+    <p class="brand">DoorQuests · Tomortal · Chronortals 001</p>
+    <h1>Twelve Clocks Till Midnight</h1>
+    <p id="plazaText" class="plaza-text">Through the workshop's tall windows, the plaza fountain lies dark.</p>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <!-- Intro -->
+  <section id="intro" class="panel" aria-labelledby="introH">
+    <h2 id="introH">The clockmaker's note</h2>
+    <p>It is 6:00 PM. The old clockmaker has gone home, leaving the workshop to you. Twelve clocks line the wall, and none of them agree. Pinned to the bench is a card in a careful hand:</p>
+    <blockquote>“They needn't merely agree once. They must agree when midnight comes.”</blockquote>
+    <p>One instrument here is trustworthy: the <strong>Reference Time</strong>. Move it forward and back, watch how each clock strays, write down what you see, and correct each clock's <strong>hands</strong> (what it shows) and <strong>regulator</strong> (how fast it runs). Then prove your work with a Test Run that checks every clock across the whole evening.</p>
+    <p class="muted small">Four clocks wait on the bench first. Nothing here needs sound, speed or real waiting: time only moves when you move it.</p>
+    <button class="btn primary" data-act="begin" id="beginBtn">Enter the workshop</button>
+  </section>
+
+  <div id="game" hidden>
+    <!-- Reference -->
+    <section class="panel" aria-labelledby="refH" id="refPanel">
+      <h2 id="refH" tabindex="-1">Reference Time</h2>
+      <div class="ref-head">
+        <span class="ref-time" id="refTime">6:00:00 PM</span>
+        <span class="ref-sub" id="refSub"></span>
+      </div>
+      <p class="muted small">The workshop's master regulator. It is always right. Every clock is judged against it.</p>
+      <div class="stepper" role="group" aria-label="Move reference time">
+        <button class="btn" data-act="ref" data-d="-60" id="ref-m60">− 1 hour</button>
+        <button class="btn" data-act="ref" data-d="-15" id="ref-m15">− 15 min</button>
+        <button class="btn" data-act="ref" data-d="-1" id="ref-m1">− 1 min</button>
+        <button class="btn" data-act="ref" data-d="1" id="ref-p1">+ 1 min</button>
+        <button class="btn" data-act="ref" data-d="15" id="ref-p15">+ 15 min</button>
+        <button class="btn" data-act="ref" data-d="60" id="ref-p60">+ 1 hour</button>
+      </div>
+      <div class="jump">
+        <label for="refSelect">Jump to</label>
+        <select id="refSelect"></select>
+      </div>
+      <label for="refRange" class="small muted" style="display:block;margin-top:8px;font-weight:500">Or scrub (6:00 PM – 1:00 AM)</label>
+      <input type="range" id="refRange" min="0" max="420" step="1" value="0">
+    </section>
+
+    <div class="cols">
+      <div>
+        <section class="panel" aria-labelledby="rosterH">
+          <h2 id="rosterH">Clocks</h2>
+          <div id="roster"></div>
+        </section>
+        <section class="panel" aria-labelledby="wallH">
+          <h2 id="wallH">Wall overview</h2>
+          <p class="muted small" id="wallCaption">Every active clock at the current reference time.</p>
+          <div id="wall"></div>
+        </section>
+      </div>
+      <div>
+        <section class="panel" aria-labelledby="clockH" id="clockPanel"></section>
+      </div>
+    </div>
+
+    <section class="panel" aria-labelledby="testH" id="testPanel">
+      <h2 id="testH" tabindex="-1">Test Run</h2>
+      <p>A Test Run checks every active clock at five moments: <strong>6:00 PM, 8:30 PM, 10:15 PM, 12:00 AM (midnight) and 12:30 AM</strong>. A clock passes only if it matches the reference to the second at all five, so a clock that is right once (or right only at midnight) will not pass.</p>
+      <button class="btn primary" data-act="runtest" id="runTestBtn">Run the test</button>
+      <div id="testOut"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="ledgerH" id="ledgerPanel" hidden>
+      <h2 id="ledgerH" tabindex="-1">Success Ledger</h2>
+      <div id="ledger"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="helpH">
+      <h2 id="helpH">Help &amp; workshop rules</h2>
+      <details>
+        <summary>How clocks go wrong (offset vs. rate)</summary>
+        <p><strong>Offset</strong>: the clock runs at the right speed but its hands were set wrong. Its difference from the reference is the <em>same</em> at every moment. Fix it by moving the hands.</p>
+        <p><strong>Rate</strong>: the clock runs too fast or too slow. Its difference <em>grows</em> by the same amount every hour. “Fast by 2 min per hour” means that after 3 hours it has gained 6 minutes. Fix it with the regulator: a clock that gains 2 min per hour needs the regulator set to −2.</p>
+        <p>A clock can have both. Then it may agree with the reference at exactly one moment and be wrong at every other. That's why one matching reading proves nothing.</p>
+      </details>
+      <details>
+        <summary>How corrections work</summary>
+        <p>All corrections are made at the bench as of the 6:00 PM opening. <strong>Hands</strong> shift the clock's reading at 6:00 PM by whole minutes (up to ±12 hours). The <strong>regulator</strong> changes how many minutes per hour the clock gains (+) or loses (−) from 6:00 PM onward, in whole minutes per hour (−10 to +10).</p>
+        <p>Because corrections apply from 6:00 PM, the readings you see at every reference time update immediately when you adjust. Move the reference back and forth to check: the same reference time always gives the same reading.</p>
+        <p>A few advanced clocks have one extra fitting, such as a mainspring, a dial or a window. Its plate or note tells you about it.</p>
+      </details>
+      <details>
+        <summary>Reading the clocks</summary>
+        <p>The text reading under each dial is authoritative. Every clock in this workshop has a small day/night window, so readings include AM or PM. A clock exactly 12 hours wrong looks perfect on its dial but shows the wrong AM/PM, and its difference says so. Seconds matter: a small drift may show up only as seconds at first.</p>
+      </details>
+      <details>
+        <summary>Proof, changes and saving</summary>
+        <p>A stage counts as verified only while the latest Test Run passed it and no hands, regulator or fitting has changed since. If you change a setting afterwards, your earned result stays in the Success Ledger as <strong>past proof</strong>, but the workshop shows it as not verified until you run the test again. Moving the reference time, pinning notes, reading hints and bench checks never change verification.</p>
+        <p>Progress is kept only while this page stays open. Refreshing or closing the page starts a fresh run.</p>
+      </details>
+      <div class="row" style="margin-top:12px">
+        <button class="btn quiet" data-act="resetall" id="resetAllBtn">Start a new run at the bench…</button>
+      </div>
+      <div id="resetAllConfirm"></div>
+    </section>
+  </div>
+
+  <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+</main>
+<footer>
+  <p>Created by The Axiom Continuum.</p>
+  <p>Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+  <p class="small">All clocks, notes and places in this workshop are fictional.</p>
+</footer>
+
+<script>
+/* =========================================================
+   Deterministic clock model (pure; no Date, no randomness)
+   ========================================================= */
+var TCTM = (function(){
+  'use strict';
+  var T0 = 1080;            // reference start: 6:00 PM, in minutes after midnight (day 0)
+  var TMAX = 420;           // scrub range: t = 0..420 (6:00 PM .. 1:00 AM)
+  var CYC = 43200;          // 12-hour dial cycle, in seconds
+  var TESTS = [0, 150, 255, 360, 390]; // 6:00 PM, 8:30 PM, 10:15 PM, 12:00 AM, 12:30 AM
+  var LIM = { offMin: -720, offMax: 720, rateMin: -10, rateMax: 10 };
+
+  var SPECIAL = {
+    wind:   { type:'wind',   label:'Mainspring',   off:'Run down (as found)',               on:'Fully wound',                         doIt:'Wind the mainspring',          undo:'Let it run down again' },
+    face:   { type:'face',   label:'Dial fitting', off:'Seated as found',                   on:'Re-seated, numerals the right way',   doIt:'Re-seat the dial',             undo:'Put it back as found' },
+    window: { type:'window', label:'North window', off:'Opened at 9:00 PM (as every night)', on:'Kept shut all evening',                doIt:'Keep the north window shut',   undo:'Let it open at 9:00 PM again' }
+  };
+
+  // Units: face.off = initial indicated offset in minutes; rate = min gained per reference hour.
+  var CLOCKS = [
+    { id:1, stage:1, name:'The Steady Mantel', kind:'Walnut mantel clock', rim:'#b88a4a',
+      faces:[{label:'Dial', off:7}], rate:0,
+      plate:'A brass plate reads: “Set from the station clock — and the station was always early.”',
+      fault:'Fixed offset: 7 minutes ahead. Rate sound.',
+      solution:{ off:[-7], rate:0, fix:false },
+      why:'Its error never changed, so moving the hands back 7 minutes corrected every moment at once.',
+      hints:[
+        'Pin this clock at two reference times at least an hour apart. Does its difference from the reference change?',
+        'A difference that stays exactly the same is an offset: the clock runs at the right speed but its hands were set wrong. Move the hands; leave the regulator alone.',
+        'It is 7 minutes ahead at every moment. Hands −7 min, regulator 0.' ] },
+    { id:2, stage:1, name:'The Hurrying Hare', kind:'Brass carriage clock', rim:'#d6b25e',
+      faces:[{label:'Dial', off:0}], rate:2,
+      plate:'Maker\u2019s mark: a running hare. A tag: “New mainspring fitted — rather stronger than the old one.”',
+      fault:'Runs fast: gains 2 minutes per hour. Correct at 6:00 PM.',
+      solution:{ off:[0], rate:-2, fix:false },
+      why:'It was right at 6:00 PM but gained 2 minutes every hour. Setting the regulator to −2 cancelled the gain, so it stays right all evening.',
+      hints:[
+        'It looks right at 6:00 PM. Move forward an hour or two and compare again.',
+        'If the difference grows by the same amount each hour, that growth is the rate error. Divide the change by the hours elapsed, then set the regulator to the opposite.',
+        'It gains 2 minutes per hour from a correct start. Regulator −2, hands 0.' ] },
+    { id:3, stage:1, name:'The Old Tortoise', kind:'Black marble clock', rim:'#8c8f9c',
+      faces:[{label:'Dial', off:0}], rate:-3,
+      plate:'A note inside the case: “Heavier pendulum bob fitted. It swings long now.”',
+      fault:'Runs slow: loses 3 minutes per hour. Correct at 6:00 PM.',
+      solution:{ off:[0], rate:3, fix:false },
+      why:'It started right but lost 3 minutes every hour. A regulator of +3 makes up exactly what it was losing.',
+      hints:[
+        'Compare its reading at 6:00 PM with its reading at 8:00 PM.',
+        'A clock that falls further behind by the same amount every hour needs the regulator moved the other way: positive to speed it up.',
+        'It loses 3 minutes per hour from a correct start. Regulator +3, hands 0.' ] },
+    { id:4, stage:1, name:'The Lantern Liar', kind:'Iron lantern clock', rim:'#6f7e74',
+      faces:[{label:'Dial', off:-8}], rate:4,
+      plate:'Scratched on the frame: “Set it so it would look right at eight, when the customers came.”',
+      fault:'Two faults: 8 minutes behind at 6:00 PM and gains 4 minutes per hour, so it reads exactly right at 8:00 PM and wrong at every other time.',
+      solution:{ off:[8], rate:-4, fix:false },
+      why:'Its offset and its rate cancelled at 8:00 PM only. Fixing just one of them would have left the other; hands +8 and regulator −4 removed both.',
+      hints:[
+        'Check it at 8:00 PM. Then check it at 6:00 PM and at 10:00 PM. Is a single good reading enough?',
+        'Work out its difference at two times. The change between them, per hour, is its rate. Its difference at 6:00 PM is its offset. It has both.',
+        'Behind 8 minutes at 6:00 PM, gaining 4 minutes per hour. Hands +8, regulator −4.' ] },
+
+    { id:5, stage:2, name:'The Looking-Glass Clock', kind:'Gilded wall clock', rim:'#e0c060',
+      faces:[{label:'Dial', off:0}], rate:0, mirrored:true, special:SPECIAL.face,
+      plate:'Plate: “Dial salvaged from a looking-glass maker\u2019s shop.” Study the numerals.',
+      fault:'Display fault: the dial was fitted mirror-image, so it reads 12:00 minus the true time. The movement itself is sound.',
+      solution:{ off:[0], rate:0, fix:true },
+      why:'The movement was always right; only the face lied. A mirrored dial agrees with true time at 6 and 12 o\u2019clock, so it fooled any check made only at opening and midnight. Re-seating the dial fixed every moment.',
+      hints:[
+        'It agrees at 6:00 PM. Does it agree at midnight? Now try 8:30 PM.',
+        'Look at the numerals and at which way the reading moves when time moves forward. Hands and regulator can\u2019t fix a dial that runs the wrong way.',
+        'The dial is mirror-image: it reads 12:00 minus the true time. Re-seat the dial; leave hands and regulator at 0.' ] },
+    { id:6, stage:2, name:'The Night Owl', kind:'Carved owl clock with sun-and-moon window', rim:'#a07a52',
+      faces:[{label:'Dial', off:720}], rate:1,
+      plate:'Note: “Set by a sleepy apprentice, who swore the sun was rising.”',
+      fault:'Two faults: a full 12 hours ahead (its dial looks right but its window shows AM) and gains 1 minute per hour.',
+      solution:{ off:[-720], rate:-1, fix:false },
+      why:'On a 12-hour dial, 12 hours ahead looks perfect; only the AM/PM window and the unwrapped difference showed it. Hands −12 h removed the hidden half-day, and regulator −1 removed the drift.',
+      hints:[
+        'Ignore the dial for a moment and read the text in full, including AM or PM.',
+        'A 12-hour dial can hide an error of exactly 12 hours. Check its difference too: does it also change over time?',
+        'It is 12 hours ahead and gains 1 minute per hour. Hands −720 min (−12 h), regulator −1.' ] },
+    { id:7, stage:2, name:'The Sleeping Bracket Clock', kind:'Ebony bracket clock', rim:'#5d5a6e',
+      faces:[{label:'Dial', off:220}], rate:0, runsUntil:0, special:SPECIAL.wind,
+      plate:'Its pendulum hangs still. A note: “Stopped during the storm. Otherwise a fine timekeeper.”',
+      fault:'Stopped at 9:40 PM; mainspring run down. Once wound it keeps sound time, but from 9:40.',
+      solution:{ off:[-220], rate:0, fix:true },
+      why:'A stopped clock is right once a day: at 9:40 PM it matched the reference and proved nothing. Winding it made it run; hands −220 min (−3 h 40 min) brought 9:40 back to 6:00.',
+      hints:[
+        'Move the reference forward. Does this clock\u2019s reading change at all? When does it happen to be right?',
+        'The regulator can\u2019t speed up a clock that isn\u2019t running. Get it going first, then see what its reading is at 6:00 PM.',
+        'It stopped at 9:40. Wind it, then set the hands −220 min (−3 h 40 min). Regulator 0.' ] },
+    { id:8, stage:2, name:'The Midnight Trickster', kind:'Skeleton clock under glass', rim:'#c9c3b5',
+      faces:[{label:'Dial', off:-12}], rate:2,
+      plate:'A card, underlined twice: “Checked it at midnight last night. PERFECT.”',
+      fault:'Two faults: 12 minutes behind at 6:00 PM and gains 2 minutes per hour, so it reads exactly right at midnight and runs ahead afterward.',
+      solution:{ off:[12], rate:-2, fix:false },
+      why:'Perfect at midnight, and only at midnight. That is why the test also checks 12:30 AM and earlier moments. Hands +12 and regulator −2 made it right at all of them.',
+      hints:[
+        'It\u2019s right at midnight. Look at 6:00 PM and at 12:30 AM.',
+        'Its difference is shrinking toward midnight and growing after it: a steady rate plus an offset that cancel at 12:00 AM.',
+        'Behind 12 minutes at 6:00 PM, gaining 2 minutes per hour. Hands +12, regulator −2.' ] },
+    { id:9, stage:2, name:'The Gatehouse Twin-Face', kind:'Two-dialed gatehouse clock', rim:'#7d9bc2',
+      faces:[{label:'Face A (street side)', off:5},{label:'Face B (courtyard side)', off:-10}], rate:3,
+      plate:'One movement between two dials. Each dial\u2019s hands can be set separately; there is only one regulator.',
+      fault:'Shared movement gains 3 minutes per hour. Face A set 5 minutes ahead; Face B set 10 minutes behind.',
+      solution:{ off:[-5,10], rate:-3, fix:false },
+      why:'Both faces drifted apart from the reference at the same rate, which pointed to the shared movement. One regulator fix (−3) cured both, then each face needed its own hands correction (A −5, B +10).',
+      hints:[
+        'Compare how each face\u2019s difference changes over time. Do they change by the same amount?',
+        'What is the same on both faces belongs to the shared movement (the regulator). What differs belongs to each face\u2019s hands.',
+        'The movement gains 3 minutes per hour. Regulator −3; Face A hands −5; Face B hands +10.' ] },
+    { id:10, stage:2, name:'The Draughty Longcase', kind:'Oak longcase clock by the north window', rim:'#8a6a44',
+      faces:[{label:'Dial', off:0}], rate:2, draught:true, special:SPECIAL.window,
+      plate:'Maintenance card: “Runs a touch fast in the warm. North window opened every night at nine, to air the shop.”',
+      fault:'Gains 2 minutes per hour in the warm, but the cold draught from 9:00 PM makes it lose 2 minutes per hour instead. Its rate changes partway through the evening.',
+      solution:{ off:[0], rate:-2, fix:true },
+      why:'No single regulator setting could fix a rate that changed at 9:00 PM. Keeping the window shut made its rate steady (+2), and then regulator −2 made it exact.',
+      hints:[
+        'Measure its rate between 6:00 and 9:00 PM. Then measure it between 9:00 PM and midnight.',
+        'If the rate changes partway through, something in the room is changing it. Read the maintenance card.',
+        'Gains 2 min/hr until the window opens at 9:00 PM, then loses 2 min/hr. Keep the window shut, then regulator −2.' ] },
+    { id:11, stage:2, name:'The Patient Pocket Watch', kind:'Silver pocket watch on a stand', rim:'#cfd4dc',
+      faces:[{label:'Dial', off:0}], rate:-1,
+      plate:'Engraved inside the lid: “Patience shows in the seconds.”',
+      fault:'Runs slightly slow: loses 1 minute per hour, just 15 seconds each quarter-hour. Correct at 6:00 PM.',
+      solution:{ off:[0], rate:1, fix:false },
+      why:'The error was tiny at first, only seconds, but it grew to 6 minutes by midnight. Regulator +1 removed it.',
+      hints:[
+        'Read the seconds, not just the minutes.',
+        'Seconds lost per quarter-hour × 4 = seconds lost per hour. Convert that to minutes per hour.',
+        'It loses 1 minute per hour. Regulator +1, hands 0.' ] },
+    { id:12, stage:2, name:'The Weary Wall Regulator', kind:'Glass-fronted wall regulator', rim:'#9a8466',
+      faces:[{label:'Dial', off:0}], rate:3, runsUntil:300, special:SPECIAL.wind,
+      plate:'Note: “Spring tired. Only partly wound this afternoon. Runs fast too, I think.”',
+      fault:'Gains 3 minutes per hour, and its partly-wound spring runs down at 11:00 PM, stopping the clock.',
+      solution:{ off:[0], rate:-3, fix:true },
+      why:'Two faults that showed at different times: the drift from the start, and the stop at 11:00 PM. Winding it fully kept it running through midnight; regulator −3 removed the drift.',
+      hints:[
+        'Watch it late in the evening. Is it still moving after 11:00 PM?',
+        'Fix what stops it first, then measure its rate while it runs.',
+        'It gains 3 minutes per hour and stops at 11:00 PM. Wind it fully, regulator −3, hands 0.' ] }
+  ];
+
+  function newState(c){ return { off:c.faces.map(function(){return 0;}), rate:0, fix:false, status:'untested', hint:0, notes:[], last:null }; }
+
+  // Minutes the movement has actually run by reference minute t.
+  function runMinutes(c, st, t){
+    if (c.runsUntil == null) return t;
+    if (c.special && c.special.type === 'wind' && st.fix) return t;
+    return Math.min(t, c.runsUntil);
+  }
+  // Mechanical (unwrapped) indicated time, integer seconds since midnight of day 0.
+  // rate is minutes per hour, i.e. seconds per minute: rate * runMinutes is exact integer seconds.
+  function mechSec(c, st, t, f){
+    var run = runMinutes(c, st, t);
+    var s = 60 * (T0 + c.faces[f].off + st.off[f]) + 60 * run + (c.rate + st.rate) * run;
+    if (c.draught && !st.fix) s += -4 * Math.max(0, t - 180); // cold from 9:00 PM: 4 min/hr slower
+    return s;
+  }
+  // What the face (and its AM/PM window) shows, unwrapped. Display fault applied within the 12-h cycle only.
+  function shownSec(c, st, t, f){
+    var x = mechSec(c, st, t, f);
+    if (c.mirrored && !st.fix){
+      var base = Math.floor(x / CYC) * CYC, w = x - base;
+      return base + ((CYC - w) % CYC);
+    }
+    return x;
+  }
+  function refSec(t){ return 60 * (T0 + t); }
+
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function fmtClock(sec, withSec){
+    if (withSec === undefined) withSec = true;
+    var tm = Math.floor(sec / 60), s = ((sec % 60) + 60) % 60;
+    var m24 = ((tm % 1440) + 1440) % 1440, h24 = Math.floor(m24 / 60), m = m24 % 60;
+    var h = h24 % 12 || 12, ap = h24 < 12 ? 'AM' : 'PM';
+    return h + ':' + pad(m) + (withSec ? ':' + pad(s) : '') + ' ' + ap;
+  }
+  function dayNote(sec){ var d = Math.floor(sec / 86400); return d === 0 ? '' : (d === 1 ? ' (next day)' : ' (+' + d + ' days)'); }
+  function fmtRef(t, withSec){ return fmtClock(refSec(t), withSec); }
+  function diffText(d){
+    if (d === 0) return 'matches';
+    var a = Math.abs(d), h = Math.floor(a / 3600), m = Math.floor((a % 3600) / 60), s = a % 60, p = [];
+    if (h) p.push(h + ' h'); if (m) p.push(m + ' min'); if (s) p.push(s + ' s');
+    return (d > 0 ? 'ahead ' : 'behind ') + p.join(' ');
+  }
+  function signed(n){ return n === 0 ? '0' : (n > 0 ? '+' + n : '\u2212' + Math.abs(n)); }
+  function offText(o){
+    if (o === 0) return '0 min';
+    var a = Math.abs(o), h = Math.floor(a / 60), m = a % 60;
+    var core = (h ? h + ' h' + (m ? ' ' : '') : '') + (m ? m + ' min' : '');
+    return (o > 0 ? '+' : '\u2212') + core;
+  }
+  function settingsText(c, st){
+    var parts = c.faces.map(function(fc, f){ return (c.faces.length > 1 ? fc.label + ' hands ' : 'Hands ') + offText(st.off[f]); });
+    parts.push('Regulator ' + signed(st.rate) + ' min/hr');
+    if (c.special) parts.push(c.special.label + ': ' + (st.fix ? c.special.on : c.special.off));
+    return parts.join(' · ');
+  }
+
+  function explainFace(face, multi){
+    var rows = face.rows, ok = rows.filter(function(r){return r.d === 0;}), bad = rows.filter(function(r){return r.d !== 0;});
+    var s = multi ? face.label + ': ' : '';
+    if (ok.length) s += 'correct at ' + ok.map(function(r){return fmtRef(r.t, false);}).join(', ') + ', but ';
+    s += bad.slice(0, 2).map(function(r){ return diffText(r.d) + ' at ' + fmtRef(r.t, false); }).join(' and ');
+    if (bad.length > 2) s += ' (wrong at ' + bad.length + ' of 5 moments)';
+    s += '. ';
+    var d0 = rows[0].d, k = null, linear = true;
+    for (var i = 1; i < rows.length; i++){
+      var num = rows[i].d - d0, kt = num / rows[i].t;
+      if (k === null) k = kt; else if (kt !== k) { linear = false; break; }
+    }
+    if (linear){
+      if (k === 0) s += 'The error is the same at every moment: the rate is right; only the hands need moving.';
+      else if (k === -60) s += 'It falls a full hour further behind every hour: this clock is not running at all.';
+      else {
+        s += 'It ' + (k > 0 ? 'gains ' : 'loses ') + Math.abs(k) + ' min per hour: the regulator is still ' + (k > 0 ? 'too fast.' : 'too slow.');
+        if (d0 !== 0) s += ' Its reading at 6:00 PM is also off.';
+      }
+    } else {
+      s += 'The error does not change steadily, so the hands and regulator alone can\u2019t explain it.';
+    }
+    return s;
+  }
+  function testClock(c, st){
+    var faces = c.faces.map(function(fc, f){
+      var rows = TESTS.map(function(t){ var r = refSec(t), s = shownSec(c, st, t, f); return { t:t, r:r, s:s, d:s - r }; });
+      return { label:fc.label, rows:rows, pass:rows.every(function(x){return x.d === 0;}) };
+    });
+    var pass = faces.every(function(x){return x.pass;});
+    var reason = pass ? 'Matches the reference to the second at all five test moments.'
+      : faces.filter(function(f){return !f.pass;}).map(function(f){ return explainFace(f, c.faces.length > 1); }).join(' ');
+    return { pass:pass, faces:faces, reason:reason };
+  }
+
+  return { T0:T0, TMAX:TMAX, CYC:CYC, TESTS:TESTS, LIM:LIM, CLOCKS:CLOCKS, newState:newState,
+           mechSec:mechSec, shownSec:shownSec, refSec:refSec, fmtClock:fmtClock, fmtRef:fmtRef, dayNote:dayNote,
+           diffText:diffText, offText:offText, signed:signed, settingsText:settingsText, testClock:testClock };
+})();
+</script>
+
+<script>
+/* =========================================================
+   Interface
+   ========================================================= */
+(function(){
+  'use strict';
+  if (typeof document === 'undefined') return;
+  var M = TCTM, CLOCKS = M.CLOCKS, TESTS = M.TESTS;
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s).replace(/[&<>"]/g, function(ch){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]; }); };
+  var STATUS = { untested:'Not yet tested', pass:'\u2713 Passed last test', fail:'\u2717 Failed last test', changed:'\u21BA Adjusted since last test' };
+  var S;
+
+  /* State model (S2-001):
+     - Achievements are historical proof: S.stage1 / S.full = { first:snapshot, latest:snapshot } once earned.
+       They are never cleared by later edits; only a whole-workshop reset removes them.
+     - Current verification is separate: S.rev.bench / S.rev.all count real mechanical changes
+       (hands, regulator, fitting, clock reset). Each full Test Run records the revisions it tested.
+       A milestone is CURRENT only if the latest Test Run passed it AND no relevant change has happened since.
+       Counters only go up, so undoing an edit back to the same numbers still requires a new Test Run.
+     - Scrubbing time, pinning notes, hints, bench checks, selecting clocks and unlocking never change revisions. */
+  function fresh(){
+    return { t:0, sel:0, unlocked:false, tests:0, checks:0, st:CLOCKS.map(M.newState),
+             stage1:null, full:null, path:null, showLedger:false, lastRun:null,
+             rev:{ bench:0, all:0 },
+             confirmAll:false, confirmClock:false, started:true };
+  }
+  S = fresh();
+
+  function active(){ var a = []; for (var i = 0; i < CLOCKS.length; i++) if (S.unlocked || CLOCKS[i].stage === 1) a.push(i); return a; }
+
+  // Canonical mechanical configuration of one clock (what a Test Run depends on).
+  function cfgKey(i){ var st = S.st[i]; return st.off.join(',') + '|' + st.rate + '|' + (st.fix ? 1 : 0); }
+  function benchCurrent(){
+    var lr = S.lastRun;
+    return !!(lr && lr.benchPass && lr.benchRev === S.rev.bench);
+  }
+  function fullCurrent(){
+    var lr = S.lastRun;
+    return !!(S.unlocked && lr && lr.fullPass && lr.allRev === S.rev.all);
+  }
+  function latestStale(){ return !!(S.lastRun && S.lastRun.allRev !== S.rev.all); }
+  // Why a milestone is not current, in plain words (for banners, ledger and announcements).
+  function notCurrentReason(kind){
+    var lr = S.lastRun;
+    if (!lr) return 'no Test Run has been made yet';
+    var changedSince = kind === 'bench' ? lr.benchRev !== S.rev.bench : lr.allRev !== S.rev.all;
+    if (changedSince) return 'settings have changed since the last Test Run (#' + lr.run + ')';
+    if (kind === 'bench') return 'the latest test (run #' + lr.run + ') had ' + lr.benchN + ' of 4 bench clocks passing';
+    if (lr.list.length < 12) return 'the latest test (run #' + lr.run + ') did not include all twelve clocks';
+    return 'the latest test (run #' + lr.run + ') had ' + lr.passN + ' of 12 passing';
+  }
+  // Record a mechanical change to clock i if its configuration actually changed.
+  function noteChange(i, before){
+    if (cfgKey(i) === before) return false;
+    S.rev.all++;
+    if (CLOCKS[i].stage === 1) S.rev.bench++;
+    var st = S.st[i];
+    if (st.status === 'pass' || st.status === 'fail') st.status = 'changed';
+    return true;
+  }
+  function announce(msg){ var l = $('live'); l.textContent = ''; setTimeout(function(){ l.textContent = msg; }, 40); }
+  function readingAt(i, f, t){ var c = CLOCKS[i], st = S.st[i], s = M.shownSec(c, st, t, f); return { s:s, d:s - M.refSec(t) }; }
+  function readingText(i, f, t){ var r = readingAt(i, f, t); return M.fmtClock(r.s) + M.dayNote(r.s) + ', ' + M.diffText(r.d); }
+
+  /* ---------- Dial (decorative; text reading is authoritative) ---------- */
+  function dialSVG(i, f){
+    var c = CLOCKS[i], st = S.st[i];
+    var x = M.mechSec(c, st, S.t, f), shown = M.shownSec(c, st, S.t, f);
+    var mir = c.mirrored && !st.fix, cyc = M.CYC;
+    var w = ((x % cyc) + cyc) % cyc;
+    var ha = w / cyc * 360, ma = (((x % 3600) + 3600) % 3600) / 3600 * 360, sa = (((x % 60) + 60) % 60) * 6;
+    var nums = '', ticks = '';
+    for (var k = 1; k <= 12; k++){
+      var a = k * 30 * Math.PI / 180, lbl = mir ? ((12 - k) || 12) : k;
+      nums += '<text x="' + (100 + 68 * Math.sin(a)).toFixed(1) + '" y="' + (100 - 68 * Math.cos(a) + 6).toFixed(1) + '" text-anchor="middle" font-size="16" font-family="Georgia,serif" fill="#2a2216">' + lbl + '</text>';
+    }
+    for (var j = 0; j < 60; j++){
+      var b = j * 6 * Math.PI / 180, r1 = j % 5 ? 82 : 78;
+      ticks += '<line x1="' + (100 + r1 * Math.sin(b)).toFixed(1) + '" y1="' + (100 - r1 * Math.cos(b)).toFixed(1) + '" x2="' + (100 + 86 * Math.sin(b)).toFixed(1) + '" y2="' + (100 - 86 * Math.cos(b)).toFixed(1) + '" stroke="#5a4a30" stroke-width="' + (j % 5 ? 1 : 2) + '"/>';
+    }
+    var ap = M.fmtClock(shown).slice(-2);
+    return '<svg class="dial" viewBox="0 0 200 200" aria-hidden="true" focusable="false">' +
+      '<circle cx="100" cy="100" r="96" fill="' + c.rim + '"/>' +
+      '<circle cx="100" cy="100" r="89" fill="#f4ecd8"/>' + ticks + nums +
+      '<rect x="84" y="122" width="32" height="18" rx="4" fill="#1b2a4f"/><text x="100" y="136" text-anchor="middle" font-size="12" fill="#ffe7a8" font-family="system-ui,sans-serif">' + ap + '</text>' +
+      '<line x1="100" y1="100" x2="100" y2="54" stroke="#1d1a14" stroke-width="6" stroke-linecap="round" transform="rotate(' + ha.toFixed(2) + ' 100 100)"/>' +
+      '<line x1="100" y1="100" x2="100" y2="28" stroke="#1d1a14" stroke-width="4" stroke-linecap="round" transform="rotate(' + ma.toFixed(2) + ' 100 100)"/>' +
+      '<line x1="100" y1="112" x2="100" y2="24" stroke="#a3402c" stroke-width="1.5" transform="rotate(' + sa.toFixed(2) + ' 100 100)"/>' +
+      '<circle cx="100" cy="100" r="5" fill="#1d1a14"/></svg>';
+  }
+
+  /* ---------- Renderers ---------- */
+  function renderRef(){
+    var rs = M.refSec(S.t);
+    $('refTime').textContent = M.fmtClock(rs);
+    var toMid = 360 - S.t;
+    var mid = toMid > 0 ? (Math.floor(toMid / 60) ? Math.floor(toMid / 60) + ' h ' : '') + (toMid % 60 ? (toMid % 60) + ' min ' : '') + 'until midnight'
+            : (toMid === 0 ? 'Midnight' : 'after midnight');
+    $('refSub').textContent = (M.dayNote(rs) ? 'next day · ' : '') + mid;
+    $('refRange').value = S.t;
+    $('refRange').setAttribute('aria-valuetext', 'Reference ' + M.fmtRef(S.t, false));
+    $('refSelect').value = (S.t % 15 === 0) ? String(S.t) : '';
+  }
+
+  function rosterItem(i){
+    var c = CLOCKS[i], st = S.st[i], sel = S.sel === i;
+    var cls = st.status === 'pass' ? 'ok' : st.status === 'fail' ? 'bad' : st.status === 'changed' ? 'warn' : '';
+    return '<li><button class="btn ros" id="ros-' + i + '" data-act="sel" data-i="' + i + '" aria-pressed="' + sel + '">' +
+      '<span class="num" aria-hidden="true">' + c.id + '</span><span><strong>' + esc(c.name) + '</strong>' +
+      '<span class="st ' + cls + '">Clock ' + c.id + ' · ' + STATUS[st.status] + '</span></span></button></li>';
+  }
+  function renderRoster(){
+    var h = '<h3 style="margin-top:0">On the bench</h3><ul class="roster">' + [0,1,2,3].map(rosterItem).join('') + '</ul>';
+    if (S.unlocked){
+      h += '<h3>The Advanced Wall</h3><ul class="roster">' + [4,5,6,7,8,9,10,11].map(rosterItem).join('') + '</ul>';
+    } else {
+      h += '<p class="dark-wall small">Eight more clocks hang on the far wall, still in shadow. They become available once the four bench clocks pass a Test Run.</p>';
+    }
+    $('roster').innerHTML = h;
+  }
+
+  function renderWall(){
+    var rows = active().map(function(i){
+      var c = CLOCKS[i];
+      return c.faces.map(function(fc, f){
+        var r = readingAt(i, f, S.t);
+        return '<tr><td>' + c.id + '. ' + esc(c.name) + (c.faces.length > 1 ? ' <span class="muted">(' + (f === 0 ? 'A' : 'B') + ')</span>' : '') + '</td>' +
+               '<td>' + M.fmtClock(r.s) + M.dayNote(r.s) + '</td><td>' + M.diffText(r.d) + '</td></tr>';
+      }).join('');
+    }).join('');
+    $('wallCaption').textContent = 'Every active clock at reference ' + M.fmtRef(S.t) + M.dayNote(M.refSec(S.t)) + '.';
+    $('wall').innerHTML = '<table><caption class="sr-only">Clock readings at the current reference time</caption><thead><tr><th scope="col" style="width:40%">Clock</th><th scope="col" style="width:30%">Reads</th><th scope="col" style="width:30%">vs. reference</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  function adjButtons(act, f, deltas, labels, shortLabels){
+    return deltas.map(function(d, k){
+      return '<button class="btn" data-act="' + act + '" data-f="' + f + '" data-d="' + d + '" id="' + act + '-' + f + '-' + d + '" aria-label="' + labels[k] + '">' + shortLabels[k] + '</button>';
+    }).join('');
+  }
+
+  function renderClock(){
+    var i = S.sel, c = CLOCKS[i], st = S.st[i], L = M.LIM;
+    var h = '<h2 id="clockH" tabindex="-1">' + c.id + '. ' + esc(c.name) + '</h2><p class="clock-kind">' + esc(c.kind) + '</p>';
+    h += '<p class="plate">' + esc(c.plate) + '</p>';
+
+    // Readings
+    h += '<div class="dials">' + c.faces.map(function(fc, f){
+      var r = readingAt(i, f, S.t);
+      return '<div class="dialbox">' + dialSVG(i, f) +
+        (c.faces.length > 1 ? '<div class="small muted">' + esc(fc.label) + '</div>' : '') +
+        '<div class="reading">' + M.fmtClock(r.s) + '</div>' +
+        (M.dayNote(r.s) ? '<div class="small muted">' + M.dayNote(r.s).trim() + '</div>' : '') +
+        '<div class="diff ' + (r.d === 0 ? 'ok' : 'bad') + '">' + (r.d === 0 ? '\u2713 ' : '') + M.diffText(r.d) + ' <span class="muted" style="font-weight:400">at reference ' + M.fmtRef(S.t) + '</span></div></div>';
+    }).join('') + '</div>';
+    h += '<div class="row"><button class="btn" data-act="pin" id="pinBtn">Pin this reading to the notebook</button></div>';
+
+    // Adjust
+    h += '<h3>Adjust</h3><p class="small muted">Corrections are made as of the 6:00 PM opening and apply to every reference time. Current settings: <span class="val">' + esc(M.settingsText(c, st)) + '</span></p>';
+    c.faces.forEach(function(fc, f){
+      var lab = c.faces.length > 1 ? fc.label + ' hands' : 'Hands';
+      h += '<fieldset><legend>' + esc(lab) + ' (offset)</legend>' +
+        '<div class="small">Set at 6:00 PM: <strong class="val">' + M.offText(st.off[f]) + '</strong></div>' +
+        '<div class="adjgrid">' + adjButtons('off', f, [-60,-5,-1,1,5,60], ['Move hands back 1 hour','Move hands back 5 minutes','Move hands back 1 minute','Move hands forward 1 minute','Move hands forward 5 minutes','Move hands forward 1 hour'], ['− 1 h','− 5 min','− 1 min','+ 1 min','+ 5 min','+ 1 h']) + '</div>' +
+        '<div class="row"><label for="offIn-' + f + '">Exact offset (minutes)</label><input type="number" id="offIn-' + f + '" data-f="' + f + '" min="' + L.offMin + '" max="' + L.offMax + '" step="1" value="' + st.off[f] + '" inputmode="numeric"></div></fieldset>';
+    });
+    h += '<fieldset><legend>Regulator (rate)</legend>' +
+      '<div class="small">Setting: <strong class="val">' + M.signed(st.rate) + ' min/hr</strong> <span class="muted">(+ makes it run faster, − slower)</span></div>' +
+      '<div class="row" style="margin:6px 0"><button class="btn" data-act="rate" data-f="0" data-d="-1" id="rate-m1">Slower (−1 min/hr)</button><button class="btn" data-act="rate" data-f="0" data-d="1" id="rate-p1">Faster (+1 min/hr)</button></div>' +
+      '<div class="row"><label for="rateIn">Exact regulator (min/hr)</label><input type="number" id="rateIn" min="' + L.rateMin + '" max="' + L.rateMax + '" step="1" value="' + st.rate + '" inputmode="numeric"></div></fieldset>';
+    if (c.special){
+      h += '<fieldset><legend>' + esc(c.special.label) + '</legend><div class="small">Now: <strong>' + esc(st.fix ? c.special.on : c.special.off) + '</strong></div>' +
+        '<div class="row" style="margin-top:6px"><button class="btn" data-act="special" id="specialBtn" aria-pressed="' + st.fix + '">' + esc(st.fix ? c.special.undo : c.special.doIt) + '</button></div></fieldset>';
+    }
+    h += '<div class="row"><button class="btn primary" data-act="testclock" id="testClockBtn">Bench-check this clock</button>' +
+         '<button class="btn quiet" data-act="resetclock" id="resetClockBtn">Reset this clock…</button></div>';
+    if (S.confirmClock){
+      h += '<div class="confirm" role="group" aria-label="Confirm reset"><p>Reset the hands, regulator' + (c.special ? ', ' + esc(c.special.label.toLowerCase()) : '') + ' and notebook for ' + esc(c.name) + '?</p>' +
+           '<div class="row"><button class="btn" data-act="resetclock-yes" id="resetClockYes">Yes, reset this clock</button><button class="btn quiet" data-act="resetclock-no" id="resetClockNo">Cancel</button></div></div>';
+    }
+    if (st.last){
+      h += '<div class="result ' + (st.last.pass ? 'pass' : 'fail') + '"><strong class="' + (st.last.pass ? 'ok' : 'bad') + '">' + (st.last.pass ? '\u2713 Passed' : '\u2717 Did not pass') + '</strong> <span class="muted small">(' + esc(st.last.label) + (st.status === 'changed' ? '; settings changed since' : '') + ')</span><p class="small" style="margin:.3rem 0 0">' + esc(st.last.reason) + '</p></div>';
+    }
+
+    // Hints
+    h += '<h3>Hints</h3>';
+    if (st.hint) h += '<ol class="hints">' + c.hints.slice(0, st.hint).map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>';
+    h += st.hint < 3 ? '<button class="btn quiet" data-act="hint" id="hintBtn">' + (st.hint === 2 ? 'Show the specific answer (hint 3 of 3)' : 'Show hint ' + (st.hint + 1) + ' of 3') + '</button>'
+                     : '<p class="small muted">All hints shown.</p>';
+
+    // Notebook
+    h += '<h3>Comparison Notebook</h3>';
+    if (!st.notes.length) h += '<p class="small muted">No pinned readings yet. Pin this clock at two or more reference times to compare how its difference changes.</p>';
+    else {
+      h += '<ul class="notes">' + st.notes.map(function(n){
+        return '<li><strong>At ' + M.fmtRef(n.t) + '</strong>: ' + n.faces.map(function(x){ return esc(x); }).join('; ') + '<br><span class="muted small">Settings then: ' + esc(n.settings) + '</span></li>';
+      }).join('') + '</ul><button class="btn quiet" data-act="clearnotes" id="clearNotesBtn">Clear this clock\u2019s notes</button>';
+    }
+    $('clockPanel').innerHTML = h;
+  }
+
+  function stageLine(){
+    var s = '';
+    if (S.stage1) s += 'Workshop stage (4 clocks): earned in test run #' + S.stage1.first.run + (benchCurrent() ? ', verified now. ' : ', not verified now. ');
+    if (S.full) s += 'Full wall (12 clocks): earned in test run #' + S.full.first.run + (fullCurrent() ? ', verified now. ' : ', not verified now. ');
+    return s;
+  }
+
+  // S3-003: text-first five-moment table, built only from the stored M.testClock() rows.
+  function diagTable(x){
+    var c = CLOCKS[x.i], multi = x.r.faces.length > 1;
+    var rows = x.r.faces.map(function(face){
+      return face.rows.map(function(r){
+        return '<tr><td>' + M.fmtRef(r.t, false) + '</td><td>' + (multi ? esc(face.label.replace(/ \(.*\)$/, '')) + ': ' : '') + M.fmtClock(r.s) + M.dayNote(r.s) + '</td>' +
+               '<td class="' + (r.d === 0 ? 'ok' : 'bad') + '">' + (r.d === 0 ? '✓ matches' : '✗ ' + M.diffText(r.d)) + '</td></tr>';
+      }).join('');
+    }).join('');
+    return '<details class="diag"><summary>Show the five test moments<span class="sr-only"> for ' + esc(c.name) + '</span></summary>' +
+      '<table><caption class="sr-only">' + esc(c.name) + ': reading at each test moment in run #' + S.lastRun.run + '</caption>' +
+      '<thead><tr><th scope="col" style="width:28%">Reference</th><th scope="col" style="width:38%">Clock read</th><th scope="col" style="width:34%">Difference</th></tr></thead><tbody>' + rows + '</tbody></table></details>';
+  }
+
+  function renderTest(){
+    var h = '', lr = S.lastRun, fc = fullCurrent(), bc = benchCurrent(), stale = latestStale();
+    if (lr){
+      var allPass = lr.passN === lr.list.length;
+      var status = 'Latest test (run #' + lr.run + '): ' + lr.passN + ' of ' + lr.list.length + ' passed';
+      var cls;
+      if (stale){
+        status += '. Settings have changed since that run, so the current configuration is unverified. Run the test again.';
+        cls = 'warn';
+      } else if (allPass){
+        status += ' — the current settings are verified.';
+        cls = 'ok';
+      } else {
+        status += ' — synchronization is not currently achieved.';
+        cls = 'bad';
+      }
+      h += '<p class="status-line ' + cls + '" id="testStatus"><strong>' + esc(status) + '</strong></p>';
+      h += '<h3>Results of test run #' + lr.run + (stale ? ' (made with earlier settings)' : '') + '</h3>';
+      h += '<ul class="testlist">' + lr.list.map(function(x){
+        var c = CLOCKS[x.i];
+        return '<li class="' + (x.r.pass ? 'pass' : 'fail') + '"><strong>' + c.id + '. ' + esc(c.name) + '</strong>: <span class="' + (x.r.pass ? 'ok' : 'bad') + '">' + (x.r.pass ? '✓ Pass' : '✗ Fail') + '</span><div class="small">' + esc(x.r.reason) + '</div>' + (x.r.pass ? '' : diagTable(x)) + '</li>';
+      }).join('') + '</ul>';
+    }
+    if (fc){
+      h += '<div class="banner full" id="finaleBanner"><h3 style="margin-top:0">Midnight. All twelve clocks strike together.</h3>' +
+        '<p>Every clock on the wall matched the reference at 6:00 PM, 8:30 PM, 10:15 PM, midnight and 12:30 AM in test run #' + lr.run + ', and nothing has changed since. They didn’t merely agree once. Outside, the plaza fountain rises in light.</p>' +
+        '<p class="small muted">Chimes (captions):</p><ul class="chimes small">' + CLOCKS.map(function(c){ return '<li>🔔 ' + esc(c.name) + ' strikes twelve.</li>'; }).join('') + '</ul>' +
+        '<div class="row"><button class="btn primary" data-act="showledger" id="ledgerBtn2">Read the Success Ledger</button></div></div>';
+    } else if (S.full){
+      h += '<div class="banner past" id="pastFullBanner"><h3 style="margin-top:0">Previously synchronized — not verified now</h3>' +
+        '<p>All twelve clocks passed together in test run #' + S.full.latest.run + '. That proof is kept in the ledger as <strong>past proof</strong>. It is not current: ' + esc(notCurrentReason('full')) + '. Run the test again with all twelve correct to bring the fountain back to full light.</p>' +
+        '<div class="row"><button class="btn quiet" data-act="showledger" id="ledgerBtn4">Read the ledger (past proof)</button></div></div>';
+    } else if (S.stage1){
+      if (!S.unlocked && S.path !== 'four'){
+        if (bc){
+          h += '<div class="banner" id="stage1Banner"><h3 style="margin-top:0">The four bench clocks strike twelve together.</h3>' +
+            '<p>All four matched the reference at every test moment, from opening through midnight and beyond. In the plaza, the fountain’s first basin begins to glow.</p>' +
+            '<ul class="chimes small">' + [0,1,2,3].map(function(i){ return '<li>🔔 ' + esc(CLOCKS[i].name) + ' strikes twelve.</li>'; }).join('') + '</ul>' +
+            '<p>The workshop stage is complete. Eight more clocks hang on the far wall, each with a stranger fault.</p>';
+        } else {
+          h += '<div class="banner past" id="stage1Banner"><h3 style="margin-top:0">Workshop stage earned — bench clocks not verified now</h3>' +
+            '<p>The four bench clocks passed together in test run #' + S.stage1.latest.run + '. That proof is kept in the ledger as past proof. It is not current: ' + esc(notCurrentReason('bench')) + '. Run the test again to hear them strike together.</p>' +
+            '<p>Your earned choice stays open.</p>';
+        }
+        h += '<div class="row"><button class="btn primary" data-act="finish" id="finishBtn">Finish the workshop</button>' +
+          '<button class="btn" data-act="unlock" id="unlockBtn">Investigate the other eight clocks</button></div></div>';
+      } else if (!S.unlocked && S.path === 'four'){
+        h += '<div class="banner' + (bc ? '' : ' past') + '"><p style="margin:0 0 .6rem"><strong>Workshop finished with four clocks.</strong> ' + esc(stageLine()) +
+          (bc ? '' : 'Not verified now because ' + esc(notCurrentReason('bench')) + '. ') + 'The far wall is still there if you change your mind.</p>' +
+          '<div class="row"><button class="btn" data-act="unlock" id="unlockBtn2">Investigate the other eight clocks</button><button class="btn quiet" data-act="showledger" id="ledgerBtn1">Read the Success Ledger</button></div></div>';
+      } else {
+        var adv = [4,5,6,7,8,9,10,11].filter(function(i){ return S.st[i].status === 'pass'; }).length;
+        h += '<div class="banner"><p style="margin:0 0 .6rem"><strong>Advanced Wall open.</strong> ' + adv + ' of 8 advanced clocks passed their last check. ' + esc(stageLine()) + 'All twelve must pass in one Test Run for the midnight finale.</p>' +
+          '<div class="row"><button class="btn quiet" data-act="showledger" id="ledgerBtn3">Read the ledger so far</button></div></div>';
+      }
+    } else if (lr){
+      h += '<p class="small muted">The four bench clocks must all pass in the same Test Run to complete the workshop stage.</p>';
+    }
+    $('testOut').innerHTML = h;
+  }
+
+  function ledgerEntry(e){
+    var c = CLOCKS[e.i];
+    var moments = e.faces.map(function(face){
+      return face.rows.map(function(r){
+        return '<li>' + (e.faces.length > 1 ? esc(face.label) + ', ' : '') + M.fmtRef(r.t, false) + ': read ' + M.fmtClock(r.s) + ' ' + (r.d === 0 ? '✓' : '✗ ' + M.diffText(r.d)) + '</li>';
+      }).join('');
+    }).join('');
+    return '<article class="led"><h4>' + c.id + '. ' + esc(c.name) + '</h4><dl>' +
+      '<dt>Initial fault</dt><dd>' + esc(c.fault) + '</dd>' +
+      '<dt>Your corrections</dt><dd>' + esc(e.settings) + '</dd>' +
+      '<dt>Test moments</dt><dd><ul>' + moments + '</ul></dd>' +
+      '<dt>Result</dt><dd class="' + (e.pass ? 'ok' : 'bad') + '">' + (e.pass ? '✓ Passed all five moments' : '✗ Did not pass') + ' (test run #' + e.run + ')</dd>' +
+      '<dt>Why it worked</dt><dd>' + esc(e.pass ? c.why : e.reason) + '</dd></dl></article>';
+  }
+  function milestoneText(m, isCurrent, kind){
+    if (!m) return null;
+    var s = 'Earned in test run #' + m.first.run;
+    if (m.latest.run !== m.first.run) s += '; most recent proof: run #' + m.latest.run;
+    s += '. ' + (isCurrent ? 'Verified now: the latest Test Run passed and nothing has changed since.' : 'Not verified now: ' + notCurrentReason(kind) + '.');
+    return s;
+  }
+  function proofSection(title, m, isCurrent, kind, open){
+    var label = isCurrent ? 'Current proof' : 'Past proof (not current: ' + notCurrentReason(kind) + ')';
+    var inner = '<p class="small ' + (isCurrent ? 'ok' : 'warn') + '"><strong>' + esc(label) + '.</strong> Each entry records the clock exactly as it was in test run #' + m.latest.run + ', computed from the clock model at that time, not from the present settings.</p>' +
+      m.latest.entries.map(ledgerEntry).join('');
+    if (open) return '<h3>' + esc(title) + ' — test run #' + m.latest.run + '</h3>' + inner;
+    return '<details class="ledger-sec"><summary>' + esc(title) + ' — test run #' + m.latest.run + '</summary>' + inner + '</details>';
+  }
+  function renderLedger(){
+    var p = $('ledgerPanel');
+    p.hidden = !S.showLedger;
+    if (!S.showLedger) return;
+    var hints = S.st.reduce(function(a, s){ return a + s.hint; }, 0);
+    var bc = benchCurrent(), fc = fullCurrent();
+    var stage1Txt = milestoneText(S.stage1, bc, 'bench') || 'Not complete';
+    var advTxt = S.full ? milestoneText(S.full, fc, 'full')
+      : (S.unlocked ? 'In progress (' + [4,5,6,7,8,9,10,11].filter(function(i){ return S.st[i].status === 'pass'; }).length + ' of 8 passed their last check; full wall not yet proven together)' : 'Not attempted');
+    var h = '<p><strong>Path:</strong> ' + (S.full ? 'All twelve clocks' : (S.unlocked ? 'Advanced Wall in progress' : 'Four-clock workshop')) + '<br>' +
+      '<strong>Workshop stage (clocks 1–4):</strong> ' + esc(stage1Txt) + '<br>' +
+      '<strong>Full wall (clocks 1–12):</strong> ' + esc(advTxt) + '<br>' +
+      '<strong>Latest Test Run:</strong> ' + (S.lastRun ? '#' + S.lastRun.run + ', ' + S.lastRun.passN + ' of ' + S.lastRun.list.length + ' passed' + (latestStale() ? ' (settings changed since)' : '') : 'none') + '<br>' +
+      '<strong>Full Test Runs:</strong> ' + S.tests + ' · <strong>Bench checks:</strong> ' + S.checks + ' · <strong>Hints revealed:</strong> ' + hints + '</p>';
+    if (S.full){
+      h += proofSection('Full wall proof', S.full, fc, 'full', true);
+      h += proofSection('Workshop stage proof (clocks 1–4)', S.stage1, bc, 'bench', false);
+    } else if (S.stage1){
+      h += proofSection('Workshop stage proof', S.stage1, bc, 'bench', true);
+    }
+    if (!S.full && S.unlocked){
+      h += '<h3>Advanced Wall: current status</h3><ul>' + [4,5,6,7,8,9,10,11].map(function(i){ return '<li>' + CLOCKS[i].id + '. ' + esc(CLOCKS[i].name) + ': ' + STATUS[S.st[i].status] + '</li>'; }).join('') + '</ul><p class="small muted">Faults for advanced clocks are recorded here once all twelve pass together.</p>';
+    } else if (!S.full){
+      h += '<p class="small muted">Clocks 5–12 were not investigated.</p>';
+    }
+    h += '<div class="row"><button class="btn" data-act="resetall" id="playAgainBtn">Start a new run at the bench…</button></div>';
+    $('ledger').innerHTML = h;
+  }
+
+  function renderScene(){
+    var fc = fullCurrent(), bc = benchCurrent(), earned = !!(S.stage1 || S.full);
+    var st = fc ? 'full' : (bc ? 'stage1' : 'dormant');
+    $('fountain').setAttribute('data-state', st);
+    $('plazaText').textContent = fc ? 'Midnight. All twelve clocks agree, and the plaza fountain rises in light.'
+      : bc ? (S.full ? 'The fountain’s first basin glows: the four bench clocks are verified, but the full wall is not verified now.'
+                     : 'The fountain’s first basin glows. Four clocks agree; eight still wait on the far wall.')
+      : earned ? 'The fountain has dimmed. The clocks agreed before, but the current settings are not verified. Run the test again.'
+      : 'Through the workshop’s tall windows, the plaza fountain lies dark.';
+    $('resetAllConfirm').innerHTML = S.confirmAll
+      ? '<div class="confirm" role="group" aria-label="Confirm new run"><p>Start a new run at the bench? This resets all twelve clocks, notebooks, hints, test results and earned progress, and returns to 6:00 PM. The opening note will not reappear.</p><div class="row"><button class="btn" data-act="resetall-yes" id="resetAllYes">Yes, start a new run</button><button class="btn quiet" data-act="resetall-no" id="resetAllNo">Cancel</button></div></div>'
+      : '';
+  }
+
+  function render(){
+    var fid = document.activeElement && document.activeElement.id;
+    renderRef(); renderRoster(); renderWall(); renderClock(); renderTest(); renderLedger(); renderScene();
+    if (fid){ var e = $(fid); if (e && e !== document.activeElement) e.focus({ preventScroll:true }); }
+  }
+
+  /* ---------- Actions ---------- */
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+  function setT(t, quiet){
+    var nt = clamp(Math.round(t), 0, M.TMAX), hit = nt !== Math.round(t);
+    S.t = nt; render();
+    if (!quiet){
+      var c = CLOCKS[S.sel];
+      announce('Reference ' + M.fmtRef(S.t) + '. ' + c.name + ' reads ' + c.faces.map(function(fc, f){ return (c.faces.length > 1 ? fc.label + ' ' : '') + readingText(S.sel, f, S.t); }).join('; ') + '.' + (hit ? ' Edge of the evening reached.' : ''));
+    }
+  }
+  // Verification lost by a change, as a short sentence (empty if nothing current was lost).
+  function lostNote(wasBench, wasFull){
+    if (wasFull && !fullCurrent()) return ' The full wall was verified; settings have now changed, so run the test again.';
+    if (wasBench && !benchCurrent()) return ' The bench clocks were verified; settings have now changed, so run the test again.';
+    return '';
+  }
+  function afterAdjust(msg, before){
+    var i = S.sel, c = CLOCKS[i], wb = benchCurrent(), wf = fullCurrent();
+    noteChange(i, before); render();
+    announce(msg + ' At ' + M.fmtRef(S.t, false) + ' it reads ' + c.faces.map(function(fc, f){ return (c.faces.length > 1 ? fc.label + ' ' : '') + readingText(i, f, S.t); }).join('; ') + '.' + lostNote(wb, wf));
+  }
+  function snapshot(i, r, run){
+    return { i:i, pass:r.pass, reason:r.reason, faces:r.faces, settings:M.settingsText(CLOCKS[i], S.st[i]), run:run };
+  }
+  function runTest(){
+    S.tests++;
+    var run = S.tests;
+    var list = active().map(function(i){
+      var r = M.testClock(CLOCKS[i], S.st[i]);
+      S.st[i].last = { pass:r.pass, reason:r.reason, label:'Test run #' + run };
+      S.st[i].status = r.pass ? 'pass' : 'fail';
+      return { i:i, r:r };
+    });
+    var bench = list.filter(function(x){ return x.i < 4; });
+    var passN = list.filter(function(x){ return x.r.pass; }).length;
+    var benchN = bench.filter(function(x){ return x.r.pass; }).length;
+    var benchPass = bench.length === 4 && benchN === 4;
+    var fullPass = S.unlocked && list.length === 12 && passN === 12;
+    S.lastRun = { run:run, list:list, passN:passN, benchN:benchN, benchPass:benchPass, fullPass:fullPass,
+                  benchRev:S.rev.bench, allRev:S.rev.all };
+    var msg = 'Latest test, run ' + run + ': ' + passN + ' of ' + list.length + ' clocks passed.';
+    if (benchPass){
+      var snap1 = { run:run, entries:bench.map(function(x){ return snapshot(x.i, x.r, run); }) };
+      if (!S.stage1){ S.stage1 = { first:snap1, latest:snap1 }; msg += ' The four bench clocks strike twelve together. Workshop stage complete.'; }
+      else { S.stage1.latest = snap1; if (!fullPass) msg += ' The four bench clocks are verified again.'; }
+    }
+    if (fullPass){
+      var snapF = { run:run, entries:list.map(function(x){ return snapshot(x.i, x.r, run); }) };
+      if (!S.full){ S.full = { first:snapF, latest:snapF }; msg += ' Midnight: all twelve clocks strike together and the fountain is lit.'; }
+      else { S.full.latest = snapF; msg += ' All twelve verified again: they strike midnight together and the fountain is lit.'; }
+      S.path = 'twelve';
+    } else if (S.full){
+      msg += ' Synchronization is not currently achieved. The earlier 12 of 12 proof from run ' + S.full.latest.run + ' is kept in the ledger as past proof.';
+    } else if (S.stage1 && !benchPass){
+      msg += ' The bench clocks are not currently verified. The earlier proof from run ' + S.stage1.latest.run + ' is kept as past proof.';
+    }
+    render();
+    $('testH').focus();
+    announce(msg);
+  }
+
+  function act(a, ds){
+    var i = S.sel, c = CLOCKS[i], st = S.st[i], L = M.LIM, before = cfgKey(i);
+    switch (a){
+      case 'begin':
+        $('intro').hidden = true; $('game').hidden = false; render(); $('refH').focus(); break;
+      case 'ref': setT(S.t + Number(ds.d)); break;
+      case 'sel':
+        S.sel = Number(ds.i); S.confirmClock = false; render();
+        announce(CLOCKS[S.sel].name + ' selected. ' + CLOCKS[S.sel].faces.map(function(fc, f){ return (CLOCKS[S.sel].faces.length > 1 ? fc.label + ' ' : '') + readingText(S.sel, f, S.t); }).join('; ') + '.');
+        break;
+      case 'off':
+        var f = Number(ds.f); st.off[f] = clamp(st.off[f] + Number(ds.d), L.offMin, L.offMax);
+        afterAdjust((c.faces.length > 1 ? c.faces[f].label + ' hands ' : 'Hands ') + M.offText(st.off[f]) + '.', before); break;
+      case 'rate':
+        st.rate = clamp(st.rate + Number(ds.d), L.rateMin, L.rateMax);
+        afterAdjust('Regulator ' + M.signed(st.rate) + ' minutes per hour.', before); break;
+      case 'special':
+        st.fix = !st.fix; afterAdjust(c.special.label + ': ' + (st.fix ? c.special.on : c.special.off) + '.', before); break;
+      case 'pin':
+        st.notes.push({ t:S.t, settings:M.settingsText(c, st), faces:c.faces.map(function(fc, f){ return (c.faces.length > 1 ? fc.label + ' ' : '') + 'read ' + readingText(i, f, S.t); }) });
+        if (st.notes.length > 30) st.notes.shift();
+        render(); announce('Pinned: at ' + M.fmtRef(S.t, false) + ', ' + st.notes[st.notes.length - 1].faces.join('; ') + '.'); break;
+      case 'clearnotes': st.notes = []; render(); $('pinBtn').focus(); announce('Notebook cleared for ' + c.name + '.'); break;
+      case 'hint': st.hint = Math.min(3, st.hint + 1); render(); announce('Hint ' + st.hint + ': ' + c.hints[st.hint - 1]); break;
+      case 'testclock':
+        S.checks++;
+        var r = M.testClock(c, st);
+        st.last = { pass:r.pass, reason:r.reason, label:'Bench check #' + S.checks };
+        st.status = r.pass ? 'pass' : 'fail';
+        render(); announce(c.name + (r.pass ? ' passed the bench check. ' : ' did not pass. ') + r.reason + ' Use Run the test to complete a stage.'); break;
+      case 'resetclock': S.confirmClock = true; render(); $('resetClockYes').focus(); break;
+      case 'resetclock-no': S.confirmClock = false; render(); $('resetClockBtn').focus(); break;
+      case 'resetclock-yes':
+        var wb = benchCurrent(), wf = fullCurrent(), oldStatus = st.status;
+        S.st[i] = M.newState(c);
+        if (cfgKey(i) !== before){
+          S.st[i].status = oldStatus; S.st[i].last = st.last;   // keep history of the last result, marked as changed
+          noteChange(i, before);
+        }
+        S.confirmClock = false; render(); $('resetClockBtn').focus();
+        announce(c.name + ' reset to how it was found.' + lostNote(wb, wf)); break;
+      case 'runtest': runTest(); break;
+      case 'finish': S.path = 'four'; S.showLedger = true; render(); $('ledgerH').focus(); announce('Workshop finished. Success Ledger shown.'); break;
+      case 'unlock':
+        S.unlocked = true; S.sel = 4; S.confirmClock = false; render(); $('clockH').focus();
+        announce('The Advanced Wall is open. Eight more clocks are now on the roster. The Looking-Glass Clock is selected.'); break;
+      case 'showledger': S.showLedger = true; render(); $('ledgerH').focus(); break;
+      case 'resetall': S.confirmAll = true; render(); $('resetAllYes').focus(); break;
+      case 'resetall-no': S.confirmAll = false; render(); $('resetAllBtn').focus(); break;
+      case 'resetall-yes':
+        S = fresh(); render(); $('refH').focus(); window.scrollTo(0, 0); announce('New run started at the bench. It is 6:00 PM again, all clocks are as found, and no progress is earned yet.'); break;
+    }
+  }
+
+  /* ---------- Wiring ---------- */
+  function buildSelect(){
+    var o = '<option value="">Custom time</option>';
+    for (var t = 0; t <= M.TMAX; t += 15){
+      o += '<option value="' + t + '">' + M.fmtRef(t, false) + (t === 360 ? ' (midnight)' : '') + (TESTS.indexOf(t) >= 0 ? ' · test moment' : '') + '</option>';
+    }
+    $('refSelect').innerHTML = o;
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-act]'); if (!b) return;
+    act(b.getAttribute('data-act'), b.dataset);
+  });
+  document.addEventListener('change', function(e){
+    var el = e.target, st = S.st[S.sel], L = M.LIM, before = cfgKey(S.sel);
+    if (el.id === 'refSelect'){ if (el.value !== '') setT(Number(el.value)); return; }
+    if (el.id === 'refRange'){ setT(Number(el.value)); return; }    if (el.id && el.id.indexOf('offIn-') === 0){
+      var f = Number(el.getAttribute('data-f')), v = parseInt(el.value, 10);
+      if (isNaN(v)) { render(); return; }
+      st.off[f] = clamp(v, L.offMin, L.offMax);
+      afterAdjust((CLOCKS[S.sel].faces.length > 1 ? CLOCKS[S.sel].faces[f].label + ' hands ' : 'Hands ') + M.offText(st.off[f]) + (v !== st.off[f] ? ' (limited to the allowed range)' : '') + '.', before);
+      return;
+    }
+    if (el.id === 'rateIn'){
+      var r = parseInt(el.value, 10);
+      if (isNaN(r)) { render(); return; }
+      st.rate = clamp(r, L.rateMin, L.rateMax);
+      afterAdjust('Regulator ' + M.signed(st.rate) + ' minutes per hour' + (r !== st.rate ? ' (limited to the allowed range)' : '') + '.', before);
+    }
+  });
+  // Range: update reading continuously without announcing every step; announce on release (change).
+  $('refRange').addEventListener('input', function(e){ setT(Number(e.target.value), true); });
+
+  buildSelect();
+  render();
+})();
+</script>
+</body>
+</html>
