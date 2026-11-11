@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="description" content="DoorQuests · Glitchortals No. 001 — a public door register that cannot find a keeper standing right in front of it. A search-index mystery.">
+<title>The Word Too Common to Find — Glitchortals No. 001 · DoorQuests</title>
+<style>
+:root{
+  --paper:#f3eee2; --paper-2:#e9e1cf; --ink:#1c2433; --ink-soft:#4a5468; --navy:#13284a; --navy-2:#1d3a66;
+  --gold:#b88a2c; --gold-soft:#e5c472; --screen:#0d1b2e; --screen-2:#13253d; --screen-ink:#dbe7f3; --screen-dim:#9fb3c8;
+  --ok:#1f6b3a; --warn:#8a5a00; --bad:#9b2c2c; --line:#c9bc9c; --focus:#c47a00; --card:#fbf8f0;
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --paper:#14171f; --paper-2:#1b1f29; --ink:#e7e2d6; --ink-soft:#b3ad9f; --navy:#0b1730; --navy-2:#1f3a63; --line:#3a3f4c; --card:#1d212b; --ok:#6fcf8f; --warn:#e3b45a; --bad:#f08a8a; --gold:#d7aa4b; }
+}
+:root[data-theme="dark"]{ --paper:#14171f; --paper-2:#1b1f29; --ink:#e7e2d6; --ink-soft:#b3ad9f; --navy:#0b1730; --navy-2:#1f3a63; --line:#3a3f4c; --card:#1d212b; --ok:#6fcf8f; --warn:#e3b45a; --bad:#f08a8a; --gold:#d7aa4b; }
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.2;margin:0 0 .5rem}
+h1{font-size:clamp(1.6rem,5vw,2.4rem)} h2{font-size:1.3rem} h3{font-size:1.08rem}
+p{margin:.4rem 0 .7rem}
+a{color:var(--navy-2)}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+.site{background:var(--navy);color:#f2ead6;border-bottom:4px solid var(--gold)}
+.site .wrap{padding-top:18px;padding-bottom:16px}
+.crumbs{font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-soft);margin:0 0 .35rem}
+.tagline{color:#d8ccb0;margin:.2rem 0 0;font-style:italic}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:44px;padding:.55rem 1rem;border-radius:8px;border:2px solid var(--navy-2);background:var(--navy-2);color:#fff;cursor:pointer;font-weight:600;text-align:center}
+.btn.secondary{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.small{min-height:40px;padding:.35rem .75rem;font-size:.92rem}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#1b1305}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin:12px 0}
+.casebar{display:flex;flex-wrap:wrap;gap:.5rem;margin:14px 0 4px}
+.casebar button{flex:1 1 220px;text-align:left;min-height:52px;padding:.55rem .9rem;border-radius:8px;border:2px solid var(--line);background:var(--card);cursor:pointer}
+.casebar button[aria-pressed="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.casebar small{display:block;color:var(--ink-soft)}
+.scene{background:linear-gradient(180deg,var(--paper-2),var(--card));border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:12px 0;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+.scene svg{width:92px;height:auto}
+@media (max-width:520px){.scene{grid-template-columns:1fr}.scene svg{width:72px}}
+.objective{font-weight:700;color:var(--navy-2)}
+:root[data-theme="dark"] .objective{color:var(--gold-soft)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .objective{color:var(--gold-soft)}}
+.tabs{display:flex;flex-wrap:wrap;gap:2px 4px;border-bottom:2px solid var(--line);margin-top:14px}
+.tabs [role="tab"]{flex:0 0 auto;min-height:46px;padding:.5rem .7rem;border:0;border-bottom:3px solid transparent;background:none;cursor:pointer;font-weight:600;color:var(--ink-soft)}
+.tabs [role="tab"][aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold)}
+.panel{padding:6px 0 20px}
+.panel[hidden]{display:none}
+.kiosk{background:linear-gradient(180deg,#2a2114,#1a140b);border-radius:14px;padding:10px;border:2px solid #6b5426}
+.kiosk-screen{background:var(--screen);color:var(--screen-ink);border-radius:8px;padding:14px;border:1px solid #2c4466;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:.95rem}
+.kiosk-screen h2,.kiosk-screen h3{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--gold-soft);font-size:1rem;letter-spacing:.04em}
+.status{display:flex;flex-wrap:wrap;gap:.3rem 1rem;color:var(--screen-dim);font-size:.85rem;border-bottom:1px dashed #36507a;padding-bottom:8px;margin-bottom:10px}
+.status strong{color:var(--screen-ink)}
+.search{display:flex;gap:8px;flex-wrap:wrap}
+.search label{flex-basis:100%;color:var(--screen-dim);font-size:.86rem}
+.search input{flex:1 1 180px;min-width:0;min-height:46px;padding:.5rem .7rem;border-radius:6px;border:2px solid #44628f;background:#071221;color:#fff;font-family:inherit}
+.search .btn{background:var(--gold);border-color:var(--gold);color:#1b1305}
+.echo{margin:12px 0 6px;padding:10px;border-left:4px solid var(--gold-soft);background:var(--screen-2);border-radius:4px}
+.echo p{margin:.15rem 0}
+.echo .lbl{color:var(--screen-dim);display:inline-block;min-width:8.5em;margin-right:.4em}
+.echo .val{color:#fff;font-weight:700;word-break:break-word}
+.resultline{color:var(--gold-soft)}
+.results{list-style:none;padding:0;margin:8px 0 0}
+.results li{margin:4px 0}
+.results button,.linklike{width:100%;text-align:left;background:#0a1626;color:var(--screen-ink);border:1px solid #2c4466;border-radius:6px;padding:.55rem .7rem;min-height:44px;cursor:pointer;font-family:inherit}
+.results button:hover{border-color:var(--gold-soft)}
+.kiosk-screen details{margin-top:12px;border-top:1px dashed #36507a;padding-top:8px}
+.kiosk-screen summary{cursor:pointer;color:var(--gold-soft);min-height:40px;display:flex;align-items:center}
+.wordgrid{display:flex;flex-wrap:wrap;gap:4px 10px;padding:0;list-style:none;color:var(--screen-ink)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top;word-break:break-word}
+.kiosk-screen th,.kiosk-screen td{border-color:#2c4466}
+.tablewrap{overflow-x:auto;max-width:100%}
+.groups{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.groups button[aria-pressed="true"]{background:var(--navy-2);color:#fff;border-color:var(--navy-2)}
+.reclist{list-style:none;padding:0;margin:8px 0}
+.reclist li{margin:4px 0}
+.reclist button{width:100%;text-align:left;min-height:46px;border:1px solid var(--line);border-radius:8px;background:var(--card);padding:.5rem .75rem;cursor:pointer}
+.record{border:2px solid var(--gold);border-radius:var(--radius);padding:14px;background:var(--card)}
+.record dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:6px 0 10px}
+.record dt{color:var(--ink-soft)} .record dd{margin:0;font-weight:600}
+.doc{background:#fffdf6;color:#2a2418;border:1px solid #d8cba8;border-radius:6px;padding:16px;font-family:Georgia,serif;box-shadow:0 1px 0 #d8cba8}
+:root[data-theme="dark"] .doc{background:#f1e9d4}
+.doc h3{font-family:Georgia,serif}
+.slot{border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0;background:var(--card)}
+.slot .row input{flex:1 1 140px;min-width:0;min-height:44px;padding:.4rem .6rem;border:2px solid var(--line);border-radius:6px;background:var(--paper)}
+.badge{display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:.1rem .45rem;border-radius:4px;border:1px solid currentColor}
+.b-obs{color:var(--ok)} .b-inf{color:var(--warn)} .b-unv{color:var(--ink-soft)} .b-ref{color:var(--bad)}
+.theories{list-style:none;padding:0;margin:0}
+.theories li{border-left:4px solid var(--line);padding:6px 10px;margin:6px 0;background:var(--card)}
+.theories li.t-ref{border-left-color:var(--bad)} .theories li.t-sup{border-left-color:var(--ok)}
+textarea{width:100%;min-height:110px;padding:.6rem;border:2px solid var(--line);border-radius:8px;background:var(--paper)}
+.finale input{width:100%;min-height:46px;padding:.5rem .7rem;border-radius:6px;border:2px solid var(--line);background:var(--paper)}
+.verdict{padding:10px 12px;border-radius:8px;border:2px solid var(--line);margin:10px 0;background:var(--card)}
+.verdict.v-ok{border-color:var(--ok)} .verdict.v-no{border-color:var(--warn)}
+.ending{border:2px solid var(--gold);border-radius:var(--radius);padding:16px;background:var(--card);margin-top:14px}
+.controls{border-top:2px solid var(--line);margin-top:24px;padding-top:12px}
+.controls h2{font-family:system-ui,sans-serif;font-size:1rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)}
+.note{font-size:.88rem;color:var(--ink-soft)}
+fieldset.card legend{padding:0 .35rem;font-weight:600}
+.choice{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:start;margin:6px 0}.choice input{width:22px;height:22px;margin:2px 0 0}
+.hist td:first-child{white-space:nowrap}
+footer{border-top:4px solid var(--gold);background:var(--navy);color:#e9e0c8;margin-top:28px}
+footer .wrap{padding-top:14px;padding-bottom:18px;font-size:.9rem}
+.inline-warning{color:var(--bad);font-weight:600}
+.casefile pre{white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88rem;background:var(--paper);padding:12px;border:1px solid var(--line);border-radius:6px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion: no-preference){ .flicker{animation:fl 2.4s ease-in-out 1} @keyframes fl{0%,100%{opacity:1}50%{opacity:.82}} }
+@media print{
+  body.print-casefile > *:not(#printroot){display:none!important}
+  body.print-casefile #printroot{display:block!important}
+  #printroot{display:none}
+  body{background:#fff;color:#000}
+}
+</style>
+</head>
+<body>
+<header class="site" role="banner">
+  <div class="wrap">
+    <p class="crumbs">DoorQuests · Tomortal · Tomorrow Wing IV · Glitchortals · No. 001</p>
+    <h1>The Word Too Common to Find</h1>
+    <p class="tagline">Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+  <nav aria-label="Choose a case" class="casebar" id="casebar"></nav>
+  <section class="scene" id="scene" aria-labelledby="scene-title"></section>
+  <div class="tabs" role="tablist" aria-label="Investigation" id="tabs"></div>
+  <div id="panels"></div>
+
+  <section class="controls" aria-labelledby="controls-title">
+    <h2 id="controls-title">Game controls (outside the story)</h2>
+    <p class="note">Everything odd that happens inside the kiosk is part of the mystery. These controls are the real game and always work.</p>
+    <div class="row">
+      <button class="btn secondary small" type="button" id="btn-restart">Restart this case</button>
+      <label class="row" style="gap:.4rem"><input type="checkbox" id="chk-remember"> Remember progress on this device</label>
+      <button class="btn secondary small" type="button" id="btn-export">Show progress code</button>
+      <button class="btn secondary small" type="button" id="btn-import">Load progress code</button>
+      <button class="btn secondary small" type="button" id="btn-erase">Erase this game's saved data</button>
+      <button class="btn secondary small" type="button" id="btn-theme" aria-pressed="false">Theme: automatic</button>
+    </div>
+    <div id="io" hidden class="card">
+      <label for="io-text" id="io-label">Progress code</label>
+      <textarea id="io-text" maxlength="60000" spellcheck="false"></textarea>
+      <div class="row"><button class="btn small" type="button" id="io-apply">Load this code</button><button class="btn secondary small" type="button" id="io-close">Close</button></div>
+    </div>
+    <p id="control-msg" class="note" role="status" aria-live="polite"></p>
+  </section>
+</main>
+
+<footer role="contentinfo">
+  <div class="wrap">
+    <p><strong>DoorQuests</strong> · Glitchortals — Hidden Rules &amp; Interface Anomalies · Tomortal — The Unexpected Wing · Tomorrow Wing IV — Mystery, Scale &amp; Unstable Worlds</p>
+    <p>Created by The Axiom Continuum. · Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+    <p class="note" style="color:#cfc4a8">Build <span id="build-id"></span> · An authored fictional mystery. All people, places and records are invented. Works offline; no network requests, accounts or tracking.</p>
+  </div>
+</footer>
+<div id="printroot"></div>
+<p id="live" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+
+<script id="gl-engine">
+/* ===== Glitchortals 001 — pure search engine (no DOM). Exposed as globalThis.GL001_ENGINE ===== */
+(function (root) {
+  'use strict';
+  var BUILD_ID = 'GL001-2026.11.11-r1';
+  var MAX_QUERY_CHARS = 120, MAX_QUERY_TOKENS = 16, MAX_WORD_CHARS = 40, MAX_LOG = 2000, MAX_NOTE = 4000;
+
+  function deepFreeze(o) {
+    Object.getOwnPropertyNames(o).forEach(function (k) { var v = o[k]; if (v && typeof v === 'object' && !Object.isFrozen(v)) deepFreeze(v); });
+    return Object.freeze(o);
+  }
+
+  /* ---- Tokenization contract ----
+     1 Unicode NFKD, then remove combining marks (é -> e).
+     2 Lower-case.
+     3 Delete apostrophes ( ' ’ ‘ ʼ ` ) so "Chandler's" -> "chandlers".
+     4 Every character that is not a-z or 0-9 separates words (spaces, hyphens, punctuation, other scripts).
+     5 Queries only: first 120 characters, first 16 words.                                                  */
+  function normalize(s) {
+    if (typeof s !== 'string') return '';
+    var t = s.normalize('NFKD').replace(/[̀-ͯ]/g, '');
+    t = t.toLowerCase();
+    t = t.replace(/['’‘ʼ`]/g, '');
+    return t;
+  }
+  function tokenize(s) { return normalize(s).split(/[^a-z0-9]+/).filter(Boolean); }
+  function tokenizeQuery(s) {
+    var raw = typeof s === 'string' ? s : '';
+    var cut = raw.length > MAX_QUERY_CHARS;
+    var toks = tokenize(raw.slice(0, MAX_QUERY_CHARS));
+    var many = toks.length > MAX_QUERY_TOKENS;
+    return { tokens: toks.slice(0, MAX_QUERY_TOKENS), truncated: cut || many };
+  }
+  /* Whole-token stop filtering. Duplicates collapse; first-seen order kept. */
+  function filterQuery(tokens, stop) {
+    var set = stop instanceof Set ? stop : new Set(stop || []);
+    var kept = [], removed = [], sk = new Set(), sr = new Set();
+    (tokens || []).forEach(function (t) {
+      if (set.has(t)) { if (!sr.has(t)) { sr.add(t); removed.push(t); } }
+      else if (!sk.has(t)) { sk.add(t); kept.push(t); }
+    });
+    return { kept: kept, removed: removed };
+  }
+
+  /* ---- Case 1: Hollowmere ---- */
+  var BASE40 = ['a','all','an','and','are','as','at','be','been','but','by','for','from','has','have','he','her','his','in','into','is','it','its','not','of','on','or','she','that','the','their','them','they','this','to','was','were','which','who','with'];
+  var C1 = {
+    id: 'c1', short: 'Case 1', title: 'Hollowmere: The Six Keepers', registerName: 'Hollowmere Door Register',
+    unit: ['door', 'doors'], publishedCount: 40,
+    baseline: BASE40,
+    extras: ['venn', 'mara', 'ashdown', 'pellow', 'quist', 'hardacre'],
+    groupLabel: 'Streets',
+    groups: [
+      { id: 'tallow', name: 'Tallow Lane' }, { id: 'mill', name: 'Mill Lane' }, { id: 'weir', name: 'Weir Street' },
+      { id: 'chandlers', name: "Chandler's Row" }, { id: 'lowward', name: 'Low Ward Road' }, { id: 'lantern', name: 'Lantern Walk' }
+    ],
+    indexedFields: ['number', 'street', 'role word ("keeper", or "vacant" for an empty door)', 'keeper name', 'register notes'],
+    records: [
+      { id: 'TAL-40', group: 'tallow', number: '40', street: 'Tallow Lane', keeper: 'Hester Lowe', notes: 'Brass knocker restored; chandlery stores.' },
+      { id: 'TAL-42', group: 'tallow', number: '42', street: 'Tallow Lane', keeper: 'Pim Okoro', notes: 'Bakehouse door; early deliveries.' },
+      { id: 'TAL-44', group: 'tallow', number: '44', street: 'Tallow Lane', keeper: 'Mara Venn', notes: 'Blue door, brass plate. Objection outstanding — sluice works.' },
+      { id: 'TAL-46', group: 'tallow', number: '46', street: 'Tallow Lane', keeper: null, notes: 'Shuttered since the spring floods.' },
+      { id: 'TAL-48', group: 'tallow', number: '48', street: 'Tallow Lane', keeper: 'Corwin Bell', notes: 'Objection withdrawn — sluice works; compensation accepted.' },
+      { id: 'MIL-3', group: 'mill', number: '3', street: 'Mill Lane', keeper: 'Alder Venn', notes: 'Mill office; grain scales inspected.' },
+      { id: 'MIL-5', group: 'mill', number: '5', street: 'Mill Lane', keeper: 'Isolde Mara', notes: "Weaver's door. Objection outstanding — sluice works." },
+      { id: 'MIL-9', group: 'mill', number: '9', street: 'Mill Lane', keeper: 'Tamsin Reed', notes: 'Sluice works — compensation accepted.' },
+      { id: 'MIL-11', group: 'mill', number: '11', street: 'Mill Lane', keeper: 'Fenwick Clay', notes: 'Objection outstanding — lamp levy.' },
+      { id: 'WEI-1', group: 'weir', number: '1', street: 'Weir Street', keeper: 'Wilf Dunmore', notes: 'Sluice gatehouse; keeper of the sluice gate.' },
+      { id: 'WEI-2', group: 'weir', number: '2', street: 'Weir Street', keeper: 'Jonah Ashdown', notes: "Boatbuilder's door. Objection outstanding — sluice works." },
+      { id: 'WEI-4', group: 'weir', number: '4', street: 'Weir Street', keeper: 'Nell Briar', notes: 'Start line of the harbour marathon.' },
+      { id: 'WEI-6', group: 'weir', number: '6', street: 'Weir Street', keeper: 'Bettany Pellow', notes: 'Ferry office. Objection outstanding — sluice works.' },
+      { id: 'WEI-8', group: 'weir', number: '8', street: 'Weir Street', keeper: 'Ambrose Teague', notes: 'Sluice works — compensation accepted.' },
+      { id: 'CHA-12', group: 'chandlers', number: '12', street: "Chandler's Row", keeper: 'Ruth Quist', notes: 'Schoolroom door. Objection outstanding — sluice works.' },
+      { id: 'CHA-14', group: 'chandlers', number: '14', street: "Chandler's Row", keeper: 'Dora Fenn', notes: 'Objection outstanding — lamp levy.' },
+      { id: 'CHA-15', group: 'chandlers', number: '15', street: "Chandler's Row", keeper: 'Lyle Marsh', notes: "Chandler's shop; lamp oil sold." },
+      { id: 'LOW-21', group: 'lowward', number: '21', street: 'Low Ward Road', keeper: 'Osric Hardacre', notes: 'Flood marker on the lintel. Objection outstanding — sluice works.' },
+      { id: 'LOW-23', group: 'lowward', number: '23', street: 'Low Ward Road', keeper: 'Agnes Thorley', notes: 'Low Ward almshouse.' },
+      { id: 'LOW-25', group: 'lowward', number: '25', street: 'Low Ward Road', keeper: 'Edwin Marlow', notes: 'Pump house; flood boards stored.' },
+      { id: 'LAN-2', group: 'lantern', number: '2', street: 'Lantern Walk', keeper: 'Clement Hale', notes: "Lamplighter's lodge." },
+      { id: 'LAN-4', group: 'lantern', number: '4', street: 'Lantern Walk', keeper: 'Sabine Ruddock', notes: 'Clockmaker; the Register kiosk is serviced here.' },
+      { id: 'LAN-6', group: 'lantern', number: '6', street: 'Lantern Walk', keeper: 'Juniper Cole', notes: 'Harbour Board office.' },
+      { id: 'LAN-8', group: 'lantern', number: '8', street: 'Lantern Walk', keeper: 'Council of Hollowmere', notes: 'Council Works Office; Register terminal 2.' }
+    ],
+    signatories: ['TAL-44', 'MIL-5', 'WEI-2', 'WEI-6', 'CHA-12', 'LOW-21'],
+    interpretations: [
+      { id: 'concealment', label: 'The names were added on purpose, to defeat the petition.' },
+      { id: 'careless', label: 'Someone "tidied" the list carelessly, not knowing the effect.' },
+      { id: 'undetermined', label: 'The record does not show who did it or why.' }
+    ],
+    theoryConfig: { addressRecord: 'TAL-44', sharedWord: 'venn', otherRecord: 'MIL-3', spellingWords: ['mara', 'venn'] }
+  };
+  C1.indexText = function (r) { return [r.number, r.street, r.keeper ? 'keeper' : 'vacant', r.keeper || '', r.notes]; };
+  C1.recordLabel = function (r) { return r.number + ' ' + r.street + ' — ' + (r.keeper ? 'keeper: ' + r.keeper : 'vacant'); };
+  C1.recordFields = function (r) {
+    return [['Door', r.number + ' ' + r.street], ['Keeper', r.keeper || '(vacant)'], ['Register notes', r.notes], ['Record ID', r.id]];
+  };
+  C1.targetIds = function () { return C1.signatories.slice(); };
+
+  /* ---- Case 2: Kestle Quay — The Missing Month ---- */
+  var BASE24 = ['a','an','and','are','as','at','be','by','for','from','in','is','it','not','of','on','or','that','the','this','to','was','were','with'];
+  var MONTHS = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function sail(id, day, month, vessel, master, bound, cargo, remarks) {
+    return { id: id, group: MONTHS[month].toLowerCase(), day: day, month: month, monthName: MONTHS[month], year: 1891, vessel: vessel, master: master, bound: bound, cargo: cargo, remarks: remarks || '' };
+  }
+  var C2 = {
+    id: 'c2', short: 'Case 2', title: 'Kestle Quay: The Missing Month', registerName: 'Kestle Quay Sailing Ledger',
+    unit: ['sailing', 'sailings'], publishedCount: 24,
+    baseline: BASE24,
+    extras: ['may'],
+    groupLabel: 'Months',
+    groups: [{ id: 'april', name: 'April' }, { id: 'may', name: 'May' }, { id: 'june', name: 'June' }, { id: 'july', name: 'July' }],
+    indexedFields: ['vessel', 'master', 'day', 'month name', 'year', 'the word "folio" and the folio number', 'destination', 'cargo', 'remarks'],
+    records: [
+      sail('KQ-01', 2, 4, 'Petrel', 'Ada Lusk', 'Port Ennis', 'herring'),
+      sail('KQ-02', 19, 4, 'Cormorant', 'Silas Varga', 'Carrick Sound', 'wool'),
+      sail('KQ-03', 3, 5, 'Wren', 'Elias Toller', 'Carrick Sound', 'slate', 'Deckhand Tom Pascoe signed on.'),
+      sail('KQ-04', 11, 5, 'Petrel', 'Ada Lusk', 'Port Ennis', 'salt'),
+      sail('KQ-05', 14, 5, 'Kittiwake', 'Morwenna Hale', 'Gull Point', 'lime'),
+      sail('KQ-06', 22, 5, 'Cormorant', 'Silas Varga', 'Port Ennis', 'wool', 'Returned with a split mast.'),
+      sail('KQ-07', 29, 5, 'Wren', 'Elias Toller', 'Gull Point', 'slate', 'Deckhand Tom Pascoe hurt at the winch; put ashore at Gull Point.'),
+      sail('KQ-08', 5, 6, 'Kittiwake', 'Morwenna Hale', 'Carrick Sound', 'lime'),
+      sail('KQ-09', 17, 6, 'Petrel', 'Ada Lusk', 'Port Ennis', 'herring'),
+      sail('KQ-10', 1, 7, 'Wren', 'Elias Toller', 'Carrick Sound', 'slate', 'Pilot may be required at the bar.'),
+      sail('KQ-11', 26, 7, 'Cormorant', 'Silas Varga', 'Gull Point', 'wool')
+    ],
+    interpretations: [
+      { id: 'honest-fault', label: 'An honest fault: "may" was added as a common word, and it also erased the month.' },
+      { id: 'concealment', label: 'The month was hidden on purpose to avoid paying the claim.' },
+      { id: 'undetermined', label: 'The record does not show why.' }
+    ],
+    theoryConfig: { addressRecord: 'KQ-03', sharedWord: 'may', otherRecord: 'KQ-05', spellingWords: ['may'] }
+  };
+  function folio(r) { return r.year + '-' + (r.month < 10 ? '0' : '') + r.month; }
+  C2.indexText = function (r) { return [r.vessel, r.master, String(r.day), r.monthName, String(r.year), 'folio', folio(r), r.bound, r.cargo, r.remarks]; };
+  C2.recordLabel = function (r) { return r.day + ' ' + r.monthName + ' ' + r.year + ' — ' + r.vessel + ', master ' + r.master + ' (folio ' + folio(r) + ')'; };
+  C2.recordFields = function (r) {
+    return [['Sailed', r.day + ' ' + r.monthName + ' ' + r.year], ['Ledger folio', folio(r)], ['Vessel', r.vessel], ['Master', r.master], ['Bound for', r.bound], ['Cargo', r.cargo], ['Remarks', r.remarks || '—'], ['Record ID', r.id]];
+  };
+  C2.targetIds = function () { return C2.records.filter(function (r) { return r.month === 5; }).map(function (r) { return r.id; }); };
+
+  var CASES = { c1: C1, c2: C2 };
+  Object.keys(CASES).forEach(function (k) { deepFreeze(CASES[k]); });
+
+  function getCase(id) { if (!Object.prototype.hasOwnProperty.call(CASES, id)) throw new Error('Unknown case: ' + id); return CASES[id]; }
+  function activeStopList(caseId) { var c = getCase(caseId); return c.baseline.concat(c.extras); }
+
+  var cache = Object.create(null);
+  function getIndex(caseId) {
+    if (cache[caseId]) return cache[caseId];
+    var c = getCase(caseId), stop = new Set(activeStopList(caseId)), idx = Object.create(null);
+    c.records.forEach(function (r) {
+      /* Documented: the SAME stop list is applied to stored records, so ignored words are never in the index. */
+      idx[r.id] = new Set(tokenize(c.indexText(r).join(' ')).filter(function (t) { return !stop.has(t); }));
+    });
+    cache[caseId] = { stop: stop, idx: idx };
+    return cache[caseId];
+  }
+  function indexRecord(caseId, recId) { var s = getIndex(caseId).idx[recId]; return s ? Array.from(s).sort() : null; }
+
+  /* ---- Search: normalize -> tokenize -> remove stop words -> dedupe -> AND match -> corpus order ---- */
+  function search(caseId, query) {
+    var c = getCase(caseId), I = getIndex(caseId);
+    var original = typeof query === 'string' ? query : '';
+    var res = { caseId: caseId, original: original.slice(0, MAX_QUERY_CHARS), tokens: [], kept: [], removed: [], ignoredTokenCount: 0, ids: [], count: 0, status: '', truncated: false };
+    if (!original.trim()) { res.status = 'blank'; return res; }
+    var tq = tokenizeQuery(original);
+    res.tokens = tq.tokens; res.truncated = tq.truncated;
+    if (!tq.tokens.length) { res.status = 'no-words'; return res; }
+    var f = filterQuery(tq.tokens, I.stop);
+    res.kept = f.kept; res.removed = f.removed;
+    res.ignoredTokenCount = tq.tokens.filter(function (t) { return I.stop.has(t); }).length;
+    if (!f.kept.length) { res.status = 'all-ignored'; return res; }
+    res.ids = c.records.filter(function (r) { var s = I.idx[r.id]; return f.kept.every(function (k) { return s.has(k); }); }).map(function (r) { return r.id; });
+    res.count = res.ids.length;
+    res.status = res.count ? 'ok' : 'no-match';
+    return res;
+  }
+  function echoText(res) { return res.kept && res.kept.length ? res.kept.join(', ') : '[no searchable words]'; }
+
+  function copyRec(r) { return JSON.parse(JSON.stringify(r)); }
+  function browse(caseId, groupId) { return getCase(caseId).records.filter(function (r) { return r.group === groupId; }).map(copyRec); }
+  function getRecord(caseId, id) { var r = getCase(caseId).records.filter(function (x) { return x.id === id; })[0]; return r ? copyRec(r) : null; }
+  function targetIds(caseId) { return getCase(caseId).targetIds(); }
+
+  function checkTokenCandidate(caseId, word) {
+    var c = getCase(caseId);
+    var toks = tokenize(typeof word === 'string' ? word.slice(0, MAX_WORD_CHARS) : '');
+    if (toks.length !== 1) return { word: toks.join(' '), verdict: toks.length ? 'not-single' : 'empty' };
+    var t = toks[0], f = filterQuery([t], getIndex(caseId).stop);
+    if (f.kept.length) return { word: t, verdict: 'searchable' };
+    return { word: t, verdict: c.baseline.indexOf(t) >= 0 ? 'published' : 'hidden' };
+  }
+
+  function checkFinale(caseId, query) {
+    var r = search(caseId, query), target = targetIds(caseId).slice().sort();
+    var got = r.ids.slice().sort(), verdict;
+    if (r.status !== 'ok') verdict = 'none';
+    else {
+      var allIn = target.every(function (t) { return got.indexOf(t) >= 0; });
+      var noExtra = got.every(function (g) { return target.indexOf(g) >= 0; });
+      verdict = allIn && noExtra ? 'exact' : allIn ? 'superset' : noExtra ? 'subset' : 'mixed';
+    }
+    return { search: r, verdict: verdict, targetIds: target, extraIds: got.filter(function (g) { return target.indexOf(g) < 0; }), missingIds: target.filter(function (t) { return got.indexOf(t) < 0; }) };
+  }
+
+  /* ---- Investigation state: an action log replayed through validated transitions. Nothing derived is trusted from saves. ---- */
+  function newCaseState(caseId) {
+    var c = getCase(caseId), slots = [];
+    for (var i = 0; i < c.extras.length; i++) slots.push({ word: '', verdict: null, inferred: false });
+    return { caseId: caseId, log: [], searches: [], viewed: [], groups: [], docs: [], help: false, slots: slots, finals: [], interp: null, hint: 0, solved: false, filedQuery: null, filedIds: null };
+  }
+  var DOC_IDS = { c1: ['notice', 'petition', 'minutes', 'log'], c2: ['claim', 'reply', 'card'] };
+  function isStr(x, max) { return typeof x === 'string' && x.length <= max; }
+  function isIdx(x, n) { return typeof x === 'number' && Math.floor(x) === x && x >= 0 && x < n; }
+  function validateAction(caseId, a) {
+    var c = getCase(caseId);
+    if (!a || typeof a !== 'object' || Array.isArray(a)) return 'action is not an object';
+    var keys = Object.keys(a);
+    switch (a.t) {
+      case 'search': case 'final': return keys.length === 2 && isStr(a.q, MAX_QUERY_CHARS) ? null : 'bad query action';
+      case 'browse': return keys.length === 2 && c.groups.some(function (g) { return g.id === a.g; }) ? null : 'bad group';
+      case 'view': return keys.length === 2 && c.records.some(function (r) { return r.id === a.id; }) ? null : 'bad record id';
+      case 'doc': return keys.length === 2 && DOC_IDS[caseId].indexOf(a.id) >= 0 ? null : 'bad document id';
+      case 'help': return keys.length === 1 ? null : 'bad help action';
+      case 'slot': return keys.length === 3 && isIdx(a.i, c.extras.length) && isStr(a.w, MAX_WORD_CHARS) ? null : 'bad slot action';
+      case 'test': case 'clear': return keys.length === 2 && isIdx(a.i, c.extras.length) ? null : 'bad slot index';
+      case 'infer': return keys.length === 3 && isIdx(a.i, c.extras.length) && typeof a.on === 'boolean' ? null : 'bad infer action';
+      case 'interp': return keys.length === 2 && c.interpretations.some(function (x) { return x.id === a.v; }) ? null : 'bad interpretation';
+      case 'hint': return keys.length === 2 && isIdx(a.l, 5) && a.l >= 1 ? null : 'bad hint level';
+      default: return 'unknown action type';
+    }
+  }
+  function verifiedWords(st) {
+    var out = [];
+    st.slots.forEach(function (s) { if (s.verdict === 'hidden' && out.indexOf(s.word) < 0) out.push(s.word); });
+    return out;
+  }
+  function applyAction(st, a) {
+    var err = validateAction(st.caseId, a);
+    if (err) throw new Error(err);
+    if (st.log.length >= MAX_LOG) throw new Error('action log is full');
+    var c = getCase(st.caseId), clean = JSON.parse(JSON.stringify(a));
+    st.log.push(clean);
+    function addU(arr, v) { if (arr.indexOf(v) < 0) arr.push(v); }
+    switch (a.t) {
+      case 'search': var r = search(st.caseId, a.q); if (r.status !== 'blank') st.searches.push({ q: r.original, kept: r.kept, removed: r.removed, ids: r.ids, status: r.status }); break;
+      case 'browse': addU(st.groups, a.g); break;
+      case 'view': addU(st.viewed, a.id); break;
+      case 'doc': addU(st.docs, a.id); break;
+      case 'help': st.help = true; break;
+      case 'slot': st.slots[a.i] = { word: a.w.trim(), verdict: null, inferred: st.slots[a.i].inferred }; break;
+      case 'test': st.slots[a.i].verdict = st.slots[a.i].word ? checkTokenCandidate(st.caseId, st.slots[a.i].word).verdict : 'empty'; break;
+      case 'infer': st.slots[a.i].inferred = a.on; break;
+      case 'clear': st.slots[a.i] = { word: '', verdict: null, inferred: false }; break;
+      case 'interp': st.interp = a.v; break;
+      case 'hint': st.hint = Math.max(st.hint, a.l); break;
+      case 'final':
+        var f = checkFinale(st.caseId, a.q), ready = verifiedWords(st).length === c.extras.length;
+        st.finals.push({ q: f.search.original, verdict: f.verdict, ids: f.search.ids, ready: ready });
+        if (f.verdict === 'exact' && ready && !st.solved) { st.solved = true; st.filedQuery = f.search.original; st.filedIds = f.search.ids.slice(); }
+        break;
+    }
+    return st;
+  }
+  function replay(caseId, actions) {
+    var st = newCaseState(caseId);
+    if (!Array.isArray(actions)) throw new Error('actions must be a list');
+    actions.forEach(function (a) { applyAction(st, a); });
+    return st;
+  }
+
+  /* Theories: computed only from what the player has actually done. */
+  function evaluateTheories(st) {
+    var c = getCase(st.caseId), tc = c.theoryConfig, out = [];
+    var addrHit = st.searches.filter(function (s) { return s.ids.indexOf(tc.addressRecord) >= 0; })[0];
+    out.push({ id: 'missing', label: 'The record is missing from the index.', state: addrHit ? 'refuted' : 'untested',
+      evidence: addrHit ? 'Your search "' + addrHit.q + '" found the record by other words, so it is in the index.' : 'Try reaching the same record using words other than the name.' });
+    var shared = st.searches.filter(function (s) { return s.removed.indexOf(tc.sharedWord) >= 0; })[0];
+    var sawOther = st.viewed.indexOf(tc.otherRecord) >= 0 || st.groups.indexOf(getRecord(st.caseId, tc.otherRecord).group) >= 0;
+    out.push({ id: 'damaged', label: 'That one record is damaged.', state: shared && sawOther ? 'refuted' : 'untested',
+      evidence: shared && sawOther ? 'A different, undamaged record shares the word "' + tc.sharedWord + '", and that word is dropped for every record alike.' : 'Find another record that shares one of the missing words, then search that word alone.' });
+    var spell = st.searches.filter(function (s) { return s.removed.some(function (w) { return tc.spellingWords.indexOf(w) >= 0; }); })[0];
+    out.push({ id: 'spelling', label: 'The word is misspelled or not recognised.', state: spell ? 'refuted' : 'untested',
+      evidence: spell ? 'In "' + spell.q + '" the kiosk recognised the word and discarded it. A misspelled word would still appear in "Searched for:" and simply match nothing.' : 'Compare what you typed with the "Searched for:" line.' });
+    var hiddenSeen = [];
+    st.searches.forEach(function (s) { s.removed.forEach(function (w) { if (c.baseline.indexOf(w) < 0 && hiddenSeen.indexOf(w) < 0) hiddenSeen.push(w); }); });
+    var sup = st.help && hiddenSeen.length > 0;
+    out.push({ id: 'filter', label: 'The search silently ignores certain words.', state: sup ? 'supported' : 'untested',
+      evidence: sup ? 'The manual lists ' + c.publishedCount + ' ignored words, the status line counts ' + (c.baseline.length + c.extras.length) + ', and you have seen ' + hiddenSeen.length + ' unlisted word' + (hiddenSeen.length === 1 ? '' : 's') + ' dropped from "Searched for:".' : 'Open the kiosk manual and compare its count with the status line.' });
+    return out;
+  }
+
+  /* Progress codes */
+  var FORMAT = 'dq-glitchortals-001', VERSION = 1;
+  function exportState(states, notes) {
+    return { format: FORMAT, v: VERSION, build: BUILD_ID, cases: { c1: { log: states.c1.log.slice() }, c2: { log: states.c2.log.slice() } }, notes: { c1: String(notes && notes.c1 || '').slice(0, MAX_NOTE), c2: String(notes && notes.c2 || '').slice(0, MAX_NOTE) } };
+  }
+  function importState(obj) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error('not a progress object');
+    if (obj.format !== FORMAT) throw new Error('this code is not for Glitchortals No. 001');
+    if (obj.v !== VERSION) throw new Error('unsupported version');
+    if (!obj.cases || typeof obj.cases !== 'object') throw new Error('missing cases');
+    var states = {};
+    ['c1', 'c2'].forEach(function (k) {
+      var entry = obj.cases[k] || { log: [] };
+      if (!Array.isArray(entry.log) || entry.log.length > MAX_LOG) throw new Error('bad action list for ' + k);
+      states[k] = replay(k, entry.log);
+    });
+    var n = obj.notes && typeof obj.notes === 'object' ? obj.notes : {};
+    return { states: states, notes: { c1: typeof n.c1 === 'string' ? n.c1.slice(0, MAX_NOTE) : '', c2: typeof n.c2 === 'string' ? n.c2.slice(0, MAX_NOTE) : '' } };
+  }
+  function encodeCode(obj) { var json = JSON.stringify(obj); return 'DQG1.' + btoa(unescape(encodeURIComponent(json))); }
+  function decodeCode(code) {
+    if (typeof code !== 'string') throw new Error('empty code');
+    code = code.trim();
+    if (code.length > 60000) throw new Error('code is too long');
+    if (code.indexOf('DQG1.') !== 0) throw new Error('code must start with DQG1.');
+    var json;
+    try { json = decodeURIComponent(escape(atob(code.slice(5)))); } catch (e) { throw new Error('code is damaged'); }
+    var obj; try { obj = JSON.parse(json); } catch (e2) { throw new Error('code is damaged'); }
+    return importState(obj);
+  }
+
+  function contract(caseId) {
+    var c = getCase(caseId);
+    return {
+      register: c.registerName, indexedFields: c.indexedFields.slice(), sharedIndex: true,
+      tokenization: ['Unicode NFKD, combining marks removed', 'lower-case', "apostrophes ' ’ ‘ ʼ ` deleted", 'any character other than a-z, 0-9 separates words', 'queries limited to 120 characters and 16 words'],
+      stopFiltering: 'whole words only, exact token equality; applied identically to the query and to every stored record',
+      matching: 'AND over the distinct surviving query words, order-independent; results in corpus order',
+      zeroWords: 'if no words survive, the result is zero records with status "all-ignored" (or "no-words" if nothing was a word); never all records',
+      publishedStopCount: c.publishedCount, activeStopCount: c.baseline.length + c.extras.length
+    };
+  }
+  function exportCorpus(caseId) {
+    var c = getCase(caseId);
+    return JSON.parse(JSON.stringify({ caseId: c.id, registerName: c.registerName, baseline: c.baseline, extras: c.extras, records: c.records, indexText: c.records.map(function (r) { return { id: r.id, text: c.indexText(r).join(' ') }; }), targetIds: c.targetIds(), contract: contract(caseId) }));
+  }
+
+  root.GL001_ENGINE = Object.freeze({
+    BUILD_ID: BUILD_ID, LIMITS: Object.freeze({ MAX_QUERY_CHARS: MAX_QUERY_CHARS, MAX_QUERY_TOKENS: MAX_QUERY_TOKENS, MAX_WORD_CHARS: MAX_WORD_CHARS, MAX_LOG: MAX_LOG, MAX_NOTE: MAX_NOTE }),
+    caseIds: function () { return Object.keys(CASES); }, getCase: getCase,
+    normalize: normalize, tokenize: tokenize, tokenizeQuery: tokenizeQuery, filterQuery: filterQuery,
+    activeStopList: activeStopList, indexRecord: indexRecord, search: search, echoText: echoText,
+    browse: browse, getRecord: getRecord, targetIds: targetIds, checkTokenCandidate: checkTokenCandidate, checkFinale: checkFinale,
+    newCaseState: newCaseState, validateAction: validateAction, applyAction: applyAction, replay: replay, verifiedWords: verifiedWords,
+    evaluateTheories: evaluateTheories, exportState: exportState, importState: importState, encodeCode: encodeCode, decodeCode: decodeCode,
+    contract: contract, exportCorpus: exportCorpus
+  });
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+</script>
+
+<script id="gl-ui">
+(function () {
+  'use strict';
+  var E = window.GL001_ENGINE;
+  var STORE_KEY = 'dq-glitchortals-001-v1';
+  document.getElementById('build-id').textContent = E.BUILD_ID;
+
+  /* ---------- Authored story text (UI layer) ---------- */
+  var STORY = {
+    c1: {
+      sceneTitle: 'Door 44, Tallow Lane',
+      scene: [
+        'Hollowmere, an evening in March. Door 44 is painted blue. Its brass plate reads: 44 · KEEPER · M. VENN.',
+        'A note is pinned under the knocker: "If they close the sluice, the Low Ward floods first. — M.V."',
+        'Across the lane stands the public Door Register kiosk, which promises every door and keeper in town.'
+      ],
+      objective: 'Objective: find the keeper of Door 44 in the Register.',
+      firstStep: 'Browse Tallow Lane',
+      firstGroup: 'tallow',
+      placeholder: 'A name, street, number or word',
+      manualTitle: 'HOLLOWMERE DOOR REGISTER · MANUAL · JANUARY EDITION',
+      manual: [
+        'Search finds doors by number, street, keeper and register notes.',
+        'Type one or more words. A door is shown only if it matches every word you searched, in any order.',
+        'Capitals and punctuation make no difference. Whole words only.',
+        'To keep results useful, the Register ignores these 40 common words. They are never searched:',
+        null,
+        '"Searched for:" shows the words the Register actually used.',
+        'Tip: to find a family, search the family name.'
+      ],
+      docs: {
+        notice: { title: 'Notice of Works: the Low Sluice', body: [
+          'The Council of Hollowmere intends to close the Low Sluice permanently and divert flood water through the Low Ward culvert.',
+          'Registered keepers may lodge objections. Objections will be heard in the Council chamber on 9 March.',
+          'A petition is valid only if its signers are registered keepers. The Clerk will confirm each signer against the Door Register.'] },
+        petition: { title: 'Petition against closing the Low Sluice', body: [
+          'We, the undersigned keepers of Hollowmere, object to the closing of the Low Sluice. The culvert cannot carry a spring flood, and the Low Ward will drown first.',
+          'SIGNERS'] },
+        minutes: { title: 'Minutes of the hearing, 9 March', body: [
+          'Item 3. The petition against closing the Low Sluice.',
+          'The Clerk searched the Door Register for each family name on the petition: Venn, Mara, Ashdown, Pellow, Quist, Hardacre.',
+          'For every name the Register returned no matching door.',
+          'The Chair ruled that the petition is not signed by registered keepers and dismissed it. Works to close the Low Sluice will begin on 1 April.'] },
+        log: { title: 'Register maintenance log', body: [
+          '2 January · Terminal 1 (Council chamber) · Manual reprinted. Ignore list: 40 common words.',
+          '14 February · Terminal 1 · Door record added: 46 Tallow Lane marked vacant after the spring floods.',
+          '7 March, 18:40 · Terminal 2 (Council Works Office, 8 Lantern Walk) · Ignore list updated: 6 common words added "to reduce search noise". Authorised by: (left blank).',
+          '9 March, 10:05 · Terminal 1 (Council chamber) · 6 searches.'] }
+      },
+      finalPrompt: 'The hearing ruled that none of the six signers is a registered keeper. File a reinstatement: one Register search that returns exactly the six signers’ doors, no more and no fewer.',
+      hints: [
+        'Compare what Browse shows on Tallow Lane with what Search finds. Search the keeper of Door 44 by name.',
+        'Read the "Searched for:" line after every search. It shows only the words the Register actually used. Try "keeper of Tallow", then "Mara Venn keeper", then "44 Tallow".',
+        'The manual says 40 words are ignored; the status line says 46. Search each signer’s full name from the petition and note which word vanishes from "Searched for:". Then read the six signers’ records and look for words they share that no one else has all of.',
+        'Full solution. Hidden words: venn, mara, ashdown, pellow, quist, hardacre (Mara Venn loses both of her names, because "mara" is also Isolde Mara’s family name). Search "objection sluice" and you get seven doors: Corwin Bell withdrew. "objection outstanding sluice" returns exactly the six.'
+      ]
+    },
+    c2: {
+      sceneTitle: 'Kestle Quay harbour office',
+      scene: [
+        'Kestle Quay, June. Hannah Pascoe has been told that her husband’s ship never sailed in May, so his wages and injury pay will not be paid.',
+        'She is sure the Wren sailed twice that month. The harbour’s Sailing Ledger kiosk promises every departure from the quay.'
+      ],
+      objective: 'Objective: find the Wren’s May sailings in the Ledger.',
+      firstStep: 'Browse May',
+      firstGroup: 'may',
+      placeholder: 'A vessel, master, date or word',
+      manualTitle: 'KESTLE QUAY SAILING LEDGER · CARD OF INSTRUCTIONS',
+      manual: [
+        'Search finds sailings by vessel, master, date, ledger folio, destination, cargo and remarks.',
+        'A sailing is shown only if it matches every word you searched, in any order. Whole words only.',
+        'The Ledger ignores these 24 common words:',
+        null,
+        '"Searched for:" shows the words the Ledger actually used.'
+      ],
+      docs: {
+        claim: { title: 'Letter from Hannah Pascoe', body: [
+          'To the Harbourmaster. My husband Tom Pascoe signed on the Wren at the start of May and sailed with her twice that month. He was hurt at the winch on the second voyage and put ashore at Gull Point.',
+          'I ask for his wages and the injury pay owed under the ship’s articles for the May voyages.'] },
+        reply: { title: 'Reply from the Deputy Harbourmaster, 12 June', body: [
+          'Madam, a search of the Sailing Ledger for "May" returned no sailings.',
+          'The Office cannot pay wages for voyages that are not recorded.'] },
+        card: { title: 'Ledger maintenance card', body: [
+          '1 June · Ignore list: added "may". It is very common in the Remarks column ("pilot may be required") and cluttered searches.',
+          'The printed card of 24 words has not been reprinted.'] }
+      },
+      finalPrompt: 'File a correction for Mrs Pascoe: one Ledger search that returns every sailing of May 1891, no more and no fewer.',
+      hints: [
+        'Browse May: the sailings are plainly there. Now search the month by name.',
+        'Watch "Searched for:". What happens to the word "May"? Try reaching a May sailing another way, for example by the ship’s name.',
+        'The card lists 24 ignored words; the status line counts 25. Every sailing record also carries a ledger folio number. Look at how the folio is written for each month.',
+        'Full solution. The hidden word is "may", added on 1 June as a common word, which also erased the month. Days are written without a leading zero, but folios are written 1891-05, so "05" (or "folio 05") returns exactly the five May sailings. "1891" returns every sailing, and "5" finds 5 June instead.'
+      ]
+    }
+  };
+
+  /* ---------- State ---------- */
+  var S = {
+    caseId: 'c1', tab: 'kiosk', remember: false,
+    states: { c1: E.newCaseState('c1'), c2: E.newCaseState('c2') },
+    notes: { c1: '', c2: '' },
+    ui: { c1: { group: null, record: null, doc: null, last: null, fromSearch: false, finalLast: null, query: '', finalQuery: '' },
+          c2: { group: null, record: null, doc: null, last: null, fromSearch: false, finalLast: null, query: '', finalQuery: '' } }
+  };
+  function cur() { return S.states[S.caseId]; }
+  function C() { return E.getCase(S.caseId); }
+  function U() { return S.ui[S.caseId]; }
+  function story() { return STORY[S.caseId]; }
+
+  /* ---------- Safe DOM helpers (text only, never innerHTML for content) ---------- */
+  function h(tag, props) {
+    var el = document.createElement(tag);
+    if (props) Object.keys(props).forEach(function (k) {
+      var v = props[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'text') el.textContent = v;
+      else if (k === 'class') el.className = v;
+      else if (k.indexOf('on') === 0) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) append(el, arguments[i]);
+    return el;
+  }
+  function append(el, c) {
+    if (c === null || c === undefined || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { append(el, x); }); return; }
+    el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  }
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+  function announce(msg) { var l = document.getElementById('live'); l.textContent = ''; setTimeout(function () { l.textContent = msg; }, 30); }
+
+  /* ---------- Persistence (opt-in) ---------- */
+  function storageGet() { try { return window.localStorage.getItem(STORE_KEY); } catch (e) { return null; } }
+  function storageSet(v) { try { window.localStorage.setItem(STORE_KEY, v); return true; } catch (e) { return false; } }
+  function storageDel() { try { window.localStorage.removeItem(STORE_KEY); return true; } catch (e) { return false; } }
+  function persist() {
+    if (!S.remember) return;
+    var payload = { remember: true, theme: document.documentElement.getAttribute('data-theme') || '', code: E.encodeCode(E.exportState(S.states, S.notes)) };
+    if (!storageSet(JSON.stringify(payload))) msg('This browser is not allowing storage, so progress will not be remembered. You can still play, and you can copy a progress code.');
+  }
+  function loadSaved() {
+    var raw = storageGet(); if (!raw) return;
+    try {
+      if (raw.length > 70000) throw new Error('too large');
+      var p = JSON.parse(raw);
+      if (!p || p.remember !== true) return;
+      var res = E.decodeCode(p.code);
+      S.states = res.states; S.notes = res.notes; S.remember = true;
+      if (p.theme === 'light' || p.theme === 'dark') document.documentElement.setAttribute('data-theme', p.theme);
+    } catch (e) { msg('Saved progress could not be read, so this game started fresh. (' + e.message + ')'); }
+  }
+  function msg(t) { document.getElementById('control-msg').textContent = t; }
+
+  function act(a) {
+    try { E.applyAction(cur(), a); } catch (e) { msg('That action could not be recorded: ' + e.message); return false; }
+    persist(); return true;
+  }
+
+  /* ---------- Layout build ---------- */
+  var TABS = [['kiosk', 'Register kiosk'], ['browse', 'Browse'], ['archive', 'Archive'], ['notebook', 'Notebook'], ['file', 'File the case'], ['hints', 'Hints']];
+
+  function buildCaseBar() {
+    var bar = document.getElementById('casebar'); clear(bar);
+    E.caseIds().forEach(function (id) {
+      var c = E.getCase(id), st = S.states[id];
+      bar.appendChild(h('button', { type: 'button', 'aria-pressed': String(id === S.caseId), onclick: function () { switchCase(id); } },
+        c.short + ': ' + c.title, h('small', { text: st.solved ? 'Solved' : (st.log.length ? 'In progress' : (id === 'c1' ? 'Start here' : 'A second case, playable any time')) })));
+    });
+  }
+  function buildScene() {
+    var sc = document.getElementById('scene'); clear(sc);
+    var st = story();
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 80 120'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
+    var shapes = S.caseId === 'c1'
+      ? [['rect', { x: 6, y: 4, width: 68, height: 112, rx: 3, fill: '#1d3a66', stroke: '#b88a2c', 'stroke-width': 3 }], ['rect', { x: 16, y: 16, width: 48, height: 14, rx: 2, fill: '#e5c472' }], ['text', { x: 40, y: 27, 'text-anchor': 'middle', 'font-size': 10, 'font-family': 'Georgia,serif', fill: '#2a1d05', t: '44' }], ['rect', { x: 16, y: 40, width: 48, height: 30, fill: 'none', stroke: '#6f8fb8', 'stroke-width': 1.5 }], ['rect', { x: 16, y: 78, width: 48, height: 30, fill: 'none', stroke: '#6f8fb8', 'stroke-width': 1.5 }], ['circle', { cx: 58, cy: 74, r: 3.2, fill: '#e5c472' }]]
+      : [['rect', { x: 6, y: 18, width: 68, height: 92, rx: 3, fill: '#2b3a4a', stroke: '#b88a2c', 'stroke-width': 3 }], ['path', { d: 'M10 18 L40 4 L70 18 Z', fill: '#b88a2c' }], ['rect', { x: 16, y: 32, width: 48, height: 40, fill: '#0d1b2e', stroke: '#6f8fb8' }], ['text', { x: 40, y: 56, 'text-anchor': 'middle', 'font-size': 9, 'font-family': 'monospace', fill: '#e5c472', t: 'LEDGER' }], ['path', { d: 'M12 96 q8 -6 16 0 t16 0 t16 0 t16 0', fill: 'none', stroke: '#6f8fb8', 'stroke-width': 2 }]];
+    shapes.forEach(function (s) { var e = document.createElementNS('http://www.w3.org/2000/svg', s[0]); Object.keys(s[1]).forEach(function (k) { if (k === 't') e.textContent = s[1][k]; else e.setAttribute(k, s[1][k]); }); svg.appendChild(e); });
+    sc.appendChild(svg);
+    sc.appendChild(h('div', null,
+      h('h2', { id: 'scene-title', text: st.sceneTitle }),
+      st.scene.map(function (p) { return h('p', { text: p }); }),
+      h('p', { class: 'objective', text: st.objective }),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn', type: 'button', onclick: function () { selectTab('kiosk'); setTimeout(function () { var i = document.getElementById('q-input'); if (i) i.focus(); }, 0); } }, 'Use the kiosk'),
+        h('button', { class: 'btn secondary', type: 'button', onclick: function () { openGroup(st.firstGroup); selectTab('browse'); } }, st.firstStep))));
+  }
+  function buildTabs() {
+    var tl = document.getElementById('tabs'); clear(tl);
+    var panels = document.getElementById('panels'); clear(panels);
+    TABS.forEach(function (t, i) {
+      var b = h('button', { role: 'tab', type: 'button', id: 'tab-' + t[0], 'aria-controls': 'panel-' + t[0], 'aria-selected': String(S.tab === t[0]), tabindex: S.tab === t[0] ? '0' : '-1',
+        onclick: function () { selectTab(t[0]); },
+        onkeydown: function (ev) {
+          var k = ev.key, n = TABS.length, j = null;
+          if (k === 'ArrowRight') j = (i + 1) % n; else if (k === 'ArrowLeft') j = (i - 1 + n) % n; else if (k === 'Home') j = 0; else if (k === 'End') j = n - 1;
+          if (j !== null) { ev.preventDefault(); selectTab(TABS[j][0]); document.getElementById('tab-' + TABS[j][0]).focus(); }
+        } }, t[1]);
+      tl.appendChild(b);
+      panels.appendChild(h('section', { class: 'panel', role: 'tabpanel', id: 'panel-' + t[0], 'aria-labelledby': 'tab-' + t[0], tabindex: '0', hidden: S.tab !== t[0] }));
+    });
+    buildKiosk(); buildBrowse(); buildArchive(); buildNotebook(); buildFile(); buildHints();
+  }
+  function selectTab(id) {
+    S.tab = id;
+    TABS.forEach(function (t) {
+      var b = document.getElementById('tab-' + t[0]), p = document.getElementById('panel-' + t[0]);
+      if (!b) return;
+      var on = t[0] === id; b.setAttribute('aria-selected', String(on)); b.setAttribute('tabindex', on ? '0' : '-1'); p.hidden = !on;
+    });
+    if (id === 'notebook') renderNotebookDynamic();
+    if (id === 'file') renderFileDynamic();
+  }
+  function switchCase(id) {
+    S.caseId = id; S.tab = 'kiosk';
+    buildCaseBar(); buildScene(); buildTabs();
+    announce(E.getCase(id).short + ': ' + E.getCase(id).title + ' opened.');
+  }
+
+  /* ---------- Kiosk ---------- */
+  function buildKiosk() {
+    var p = document.getElementById('panel-kiosk'), c = C(), st = story(), u = U();
+    var input = h('input', { id: 'q-input', type: 'search', maxlength: String(E.LIMITS.MAX_QUERY_CHARS), autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: st.placeholder, value: u.query,
+      oninput: function (e) { u.query = e.target.value; } });
+    var form = h('form', { class: 'search', role: 'search', 'aria-label': c.registerName + ' search',
+      onsubmit: function (ev) { ev.preventDefault(); runSearch(input.value); } },
+      h('label', { for: 'q-input', text: 'Search the ' + c.registerName }), input, h('button', { class: 'btn', type: 'submit' }, 'Search'));
+    var manual = h('details', { id: 'manual', ontoggle: function (e) { if (e.target.open && !cur().help) { act({ t: 'help' }); renderTheoriesIfVisible(); } } },
+      h('summary', null, 'Kiosk manual (Help)'),
+      h('h3', { text: st.manualTitle }),
+      st.manual.map(function (line) {
+        if (line === null) return h('ul', { class: 'wordgrid', 'aria-label': 'Published ignored words (' + c.baseline.length + ')' }, c.baseline.map(function (w) { return h('li', { text: w }); }));
+        return h('p', { text: line });
+      }));
+    p.appendChild(h('div', { class: 'kiosk' }, h('div', { class: 'kiosk-screen' },
+      h('h2', { text: c.registerName.toUpperCase() }),
+      h('div', { class: 'status', id: 'k-status' },
+        h('span', null, 'Records indexed: ', h('strong', { text: String(c.records.length) })),
+        h('span', null, 'Ignore list: ', h('strong', { text: (c.baseline.length + c.extras.length) + ' words' })),
+        h('span', null, 'Search mode: ', h('strong', { text: 'all words' }))),
+      form,
+      h('div', { id: 'k-result' }),
+      manual)));
+    p.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Your searches' }), h('p', { class: 'note', text: 'Every search is kept here so you can compare what you typed with what the kiosk used.' }), h('div', { id: 'k-history', class: 'tablewrap' })));
+    renderResult(); renderHistory();
+  }
+  function runSearch(q) {
+    var u = U(); u.query = q;
+    var r = E.search(S.caseId, q);
+    if (r.status !== 'blank') act({ t: 'search', q: r.original });
+    u.last = r;
+    renderResult(); renderHistory(); renderTheoriesIfVisible();
+    var c = C();
+    if (r.status === 'blank') announce('Type a word to search.');
+    else announce(r.count + ' ' + (r.count === 1 ? c.unit[0] : c.unit[1]) + ' found. ' + r.ignoredTokenCount + ' of ' + r.tokens.length + ' query word' + (r.tokens.length === 1 ? '' : 's') + ' ignored. Searched for: ' + E.echoText(r) + '.');
+  }
+  function statusSentence(r) {
+    var c = C();
+    switch (r.status) {
+      case 'blank': return 'Type a word to search. An empty search returns nothing.';
+      case 'no-words': return '0 ' + c.unit[1] + ' — nothing you typed was a word the kiosk can read.';
+      case 'all-ignored': return '0 ' + c.unit[1] + ' — every word you typed is on the ignore list, so nothing was searched.';
+      case 'no-match': return '0 ' + c.unit[1] + ' — no ' + c.unit[0] + ' matches all of: ' + r.kept.join(', ') + '.';
+      default: return r.count + ' ' + (r.count === 1 ? c.unit[0] : c.unit[1]) + ' match all of: ' + r.kept.join(', ') + '.';
+    }
+  }
+  function renderResult() {
+    var box = document.getElementById('k-result'); if (!box) return; clear(box);
+    var r = U().last; if (!r) return;
+    var c = C();
+    var echo = h('div', { class: 'echo', id: 'k-echo' },
+      h('p', null, h('span', { class: 'lbl' }, 'Original query: '), h('span', { class: 'val', id: 'k-original', text: r.original || '(empty)' })),
+      h('p', null, h('span', { class: 'lbl' }, 'Searched for: '), h('span', { class: 'val', id: 'k-searched', text: r.status === 'blank' ? '—' : E.echoText(r) })),
+      r.tokens.length ? h('p', null, h('span', { class: 'lbl' }, 'Words ignored: '), h('span', { class: 'val', id: 'k-ignored', text: r.ignoredTokenCount + ' of ' + r.tokens.length })) : null,
+      r.truncated ? h('p', { text: 'Only the first ' + E.LIMITS.MAX_QUERY_CHARS + ' characters and ' + E.LIMITS.MAX_QUERY_TOKENS + ' words are searched.' }) : null,
+      h('p', { class: 'resultline', id: 'k-count', text: statusSentence(r) }));
+    box.appendChild(echo);
+    if (r.ids.length) {
+      box.appendChild(h('ol', { class: 'results', id: 'k-results', 'aria-label': 'Search results' }, r.ids.map(function (id) {
+        var rec = E.getRecord(S.caseId, id);
+        return h('li', null, h('button', { type: 'button', 'data-id': id, onclick: function () { openRecord(id, true); } }, c.recordLabel(rec)));
+      })));
+    }
+  }
+  function renderHistory() {
+    var box = document.getElementById('k-history'); if (!box) return; clear(box);
+    var list = cur().searches.slice(-12).reverse();
+    if (!list.length) { box.appendChild(h('p', { class: 'note', text: 'No searches yet.' })); return; }
+    box.appendChild(h('table', { class: 'hist' },
+      h('caption', { class: 'sr-only', text: 'Recent searches, newest first' }),
+      h('thead', null, h('tr', null, h('th', { scope: 'col', text: 'You typed' }), h('th', { scope: 'col', text: 'Searched for' }), h('th', { scope: 'col', text: 'Results' }))),
+      h('tbody', null, list.map(function (s) {
+        return h('tr', null, h('td', { text: s.q }), h('td', { text: s.kept.length ? s.kept.join(', ') : '[no searchable words]' }), h('td', { text: String(s.ids.length) }));
+      }))));
+  }
+
+  /* ---------- Browse ---------- */
+  function buildBrowse() {
+    var p = document.getElementById('panel-browse'), c = C();
+    p.appendChild(h('h2', { text: 'Browse the ' + c.registerName }));
+    p.appendChild(h('p', { class: 'note', text: 'Browsing reads the same records the search uses, listed by ' + c.groupLabel.toLowerCase() + '. Nothing here is filtered.' }));
+    p.appendChild(h('div', { class: 'groups', role: 'group', 'aria-label': c.groupLabel, id: 'b-groups' }, c.groups.map(function (g) {
+      return h('button', { class: 'btn secondary small', type: 'button', 'data-group': g.id, 'aria-pressed': String(U().group === g.id), onclick: function () { openGroup(g.id); } }, g.name);
+    })));
+    p.appendChild(h('div', { id: 'b-list' }));
+    p.appendChild(h('div', { id: 'b-record' }));
+    renderBrowse();
+  }
+  function openGroup(gid) {
+    var u = U(); u.group = gid; u.record = null;
+    act({ t: 'browse', g: gid });
+    renderBrowse(); renderTheoriesIfVisible();
+  }
+  function openRecord(id, fromSearch) {
+    var u = U(), rec = E.getRecord(S.caseId, id);
+    u.record = id; u.group = rec.group; u.fromSearch = !!fromSearch;
+    act({ t: 'view', id: id });
+    selectTab('browse'); renderBrowse(); renderTheoriesIfVisible();
+    var hd = document.getElementById('rec-title'); if (hd) hd.focus();
+  }
+  function renderBrowse() {
+    var c = C(), u = U();
+    var gwrap = document.getElementById('b-groups');
+    if (gwrap) Array.prototype.forEach.call(gwrap.querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-group') === u.group)); });
+    var list = document.getElementById('b-list'), recBox = document.getElementById('b-record'); if (!list) return;
+    clear(list); clear(recBox);
+    if (u.group) {
+      var g = c.groups.filter(function (x) { return x.id === u.group; })[0];
+      var recs = E.browse(S.caseId, u.group);
+      list.appendChild(h('h3', { text: g.name + ' (' + recs.length + ' ' + (recs.length === 1 ? c.unit[0] : c.unit[1]) + ')' }));
+      list.appendChild(h('ul', { class: 'reclist', id: 'b-records' }, recs.map(function (r) {
+        return h('li', null, h('button', { type: 'button', 'data-id': r.id, onclick: function () { openRecord(r.id, false); } }, c.recordLabel(r)));
+      })));
+    } else list.appendChild(h('p', { class: 'note', text: 'Choose one of the ' + c.groupLabel.toLowerCase() + ' above.' }));
+    if (u.record) {
+      var rec = E.getRecord(S.caseId, u.record);
+      recBox.appendChild(h('article', { class: 'record', 'aria-labelledby': 'rec-title' },
+        h('h3', { id: 'rec-title', tabindex: '-1', text: c.recordLabel(rec) }),
+        h('dl', null, c.recordFields(rec).map(function (f) { return [h('dt', { text: f[0] }), h('dd', { text: f[1] })]; })),
+        h('div', { class: 'row' },
+          h('button', { class: 'btn small', type: 'button', onclick: function () { selectTab('kiosk'); var i = document.getElementById('q-input'); if (i) i.focus(); } }, u.fromSearch ? 'Back to search results' : 'Go to the search'),
+          h('button', { class: 'btn secondary small', type: 'button', onclick: function () { u.record = null; renderBrowse(); } }, 'Close record'))));
+    }
+  }
+
+  /* ---------- Archive ---------- */
+  function buildArchive() {
+    var p = document.getElementById('panel-archive'), st = story();
+    p.appendChild(h('h2', { text: 'Archive drawer' }));
+    p.appendChild(h('p', { class: 'note', text: 'Papers kept beside the kiosk. They are not part of the search index.' }));
+    p.appendChild(h('ul', { class: 'reclist', id: 'a-list' }, Object.keys(st.docs).map(function (id) {
+      return h('li', null, h('button', { type: 'button', 'data-doc': id, onclick: function () { openDoc(id); } }, st.docs[id].title));
+    })));
+    p.appendChild(h('div', { id: 'a-doc' }));
+    renderDoc();
+  }
+  function openDoc(id) { U().doc = id; act({ t: 'doc', id: id }); renderDoc(); var t = document.getElementById('doc-title'); if (t) t.focus(); }
+  function renderDoc() {
+    var box = document.getElementById('a-doc'); if (!box) return; clear(box);
+    var id = U().doc; if (!id) return;
+    var d = story().docs[id];
+    box.appendChild(h('article', { class: 'doc', 'aria-labelledby': 'doc-title' },
+      h('h3', { id: 'doc-title', tabindex: '-1', text: d.title }),
+      d.body.map(function (line) {
+        if (line === 'SIGNERS') {
+          return h('ol', null, C().signatories.map(function (rid) { var r = E.getRecord('c1', rid); return h('li', { text: r.keeper + ', ' + r.number + ' ' + r.street }); }));
+        }
+        return h('p', { text: line });
+      })));
+  }
+
+  /* ---------- Notebook ---------- */
+  function buildNotebook() {
+    var p = document.getElementById('panel-notebook'), c = C(), st = cur();
+    p.appendChild(h('h2', { text: 'Notebook' }));
+    p.appendChild(h('h3', { text: 'Theories' }));
+    p.appendChild(h('p', { class: 'note', text: 'Each theory updates from what you have actually done. Nothing is ruled out until your own evidence rules it out.' }));
+    p.appendChild(h('ul', { class: 'theories', id: 'n-theories' }));
+    var n = c.extras.length;
+    p.appendChild(h('h3', { text: n === 1 ? 'The unlisted ignored word' : 'The ' + n + ' unlisted ignored words' }));
+    p.appendChild(h('p', { class: 'note', text: 'The manual lists ' + c.publishedCount + ' ignored words; the status line counts ' + (c.baseline.length + c.extras.length) + '. Write a candidate word, then test it against the kiosk’s real filter. Slots can be filled in any order and cleared at any time.' }));
+    for (var i = 0; i < n; i++) (function (i) {
+      var inp = h('input', { id: 'slot-' + i, type: 'text', maxlength: String(E.LIMITS.MAX_WORD_CHARS), autocomplete: 'off', spellcheck: 'false', value: st.slots[i].word,
+        onchange: function (e) { act({ t: 'slot', i: i, w: e.target.value }); renderNotebookDynamic(); } });
+      p.appendChild(h('div', { class: 'slot' },
+        h('label', { for: 'slot-' + i, text: 'Unlisted word ' + (i + 1) }),
+        h('div', { class: 'row' }, inp,
+          h('button', { class: 'btn small', type: 'button', 'data-test': String(i), onclick: function () { if (inp.value.trim() !== cur().slots[i].word) act({ t: 'slot', i: i, w: inp.value }); act({ t: 'test', i: i }); renderNotebookDynamic(); announceSlot(i); } }, 'Test against the kiosk'),
+          h('button', { class: 'btn secondary small', type: 'button', id: 'infer-' + i, 'aria-pressed': 'false', onclick: function () { act({ t: 'infer', i: i, on: !cur().slots[i].inferred }); renderNotebookDynamic(); } }, 'Mark as inferred'),
+          h('button', { class: 'btn secondary small', type: 'button', onclick: function () { act({ t: 'clear', i: i }); inp.value = ''; renderNotebookDynamic(); } }, 'Clear')),
+        h('p', { id: 'slot-status-' + i, class: 'note', role: 'status' })));
+    })(i);
+    p.appendChild(h('h3', { text: 'Scratchpad' }));
+    var ta = h('textarea', { id: 'n-notes', maxlength: String(E.LIMITS.MAX_NOTE), 'aria-describedby': 'n-notes-help', oninput: function (e) { S.notes[S.caseId] = e.target.value; persist(); } });
+    ta.value = S.notes[S.caseId];
+    p.appendChild(h('label', { for: 'n-notes', class: 'sr-only', text: 'Scratchpad notes' }));
+    p.appendChild(ta);
+    p.appendChild(h('p', { id: 'n-notes-help', class: 'note', text: 'Free notes for yourself. They are not checked.' }));
+    renderNotebookDynamic();
+  }
+  function slotStatus(s) {
+    if (!s.word) return { badge: 'Empty', cls: 'b-unv', text: 'No word yet.' };
+    switch (s.verdict) {
+      case 'hidden': return { badge: 'Observed', cls: 'b-obs', text: 'Tested: the kiosk ignores "' + s.word.toLowerCase() + '", and it is not on the published list. Confirmed by the real filter.' };
+      case 'published': return { badge: 'Refuted', cls: 'b-ref', text: 'Tested: this word is ignored, but it is one of the published common words, so it is not one of the unlisted ones.' };
+      case 'searchable': return { badge: 'Refuted', cls: 'b-ref', text: 'Tested: the kiosk searches this word normally, so it is not on the ignore list.' };
+      case 'not-single': return { badge: 'Unverified', cls: 'b-unv', text: 'Enter a single word to test.' };
+      case 'empty': return { badge: 'Unverified', cls: 'b-unv', text: 'Enter a word to test.' };
+      default: return s.inferred ? { badge: 'Inferred', cls: 'b-inf', text: 'You believe this word is hidden, but have not tested it yet.' } : { badge: 'Unverified', cls: 'b-unv', text: 'Not tested yet.' };
+    }
+  }
+  function announceSlot(i) { var s = slotStatus(cur().slots[i]); announce('Word ' + (i + 1) + ': ' + s.badge + '. ' + s.text); }
+  function renderNotebookDynamic() {
+    var st = cur();
+    st.slots.forEach(function (s, i) {
+      var el = document.getElementById('slot-status-' + i); if (!el) return;
+      var ss = slotStatus(s); clear(el); el.appendChild(h('span', { class: 'badge ' + ss.cls, text: ss.badge })); el.appendChild(document.createTextNode(' ' + ss.text));
+      var ib = document.getElementById('infer-' + i); if (ib) ib.setAttribute('aria-pressed', String(!!s.inferred));
+      var inp = document.getElementById('slot-' + i); if (inp && document.activeElement !== inp && inp.value !== s.word) inp.value = s.word;
+    });
+    renderTheories();
+  }
+  function renderTheories() {
+    var ul = document.getElementById('n-theories'); if (!ul) return; clear(ul);
+    E.evaluateTheories(cur()).forEach(function (t) {
+      var lab = t.state === 'refuted' ? 'Refuted by your evidence' : t.state === 'supported' ? 'Supported by your evidence' : 'Not yet tested';
+      ul.appendChild(h('li', { class: t.state === 'refuted' ? 't-ref' : t.state === 'supported' ? 't-sup' : '' },
+        h('strong', { text: t.label }), ' ', h('span', { class: 'badge ' + (t.state === 'refuted' ? 'b-ref' : t.state === 'supported' ? 'b-obs' : 'b-unv'), text: lab }),
+        h('div', { class: 'note', text: t.evidence })));
+    });
+  }
+  function renderTheoriesIfVisible() { renderTheories(); }
+
+  /* ---------- File the case (finale) ---------- */
+  function buildFile() {
+    var p = document.getElementById('panel-file'), c = C(), st = story(), u = U();
+    p.appendChild(h('h2', { text: 'File the case' }));
+    p.appendChild(h('p', { text: st.finalPrompt }));
+    p.appendChild(h('p', { class: 'note', text: 'Your search runs through the same Register search as the kiosk. To file, all ' + c.extras.length + ' unlisted word' + (c.extras.length === 1 ? '' : 's') + ' must also be confirmed in your notebook.' }));
+    var inp = h('input', { id: 'f-input', type: 'search', maxlength: String(E.LIMITS.MAX_QUERY_CHARS), autocomplete: 'off', spellcheck: 'false', value: u.finalQuery, oninput: function (e) { u.finalQuery = e.target.value; } });
+    p.appendChild(h('form', { class: 'finale', onsubmit: function (ev) { ev.preventDefault(); runFinal(inp.value); } },
+      h('label', { for: 'f-input', text: 'Your proving search' }), inp,
+      h('div', { class: 'row', style: 'margin-top:8px' }, h('button', { class: 'btn gold', type: 'submit' }, 'Run the search and file'))));
+    p.appendChild(h('div', { id: 'f-verdict', role: 'status' }));
+    var fs = h('fieldset', { class: 'card', id: 'f-interp' }, h('legend', { text: 'Optional: your interpretation (it will be marked as interpretation in the case file)' }));
+    c.interpretations.forEach(function (x) {
+      var r = h('input', { type: 'radio', name: 'interp-' + c.id, id: 'interp-' + x.id, value: x.id, onchange: function () { act({ t: 'interp', v: x.id }); renderFileDynamic(); } });
+      if (cur().interp === x.id) r.checked = true;
+      fs.appendChild(h('div', { class: 'choice' }, r, h('label', { for: 'interp-' + x.id, text: x.label })));
+    });
+    p.appendChild(fs);
+    p.appendChild(h('div', { id: 'f-ending' }));
+    renderFileDynamic();
+  }
+  function runFinal(q) {
+    var r = E.search(S.caseId, q);
+    if (r.status === 'blank') { U().finalLast = { blank: true }; renderFileDynamic(); announce('Type a search to file.'); return; }
+    act({ t: 'final', q: r.original });
+    U().finalLast = E.checkFinale(S.caseId, r.original);
+    buildCaseBar(); renderFileDynamic();
+    var st = cur();
+    announce(st.solved ? 'Case filed and solved.' : (document.getElementById('f-verdict').textContent || ''));
+  }
+  function nameOf(id) { return C().recordLabel(E.getRecord(S.caseId, id)); }
+  function renderFileDynamic() {
+    var box = document.getElementById('f-verdict'); if (!box) return; clear(box);
+    var c = C(), st = cur(), f = U().finalLast;
+    var ready = E.verifiedWords(st).length;
+    if (f && f.blank) box.appendChild(h('div', { class: 'verdict v-no', text: 'Type a search first. An empty search returns nothing.' }));
+    else if (f) {
+      var r = f.search, lines = [];
+      lines.push(h('p', null, 'Searched for: ', h('strong', { text: E.echoText(r) }), ' · ' + r.count + ' ' + (r.count === 1 ? c.unit[0] : c.unit[1]) + '.'));
+      if (r.ids.length) lines.push(h('ul', null, r.ids.map(function (id) { return h('li', { text: nameOf(id) }); })));
+      var word = c.unit[1], need = f.targetIds.length, cls = 'v-no', head;
+      if (f.verdict === 'exact') { head = ready === c.extras.length ? 'Exactly the ' + need + ' ' + word + ' that matter. Filed.' : 'Exactly the ' + need + ' ' + word + '. To file, confirm the unlisted words in your notebook first (' + ready + ' of ' + c.extras.length + ' confirmed), then run it again.'; cls = ready === c.extras.length ? 'v-ok' : 'v-no'; }
+      else if (f.verdict === 'superset') head = 'All ' + need + ' are here, plus ' + f.extraIds.length + ' more. Look at what the extra ' + (f.extraIds.length === 1 ? c.unit[0] : c.unit[1]) + ' have that the others do not, and narrow your words.';
+      else if (f.verdict === 'subset') head = 'Every result belongs, but ' + f.missingIds.length + ' ' + (f.missingIds.length === 1 ? 'is' : 'are') + ' missing. Your words are too narrow.';
+      else if (f.verdict === 'mixed') head = 'Some results do not belong and some are missing. Try words that every one of them shares.';
+      else head = r.status === 'all-ignored' ? 'Every word was ignored, so nothing was searched. Use words the kiosk can still see.' : 'Nothing matched. Try other words the records share.';
+      box.appendChild(h('div', { class: 'verdict ' + cls }, h('p', null, h('strong', { text: head })), lines, h('p', { class: 'note', text: 'Wrong searches cost nothing. Try as many as you like.' })));
+    }
+    renderEnding();
+  }
+  function renderEnding() {
+    var box = document.getElementById('f-ending'); if (!box) return; clear(box);
+    var st = cur(); if (!st.solved) return;
+    var c = C(), cf = caseFileText();
+    var end = S.caseId === 'c1' ? [
+      'One search returns the six signers’ doors. They are registered keepers, and the Register has known it all along. The ruling of 9 March rested on a search that could not see their names.',
+      'Six family names were added to the ignore list from the Works Office terminal on the evening of 7 March, two days before the hearing, beside "the" and "of". Searching by family name, as the manual advises, was guaranteed to fail.',
+      'The log does not say who made the change, or why. That part is interpretation, and your case file marks it as such.'
+    ] : [
+      'One search returns all five May sailings, including both voyages of the Wren with Tom Pascoe aboard. The Ledger never lost them.',
+      'The word "may" was added to the ignore list on 1 June because it clutters the Remarks column. Nobody noticed that it is also the name of a month. This is an honest fault, and fixing it is simple: take "may" off the list.'
+    ];
+    box.appendChild(h('section', { class: 'ending', 'aria-labelledby': 'end-title' },
+      h('h3', { id: 'end-title', tabindex: '-1', text: S.caseId === 'c1' ? 'Reinstatement filed' : 'Correction filed' }),
+      end.map(function (t) { return h('p', { text: t }); }),
+      h('div', { class: 'casefile' }, h('h3', { text: 'Case file (keepsake)' }), h('pre', { id: 'casefile-text', text: cf })),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn', type: 'button', onclick: printCaseFile }, 'Print case file'),
+        h('button', { class: 'btn secondary', type: 'button', onclick: function () { switchCase(S.caseId === 'c1' ? 'c2' : 'c1'); } }, S.caseId === 'c1' ? 'Try Case 2: The Missing Month' : 'Back to Case 1'))));
+  }
+  function caseFileText() {
+    var c = C(), st = cur(), L = [];
+    L.push('DOORQUESTS · GLITCHORTALS No. 001 · THE WORD TOO COMMON TO FIND');
+    L.push(c.short.toUpperCase() + ': ' + c.title.toUpperCase());
+    L.push('Build ' + E.BUILD_ID + ' · Created by The Axiom Continuum');
+    L.push('');
+    L.push(S.caseId === 'c1' ? 'THE SIX SIGNERS (registered keepers):' : 'THE MAY 1891 SAILINGS:');
+    E.targetIds(S.caseId).forEach(function (id) { L.push('  - ' + nameOf(id) + '  [' + id + ']'); });
+    L.push('');
+    L.push('UNLISTED IGNORED WORDS (confirmed against the kiosk filter):');
+    E.verifiedWords(st).forEach(function (w) { L.push('  - ' + w); });
+    L.push('');
+    L.push('PROVING SEARCH: "' + st.filedQuery + '"');
+    var r = E.search(S.caseId, st.filedQuery);
+    L.push('  Searched for: ' + E.echoText(r) + ' · ' + r.count + ' result(s), exactly the set above.');
+    L.push('');
+    L.push('EVIDENCE YOU GATHERED:');
+    E.evaluateTheories(st).forEach(function (t) { L.push('  - ' + t.label + ' ' + (t.state === 'untested' ? '(not tested)' : t.state.toUpperCase()) + (t.state === 'untested' ? '' : ': ' + t.evidence)); });
+    L.push('  - Published ignored words: ' + c.publishedCount + '. Active ignore list: ' + (c.baseline.length + c.extras.length) + '.');
+    L.push('');
+    L.push('ESTABLISHED BY THE RECORDS:');
+    if (S.caseId === 'c1') {
+      L.push('  - The six signers have door records in the Register.');
+      L.push('  - Six family names were added to the ignore list on 7 March at 18:40 from Terminal 2, the Works Office.');
+      L.push('  - On 9 March the Clerk searched those family names, found nothing, and the petition was dismissed.');
+      L.push('NOT ESTABLISHED:');
+      L.push('  - Who made the change (the log field "Authorised by" is blank) and why.');
+    } else {
+      L.push('  - Five sailings in May 1891 are in the Ledger, two of them by the Wren with Tom Pascoe aboard.');
+      L.push('  - "may" was added to the ignore list on 1 June as a common word from the Remarks column.');
+      L.push('  - The Office’s search for "May" on 12 June could not return any sailing.');
+    }
+    var interp = st.interp ? c.interpretations.filter(function (x) { return x.id === st.interp; })[0] : null;
+    L.push('');
+    L.push('YOUR INTERPRETATION (opinion, not established fact): ' + (interp ? interp.label : 'none recorded'));
+    L.push('');
+    L.push('An authored fictional mystery. All people, places and records are invented.');
+    return L.join('\n');
+  }
+  function printCaseFile() {
+    var root = document.getElementById('printroot'); clear(root);
+    root.appendChild(h('pre', { style: 'white-space:pre-wrap;font:12pt/1.45 Georgia,serif', text: caseFileText() }));
+    document.body.classList.add('print-casefile');
+    var done = function () { document.body.classList.remove('print-casefile'); window.removeEventListener('afterprint', done); };
+    window.addEventListener('afterprint', done);
+    try { window.print(); } catch (e) { done(); }
+    setTimeout(done, 1500);
+  }
+
+  /* ---------- Hints ---------- */
+  function buildHints() {
+    var p = document.getElementById('panel-hints'), st = story();
+    p.appendChild(h('h2', { text: 'Hints' }));
+    p.appendChild(h('p', { class: 'note', text: 'Hints are free and never affect the ending. Open them one at a time.' }));
+    var box = h('div', { id: 'h-list' });
+    p.appendChild(box);
+    function render() {
+      clear(box);
+      var lvl = cur().hint;
+      for (var i = 1; i <= 4; i++) (function (i) {
+        if (i <= lvl) box.appendChild(h('div', { class: 'card' }, h('h3', { text: i === 4 ? 'Full solution' : 'Hint ' + i }), h('p', { text: st.hints[i - 1] })));
+      })(i);
+      if (lvl < 3) box.appendChild(h('button', { class: 'btn secondary', type: 'button', onclick: function () { act({ t: 'hint', l: lvl + 1 }); render(); } }, 'Show hint ' + (lvl + 1)));
+      else if (lvl === 3) {
+        var cb = h('input', { type: 'checkbox', id: 'spoil-ok' });
+        var btn = h('button', { class: 'btn secondary', type: 'button', disabled: true, onclick: function () { if (cb.checked) { act({ t: 'hint', l: 4 }); render(); } } }, 'Show the full solution');
+        cb.addEventListener('change', function () { btn.disabled = !cb.checked; });
+        box.appendChild(h('div', { class: 'card' }, h('div', { class: 'choice' }, cb, h('label', { for: 'spoil-ok', text: 'Yes, show me the whole answer. This spoils the mystery.' })), btn));
+      }
+    }
+    render();
+  }
+
+  /* ---------- Game controls ---------- */
+  document.getElementById('btn-restart').addEventListener('click', function () {
+    S.states[S.caseId] = E.newCaseState(S.caseId); S.notes[S.caseId] = '';
+    S.ui[S.caseId] = { group: null, record: null, doc: null, last: null, fromSearch: false, finalLast: null, query: '', finalQuery: '' };
+    persist(); switchCase(S.caseId); msg(C().short + ' restarted. The other case was not changed.');
+  });
+  var chk = document.getElementById('chk-remember');
+  chk.addEventListener('change', function () {
+    S.remember = chk.checked;
+    if (S.remember) { persist(); msg(storageGet() ? 'Progress will be remembered on this device.' : 'This browser is not allowing storage. Progress will not be remembered, but you can use a progress code.'); }
+    else { storageDel(); msg('Progress will not be remembered. Saved data for this game was removed.'); }
+  });
+  var io = document.getElementById('io'), ioText = document.getElementById('io-text'), ioApply = document.getElementById('io-apply'), ioLabel = document.getElementById('io-label');
+  document.getElementById('btn-export').addEventListener('click', function () {
+    io.hidden = false; ioLabel.textContent = 'Your progress code (copy it somewhere safe)'; ioApply.hidden = true;
+    ioText.value = E.encodeCode(E.exportState(S.states, S.notes)); ioText.focus(); ioText.select();
+  });
+  document.getElementById('btn-import').addEventListener('click', function () {
+    io.hidden = false; ioLabel.textContent = 'Paste a progress code'; ioApply.hidden = false; ioText.value = ''; ioText.focus();
+  });
+  ioApply.addEventListener('click', function () {
+    try {
+      var res = E.decodeCode(ioText.value);
+      S.states = res.states; S.notes = res.notes;
+      S.ui.c1 = { group: null, record: null, doc: null, last: null, fromSearch: false, finalLast: null, query: '', finalQuery: '' };
+      S.ui.c2 = { group: null, record: null, doc: null, last: null, fromSearch: false, finalLast: null, query: '', finalQuery: '' };
+      persist(); switchCase(S.caseId); io.hidden = true;
+      msg('Progress code loaded. Every step was replayed and checked.');
+    } catch (e) { msg('That code was not loaded: ' + e.message + '. Your current progress is unchanged.'); }
+  });
+  document.getElementById('io-close').addEventListener('click', function () { io.hidden = true; });
+  document.getElementById('btn-erase').addEventListener('click', function () {
+    storageDel(); S.remember = false; chk.checked = false;
+    S.states = { c1: E.newCaseState('c1'), c2: E.newCaseState('c2') }; S.notes = { c1: '', c2: '' };
+    S.ui.c1 = { group: null, record: null, doc: null, last: null, fromSearch: false, finalLast: null, query: '', finalQuery: '' };
+    S.ui.c2 = { group: null, record: null, doc: null, last: null, fromSearch: false, finalLast: null, query: '', finalQuery: '' };
+    switchCase('c1'); msg('This game’s saved data was erased and both cases restarted. No other site data was touched.');
+  });
+  var themeBtn = document.getElementById('btn-theme');
+  function themeLabel() { var t = document.documentElement.getAttribute('data-theme'); themeBtn.textContent = 'Theme: ' + (t === 'light' ? 'light' : t === 'dark' ? 'dark' : 'automatic'); themeBtn.setAttribute('aria-pressed', String(!!t)); }
+  themeBtn.addEventListener('click', function () {
+    var t = document.documentElement.getAttribute('data-theme'), n = t === null ? 'light' : t === 'light' ? 'dark' : null;
+    if (n) document.documentElement.setAttribute('data-theme', n); else document.documentElement.removeAttribute('data-theme');
+    themeLabel(); persist();
+  });
+
+  /* ---------- Start ---------- */
+  loadSaved();
+  chk.checked = S.remember;
+  themeLabel();
+  switchCase('c1');
+  window.GL001_UI = { state: function () { return S; }, caseFileText: caseFileText };
+})();
+</script>
+</body>
+</html>

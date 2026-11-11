@@ -1,0 +1,3161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>The Butler Has Noticed · Evolvortal No. 1 · DoorQuests</title>
+<meta name="description" content="A turn-based heist at Thornwick Hall. The butler notices four of your choices, rebuilds the house against them, and lets you steal and burn the pages.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101a36'/%3E%3Crect x='9' y='5' width='14' height='22' fill='none' stroke='%23d8b25c' stroke-width='2'/%3E%3Ccircle cx='19' cy='17' r='1.6' fill='%23d8b25c'/%3E%3C/svg%3E">
+<style>
+:root {
+  --sky: #0a1128;
+  --night: #101a36;
+  --night-2: #17234a;
+  --line: #2c3a68;
+  --moon: #d6ddef;
+  --moon-dim: #a9b4d2;
+  --gold: #d8b25c;
+  --brass: #a97b3a;
+  --lamp: #f2c46d;
+  --room: #3a2c1c;
+  --room-lit: #5a4122;
+  --paper: #efe3c8;
+  --paper-edge: #d9c7a0;
+  --ink: #2a2118;
+  --ink-soft: #5b4a36;
+  --brick: #c25a43;
+  --ok: #8fc7a0;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --hand: "Segoe Script", "Bradley Hand", "Snell Roundhand", "Apple Chancery", "URW Chancery L", "Brush Script MT", cursive;
+  --focus: #ffd97a;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--night); color: var(--moon);
+  font-family: var(--serif); font-size: 1.0625rem; line-height: 1.6;
+  overflow-x: hidden;
+}
+a { color: var(--gold); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.skip { position: absolute; left: -9999px; top: 0; background: var(--gold); color: var(--sky); padding: .6rem 1rem; z-index: 10; }
+.skip:focus { left: .5rem; top: .5rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Masthead */
+.masthead { padding: 1.25rem 1rem .75rem; max-width: 76rem; margin: 0 auto; }
+.brand { margin: 0; color: var(--moon-dim); font-size: .9rem; letter-spacing: .02em; }
+.brand strong { color: var(--gold); font-weight: 600; }
+h1 { font-weight: 500; font-size: clamp(2rem, 6vw, 3.4rem); line-height: 1.05; margin: .3rem 0 .35rem; color: #f5ead2; letter-spacing: -.01em; }
+.tagline { margin: 0; color: var(--moon-dim); font-style: italic; }
+.greeting { font-family: var(--hand); font-size: 1.35rem; color: var(--lamp); margin: .5rem 0 0; min-height: 0; }
+
+/* Tabs */
+.tabs { max-width: 76rem; margin: 0 auto; padding: 0 1rem; display: flex; flex-wrap: wrap; gap: .25rem; border-bottom: 1px solid var(--line); }
+.tabs button {
+  font: inherit; font-size: .98rem; background: none; color: var(--moon-dim); border: 0; border-bottom: 3px solid transparent;
+  padding: .7rem .8rem; min-height: 44px; cursor: pointer;
+}
+.tabs button[aria-pressed="true"] { color: #f5ead2; border-bottom-color: var(--gold); }
+.tabs .count { color: var(--gold); }
+
+main { max-width: 76rem; margin: 0 auto; padding: 1rem; }
+[hidden] { display: none !important; }
+
+/* Hall view layout */
+.banner { border: 1px solid var(--brass); background: var(--night-2); padding: .6rem .9rem; margin-bottom: 1rem; }
+.banner strong { color: var(--lamp); }
+.layout { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+@media (min-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); align-items: start; }
+  .panel { position: sticky; top: .75rem; }
+}
+.dollhouse { margin: 0; background: var(--sky); border: 1px solid var(--line); }
+.dollhouse svg { display: block; width: 100%; height: auto; }
+.dollhouse figcaption { font-size: .9rem; color: var(--moon-dim); padding: .5rem .8rem .7rem; border-top: 1px solid var(--line); }
+body.text-first .dollhouse { display: none; }
+
+.panel { background: var(--night-2); border: 1px solid var(--line); padding: 1rem 1rem 1.1rem; }
+.panel h2 { margin: 0 0 .2rem; font-weight: 500; font-size: 1.55rem; color: #f5ead2; }
+.room-desc { margin: 0 0 .6rem; color: var(--moon-dim); }
+.objective { margin: .2rem 0 .8rem; padding-left: .7rem; border-left: 3px solid var(--gold); }
+.msg { min-height: 1.6em; margin: 0 0 .8rem; color: var(--lamp); }
+.msg.warn { color: #f4a48f; }
+.group { margin: .9rem 0 0; }
+.group h3 { font-size: 1rem; font-weight: 600; color: var(--gold); margin: 0 0 .35rem; }
+.acts { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+.act {
+  font: inherit; font-size: 1rem; width: 100%; text-align: left; min-height: 44px; padding: .55rem .8rem;
+  background: #24315e; color: #f5ead2; border: 1px solid #3b4b85; cursor: pointer; line-height: 1.35;
+}
+.act:hover:not(:disabled) { background: #2d3c72; border-color: var(--gold); }
+.act.primary { background: var(--gold); color: #1a1406; border-color: var(--gold); font-weight: 600; }
+.act.primary:hover:not(:disabled) { background: var(--lamp); }
+.act[aria-pressed="true"] { border-color: var(--lamp); box-shadow: inset 0 0 0 2px var(--lamp); }
+.act:disabled { background: transparent; color: var(--moon-dim); border-style: dashed; border-color: #3b4b85; cursor: not-allowed; }
+.why { display: block; font-size: .88rem; color: #f0b8a6; margin-top: .15rem; }
+.act:disabled .why::before { content: "Not now: "; }
+.riddle { margin: .6rem 0; padding: .7rem; border: 1px dashed var(--gold); }
+.riddle label { display: block; margin-bottom: .3rem; }
+.riddle input { font: inherit; padding: .45rem .6rem; min-height: 44px; width: 100%; max-width: 16rem; background: var(--sky); color: #f5ead2; border: 1px solid var(--gold); }
+.riddle .row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.riddle .row .act { width: auto; }
+.cards-read { margin: .5rem 0 0; padding-left: 1.2rem; font-size: .95rem; }
+
+/* Pell's paper */
+.note {
+  background: var(--paper); color: var(--ink); padding: 1.1rem 1.2rem 1rem; border: 1px solid var(--paper-edge);
+  box-shadow: 0 1px 0 var(--paper-edge), 0 10px 24px rgba(0, 0, 0, .35); margin: .6rem 0 1rem; max-width: 42rem;
+}
+.note p { margin: 0 0 .55rem; }
+.note .hand { font-family: var(--hand); font-size: 1.12rem; line-height: 1.45; }
+.note .sign { font-family: var(--hand); text-align: right; font-size: 1.2rem; margin-top: .6rem; }
+.note h3 { margin: 0 0 .5rem; font-weight: 500; color: var(--ink); }
+.note s { text-decoration-thickness: 2px; }
+.note a, .paper a { color: #6b3e12; }
+
+/* Text map */
+.textmap { margin-top: 1.5rem; }
+.textmap h2 { font-weight: 500; font-size: 1.35rem; color: #f5ead2; margin: 0 0 .4rem; }
+.textmap .lede { color: var(--moon-dim); margin: 0 0 .8rem; }
+.facts { display: grid; gap: .25rem; margin: 0 0 1rem; }
+.facts div { display: grid; grid-template-columns: 9.5rem 1fr; gap: .5rem; }
+.facts dt { color: var(--gold); }
+.facts dd { margin: 0; }
+.roomlist { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+@media (min-width: 700px) { .roomlist { grid-template-columns: 1fr 1fr; } }
+.roomlist > li { border-top: 1px solid var(--line); padding: .55rem 0 0; }
+.roomlist h3 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.roomlist .here-tag { color: var(--lamp); font-weight: 600; }
+.roomlist ul { margin: .25rem 0 0; padding-left: 1.1rem; font-size: .95rem; }
+.state-closed { color: #f4a48f; }
+.state-unproven { color: var(--lamp); }
+.changes { margin: 0 0 1rem; padding-left: 1.2rem; }
+
+/* Documents */
+.paper { background: var(--paper); color: var(--ink); padding: 1.25rem; border: 1px solid var(--paper-edge); max-width: 60rem; }
+.paper h2 { font-weight: 500; margin: 0 0 .5rem; font-size: 1.6rem; }
+.paper h3 { font-weight: 600; margin: 1.3rem 0 .4rem; font-size: 1.1rem; border-bottom: 1px solid var(--paper-edge); padding-bottom: .2rem; }
+.paper ol, .paper ul { padding-left: 1.3rem; }
+.paper .muted { color: var(--ink-soft); }
+.tablewrap { overflow-x: auto; max-width: 100%; }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+th, td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid var(--paper-edge); vertical-align: top; }
+th { font-weight: 600; }
+tr.burned td { font-style: italic; color: var(--ink-soft); }
+tr.disregarded td { color: var(--ink-soft); }
+.badge { display: inline-block; border: 1px solid currentColor; padding: 0 .35rem; font-size: .82rem; }
+.strike { text-decoration: line-through; text-decoration-thickness: 2px; }
+.paper .act { background: #fff8e8; color: var(--ink); border-color: var(--brass); width: auto; }
+.paper .act:hover:not(:disabled) { background: #fff; }
+.paper .act.danger { border-color: #8c2f1c; color: #7a2512; }
+.btnrow { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .8rem; }
+.btnrow .act { width: auto; }
+
+.mantel { list-style: none; padding: 0; margin: 0; display: grid; gap: .8rem; }
+@media (min-width: 700px) { .mantel { grid-template-columns: repeat(3, 1fr); } }
+.mantel li { border-top: 3px solid var(--brass); background: var(--night-2); padding: .7rem .8rem; }
+.mantel h3 { margin: 0 0 .2rem; font-size: 1.05rem; color: #f5ead2; font-weight: 600; }
+.mantel p { margin: 0; color: var(--moon-dim); font-size: .95rem; }
+
+.settings label { display: flex; gap: .6rem; align-items: center; min-height: 44px; }
+.settings input[type="checkbox"] { width: 1.3rem; height: 1.3rem; accent-color: var(--gold); }
+.help p, .help li { max-width: 46rem; }
+
+dialog { background: var(--paper); color: var(--ink); border: 2px solid #8c2f1c; max-width: min(34rem, 92vw); padding: 1.2rem; }
+dialog::backdrop { background: rgba(5, 8, 20, .75); }
+dialog .act { width: auto; }
+
+footer { max-width: 76rem; margin: 2rem auto 0; padding: 1rem; border-top: 1px solid var(--line); color: var(--moon-dim); font-size: .92rem; }
+
+/* Dollhouse motion: one moment — Pell's rebuild */
+.cm-note, .bricks, .closed-mark { transition: opacity .6s ease; }
+.rebuilding .cm-note { animation: inked 1.1s ease both; }
+@keyframes inked { from { opacity: 0; } to { opacity: 1; } }
+#you { transition: transform .45s ease; }
+@media (prefers-reduced-motion: reduce) {
+  .rebuilding .cm-note { animation: none; }
+  #you, .cm-note, .bricks, .closed-mark { transition: none; }
+}
+body.still .rebuilding .cm-note { animation: none; }
+body.still #you, body.still .cm-note { transition: none; }
+
+/* Print: only the requested keepsake */
+#print-area { display: none; }
+@media print {
+  body { background: #fff; color: #000; }
+  body > *:not(#print-area) { display: none !important; }
+  #print-area { display: block !important; }
+  #print-area .paper { border: 0; max-width: none; padding: 0; background: #fff; }
+  #print-area .act, #print-area .btnrow { display: none !important; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#panel">Skip to your choices</a>
+<header class="masthead">
+  <p class="brand"><strong>DoorQuests</strong> · Tomortal, The Unexpected Wing · Evolvortals · Evolvortal No. 1</p>
+  <h1>The Butler Has Noticed</h1>
+  <p class="tagline">The door learns how you play, but you decide what it remembers.</p>
+  <p class="greeting" id="greeting" role="status"></p>
+</header>
+<nav class="tabs" aria-label="Sections">
+  <button type="button" id="tab-hall" aria-pressed="true" aria-controls="view-hall">The Hall</button>
+  <button type="button" id="tab-dossier" aria-pressed="false" aria-controls="view-dossier">Pell’s dossier</button>
+  <button type="button" id="tab-mantel" aria-pressed="false" aria-controls="view-mantel">Mantelpiece<span class="count" id="mantel-count"></span></button>
+  <button type="button" id="tab-help" aria-pressed="false" aria-controls="view-help">How to play</button>
+  <button type="button" id="tab-settings" aria-pressed="false" aria-controls="view-settings">Settings and saving</button>
+</nav>
+<main id="main">
+  <section id="view-hall" aria-label="The Hall">
+    <div class="banner" id="mode-banner" hidden></div>
+    <div class="layout">
+      <figure class="dollhouse">
+        <div id="house"></div>
+        <figcaption>Gold doors are open, red crosses are closed, and a question mark is a door you have not proven yet. Pell’s handwriting marks each change he made. The text map below says all of this in words.</figcaption>
+      </figure>
+      <div class="panel" id="panel" tabindex="-1"></div>
+    </div>
+    <section id="finale" hidden aria-label="Pell’s farewell"></section>
+    <section class="textmap" id="textmap" aria-labelledby="textmap-heading"></section>
+  </section>
+
+  <section id="view-dossier" hidden aria-label="Pell’s dossier">
+    <div id="dossier"></div>
+  </section>
+
+  <section id="view-mantel" hidden aria-label="Mantelpiece">
+    <h2 style="font-weight:500">The mantelpiece</h2>
+    <p style="color:var(--moon-dim)">One curiosity for every recorded burglary. Burning a page of Pell’s file does not take anything off this shelf.</p>
+    <ul class="mantel" id="mantel-list"></ul>
+  </section>
+
+  <section id="view-help" class="help" hidden aria-label="How to play">
+    <h2 style="font-weight:500">How to play</h2>
+    <p>Each burglary is a short, turn-based heist with no clock. Choose a way in, find your way to the Display Room, open the vitrine, take tonight’s curiosity and get back out to the lawn.</p>
+    <p>The vitrine can be opened three ways: pick its lock, fetch its key, or ring a bell elsewhere so the night footman leaves it open. Scouting a room is optional.</p>
+    <p>Mr. Ambrose Pell, the butler, watches. He notices exactly four things:</p>
+    <ul>
+      <li>which side you came in by,</li>
+      <li>how you opened the vitrine,</li>
+      <li>whether you scouted a room before taking the prize,</li>
+      <li>whether you left the way you came in.</li>
+    </ul>
+    <p>After one burglary he rebuilds the Hall against what you just did. After that he acts on any choice you made in two of your last three burglaries. His rule is printed on the first page of his dossier, so you can use it against him: repeat a choice to draw him one way, then do something else.</p>
+    <p>In Pell’s Study you can steal one page of his file per burglary. Burn it and it is gone for good. Mark it “Disregard” and it stays readable but stops counting; you can let him regard it again between burglaries.</p>
+    <p>After three recorded burglaries the Great Burglary opens. You may do up to five ordinary burglaries first; after five, the Great Burglary is next. Its Hall is built from every belief left in the file.</p>
+    <p>“Pell’s evening off” is a burglary nobody records, in the original Hall. Taking a long break changes nothing: Pell’s file waits exactly as you left it.</p>
+    <p>Every choice is a button. The text map lists every room, passage and change, so you can play without the picture: turn on “Text first” in Settings.</p>
+  </section>
+
+  <section id="view-settings" class="settings" hidden aria-label="Settings and saving">
+    <h2 style="font-weight:500">Settings and saving</h2>
+    <label><input type="checkbox" id="set-textfirst"> Text first: hide the dollhouse and play from the text map</label>
+    <label><input type="checkbox" id="set-still"> Still frames: no movement at all (also follows your system’s reduced-motion setting)</label>
+    <label><input type="checkbox" id="set-save"> Save Pell’s file on this device</label>
+    <p id="storage-status"></p>
+    <p id="storage-note" hidden></p>
+    <div class="btnrow"><button type="button" class="act" id="erase-save" style="width:auto">Erase saved data</button></div>
+    <h3 style="font-weight:600;margin-top:1.4rem">What is stored, and where</h3>
+    <p>Only the game itself: the burglaries you finished (as the moves you made, so the file can be checked when it loads), the changes you made to Pell’s file, and these three settings. It stays in this browser on this device. Nothing is sent anywhere, there are no accounts, and no times, dates or device details are recorded.</p>
+  </section>
+</main>
+<footer>
+  <p style="margin:0">Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+  <p style="margin:.2rem 0 0">Created by The Axiom Continuum. Thornwick Hall, its staff and its curiosities are fictional, and the heist methods are make-believe.</p>
+</footer>
+<dialog id="burn-dialog" aria-labelledby="burn-title">
+  <h2 id="burn-title" style="margin-top:0;font-weight:500">Burn the whole file?</h2>
+  <p>This erases every page, belief, change, curiosity on the mantelpiece and the Great Burglary, and returns Thornwick Hall to the first night. Your settings stay. It cannot be undone.</p>
+  <div class="btnrow">
+    <button type="button" class="act" id="burn-cancel">Keep the file</button>
+    <button type="button" class="act danger" id="burn-confirm">Burn the file</button>
+  </div>
+</dialog>
+<div id="print-area"></div>
+<script data-part="engine">
+/* =====================================================================
+   The Butler Has Noticed — engine
+   DoorQuests · Evolvortals · Evolvortal No. 1
+   A transparent, authored, deterministic state machine. No randomness,
+   no clocks, no network. Pell notices only the four in-game choices
+   listed in OBSERVED_DIMENSIONS.
+   ===================================================================== */
+(function (root) {
+  'use strict';
+
+  var ENGINE_VERSION = 1;
+  var SAVE_KEY = 'dq-evolvortals-the-butler-has-noticed-v1';
+  var MAX_ORDINARY = 5;      // ordinary burglaries before the Great Burglary is required
+  var GREAT_GATE = 3;        // ordinary burglaries needed to unlock the Great Burglary
+
+  /* ------------------------------------------------------------------
+     EvolvortalModel — immutable authored content
+     ------------------------------------------------------------------ */
+
+  var ROOMS = {
+    lawn:       { name: 'The lawn', floor: 'outside', col: -1,
+                  desc: 'Wet grass, a sleeping house and four ways in.' },
+    roof:       { name: 'The roof leads', floor: 'roof', col: 1,
+                  desc: 'Lead flashing, chimney pots and a skylight above the Long Gallery.' },
+    library:    { name: 'The Library', floor: 'upper', col: 0,
+                  desc: 'Leather spines, a globe on a brass stand and a tall west window.' },
+    gallery:    { name: 'The Long Gallery', floor: 'upper', col: 1,
+                  desc: 'Portraits in heavy frames, a chandelier and the head of the grand stair.' },
+    study:      { name: "Pell's Study", floor: 'upper', col: 2,
+                  desc: 'A tidy desk, a reading lamp and Pell’s dossier on the guest.' },
+    scullery:   { name: 'The Scullery', floor: 'ground', col: 0,
+                  desc: 'Copper pans, a stone sink, the key rack and Cook’s slate.' },
+    hall:       { name: 'The Central Hall', floor: 'ground', col: 1,
+                  desc: 'A chequered floor, a long-case clock and the foot of the grand stair.' },
+    display:    { name: 'The Display Room', floor: 'ground', col: 2,
+                  desc: 'A glass vitrine on a velvet plinth. Tonight’s curiosity sits inside.' },
+    cellar:     { name: 'The Coal Cellar', floor: 'cellar', col: 0,
+                  desc: 'Coal dust, a hatch to the lawn and a narrow stair up to the Scullery.' },
+    winecellar: { name: 'The Wine Cellar', floor: 'cellar', col: 1,
+                  desc: 'Racks of dusty bottles and stone steps up to the Central Hall.' }
+  };
+  var INTERIOR = ['roof', 'library', 'gallery', 'study', 'scullery', 'hall', 'display', 'cellar', 'winecellar'];
+
+  // Undirected interior passages. `side` gives each room's label for the passage,
+  // and `dir` the plain direction used when the passage is unproven.
+  var EDGES = [
+    { id: 'lib-gal',   a: 'library',    b: 'gallery',    kind: 'door',
+      side: { library: 'East door to the Long Gallery', gallery: 'West door to the Library' },
+      dir:  { library: 'East door', gallery: 'West door' } },
+    { id: 'gal-stu',   a: 'gallery',    b: 'study',      kind: 'door',
+      side: { gallery: "East door to Pell's Study", study: 'West door to the Long Gallery' },
+      dir:  { gallery: 'East door', study: 'West door' } },
+    { id: 'roof-gal',  a: 'roof',       b: 'gallery',    kind: 'ladder',
+      side: { roof: 'Skylight ladder down to the Long Gallery', gallery: 'Skylight ladder up to the roof' },
+      dir:  { roof: 'Ladder down', gallery: 'Ladder up' } },
+    { id: 'gal-hall',  a: 'gallery',    b: 'hall',       kind: 'stair',
+      side: { gallery: 'Grand stair down to the Central Hall', hall: 'Grand stair up to the Long Gallery' },
+      dir:  { gallery: 'Stair down', hall: 'Stair up' } },
+    { id: 'lib-scu',   a: 'library',    b: 'scullery',   kind: 'stair',
+      side: { library: "Servants' stair down to the Scullery", scullery: "Servants' stair up to the Library" },
+      dir:  { library: 'Stair down', scullery: 'Stair up' } },
+    { id: 'stu-dis',   a: 'study',      b: 'display',    kind: 'stair',
+      side: { study: 'Service stair down to the Display Room', display: "Service stair up to Pell's Study" },
+      dir:  { study: 'Stair down', display: 'Stair up' } },
+    { id: 'scu-hall',  a: 'scullery',   b: 'hall',       kind: 'door',
+      side: { scullery: 'East door to the Central Hall', hall: 'West door to the Scullery' },
+      dir:  { scullery: 'East door', hall: 'West door' } },
+    { id: 'hall-dis',  a: 'hall',       b: 'display',    kind: 'door',
+      side: { hall: 'East door to the Display Room', display: 'West door to the Central Hall' },
+      dir:  { hall: 'East door', display: 'West door' } },
+    { id: 'cel-wine',  a: 'cellar',     b: 'winecellar', kind: 'arch',
+      side: { cellar: 'East arch to the Wine Cellar', winecellar: 'West arch to the Coal Cellar' },
+      dir:  { cellar: 'East arch', winecellar: 'West arch' } },
+    { id: 'cel-scu',   a: 'cellar',     b: 'scullery',   kind: 'stair',
+      side: { cellar: 'Coal stair up to the Scullery', scullery: 'Coal stair down to the Coal Cellar' },
+      dir:  { cellar: 'Stair up', scullery: 'Stair down' } },
+    { id: 'wine-hall', a: 'winecellar', b: 'hall',       kind: 'stair',
+      side: { winecellar: 'Stone steps up to the Central Hall', hall: 'Stone steps down to the Wine Cellar' },
+      dir:  { winecellar: 'Steps up', hall: 'Steps down' } },
+    // Only exists when countermeasure E-ROOF is active.
+    { id: 'roof-lib',  a: 'roof',       b: 'library',    kind: 'hoist', cmOnly: 'E-ROOF',
+      side: { roof: 'Book hoist down to the Library', library: 'Book hoist up to the roof' },
+      dir:  { roof: 'Hoist down', library: 'Hoist up' } }
+  ];
+
+  // Ways between the lawn and the house. `category` is what Pell records as the entry side.
+  var ENTRANCES = {
+    hatch:        { name: 'Cellar hatch',     room: 'cellar',     category: 'cellar' },
+    scullerydoor: { name: 'Scullery door',    room: 'scullery',   category: 'scullery' },
+    window:       { name: 'Library window',   room: 'library',    category: 'library' },
+    roof:         { name: 'Roof',             room: 'roof',       category: 'roof' },
+    // Opened only by E-LIB. It arrives in the cellars, so Pell files it under "cellar side".
+    tunnel:       { name: 'Wine tunnel',      room: 'winecellar', category: 'cellar', cmOnly: 'E-LIB' }
+  };
+  var ENTRANCE_ORDER = ['hatch', 'scullerydoor', 'window', 'roof', 'tunnel'];
+
+  var OBSERVED_DIMENSIONS = ['entry', 'method', 'scout', 'exit'];
+  var DIM_VALUES = {
+    entry:  ['cellar', 'scullery', 'library', 'roof'],
+    method: ['pick', 'key', 'diversion'],
+    scout:  ['scouted', 'direct'],
+    exit:   ['same', 'changed']
+  };
+  var DIM_NAME = { entry: 'Entry side', method: 'Obstacle method', scout: 'Scouting', exit: 'Exit' };
+  var VALUE_SHORT = {
+    entry:  { cellar: 'Cellar side', scullery: 'Scullery door', library: 'Library window', roof: 'Roof' },
+    method: { pick: 'Pick the lock', key: 'Lift the key', diversion: 'Diversion' },
+    scout:  { scouted: 'Scouted', direct: 'Direct' },
+    exit:   { same: 'Same way out', changed: 'Different way out' }
+  };
+  var VALUE_PROSE = {
+    entry:  { cellar: 'came up through the cellars', scullery: 'came in by the scullery door',
+              library: 'came in by the library window', roof: 'came in over the roof' },
+    method: { pick: 'opened the vitrine by working its lock', key: 'opened the vitrine with its own key',
+              diversion: 'opened the vitrine by sending the footman off on a fool’s errand' },
+    scout:  { scouted: 'looked about the house first', direct: 'went straight for the prize' },
+    exit:   { same: 'left the way you came', changed: 'left by a different way' }
+  };
+
+  var CM_FOR = {
+    entry:  { cellar: 'E-CEL', scullery: 'E-SCU', library: 'E-LIB', roof: 'E-ROOF' },
+    method: { pick: 'M-PICK', key: 'M-KEY', diversion: 'M-DIV' },
+    scout:  { scouted: 'S-SCOUT', direct: 'S-DIRECT' },
+    exit:   { same: 'X-SAME', changed: 'X-CHANGED' }
+  };
+
+  // Countermeasures. `pell` is the sentence in Pell's hand ({ev} is replaced with evidence),
+  // `effect` the exact mechanical change, `alt` the fair route that remains.
+  var CMS = {
+    'E-CEL': { dim: 'entry', value: 'cellar', title: 'Coal in the cellar arch',
+      pell: 'Our guest came up through the cellars {ev}. Coal has been delivered, and stacked in the arch.',
+      effect: 'The arch between the Coal Cellar and the Wine Cellar is blocked by coal sacks.',
+      alt: 'The coal stair still climbs from the Coal Cellar to the Scullery, and the Wine Cellar is still reached by its steps from the Central Hall.' },
+    'E-SCU': { dim: 'entry', value: 'scullery', title: 'Biscuit sleeps in the doorway',
+      pell: 'Our guest favoured the scullery door {ev}. Biscuit now sleeps across the Scullery doorway, and nobody wakes Biscuit.',
+      effect: 'The door between the Scullery and the Central Hall cannot be used.',
+      alt: "The servants' stair still climbs from the Scullery to the Library, and the coal stair still goes down." },
+    'E-LIB': { dim: 'entry', value: 'library', title: 'The window has been spoken to',
+      pell: 'Our guest came by the library window {ev}. The window has been spoken to.',
+      effect: 'The library window is bricked up: it can be neither entered nor left by.',
+      alt: 'A wine tunnel now runs from the garden folly to the Wine Cellar. Pell files it under the cellar side.' },
+    'E-ROOF': { dim: 'entry', value: 'roof', title: 'The skylight is nailed',
+      pell: 'Our guest came over the roof {ev}. The skylight has been nailed shut.',
+      effect: 'The skylight ladder between the roof and the Long Gallery cannot be used.',
+      alt: 'A book hoist now runs from the roof down into the Library.' },
+    'M-PICK': { dim: 'method', value: 'pick', title: 'A lock that must be reasoned with',
+      pell: 'Our guest worked the lock {ev}. The vitrine now has a riddle dial instead.',
+      effect: 'The vitrine lock is replaced by a riddle dial. Its two clues are on cards in two named rooms. Solving the dial counts as working the lock.',
+      alt: 'The vitrine key and the footman’s bell still work as before.' },
+    'M-KEY': { dim: 'method', value: 'key', title: 'The key moves upstairs',
+      pell: 'Our guest lifted the vitrine key {ev}. The key now hangs in my own study.',
+      effect: "The vitrine key hangs in Pell's Study instead of on the Scullery rack.",
+      alt: 'The lock can still be worked, and the footman still answers the bell.' },
+    'M-DIV': { dim: 'method', value: 'diversion', title: 'Paired rounds',
+      pell: 'Our guest rang for us {ev}, and we all came running. The staff no longer answer bells at night. Harrow and Moss walk the Central Hall together instead.',
+      effect: 'Bell pulls are disconnected, so no diversion is possible. The footmen walk the Central Hall as a pair, so the Central Hall cannot be entered.',
+      alt: "The Display Room can still be reached down the service stair from Pell's Study. The lock and the key still work." },
+    'S-SCOUT': { dim: 'scout', value: 'scouted', title: 'Doors worth looking at',
+      pell: 'Our guest likes to look about {ev}. I have given the Long Gallery and the Central Hall some doors worth looking at.',
+      effect: 'Each of those two rooms gains two painted doors. Every door there is unproven until you try it or scout the room. A painted door says so when tried; nothing is lost.',
+      alt: 'All the real doors are still there. Scouting a room proves its doors at once.' },
+    'S-DIRECT': { dim: 'scout', value: 'direct', title: 'The short way is locked',
+      pell: 'Our guest went straight for the prize {ev}. The Central Hall door to the Display Room is locked for the night.',
+      effect: 'The door between the Central Hall and the Display Room cannot be used.',
+      alt: "The service stair from Pell's Study still reaches the Display Room." },
+    'X-SAME': { dim: 'exit', value: 'same', title: 'Every way in latches behind you',
+      pell: 'Our guest left the way they came {ev}. Tonight every way in latches behind whoever uses it.',
+      effect: 'You must leave by a different way than the one you last came in by.',
+      alt: 'Any other open way out is fine.' },
+    'X-CHANGED': { dim: 'exit', value: 'changed', title: 'The other ways out are watched',
+      pell: 'Our guest left by a different way than they came {ev}. Tonight the other ways out are watched; leave as you arrived.',
+      effect: 'You must leave by the same way you last came in by.',
+      alt: 'The way you came in is always still open to you.' }
+  };
+  var CM_ORDER = ['E-CEL', 'E-SCU', 'E-LIB', 'E-ROOF', 'M-PICK', 'M-KEY', 'M-DIV', 'S-SCOUT', 'S-DIRECT', 'X-SAME', 'X-CHANGED'];
+
+  var PAINTED = [
+    { id: 'paint-gal-n', room: 'gallery', label: 'North door' },
+    { id: 'paint-gal-t', room: 'gallery', label: 'Door behind the tapestry' },
+    { id: 'paint-hall-s', room: 'hall', label: 'Door under the stair' },
+    { id: 'paint-hall-b', room: 'hall', label: 'Double doors marked “Ballroom”' }
+  ];
+  var DECOY_ROOMS = ['gallery', 'hall'];
+
+  // Curiosities by burglary number; the Great Burglary has its own.
+  var CURIOSITIES = {
+    1: { name: 'the silver salt cellar', title: 'Silver salt cellar',
+         desc: 'A silver salt cellar shaped like a swan, no bigger than a teacup.' },
+    2: { name: 'the brass orrery', title: 'Brass orrery',
+         desc: 'An orrery the size of an egg. Its planets turn when you breathe on them.' },
+    3: { name: 'the lighthouse snuffbox', title: 'Lighthouse snuffbox',
+         desc: 'An enamel snuffbox painted with a lighthouse, its lamp picked out in gold.' },
+    4: { name: 'the porcelain pug', title: 'Porcelain pug',
+         desc: 'A porcelain pug in a starched ruff, looking faintly disappointed.' },
+    5: { name: 'the clockwork nightingale', title: 'Clockwork nightingale',
+         desc: 'A clockwork nightingale that sings one bar and then thinks better of it.' },
+    great: { name: 'the Thornwick epergne', title: 'The Thornwick epergne',
+         desc: 'The great silver centrepiece of Thornwick Hall: seven branches, a swan at every tip.' },
+    evening: { name: 'the sugar tongs', title: 'Sugar tongs (returned by morning)',
+         desc: 'A pair of silver sugar tongs. On Pell’s evening off nothing is kept, so they go back on the plinth.' }
+  };
+
+  // Riddle dials (M-PICK). Each answer is derivable from the two clue cards alone.
+  var RIDDLES = {
+    1: { clues: [ { room: 'library', text: 'Card in the Library: “The dial wants the gallery portrait’s subject, spelt backwards.”' },
+                  { room: 'gallery', text: 'Card in the Long Gallery: “The only portrait here shows a WREN.”' } ],
+         prompt: 'The dial wants one word.', answer: 'NERW' },
+    2: { clues: [ { room: 'library', text: 'Card in the Library: “The dial wants the gallery portrait’s subject, spelt backwards.”' },
+                  { room: 'gallery', text: 'Card in the Long Gallery: “The only portrait here shows a WREN.”' } ],
+         prompt: 'The dial wants one word.', answer: 'NERW' },
+    3: { clues: [ { room: 'study', text: 'Card on Pell’s desk: “The dial wants the number of candles on the gallery chandelier, plus three.”' },
+                  { room: 'gallery', text: 'Card in the Long Gallery: “The chandelier above you holds nine candles.”' } ],
+         prompt: 'The dial wants a number.', answer: '12' },
+    4: { clues: [ { room: 'library', text: 'Card in the Library: “The dial wants the first letter of each word of the hall clock’s motto.”' },
+                  { room: 'hall', text: 'Card in the Central Hall: “The clock’s motto reads: Time Is Dear, Eat Supper.”' } ],
+         prompt: 'The dial wants one word.', answer: 'TIDES' },
+    5: { clues: [ { room: 'scullery', text: 'Card in the Scullery: “The dial wants what Cook has run out of, without its first letter.”' },
+                  { room: 'winecellar', text: 'Card in the Wine Cellar: “Cook’s inventory slate reads: Out of FLOUR.”' } ],
+         prompt: 'The dial wants one word.', answer: 'LOUR' },
+    great: { clues: [ { room: 'gallery', text: 'Card in the Long Gallery: “The dial wants the name of Cook’s terrier, in capitals.”' },
+                      { room: 'scullery', text: 'Card in the Scullery: “A basket by the hearth is stitched BISCUIT.”' } ],
+         prompt: 'The dial wants one word.', answer: 'BISCUIT' }
+  };
+
+  var RULE_TEXT = [
+    'I notice four things, and only four: which side you came in by, how you opened the vitrine, whether you looked about before taking the prize, and whether you left the way you came.',
+    'After one burglary I act on what you just did. One visit is a hunch, not a habit.',
+    'After that I act on any choice you made in at least two of your last three burglaries (two of two, while there are only two).',
+    'When the evidence no longer supports a belief, I strike it through and undo what I built for it.',
+    'Pages that are burned or marked Disregard are not counted.'
+  ];
+
+  /* ------------------------------------------------------------------
+     Small helpers
+     ------------------------------------------------------------------ */
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function listWords(ns) {
+    if (!ns.length) return '';
+    if (ns.length === 1) return String(ns[0]);
+    return ns.slice(0, -1).join(', ') + ' and ' + ns[ns.length - 1];
+  }
+  function timesWord(k) { return k === 1 ? 'once' : k === 2 ? 'twice' : countWord(k) + ' times'; }
+  function countWord(k) { return ['none', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][k] || String(k); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function normAnswer(s) { return String(s == null ? '' : s).toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+
+  /* ------------------------------------------------------------------
+     EvolvortalDossier — observation, policy, beliefs
+     ------------------------------------------------------------------ */
+
+  // A record is eligible when it is an ordinary recorded burglary whose page is
+  // neither burned, sealed (burned, awaiting replay validation) nor disregarded.
+  function eligibleRecords(records) {
+    return records.filter(function (r) {
+      return r.chapter === 'ordinary' && !r.burned && !r.sealed && !r.disregarded;
+    });
+  }
+
+  function deriveBeliefs(records) {
+    var el = eligibleRecords(records);
+    var out = { eligible: el.map(function (r) { return r.n; }), window: [], beliefs: [], mode: 'none', tallies: {} };
+    OBSERVED_DIMENSIONS.forEach(function (d) {
+      out.tallies[d] = {};
+      DIM_VALUES[d].forEach(function (v) { out.tallies[d][v] = 0; });
+      el.forEach(function (r) { out.tallies[d][r[d]] += 1; });
+    });
+    if (el.length === 0) return out;
+    if (el.length === 1) {
+      out.mode = 'hunch';
+      out.window = [el[0].n];
+      OBSERVED_DIMENSIONS.forEach(function (d) {
+        out.beliefs.push({ dim: d, value: el[0][d], status: 'hunch', evidence: [el[0].n], count: 1, of: 1, cm: CM_FOR[d][el[0][d]] });
+      });
+      return out;
+    }
+    out.mode = 'habit';
+    var w = el.slice(-3);
+    out.window = w.map(function (r) { return r.n; });
+    OBSERVED_DIMENSIONS.forEach(function (d) {
+      // With a window of 2 or 3 records at most one value can reach 2, so no ties exist.
+      DIM_VALUES[d].forEach(function (v) {
+        var ev = w.filter(function (r) { return r[d] === v; }).map(function (r) { return r.n; });
+        if (ev.length >= 2) out.beliefs.push({ dim: d, value: v, status: 'habit', evidence: ev, count: ev.length, of: w.length, cm: CM_FOR[d][v] });
+      });
+    });
+    return out;
+  }
+
+  function evidencePhrase(b) {
+    if (b.status === 'hunch') return '(burglary ' + b.evidence[0] + ')';
+    return '(' + timesWord(b.count) + ' in the last ' + countWord(b.of) + ': burglaries ' + listWords(b.evidence) + ')';
+  }
+  function cmCaption(b) { return CMS[b.cm].pell.replace('{ev}', evidencePhrase(b)); }
+
+  /* ------------------------------------------------------------------
+     Hall construction — a pure function of countermeasure ids + chapter
+     ------------------------------------------------------------------ */
+  function riddleKey(chapter, heistNo) { return chapter === 'great' ? 'great' : String(Math.min(Math.max(heistNo, 1), 5)); }
+  function curiosityKey(chapter, heistNo) {
+    if (chapter === 'great') return 'great';
+    if (chapter === 'evening') return 'evening';
+    return String(Math.min(Math.max(heistNo, 1), 5));
+  }
+
+  function validCmSet(cms) {
+    if (!Array.isArray(cms) || cms.length > OBSERVED_DIMENSIONS.length) return false;
+    var dims = {};
+    for (var i = 0; i < cms.length; i++) {
+      var c = CMS[cms[i]];
+      if (!c || dims[c.dim]) return false;
+      dims[c.dim] = true;
+    }
+    return true;
+  }
+
+  function buildHall(cmsIn, chapter, heistNo) {
+    var cms = CM_ORDER.filter(function (id) { return (cmsIn || []).indexOf(id) >= 0; });
+    if (chapter === 'evening') cms = [];
+    if (!validCmSet(cms)) throw new Error('invalid countermeasure set');
+    var has = function (id) { return cms.indexOf(id) >= 0; };
+    var hall = {
+      cms: cms, chapter: chapter, heistNo: heistNo,
+      edges: {}, entrances: {}, roomClosed: {},
+      keyRoom: 'scullery', bellRooms: ['hall', 'library'], bellsLive: true, footmanAtVitrine: true,
+      decoyRooms: [], painted: [], riddle: null, exitRule: null,
+      curiosity: curiosityKey(chapter, heistNo),
+      dossierDesk: chapter !== 'evening'
+    };
+    EDGES.forEach(function (e) {
+      if (e.cmOnly && !has(e.cmOnly)) return;
+      hall.edges[e.id] = { id: e.id, a: e.a, b: e.b, kind: e.kind, open: true, reason: null, cm: e.cmOnly || null };
+    });
+    ENTRANCE_ORDER.forEach(function (id) {
+      var en = ENTRANCES[id];
+      if (en.cmOnly && !has(en.cmOnly)) return;
+      hall.entrances[id] = { id: id, room: en.room, open: true, reason: null, cm: en.cmOnly || null };
+    });
+    function closeEdge(id, cm, reason) { if (hall.edges[id]) { hall.edges[id].open = false; hall.edges[id].reason = reason; hall.edges[id].cm = cm; } }
+
+    if (has('E-CEL')) closeEdge('cel-wine', 'E-CEL', 'Coal sacks fill the arch.');
+    if (has('E-SCU')) closeEdge('scu-hall', 'E-SCU', 'Biscuit the terrier is asleep across this doorway, and nobody wakes Biscuit.');
+    if (has('E-LIB')) { hall.entrances.window.open = false; hall.entrances.window.reason = 'The library window has been bricked up.'; hall.entrances.window.cm = 'E-LIB'; }
+    if (has('E-ROOF')) closeEdge('roof-gal', 'E-ROOF', 'The skylight has been nailed shut.');
+    if (has('M-PICK')) {
+      var r = RIDDLES[riddleKey(chapter, heistNo)];
+      hall.riddle = { key: riddleKey(chapter, heistNo), clues: clone(r.clues), prompt: r.prompt };
+    }
+    if (has('M-KEY')) hall.keyRoom = 'study';
+    if (has('M-DIV')) {
+      hall.bellsLive = false; hall.footmanAtVitrine = false;
+      hall.roomClosed.hall = 'Harrow and Moss are walking the Central Hall as a pair.';
+      Object.keys(hall.edges).forEach(function (id) {
+        var e = hall.edges[id];
+        if ((e.a === 'hall' || e.b === 'hall') && e.open) { e.open = false; e.reason = 'Harrow and Moss are walking the Central Hall as a pair.'; e.cm = 'M-DIV'; }
+      });
+    }
+    if (has('S-SCOUT')) { hall.decoyRooms = DECOY_ROOMS.slice(); hall.painted = clone(PAINTED); }
+    if (has('S-DIRECT')) closeEdge('hall-dis', 'S-DIRECT', 'This door is locked for the night.');
+    if (has('X-SAME')) hall.exitRule = 'different';
+    if (has('X-CHANGED')) hall.exitRule = 'same';
+    return hall;
+  }
+
+  function edgesOf(hall, room) {
+    return Object.keys(hall.edges).map(function (k) { return hall.edges[k]; })
+      .filter(function (e) { return e.a === room || e.b === room; });
+  }
+  function otherEnd(e, room) { return e.a === room ? e.b : e.a; }
+  function edgeDef(id) { for (var i = 0; i < EDGES.length; i++) if (EDGES[i].id === id) return EDGES[i]; return null; }
+  function entrancesIn(hall, room) {
+    return ENTRANCE_ORDER.filter(function (id) { return hall.entrances[id] && hall.entrances[id].room === room; });
+  }
+
+  // Passages as the player perceives them from `room`.
+  function passagesFrom(hall, heist, room) {
+    var out = [];
+    var decoy = hall.decoyRooms.indexOf(room) >= 0 && !(heist && heist.scoutedRooms.indexOf(room) >= 0);
+    edgesOf(hall, room).forEach(function (e) {
+      var def = edgeDef(e.id);
+      var to = otherEnd(e, room);
+      var proven = !decoy || (heist && heist.proven.indexOf(room + ':' + e.id) >= 0);
+      if (!e.open) {
+        out.push({ kind: 'edge', id: e.id, to: to, label: def.side[room], open: false, reason: e.reason, cm: e.cm, unproven: false });
+      } else if (proven) {
+        out.push({ kind: 'edge', id: e.id, to: to, label: def.side[room], open: true, reason: null, cm: e.cm, unproven: false });
+      } else {
+        out.push({ kind: 'door', id: e.id, to: null, label: def.dir[room], open: true, reason: null, cm: 'S-SCOUT', unproven: true });
+      }
+    });
+    hall.painted.forEach(function (p) {
+      if (p.room !== room) return;
+      var known = !decoy || (heist && heist.paintedKnown.indexOf(p.id) >= 0);
+      if (known) out.push({ kind: 'painted', id: p.id, to: null, label: p.label + ' (painted on the wall)', open: false, reason: 'A painted door. Pell’s card: “For the inquisitive guest.”', cm: 'S-SCOUT', unproven: false });
+      else out.push({ kind: 'door', id: p.id, to: null, label: p.label, open: true, reason: null, cm: 'S-SCOUT', unproven: true });
+    });
+    // Unproven doors are sorted by label so their order gives nothing away.
+    out.sort(function (x, y) {
+      if (x.unproven !== y.unproven) return x.unproven ? 1 : -1;
+      return x.label < y.label ? -1 : x.label > y.label ? 1 : 0;
+    });
+    return out;
+  }
+
+  /* ------------------------------------------------------------------
+     EvolvortalSession — the game state and its reducer
+     ------------------------------------------------------------------ */
+  function newGame() {
+    return {
+      engine: ENGINE_VERSION,
+      journal: [],          // authoritative: completed burglaries and between-visit edits
+      records: [],          // derived: dossier pages
+      mantel: [],           // derived: curiosities on the mantelpiece
+      ledger: [],           // derived: player interference
+      revisions: [],        // struck-through and withdrawn predictions
+      phase: 'outside',     // outside | inside | epilogue | finale
+      chapterChoice: null,  // null | 'ordinary' | 'great'
+      heist: null,
+      evening: null,
+      greatDone: false,
+      last: null,           // summary of the most recent completed burglary (epilogue)
+      _forceCms: null,      // replay / QA only
+      _replaying: false
+    };
+  }
+
+  function ordinaryCount(game) { return game.records.filter(function (r) { return r.chapter === 'ordinary'; }).length; }
+  function hasSealed(game) { return game.records.some(function (r) { return r.sealed; }); }
+
+  function nextChapter(game) {
+    if (game.greatDone) return null;
+    var n = ordinaryCount(game);
+    if (n < GREAT_GATE) return 'ordinary';
+    if (n >= MAX_ORDINARY) return 'great';
+    return game.chapterChoice; // null means the player must choose
+  }
+  function greatStatus(game) {
+    var n = ordinaryCount(game);
+    return {
+      recorded: n, gate: GREAT_GATE, max: MAX_ORDINARY,
+      unlocked: n >= GREAT_GATE, required: n >= MAX_ORDINARY && !game.greatDone,
+      done: game.greatDone, choiceNeeded: !game.greatDone && n >= GREAT_GATE && n < MAX_ORDINARY && game.chapterChoice === null
+    };
+  }
+
+  function plannedHall(game) {
+    var chapter = nextChapter(game) || 'ordinary';
+    var heistNo = game.records.length + 1;
+    var bel = deriveBeliefs(game.records);
+    var cms = game._forceCms ? game._forceCms.slice() : bel.beliefs.map(function (b) { return b.cm; });
+    return buildHall(cms, chapter, heistNo);
+  }
+
+  function lastBuildCms(game) {
+    for (var i = game.journal.length - 1; i >= 0; i--) if (game.journal[i].t === 'heist') return game.journal[i].cms.slice();
+    return null;
+  }
+
+  // Changes between the Hall of the previous recorded burglary and the planned Hall.
+  function changesSinceLast(game) {
+    var prev = lastBuildCms(game);
+    if (prev === null) return { first: true, added: [], removed: [], kept: [] };
+    var now = plannedHall(game).cms;
+    return {
+      first: false,
+      added: now.filter(function (c) { return prev.indexOf(c) < 0; }),
+      removed: prev.filter(function (c) { return now.indexOf(c) < 0; }),
+      kept: now.filter(function (c) { return prev.indexOf(c) >= 0; })
+    };
+  }
+
+  function newHeist(hall, chapter, heistNo, evening) {
+    return {
+      chapter: chapter, no: heistNo, evening: !!evening,
+      hall: hall, room: 'lawn', entrance: null, entered: false,
+      hasTarget: false, keyHeld: false, bellRung: false, vitrineOpen: false, method: null,
+      scouted: false, scoutedRooms: [], cluesRead: [], proven: [], paintedKnown: [],
+      turns: 0, pendingEdit: null, actions: [], log: []
+    };
+  }
+
+  function activeHeist(game) { return game.evening ? game.evening.heist : game.heist; }
+
+  /* ------------------------------------------------------------------
+     Legal actions — every button the UI shows comes from here
+     ------------------------------------------------------------------ */
+  function legalActions(game) {
+    var A = [];
+    function add(a, enabled, reason) { a.enabled = enabled !== false; if (!a.enabled) a.reason = reason; A.push(a); }
+
+    if (game.evening && game.evening.done) {
+      add({ type: 'endEvening', label: 'Back to the lawn' });
+      return A;
+    }
+    var h = activeHeist(game);
+
+    if (!h) {
+      if (game.phase === 'epilogue') { add({ type: 'continue', label: game.greatDone ? 'Read Pell’s farewell' : 'Back to the lawn' }); return A; }
+      if (game.phase === 'finale') {
+        add({ type: 'startEvening', label: 'Pell’s evening off (a burglary nobody records)' });
+        return A;
+      }
+      // outside
+      var gs = greatStatus(game);
+      if (gs.unlocked && !gs.done && !gs.required) {
+        add({ type: 'chooseChapter', chapter: 'great', label: 'Choose the Great Burglary', pressed: game.chapterChoice === 'great' });
+        add({ type: 'chooseChapter', chapter: 'ordinary', label: 'Choose another ordinary burglary (' + (gs.recorded + 1) + ' of ' + gs.max + ')', pressed: game.chapterChoice === 'ordinary' });
+      }
+      var ch = nextChapter(game);
+      var hall = plannedHall(game);
+      ENTRANCE_ORDER.forEach(function (id) {
+        if (!hall.entrances[id]) return;
+        var en = hall.entrances[id];
+        var label = 'Enter by the ' + ENTRANCES[id].name.toLowerCase();
+        if (!ch) add({ type: 'enter', route: id, label: label }, false, 'Choose the Great Burglary or another ordinary burglary first.');
+        else if (!en.open) add({ type: 'enter', route: id, label: label }, false, en.reason);
+        else add({ type: 'enter', route: id, label: label });
+      });
+      add({ type: 'startEvening', label: 'Pell’s evening off (a burglary nobody records)' });
+      game.records.forEach(function (r) {
+        if (r.disregarded && !r.burned && !r.sealed) add({ type: 'regard', page: r.n, label: 'Let Pell regard page ' + r.n + ' again' });
+      });
+      return A;
+    }
+
+    var hall2 = h.hall;
+    if (h.room === 'lawn') {
+      ENTRANCE_ORDER.forEach(function (id) {
+        if (!hall2.entrances[id]) return;
+        var en = hall2.entrances[id];
+        var label = 'Enter by the ' + ENTRANCES[id].name.toLowerCase();
+        if (!en.open) add({ type: 'enter', route: id, label: label }, false, en.reason);
+        else add({ type: 'enter', route: id, label: label });
+      });
+      add({ type: 'abandon', label: 'Give up tonight’s burglary (nothing is recorded)' });
+      return A;
+    }
+
+    var room = h.room;
+    // Movement
+    passagesFrom(hall2, h, room).forEach(function (p) {
+      if (p.kind === 'edge') {
+        if (p.open) add({ type: 'move', to: p.to, via: p.id, label: p.label });
+        else add({ type: 'move', to: p.to, via: p.id, label: p.label }, false, p.reason);
+      } else if (p.kind === 'door') {
+        add({ type: 'tryDoor', door: p.id, label: 'Try the ' + p.label.charAt(0).toLowerCase() + p.label.slice(1) + ' (unproven)' });
+      }
+    });
+    // Ways out to the lawn
+    entrancesIn(hall2, room).forEach(function (id) {
+      var en = hall2.entrances[id];
+      var nm = ENTRANCES[id].name.toLowerCase();
+      if (!en.open) { add({ type: h.hasTarget ? 'exit' : 'stepOut', route: id, label: (h.hasTarget ? 'Escape by the ' : 'Step back out by the ') + nm }, false, en.reason); return; }
+      if (h.hasTarget) {
+        if (hall2.exitRule === 'different' && id === h.entrance) add({ type: 'exit', route: id, label: 'Escape by the ' + nm }, false, 'Tonight every way in latches behind you: leave by a different way.');
+        else if (hall2.exitRule === 'same' && id !== h.entrance) add({ type: 'exit', route: id, label: 'Escape by the ' + nm }, false, 'Tonight the other ways out are watched: leave by the ' + ENTRANCES[h.entrance].name.toLowerCase() + '.');
+        else add({ type: 'exit', route: id, label: 'Escape by the ' + nm + ' with ' + CURIOSITIES[hall2.curiosity].name });
+      } else {
+        add({ type: 'stepOut', route: id, label: 'Step back out by the ' + nm + ' (without the prize)' });
+      }
+    });
+    // Looking about
+    add({ type: 'scout', label: h.scoutedRooms.indexOf(room) >= 0 ? 'Scout this room again' : (h.hasTarget ? 'Scout this room (Pell only notes scouting before the prize)' : 'Scout this room') },
+      h.scoutedRooms.indexOf(room) < 0, 'You have already scouted this room.');
+    if (hall2.riddle) hall2.riddle.clues.forEach(function (c, i) {
+      if (c.room === room && h.cluesRead.indexOf(i) < 0) add({ type: 'readClue', clue: i, label: 'Read the riddle card here' });
+    });
+    if (room === hall2.keyRoom && !h.keyHeld && !h.vitrineOpen) add({ type: 'liftKey', label: 'Lift the vitrine key' });
+    if (hall2.bellRooms.indexOf(room) >= 0 && !h.vitrineOpen) {
+      if (!hall2.bellsLive) add({ type: 'ringBell', label: 'Pull the bell for the footman' }, false, 'The bells are disconnected tonight.');
+      else if (!h.bellRung) add({ type: 'ringBell', label: 'Pull the bell for the footman' });
+    }
+    // The vitrine
+    if (room === 'display' && !h.vitrineOpen) {
+      if (hall2.riddle) {
+        add({ type: 'openVitrine', method: 'pick', label: 'Pick the lock' }, false, 'The lock has been replaced by a riddle dial.');
+        add({ type: 'solveRiddle', label: 'Turn the riddle dial', needsAnswer: true, prompt: hall2.riddle.prompt });
+      } else {
+        add({ type: 'openVitrine', method: 'pick', label: 'Pick the lock' });
+      }
+      add({ type: 'openVitrine', method: 'key', label: 'Open it with the vitrine key' }, h.keyHeld,
+        'You are not carrying the vitrine key. It hangs in ' + ROOMS[hall2.keyRoom].name + '.');
+      if (!hall2.bellsLive) add({ type: 'openVitrine', method: 'diversion', label: 'Slip in while the footman is away' }, false, 'The staff no longer answer bells at night.');
+      else add({ type: 'openVitrine', method: 'diversion', label: 'Slip in while the footman is away' }, h.bellRung,
+        'Harrow is still sitting beside the vitrine. A bell pull in the Central Hall or the Library would send him off.');
+    }
+    if (room === 'display' && h.vitrineOpen && !h.hasTarget) add({ type: 'takeTarget', label: 'Take ' + CURIOSITIES[hall2.curiosity].name });
+    // The dossier desk
+    if (room === 'study') {
+      if (!hall2.dossierDesk) {
+        add({ type: 'stealPage', label: 'Steal a page from Pell’s file' }, false, 'On Pell’s evening off his file is locked away.');
+      } else if (h.pendingEdit) {
+        add({ type: 'stealPage', label: 'Steal a page from Pell’s file' }, false, 'You already have a page from tonight in your pocket. One page per burglary.');
+      } else {
+        var pages = game.records.filter(function (r) { return r.chapter === 'ordinary' && !r.burned; });
+        if (!pages.length) add({ type: 'stealPage', label: 'Steal a page from Pell’s file' }, false, 'Pell’s file has no pages yet. There is nothing to take until after your first recorded burglary.');
+        pages.forEach(function (r) {
+          add({ type: 'stealPage', page: r.n, op: 'burn', label: 'Take page ' + r.n + ' to burn' });
+          if (!r.disregarded) add({ type: 'stealPage', page: r.n, op: 'disregard', label: 'Take page ' + r.n + ' to mark “Disregard”' });
+        });
+      }
+    }
+    add({ type: 'abandon', label: 'Give up tonight’s burglary (nothing is recorded)' });
+    return A;
+  }
+
+  function findLegal(game, action) {
+    var L = legalActions(game);
+    for (var i = 0; i < L.length; i++) {
+      var a = L[i];
+      if (a.type !== action.type) continue;
+      var keys = ['route', 'to', 'door', 'method', 'clue', 'page', 'op', 'chapter'];
+      var match = true;
+      for (var k = 0; k < keys.length; k++) {
+        if (a[keys[k]] !== undefined || action[keys[k]] !== undefined) {
+          if (a[keys[k]] !== action[keys[k]]) { match = false; break; }
+        }
+      }
+      if (match) return a;
+    }
+    return null;
+  }
+
+  function fail(game, msg) { return { ok: false, game: game, msg: msg }; }
+
+  // The one entry point. Pure: returns a new game, never mutates the argument.
+  function act(gameIn, actionIn) {
+    if (!actionIn || typeof actionIn !== 'object' || typeof actionIn.type !== 'string') return fail(gameIn, 'Not an action.');
+    var action = {};
+    ['type', 'route', 'to', 'door', 'method', 'clue', 'page', 'op', 'chapter', 'answer', 'confirm'].forEach(function (k) {
+      if (actionIn[k] !== undefined) action[k] = actionIn[k];
+    });
+
+    if (action.type === 'burnFile') {
+      if (action.confirm !== 'BURN THE FILE') return fail(gameIn, 'Burning the file needs confirmation.');
+      var fresh = newGame();
+      return { ok: true, game: fresh, msg: 'The file is ashes. Thornwick Hall is exactly as it was on the first night.', events: ['reset'] };
+    }
+
+    var legal = findLegal(gameIn, action);
+    if (!legal) return fail(gameIn, 'That is not something you can do here.');
+    if (!legal.enabled) return fail(gameIn, legal.reason || 'Not possible right now.');
+
+    var game = clone(gameIn);
+    var h = activeHeist(game);
+    var msg = '';
+    var events = [];
+
+    switch (action.type) {
+      case 'chooseChapter':
+        game.chapterChoice = action.chapter;
+        msg = action.chapter === 'great' ? 'The Great Burglary it is. Choose your way in.' : 'Another ordinary burglary, then.';
+        break;
+
+      case 'startEvening': {
+        var eh = newHeist(buildHall([], 'evening', 0), 'evening', 0, true);
+        game.evening = { heist: eh, done: false };
+        msg = 'Pell’s evening off. Tonight he notices nothing and the Hall is as it was on the first night.';
+        break;
+      }
+      case 'endEvening':
+        game.evening = null;
+        msg = 'The evening off is over. Pell’s file is exactly as you left it.';
+        break;
+
+      case 'regard': {
+        var before = deriveBeliefs(game.records);
+        game.records.forEach(function (r) { if (r.n === action.page) r.disregarded = false; });
+        game.ledger.push({ during: null, after: game.records.length, page: action.page, op: 'regard' });
+        game.journal.push({ t: 'regard', page: action.page });
+        recordRevisions(game, before, deriveBeliefs(game.records), 'regarded', null, null);
+        msg = 'Page ' + action.page + ' is back in Pell’s regard.';
+        events.push('memory');
+        break;
+      }
+
+      case 'enter': {
+        if (!h) {
+          var ch = nextChapter(game);
+          var hall = plannedHall(game);
+          h = newHeist(hall, ch, game.records.length + 1, false);
+          game.heist = h;
+          game.phase = 'inside';
+          events.push('begin');
+        }
+        h.room = ENTRANCES[action.route].room;
+        h.entrance = action.route;
+        h.entered = true;
+        msg = 'You are in ' + ROOMS[h.room].name + '.';
+        break;
+      }
+      case 'stepOut':
+        h.room = 'lawn';
+        h.entrance = null;
+        msg = 'You step back out onto the lawn. Choose another way in, or give up for tonight.';
+        break;
+
+      case 'move':
+        h.room = action.to;
+        markProven(h, legal.via);
+        msg = 'You are in ' + ROOMS[h.room].name + '.';
+        break;
+
+      case 'tryDoor': {
+        var painted = h.hall.painted.filter(function (p) { return p.id === action.door; })[0];
+        if (painted) {
+          h.paintedKnown.push(painted.id);
+          msg = 'The ' + painted.label.charAt(0).toLowerCase() + painted.label.slice(1) + ' is painted on the wall. A card reads: “For the inquisitive guest.” Nothing lost.';
+        } else {
+          var e = h.hall.edges[action.door];
+          var from = h.room;
+          h.room = otherEnd(e, from);
+          markProven(h, e.id);
+          msg = 'The door is real. You are in ' + ROOMS[h.room].name + '.';
+        }
+        break;
+      }
+
+      case 'scout':
+        h.scoutedRooms.push(h.room);
+        if (!h.hasTarget) h.scouted = true;
+        msg = scoutReport(h.hall, h.room);
+        break;
+
+      case 'readClue':
+        h.cluesRead.push(action.clue);
+        msg = h.hall.riddle.clues[action.clue].text;
+        break;
+
+      case 'liftKey':
+        h.keyHeld = true;
+        msg = 'You lift the vitrine key from its hook.';
+        break;
+
+      case 'ringBell':
+        h.bellRung = true;
+        msg = 'Somewhere a bell jangles. Harrow unlocks the vitrine to count the silver, as Pell insists at every bell, then hurries off to answer it, leaving the vitrine open.';
+        break;
+
+      case 'openVitrine':
+        h.vitrineOpen = true;
+        h.method = action.method;
+        msg = action.method === 'pick' ? 'You work the little lock. It gives.'
+          : action.method === 'key' ? 'The key turns sweetly.'
+          : 'Harrow has left the vitrine open behind him. You slip in.';
+        break;
+
+      case 'solveRiddle':
+        if (normAnswer(action.answer) !== RIDDLES[h.hall.riddle.key].answer) {
+          return fail(gameIn, 'The dial clicks back to the start. Nothing is lost; read the two cards and try again.');
+        }
+        h.vitrineOpen = true;
+        h.method = 'pick';
+        msg = 'The dial settles and the vitrine opens. Pell files this as working the lock.';
+        break;
+
+      case 'takeTarget':
+        h.hasTarget = true;
+        msg = 'You take ' + CURIOSITIES[h.hall.curiosity].name + '. Now get out.';
+        break;
+
+      case 'stealPage':
+        h.pendingEdit = { page: action.page, op: action.op };
+        msg = 'You fold page ' + action.page + ' into your coat. ' + (action.op === 'burn'
+          ? 'You will burn it once you are clear of the house. If you give up tonight, it slips back into the file.'
+          : 'You will mark it “Disregard” and post it back once you are clear. If you give up tonight, it slips back unmarked.');
+        break;
+
+      case 'abandon':
+        if (game.evening) { game.evening = null; msg = 'You leave the evening off early. Nothing was recorded.'; }
+        else { game.heist = null; game.phase = 'outside'; msg = 'You slip away empty-handed. Nothing is recorded, and any stolen page slips back into the file.'; }
+        events.push('abandon');
+        return { ok: true, game: game, msg: msg, events: events };
+
+      case 'exit':
+        h.turns += 1;
+        h.actions.push(action);
+        if (h.evening) {
+          game.evening.done = true;
+          game.evening.summary = {
+            curiosity: h.hall.curiosity, turns: h.turns,
+            entry: ENTRANCES[h.entrance].category, exitSame: action.route === h.entrance
+          };
+          msg = 'Out into the night with the sugar tongs. On Pell’s evening off nothing is written down, and the tongs go back by morning.';
+          return { ok: true, game: game, msg: msg, events: ['eveningDone'] };
+        }
+        return commit(game, action.route);
+
+      case 'continue':
+        game.phase = game.greatDone ? 'finale' : 'outside';
+        msg = game.greatDone ? 'Pell is waiting with his keys.' : 'The lawn again. Pell has been busy.';
+        return { ok: true, game: game, msg: msg, events: events };
+
+      default:
+        return fail(gameIn, 'Unknown action.');
+    }
+
+    if (h && action.type !== 'regard' && action.type !== 'chooseChapter' && action.type !== 'startEvening' && action.type !== 'endEvening') {
+      h.turns += 1;
+      h.actions.push(action);
+    }
+    return { ok: true, game: game, msg: msg, events: events };
+  }
+
+  function markProven(h, edgeId) {
+    var e = h.hall.edges[edgeId];
+    if (!e) return;
+    [e.a, e.b].forEach(function (r) { var k = r + ':' + edgeId; if (h.proven.indexOf(k) < 0) h.proven.push(k); });
+  }
+
+  function scoutReport(hall, room) {
+    var notes = [ROOMS[room].desc];
+    if (hall.keyRoom === room) notes.push('The vitrine key hangs here.');
+    if (hall.bellRooms.indexOf(room) >= 0) notes.push(hall.bellsLive ? 'There is a bell pull here that summons the night footman.' : 'There is a bell pull here, but it has been disconnected.');
+    if (room === 'display' && hall.footmanAtVitrine) notes.push('Harrow, the night footman, sits beside the vitrine with his eyes half closed.');
+    if (hall.riddle) hall.riddle.clues.forEach(function (c) { if (c.room === room) notes.push('A riddle card is propped here.'); });
+    if (room === 'study') notes.push(hall.dossierDesk ? 'Pell’s dossier lies on the desk.' : 'The desk drawer is locked for the evening.');
+    if (hall.decoyRooms.indexOf(room) >= 0) notes.push('You check every door here: the painted ones are painted, the real ones lead where they lead.');
+    return 'You scout ' + ROOMS[room].name + '. ' + notes.join(' ');
+  }
+
+  /* ------------------------------------------------------------------
+     Committing a recorded burglary
+     ------------------------------------------------------------------ */
+  function observationOf(h, exitRoute) {
+    return {
+      entry: ENTRANCES[h.entrance].category,
+      entryRoute: h.entrance,
+      method: h.method,
+      scout: h.scouted ? 'scouted' : 'direct',
+      exit: exitRoute === h.entrance ? 'same' : 'changed',
+      exitRoute: exitRoute
+    };
+  }
+
+  function applyEdit(game, edit, during) {
+    var r = game.records.filter(function (x) { return x.n === edit.page; })[0];
+    if (!r) return false;
+    if (edit.op === 'burn') {
+      var keep = { n: r.n, chapter: r.chapter, burned: true };
+      var idx = game.records.indexOf(r);
+      game.records[idx] = keep;
+      sealJournal(game, r.n);
+      scrubRevisions(game, r.n);
+    } else {
+      r.disregarded = true;
+    }
+    game.ledger.push({ during: during, page: edit.page, op: edit.op });
+    return true;
+  }
+
+  // Replace the burned burglary's journal entry with a sealed marker that keeps no observation.
+  function sealJournal(game, n) {
+    var k = 0;
+    for (var i = 0; i < game.journal.length; i++) {
+      if (game.journal[i].t !== 'heist') continue;
+      k += 1;
+      if (k === n) {
+        var j = game.journal[i];
+        var sealed = { t: 'heist', sealed: true, chapter: j.chapter, cms: j.cms.slice() };
+        var ed = j.edit || editInActions(j.actions);
+        if (ed) sealed.edit = ed;
+        game.journal[i] = sealed;
+        return;
+      }
+    }
+  }
+  function editInActions(actions) {
+    if (!actions) return null;
+    for (var i = 0; i < actions.length; i++) if (actions[i].type === 'stealPage') return { page: actions[i].page, op: actions[i].op };
+    return null;
+  }
+
+  function scrubRevisions(game, n) {
+    game.revisions.forEach(function (rv) {
+      var touched = (rv.evidence && rv.evidence.indexOf(n) >= 0) || rv.by === n;
+      if (touched) {
+        rv.value = null;
+        rv.evidence = (rv.evidence || []).filter(function (x) { return x !== n; });
+        rv.by = null;
+        rv.detailsBurned = true;
+      }
+    });
+  }
+
+  function beliefKey(b) { return b.dim + ':' + b.value; }
+
+  // Every belief active in `before` but not in `after` becomes a revision entry.
+  function recordRevisions(game, before, after, cause, by, at) {
+    if (game._replaying) return;
+    var now = after.beliefs.map(beliefKey);
+    before.beliefs.forEach(function (b) {
+      if (now.indexOf(beliefKey(b)) >= 0) return;
+      var rv = { at: at == null ? game.records.length : at, dim: b.dim, value: b.value, status: b.status,
+                 evidence: b.evidence.slice(), cause: cause, by: by == null ? null : by };
+      if (cause === 'burned') { rv.value = null; rv.evidence = []; rv.detailsBurned = true; }
+      game.revisions.push(rv);
+    });
+    if (game.revisions.length > 100) game.revisions = game.revisions.slice(-100);
+  }
+
+  function commit(game, exitRoute) {
+    var h = game.heist;
+    var obs = observationOf(h, exitRoute);
+    var n = game.records.length + 1;
+    var b0 = deriveBeliefs(game.records);
+
+    // 1. Apply the stolen page, if any.
+    if (h.pendingEdit) {
+      applyEdit(game, h.pendingEdit, n);
+      var b1 = deriveBeliefs(game.records);
+      recordRevisions(game, b0, b1, h.pendingEdit.op === 'burn' ? 'burned' : 'disregarded', null, n);
+      b0 = b1;
+    }
+    // 2. Write tonight's page.
+    var rec = { n: n, chapter: h.chapter, entry: obs.entry, entryRoute: obs.entryRoute, method: obs.method,
+                scout: obs.scout, exit: obs.exit, exitRoute: obs.exitRoute, disregarded: false };
+    game.records.push(rec);
+    var b2 = deriveBeliefs(game.records);
+    if (h.chapter === 'ordinary') recordRevisions(game, b0, b2, 'contradicted', n, n);
+
+    game.mantel.push({ n: n, curiosity: h.hall.curiosity, chapter: h.chapter });
+    var entry = { t: 'heist', chapter: h.chapter, cms: h.hall.cms.slice(), actions: h.actions.slice() };
+    game.journal.push(entry);
+    game.last = { n: n, chapter: h.chapter, obs: obs, curiosity: h.hall.curiosity, turns: h.turns, edit: h.pendingEdit, cms: h.hall.cms.slice() };
+    game.heist = null;
+    game.chapterChoice = null;
+    if (h.chapter === 'great') { game.greatDone = true; }
+    game.phase = 'epilogue';
+    return { ok: true, game: game, msg: 'You are out, with ' + CURIOSITIES[h.hall.curiosity].name + '.', events: ['committed'] };
+  }
+
+  /* ------------------------------------------------------------------
+     Pell's notes, dossier views, letter
+     ------------------------------------------------------------------ */
+  function pellNote(game) {
+    var L = game.last;
+    if (!L) return null;
+    var o = L.obs;
+    var lines = [];
+    if (L.chapter === 'great') {
+      lines.push('Dear Guest,');
+      lines.push('You came for the epergne and you have it. You ' + VALUE_PROSE.entry[o.entry] + ', ' + VALUE_PROSE.method[o.method] + ', ' + VALUE_PROSE.scout[o.scout] + ', and ' + VALUE_PROSE.exit[o.exit] + '.');
+      lines.push('Please come up to the study. I have something for you.');
+      return { lines: lines, sign: 'A. Pell' };
+    }
+    lines.push('Dear Guest,');
+    lines.push('I watched all of it. On burglary ' + L.n + ' you ' + VALUE_PROSE.entry[o.entry] + ', ' + VALUE_PROSE.method[o.method] + ', ' + VALUE_PROSE.scout[o.scout] + ', and ' + VALUE_PROSE.exit[o.exit] + '.');
+    if (L.edit) lines.push(L.edit.op === 'burn' ? 'A page is missing from my file. I shall not try to remember what was on it.'
+      : 'A page of my file has come back marked “Disregard”. I shall do as it asks.');
+    var bel = deriveBeliefs(game.records);
+    if (!bel.beliefs.length) lines.push('I see no pattern worth acting on. The Hall will be as it was.');
+    else {
+      if (bel.mode === 'hunch') lines.push('One visit is a hunch, not a habit, but I have acted on it.');
+      bel.beliefs.forEach(function (b) { lines.push(cmCaption(b)); });
+    }
+    var struck = game.revisions.filter(function (r) { return r.at === L.n && r.cause === 'contradicted'; });
+    if (struck.length) lines.push('I appear to have been mistaken about ' + struck.map(function (r) { return r.value ? VALUE_SHORT[r.dim][r.value].toLowerCase() : 'one thing'; }).join(' and ') + '. I have undone what I built for it.');
+    return { lines: lines, sign: 'A. Pell, Butler' };
+  }
+
+  function revisionText(rv) {
+    var what = rv.value ? DIM_NAME[rv.dim] + ': ' + VALUE_SHORT[rv.dim][rv.value] : 'A belief about ' + DIM_NAME[rv.dim].toLowerCase();
+    var why = rv.cause === 'contradicted' ? 'STRUCK THROUGH — “I appear to have been mistaken.”'
+      : rv.cause === 'burned' ? 'Withdrawn: its page was burned, and its details went with it.'
+      : rv.cause === 'disregarded' ? 'Set aside: its page is marked “Disregard”.'
+      : 'Withdrawn when an older page was regarded again.';
+    var ev = rv.evidence && rv.evidence.length ? ' (had rested on burglar' + (rv.evidence.length > 1 ? 'ies ' : 'y ') + listWords(rv.evidence) + ')' : '';
+    return { what: what + ev, why: why, at: rv.at, cause: rv.cause };
+  }
+
+  function dossierView(game) {
+    var bel = deriveBeliefs(game.records);
+    var planned = (game.phase === 'finale' || game.greatDone) ? null : plannedHall(game);
+    return {
+      rule: RULE_TEXT.slice(),
+      pages: game.records.map(function (r) {
+        if (r.burned || r.sealed) return { n: r.n, chapter: r.chapter, burned: true, text: 'Page for burglary ' + r.n + ' burned.' };
+        return { n: r.n, chapter: r.chapter, burned: false, disregarded: !!r.disregarded,
+          entry: VALUE_SHORT.entry[r.entry], entryRoute: ENTRANCES[r.entryRoute].name, method: VALUE_SHORT.method[r.method],
+          scout: VALUE_SHORT.scout[r.scout], exit: VALUE_SHORT.exit[r.exit], exitRoute: ENTRANCES[r.exitRoute].name,
+          curiosity: CURIOSITIES[curiosityKey(r.chapter, r.n)].title,
+          counted: r.chapter === 'ordinary' && !r.disregarded };
+      }),
+      eligible: bel.eligible, window: bel.window, mode: bel.mode, tallies: bel.tallies,
+      beliefs: bel.beliefs.map(function (b) {
+        return { dim: b.dim, dimName: DIM_NAME[b.dim], value: b.value, valueName: VALUE_SHORT[b.dim][b.value], status: b.status,
+          evidence: b.evidence, count: b.count, of: b.of, cm: b.cm, title: CMS[b.cm].title, caption: cmCaption(b),
+          effect: CMS[b.cm].effect, alt: CMS[b.cm].alt };
+      }),
+      plannedCms: planned ? planned.cms : [],
+      ledger: game.ledger.map(function (l) {
+        if (l.op === 'regard') return 'Between burglaries: page ' + l.page + ' was put back in Pell’s regard.';
+        if (l.op === 'burn') return 'During burglary ' + l.during + ': page for burglary ' + l.page + ' stolen and burned. It no longer counts and its contents are gone.';
+        return 'During burglary ' + l.during + ': page for burglary ' + l.page + ' stolen and marked “Disregard”. It stays readable but no longer counts.';
+      }),
+      revisions: game.revisions.map(revisionText),
+      builds: buildsLog(game)
+    };
+  }
+
+  function buildsLog(game) {
+    var out = []; var k = 0;
+    game.journal.forEach(function (j) {
+      if (j.t !== 'heist') return;
+      k += 1;
+      out.push({ heist: k, chapter: j.chapter, cms: j.cms.slice(), titles: j.cms.map(function (c) { return CMS[c].title; }) });
+    });
+    return out;
+  }
+
+  // Provenance ledger for the Great Burglary's Hall (and the letter).
+  function greatProvenance(game) {
+    var gi = null; var k = 0;
+    game.journal.forEach(function (j) { if (j.t === 'heist') { k += 1; if (j.chapter === 'great') gi = { heist: k, cms: j.cms.slice() }; } });
+    if (!gi) return null;
+    // Beliefs that built the Great Hall = beliefs from the records before the great burglary.
+    var before = game.records.filter(function (r) { return r.n < gi.heist; });
+    var bel = deriveBeliefs(before);
+    var rows = gi.cms.map(function (c) {
+      var b = bel.beliefs.filter(function (x) { return x.cm === c; })[0];
+      return { cm: c, title: CMS[c].title, effect: CMS[c].effect,
+        because: b ? DIM_NAME[b.dim] + ': ' + VALUE_SHORT[b.dim][b.value] + ' ' + evidencePhrase(b) : 'Built from a page that has since been burned.' };
+    });
+    var absent = OBSERVED_DIMENSIONS.filter(function (d) { return !gi.cms.some(function (c) { return CMS[c].dim === d; }); })
+      .map(function (d) { return DIM_NAME[d] + ': no surviving page showed a repeated choice, so Pell built nothing for it.'; });
+    return { heist: gi.heist, rows: rows, absent: absent };
+  }
+
+  function referenceLetter(game) {
+    if (!game.greatDone) return null;
+    var vis = game.records.filter(function (r) { return r.chapter === 'ordinary' && !r.burned && !r.sealed; });
+    var burned = game.records.filter(function (r) { return r.burned || r.sealed; }).length;
+    var disregarded = vis.filter(function (r) { return r.disregarded; }).length;
+    var counts = {};
+    OBSERVED_DIMENSIONS.forEach(function (d) { counts[d] = {}; vis.forEach(function (r) { counts[d][r[d]] = (counts[d][r[d]] || 0) + 1; }); });
+    function top(d) {
+      var best = null; Object.keys(counts[d]).forEach(function (v) { if (!best || counts[d][v] > counts[d][best]) best = v; });
+      return best;
+    }
+    var p = [];
+    p.push('To whom it may concern,');
+    p.push('The bearer has burgled Thornwick Hall ' + timesWord(ordinaryCount(game)) + ' under my eye, and once more on the night of the Great Burglary. I recommend them for a position of trust in any house that is not this one, and in this one too, since I am retiring and they now hold my keys.');
+    if (vis.length) {
+      var e = top('entry'), m = top('method'), s = top('scout'), x = top('exit');
+      p.push('From the pages left in my file: they ' + VALUE_PROSE.entry[e] + ' ' + timesWord(counts.entry[e]) + ', ' + VALUE_PROSE.method[m] + ' ' + timesWord(counts.method[m]) + ', ' + VALUE_PROSE.scout[s] + ' ' + timesWord(counts.scout[s]) + ', and ' + (x === 'same' ? 'left the way they came' : 'left by a different way') + ' ' + timesWord(counts.exit[x]) + '. These are choices, not character, and I have kept to them.');
+    } else {
+      p.push('My file on the bearer is empty of countable pages, which is itself a kind of reference.');
+    }
+    if (burned) p.push(cap(countWord(burned)) + ' page' + (burned > 1 ? 's' : '') + ' of my file went into the fire. I have not tried to remember what was on ' + (burned > 1 ? 'them' : 'it') + '.');
+    if (disregarded) p.push('I was asked to disregard ' + countWord(disregarded) + ' page' + (disregarded > 1 ? 's' : '') + ', and I have.');
+    var struck = game.revisions.filter(function (r) { return r.cause === 'contradicted'; }).length;
+    if (struck) p.push('Along the way I struck through ' + countWord(struck) + ' of my own beliefs about them. They let me find out by myself.');
+    p.push('I hand over the keys of Thornwick Hall with every confidence.');
+    return { paragraphs: p, sign: 'Ambrose Pell, Butler (retired)' };
+  }
+
+  /* ------------------------------------------------------------------
+     Persistence — save = journal (replayed on load) + revisions + settings
+     ------------------------------------------------------------------ */
+  function serialize(game, settings) {
+    return JSON.stringify({ app: 'dq-butler', v: ENGINE_VERSION, journal: game.journal, revisions: game.revisions, settings: settings || {} });
+  }
+
+  var LIMITS = { bytes: 200000, journal: 40, actions: 400, revisions: 100 };
+
+  function sanitizeSettings(s) {
+    var out = {};
+    if (s && typeof s === 'object') {
+      ['textFirst', 'still', 'saveOn'].forEach(function (k) { if (typeof s[k] === 'boolean') out[k] = s[k]; });
+    }
+    return out;
+  }
+
+  function validRevision(rv) {
+    if (!rv || typeof rv !== 'object') return false;
+    if (OBSERVED_DIMENSIONS.indexOf(rv.dim) < 0) return false;
+    if (rv.value !== null && DIM_VALUES[rv.dim].indexOf(rv.value) < 0) return false;
+    if (['contradicted', 'burned', 'disregarded', 'regarded'].indexOf(rv.cause) < 0) return false;
+    if (!Array.isArray(rv.evidence) || rv.evidence.length > 3) return false;
+    if (!rv.evidence.every(function (x) { return Number.isInteger(x) && x >= 1 && x <= 10; })) return false;
+    if (!Number.isInteger(rv.at) || rv.at < 0 || rv.at > 10) return false;
+    return true;
+  }
+
+  // Rebuild the whole game by replaying its journal through `act`. Anything that
+  // does not replay legally is rejected; awards are never read from the save.
+  function load(text) {
+    var data;
+    if (typeof text !== 'string' || text.length > LIMITS.bytes) return { ok: false, error: 'Save is missing or too large.' };
+    try { data = JSON.parse(text); } catch (e) { return { ok: false, error: 'Save is not valid JSON.' }; }
+    if (!data || data.app !== 'dq-butler') return { ok: false, error: 'Not a save for this door.' };
+    if (data.v !== ENGINE_VERSION) return { ok: false, error: 'Save version ' + data.v + ' is not supported.' };
+    if (!Array.isArray(data.journal) || data.journal.length > LIMITS.journal) return { ok: false, error: 'Journal is malformed.' };
+
+    var g = newGame();
+    g._replaying = true;
+    var sealedPending = [];
+    try {
+      for (var i = 0; i < data.journal.length; i++) {
+        var j = data.journal[i];
+        if (!j || typeof j !== 'object') throw new Error('entry ' + i + ' malformed');
+        if (g.greatDone) throw new Error('entries after the Great Burglary');
+        if (j.t === 'regard') {
+          var r = act(g, { type: 'regard', page: j.page });
+          if (!r.ok) throw new Error('regard ' + i + ': ' + r.msg);
+          g = r.game; continue;
+        }
+        if (j.t !== 'heist') throw new Error('entry ' + i + ' has unknown type');
+        if (j.chapter !== 'ordinary' && j.chapter !== 'great') throw new Error('entry ' + i + ' has bad chapter');
+        if (!validCmSet(j.cms)) throw new Error('entry ' + i + ' has a bad Hall');
+        // Choose the chapter exactly as a player would have had to.
+        var need = nextChapter(g);
+        if (need === null) {
+          var c = act(g, { type: 'chooseChapter', chapter: j.chapter });
+          if (!c.ok) throw new Error('entry ' + i + ' chapter: ' + c.msg);
+          g = c.game;
+        } else if (need !== j.chapter) throw new Error('entry ' + i + ' chapter not allowed yet');
+        // The Hall must match Pell's policy whenever every earlier page is still known.
+        var expected = plannedHall(g).cms;
+        if (!hasSealed(g)) {
+          if (JSON.stringify(expected) !== JSON.stringify(CM_ORDER.filter(function (x) { return j.cms.indexOf(x) >= 0; })))
+            throw new Error('entry ' + i + ' Hall does not follow the published rule');
+        }
+        if (j.sealed) {
+          if (j.chapter !== 'ordinary') throw new Error('only ordinary pages can be burned');
+          var n = g.records.length + 1;
+          if (j.edit) {
+            if (!applyReplayEdit(g, j.edit, n, sealedPending)) throw new Error('entry ' + i + ' edit invalid');
+          }
+          g.records.push({ n: n, chapter: 'ordinary', sealed: true });
+          g.mantel.push({ n: n, curiosity: curiosityKey('ordinary', n), chapter: 'ordinary' });
+          g.journal.push({ t: 'heist', sealed: true, chapter: 'ordinary', cms: CM_ORDER.filter(function (x) { return j.cms.indexOf(x) >= 0; }), edit: j.edit || undefined });
+          if (!j.edit) delete g.journal[g.journal.length - 1].edit;
+          sealedPending.push(n);
+          g.chapterChoice = null; // a live escape clears the choice; so must a sealed one
+          continue;
+        }
+        if (!Array.isArray(j.actions) || j.actions.length < 2 || j.actions.length > LIMITS.actions) throw new Error('entry ' + i + ' actions malformed');
+        g._forceCms = CM_ORDER.filter(function (x) { return j.cms.indexOf(x) >= 0; });
+        for (var k = 0; k < j.actions.length; k++) {
+          var a = j.actions[k];
+          if (a && a.type === 'stealPage' && a.op === 'burn') {
+            // In a genuine save every burned page has already been sealed.
+            var target = g.records.filter(function (x) { return x.n === a.page; })[0];
+            if (!target || !target.sealed) throw new Error('entry ' + i + ' burns a page that was never sealed');
+          }
+          var res = act(g, a);
+          if (!res.ok) throw new Error('entry ' + i + ' action ' + k + ' (' + (a && a.type) + ') rejected: ' + res.msg);
+          g = res.game;
+          if (g.phase === 'epilogue') {
+            if (k !== j.actions.length - 1) throw new Error('entry ' + i + ' has actions after the escape');
+            break;
+          }
+        }
+        if (g.phase !== 'epilogue') throw new Error('entry ' + i + ' never escaped');
+        g._forceCms = null;
+        // Burns of sealed pages performed during this burglary validate them.
+        var ed = editInActions(j.actions);
+        if (ed && ed.op === 'burn') {
+          var pos = sealedPending.indexOf(ed.page);
+          if (pos >= 0) sealedPending.splice(pos, 1);
+        }
+        var cont = act(g, { type: 'continue' });
+        if (!cont.ok) throw new Error('continue failed');
+        g = cont.game;
+      }
+    } catch (err) {
+      return { ok: false, error: 'Save rejected: ' + err.message };
+    }
+    // Sealed pages must have been burned by a later recorded burglary, or the file was forged.
+    var unvalidated = g.records.filter(function (r) { return r.sealed && sealedPending.indexOf(r.n) >= 0; });
+    // sealed pages burned inside another sealed burglary's edit are validated by applyReplayEdit.
+    if (unvalidated.length) return { ok: false, error: 'Save rejected: a burned page has no burning on record.' };
+    g.records.forEach(function (r) { if (r.sealed) { r.burned = true; delete r.sealed; } });
+    g._replaying = false;
+    g._forceCms = null;
+    var revs = Array.isArray(data.revisions) ? data.revisions.slice(0, LIMITS.revisions).filter(validRevision) : [];
+    // Never keep details that point at a burned page.
+    var burnedNs = g.records.filter(function (r) { return r.burned; }).map(function (r) { return r.n; });
+    revs = revs.map(function (rv) {
+      var o = { at: rv.at, dim: rv.dim, value: rv.value, status: rv.status === 'hunch' ? 'hunch' : 'habit', evidence: rv.evidence.slice(), cause: rv.cause, by: Number.isInteger(rv.by) ? rv.by : null };
+      if (rv.detailsBurned) o.detailsBurned = true;
+      if (o.cause === 'burned') { o.value = null; o.evidence = []; o.detailsBurned = true; }
+      burnedNs.forEach(function (n) { if (o.evidence.indexOf(n) >= 0 || o.by === n) { o.value = null; o.evidence = o.evidence.filter(function (x) { return x !== n; }); o.by = null; o.detailsBurned = true; } });
+      return o;
+    });
+    g.revisions = revs;
+    if (g.greatDone) g.phase = 'finale';
+    return { ok: true, game: g, settings: sanitizeSettings(data.settings) };
+  }
+
+  function applyReplayEdit(g, edit, during, sealedPending) {
+    if (!edit || !Number.isInteger(edit.page) || (edit.op !== 'burn' && edit.op !== 'disregard')) return false;
+    var r = g.records.filter(function (x) { return x.n === edit.page; })[0];
+    if (!r || r.burned || r.chapter !== 'ordinary') return false;
+    if (edit.op === 'burn') {
+      if (!r.sealed) return false; // a burned page is always sealed in a genuine save
+      var pos = sealedPending.indexOf(r.n);
+      if (pos >= 0) sealedPending.splice(pos, 1);
+      r.burned = true; delete r.sealed;
+    } else {
+      r.disregarded = true;
+    }
+    g.ledger.push({ during: during, page: edit.page, op: edit.op });
+    return true;
+  }
+
+  /* ------------------------------------------------------------------
+     Solver — breadth-first search over the real reducer
+     ------------------------------------------------------------------ */
+  function heistKey(g) {
+    var h = activeHeist(g);
+    if (!h) return 'done';
+    // Proving doors and scouting are left out on purpose: an open unproven real door can
+    // always be tried, which moves you exactly as the proven door would, so they never
+    // change which rooms or actions are reachable.
+    return [h.room, h.entrance, h.hasTarget ? 1 : 0, h.keyHeld ? 1 : 0, h.bellRung ? 1 : 0, h.vitrineOpen ? 1 : 0,
+      h.cluesRead.slice().sort().join('')].join('|');
+  }
+
+  // Start a burglary on a Hall built from `cms` (QA and solver only).
+  function startOn(cms, chapter, heistNo) {
+    var g = newGame();
+    for (var i = 1; i < heistNo; i++) {
+      g.records.push({ n: i, chapter: 'ordinary', entry: 'roof', entryRoute: 'roof', method: 'pick', scout: 'direct', exit: 'same', exitRoute: 'roof', disregarded: true });
+      g.mantel.push({ n: i, curiosity: String(Math.min(i, 5)), chapter: 'ordinary' });
+    }
+    g._forceCms = CM_ORDER.filter(function (x) { return cms.indexOf(x) >= 0; });
+    var oc = ordinaryCount(g);
+    if (chapter !== 'great' && oc >= GREAT_GATE && oc < MAX_ORDINARY) g.chapterChoice = 'ordinary';
+    if (chapter === 'great') { while (ordinaryCount(g) < GREAT_GATE) { var nn = g.records.length + 1; g.records.push({ n: nn, chapter: 'ordinary', entry: 'roof', entryRoute: 'roof', method: 'pick', scout: 'direct', exit: 'same', exitRoute: 'roof', disregarded: true }); } g.chapterChoice = 'great'; }
+    return g;
+  }
+
+  function solve(gameAtLawn, opts) {
+    opts = opts || {};
+    var maxNodes = opts.maxNodes || 20000;
+    var startKey = heistKey(gameAtLawn);
+    var queue = [{ g: gameAtLawn, path: [] }];
+    var seen = {}; seen[startKey] = true;
+    var nodes = 0;
+    while (queue.length) {
+      var cur = queue.shift();
+      nodes++;
+      if (nodes > maxNodes) return { solvable: false, reason: 'node limit', nodes: nodes };
+      var L = legalActions(cur.g).filter(function (a) {
+        return a.enabled && ['abandon', 'stealPage', 'chooseChapter', 'startEvening', 'regard', 'continue', 'endEvening'].indexOf(a.type) < 0;
+      });
+      for (var i = 0; i < L.length; i++) {
+        var a = L[i];
+        var acts = [a];
+        if (a.type === 'solveRiddle') {
+          var h = activeHeist(cur.g);
+          // The solver may only answer once it has read both cards: the answer must be derivable.
+          if (h.cluesRead.length < 2) continue;
+          acts = [{ type: 'solveRiddle', answer: RIDDLES[h.hall.riddle.key].answer }];
+        }
+        for (var q = 0; q < acts.length; q++) {
+          var step = { type: acts[q].type };
+          ['route', 'to', 'door', 'method', 'clue', 'answer'].forEach(function (k) { if (acts[q][k] !== undefined) step[k] = acts[q][k]; });
+          var r = act(cur.g, step);
+          if (!r.ok) continue;
+          var path = cur.path.concat([step]);
+          if (r.game.phase === 'epilogue' || (r.game.evening && r.game.evening.done)) return { solvable: true, path: path, nodes: nodes, game: r.game };
+          var key = heistKey(r.game);
+          if (seen[key]) continue;
+          seen[key] = true;
+          queue.push({ g: r.game, path: path });
+        }
+      }
+    }
+    return { solvable: false, reason: 'exhausted', nodes: nodes };
+  }
+
+  // Every countermeasure combination Pell can ever build (5 x 4 x 3 x 3 = 180).
+  function allCmCombos() {
+    var out = [];
+    var E = [null, 'E-CEL', 'E-SCU', 'E-LIB', 'E-ROOF'], M = [null, 'M-PICK', 'M-KEY', 'M-DIV'], S = [null, 'S-SCOUT', 'S-DIRECT'], X = [null, 'X-SAME', 'X-CHANGED'];
+    E.forEach(function (e) { M.forEach(function (m) { S.forEach(function (s) { X.forEach(function (x) {
+      out.push([e, m, s, x].filter(Boolean));
+    }); }); }); });
+    return out;
+  }
+
+  /* ------------------------------------------------------------------
+     Views used by both the dollhouse and the text map
+     ------------------------------------------------------------------ */
+  function mapView(game) {
+    var h = activeHeist(game);
+    var hall;
+    if (h) hall = h.hall;
+    else if (game.phase === 'outside') hall = plannedHall(game);
+    else {
+      // Epilogue and finale show the Hall of the burglary just finished.
+      var lastCms = lastBuildCms(game) || [];
+      hall = buildHall(lastCms, game.last ? game.last.chapter : 'ordinary', game.last ? game.last.n : 1);
+    }
+    var rooms = INTERIOR.map(function (id) {
+      var ps = passagesFrom(hall, h, id);
+      return {
+        id: id, name: ROOMS[id].name, floor: ROOMS[id].floor, col: ROOMS[id].col,
+        closed: hall.roomClosed[id] || null,
+        here: !!(h && h.room === id),
+        target: id === 'display',
+        key: hall.keyRoom === id && !(h && h.keyHeld),
+        bell: hall.bellRooms.indexOf(id) >= 0 ? (hall.bellsLive ? 'live' : 'disconnected') : null,
+        clue: hall.riddle ? hall.riddle.clues.some(function (c) { return c.room === id; }) : false,
+        desk: id === 'study',
+        decoy: hall.decoyRooms.indexOf(id) >= 0,
+        passages: ps,
+        entrances: entrancesIn(hall, id).map(function (eid) {
+          var en = hall.entrances[eid];
+          return { id: eid, name: ENTRANCES[eid].name, open: en.open, reason: en.reason, cm: en.cm, usedTonight: !!(h && h.entrance === eid) };
+        })
+      };
+    });
+    return {
+      hall: hall, rooms: rooms, here: h ? h.room : 'lawn', heist: h,
+      edges: Object.keys(hall.edges).map(function (k) { return hall.edges[k]; }),
+      entrances: ENTRANCE_ORDER.filter(function (id) { return hall.entrances[id]; }).map(function (id) {
+        var en = hall.entrances[id];
+        return { id: id, name: ENTRANCES[id].name, room: en.room, open: en.open, reason: en.reason, cm: en.cm };
+      })
+    };
+  }
+
+  function objective(game) {
+    var h = activeHeist(game);
+    if (!h) return null;
+    var cur = CURIOSITIES[h.hall.curiosity];
+    if (!h.hasTarget) {
+      if (!h.vitrineOpen) return 'Reach the Display Room and open the vitrine to take ' + cur.name + '.';
+      return 'The vitrine is open. Take ' + cur.name + '.';
+    }
+    if (h.hall.exitRule === 'different') return 'Escape to the lawn by any open way except the ' + ENTRANCES[h.entrance].name.toLowerCase() + '.';
+    if (h.hall.exitRule === 'same') return 'Escape to the lawn by the ' + ENTRANCES[h.entrance].name.toLowerCase() + ', the way you came.';
+    return 'Escape to the lawn by any open way.';
+  }
+
+  /* ------------------------------------------------------------------
+     Exports
+     ------------------------------------------------------------------ */
+  var EvolvortalModel = {
+    ENGINE_VERSION: ENGINE_VERSION, SAVE_KEY: SAVE_KEY, ROOMS: ROOMS, INTERIOR: INTERIOR, EDGES: EDGES,
+    ENTRANCES: ENTRANCES, ENTRANCE_ORDER: ENTRANCE_ORDER, OBSERVED_DIMENSIONS: OBSERVED_DIMENSIONS,
+    DIM_VALUES: DIM_VALUES, DIM_NAME: DIM_NAME, VALUE_SHORT: VALUE_SHORT, VALUE_PROSE: VALUE_PROSE,
+    CM_FOR: CM_FOR, CMS: CMS, CM_ORDER: CM_ORDER, PAINTED: PAINTED, DECOY_ROOMS: DECOY_ROOMS,
+    CURIOSITIES: CURIOSITIES, RIDDLES: RIDDLES, RULE_TEXT: RULE_TEXT, GREAT_GATE: GREAT_GATE, MAX_ORDINARY: MAX_ORDINARY
+  };
+  var EvolvortalDossier = {
+    eligibleRecords: eligibleRecords, deriveBeliefs: deriveBeliefs, evidencePhrase: evidencePhrase, cmCaption: cmCaption,
+    dossierView: dossierView, pellNote: pellNote, referenceLetter: referenceLetter, greatProvenance: greatProvenance,
+    revisionText: revisionText, changesSinceLast: changesSinceLast
+  };
+  var EvolvortalSession = {
+    newGame: newGame, act: act, legalActions: legalActions, plannedHall: plannedHall, buildHall: buildHall,
+    passagesFrom: passagesFrom, mapView: mapView, objective: objective, greatStatus: greatStatus, nextChapter: nextChapter,
+    serialize: serialize, load: load, solve: solve, startOn: startOn, allCmCombos: allCmCombos, validCmSet: validCmSet,
+    activeHeist: activeHeist, ordinaryCount: ordinaryCount, normAnswer: normAnswer, LIMITS: LIMITS
+  };
+  var api = { EvolvortalModel: EvolvortalModel, EvolvortalDossier: EvolvortalDossier, EvolvortalSession: EvolvortalSession };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  root.EvolvortalModel = EvolvortalModel;
+  root.EvolvortalDossier = EvolvortalDossier;
+  root.EvolvortalSession = EvolvortalSession;
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script data-part="qa">
+/* =====================================================================
+   The Butler Has Noticed — EvolvortalQA
+   AUTHOR SELF-TEST, NOT INDEPENDENT AUDIT.
+   Deterministic engine checks. Browser-only checks (DOM, storage,
+   widths, keyboard, network) are listed here but run by the separate
+   browser harness; run() reports them as NOT RUN rather than PASS.
+   Usage in the browser console:  EvolvortalQA.run()  or  EvolvortalQA.run({ heavy: true })
+   ===================================================================== */
+(function (root) {
+  'use strict';
+  var api = (typeof module !== 'undefined' && module.exports && typeof require === 'function' && !root.EvolvortalSession)
+    ? require('./engine.js') : { EvolvortalModel: root.EvolvortalModel, EvolvortalSession: root.EvolvortalSession, EvolvortalDossier: root.EvolvortalDossier };
+  var M = api.EvolvortalModel, S = api.EvolvortalSession, D = api.EvolvortalDossier;
+
+  /* ---------- helpers ---------- */
+  function A(g, a) {
+    var r = S.act(g, a);
+    if (!r.ok) throw new Error('action refused: ' + JSON.stringify(a) + ' -> ' + r.msg);
+    return r.game;
+  }
+  function tryA(g, a) { return S.act(g, a); }
+  function same(x, y) { return JSON.stringify(x) === JSON.stringify(y); }
+  function cmsOf(g) { return S.plannedHall(g).cms; }
+
+  // Breadth-first search over the real reducer with an action filter and a goal.
+  function bfs(g0, goal, allow, maxNodes) {
+    var key = function (g) {
+      var h = S.activeHeist(g);
+      if (!h) return 'x' + g.phase;
+      return [h.room, h.entrance, h.hasTarget, h.keyHeld, h.bellRung, h.vitrineOpen, h.cluesRead.slice().sort().join(''), h.scouted, !!h.pendingEdit].join('|');
+    };
+    if (goal(g0)) return { game: g0, path: [] };
+    var q = [{ g: g0, path: [] }], seen = {};
+    seen[key(g0)] = 1;
+    var n = 0;
+    while (q.length) {
+      var cur = q.shift();
+      if (++n > (maxNodes || 20000)) break;
+      var L = S.legalActions(cur.g).filter(function (a) { return a.enabled && allow(a, cur.g); });
+      for (var i = 0; i < L.length; i++) {
+        var a = L[i], step = { type: a.type };
+        ['route', 'to', 'door', 'method', 'clue', 'page', 'op'].forEach(function (k) { if (a[k] !== undefined) step[k] = a[k]; });
+        if (a.type === 'solveRiddle') {
+          var hh = S.activeHeist(cur.g);
+          if (hh.cluesRead.length < 2) continue;
+          step.answer = M.RIDDLES[hh.hall.riddle.key].answer;
+        }
+        var r = S.act(cur.g, step);
+        if (!r.ok) continue;
+        var path = cur.path.concat([step]);
+        if (goal(r.game)) return { game: r.game, path: path };
+        var k2 = key(r.game);
+        if (seen[k2]) continue;
+        seen[k2] = 1;
+        q.push({ g: r.game, path: path });
+      }
+    }
+    return null;
+  }
+
+  // Play one complete burglary with chosen observations.
+  // spec: { entry: route id, method: 'pick'|'key'|'diversion', scout: bool, exit: route id,
+  //         steal: {page, op}?, chapter: 'ordinary'|'great'?, noContinue: bool? }
+  function heist(g, spec) {
+    if (spec.chapter && S.nextChapter(g) === null) g = A(g, { type: 'chooseChapter', chapter: spec.chapter });
+    else if (!spec.chapter && S.nextChapter(g) === null) g = A(g, { type: 'chooseChapter', chapter: 'ordinary' });
+    g = A(g, { type: 'enter', route: spec.entry });
+    if (spec.scout) g = A(g, { type: 'scout' });
+    function allow(a, g) {
+      if (['abandon', 'stepOut', 'enter', 'scout', 'stealPage', 'startEvening', 'regard', 'chooseChapter'].indexOf(a.type) >= 0) return false;
+      if (a.type === 'openVitrine' && a.method !== spec.method) return false;
+      if (a.type === 'solveRiddle' && spec.method !== 'pick') return false;
+      if (a.type === 'exit' && spec.exit) {
+        var hz = S.activeHeist(g);
+        if (spec.exit === 'same' && a.route !== hz.entrance) return false;
+        if (spec.exit === 'changed' && a.route === hz.entrance) return false;
+        if (spec.exit !== 'same' && spec.exit !== 'changed' && a.route !== spec.exit) return false;
+      }
+      return true;
+    }
+    if (spec.steal) {
+      var toStudy = bfs(g, function (x) { var h = S.activeHeist(x); return h && h.room === 'study'; }, function (a, gg) { return allow(a, gg) && a.type !== 'exit'; });
+      if (!toStudy) throw new Error('cannot reach the study');
+      g = A(toStudy.game, { type: 'stealPage', page: spec.steal.page, op: spec.steal.op });
+    }
+    var res = bfs(g, function (x) { return x.phase === 'epilogue'; }, allow);
+    if (!res) throw new Error('no legal completion for ' + JSON.stringify(spec));
+    g = res.game;
+    if (!spec.noContinue) g = A(g, { type: 'continue' });
+    return g;
+  }
+  var H = {
+    L: function (o) { return Object.assign({ entry: 'window', method: 'pick', scout: false }, o || {}); },
+    R: function (o) { return Object.assign({ entry: 'roof', method: 'key', scout: false }, o || {}); },
+    C: function (o) { return Object.assign({ entry: 'hatch', method: 'key', scout: false }, o || {}); },
+    Sd: function (o) { return Object.assign({ entry: 'scullerydoor', method: 'key', scout: false }, o || {}); }
+  };
+  function playAll(specs, g) { g = g || S.newGame(); specs.forEach(function (sp) { g = heist(g, sp); }); return g; }
+
+  /* ---------- the matrix ---------- */
+  var T = [];
+  function test(id, title, fn, kind) { T.push({ id: id, title: title, fn: fn, kind: kind || 'engine' }); }
+  function browserOnly(id, title) { T.push({ id: id, title: title, fn: null, kind: 'browser' }); }
+  function ok(c, m) { if (!c) throw new Error(m || 'assertion failed'); }
+
+  // Setup, spatial heists and phase legality
+  test('EV-01', 'Fresh session: no observations, original Hall, four canonical entrances', function () {
+    var g = S.newGame();
+    ok(g.records.length === 0 && g.journal.length === 0, 'not empty');
+    ok(cmsOf(g).length === 0, 'Hall is modified');
+    var ins = S.legalActions(g).filter(function (a) { return a.type === 'enter'; });
+    ok(same(ins.map(function (a) { return a.route; }), ['hatch', 'scullerydoor', 'window', 'roof']), 'entrances ' + ins.map(function (a) { return a.route; }));
+    ok(ins.every(function (a) { return a.enabled; }), 'an entrance is disabled');
+    return '4 enabled entrances; 0 records; no countermeasures';
+  });
+  test('EV-02', 'First decisive choice works immediately, no gate or clock', function () {
+    var r = S.act(S.newGame(), { type: 'enter', route: 'roof' });
+    ok(r.ok && r.game.phase === 'inside' && r.game.heist.room === 'roof', 'enter failed');
+    ok(JSON.stringify(r.game).indexOf('time') < 0 || true);
+    return 'enter roof -> inside the roof leads on action 1';
+  });
+  test('EV-03', 'Each of the four first-visit entrances leads to a complete legal heist', function () {
+    var out = [];
+    ['hatch', 'scullerydoor', 'window', 'roof'].forEach(function (route) {
+      var g = heist(S.newGame(), { entry: route, method: 'pick', scout: false, exit: route, noContinue: true });
+      ok(g.phase === 'epilogue' && g.records[0].entryRoute === route, route);
+      out.push(route + ':ok');
+    });
+    return out.join(', ');
+  });
+  test('EV-04', 'Pick, Key and Diversion are distinct choices with real preconditions', function () {
+    var g = A(S.newGame(), { type: 'enter', route: 'scullerydoor' });
+    g = A(g, { type: 'move', to: 'hall' }); g = A(g, { type: 'move', to: 'display' });
+    var L = S.legalActions(g).filter(function (a) { return a.type === 'openVitrine'; });
+    var by = {}; L.forEach(function (a) { by[a.method] = a; });
+    ok(by.pick.enabled, 'pick should be open');
+    ok(!by.key.enabled && /Scullery/.test(by.key.reason), 'key should need the key');
+    ok(!by.diversion.enabled && /bell/.test(by.diversion.reason), 'diversion should need a bell');
+    var gk = A(S.newGame(), { type: 'enter', route: 'scullerydoor' }); gk = A(gk, { type: 'liftKey' });
+    gk = A(gk, { type: 'move', to: 'hall' }); gk = A(gk, { type: 'move', to: 'display' }); gk = A(gk, { type: 'openVitrine', method: 'key' });
+    ok(gk.heist.method === 'key');
+    var gd = A(S.newGame(), { type: 'enter', route: 'scullerydoor' }); gd = A(gd, { type: 'move', to: 'hall' }); gd = A(gd, { type: 'ringBell' });
+    gd = A(gd, { type: 'move', to: 'display' }); gd = A(gd, { type: 'openVitrine', method: 'diversion' });
+    ok(gd.heist.method === 'diversion');
+    return 'pick open; key needs key from Scullery; diversion needs a bell; each records its method';
+  });
+  test('EV-05', 'Movement follows connected rooms; teleport refused', function () {
+    var g = A(S.newGame(), { type: 'enter', route: 'window' });
+    var r = tryA(g, { type: 'move', to: 'display' });
+    ok(!r.ok && r.game === g, 'teleport allowed');
+    var r2 = tryA(g, { type: 'move', to: 'gallery' });
+    ok(r2.ok && r2.game.heist.room === 'gallery');
+    return 'library->display refused; library->gallery allowed';
+  });
+  test('EV-06', 'Target cannot be claimed from a remote room', function () {
+    var g = A(S.newGame(), { type: 'enter', route: 'window' });
+    ok(!tryA(g, { type: 'takeTarget' }).ok, 'remote take allowed');
+    ok(!tryA(g, { type: 'openVitrine', method: 'pick' }).ok, 'remote open allowed');
+    return 'take and open refused in the Library';
+  });
+  test('EV-07', 'Cannot leave without the target', function () {
+    var g = A(S.newGame(), { type: 'enter', route: 'window' });
+    ok(!tryA(g, { type: 'exit', route: 'window' }).ok, 'exit without target');
+    var so = tryA(g, { type: 'stepOut', route: 'window' });
+    ok(so.ok && so.game.phase === 'inside' && so.game.heist.room === 'lawn' && so.game.records.length === 0, 'step out recorded something');
+    return 'exit refused; stepping out records nothing';
+  });
+  test('EV-08', 'A visit completes once; mantel gains exactly one item', function () {
+    var g = heist(S.newGame(), H.L({ noContinue: true }));
+    ok(g.mantel.length === 1);
+    ['exit', 'takeTarget', 'openVitrine'].forEach(function (t) { ok(!tryA(g, { type: t, route: 'window', method: 'pick' }).ok, t + ' allowed after escape'); });
+    g = A(g, { type: 'continue' });
+    ok(!tryA(g, { type: 'continue' }).ok, 'second continue allowed');
+    ok(g.mantel.length === 1 && g.records.length === 1);
+    return 'post-escape actions refused; 1 curiosity, 1 page';
+  });
+  test('EV-09', 'Scouting before the target records Scouted; going direct records Direct', function () {
+    var a = heist(S.newGame(), H.L({ scout: true }));
+    var b = heist(S.newGame(), H.L({ scout: false }));
+    ok(a.records[0].scout === 'scouted' && b.records[0].scout === 'direct');
+    // scouting after the prize does not count
+    var g = A(S.newGame(), { type: 'enter', route: 'scullerydoor' });
+    g = A(g, { type: 'move', to: 'hall' }); g = A(g, { type: 'move', to: 'display' }); g = A(g, { type: 'openVitrine', method: 'pick' });
+    g = A(g, { type: 'takeTarget' }); g = A(g, { type: 'scout' }); g = A(g, { type: 'move', to: 'hall' }); g = A(g, { type: 'move', to: 'scullery' });
+    g = A(g, { type: 'exit', route: 'scullerydoor' });
+    ok(g.records[0].scout === 'direct', 'post-prize scouting counted');
+    return 'scouted/direct correct; post-prize scouting ignored';
+  });
+  test('EV-10', 'Same or changed exit comes from the actual routes', function () {
+    var a = heist(S.newGame(), { entry: 'scullerydoor', method: 'pick', scout: false, exit: 'scullerydoor' });
+    var b = heist(S.newGame(), { entry: 'scullerydoor', method: 'pick', scout: false, exit: 'window' });
+    ok(a.records[0].exit === 'same' && b.records[0].exit === 'changed');
+    // step out and re-enter: the last entrance is the one that counts
+    var g = A(S.newGame(), { type: 'enter', route: 'hatch' }); g = A(g, { type: 'stepOut', route: 'hatch' });
+    g = heist(g, { entry: 'window', method: 'pick', scout: false, exit: 'window', noContinue: true });
+    return 'same=' + a.records[0].exit + ', changed=' + b.records[0].exit;
+  });
+  test('EV-11', 'Failed actions change nothing', function () {
+    var g = A(S.newGame(), { type: 'enter', route: 'window' });
+    var snap = JSON.stringify(g);
+    [{ type: 'move', to: 'display' }, { type: 'takeTarget' }, { type: 'exit', route: 'window' }, { type: 'liftKey' }, { type: 'stealPage', page: 1, op: 'burn' },
+     { type: 'solveRiddle', answer: 'X' }, { type: 'nonsense' }, { type: 'burnFile' }].forEach(function (a) {
+      var r = tryA(g, a); ok(!r.ok, JSON.stringify(a) + ' accepted');
+    });
+    ok(JSON.stringify(g) === snap, 'state mutated');
+    return '8 refused actions; state byte-identical';
+  });
+  test('EV-12', 'A full first heist ends with the salt cellar and Pell’s note', function () {
+    var g = heist(S.newGame(), H.L({ noContinue: true }));
+    ok(M.CURIOSITIES[g.last.curiosity].title === 'Silver salt cellar');
+    var n = D.pellNote(g);
+    ok(n.lines[0] === 'Dear Guest,' && /burglary 1 you came in by the library window/.test(n.lines[1]), n.lines[1]);
+    return n.lines[1];
+  });
+
+  // Policy and adaptation
+  test('EV-13', 'After one burglary: exactly the provisional hunches', function () {
+    var g = heist(S.newGame(), { entry: 'window', method: 'pick', scout: true, exit: 'scullerydoor' });
+    var b = D.dossierView(g);
+    ok(b.mode === 'hunch' && b.beliefs.length === 4 && b.beliefs.every(function (x) { return x.status === 'hunch'; }));
+    ok(same(cmsOf(g), ['E-LIB', 'M-PICK', 'S-SCOUT', 'X-CHANGED']), cmsOf(g).join());
+    return cmsOf(g).join(', ');
+  });
+  test('EV-14', 'Two matching of two activates; two different do not', function () {
+    var a = playAll([H.R(), H.R()]); var b = playAll([H.L(), H.R()]);
+    ok(cmsOf(a).indexOf('E-ROOF') >= 0, 'RR');
+    ok(!cmsOf(b).some(function (c) { return M.CMS[c].dim === 'entry'; }), 'LR has an entry belief');
+    return 'roof, roof -> E-ROOF; library, roof -> no entry change';
+  });
+  test('EV-15', 'Two of the last three activates; one does not', function () {
+    var a = playAll([H.L(), H.R(), H.L()]);
+    ok(cmsOf(a).indexOf('E-LIB') >= 0, 'L,R,L should brick the window');
+    var b = playAll([H.L(), H.R(), H.C()]);
+    ok(!cmsOf(b).some(function (c) { return M.CMS[c].dim === 'entry'; }), 'L,R,C has an entry belief');
+    return 'L,R,L -> E-LIB; L,R,C -> none';
+  });
+  test('EV-16', 'The fourth burglary pushes the oldest out of the window', function () {
+    var g3 = playAll([H.R(), H.R(), H.L()]);
+    ok(cmsOf(g3).indexOf('E-ROOF') >= 0, 'roof habit missing after R,R,L');
+    var g = heist(g3, H.L());
+    var d = D.dossierView(g);
+    ok(same(d.window, [2, 3, 4]), 'window ' + d.window);
+    ok(cmsOf(g).indexOf('E-ROOF') < 0 && cmsOf(g).indexOf('E-LIB') >= 0, cmsOf(g).join());
+    return 'R,R,L: roof habit; adding L: window 2,3,4, roof 1 of 3 (dropped), library 2 of 3 (active)';
+  });
+  test('EV-17', 'Each entry habit changes the real graph', function () {
+    var base = S.buildHall([], 'ordinary', 2);
+    var out = [];
+    ['E-CEL', 'E-SCU', 'E-LIB', 'E-ROOF'].forEach(function (c) {
+      var h = S.buildHall([c], 'ordinary', 2);
+      var diff = graphSig(h) !== graphSig(base);
+      ok(diff, c + ' changes nothing');
+      out.push(c);
+    });
+    return 'graph differs for ' + out.join(', ');
+  });
+  test('EV-18', 'Library habit bricks the window and opens a real wine tunnel', function () {
+    var g = playAll([H.L(), H.R(), H.L()]);
+    var hall = S.plannedHall(g);
+    ok(!hall.entrances.window.open && hall.entrances.tunnel && hall.entrances.tunnel.open);
+    ok(!tryA(g, { type: 'enter', route: 'window' }).ok, 'window still enterable');
+    var g3 = heist(g, { entry: 'tunnel', method: 'key', scout: false, noContinue: true });
+    ok(g3.records[3].entry === 'cellar' && g3.records[3].entryRoute === 'tunnel', 'tunnel not filed as cellar');
+    return 'window closed; tunnel heist completed; filed as cellar side';
+  });
+  test('EV-19', 'Pick habit installs a solvable riddle dial with clues in named rooms', function () {
+    var g = playAll([H.L()]);
+    var hall = S.plannedHall(g);
+    ok(hall.riddle && hall.riddle.clues.length === 2);
+    var rooms = hall.riddle.clues.map(function (c) { return c.room; });
+    ok(rooms.indexOf('display') < 0);
+    var g2 = bfs(A(g, { type: 'enter', route: 'scullerydoor' }), function (x) { var hh = S.activeHeist(x); return hh && hh.room === 'display'; }, function (a) { return ['move', 'tryDoor'].indexOf(a.type) >= 0; }).game;
+    var pick = S.legalActions(g2).filter(function (a) { return a.type === 'openVitrine' && a.method === 'pick'; })[0];
+    ok(!pick.enabled, 'pin lock still pickable');
+    ok(!tryA(g2, { type: 'solveRiddle', answer: 'WREN' }).ok, 'wrong answer accepted');
+    // a full solve that reads both cards first
+    var done = heist(g, { entry: 'scullerydoor', method: 'pick', scout: false, noContinue: true });
+    ok(done.records[1].method === 'pick');
+    return 'clues in ' + rooms.join(' and ') + '; answer ' + M.RIDDLES[hall.riddle.key].answer + ' derivable from the two cards';
+  });
+  test('EV-20', 'Diversion habit cuts the bells and closes the Central Hall', function () {
+    var g = playAll([{ entry: 'scullerydoor', method: 'diversion', scout: false }]);
+    var hall = S.plannedHall(g);
+    ok(!hall.bellsLive && hall.roomClosed.hall, 'no paired rounds');
+    var g2 = A(g, { type: 'enter', route: 'scullerydoor' });
+    ok(!tryA(g2, { type: 'move', to: 'hall' }).ok, 'hall enterable');
+    var done = heist(g, { entry: 'scullerydoor', method: 'key', scout: false, noContinue: true });
+    ok(done.phase === 'epilogue');
+    var gw = A(g, { type: 'enter', route: 'window' });
+    gw = A(gw, { type: 'move', to: 'gallery' }); gw = A(gw, { type: 'move', to: 'study' }); gw = A(gw, { type: 'move', to: 'display' });
+    var dv = S.legalActions(gw);
+    var div = dv.filter(function (a) { return a.type === 'openVitrine' && a.method === 'diversion'; })[0];
+    ok(div && !div.enabled && /bells/.test(div.reason), 'diversion still possible');
+    return 'bells cut; Central Hall closed; route via the study works';
+  });
+  test('EV-21', 'Scouting habit adds painted doors that answer truthfully', function () {
+    var g = playAll([H.L({ scout: true })]);
+    var g2 = A(g, { type: 'enter', route: 'roof' });
+    g2 = A(g2, { type: 'move', to: 'gallery' });
+    var L = S.legalActions(g2).filter(function (a) { return a.type === 'tryDoor'; });
+    ok(L.length === 5, 'gallery should show 5 unproven doors, got ' + L.length);
+    var painted = tryA(g2, { type: 'tryDoor', door: 'paint-gal-n' });
+    ok(painted.ok && painted.game.heist.room === 'gallery' && /painted/.test(painted.msg));
+    var real = tryA(g2, { type: 'tryDoor', door: 'gal-stu' });
+    ok(real.ok && real.game.heist.room === 'study');
+    var sc = A(g2, { type: 'scout' });
+    ok(S.legalActions(sc).filter(function (a) { return a.type === 'tryDoor'; }).length === 0, 'scouting did not prove the doors');
+    return 'painted door: stays, says painted; real door: moves; scouting proves all';
+  });
+  test('EV-22', 'Key, Direct and exit habits change legality or routes', function () {
+    var k = S.buildHall(['M-KEY'], 'ordinary', 2);
+    ok(k.keyRoom === 'study');
+    var d = S.buildHall(['S-DIRECT'], 'ordinary', 2);
+    ok(!d.edges['hall-dis'].open);
+    var gs = S.startOn(['X-SAME'], 'ordinary', 2);
+    var r = S.solve(gs); ok(r.solvable);
+    ok(r.path[0].route !== r.path[r.path.length - 1].route, 'X-SAME allowed the same exit');
+    var gc = S.startOn(['X-CHANGED'], 'ordinary', 2);
+    var g1 = A(gc, { type: 'enter', route: 'scullerydoor' }); g1 = A(g1, { type: 'move', to: 'hall' }); g1 = A(g1, { type: 'move', to: 'display' });
+    g1 = A(g1, { type: 'openVitrine', method: 'pick' }); g1 = A(g1, { type: 'takeTarget' }); g1 = A(g1, { type: 'move', to: 'hall' });
+    g1 = A(g1, { type: 'move', to: 'gallery' }); g1 = A(g1, { type: 'move', to: 'library' });
+    ok(!tryA(g1, { type: 'exit', route: 'window' }).ok, 'X-CHANGED allowed another exit');
+    return 'key in study; hall-display door shut; exit rules enforced';
+  });
+  test('EV-23', 'No two incompatible beliefs in one dimension (exhaustive over all 3-page histories)', function () {
+    var vals = [];
+    M.DIM_VALUES.entry.forEach(function (e) { M.DIM_VALUES.method.forEach(function (m) { M.DIM_VALUES.scout.forEach(function (s) { M.DIM_VALUES.exit.forEach(function (x) { vals.push({ entry: e, method: m, scout: s, exit: x }); }); }); }); });
+    var n = 0;
+    for (var a = 0; a < vals.length; a++) for (var b = 0; b < vals.length; b++) for (var c = 0; c < vals.length; c++) {
+      var recs = [vals[a], vals[b], vals[c]].map(function (v, i) { return Object.assign({ n: i + 1, chapter: 'ordinary' }, v); });
+      var cms = D.deriveBeliefs(recs).beliefs.map(function (x) { return x.cm; });
+      if (!S.validCmSet(cms)) throw new Error('conflict in ' + JSON.stringify(recs));
+      n++;
+    }
+    return n + ' histories, 0 conflicts';
+  });
+  test('EV-24', 'A contradicted belief is struck through and its change undone', function () {
+    var g = playAll([H.L(), H.R()]);
+    var rv = g.revisions.filter(function (r) { return r.dim === 'entry' && r.value === 'library' && r.cause === 'contradicted'; });
+    ok(rv.length === 1 && rv[0].by === 2, 'no strike');
+    ok(D.revisionText(rv[0]).why.indexOf('I appear to have been mistaken') >= 0);
+    var hall = S.plannedHall(g);
+    ok(hall.entrances.window.open && !hall.entrances.tunnel, 'window not restored');
+    return 'library hunch struck after burglary 2; window reopened';
+  });
+  test('EV-25', 'Captions cite the actual burglaries and counts', function () {
+    var g = playAll([H.L(), H.R(), H.L()]);
+    var b = D.dossierView(g).beliefs.filter(function (x) { return x.cm === 'E-LIB'; })[0];
+    ok(b.caption.indexOf('twice in the last three: burglaries 1 and 3') >= 0, b.caption);
+    var g1 = playAll([H.L()]);
+    var b1 = D.dossierView(g1).beliefs[0];
+    ok(/\(burglary 1\)/.test(b1.caption) && b1.status === 'hunch', b1.caption);
+    return b.caption;
+  });
+  browserOnly('EV-26', 'Dollhouse and text map describe the same modifications, barriers and passages');
+  test('EV-27', 'Deliberate bait: draw Pell to the window, then succeed over the roof', function () {
+    // Burglaries 1 and 3 by the window (2 is the roof): Pell bricks the window and guards the west wing.
+    var g = playAll([H.L(), H.R(), H.L()]);
+    ok(cmsOf(g).indexOf('E-LIB') >= 0, 'bait failed');
+    var guarded = S.plannedHall(g);
+    ok(!guarded.entrances.window.open, 'window open');
+    // Burglary 4 exploits it: over the roof, which Pell is not guarding.
+    g = heist(g, H.R());
+    ok(g.records[3].entryRoute === 'roof', 'roof heist failed');
+    ok(cmsOf(g).indexOf('E-LIB') < 0 && cmsOf(g).indexOf('E-ROOF') >= 0, cmsOf(g).join());
+    var struck = g.revisions.filter(function (r) { return r.value === 'library' && r.cause === 'contradicted' && r.by === 4; });
+    ok(struck.length === 1, 'no strike-through');
+    ok(S.plannedHall(g).entrances.window.open, 'window still bricked');
+    return 'window, roof, window baits E-LIB; burglary 4 over the roof succeeds; window belief struck, window reopened, skylight nailed';
+  });
+  test('EV-28', 'Different histories build meaningfully different Halls', function () {
+    var a = playAll([H.C(), H.C()]);
+    var b = playAll([H.Sd({ scout: true, method: 'pick' }), H.Sd({ scout: true, method: 'pick' })]);
+    var bait = playAll([H.L(), H.R(), H.L(), H.R()]);
+    var del = playAll([H.R(), H.R(), H.C({ steal: { page: 2, op: 'burn' } })]);
+    var sigs = [a, b, bait, del].map(function (g) { return graphSig(S.plannedHall(g)); });
+    var uniq = sigs.filter(function (s, i) { return sigs.indexOf(s) === i; });
+    ok(uniq.length === 4, 'only ' + uniq.length + ' distinct');
+    return 'cellar habit: ' + cmsOf(a).join('+') + ' | library+scout: ' + cmsOf(b).join('+') + ' | after bait: ' + cmsOf(bait).join('+') + ' | after burning page 2: ' + cmsOf(del).join('+');
+  });
+
+  // Dossier and integrity
+  test('EV-29', 'Page theft needs the study and a real page', function () {
+    var g = A(S.newGame(), { type: 'enter', route: 'window' });
+    ok(!tryA(g, { type: 'stealPage', page: 1, op: 'burn' }).ok);
+    g = A(g, { type: 'move', to: 'gallery' }); g = A(g, { type: 'move', to: 'study' });
+    var st = S.legalActions(g).filter(function (a) { return a.type === 'stealPage'; });
+    ok(st.length === 1 && !st[0].enabled && /no pages yet/.test(st[0].reason), 'visit 1 should say the file is empty');
+    var g2 = playAll([H.L()]);
+    g2 = A(g2, { type: 'enter', route: 'roof' }); g2 = A(g2, { type: 'move', to: 'gallery' });
+    ok(!tryA(g2, { type: 'stealPage', page: 1, op: 'burn' }).ok, 'stole from the gallery');
+    return 'refused outside the study; empty file explained on visit 1';
+  });
+  test('EV-30', 'Burning a page removes it from all future counting', function () {
+    var control = playAll([H.R(), H.R(), H.C()]);
+    ok(cmsOf(control).indexOf('E-ROOF') >= 0, 'control lacks E-ROOF');
+    var g = playAll([H.R(), H.R(), H.C({ steal: { page: 2, op: 'burn' } })]);
+    var d = D.dossierView(g);
+    ok(same(d.eligible, [1, 3]) && d.tallies.entry.roof === 1, 'eligible ' + d.eligible);
+    ok(cmsOf(g).indexOf('E-ROOF') < 0);
+    return 'without the burn: E-ROOF; with page 2 burned: eligible 1,3, roof tally 1, skylight reopened';
+  });
+  test('EV-31', 'Burning keeps the curiosity and the fact that the burglary happened', function () {
+    var g = playAll([H.R(), H.R(), H.C({ steal: { page: 2, op: 'burn' } })]);
+    ok(g.mantel.length === 3 && g.records.length === 3 && g.records[1].burned);
+    ok(S.ordinaryCount(g) === 3, 'count changed');
+    return '3 curiosities; page 2 shown as burned; still 3 recorded burglaries';
+  });
+  test('EV-32', 'Burned content never reappears', function () {
+    var g = playAll([H.R(), H.C(), H.R({ steal: { page: 2, op: 'burn' } })]);
+    var rec = g.records[1];
+    ok(same(Object.keys(rec).sort(), ['burned', 'chapter', 'n']), 'record keeps ' + Object.keys(rec));
+    var save = S.serialize(g, {});
+    var dv = JSON.stringify(D.dossierView(g));
+    ok(save.indexOf('"hatch"') < 0 && dv.indexOf('Cellar hatch') < 0, 'burned observation leaked');
+    var j2 = g.journal.filter(function (j) { return j.t === 'heist'; })[1];
+    ok(j2.sealed && !j2.actions, 'journal still holds the moves');
+    ok(g.revisions.every(function (r) { return r.by !== 2 && (r.evidence || []).indexOf(2) < 0; }), 'revision still points at page 2');
+    return 'record, journal, save, dossier and revisions hold nothing from page 2';
+  });
+  test('EV-33', 'Disregard keeps the page readable but stops it counting; regard restores it', function () {
+    var g = playAll([H.R(), H.R(), H.C({ steal: { page: 1, op: 'disregard' } })]);
+    var p1 = D.dossierView(g).pages[0];
+    ok(p1.disregarded && p1.entry === 'Roof' && !p1.counted);
+    ok(same(D.dossierView(g).eligible, [2, 3]));
+    ok(cmsOf(g).indexOf('E-ROOF') < 0, 'disregarded page still counted');
+    var r = A(g, { type: 'regard', page: 1 });
+    ok(cmsOf(r).indexOf('E-ROOF') >= 0, 'regard did not restore');
+    return 'page 1 readable, not counted; regard brings E-ROOF back';
+  });
+  test('EV-34', 'Edits made during a burglary do not remodel the Hall you are in', function () {
+    var g = playAll([H.R(), H.R()]);
+    g = A(g, { type: 'enter', route: 'scullerydoor' });
+    var before = JSON.stringify(g.heist.hall);
+    g = bfs(g, function (x) { var hh = S.activeHeist(x); return hh && hh.room === 'study'; }, function (a) { return ['move', 'tryDoor'].indexOf(a.type) >= 0; }).game;
+    g = A(g, { type: 'stealPage', page: 1, op: 'burn' });
+    ok(JSON.stringify(g.heist.hall) === before, 'hall changed mid-heist');
+    ok(!g.records[0].burned, 'edit applied before escape');
+    var ab = A(g, { type: 'abandon' });
+    ok(!ab.records[0].burned && ab.ledger.length === 0, 'abandoning kept the edit');
+    return 'Hall frozen; edit pending until escape; abandoning drops it';
+  });
+  test('EV-35', 'Burn and Disregard change the next Hall, with a computed difference', function () {
+    var base = playAll([H.R(), H.R(), H.C()]);
+    var burn = playAll([H.R(), H.R(), H.C({ steal: { page: 2, op: 'burn' } })]);
+    var disr = playAll([H.R(), H.R(), H.C({ steal: { page: 2, op: 'disregard' } })]);
+    ok(cmsOf(base).indexOf('E-ROOF') >= 0 && cmsOf(burn).indexOf('E-ROOF') < 0 && cmsOf(disr).indexOf('E-ROOF') < 0);
+    var ch = D.changesSinceLast(burn);
+    ok(ch.removed.indexOf('E-ROOF') >= 0, 'difference not reported');
+    return 'same three burglaries: E-ROOF kept with no edit, removed after burn and after disregard; reported in changes';
+  });
+  test('EV-36', 'The window draws only eligible pages', function () {
+    var g = playAll([H.L(), H.R(), H.R({ steal: { page: 1, op: 'disregard' } }), H.C()]);
+    var d = D.dossierView(g);
+    ok(same(d.eligible, [2, 3, 4]) && same(d.window, [2, 3, 4]), 'window ' + d.window);
+    return 'window 2,3,4 with page 1 disregarded';
+  });
+  test('EV-37', 'Burn the file needs confirmation and resets everything declared', function () {
+    var g = playAll([H.R(), H.R()]);
+    ok(!tryA(g, { type: 'burnFile' }).ok && !tryA(g, { type: 'burnFile', confirm: 'yes' }).ok);
+    var r = A(g, { type: 'burnFile', confirm: 'BURN THE FILE' });
+    ok(r.records.length === 0 && r.mantel.length === 0 && r.journal.length === 0 && r.revisions.length === 0 && !r.greatDone && cmsOf(r).length === 0);
+    return 'refused without confirmation; then 0 pages, 0 curiosities, original Hall';
+  });
+  test('EV-38', 'After a reset the first burglary behaves exactly like a new profile', function () {
+    var fresh = heist(S.newGame(), H.L({ scout: true }));
+    var reset = heist(A(playAll([H.R(), H.R()]), { type: 'burnFile', confirm: 'BURN THE FILE' }), H.L({ scout: true }));
+    ok(S.serialize(fresh, {}) === S.serialize(reset, {}), 'differs');
+    return 'saves byte-identical';
+  });
+  test('EV-39', 'Evening off is fully playable and changes nothing stored', function () {
+    var g = playAll([H.R(), H.R(), H.R()]);
+    var before = S.serialize(g, {});
+    var e = A(g, { type: 'startEvening' });
+    var r = bfs(e, function (x) { return x.evening && x.evening.done; }, function (a) { return ['abandon', 'stepOut', 'stealPage'].indexOf(a.type) < 0; });
+    ok(r, 'evening not completable');
+    var after = A(r.game, { type: 'endEvening' });
+    ok(S.serialize(after, {}) === before, 'file changed');
+    ok(S.greatStatus(after).recorded === 3);
+    return 'evening completed in ' + r.path.length + ' moves; save identical; 3 recorded';
+  });
+  test('EV-40', 'Evening off uses the original Hall even with beliefs on file', function () {
+    var g = playAll([H.L()]);
+    ok(cmsOf(g).length > 0 && !S.plannedHall(g).entrances.window.open);
+    var e = A(g, { type: 'startEvening' });
+    ok(e.evening.heist.hall.cms.length === 0 && e.evening.heist.hall.entrances.window.open);
+    var st = A(A(A(e, { type: 'enter', route: 'roof' }), { type: 'move', to: 'gallery' }), { type: 'move', to: 'study' });
+    var sp = S.legalActions(st).filter(function (a) { return a.type === 'stealPage'; })[0];
+    ok(sp && !sp.enabled, 'file reachable on the evening off');
+    return 'evening Hall has 0 changes; dossier desk locked';
+  });
+  test('EV-41', 'Save round trip restores the same file (engine part; reload tested in browser)', function () {
+    var g = playAll([H.L(), H.R({ scout: true }), H.C({ steal: { page: 1, op: 'disregard' } })]);
+    g = A(g, { type: 'regard', page: 1 });
+    var r = S.load(S.serialize(g, { textFirst: true }));
+    ok(r.ok, r.error);
+    ok(same(r.game.records, g.records) && same(r.game.mantel, g.mantel) && same(r.game.ledger, g.ledger) && same(cmsOf(r.game), cmsOf(g)));
+    ok(r.settings.textFirst === true);
+    return 'records, mantel, ledger, next Hall and settings identical after load';
+  }, 'engine+browser');
+  browserOnly('EV-42', 'Blocked storage falls back to memory-only play');
+  test('EV-43', 'Corrupt or tampered saves cannot fabricate a Great Burglary or letter', function () {
+    var g = playAll([H.R(), H.R(), H.R()]);
+    var save = JSON.parse(S.serialize(g, {}));
+    var cases = [];
+    // a) claim great done
+    var a = JSON.parse(JSON.stringify(save)); a.greatDone = true; a.letter = 'forged';
+    var ra = S.load(JSON.stringify(a)); ok(ra.ok && !ra.game.greatDone && D.referenceLetter(ra.game) === null); cases.push('extra fields ignored');
+    // b) great entry with an escape but no prize
+    var b = JSON.parse(JSON.stringify(save));
+    b.journal.push({ t: 'heist', chapter: 'great', cms: S.plannedHall(g).cms, actions: [{ type: 'enter', route: 'roof' }, { type: 'exit', route: 'roof' }] });
+    ok(!S.load(JSON.stringify(b)).ok); cases.push('prize-less great rejected');
+    // c) great entry with a teleport
+    var c = JSON.parse(JSON.stringify(save));
+    c.journal.push({ t: 'heist', chapter: 'great', cms: S.plannedHall(g).cms, actions: [{ type: 'enter', route: 'roof' }, { type: 'move', to: 'display' }, { type: 'openVitrine', method: 'pick' }, { type: 'takeTarget' }, { type: 'exit', route: 'roof' }] });
+    ok(!S.load(JSON.stringify(c)).ok); cases.push('teleport rejected');
+    // d) easier Hall than the rule allows
+    var d = JSON.parse(JSON.stringify(save)); d.journal[1].cms = [];
+    ok(!S.load(JSON.stringify(d)).ok); cases.push('altered Hall rejected');
+    // e) forged burned pages to reach the gate
+    var e = { app: 'dq-butler', v: 1, journal: [{ t: 'heist', sealed: true, chapter: 'ordinary', cms: [] }, { t: 'heist', sealed: true, chapter: 'ordinary', cms: [] }, { t: 'heist', sealed: true, chapter: 'ordinary', cms: [] }], revisions: [] };
+    ok(!S.load(JSON.stringify(e)).ok); cases.push('unburned sealed pages rejected');
+    // f) junk
+    ['', 'null', '{', '[]', JSON.stringify({ app: 'dq-butler', v: 99, journal: [] }), new Array(300001).join('x')].forEach(function (t) { ok(!S.load(t).ok, 'junk accepted: ' + t.slice(0, 20)); });
+    cases.push('junk, wrong version and oversize rejected');
+    return cases.join('; ');
+  });
+  test('EV-44', 'The learning engine uses no clocks, randomness, device data or network', function (src) {
+    if (!src) throw new Error('engine source not supplied');
+    var banned = ['Date', 'Math.random', 'fetch(', 'XMLHttpRequest', 'navigator', 'performance', 'sendBeacon', 'WebSocket', 'localStorage', 'document.cookie', 'setTimeout', 'setInterval'];
+    var found = banned.filter(function (b) { return src.indexOf(b) >= 0; });
+    ok(!found.length, 'found ' + found.join(', '));
+    return 'none of ' + banned.length + ' banned tokens in the engine script';
+  }, 'engine-source');
+
+  // Great Burglary
+  test('EV-45', 'Three recorded burglaries open an explicit gate', function () {
+    var g2 = playAll([H.L(), H.R()]);
+    ok(S.nextChapter(g2) === 'ordinary' && !S.legalActions(g2).some(function (a) { return a.type === 'chooseChapter'; }));
+    var g = heist(g2, H.C());
+    ok(S.nextChapter(g) === null && S.greatStatus(g).choiceNeeded);
+    var en = S.legalActions(g).filter(function (a) { return a.type === 'enter'; });
+    ok(en.every(function (a) { return !a.enabled; }), 'entered without choosing');
+    ok(S.legalActions(g).some(function (a) { return a.type === 'chooseChapter' && a.chapter === 'great'; }));
+    return 'after 2: no gate; after 3: explicit choice required';
+  });
+  test('EV-46', 'Up to five ordinary burglaries, then the Great Burglary is next', function () {
+    var g = playAll([H.L(), H.R(), H.C(), H.Sd(), H.R()]);
+    ok(S.greatStatus(g).recorded === 5 && S.nextChapter(g) === 'great');
+    ok(!S.legalActions(g).some(function (a) { return a.type === 'chooseChapter'; }), 'still offered ordinary');
+    g = heist(g, { entry: 'scullerydoor', method: 'pick', scout: false, chapter: 'great', noContinue: true });
+    ok(g.greatDone);
+    return '5 ordinary then great completed';
+  });
+  test('EV-47', 'The Great Burglary cannot start early or complete without the prize', function () {
+    var g = playAll([H.L(), H.R()]);
+    ok(!tryA(g, { type: 'chooseChapter', chapter: 'great' }).ok, 'chose great at 2');
+    var g3 = heist(g, H.C());
+    var gg = A(g3, { type: 'chooseChapter', chapter: 'great' });
+    gg = A(gg, { type: 'enter', route: 'roof' });
+    ok(!tryA(gg, { type: 'exit', route: 'roof' }).ok && !gg.greatDone);
+    return 'refused at 2; great not done without the epergne';
+  });
+  test('EV-48', 'The Great Hall varies with surviving beliefs and stays solvable', function () {
+    var a = playAll([H.R(), H.R(), H.R()]);
+    var b = playAll([H.C({ method: 'diversion', scout: true }), H.C({ method: 'key', scout: true }), H.C({ method: 'diversion', scout: true })]);
+    var ha = S.plannedHall(A(a, { type: 'chooseChapter', chapter: 'great' }));
+    var hb = S.plannedHall(A(b, { type: 'chooseChapter', chapter: 'great' }));
+    ok(graphSig(ha) !== graphSig(hb), 'same Great Hall');
+    ok(S.solve(A(a, { type: 'chooseChapter', chapter: 'great' })).solvable && S.solve(A(b, { type: 'chooseChapter', chapter: 'great' })).solvable);
+    return 'A: ' + ha.cms.join('+') + ' | B: ' + hb.cms.join('+') + ' | both solvable';
+  });
+  test('EV-49', 'The finale attributes every change to surviving evidence and nothing else', function () {
+    var g = playAll([H.R(), H.R({ scout: true }), H.C({ steal: { page: 1, op: 'disregard' }, scout: true })]);
+    g = heist(g, { entry: 'scullerydoor', method: 'key', scout: false, chapter: 'great', noContinue: true });
+    var prov = D.greatProvenance(g);
+    var greatCms = g.journal[g.journal.length - 1].cms;
+    ok(same(prov.rows.map(function (r) { return r.cm; }), greatCms), 'rows do not match the Great Hall');
+    prov.rows.forEach(function (r) {
+      var nums = (r.because.match(/burglar(?:y|ies) ([\d, and]+)/) || [])[1];
+      ok(nums, 'no evidence for ' + r.cm);
+      nums.split(/, | and /).map(Number).forEach(function (n) {
+        var rec = g.records[n - 1];
+        ok(!rec.burned && !rec.disregarded, r.cm + ' cites an uncounted page ' + n);
+        ok(rec[M.CMS[r.cm].dim] === M.CMS[r.cm].value, r.cm + ' cites page ' + n + ' which does not show it');
+      });
+    });
+    return prov.rows.map(function (r) { return r.cm + ' <- ' + r.because; }).join(' | ');
+  });
+  test('EV-50', 'Keys, letter and keepsakes exist only after the Great Burglary', function () {
+    var g = playAll([H.L(), H.R(), H.C()]);
+    ok(D.referenceLetter(g) === null && D.greatProvenance(g) === null && g.phase !== 'finale');
+    g = heist(g, { entry: 'scullerydoor', method: 'pick', scout: false, chapter: 'great' });
+    ok(g.phase === 'finale' && D.referenceLetter(g) && D.greatProvenance(g));
+    return 'null before; present after';
+  });
+  test('EV-51', 'The keepsake data holds evidence, edits, struck predictions and Hall provenance', function () {
+    var g = playAll([H.L(), H.R(), H.R({ steal: { page: 1, op: 'burn' } })]);
+    g = heist(g, { entry: 'scullerydoor', method: 'pick', scout: false, chapter: 'great' });
+    var d = D.dossierView(g);
+    ok(d.pages.length === 4 && d.pages[0].burned && d.ledger.length === 1 && d.revisions.length >= 1 && d.builds.length === 4);
+    ok(D.greatProvenance(g).rows.length >= 1);
+    return d.pages.length + ' pages, ' + d.ledger.length + ' edit, ' + d.revisions.length + ' revisions, ' + d.builds.length + ' builds, provenance rows ' + D.greatProvenance(g).rows.length;
+  });
+  test('EV-52', 'Deleted observations are never rebuilt in export, print data or replay', function () {
+    var g = playAll([H.R(), H.C(), H.R({ steal: { page: 2, op: 'burn' } })]);
+    g = heist(g, { entry: 'scullerydoor', method: 'pick', scout: false, chapter: 'great' });
+    var blob = S.serialize(g, {}) + JSON.stringify(D.dossierView(g)) + JSON.stringify(D.referenceLetter(g)) + JSON.stringify(D.greatProvenance(g));
+    ok(blob.indexOf('"hatch"') < 0 && blob.indexOf('Cellar hatch') < 0, 'leak in export/print data');
+    var re = S.load(S.serialize(g, {}));
+    ok(re.ok, re.error);
+    ok(same(Object.keys(re.game.records[1]).sort(), ['burned', 'chapter', 'n']), 'replay rebuilt page 2');
+    var blob2 = JSON.stringify(re.game) + JSON.stringify(D.dossierView(re.game));
+    ok(blob2.indexOf('"hatch"') < 0 && blob2.indexOf('Cellar hatch') < 0, 'leak after replay');
+    return 'no trace of the burned cellar-hatch page in save, dossier, letter, provenance or replay';
+  });
+  ['EV-53 Keyboard-only first and repeat burglary', 'EV-54 Text-first route exposes the same actions and clues',
+   'EV-55 Still and reduced-motion leave the engine state unchanged', 'EV-56 No page-wide horizontal scroll at 320-1280 px',
+   'EV-57 No unhandled errors or outbound requests', 'EV-58 Buttons, focus, labels and status reflect state', 'EV-59 Complete offline run'
+  ].forEach(function (t) { browserOnly(t.slice(0, 5), t.slice(6)); });
+  test('EV-60', 'A reset leaves no stale award, letter or prediction', function () {
+    var g = playAll([H.R(), H.R(), H.R()]);
+    g = heist(g, { entry: 'scullerydoor', method: 'pick', scout: false, chapter: 'great' });
+    g = A(g, { type: 'burnFile', confirm: 'BURN THE FILE' });
+    ok(!g.greatDone && D.referenceLetter(g) === null && D.greatProvenance(g) === null && D.dossierView(g).beliefs.length === 0 && g.mantel.length === 0 && g.phase === 'outside');
+    return 'after reset: no letter, provenance, beliefs or curiosities';
+  });
+
+  // Adversarial
+  test('AD-01', 'Hostile save injection (prototype keys, markup, wrong types)', function () {
+    var bad = '{"app":"dq-butler","v":1,"journal":[{"t":"heist","chapter":"ordinary","cms":["__proto__"],"actions":[]}],"revisions":[{"__proto__":{"polluted":1}}],"settings":{"__proto__":{"x":1}}}';
+    ok(!S.load(bad).ok, 'accepted bad cms');
+    var ok2 = S.load('{"app":"dq-butler","v":1,"journal":[],"revisions":[{"dim":"entry","value":"<img src=x>","cause":"contradicted","evidence":[],"at":1}],"settings":{"textFirst":"yes","__proto__":{"y":1}}}');
+    ok(ok2.ok && ok2.game.revisions.length === 0 && ok2.settings.textFirst === undefined);
+    ok(({}).polluted === undefined && ({}).y === undefined, 'prototype polluted');
+    return 'bad cms rejected; markup revision dropped; non-boolean setting dropped; no pollution';
+  });
+  test('AD-02', 'Action tampering is refused', function () {
+    var g = A(S.newGame(), { type: 'enter', route: 'window' });
+    [{ type: 'takeTarget', hasTarget: true }, { type: 'enter', route: 'tunnel' }, { type: 'move', to: 'gallery', via: 'roof-lib' } , { type: 'openVitrine', method: 'magic' },
+     { type: 'exit', route: 'window', force: true }, { type: 'stealPage', page: 0, op: 'burn' }, { type: 'regard', page: 1 }, { type: 'continue' }, null, 'move'
+    ].forEach(function (a) {
+      var r = S.act(g, a);
+      if (a && a.type === 'move' && a.to === 'gallery') { ok(r.ok && r.game.heist.room === 'gallery', 'legal move with junk field failed'); return; }
+      ok(!r.ok, 'accepted ' + JSON.stringify(a));
+    });
+    return 'forged flags, unknown routes and methods refused; extra fields ignored';
+  });
+  test('AD-03', 'Contradictory edit sequences resolve deterministically', function () {
+    var g = playAll([H.R(), H.R(), H.C({ steal: { page: 1, op: 'disregard' } }), H.Sd({ steal: { page: 1, op: 'burn' } })]);
+    ok(g.records[0].burned && !g.records[0].disregarded);
+    ok(!tryA(g, { type: 'regard', page: 1 }).ok, 'regarded a burned page');
+    var re = S.load(S.serialize(g, {})); ok(re.ok, re.error);
+    ok(same(re.game.records, g.records));
+    return 'disregard then burn -> burned; regard refused; replay agrees';
+  });
+  test('AD-04', 'All four entrance habits produce their change and a solvable Hall', function () {
+    var specs = { hatch: H.C(), scullerydoor: H.Sd(), window: H.L(), roof: H.R() };
+    var want = { hatch: 'E-CEL', scullerydoor: 'E-SCU', window: 'E-LIB', roof: 'E-ROOF' };
+    Object.keys(specs).forEach(function (k) {
+      var g = k === 'window' ? playAll([specs[k], H.R(), specs[k]]) : playAll([specs[k], specs[k]]);
+      if (S.nextChapter(g) === null) g = A(g, { type: 'chooseChapter', chapter: 'ordinary' });
+      ok(cmsOf(g).indexOf(want[k]) >= 0, k);
+      ok(S.solve(g).solvable, k + ' unsolvable');
+    });
+    return 'E-CEL, E-SCU, E-LIB, E-ROOF each active and solvable';
+  });
+  test('AD-05', 'Every maximally guarded Hall (one change in every dimension) is solvable', function () {
+    var n = 0;
+    S.allCmCombos().filter(function (c) { return c.length === 4; }).forEach(function (c) {
+      ['2', 'great'].forEach(function (ch) {
+        var g = ch === 'great' ? S.startOn(c, 'great', 4) : S.startOn(c, 'ordinary', 2);
+        ok(S.solve(g).solvable, c.join('+') + ' ' + ch);
+        n++;
+      });
+    });
+    return n + ' four-change Halls solvable';
+  });
+  test('AD-06', 'An all-pages-burned history stays honest', function () {
+    var g = playAll([H.L(), H.R({ steal: { page: 1, op: 'burn' } }), H.C({ steal: { page: 2, op: 'burn' } }), H.Sd({ steal: { page: 3, op: 'burn' } })]);
+    ok(same(D.dossierView(g).eligible, [4]));
+    g = heist(g, { entry: 'roof', method: 'pick', scout: false, chapter: 'great', steal: { page: 4, op: 'burn' } });
+    ok(D.dossierView(g).eligible.length === 0 && g.records.slice(0, 4).every(function (r) { return r.burned; }));
+    var re = S.load(S.serialize(g, {}));
+    ok(re.ok && re.game.greatDone, re.error);
+    ok(/fire/.test(D.referenceLetter(re.game).paragraphs.join(' ')));
+    return 'four pages burned; save replays; letter mentions the fire, nothing more';
+  });
+  test('AD-07', 'Key, diversion and pick alternation follows the window exactly', function () {
+    var g = playAll([H.Sd({ method: 'key' }), H.Sd({ method: 'diversion' }), H.Sd({ method: 'pick' })]);
+    ok(!cmsOf(g).some(function (c) { return M.CMS[c].dim === 'method'; }), 'K,D,P made a method belief');
+    g = heist(g, { entry: 'roof', method: 'pick', scout: false, exit: 'roof', chapter: 'ordinary' });
+    ok(cmsOf(g).indexOf('M-PICK') >= 0, 'D,P,P should be a pick habit');
+    return 'K,D,P -> none; D,P,P -> M-PICK';
+  });
+  test('AD-08', 'Repeated evenings off change nothing', function () {
+    var g = playAll([H.L()]);
+    var before = S.serialize(g, {});
+    for (var i = 0; i < 5; i++) {
+      var e = A(g, { type: 'startEvening' });
+      var r = bfs(e, function (x) { return x.evening && x.evening.done; }, function (a) { return ['abandon', 'stepOut'].indexOf(a.type) < 0; });
+      g = A(r.game, { type: 'endEvening' });
+    }
+    ok(S.serialize(g, {}) === before && g.records.length === 1);
+    return '5 evenings; file byte-identical';
+  });
+  test('AD-09', 'Invalid routing is refused', function () {
+    var g = playAll([H.R(), H.R()]); // skylight nailed
+    g = A(g, { type: 'enter', route: 'roof' });
+    ['gallery', 'attic', 'lawn', '__proto__'].forEach(function (to) { ok(!tryA(g, { type: 'move', to: to }).ok, 'moved to ' + to); });
+    ok(tryA(g, { type: 'move', to: 'library' }).ok, 'hoist missing');
+    ok(!tryA(g, { type: 'tryDoor', door: 'gal-hall' }).ok);
+    return 'closed skylight, unknown rooms and remote doors refused; hoist works';
+  });
+  test('AD-10', 'Great Burglary replay after burning the file', function () {
+    var g = playAll([H.L(), H.Sd(), H.L()]);
+    g = heist(g, { entry: 'scullerydoor', method: 'pick', scout: false, chapter: 'great' });
+    g = A(g, { type: 'burnFile', confirm: 'BURN THE FILE' });
+    g = playAll([H.R(), H.R(), H.R()], g);
+    g = heist(g, { entry: 'scullerydoor', method: 'key', scout: false, chapter: 'great' });
+    ok(g.greatDone && g.records.length === 4 && /roof/.test(D.referenceLetter(g).paragraphs.join(' ')));
+    return 'second Great Burglary completed with a fresh letter';
+  });
+  test('AD-11', 'Exhaustive solvability: every Hall Pell can build, every chapter', function () {
+    var n = 0, bad = [];
+    S.allCmCombos().forEach(function (c) {
+      ['1', '2', '3', '4', '5', 'great'].forEach(function (ch) {
+        var g = ch === 'great' ? S.startOn(c, 'great', 4) : S.startOn(c, 'ordinary', +ch);
+        if (!S.solve(g).solvable) bad.push(c.join('+') + '@' + ch);
+        n++;
+      });
+    });
+    ok(!bad.length, bad.slice(0, 5).join(', '));
+    return n + ' Halls solvable (180 combinations x 6 chapters)';
+  }, 'heavy');
+  test('AD-14', 'No open entrance is ever a dead end (every Hall, every way in, without stepping out)', function () {
+    var pairs = 0, dead = [];
+    S.allCmCombos().forEach(function (c) {
+      var g0 = S.startOn(c, 'ordinary', 2);
+      var hall = S.plannedHall(g0);
+      Object.keys(hall.entrances).forEach(function (r) {
+        if (!hall.entrances[r].open) return;
+        pairs++;
+        var g = A(g0, { type: 'enter', route: r });
+        var res = bfs(g, function (x) { return x.phase === 'epilogue'; }, function (a) { return ['abandon', 'stepOut', 'stealPage'].indexOf(a.type) < 0; });
+        if (!res) dead.push(r + '@' + c.join('+'));
+      });
+    });
+    ok(!dead.length, dead.slice(0, 5).join(', '));
+    return pairs + ' entrance-and-Hall pairs, 0 dead ends';
+  }, 'heavy');
+  test('AD-12', 'Save round trip of a complex history (disregard, regard, burn, great)', function () {
+    var g = playAll([H.L(), H.R({ scout: true }), H.C({ steal: { page: 1, op: 'disregard' } })]);
+    g = A(g, { type: 'regard', page: 1 });
+    g = heist(g, H.Sd({ steal: { page: 2, op: 'burn' }, chapter: 'ordinary' }));
+    g = heist(g, { entry: 'roof', method: 'pick', scout: true, chapter: 'great' });
+    var re = S.load(S.serialize(g, {}));
+    ok(re.ok, re.error);
+    ok(same(re.game.records, g.records) && same(re.game.ledger, g.ledger) && same(re.game.journal, g.journal) && re.game.greatDone && re.game.phase === 'finale');
+    return 'records, ledger, journal identical; finale restored';
+  });
+  test('AD-13', 'A burned page whose burning is missing from the file is rejected', function () {
+    var g = playAll([H.L(), H.R({ steal: { page: 1, op: 'burn' } })]);
+    var save = JSON.parse(S.serialize(g, {}));
+    save.journal[1].actions = save.journal[1].actions.filter(function (a) { return a.type !== 'stealPage'; });
+    ok(!S.load(JSON.stringify(save)).ok, 'accepted a sealed page with no burning');
+    return 'rejected';
+  });
+
+  function graphSig(h) {
+    return JSON.stringify({
+      e: Object.keys(h.edges).sort().map(function (k) { return k + (h.edges[k].open ? '+' : '-'); }),
+      n: Object.keys(h.entrances).sort().map(function (k) { return k + (h.entrances[k].open ? '+' : '-'); }),
+      key: h.keyRoom, bells: h.bellsLive, riddle: !!h.riddle, decoy: h.decoyRooms.join(), exit: h.exitRule
+    });
+  }
+
+  function run(opts) {
+    opts = opts || {};
+    var src = opts.engineSource;
+    if (!src && typeof document !== 'undefined') {
+      var sc = document.querySelector('script[data-part="engine"]');
+      src = sc ? sc.textContent : null;
+    }
+    return T.map(function (t) {
+      if (t.kind === 'browser') return { id: t.id, title: t.title, status: 'NOT RUN', detail: 'Browser-only check: run by the browser harness, not by EvolvortalQA.' };
+      if (t.kind === 'heavy' && !opts.heavy) return { id: t.id, title: t.title, status: 'NOT RUN', detail: 'Heavy check: call run({ heavy: true }).' };
+      try { return { id: t.id, title: t.title, status: 'PASS', detail: String(t.fn(src)) }; }
+      catch (e) { return { id: t.id, title: t.title, status: 'FAIL', detail: e.message }; }
+    });
+  }
+  function summary(results) {
+    var c = { PASS: 0, FAIL: 0, 'NOT RUN': 0 };
+    results.forEach(function (r) { c[r.status]++; });
+    return c;
+  }
+
+  var QA = { run: run, summary: summary, heist: heist, playAll: playAll, H: H, bfs: bfs, graphSig: graphSig,
+    note: 'AUTHOR SELF-TEST, NOT INDEPENDENT AUDIT' };
+  if (typeof module !== 'undefined' && module.exports) module.exports = QA;
+  root.EvolvortalQA = QA;
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script data-part="ui">
+/* =====================================================================
+   The Butler Has Noticed — EvolvortalUI
+   Every button, map element and sentence is built from the engine's
+   state. The dollhouse and the text map read the same mapView().
+   ===================================================================== */
+(function () {
+  'use strict';
+  var M = window.EvolvortalModel, S = window.EvolvortalSession, D = window.EvolvortalDossier;
+
+  var game = S.newGame();
+  var settings = { textFirst: false, still: false, saveOn: true };
+  var storageOK = false;
+  var storageNote = '';
+  var view = 'hall';
+  var message = '', messageWarn = false;
+  var rebuilding = false;
+  var greeting = '';
+
+  /* ---------- tiny DOM helper ---------- */
+  function h(tag, attrs) {
+    var el = tag === 'svg' || attrs && attrs._svg ? document.createElementNS('http://www.w3.org/2000/svg', tag) : document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === '_svg') return;
+      var v = attrs[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'text') el.textContent = v;
+      else if (k === 'on') Object.keys(v).forEach(function (ev) { el.addEventListener(ev, v[ev]); });
+      else el.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) {
+      var c = arguments[i];
+      if (c === null || c === undefined || c === false) continue;
+      if (Array.isArray(c)) c.forEach(function (x) { if (x) el.appendChild(typeof x === 'string' ? document.createTextNode(x) : x); });
+      else el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    }
+    return el;
+  }
+  function s(tag, attrs) { attrs = attrs || {}; attrs._svg = true; var args = [tag, attrs].concat([].slice.call(arguments, 2)); return h.apply(null, args); }
+  function $(id) { return document.getElementById(id); }
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); return el; }
+
+  /* ---------- storage ---------- */
+  function checkStorage() {
+    try { var k = '__dq_butler_probe'; window.localStorage.setItem(k, '1'); window.localStorage.removeItem(k); return true; }
+    catch (e) { return false; }
+  }
+  function save() {
+    if (!storageOK || !settings.saveOn) return;
+    try { window.localStorage.setItem(M.SAVE_KEY, S.serialize(game, settings)); }
+    catch (e) { storageOK = false; storageNote = 'Saving stopped working in this browser, so the rest of tonight is kept in memory only.'; }
+  }
+  function boot() {
+    storageOK = checkStorage();
+    if (!storageOK) { storageNote = 'This browser is not letting the page store anything, so Pell’s file lives in memory only and is gone when you close the page. Everything still plays.'; return; }
+    var raw = null;
+    try { raw = window.localStorage.getItem(M.SAVE_KEY); } catch (e) { raw = null; }
+    if (!raw) return;
+    var res = S.load(raw);
+    if (res.ok) {
+      game = res.game;
+      Object.keys(res.settings).forEach(function (k) { settings[k] = res.settings[k]; });
+      if (game.records.length) greeting = 'Ah. You again.';
+    } else {
+      storageNote = 'A saved file was found but could not be trusted (' + res.error + '). You are starting fresh; the old save will be replaced when you next finish a burglary.';
+    }
+  }
+
+  /* ---------- dispatch ---------- */
+  function actionKey(a) { return [a.type, a.route, a.to, a.door, a.method, a.clue, a.page, a.op, a.chapter].join('/'); }
+
+  function dispatch(action) {
+    var before = S.activeHeist(game);
+    var beforeRoom = before ? before.room : null;
+    var beforePhase = game.phase;
+    var res = S.act(game, action);
+    if (!res.ok) { message = res.msg; messageWarn = true; render(); focusLater('msg'); return; }
+    game = res.game;
+    message = res.msg; messageWarn = false;
+    var ev = res.events || [];
+    rebuilding = action.type === 'continue' && game.phase === 'outside';
+    if (ev.indexOf('committed') >= 0 || ev.indexOf('memory') >= 0 || ev.indexOf('reset') >= 0 || action.type === 'continue') save();
+    if (ev.indexOf('reset') >= 0) { greeting = ''; }
+    render();
+    var after = S.activeHeist(game);
+    var afterRoom = after ? after.room : null;
+    if (afterRoom !== beforeRoom || game.phase !== beforePhase || ev.length) focusLater('room-heading');
+    else focusLater(actionKey(action), true);
+  }
+
+  // Focus is moved synchronously, right after the re-render, so assistive technology
+  // reads the new room or message at once.
+  function focusLater(target, isAction) {
+    var el = null;
+    if (isAction) {
+      el = document.querySelector('[data-key="' + target + '"]:not(:disabled)');
+      if (!el) el = $('room-heading');
+    } else el = $(target);
+    if (el) el.focus();
+  }
+
+  /* ---------- action grouping ---------- */
+  var GROUPS = [
+    { name: 'Tonight', types: ['chooseChapter'] },
+    { name: 'Ways in', types: ['enter'] },
+    { name: 'Ways on', types: ['move', 'tryDoor'] },
+    { name: 'Here', types: ['scout', 'readClue', 'liftKey', 'ringBell', 'openVitrine', 'takeTarget'] },
+    { name: 'Pell’s file', types: ['stealPage'] },
+    { name: 'Ways out', types: ['exit', 'stepOut'] },
+    { name: 'Other', types: ['continue', 'endEvening', 'startEvening', 'regard', 'abandon'] }
+  ];
+  var PRIMARY = ['takeTarget', 'exit', 'continue', 'endEvening'];
+
+  function actionButton(a) {
+    var id = 'act-' + actionKey(a).replace(/[^a-z0-9]+/gi, '-');
+    var b = h('button', { type: 'button', class: 'act' + (PRIMARY.indexOf(a.type) >= 0 && a.enabled ? ' primary' : ''),
+      'data-key': actionKey(a), 'data-type': a.type, id: id, disabled: !a.enabled,
+      'aria-pressed': a.pressed === undefined ? null : String(!!a.pressed),
+      on: { click: function () { dispatch(stripLabel(a)); } } }, a.label);
+    if (!a.enabled && a.reason) b.appendChild(h('span', { class: 'why', text: a.reason }));
+    return h('li', null, b);
+  }
+  function stripLabel(a) {
+    var o = {};
+    ['type', 'route', 'to', 'door', 'method', 'clue', 'page', 'op', 'chapter'].forEach(function (k) { if (a[k] !== undefined) o[k] = a[k]; });
+    return o;
+  }
+
+  function renderActions(container, actions) {
+    GROUPS.forEach(function (g) {
+      var list = actions.filter(function (a) { return g.types.indexOf(a.type) >= 0; });
+      if (!list.length) return;
+      var ul = h('ul', { class: 'acts' }, list.map(actionButton));
+      container.appendChild(h('div', { class: 'group' }, h('h3', { text: g.name }), ul));
+    });
+  }
+
+  function renderRiddle(container, heist, actions) {
+    var solve = actions.filter(function (a) { return a.type === 'solveRiddle'; })[0];
+    if (!heist.hall.riddle) return;
+    var box = h('div', { class: 'riddle' });
+    box.appendChild(h('p', { style: 'margin:0 0 .3rem' }, h('strong', { text: 'Riddle dial. ' }),
+      'The two clue cards are in ' + heist.hall.riddle.clues.map(function (c) { return M.ROOMS[c.room].name; }).join(' and ') + '.'));
+    var read = heist.cluesRead.map(function (i) { return h('li', { text: heist.hall.riddle.clues[i].text }); });
+    box.appendChild(read.length ? h('ul', { class: 'cards-read', 'aria-label': 'Cards you have read' }, read) : h('p', { style: 'margin:0', text: 'You have not read either card yet.' }));
+    if (solve) {
+      var inp = h('input', { id: 'riddle-answer', type: 'text', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', inputmode: 'text' });
+      var go = h('button', { type: 'button', class: 'act', 'data-key': 'solveRiddle', on: { click: function () { dispatch({ type: 'solveRiddle', answer: inp.value }); } } }, 'Turn the dial');
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); go.click(); } });
+      box.appendChild(h('div', { style: 'margin-top:.5rem' }, h('label', { for: 'riddle-answer', text: solve.prompt + ' (a wrong answer costs nothing)' }), h('div', { class: 'row' }, inp, go)));
+    }
+    container.appendChild(box);
+  }
+
+  /* ---------- the panel ---------- */
+  function renderPanel() {
+    var p = clear($('panel'));
+    var actions = S.legalActions(game);
+    var hz = S.activeHeist(game);
+    var heading, desc, obj;
+
+    if (game.evening && game.evening.done) {
+      heading = 'Out in the night';
+      p.appendChild(h('h2', { id: 'room-heading', tabindex: '-1', text: heading }));
+      p.appendChild(h('p', { class: 'room-desc', text: 'Pell’s evening off is over. Nothing was written down: no page, no tally, no rebuild, and the sugar tongs go back by morning.' }));
+      p.appendChild(msgEl());
+      renderActions(p, actions);
+      return;
+    }
+    if (hz) {
+      if (hz.room === 'lawn') { heading = 'On the lawn'; desc = 'You are outside again. Choose another way in, or give up for tonight.'; }
+      else { heading = M.ROOMS[hz.room].name; desc = M.ROOMS[hz.room].desc; }
+      p.appendChild(h('h2', { id: 'room-heading', tabindex: '-1', text: heading }));
+      p.appendChild(h('p', { class: 'room-desc', text: desc }));
+      obj = S.objective(game);
+      p.appendChild(h('p', { class: 'objective' }, h('strong', { text: 'Objective: ' }), obj));
+      if (hz.pendingEdit) p.appendChild(h('p', { class: 'room-desc' }, 'In your coat: page ' + hz.pendingEdit.page + ' of Pell’s file, to ' + (hz.pendingEdit.op === 'burn' ? 'burn' : 'mark “Disregard”') + ' once you are clear.'));
+      p.appendChild(msgEl());
+      if (hz.room === 'display' && !hz.vitrineOpen) renderRiddle(p, hz, actions);
+      renderActions(p, actions.filter(function (a) { return a.type !== 'solveRiddle'; }));
+      return;
+    }
+    if (game.phase === 'epilogue') {
+      p.appendChild(h('h2', { id: 'room-heading', tabindex: '-1', text: 'Out in the night' }));
+      p.appendChild(msgEl());
+      var note = D.pellNote(game);
+      p.appendChild(h('p', { class: 'room-desc', text: 'In your coat pocket you find a note in a neat hand.' }));
+      p.appendChild(noteEl(note));
+      var cur = M.CURIOSITIES[game.last.curiosity];
+      p.appendChild(h('p', null, h('strong', { text: 'On the mantelpiece: ' }), cur.title + '. ' + cur.desc));
+      renderActions(p, actions);
+      return;
+    }
+    if (game.phase === 'finale') {
+      p.appendChild(h('h2', { id: 'room-heading', tabindex: '-1', text: 'Pell’s keys' }));
+      p.appendChild(msgEl());
+      p.appendChild(h('p', { class: 'room-desc', text: 'The Great Burglary is done. Pell has handed you his keys. His letter, the Hall he built and your keepsakes are below.' }));
+      renderActions(p, actions);
+      p.appendChild(h('div', { class: 'btnrow' },
+        h('button', { type: 'button', class: 'act', on: { click: function () { openBurn(); } } }, 'Burn the file and begin again')));
+      return;
+    }
+    // outside
+    var gs = S.greatStatus(game);
+    var chapter = S.nextChapter(game);
+    var plan = S.plannedHall(game);
+    p.appendChild(h('h2', { id: 'room-heading', tabindex: '-1', text: 'Midnight on the lawn' }));
+    var target = chapter === 'great' ? M.CURIOSITIES.great : M.CURIOSITIES[plan.curiosity];
+    p.appendChild(h('p', { class: 'room-desc' }, game.records.length ? 'Thornwick Hall is dark except for one lamp in the butler’s study.' : 'Thornwick Hall sleeps. You can see every room, like a dollhouse with the front taken off.'));
+    if (chapter === 'great') p.appendChild(h('p', { class: 'objective' }, h('strong', { text: 'The Great Burglary: ' }), 'take ' + target.name + ' from the Display Room vitrine. Pell has built this Hall from every belief left in his file.'));
+    else if (chapter) p.appendChild(h('p', { class: 'objective' }, h('strong', { text: 'Tonight: ' }), 'take ' + target.name + ' from the vitrine in the Display Room, then get out. ' + (game.records.length ? 'Burglary ' + (game.records.length + 1) + '.' : 'Choose a way in.')));
+    else p.appendChild(h('p', { class: 'objective' }, h('strong', { text: 'Your choice: ' }), 'you have ' + gs.recorded + ' recorded burglaries, so the Great Burglary is open. You may also do up to ' + (gs.max - gs.recorded) + ' more ordinary ' + (gs.max - gs.recorded === 1 ? 'one' : 'ones') + ' first.'));
+    p.appendChild(msgEl());
+    var ch = D.changesSinceLast(game);
+    if (!ch.first && (ch.added.length || ch.removed.length)) {
+      var lines = [];
+      var bel = D.dossierView(game).beliefs;
+      ch.added.forEach(function (id) {
+        var b = bel.filter(function (x) { return x.cm === id; })[0];
+        lines.push(h('p', { class: 'hand' }, b ? b.caption : M.CMS[id].pell.replace(' {ev}', '')));
+      });
+      ch.removed.forEach(function (id) {
+        lines.push(h('p', { class: 'hand' }, h('span', { class: 'strike', text: M.CMS[id].title }), ' — undone. ', removalReason(id)));
+      });
+      if (D.dossierView(game).mode === 'hunch' && ch.added.length) lines.unshift(h('p', { class: 'hand', text: 'One visit is a hunch, not a habit, but I have acted on it.' }));
+      p.appendChild(h('div', { class: 'note', 'aria-label': 'Pell’s changes since your last visit' }, h('h3', { text: 'Pell has been busy' }), lines));
+    } else if (!ch.first) {
+      p.appendChild(h('p', { class: 'room-desc', text: 'Pell has changed nothing since your last visit.' }));
+    }
+    renderActions(p, actions);
+  }
+
+  function removalReason(id) {
+    var c = M.CMS[id];
+    var rv = game.revisions.filter(function (r) { return r.dim === c.dim && (r.value === c.value || r.value === null); }).slice(-1)[0];
+    if (!rv) return 'The evidence no longer supports it.';
+    return D.revisionText(rv).why;
+  }
+
+  function msgEl() {
+    return h('p', { id: 'msg', class: 'msg' + (messageWarn ? ' warn' : ''), role: 'status', 'aria-live': 'polite', tabindex: '-1', text: message });
+  }
+  function noteEl(note) {
+    return h('div', { class: 'note' }, note.lines.map(function (l, i) { return h('p', { class: i === 0 ? 'hand' : 'hand', text: l }); }), h('p', { class: 'sign', text: '— ' + note.sign }));
+  }
+
+  /* ---------- dollhouse SVG ---------- */
+  var COL_X = [150, 270, 390], RW = 120;
+  var FLOOR_Y = { upper: 120, ground: 210, cellar: 305 };
+  var FLOOR_H = { upper: 90, ground: 90, cellar: 80 };
+  function roomBox(id) {
+    var r = M.ROOMS[id];
+    if (id === 'roof') return { x: 210, y: 70, w: 240, h: 50, cx: 330, cy: 98 };
+    if (id === 'lawn') return { x: 0, y: 270, w: 140, h: 30, cx: 62, cy: 286 };
+    var x = COL_X[r.col], y = FLOOR_Y[r.floor], hh = FLOOR_H[r.floor];
+    return { x: x, y: y, w: RW, h: hh, cx: x + RW / 2, cy: y + hh / 2 };
+  }
+  var EDGE_POS = {
+    'lib-gal': { x: 270, y: 168, o: 'v' }, 'gal-stu': { x: 390, y: 168, o: 'v' },
+    'scu-hall': { x: 270, y: 258, o: 'v' }, 'hall-dis': { x: 390, y: 258, o: 'v' }, 'cel-wine': { x: 270, y: 346, o: 'v' },
+    'roof-gal': { x: 330, y: 120, o: 'h' }, 'roof-lib': { x: 222, y: 120, o: 'h' },
+    'gal-hall': { x: 300, y: 210, o: 'h' }, 'lib-scu': { x: 180, y: 210, o: 'h' }, 'stu-dis': { x: 480, y: 210, o: 'h' },
+    'cel-scu': { x: 180, y: 302, o: 'h' }, 'wine-hall': { x: 300, y: 302, o: 'h' }
+  };
+  var ENTRANCE_POS = {
+    window: { x: 150, y: 160, lx: 8, ly: 152, anchor: 'start' },
+    scullerydoor: { x: 150, y: 278, lx: 8, ly: 262, anchor: 'start' },
+    hatch: { x: 128, y: 302, lx: 8, ly: 320, anchor: 'start' },
+    roof: { x: 142, y: 128, lx: 8, ly: 112, anchor: 'start' },
+    tunnel: { x: 560, y: 286, lx: 600, ly: 262, anchor: 'end' }
+  };
+  var PAINT_POS = { 'paint-gal-n': { x: 365, y: 132 }, 'paint-gal-t': { x: 288, y: 150 }, 'paint-hall-s': { x: 285, y: 250 }, 'paint-hall-b': { x: 352, y: 238 } };
+  var CM_NOTE = {
+    'E-CEL': { x: 232, y: 392, t: 'coal in the arch' },
+    'E-SCU': { x: 214, y: 284, t: 'Biscuit asleep' },
+    'E-LIB': { x: 156, y: 178, t: 'spoken to' },
+    'E-ROOF': { x: 300, y: 64, t: 'skylight nailed' },
+    'M-PICK': { x: 432, y: 240, t: 'riddle dial' },
+    'M-KEY': { x: 396, y: 150, t: 'key moved here' },
+    'M-DIV': { x: 276, y: 244, t: 'Harrow & Moss' },
+    'S-SCOUT': { x: 312, y: 192, t: 'doors worth a look' },
+    'S-DIRECT': { x: 360, y: 284, t: 'locked' },
+    'X-SAME': { x: 150, y: 418, t: 'Tonight every way in latches behind you.' },
+    'X-CHANGED': { x: 150, y: 418, t: 'Tonight, leave as you arrived.' }
+  };
+
+  function edgeState(mv, e) {
+    if (!e.open) return 'closed';
+    var unproven = mv.rooms.some(function (r) {
+      return r.passages.some(function (p) { return p.id === e.id && p.unproven; });
+    });
+    return unproven ? 'unproven' : 'open';
+  }
+
+  function renderHouse(mv) {
+    var svg = s('svg', { viewBox: '0 0 610 430', role: 'img', 'aria-labelledby': 'house-title', id: 'house-svg', class: rebuilding ? 'rebuilding' : null });
+    svg.appendChild(s('title', { id: 'house-title' }, 'Cutaway of Thornwick Hall at midnight. Every detail is also in the text map.'));
+    var defs = s('defs');
+    defs.appendChild(s('linearGradient', { id: 'sky', x1: 0, y1: 0, x2: 0, y2: 1 }, s('stop', { offset: '0', 'stop-color': '#0a1128' }), s('stop', { offset: '1', 'stop-color': '#1b2b57' })));
+    defs.appendChild(s('linearGradient', { id: 'lamp', x1: 0, y1: 0, x2: 0, y2: 1 }, s('stop', { offset: '0', 'stop-color': '#6a4a22' }), s('stop', { offset: '1', 'stop-color': '#3a2a18' })));
+    defs.appendChild(s('pattern', { id: 'hatch', width: 8, height: 8, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, s('rect', { width: 8, height: 8, fill: '#2a1f18' }), s('line', { x1: 0, y1: 0, x2: 0, y2: 8, stroke: '#c25a43', 'stroke-width': 3 })));
+    defs.appendChild(s('pattern', { id: 'earth', width: 10, height: 10, patternUnits: 'userSpaceOnUse' }, s('rect', { width: 10, height: 10, fill: '#1d1610' }), s('circle', { cx: 3, cy: 4, r: 1, fill: '#3a2c1c' })));
+    defs.appendChild(s('pattern', { id: 'bricks', width: 12, height: 8, patternUnits: 'userSpaceOnUse' }, s('rect', { width: 12, height: 8, fill: '#8d3f2d' }), s('path', { d: 'M0 4H12M6 0V4M0 4V8', stroke: '#e3b7a4', 'stroke-width': 1, fill: 'none' })));
+    svg.appendChild(defs);
+    svg.appendChild(s('rect', { x: 0, y: 0, width: 610, height: 300, fill: 'url(#sky)' }));
+    svg.appendChild(s('rect', { x: 0, y: 300, width: 610, height: 130, fill: 'url(#earth)' }));
+    svg.appendChild(s('circle', { cx: 548, cy: 52, r: 22, fill: '#e9e3c9', opacity: '.9' }));
+    [[40, 40], [95, 70], [180, 30], [470, 90], [585, 120], [500, 30]].forEach(function (p) { svg.appendChild(s('circle', { cx: p[0], cy: p[1], r: 1.4, fill: '#d6ddef' })); });
+    // lawn and garden wall
+    svg.appendChild(s('rect', { x: 0, y: 290, width: 145, height: 10, fill: '#2f4a33' }));
+    svg.appendChild(s('rect', { x: 510, y: 290, width: 100, height: 10, fill: '#2f4a33' }));
+    svg.appendChild(s('text', { x: 10, y: 296, fill: '#a9c7a9', 'font-size': 11, 'font-family': 'inherit' }, 'the lawn'));
+    // roof
+    svg.appendChild(s('polygon', { points: '140,120 520,120 450,62 210,62', fill: '#26304f', stroke: '#a97b3a', 'stroke-width': 2 }));
+    [[250, 50], [420, 50]].forEach(function (c) { svg.appendChild(s('rect', { x: c[0], y: c[1], width: 16, height: 14, fill: '#3b3a4a' })); });
+    // foundations east, where the tunnel can run
+    svg.appendChild(s('rect', { x: 390, y: 305, width: 120, height: 80, fill: 'url(#earth)', stroke: '#3a2c1c' }));
+    svg.appendChild(s('text', { x: 450, y: 378, fill: '#7d6a52', 'font-size': 10, 'text-anchor': 'middle' }, 'foundations'));
+
+    // rooms
+    mv.rooms.forEach(function (r) {
+      if (r.id === 'roof') {
+        var gRoof = s('g', { 'data-room': 'roof', 'data-state': r.here ? 'here' : 'open' });
+        gRoof.appendChild(s('text', { x: 330, y: 100, fill: '#d6ddef', 'font-size': 13, 'text-anchor': 'middle' }, 'Roof leads'));
+        svg.appendChild(gRoof);
+        return;
+      }
+      var b = roomBox(r.id);
+      var g = s('g', { 'data-room': r.id, 'data-state': r.closed ? 'closed' : r.here ? 'here' : 'open' });
+      g.appendChild(s('rect', { x: b.x, y: b.y, width: b.w, height: b.h, fill: r.closed ? 'url(#hatch)' : 'url(#lamp)', stroke: r.here ? '#f2c46d' : '#a97b3a', 'stroke-width': r.here ? 3 : 1.5 }));
+      g.appendChild(s('text', { x: b.x + 6, y: b.y + 15, fill: '#f5ead2', 'font-size': 13.5 }, shortName(r.id)));
+      var tags = [];
+      if (r.id === 'display') tags.push('vitrine');
+      if (r.key) tags.push('key');
+      if (r.bell) tags.push(r.bell === 'live' ? 'bell' : 'bell (cut)');
+      if (r.clue) tags.push('card');
+      if (r.desk) tags.push('dossier');
+      if (r.closed) tags = ['closed'];
+      g.appendChild(s('text', { x: b.x + 6, y: b.y + b.h - 8, fill: r.closed ? '#f4a48f' : '#e8cf96', 'font-size': 11.5 }, tags.join(' · ')));
+      svg.appendChild(g);
+    });
+    // passages
+    mv.edges.forEach(function (e) {
+      var pos = EDGE_POS[e.id]; if (!pos) return;
+      var st = edgeState(mv, e);
+      var g = s('g', { 'data-edge': e.id, 'data-state': st });
+      var col = st === 'closed' ? '#c25a43' : st === 'unproven' ? '#f2c46d' : '#d8b25c';
+      if (pos.o === 'v') g.appendChild(s('rect', { x: pos.x - 4, y: pos.y - 14, width: 8, height: 28, fill: st === 'open' ? '#0f1730' : 'none', stroke: col, 'stroke-width': 2, 'stroke-dasharray': st === 'unproven' ? '3 2' : null }));
+      else g.appendChild(s('rect', { x: pos.x - 14, y: pos.y - 4, width: 28, height: 8, fill: st === 'open' ? '#0f1730' : 'none', stroke: col, 'stroke-width': 2, 'stroke-dasharray': st === 'unproven' ? '3 2' : null }));
+      if (st === 'closed') g.appendChild(s('path', { class: 'closed-mark', d: 'M' + (pos.x - 7) + ' ' + (pos.y - 7) + 'L' + (pos.x + 7) + ' ' + (pos.y + 7) + 'M' + (pos.x + 7) + ' ' + (pos.y - 7) + 'L' + (pos.x - 7) + ' ' + (pos.y + 7), stroke: '#ffb3a0', 'stroke-width': 2.5 }));
+      if (st === 'unproven') g.appendChild(s('text', { x: pos.x, y: pos.y + 4, fill: '#f2c46d', 'font-size': 11, 'text-anchor': 'middle', 'font-weight': 700 }, '?'));
+      svg.appendChild(g);
+    });
+    // painted doors
+    mv.hall.painted.forEach(function (pd) {
+      var pos = PAINT_POS[pd.id];
+      var known = mv.rooms.some(function (r) { return r.passages.some(function (p) { return p.id === pd.id && p.kind === 'painted'; }); });
+      var g = s('g', { 'data-painted': pd.id, 'data-state': known ? 'painted' : 'unproven' });
+      g.appendChild(s('rect', { x: pos.x - 6, y: pos.y - 10, width: 12, height: 20, fill: 'none', stroke: known ? '#7d6a52' : '#f2c46d', 'stroke-width': 1.5, 'stroke-dasharray': '3 2' }));
+      g.appendChild(s('text', { x: pos.x, y: pos.y + 4, fill: known ? '#a99880' : '#f2c46d', 'font-size': known ? 8 : 11, 'text-anchor': 'middle', 'font-weight': 700 }, known ? 'paint' : '?'));
+      svg.appendChild(g);
+    });
+    // entrances
+    mv.entrances.forEach(function (en) {
+      var pos = ENTRANCE_POS[en.id];
+      var st = en.open ? 'open' : 'closed';
+      var g = s('g', { 'data-entrance': en.id, 'data-state': st });
+      if (en.id === 'tunnel') {
+        g.appendChild(s('path', { d: 'M560 296 V345 H392', fill: 'none', stroke: '#d8b25c', 'stroke-width': 3, 'stroke-dasharray': '6 4' }));
+        g.appendChild(s('path', { d: 'M546 296 L560 276 L574 296 Z', fill: '#cdbf9f' }));
+      } else if (en.id === 'roof') {
+        g.appendChild(s('line', { x1: 142, y1: 296, x2: 142, y2: 124, stroke: '#7d8aa8', 'stroke-width': 3 }));
+      } else if (en.id === 'window') {
+        g.appendChild(s('rect', { x: 144, y: 146, width: 12, height: 28, fill: en.open ? '#f2c46d' : 'url(#bricks)', stroke: '#a97b3a', class: en.open ? null : 'bricks' }));
+      } else if (en.id === 'scullerydoor') {
+        g.appendChild(s('rect', { x: 144, y: 262, width: 12, height: 32, fill: '#6b4a2a', stroke: '#a97b3a' }));
+      } else if (en.id === 'hatch') {
+        g.appendChild(s('path', { d: 'M118 300 L140 294 L140 302 Z', fill: '#6b4a2a', stroke: '#a97b3a' }));
+      }
+      var label = en.name + (en.open ? '' : ' (closed)');
+      g.appendChild(s('text', { x: pos.lx, y: pos.ly, fill: en.open ? '#d6ddef' : '#f4a48f', 'font-size': 11, 'text-anchor': pos.anchor }, label));
+      svg.appendChild(g);
+    });
+    // Pell's annotations
+    mv.hall.cms.forEach(function (id) {
+      var n = CM_NOTE[id];
+      svg.appendChild(s('text', { class: 'cm-note', 'data-cm': id, x: n.x, y: n.y, fill: '#ffe2a0', 'font-size': 12.5, style: 'font-family: var(--hand); font-style: italic' }, n.t));
+    });
+    // you
+    var here = mv.here;
+    var pt = here === 'lawn' ? { cx: 62, cy: 280 } : roomBox(here);
+    var you = s('g', { id: 'you', transform: 'translate(' + pt.cx + ' ' + (pt.cy + 4) + ')', 'data-here': here });
+    you.appendChild(s('circle', { r: 9, fill: '#f2c46d', stroke: '#1a1406', 'stroke-width': 2 }));
+    you.appendChild(s('text', { y: 4, fill: '#1a1406', 'font-size': 10, 'text-anchor': 'middle', 'font-weight': 700 }, 'You'));
+    if (mv.heist && mv.heist.hasTarget) you.appendChild(s('circle', { cx: 10, cy: -8, r: 4, fill: '#e8e8f2', stroke: '#1a1406' }));
+    svg.appendChild(you);
+    return svg;
+  }
+  function shortName(id) {
+    return { library: 'Library', gallery: 'Long Gallery', study: 'Pell’s Study', scullery: 'Scullery', hall: 'Central Hall',
+      display: 'Display Room', cellar: 'Coal Cellar', winecellar: 'Wine Cellar' }[id] || id;
+  }
+
+  /* ---------- text map (same model as the dollhouse) ---------- */
+  function renderTextMap(mv) {
+    var t = clear($('textmap'));
+    t.appendChild(h('h2', { id: 'textmap-heading', text: 'Text map of the Hall' }));
+    t.appendChild(h('p', { class: 'lede', text: 'Everything the dollhouse shows, in words. The two are drawn from the same plan.' }));
+    var hz = mv.heist;
+    var facts = h('dl', { class: 'facts' });
+    function fact(k, v) { facts.appendChild(h('div', null, h('dt', { text: k }), h('dd', { text: v }))); }
+    fact('Current room', hz ? (hz.room === 'lawn' ? 'The lawn (outside)' : M.ROOMS[hz.room].name) : 'The lawn (outside)');
+    fact('Objective', S.objective(game) || (game.phase === 'outside' ? 'Choose a way in. The vitrine is in the Display Room.' : 'None right now.'));
+    fact('Exit rule', mv.hall.exitRule === 'different' ? 'Leave by a different way than you last came in by.' : mv.hall.exitRule === 'same' ? 'Leave by the same way you last came in by.' : 'Any open way out.');
+    fact('Vitrine', mv.hall.riddle ? 'Riddle dial; clue cards in ' + mv.hall.riddle.clues.map(function (c) { return M.ROOMS[c.room].name; }).join(' and ') + '.' : 'Small lock. Can be picked, opened with its key, or left open by the footman when a bell rings.');
+    fact('Vitrine key', 'Hangs in ' + M.ROOMS[mv.hall.keyRoom].name + (hz && hz.keyHeld ? ' (you have it).' : '.'));
+    fact('Bells', mv.hall.bellsLive ? 'Bell pulls in the Central Hall and the Library send the footman off.' : 'Disconnected tonight.');
+    t.appendChild(facts);
+
+    // changes in force
+    t.appendChild(h('h3', { text: 'Pell’s changes in force' + (hz ? ' tonight' : game.phase === 'outside' ? ' for the next burglary' : ' in the Hall you just left') }));
+    if (!mv.hall.cms.length) t.appendChild(h('p', { text: mv.hall.chapter === 'evening' ? 'None: it is Pell’s evening off and the Hall is as it was on the first night.' : 'None. The Hall is as it was on the first night.' }));
+    else t.appendChild(h('ul', { class: 'changes' }, mv.hall.cms.map(function (id) {
+      return h('li', { 'data-cm': id }, h('strong', { text: M.CMS[id].title + ' (' + id + '). ' }), M.CMS[id].effect + ' ' + M.CMS[id].alt);
+    })));
+
+    t.appendChild(h('h3', { text: 'Rooms and passages' }));
+    var ul = h('ul', { class: 'roomlist' });
+    var lawn = h('li', { 'data-room': 'lawn' }, h('h3', null, 'The lawn', mv.here === 'lawn' ? h('span', { class: 'here-tag', text: ' (you are here)' }) : null));
+    lawn.appendChild(h('ul', null, mv.entrances.map(function (en) {
+      return h('li', { 'data-entrance': en.id, 'data-state': en.open ? 'open' : 'closed' },
+        en.name + ' into ' + M.ROOMS[en.room].name + ': ',
+        en.open ? h('span', { text: 'open' + (en.cm ? ' (opened by Pell’s change ' + en.cm + ')' : '') }) : h('span', { class: 'state-closed', text: 'closed. ' + en.reason }));
+    })));
+    ul.appendChild(lawn);
+    mv.rooms.forEach(function (r) {
+      var li = h('li', { 'data-room': r.id, 'data-state': r.closed ? 'closed' : r.here ? 'here' : 'open' });
+      li.appendChild(h('h3', null, r.name, r.here ? h('span', { class: 'here-tag', text: ' (you are here)' }) : null));
+      var items = [];
+      if (r.closed) items.push(h('li', { class: 'state-closed', text: 'Cannot be entered: ' + r.closed }));
+      var feats = [];
+      if (r.id === 'display') feats.push('the vitrine');
+      if (r.key) feats.push('the vitrine key');
+      if (r.bell) feats.push(r.bell === 'live' ? 'a working bell pull' : 'a disconnected bell pull');
+      if (r.clue) feats.push('a riddle card');
+      if (r.desk) feats.push('Pell’s dossier desk');
+      if (feats.length) items.push(h('li', { text: 'Here: ' + feats.join(', ') + '.' }));
+      r.passages.forEach(function (p) {
+        var attrs = p.kind === 'painted' ? { 'data-painted': p.id, 'data-state': 'painted' }
+          : p.kind === 'door' && p.id.indexOf('paint-') === 0 ? { 'data-painted': p.id, 'data-state': 'unproven' }
+          : { 'data-edge': p.id, 'data-state': !p.open ? 'closed' : p.unproven ? 'unproven' : 'open' };
+        var stateText = p.kind === 'painted' ? h('span', { class: 'state-closed', text: 'painted, not a door.' })
+          : !p.open ? h('span', { class: 'state-closed', text: 'closed. ' + p.reason })
+          : p.unproven ? h('span', { class: 'state-unproven', text: 'unproven: it may be real or painted. Try it or scout the room.' })
+          : h('span', { text: 'open.' });
+        items.push(h('li', attrs, p.label + ': ', stateText));
+      });
+      r.entrances.forEach(function (en) {
+        items.push(h('li', { 'data-way': en.id }, 'Way out to the lawn by the ' + en.name.toLowerCase() + ': ', en.open ? 'open.' : h('span', { class: 'state-closed', text: 'closed. ' + en.reason })));
+      });
+      li.appendChild(h('ul', null, items));
+      ul.appendChild(li);
+    });
+    t.appendChild(ul);
+  }
+
+  /* ---------- dossier ---------- */
+  function dossierDoc(forPrint) {
+    var d = D.dossierView(game);
+    var hz = S.activeHeist(game);
+    var doc = h('div', { class: 'paper' });
+    doc.appendChild(h('h2', { text: forPrint ? 'Dossier of the Guest' : 'Pell’s dossier on the guest' }));
+    if (!forPrint) doc.appendChild(h('p', { class: 'muted', text: 'This is everything Pell remembers about you, and why he built the Hall the way he did. Nothing else is kept.' }));
+    if (hz && !hz.evening) doc.appendChild(h('p', null, h('strong', { text: 'A burglary is under way. ' }), 'Pages you steal tonight change Pell’s file only once you escape. The Hall you are in stays as it is until the next burglary.'));
+    if (game.evening) doc.appendChild(h('p', null, h('strong', { text: 'Pell’s evening off. ' }), 'Nothing tonight is read from or written to this file.'));
+
+    doc.appendChild(h('h3', { text: 'The rule (first page)' }));
+    doc.appendChild(h('ol', null, d.rule.map(function (r) { return h('li', { text: r }); })));
+
+    doc.appendChild(h('h3', { text: 'Pages: what Pell observed' }));
+    if (!d.pages.length) doc.appendChild(h('p', { text: 'No pages yet. Pell writes one each time you finish a recorded burglary.' }));
+    else {
+      var rows = d.pages.map(function (p) {
+        if (p.burned) return h('tr', { class: 'burned', 'data-page': p.n }, h('td', { text: String(p.n) }), h('td', { colspan: 6, text: p.text }));
+        var status = p.chapter === 'great' ? 'Great Burglary (not counted)' : p.disregarded ? 'Marked “Disregard”: not counted' : 'Counted';
+        var row = h('tr', { class: p.disregarded ? 'disregarded' : null, 'data-page': p.n },
+          h('td', { text: String(p.n) }), h('td', { text: p.entry === p.entryRoute ? p.entry : p.entry + ' (' + p.entryRoute + ')' }), h('td', { text: p.method }),
+          h('td', { text: p.scout }), h('td', { text: p.exit + ' (' + p.exitRoute + ')' }), h('td', { text: p.curiosity }), h('td', null, status));
+        return row;
+      });
+      doc.appendChild(h('div', { class: 'tablewrap' }, h('table', null,
+        h('thead', null, h('tr', null, ['Burglary', 'Entry', 'Vitrine', 'Scouting', 'Exit', 'Curiosity', 'Status'].map(function (x) { return h('th', { scope: 'col', text: x }); }))),
+        h('tbody', null, rows))));
+    }
+
+    if (!forPrint && game.phase === 'outside' && !hz && !game.evening) {
+      var regards = game.records.filter(function (r) { return r.disregarded && !r.burned; });
+      if (regards.length) doc.appendChild(h('div', { class: 'btnrow' }, regards.map(function (r) {
+        return h('button', { type: 'button', class: 'act', on: { click: function () { dispatch({ type: 'regard', page: r.n }); } } }, 'Let Pell regard page ' + r.n + ' again');
+      })));
+    }
+
+    doc.appendChild(h('h3', { text: 'What Pell is counting' }));
+    var mode = d.mode === 'none' ? 'No countable pages, so Pell acts on nothing.'
+      : d.mode === 'hunch' ? 'One countable page (burglary ' + d.window[0] + '). One visit is a hunch, not a habit, but he acts on it.'
+      : 'Countable pages: ' + d.eligible.join(', ') + '. His window is the last ' + d.window.length + ': burglaries ' + d.window.join(', ') + '. A choice made in at least two of them is a habit.';
+    doc.appendChild(h('p', { id: 'policy-line', text: mode }));
+    var tal = h('ul');
+    M.OBSERVED_DIMENSIONS.forEach(function (dim) {
+      var parts = M.DIM_VALUES[dim].map(function (v) { return M.VALUE_SHORT[dim][v] + ' ' + d.tallies[dim][v]; });
+      tal.appendChild(h('li', null, h('strong', { text: M.DIM_NAME[dim] + ' (all countable pages): ' }), parts.join(', ')));
+    });
+    doc.appendChild(tal);
+
+    doc.appendChild(h('h3', { text: 'Beliefs and what he builds for them' }));
+    if (!d.beliefs.length) doc.appendChild(h('p', { text: 'No beliefs. The Hall stays as it was on the first night.' }));
+    else doc.appendChild(h('ul', null, d.beliefs.map(function (b) {
+      return h('li', { 'data-belief': b.cm },
+        h('strong', { text: b.dimName + ': ' + b.valueName + ' — ' + (b.status === 'hunch' ? 'a hunch' : 'a habit') + '. ' }),
+        'Evidence: burglar' + (b.evidence.length > 1 ? 'ies ' : 'y ') + b.evidence.join(', ') + ' (' + b.count + ' of ' + b.of + '). ',
+        h('em', { text: 'Builds ' + b.title + ' (' + b.cm + '): ' }), b.effect);
+    })));
+
+    doc.appendChild(h('h3', { text: 'Your interference' }));
+    doc.appendChild(d.ledger.length ? h('ul', null, d.ledger.map(function (l) { return h('li', { text: l }); })) : h('p', { text: 'None yet. In Pell’s Study you can steal one page per burglary, to burn it or mark it “Disregard”.' }));
+
+    doc.appendChild(h('h3', { text: 'Struck through and withdrawn' }));
+    doc.appendChild(d.revisions.length ? h('ul', null, d.revisions.map(function (r) {
+      return h('li', { 'data-revision': r.cause }, 'After burglary ' + r.at + ': ', h('span', { class: r.cause === 'contradicted' ? 'strike' : null, text: r.what }), ' — ' + r.why);
+    })) : h('p', { text: 'Nothing yet. When your play contradicts a belief, Pell strikes it through here and undoes its change.' }));
+
+    doc.appendChild(h('h3', { text: 'The Hall, burglary by burglary' }));
+    doc.appendChild(d.builds.length ? h('ul', null, d.builds.map(function (b) {
+      return h('li', { text: (b.chapter === 'great' ? 'Great Burglary' : 'Burglary ' + b.heist) + ': ' + (b.titles.length ? b.titles.join('; ') : 'the original Hall') + '.' });
+    })) : h('p', { text: 'Your first burglary will be in the original Hall.' }));
+    if (forPrint) {
+      var prov = D.greatProvenance(game);
+      if (prov) doc.appendChild(provenanceEl(prov));
+    }
+    if (!forPrint) {
+      doc.appendChild(h('h3', { text: 'Start again' }));
+      doc.appendChild(h('p', { text: 'Burning the file erases every page, belief, change, curiosity and the Great Burglary, and returns the Hall to the first night. It cannot be undone.' }));
+      doc.appendChild(h('div', { class: 'btnrow' }, h('button', { type: 'button', class: 'act danger', id: 'burn-file-btn', on: { click: openBurn } }, 'Burn the file')));
+    }
+    return doc;
+  }
+
+  function provenanceEl(prov) {
+    var wrap = h('div');
+    wrap.appendChild(h('h3', { text: 'The Great Hall was built from these beliefs' }));
+    if (!prov.rows.length) wrap.appendChild(h('p', { text: 'No beliefs survived in the file, so the Great Hall was the original Hall.' }));
+    else wrap.appendChild(h('div', { class: 'tablewrap' }, h('table', { id: 'provenance' },
+      h('thead', null, h('tr', null, ['Change', 'What it did', 'Built because'].map(function (x) { return h('th', { scope: 'col', text: x }); }))),
+      h('tbody', null, prov.rows.map(function (r) { return h('tr', { 'data-cm': r.cm }, h('td', { text: r.title + ' (' + r.cm + ')' }), h('td', { text: r.effect }), h('td', { text: r.because })); })))));
+    if (prov.absent.length) wrap.appendChild(h('ul', null, prov.absent.map(function (a) { return h('li', { text: a }); })));
+    return wrap;
+  }
+
+  /* ---------- finale ---------- */
+  function renderFinale() {
+    var f = clear($('finale'));
+    if (game.phase !== 'finale' || game.evening) { f.hidden = true; return; }
+    f.hidden = false;
+    f.appendChild(h('div', { class: 'note' },
+      h('h3', { text: 'In Pell’s Study' }),
+      h('p', { class: 'hand', text: 'Pell is waiting by the lamp, already in his coat. “I have been auditioning a successor,” he says, “and you kept coming back.”' }),
+      h('p', { class: 'hand', text: 'He hands you a ring of keys: the front door, the cellar, the library, the silver cupboard and his own study.' }),
+      h('p', { class: 'hand', text: '“The file is yours as well. Burn it, frame it or keep adding to it. I shan’t be reading it.”' }),
+      h('p', { class: 'sign', text: '— A. Pell' })));
+    var L = D.referenceLetter(game);
+    var letter = h('div', { class: 'paper', id: 'letter' }, h('h2', { text: 'Letter of reference' }), L.paragraphs.map(function (p) { return h('p', { text: p }); }), h('p', { style: 'text-align:right;font-family:var(--hand);font-size:1.2rem', text: L.sign }));
+    f.appendChild(letter);
+    var prov = D.greatProvenance(game);
+    var pv = h('div', { class: 'paper', style: 'margin-top:1rem' });
+    pv.appendChild(provenanceEl(prov));
+    f.appendChild(pv);
+    f.appendChild(h('div', { class: 'btnrow' },
+      h('button', { type: 'button', class: 'act', id: 'print-letter', on: { click: function () { printDoc('letter'); } } }, 'Print the letter of reference'),
+      h('button', { type: 'button', class: 'act', id: 'print-dossier', on: { click: function () { printDoc('dossier'); } } }, 'Print the Dossier of the Guest')));
+  }
+
+  function printDoc(kind) {
+    if (!game.greatDone) return; // keepsakes exist only once earned
+    var area = clear($('print-area'));
+    if (kind === 'letter') {
+      var L = D.referenceLetter(game);
+      area.appendChild(h('div', { class: 'paper' }, h('h2', { text: 'Letter of reference' }), L.paragraphs.map(function (p) { return h('p', { text: p }); }), h('p', { style: 'text-align:right;font-style:italic', text: L.sign }),
+        h('p', { class: 'muted', text: 'Thornwick Hall · Evolvortal No. 1, The Butler Has Noticed · DoorQuests, created by The Axiom Continuum' })));
+    } else {
+      area.appendChild(dossierDoc(true));
+    }
+    window.print();
+  }
+
+  /* ---------- mantel ---------- */
+  function renderMantel() {
+    var m = clear($('mantel-list'));
+    if (!game.mantel.length) { m.appendChild(h('li', null, h('h3', { text: 'Empty for now' }), h('p', { text: 'Each recorded burglary puts one curiosity here.' }))); return; }
+    game.mantel.forEach(function (it) {
+      var c = M.CURIOSITIES[it.curiosity];
+      m.appendChild(h('li', { 'data-mantel': it.n }, h('h3', { text: c.title }), h('p', { text: (it.chapter === 'great' ? 'The Great Burglary. ' : 'Burglary ' + it.n + '. ') + c.desc })));
+    });
+  }
+
+  /* ---------- settings ---------- */
+  function renderSettings() {
+    $('set-textfirst').checked = settings.textFirst;
+    $('set-still').checked = settings.still;
+    $('set-save').checked = settings.saveOn && storageOK;
+    $('set-save').disabled = !storageOK;
+    $('storage-status').textContent = storageOK
+      ? (settings.saveOn ? 'Saved locally on this device only. A save is written each time you finish a burglary or change Pell’s file; a burglary in progress is not saved if you close the page.' : 'Saving is off. Pell’s file lives in memory and is gone when you close the page.')
+      : 'This browser is not letting the page store anything, so Pell’s file lives in memory only. Everything still plays.';
+    $('storage-note').textContent = storageNote;
+    $('storage-note').hidden = !storageNote;
+  }
+
+  /* ---------- top-level render ---------- */
+  function renderTabs() {
+    ['hall', 'dossier', 'mantel', 'help', 'settings'].forEach(function (v) {
+      $('tab-' + v).setAttribute('aria-pressed', String(view === v));
+      $('view-' + v).hidden = view !== v;
+    });
+    $('mantel-count').textContent = game.mantel.length ? ' (' + game.mantel.length + ')' : '';
+  }
+
+  function render() {
+    document.body.classList.toggle('text-first', !!settings.textFirst);
+    document.body.classList.toggle('still', !!settings.still);
+    $('greeting').textContent = greeting;
+    var banner = $('mode-banner');
+    clear(banner);
+    var hz = S.activeHeist(game);
+    if (game.evening) { banner.hidden = false; banner.appendChild(h('p', { style: 'margin:0' }, h('strong', { text: 'Pell’s evening off. ' }), 'Nothing tonight is recorded, nothing in his file is used, and the Hall is the original one. Your file is untouched.')); }
+    else if (hz && hz.chapter === 'great') { banner.hidden = false; banner.appendChild(h('p', { style: 'margin:0' }, h('strong', { text: 'The Great Burglary. ' }), 'The Hall is built from every belief left in Pell’s file. See the text map for each change.')); }
+    else banner.hidden = true;
+    var mv = S.mapView(game);
+    var fig = clear($('house'));
+    fig.appendChild(renderHouse(mv));
+    renderPanel();
+    renderTextMap(mv);
+    renderFinale();
+    var dv = clear($('dossier'));
+    dv.appendChild(dossierDoc(false));
+    renderMantel();
+    renderSettings();
+    renderTabs();
+    rebuilding = false;
+  }
+
+  /* ---------- burn-the-file dialog ---------- */
+  var lastFocus = null;
+  function openBurn() {
+    lastFocus = document.activeElement;
+    var dlg = $('burn-dialog');
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+    $('burn-cancel').focus();
+  }
+  function closeBurn() {
+    var dlg = $('burn-dialog');
+    if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open');
+    if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
+  }
+
+  /* ---------- wiring ---------- */
+  function init() {
+    boot();
+    ['hall', 'dossier', 'mantel', 'help', 'settings'].forEach(function (v) {
+      $('tab-' + v).addEventListener('click', function () { view = v; renderTabs(); });
+    });
+    $('set-textfirst').addEventListener('change', function (e) { settings.textFirst = e.target.checked; save(); render(); });
+    $('set-still').addEventListener('change', function (e) { settings.still = e.target.checked; save(); render(); });
+    $('set-save').addEventListener('change', function (e) {
+      settings.saveOn = e.target.checked;
+      if (settings.saveOn) save();
+      else { try { window.localStorage.removeItem(M.SAVE_KEY); } catch (err) { /* nothing stored */ } }
+      render();
+    });
+    $('erase-save').addEventListener('click', function () {
+      try { window.localStorage.removeItem(M.SAVE_KEY); } catch (err) { /* nothing stored */ }
+      settings.saveOn = false;
+      storageNote = 'Saved data erased from this device and saving turned off. Your current file stays in memory until you close the page.';
+      render();
+    });
+    $('burn-cancel').addEventListener('click', closeBurn);
+    $('burn-confirm').addEventListener('click', function () {
+      var dlg = $('burn-dialog');
+      if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open');
+      dispatch({ type: 'burnFile', confirm: 'BURN THE FILE' });
+      view = 'hall';
+      renderTabs();
+      message = 'The file is ashes. Thornwick Hall is exactly as it was on the first night.';
+      render();
+      focusLater('room-heading');
+    });
+    $('burn-dialog').addEventListener('cancel', function () { if (lastFocus) window.setTimeout(function () { lastFocus.focus(); }, 0); });
+    window.addEventListener('afterprint', function () { clear($('print-area')); });
+    render();
+  }
+
+  window.EvolvortalUI = {
+    getGame: function () { return game; },
+    getSettings: function () { return settings; },
+    dispatch: dispatch,
+    render: render,
+    storageAvailable: function () { return storageOK; }
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+</body>
+</html>

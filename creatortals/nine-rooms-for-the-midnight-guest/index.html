@@ -1,0 +1,2570 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nine Rooms for the Midnight Guest — Creatortal No. 1 — DoorQuests</title>
+<meta name="description" content="Build a nine-room house of keys, locks, one-way doors and lever gates. The Guest checks every possible state, shows you exactly where it breaks, and walks your finished house.">
+<meta name="robots" content="noindex">
+<style>
+:root{
+  --ink:#0e1a3a; --night:#14234d; --room:#1f3268; --room-hi:#28407f; --wall:#0a1330;
+  --brass:#d4a548; --candle:#f2cf7a; --text:#eef0f8; --muted:#b9c3e2; --line:#33488a;
+  --ember:#f39a7d; --moss:#94d8ab; --parch:#efe3c4; --parch-ink:#2a2213; --focus:#ffe08a;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--text);font:16px/1.55 var(--sans);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(120% 70% at 50% -10%,#24387a 0%,rgba(20,35,77,.6) 40%,var(--ink) 75%)}
+a{color:var(--candle)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:3px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;left:8px;top:-60px;background:var(--candle);color:var(--ink);padding:10px 14px;z-index:20;font-weight:600;border-radius:4px}
+.skip:focus{top:8px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 16px}
+header.top{border-bottom:1px solid rgba(212,165,72,.25)}
+header.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding-top:10px;padding-bottom:10px}
+.crumb{font-size:.86rem;color:var(--muted);margin:0}
+.crumb b{color:var(--candle);font-weight:600}
+nav.main{display:flex;gap:6px;flex-wrap:wrap}
+nav.main button{background:none;border:1px solid transparent;color:var(--muted);min-height:44px;padding:0 12px;font:inherit;font-size:.95rem;border-radius:22px;cursor:pointer}
+nav.main button[aria-current="page"]{color:var(--candle);border-color:rgba(242,207,122,.45)}
+nav.main button:hover{color:var(--text)}
+main{padding:20px 0 64px}
+section.screen{display:none}
+section.screen.on{display:block}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.2;letter-spacing:.005em}
+h1{font-size:clamp(2rem,6vw,3.3rem);margin:.2em 0 .3em}
+h2{font-size:clamp(1.45rem,4vw,1.9rem);margin:.2em 0 .5em}
+h3{font-size:1.2rem;margin:1.1em 0 .4em}
+p{margin:.5em 0 .8em;max-width:68ch}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+button,.btn{font:inherit;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:9px 18px;border-radius:6px;border:1px solid var(--line);background:var(--night);color:var(--text);text-align:left;line-height:1.3}
+.btn:hover{border-color:var(--brass)}
+.btn.primary{background:var(--brass);color:#1b1404;border-color:var(--brass);font-weight:650}
+.btn.primary:hover{background:var(--candle)}
+.btn.quiet{background:none}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed;border-style:dashed}
+.btn.block{display:flex;width:100%}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stack>*+*{margin-top:12px}
+/* intro */
+.hero{display:grid;gap:24px;align-items:center;padding-top:10px}
+@media(min-width:860px){.hero{grid-template-columns:1.05fr .95fr}}
+.hero p.lede{font-family:var(--serif);font-size:1.25rem;line-height:1.6;color:#dfe5f6}
+.hero svg{width:100%;max-width:440px;height:auto;display:block;margin:0 auto}
+.door-glow{transform-origin:220px 150px;animation:breathe 5s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.55}50%{opacity:1}}
+/* editor layout */
+.ed{display:grid;gap:20px}
+@media(min-width:900px){.ed{grid-template-columns:minmax(340px,460px) 1fr;align-items:start}.ed .planCol{position:sticky;top:12px}}
+.planBox{background:rgba(10,19,48,.55);border:1px solid rgba(212,165,72,.22);border-radius:10px;padding:10px}
+.planBox svg{width:100%;height:auto;display:block;touch-action:manipulation}
+.planBox .hit{cursor:pointer}
+.caption{font-size:.88rem;color:var(--muted);margin:8px 2px 0}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.slots{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.slots button{min-height:44px;padding:6px 14px;border-radius:22px;border:1px solid var(--line);background:none;color:var(--muted)}
+.slots button[aria-pressed="true"]{background:var(--night);color:var(--candle);border-color:var(--brass)}
+.panel{border-left:3px solid var(--brass);background:rgba(20,35,77,.7);padding:14px 16px;border-radius:0 8px 8px 0}
+.panel.quietp{border-left-color:var(--line)}
+.panel h3:first-child,.panel h2:first-child{margin-top:0}
+label{display:block;font-weight:600;margin:10px 0 4px}
+.hint{font-weight:400;color:var(--muted);font-size:.88rem}
+input[type=text],textarea,select{font:inherit;width:100%;max-width:100%;min-height:44px;padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:#0c1838;color:var(--text)}
+textarea{min-height:72px;resize:vertical}
+fieldset{border:1px solid var(--line);border-radius:8px;padding:8px 12px 12px;margin:10px 0}
+legend{font-weight:600;padding:0 6px}
+.radio{display:flex;align-items:center;gap:10px;min-height:44px;font-weight:400;margin:0}
+.radio input{width:22px;height:22px;accent-color:var(--brass)}
+.chip{display:inline-block;padding:3px 10px;border-radius:12px;font-size:.85rem;border:1px solid var(--line);color:var(--muted)}
+.chip.pass{color:var(--moss);border-color:rgba(148,216,171,.5)}
+.chip.fail{color:var(--ember);border-color:rgba(243,154,125,.55)}
+.chip.inc{color:var(--candle);border-color:rgba(242,207,122,.5)}
+.status-line{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:baseline;margin-bottom:6px}
+.status-line h2{margin:0}
+/* the Guest speaks */
+.guest-says{position:relative;margin:12px 0;padding:16px 18px 16px 56px;background:linear-gradient(180deg,rgba(242,207,122,.13),rgba(242,207,122,.04));border:1px solid rgba(242,207,122,.35);border-radius:10px;font-family:var(--serif);font-style:italic;font-size:1.12rem;line-height:1.6;color:#f6ecd0}
+.guest-says::before{content:"";position:absolute;left:18px;top:18px;width:22px;height:30px;border-radius:6px 6px 9px 9px;background:radial-gradient(circle at 50% 60%,#fff3c4 0,#f2cf7a 35%,rgba(242,207,122,0) 70%);box-shadow:0 0 18px rgba(242,207,122,.55)}
+.guest-says .who{display:block;font-style:normal;font-family:var(--sans);font-size:.82rem;color:var(--candle);margin-bottom:2px}
+.keeper{border-left:3px solid var(--moss);padding:12px 16px;background:rgba(148,216,171,.07);border-radius:0 8px 8px 0;margin:12px 0}
+.keeper .who{display:block;font-size:.82rem;color:var(--moss)}
+.checks{list-style:none;padding:0;margin:10px 0}
+.checks li{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:8px 0;border-top:1px solid rgba(51,72,138,.6)}
+.checks li:first-child{border-top:0}
+.mark{font-weight:700;font-size:.82rem;padding:2px 8px;border-radius:4px;align-self:start;white-space:nowrap}
+.mark.PASS{background:rgba(148,216,171,.16);color:var(--moss)}
+.mark.FAIL{background:rgba(243,154,125,.16);color:var(--ember)}
+.mark.INCONCLUSIVE{background:rgba(242,207,122,.14);color:var(--candle)}
+.checks .why{grid-column:2;font-size:.92rem;color:var(--muted)}
+.checks .why ul{margin:4px 0;padding-left:18px}
+ol.route{padding-left:1.6em;margin:8px 0}
+ol.route li{margin:4px 0}
+ol.route li .inv{display:block;font-size:.86rem;color:var(--muted)}
+ol.route li.cross{color:var(--ember)}
+.repairs{list-style:none;padding:0;margin:8px 0}
+.repairs li{padding:10px 0;border-top:1px solid rgba(51,72,138,.6);display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between}
+.repairs li span.what{flex:1 1 220px}
+.notes{padding-left:18px}
+details.words{margin-top:18px}
+details.words>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-family:var(--serif);font-size:1.15rem;color:var(--candle)}
+.wordlist{list-style:none;padding:0;margin:0}
+.wordlist>li{padding:10px 0;border-top:1px solid rgba(51,72,138,.6)}
+.wordlist .exits{margin:4px 0 6px;padding-left:18px;font-size:.93rem}
+.note-q{font-family:var(--serif);font-style:italic;color:#e9dfc0;overflow-wrap:anywhere}
+.counter{font-size:.85rem;color:var(--muted)}
+.counter.over{color:var(--ember)}
+.msg{margin:8px 0;padding:8px 12px;border-radius:6px;background:rgba(243,154,125,.12);border:1px solid rgba(243,154,125,.4)}
+.msg.ok{background:rgba(148,216,171,.1);border-color:rgba(148,216,171,.4)}
+.marks{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:6px}
+.marks label{display:flex;align-items:center;gap:8px;min-height:44px;font-weight:400;margin:0;border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+.marks input{accent-color:var(--brass);width:20px;height:20px}
+.marks svg{width:22px;height:22px;flex:none}
+/* guest view */
+.gview{max-width:720px}
+.roomcard{border:1px solid rgba(242,207,122,.35);border-radius:12px;padding:18px 18px 8px;background:radial-gradient(120% 90% at 50% 0%,rgba(242,207,122,.12),rgba(20,35,77,.85) 60%)}
+.roomcard h3{font-size:clamp(1.6rem,6vw,2.2rem);margin:.1em 0 .2em}
+.roomcard blockquote{margin:6px 0 12px;padding:0;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:#f2e6c4;overflow-wrap:anywhere}
+.pockets{font-size:.95rem;color:var(--muted);margin:6px 0}
+.ways{list-style:none;padding:0;margin:12px 0}
+.ways li{margin:8px 0}
+.ways .btn{width:100%;justify-content:flex-start}
+.banner{border:1px dashed var(--brass);border-radius:8px;padding:10px 14px;margin:10px 0}
+.trapnote{border-left:3px solid var(--ember);padding:10px 14px;background:rgba(243,154,125,.09);margin:10px 0;border-radius:0 8px 8px 0}
+/* street */
+.street{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:760px){.street{grid-template-columns:repeat(3,1fr)}}
+.lot{border-bottom:2px solid rgba(212,165,72,.35);padding-bottom:14px}
+.lot svg{width:100%;max-width:240px;height:auto;display:block;margin:0 auto 8px}
+.lot h3{text-align:center;margin:.3em 0 .1em;overflow-wrap:anywhere}
+.lot p{text-align:center;margin:.2em auto .6em}
+.lot .row{justify-content:center}
+.gold-new{animation:hang 1.6s ease-out 1}
+@keyframes hang{0%{opacity:0;transform:translateY(-14px)}60%{opacity:1}100%{transform:none}}
+.ground{height:2px;background:linear-gradient(90deg,transparent,var(--brass),transparent);margin:6px 0 18px}
+/* deed */
+#deed{background:var(--parch);color:var(--parch-ink);border-radius:6px;padding:28px clamp(16px,5vw,48px);max-width:760px;margin:12px auto;box-shadow:0 0 0 6px rgba(212,165,72,.35),0 18px 50px rgba(0,0,0,.35);font-family:var(--serif);line-height:1.6}
+#deed h2{color:#3a2a0c;text-align:center;font-size:clamp(1.6rem,5vw,2.2rem);margin:.1em 0}
+#deed .sub{text-align:center;margin:0 0 14px;font-family:var(--sans);font-size:.9rem;color:#5e4c27}
+#deed h3{color:#3a2a0c;border-top:1px solid rgba(58,42,12,.25);padding-top:10px}
+#deed .seal{display:flex;justify-content:center;align-items:center;gap:10px;margin:6px 0}
+#deed .seal svg{width:40px;height:40px;color:#7a5a17}
+#deed .dis{font-style:italic;font-size:1.15rem;text-align:center;margin:18px auto 6px;max-width:48ch}
+#deed ol{padding-left:1.4em}
+#deed .tick{color:#2d6b3e;font-weight:700;font-family:var(--sans);font-size:.85rem}
+.deedbar{max-width:760px;margin:0 auto}
+/* dialog */
+dialog{background:var(--night);color:var(--text);border:1px solid var(--brass);border-radius:10px;max-width:min(92vw,460px);padding:18px}
+dialog::backdrop{background:rgba(5,10,25,.7)}
+.help dl dt{font-weight:650;margin-top:10px;font-family:var(--serif);font-size:1.08rem}
+.help dl dd{margin:2px 0 6px 0}
+.qa-out{font-size:.85rem;max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:6px;padding:8px;background:#0c1838}
+.scrollnote{font-size:.85rem;color:var(--muted)}
+footer.site{border-top:1px solid rgba(212,165,72,.2);padding:18px 0 30px;color:var(--muted);font-size:.88rem}
+body.textfirst .planArt{display:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+body.still *,body.still *::before,body.still *::after{animation:none!important;transition:none!important}
+@media print{
+  body{background:#fff;color:#000}
+  body::before{display:none}
+  body.on-deed header.top,body.on-deed footer.site,body.on-deed .noprint,body.on-deed .skip{display:none!important}
+  body.on-deed main{padding:0}
+  body.on-deed #deed{box-shadow:none;max-width:none;margin:0;background:#fff}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the house</a>
+<header class="top">
+  <div class="wrap">
+    <p class="crumb">DoorQuests · Creatortals · <b>Creatortal No. 1</b></p>
+    <nav class="main" aria-label="Sections">
+      <button type="button" data-go="workshop">Workshop</button>
+      <button type="button" data-go="street">Street</button>
+      <button type="button" data-go="help">How it works</button>
+    </nav>
+  </div>
+</header>
+<main id="main" class="wrap" tabindex="-1">
+  <section class="screen" id="scrIntro" aria-labelledby="hIntro"></section>
+  <section class="screen" id="scrEditor" aria-labelledby="hEditor"></section>
+  <section class="screen" id="scrGuest" aria-labelledby="hGuest"></section>
+  <section class="screen" id="scrStreet" aria-labelledby="hStreet"></section>
+  <section class="screen" id="scrDeed" aria-labelledby="hDeed"></section>
+  <section class="screen" id="scrHelp" aria-labelledby="hHelp"></section>
+  <noscript><p>Nine Rooms for the Midnight Guest needs JavaScript to build and check houses. Nothing is sent anywhere; it all runs in this page.</p></noscript>
+</main>
+<footer class="site">
+  <div class="wrap">
+    <p>Choose Your Path. Find the Truth. Unlock the Impossible.<br>Created by The Axiom Continuum.</p>
+  </div>
+</footer>
+<div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<dialog id="dlg" aria-labelledby="dlgMsg">
+  <p id="dlgMsg"></p>
+  <div class="row"><button type="button" class="btn primary" id="dlgOk">Yes</button><button type="button" class="btn" id="dlgNo">Cancel</button></div>
+</dialog>
+<script data-part="content">
+/* DoorQuests · Creatortal #001 · Nine Rooms for the Midnight Guest — authored content (no logic beyond data building) */
+(function (G) {
+  'use strict';
+
+  // The 3x3 plan. Rooms are numbered 0..8 internally (shown to people as 1..9), row by row from the north-west.
+  // Exactly twelve boundaries can exist between grid-adjacent rooms: six east-west and six north-south.
+  var PAIRS = [[0, 1], [1, 2], [3, 4], [4, 5], [6, 7], [7, 8], [0, 3], [1, 4], [2, 5], [3, 6], [4, 7], [5, 8]];
+  var BOUNDARIES = PAIRS.map(function (p, i) {
+    return Object.freeze({ id: i, a: p[0], b: p[1], axis: p[1] === p[0] + 1 ? 'ew' : 'ns' });
+  });
+
+  var POSITIONS = ['north-west', 'north', 'north-east', 'west', 'centre', 'east', 'south-west', 'south', 'south-east'];
+
+  var KEYS = [
+    { id: 0, name: 'brass', letter: 'B' },
+    { id: 1, name: 'iron', letter: 'I' },
+    { id: 2, name: 'silver', letter: 'S' }
+  ];
+  var LEVERS = [
+    { id: 0, name: 'copper', letter: 'C' },
+    { id: 1, name: 'oak', letter: 'O' }
+  ];
+
+  var LIMITS = Object.freeze({
+    roomName: 24, roomNote: 60, houseName: 32, monogram: 3,
+    locks: 4, keys: 3, levers: 2, slots: 3, saveBytes: 20000,
+    // Proven bound (see creation report): 9 rooms x 27 key states x 16 lock states x 4 lever states, plus one "stepped out" state.
+    provenStateBound: 9 * 27 * 16 * 4 + 1,
+    defaultCap: 20000
+  });
+
+  var PRESET_NAMES = ['Hall', 'Kitchen', 'Pantry', 'Cellar', 'Study', 'Library', 'Parlour', 'Attic', 'Gallery',
+    'Observatory', 'Conservatory', 'Larder', 'Scullery', 'Nursery', 'Chapel', 'Music Room', 'Map Room',
+    'Clock Room', 'Boot Room', 'Wine Cellar', 'Lantern Room', 'Glasshouse', 'Bell Tower', 'Laundry'];
+
+  var DEFAULT_NAMES = ['Attic', 'Study', 'Observatory', 'Pantry', 'Parlour', 'Gallery', 'Hall', 'Kitchen', 'Cellar'];
+
+  var MARKS = [
+    { id: 'moon', name: 'Crescent moon' }, { id: 'star', name: 'Star' }, { id: 'key', name: 'Key' },
+    { id: 'owl', name: 'Owl' }, { id: 'lantern', name: 'Lantern' }, { id: 'compass', name: 'Compass' },
+    { id: 'crown', name: 'Crown' }, { id: 'feather', name: 'Feather' }, { id: 'bell', name: 'Bell' },
+    { id: 'eye', name: 'Eye' }, { id: 'wave', name: 'Wave' }, { id: 'spiral', name: 'Spiral' }
+  ];
+
+  // Build a blueprint in the canonical stored shape from a compact authoring spec.
+  // walls: { 'a-b': 'arch' | ['lock', key] | ['oneway', from, to] | ['gate', lever] }
+  function build(spec) {
+    var b = BOUNDARIES.map(function () { return ['wall']; });
+    Object.keys(spec.walls || {}).forEach(function (k) {
+      var ab = k.split('-').map(Number);
+      var lo = Math.min(ab[0], ab[1]), hi = Math.max(ab[0], ab[1]);
+      var id = -1;
+      BOUNDARIES.forEach(function (x) { if (x.a === lo && x.b === hi) id = x.id; });
+      if (id < 0) throw new Error('Not an adjacent pair: ' + k);
+      var w = spec.walls[k];
+      if (w === 'arch') b[id] = ['arch'];
+      else if (w[0] === 'lock') b[id] = ['lock', w[1]];
+      else if (w[0] === 'gate') b[id] = ['gate', w[1]];
+      else if (w[0] === 'oneway') b[id] = ['oneway', w[1] === lo ? 0 : 1];
+      else throw new Error('Unknown wall spec');
+    });
+    return {
+      v: 1, name: spec.name, mark: spec.mark || 'moon', mono: spec.mono || '',
+      rooms: spec.rooms.map(function (r) { return [r[0], r[1] || '']; }),
+      b: b, keys: spec.keys || [null, null, null], levers: spec.levers || [null, null],
+      front: spec.front, final: spec.final
+    };
+  }
+
+  // Tutorial: the half-built house. The brass key lies in the Study; the only way into the Study is the brass door.
+  var TUTORIAL = build({
+    name: 'The Half-Built House', mark: 'lantern',
+    rooms: [
+      ['Attic', 'Dust, and a fine view of nothing.'],
+      ['Study', 'Brass for brass. Mind where you leave things.'],
+      ['Observatory', 'The stars are the way out.'],
+      ['Pantry', 'Jam, mostly.'],
+      ['Parlour', 'The brass door creaks to the north.'],
+      ['Gallery', 'Portraits of earlier Doorwrights.'],
+      ['Hall', 'Wipe your boots. The house is listening.'],
+      ['Kitchen', 'Still warm. Someone was here.'],
+      ['Cellar', 'Cold, damp and empty.']
+    ],
+    walls: { '6-7': 'arch', '3-6': 'arch', '7-8': 'arch', '4-7': 'arch', '4-5': 'arch', '0-3': 'arch', '1-4': ['lock', 0], '1-2': 'arch' },
+    keys: [1, null, null], front: 6, final: 2
+  });
+
+  // A passing sample to start from: a lever, a one-way door and two locks.
+  var LANTERN = build({
+    name: 'The Lantern House', mark: 'star',
+    rooms: [
+      ['Attic', 'Silver, for the last door.'],
+      ['Library', 'The way up only goes one way.'],
+      ['Observatory', 'Step out. The night is waiting.'],
+      ['Pantry', 'A ladder climbs into the dark.'],
+      ['Parlour', 'Someone left the fire burning.'],
+      ['Conservatory', 'Ferns, and something that glints.'],
+      ['Hall', 'Lanterns light the way, if you light them.'],
+      ['Kitchen', 'A gate to the north, held shut.'],
+      ['Cellar', 'Pull, and somewhere a gate will rise.']
+    ],
+    walls: { '6-7': 'arch', '3-6': 'arch', '7-8': 'arch', '4-7': ['gate', 0], '4-5': 'arch', '1-4': ['lock', 0], '0-1': ['oneway', 1, 0], '0-3': 'arch', '1-2': ['lock', 2] },
+    keys: [5, null, 0], levers: [8, null], front: 6, final: 2
+  });
+
+  // A house with a real softlock: spend the iron key on the Cellar and the Attic is gone for good.
+  var IRON_TRAP = build({
+    name: 'The Iron Key Trap', mark: 'key',
+    rooms: [
+      ['Attic', 'Up here, the stairs to the stars.'],
+      ['Study', 'Nearly there.'],
+      ['Observatory', 'Out into the night.'],
+      ['Pantry', 'One iron key. Choose well.'],
+      ['Cellar', 'Wine, and nothing you need.'],
+      ['Gallery', 'A long way round.'],
+      ['Hall', 'Two iron doors, one iron key.'],
+      ['Kitchen', 'The back stairs go down.'],
+      ['Larder', 'Hams, hanging like bells.']
+    ],
+    walls: { '3-6': 'arch', '3-4': ['lock', 1], '0-3': ['lock', 1], '0-1': 'arch', '1-2': 'arch', '6-7': 'arch', '7-8': 'arch', '5-8': 'arch', '4-5': 'arch' },
+    keys: [null, 3, null], front: 6, final: 2
+  });
+
+  var BLANK = build({
+    name: 'Untitled House', mark: 'moon',
+    rooms: DEFAULT_NAMES.map(function (n) { return [n, '']; }),
+    walls: {}, front: 6, final: 2
+  });
+
+  var TEXT = {
+    disclaimer: "I can prove a person can get through. I can't prove they'll enjoy it, or understand your clues. Ask someone.",
+    decisionDefinition: 'A real decision is a stop on the shortest route where the Guest has at least two legal actions that lead to different situations, not counting the step straight back to where they just were. Picking up a key happens automatically, so it is never a decision.',
+    handoff: "You've seen what one mistake can do. Now build one of your own.",
+    tutorialHint: 'Look at where the brass key lies, and where its door is. Then change one thing.'
+  };
+
+  G.CreatortalModel = Object.freeze({
+    VERSION: 1,
+    STORAGE_KEY: 'dq-creatortals-nine-rooms-v1',
+    BOUNDARIES: Object.freeze(BOUNDARIES),
+    POSITIONS: Object.freeze(POSITIONS),
+    KEYS: Object.freeze(KEYS),
+    LEVERS: Object.freeze(LEVERS),
+    LIMITS: LIMITS,
+    PRESET_NAMES: Object.freeze(PRESET_NAMES),
+    DEFAULT_NAMES: Object.freeze(DEFAULT_NAMES),
+    MARKS: Object.freeze(MARKS),
+    BLUEPRINTS: Object.freeze({ tutorial: TUTORIAL, lantern: LANTERN, ironTrap: IRON_TRAP, blank: BLANK }),
+    TEXT: Object.freeze(TEXT),
+    build: build
+  });
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+</script>
+<script data-part="engine">
+/* DoorQuests · Creatortal #001 · engine: design model, one transition function, exhaustive validator, repairs, deed.
+   No DOM access. Runs unchanged in the browser and in a Node vm context. */
+(function (G) {
+  'use strict';
+  var M = G.CreatortalModel;
+  var BOUNDS = M.BOUNDARIES, KEYS = M.KEYS, LEVERS = M.LEVERS, LIM = M.LIMITS;
+  var NK = 3, NL = 2;
+  var GOAL = 9 * 27 * 16 * 4;          // 15552: the single "stepped out through the final door" state
+  var CODE_SPACE = GOAL + 1;           // every possible state code, proven bound 15553
+  var POW3 = [1, 3, 9];
+  var hasOwn = Object.prototype.hasOwnProperty;
+
+  /* ---------------- state encoding ---------------- */
+  // Key status per key: 0 = not picked up, 1 = carried, 2 = spent. Locks: bit per locked boundary (in boundary order), set = unlocked.
+  // Levers: bit per lever, set = pulled (pulling is permanent).
+  function kst(ks, k) { return Math.floor(ks / POW3[k]) % 3; }
+  function kset(ks, k, v) { return ks + (v - kst(ks, k)) * POW3[k]; }
+  function enc(r, ks, lk, lv) { return ((r * 27 + ks) * 16 + lk) * 4 + lv; }
+  function dec(c) {
+    if (c === GOAL) return { r: -1, ks: 0, lk: 0, lv: 0, done: true };
+    var lv = c % 4; c = (c - lv) / 4;
+    var lk = c % 16; c = (c - lk) / 16;
+    var ks = c % 27; var r = (c - ks) / 27;
+    return { r: r, ks: ks, lk: lk, lv: lv, done: false };
+  }
+
+  /* ---------------- text safety ---------------- */
+  function cpLen(s) { return Array.from(s).length; }
+  function cleanText(s) {
+    return String(s).replace(/[\u0000-\u001f\u007f-\u009f‎‏‪-‮⁦-⁩]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function fnv1a(str) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return ('0000000' + h.toString(16)).slice(-8);
+  }
+
+  /* ---------------- design model ---------------- */
+  // Internal design: { v, name, mark, mono, rooms:[{name,note}], b:[{t,k?,d?,l?}], keys:[room|null x3], levers:[room|null x2], front, final }
+  // Stored/serialized form: { v, name, mark, mono, rooms:[[name,note]], b:[[t,param?]], keys, levers, front, final }
+  function bFromArr(x) {
+    if (x[0] === 'lock') return { t: 'lock', k: x[1] };
+    if (x[0] === 'oneway') return { t: 'oneway', d: x[1] };
+    if (x[0] === 'gate') return { t: 'gate', l: x[1] };
+    return { t: x[0] };
+  }
+  function bToArr(x) {
+    if (x.t === 'lock') return ['lock', x.k];
+    if (x.t === 'oneway') return ['oneway', x.d];
+    if (x.t === 'gate') return ['gate', x.l];
+    return [x.t];
+  }
+  function cloneB(x) { return bFromArr(bToArr(x)); }
+  function freeze(d) {
+    d.rooms.forEach(Object.freeze); d.b.forEach(Object.freeze);
+    Object.freeze(d.rooms); Object.freeze(d.b); Object.freeze(d.keys); Object.freeze(d.levers);
+    return Object.freeze(d);
+  }
+  function clone(d) {
+    return {
+      v: 1, name: d.name, mark: d.mark, mono: d.mono,
+      rooms: d.rooms.map(function (r) { return { name: r.name, note: r.note }; }),
+      b: d.b.map(cloneB), keys: d.keys.slice(), levers: d.levers.slice(), front: d.front, final: d.final
+    };
+  }
+  function serializeObj(d) {
+    return {
+      v: 1, name: d.name, mark: d.mark, mono: d.mono,
+      rooms: d.rooms.map(function (r) { return [r.name, r.note]; }),
+      b: d.b.map(bToArr), keys: d.keys.slice(), levers: d.levers.slice(), front: d.front, final: d.final
+    };
+  }
+  function serialize(d) { return JSON.stringify(serializeObj(d)); }
+  function revision(d) { return fnv1a(serialize(d)); }
+
+  function isInt(x, lo, hi) { return typeof x === 'number' && x === Math.floor(x) && x >= lo && x <= hi; }
+  function isRoomOrNull(x) { return x === null || isInt(x, 0, 8); }
+  var MARK_IDS = M.MARKS.map(function (m) { return m.id; });
+
+  // Strictly validate untrusted stored/imported data. Builds a fresh object; never copies unknown fields.
+  function parseAndValidate(input) {
+    var errors = [], o = input;
+    if (typeof input === 'string') {
+      if (input.length > LIM.saveBytes) return { ok: false, errors: ['The blueprint is larger than ' + LIM.saveBytes + ' characters.'] };
+      try { o = JSON.parse(input); } catch (e) { return { ok: false, errors: ['The blueprint is not valid JSON.'] }; }
+    }
+    if (!o || typeof o !== 'object' || Array.isArray(o)) return { ok: false, errors: ['The blueprint is not an object.'] };
+    function get(k) { return hasOwn.call(o, k) ? o[k] : undefined; }
+    if (get('v') !== 1) errors.push('Unknown blueprint version.');
+    var name = get('name'), mark = get('mark'), mono = get('mono');
+    if (typeof name !== 'string' || cleanText(name) !== name || cpLen(name) < 1 || cpLen(name) > LIM.houseName) errors.push('House name is missing, too long or contains control characters.');
+    if (MARK_IDS.indexOf(mark) < 0) errors.push("Maker's mark is not one of the known marks.");
+    if (typeof mono !== 'string' || cleanText(mono) !== mono || cpLen(mono) > LIM.monogram) errors.push('Monogram is not text of at most 3 characters.');
+    var rooms = get('rooms'), b = get('b'), keys = get('keys'), levers = get('levers'), front = get('front'), fin = get('final');
+    var outRooms = [];
+    if (!Array.isArray(rooms) || rooms.length !== 9) errors.push('There must be exactly nine rooms.');
+    else rooms.forEach(function (r, i) {
+      if (!Array.isArray(r) || r.length !== 2 || typeof r[0] !== 'string' || typeof r[1] !== 'string') { errors.push('Room ' + (i + 1) + ' is malformed.'); return; }
+      if (cleanText(r[0]) !== r[0] || cpLen(r[0]) < 1 || cpLen(r[0]) > LIM.roomName) errors.push('Room ' + (i + 1) + ' name is empty, too long or contains control characters.');
+      if (cleanText(r[1]) !== r[1] || cpLen(r[1]) > LIM.roomNote) errors.push('Room ' + (i + 1) + ' note is too long or contains control characters.');
+      outRooms.push({ name: r[0], note: r[1] });
+    });
+    var outB = [];
+    if (!Array.isArray(b) || b.length !== 12) errors.push('There must be exactly twelve boundaries.');
+    else b.forEach(function (x, i) {
+      var ok = Array.isArray(x) && (
+        (x.length === 1 && (x[0] === 'wall' || x[0] === 'arch')) ||
+        (x.length === 2 && x[0] === 'lock' && isInt(x[1], 0, NK - 1)) ||
+        (x.length === 2 && x[0] === 'oneway' && isInt(x[1], 0, 1)) ||
+        (x.length === 2 && x[0] === 'gate' && isInt(x[1], 0, NL - 1)));
+      if (!ok) errors.push('Boundary ' + (i + 1) + ' is malformed.'); else outB.push(bFromArr(x));
+    });
+    if (outB.length === 12 && outB.filter(function (x) { return x.t === 'lock'; }).length > LIM.locks) errors.push('More than four locked doors.');
+    if (!Array.isArray(keys) || keys.length !== NK || !keys.every(isRoomOrNull)) errors.push('Keys must be three rooms or empty places.');
+    if (!Array.isArray(levers) || levers.length !== NL || !levers.every(isRoomOrNull)) errors.push('Levers must be two rooms or empty places.');
+    if (!isInt(front, 0, 8) || !isInt(fin, 0, 8)) errors.push('Front and final doors must each be in a room.');
+    else if (front === fin) errors.push('The front door and the final door must be in different rooms.');
+    if (errors.length) return { ok: false, errors: errors };
+    return { ok: true, design: freeze({ v: 1, name: name, mark: mark, mono: mono, rooms: outRooms, b: outB, keys: keys.slice(), levers: levers.slice(), front: front, final: fin }) };
+  }
+
+  function fromBlueprint(bp) {
+    var r = parseAndValidate(bp);
+    if (!r.ok) throw new Error('Built-in blueprint invalid: ' + r.errors.join(' '));
+    return r.design;
+  }
+  function createBlank() { return fromBlueprint(M.BLUEPRINTS.blank); }
+  function sampleBlueprint(which) { return fromBlueprint(M.BLUEPRINTS[which || 'lantern']); }
+
+  /* ---------------- labels ---------------- */
+  function roomLabel(d, i) {
+    var n = d.rooms[i].name, dup = false;
+    for (var j = 0; j < 9; j++) if (j !== i && d.rooms[j].name.toLowerCase() === n.toLowerCase()) dup = true;
+    return dup ? n + ' (room ' + (i + 1) + ')' : n;
+  }
+  function keyName(k) { return KEYS[k].name; }
+  function aKey(k) { return (KEYS[k].name === 'iron' ? 'an ' : 'a ') + KEYS[k].name; }
+  function leverName(l) { return LEVERS[l].name; }
+  function boundaryLabel(d, bi) { var x = BOUNDS[bi]; return roomLabel(d, x.a) + ' and ' + roomLabel(d, x.b); }
+  function dirWord(from, to) {
+    if (to === from + 1) return 'east'; if (to === from - 1) return 'west';
+    if (to === from + 3) return 'south'; return 'north';
+  }
+  function describeBoundary(d, bi) {
+    var x = d.b[bi], B = BOUNDS[bi];
+    switch (x.t) {
+      case 'wall': return 'no connection';
+      case 'arch': return 'open arch';
+      case 'lock': return keyName(x.k) + ' locked door';
+      case 'oneway': var f = x.d === 0 ? B.a : B.b, t = x.d === 0 ? B.b : B.a; return 'one-way door from ' + roomLabel(d, f) + ' to ' + roomLabel(d, t);
+      case 'gate': return 'gate raised by the ' + leverName(x.l) + ' lever';
+    }
+    return '?';
+  }
+
+  /* ---------------- edits ---------------- */
+  var BTYPES = ['wall', 'arch', 'lock', 'oneway', 'gate'];
+  function sameB(a, b) { return JSON.stringify(bToArr(a)) === JSON.stringify(bToArr(b)); }
+  function applyEdit(d, op) {
+    if (!op || typeof op !== 'object') return { ok: false, reason: 'No edit given.' };
+    var n = clone(d), s;
+    switch (op.op) {
+      case 'boundary': {
+        if (!isInt(op.b, 0, 11)) return { ok: false, reason: 'There are only twelve walls between rooms.' };
+        if (BTYPES.indexOf(op.t) < 0) return { ok: false, reason: 'Unknown kind of connection.' };
+        var nb = { t: op.t };
+        if (op.t === 'lock') { if (!isInt(op.k, 0, NK - 1)) return { ok: false, reason: 'A locked door needs the brass, iron or silver key.' }; nb.k = op.k; }
+        if (op.t === 'oneway') { if (!isInt(op.d, 0, 1)) return { ok: false, reason: 'A one-way door needs a direction.' }; nb.d = op.d; }
+        if (op.t === 'gate') { if (!isInt(op.l, 0, NL - 1)) return { ok: false, reason: 'A gate must name the copper or oak lever.' }; nb.l = op.l; }
+        if (sameB(nb, d.b[op.b])) return { ok: false, reason: 'That wall is already set that way.' };
+        n.b[op.b] = nb;
+        if (n.b.filter(function (x) { return x.t === 'lock'; }).length > LIM.locks) return { ok: false, reason: 'The house allows four locked doors at most. Change another locked door first.' };
+        s = 'Wall between ' + boundaryLabel(d, op.b) + ' is now: ' + describeBoundary(n, op.b) + '.';
+        break;
+      }
+      case 'key': {
+        if (!isInt(op.key, 0, 99) || op.key >= NK) return { ok: false, reason: 'There are only three keys: brass, iron and silver.' };
+        if (!isRoomOrNull(op.room)) return { ok: false, reason: 'That is not a room.' };
+        if (d.keys[op.key] === op.room) return { ok: false, reason: 'The ' + keyName(op.key) + ' key is already there.' };
+        n.keys[op.key] = op.room;
+        s = op.room === null ? 'Took the ' + keyName(op.key) + ' key out of the house.' : 'Put the ' + keyName(op.key) + ' key in ' + roomLabel(d, op.room) + '.';
+        break;
+      }
+      case 'lever': {
+        if (!isInt(op.lever, 0, 99) || op.lever >= NL) return { ok: false, reason: 'There are only two levers: copper and oak.' };
+        if (!isRoomOrNull(op.room)) return { ok: false, reason: 'That is not a room.' };
+        if (d.levers[op.lever] === op.room) return { ok: false, reason: 'The ' + leverName(op.lever) + ' lever is already there.' };
+        n.levers[op.lever] = op.room;
+        s = op.room === null ? 'Took the ' + leverName(op.lever) + ' lever out of the house.' : 'Put the ' + leverName(op.lever) + ' lever in ' + roomLabel(d, op.room) + '.';
+        break;
+      }
+      case 'front': case 'final': {
+        if (!isInt(op.room, 0, 8)) return { ok: false, reason: 'That is not a room.' };
+        var other = op.op === 'front' ? d.final : d.front;
+        if (op.room === other) return { ok: false, reason: 'The front door and the final door must be in different rooms.' };
+        if (d[op.op] === op.room) return { ok: false, reason: 'It is already there.' };
+        n[op.op] = op.room;
+        s = (op.op === 'front' ? 'Front door' : 'Final door') + ' moved to ' + roomLabel(d, op.room) + '.';
+        break;
+      }
+      case 'roomName': case 'roomNote': {
+        if (!isInt(op.room, 0, 8)) return { ok: false, reason: 'That is not a room.' };
+        if (typeof op.text !== 'string') return { ok: false, reason: 'Text expected.' };
+        var t = cleanText(op.text), isName = op.op === 'roomName', max = isName ? LIM.roomName : LIM.roomNote;
+        if (isName && cpLen(t) < 1) return { ok: false, reason: 'A room needs a name.' };
+        if (cpLen(t) > max) return { ok: false, reason: (isName ? 'Room names' : 'Room notes') + ' can be ' + max + ' characters at most; this one is ' + cpLen(t) + '.' };
+        var field = isName ? 'name' : 'note';
+        if (d.rooms[op.room][field] === t) return { ok: false, reason: 'No change.' };
+        n.rooms[op.room][field] = t;
+        s = isName ? 'Room ' + (op.room + 1) + ' is now called ' + t + '.' : (t ? 'Note left in ' + roomLabel(n, op.room) + '.' : 'Note removed from ' + roomLabel(n, op.room) + '.');
+        break;
+      }
+      case 'houseName': {
+        if (typeof op.text !== 'string') return { ok: false, reason: 'Text expected.' };
+        var h = cleanText(op.text);
+        if (cpLen(h) < 1) return { ok: false, reason: 'The house needs a name.' };
+        if (cpLen(h) > LIM.houseName) return { ok: false, reason: 'House names can be ' + LIM.houseName + ' characters at most.' };
+        if (h === d.name) return { ok: false, reason: 'No change.' };
+        n.name = h; s = 'House named ' + h + '.'; break;
+      }
+      case 'mark': {
+        if (MARK_IDS.indexOf(op.mark) < 0) return { ok: false, reason: 'Unknown mark.' };
+        if (op.mark === d.mark) return { ok: false, reason: 'No change.' };
+        n.mark = op.mark; s = "Maker's mark set."; break;
+      }
+      case 'mono': {
+        if (typeof op.text !== 'string') return { ok: false, reason: 'Text expected.' };
+        var m = cleanText(op.text);
+        if (cpLen(m) > LIM.monogram) return { ok: false, reason: 'A monogram can be three characters at most.' };
+        if (m === d.mono) return { ok: false, reason: 'No change.' };
+        n.mono = m; s = 'Monogram set.'; break;
+      }
+      case 'replace': {
+        var r = parseAndValidate(op.blueprint);
+        if (!r.ok) return { ok: false, reason: r.errors.join(' ') };
+        return { ok: true, design: r.design, summary: op.label || 'Replaced the whole design.' };
+      }
+      default: return { ok: false, reason: 'Unknown edit.' };
+    }
+    return { ok: true, design: freeze(n), summary: s };
+  }
+
+  function createHistory(d) { return { past: [], present: d, future: [] }; }
+  function commit(h, op) {
+    var r = applyEdit(h.present, op);
+    if (!r.ok) return { ok: false, reason: r.reason, history: h };
+    return { ok: true, summary: r.summary, history: { past: h.past.concat([{ design: h.present, label: r.summary }]).slice(-300), present: r.design, future: [] } };
+  }
+  function undo(h) {
+    if (!h.past.length) return { ok: false, reason: 'Nothing to undo.', history: h };
+    var last = h.past[h.past.length - 1];
+    return { ok: true, summary: 'Undid: ' + last.label, history: { past: h.past.slice(0, -1), present: last.design, future: [{ design: h.present, label: last.label }].concat(h.future) } };
+  }
+  function redo(h) {
+    if (!h.future.length) return { ok: false, reason: 'Nothing to redo.', history: h };
+    var nx = h.future[0];
+    return { ok: true, summary: 'Redid: ' + nx.label, history: { past: h.past.concat([{ design: h.present, label: nx.label }]), present: nx.design, future: h.future.slice(1) } };
+  }
+
+  /* ---------------- the one transition function ---------------- */
+  var compiledCache = new WeakMap();
+  function compile(d) {
+    var c = compiledCache.get(d);
+    if (c) return c;
+    var adj = [[], [], [], [], [], [], [], [], []], lockIdx = [], n = 0, keysAt = [[], [], [], [], [], [], [], [], []], leversAt = [[], [], [], [], [], [], [], [], []];
+    for (var i = 0; i < 12; i++) {
+      var x = d.b[i], B = BOUNDS[i];
+      lockIdx.push(x.t === 'lock' ? n++ : -1);
+      if (x.t !== 'wall') { adj[B.a].push({ b: i, to: B.b }); adj[B.b].push({ b: i, to: B.a }); }
+    }
+    d.keys.forEach(function (r, k) { if (r !== null) keysAt[r].push(k); });
+    d.levers.forEach(function (r, l) { if (r !== null) leversAt[r].push(l); });
+    c = { d: d, adj: adj, lockIdx: lockIdx, keysAt: keysAt, leversAt: leversAt };
+    compiledCache.set(d, c);
+    return c;
+  }
+  function pickUp(C, room, ks) {
+    var ka = C.keysAt[room];
+    for (var i = 0; i < ka.length; i++) if (kst(ks, ka[i]) === 0) ks = kset(ks, ka[i], 1);
+    return ks;
+  }
+  function initCode(C) { return enc(C.d.front, pickUp(C, C.d.front, 0), 0, 0); }
+
+  // Returns legal transitions in a fixed order: moves by boundary number, then levers, then the final door.
+  // Each item: [actionId, nextCode, spentKey (-1 if none)].
+  function transitions(C, code) {
+    if (code === GOAL) return [];
+    var s = dec(code), out = [], d = C.d, a = C.adj[s.r];
+    for (var i = 0; i < a.length; i++) {
+      var e = a[i], x = d.b[e.b], B = BOUNDS[e.b], ks = s.ks, lk = s.lk, spent = -1, ok = false;
+      if (x.t === 'arch') ok = true;
+      else if (x.t === 'oneway') ok = (x.d === 0 && s.r === B.a) || (x.d === 1 && s.r === B.b);
+      else if (x.t === 'gate') ok = (s.lv & (1 << x.l)) !== 0;
+      else if (x.t === 'lock') {
+        var li = C.lockIdx[e.b];
+        if (lk & (1 << li)) ok = true;
+        else if (kst(ks, x.k) === 1) { ok = true; ks = kset(ks, x.k, 2); lk = lk | (1 << li); spent = x.k; }
+      }
+      if (ok) out.push(['m' + e.b, enc(e.to, pickUp(C, e.to, ks), lk, s.lv), spent]);
+    }
+    var la = C.leversAt[s.r];
+    for (var j = 0; j < la.length; j++) if (!(s.lv & (1 << la[j]))) out.push(['p' + la[j], enc(s.r, s.ks, s.lk, s.lv | (1 << la[j])), -1]);
+    if (s.r === d.final) out.push(['x', GOAL, -1]);
+    return out;
+  }
+
+  /* ---------------- Guest API (built on the same transitions) ---------------- */
+  function codeOf(st) { return st.done ? GOAL : enc(st.r, st.ks, st.lk, st.lv); }
+  function stateOf(code) { var s = dec(code); s.code = code; return s; }
+  function guestInitial(d) { return stateOf(initCode(compile(d))); }
+  function legalActions(d, st) {
+    var C = compile(d);
+    return transitions(C, codeOf(st)).map(function (t) {
+      var a = { id: t[0], next: t[1], spentKey: t[2] };
+      if (t[0] === 'x') a.kind = 'exit';
+      else if (t[0][0] === 'p') { a.kind = 'lever'; a.lever = +t[0].slice(1); }
+      else { a.kind = 'move'; a.b = +t[0].slice(1); a.to = dec(t[1]).r; }
+      return a;
+    });
+  }
+  function step(d, st, actionId) {
+    var acts = legalActions(d, st);
+    for (var i = 0; i < acts.length; i++) if (acts[i].id === actionId) {
+      var nx = stateOf(acts[i].next);
+      return { ok: true, state: nx, action: acts[i], text: describeAction(d, codeOf(st), actionId, acts[i].next) };
+    }
+    return { ok: false, state: st, reason: 'That action is not possible from here.' };
+  }
+  function replay(d, actions) {
+    var st = guestInitial(d), states = [st];
+    for (var i = 0; i < actions.length; i++) {
+      var r = step(d, st, actions[i]);
+      if (!r.ok) return { ok: false, failedAt: i, states: states };
+      st = r.state; states.push(st);
+    }
+    return { ok: true, states: states, final: st };
+  }
+  function pickedUpBetween(ks0, ks1) { var p = []; for (var k = 0; k < NK; k++) if (kst(ks0, k) === 0 && kst(ks1, k) >= 1) p.push(k); return p; }
+  function describeAction(d, fromCode, id, toCode) {
+    var s = dec(fromCode), t = dec(toCode), txt;
+    if (id === 'x') return 'Opened the final door in ' + roomLabel(d, s.r) + ' and stepped out into the night.';
+    if (id[0] === 'p') { var l = +id.slice(1); return 'Pulled the ' + leverName(l) + ' lever in ' + roomLabel(d, s.r) + '.'; }
+    var bi = +id.slice(1), x = d.b[bi], from = roomLabel(d, s.r), to = roomLabel(d, t.r), how, after = '';
+    if (x.t === 'arch') how = 'through the open arch';
+    else if (x.t === 'oneway') how = 'through the one-way door';
+    else if (x.t === 'gate') how = 'through the raised ' + leverName(x.l) + ' gate';
+    else if (kst(s.ks, x.k) === 1 && kst(t.ks, x.k) === 2) { how = 'through the ' + keyName(x.k) + ' door'; after = ' Unlocking it used up the ' + keyName(x.k) + ' key.'; }
+    else how = 'through the open ' + keyName(x.k) + ' door';
+    txt = 'Walked ' + dirWord(s.r, t.r) + ' from ' + from + ' ' + how + ' into ' + to + '.' + after;
+    var p = pickedUpBetween(s.ks, t.ks);
+    if (p.length) txt += ' Picked up the ' + p.map(keyName).join(' and ') + ' key' + (p.length > 1 ? 's' : '') + '.';
+    return txt;
+  }
+  function inventoryText(code) {
+    var s = dec(code); if (s.done) return 'outside';
+    var held = [], spent = [];
+    for (var k = 0; k < NK; k++) { var v = kst(s.ks, k); if (v === 1) held.push(keyName(k)); if (v === 2) spent.push(keyName(k)); }
+    return (held.length ? 'carrying the ' + listJoin(held) + ' key' + (held.length > 1 ? 's' : '') : 'no keys') + (spent.length ? '; already used: ' + listJoin(spent) : '');
+  }
+  function heldKeys(code) { var s = dec(code), o = []; if (s.done) return o; for (var k = 0; k < NK; k++) if (kst(s.ks, k) === 1) o.push(keyName(k)); return o; }
+
+  /* ---------------- exhaustive validator ---------------- */
+  function now() { return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now(); }
+  function enumerate(d, opts) {
+    opts = opts || {};
+    var cap = opts.cap || LIM.defaultCap;
+    var C = compile(d), t0 = now();
+    var idx = new Int32Array(CODE_SPACE).fill(-1);
+    var codes = [], par = [], pact = [], depth = [], out = [], truncated = false, edges = 0;
+    function add(code, p, a, dep) {
+      if (codes.length >= cap) { truncated = true; return -1; }
+      var i = codes.length; idx[code] = i; codes.push(code); par.push(p); pact.push(a); depth.push(dep); return i;
+    }
+    add(initCode(C), -1, null, 0);
+    for (var q = 0; q < codes.length; q++) {
+      var tr = transitions(C, codes[q]), lst = [];
+      for (var i = 0; i < tr.length; i++) {
+        var j = idx[tr[i][1]];
+        if (j < 0) { j = add(tr[i][1], q, tr[i][0], depth[q] + 1); if (j < 0) continue; }
+        lst.push([tr[i][0], j, tr[i][2]]); edges++;
+      }
+      out.push(lst);
+    }
+    var n = codes.length, goal = idx[GOAL];
+    var radj = []; for (var u = 0; u < n; u++) radj.push([]);
+    for (u = 0; u < n; u++) for (var e = 0; e < out[u].length; e++) radj[out[u][e][1]].push(u);
+    var can = new Uint8Array(n);
+    if (goal >= 0) {
+      var qq = [goal]; can[goal] = 1;
+      for (var h = 0; h < qq.length; h++) { var v = qq[h]; for (var w = 0; w < radj[v].length; w++) { var p = radj[v][w]; if (!can[p]) { can[p] = 1; qq.push(p); } } }
+    }
+    return { C: C, idx: idx, codes: codes, par: par, pact: pact, depth: depth, out: out, radj: radj, can: can, goal: goal, truncated: truncated, cap: cap, edges: edges, ms: now() - t0 };
+  }
+  function pathTo(g, i) { var acts = [], st = []; while (i >= 0) { st.push(i); if (g.par[i] >= 0) acts.push(g.pact[i]); i = g.par[i]; } return { actions: acts.reverse(), states: st.reverse() }; }
+
+  function checkRooms(d, g) {
+    var seen = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    for (var i = 0; i < g.codes.length; i++) if (g.codes[i] !== GOAL) seen[dec(g.codes[i]).r] = 1;
+    var missing = []; for (var r = 0; r < 9; r++) if (!seen[r]) missing.push(r);
+    var res = { status: missing.length ? (g.truncated ? 'INCONCLUSIVE' : 'FAIL') : 'PASS', unreachable: missing, details: [] };
+    if (missing.length && !g.truncated) res.details = missing.map(function (r) { return { room: r, why: whyUnreachable(d, g, seen, r) }; });
+    return res;
+  }
+  function keyEverHeldIn(g, k, room) {
+    for (var i = 0; i < g.codes.length; i++) { var c = g.codes[i]; if (c === GOAL) continue; var s = dec(c); if (s.r === room && kst(s.ks, k) === 1) return true; }
+    return false;
+  }
+  function keyEverPicked(g, k) { for (var i = 0; i < g.codes.length; i++) { var c = g.codes[i]; if (c !== GOAL && kst(dec(c).ks, k) >= 1) return true; } return false; }
+  function leverEverPulled(g, l) { for (var i = 0; i < g.codes.length; i++) { var c = g.codes[i]; if (c !== GOAL && (dec(c).lv & (1 << l))) return true; } return false; }
+  function whyUnreachable(d, g, seen, r) {
+    var reasons = [], C = g.C;
+    var ways = C.adj[r];
+    if (!ways.length) return ['Every wall of ' + roomLabel(d, r) + ' is solid, so there is no way in.'];
+    ways.forEach(function (e) {
+      var o = e.to, x = d.b[e.b], B = BOUNDS[e.b];
+      if (!seen[o]) return;
+      var ol = roomLabel(d, o), rl = roomLabel(d, r);
+      if (x.t === 'oneway') reasons.push('The one-way door between ' + ol + ' and ' + rl + ' only opens from the ' + rl + ' side.');
+      else if (x.t === 'gate') reasons.push(d.levers[x.l] === null ? 'The gate from ' + ol + ' waits for the ' + leverName(x.l) + ' lever, but there is no ' + leverName(x.l) + ' lever in the house.' : 'The gate from ' + ol + ' needs the ' + leverName(x.l) + ' lever, and the Guest can never reach it.');
+      else if (x.t === 'lock') {
+        var k = x.k, kr = d.keys[k];
+        if (kr === null) reasons.push('The ' + keyName(k) + ' door from ' + ol + ' needs ' + aKey(k) + ' key, and there is none in the house.');
+        else if (kr === r) reasons.push('The ' + keyName(k) + ' key lies in ' + rl + ', behind the ' + keyName(k) + ' door itself.');
+        else if (!keyEverPicked(g, k)) reasons.push('The ' + keyName(k) + ' door from ' + ol + ' needs the ' + keyName(k) + ' key, and the key is out of reach in ' + roomLabel(d, kr) + '.');
+        else if (!keyEverHeldIn(g, k, o)) reasons.push('The Guest never stands in ' + ol + ' still carrying the ' + keyName(k) + ' key.');
+      }
+    });
+    if (!reasons.length) reasons.push('Every way into ' + roomLabel(d, r) + ' leads from rooms the Guest also cannot reach.');
+    if (ways.length === 1 && d.b[ways[0].b].t === 'lock') reasons.push('The only way into ' + roomLabel(d, r) + ' is the ' + keyName(d.b[ways[0].b].k) + ' door.');
+    return reasons;
+  }
+  function checkGoal(d, g) {
+    if (g.goal < 0) {
+      var finalSeen = false;
+      for (var i = 0; i < g.codes.length; i++) if (g.codes[i] !== GOAL && dec(g.codes[i]).r === d.final) finalSeen = true;
+      return { status: g.truncated ? 'INCONCLUSIVE' : 'FAIL', finalRoomReached: finalSeen };
+    }
+    var p = pathTo(g, g.goal);
+    return { status: 'PASS', finalRoomReached: true, actions: p.actions, states: p.states, length: p.actions.length };
+  }
+  function checkTools(d, g) {
+    var problems = [], notes = [];
+    for (var k = 0; k < NK; k++) {
+      var locks = d.b.filter(function (x) { return x.t === 'lock' && x.k === k; }).length;
+      if (d.keys[k] !== null && !locks) problems.push('The ' + keyName(k) + ' key is in ' + roomLabel(d, d.keys[k]) + ', but no door takes ' + aKey(k) + ' key.');
+    }
+    d.b.forEach(function (x, bi) {
+      if (x.t === 'lock' && d.keys[x.k] === null) problems.push('The ' + keyName(x.k) + ' door between ' + boundaryLabel(d, bi) + ' needs ' + aKey(x.k) + ' key, but there is no ' + keyName(x.k) + ' key in the house.');
+      if (x.t === 'gate' && d.levers[x.l] === null) problems.push('The gate between ' + boundaryLabel(d, bi) + ' waits for the ' + leverName(x.l) + ' lever, but there is no ' + leverName(x.l) + ' lever in the house.');
+    });
+    for (var l = 0; l < NL; l++) {
+      if (d.levers[l] !== null && !d.b.some(function (x) { return x.t === 'gate' && x.l === l; })) problems.push('The ' + leverName(l) + ' lever in ' + roomLabel(d, d.levers[l]) + ' raises no gate.');
+    }
+    // Stronger meaningfulness checks: reported as notes, not as Check C failures.
+    if (!g.truncated) {
+      for (k = 0; k < NK; k++) if (d.keys[k] !== null && !keyEverPicked(g, k)) notes.push('Stronger check: the ' + keyName(k) + ' key in ' + roomLabel(d, d.keys[k]) + ' can never be reached.');
+      for (l = 0; l < NL; l++) if (d.levers[l] !== null && !leverEverPulled(g, l)) notes.push('Stronger check: the ' + leverName(l) + ' lever in ' + roomLabel(d, d.levers[l]) + ' can never be reached.');
+      d.b.forEach(function (x, bi) {
+        if (x.t !== 'lock' || d.keys[x.k] === null) return;
+        var li = g.C.lockIdx[bi], opened = false;
+        for (var i = 0; i < g.codes.length; i++) if (g.codes[i] !== GOAL && (dec(g.codes[i]).lk & (1 << li))) { opened = true; break; }
+        if (!opened) notes.push('Stronger check: the ' + keyName(x.k) + ' door between ' + boundaryLabel(d, bi) + ' can never be opened.');
+      });
+    }
+    return { status: problems.length ? 'FAIL' : 'PASS', problems: problems, notes: notes };
+  }
+  function checkSoftlocks(d, g) {
+    if (g.truncated) return { status: 'INCONCLUSIVE', badCount: null };
+    var bad = 0, first = -1;
+    for (var i = 0; i < g.codes.length; i++) if (g.codes[i] !== GOAL && !g.can[i]) { bad++; if (first < 0) first = i; }
+    if (!bad) return { status: 'PASS', badCount: 0 };
+    return { status: 'FAIL', badCount: bad, witness: buildWitness(d, g, first) };
+  }
+  function shortestBadState(d, g) { var r = checkSoftlocks(d, g); return r.witness || null; }
+  function reverseGoalReachability(g) { return g.can; }
+
+  function buildWitness(d, g, bi) {
+    var p = pathTo(g, bi), st = p.states, crossing = -1;
+    for (var i = st.length - 1; i >= 0; i--) if (g.can[st[i]]) { crossing = i; break; }
+    // crossing = index of the last recoverable state; the action at that index takes the Guest past the point of no recovery.
+    var endCode = g.codes[bi];
+    var kind = transitions(g.C, endCode).length ? 'cycle' : 'dead-end';
+    var w = {
+      actions: p.actions, states: st.map(function (i) { return g.codes[i]; }), endState: endCode, kind: kind,
+      fromStart: crossing < 0, crossingStep: crossing < 0 ? null : crossing,
+      crossingAction: crossing < 0 ? null : p.actions[crossing]
+    };
+    w.closure = closureInfo(d, g, bi);
+    w.blockers = blockers(d, g, w.closure, endCode);
+    w.narration = narrate(d, g, w);
+    w.steps = p.actions.map(function (a, k) {
+      return { action: a, text: describeAction(d, w.states[k], a, w.states[k + 1]), after: inventoryText(w.states[k + 1]), room: dec(w.states[k + 1]).r };
+    });
+    return w;
+  }
+  function closureInfo(d, g, start) {
+    var seen = {}, q = [start], rooms = {}; seen[start] = 1;
+    for (var h = 0; h < q.length; h++) {
+      var c = g.codes[q[h]]; if (c !== GOAL) rooms[dec(c).r] = 1;
+      g.out[q[h]].forEach(function (e) { if (!seen[e[1]]) { seen[e[1]] = 1; q.push(e[1]); } });
+    }
+    return { states: q, rooms: Object.keys(rooms).map(Number).sort(function (a, b) { return a - b; }) };
+  }
+  function blockers(d, g, cl, endCode) {
+    var inRoom = {}; cl.rooms.forEach(function (r) { inRoom[r] = 1; });
+    var end = dec(endCode), list = [];
+    var lkUnion = 0, lvUnion = 0, held = [0, 0, 0];
+    cl.states.forEach(function (i) { var s = dec(g.codes[i]); lkUnion |= s.lk; lvUnion |= s.lv; for (var k = 0; k < NK; k++) if (kst(s.ks, k) === 1) held[k] = 1; });
+    for (var bi = 0; bi < 12; bi++) {
+      var B = BOUNDS[bi], x = d.b[bi];
+      var aIn = !!inRoom[B.a], bIn = !!inRoom[B.b];
+      if (!(aIn ^ bIn)) continue;
+      var inside = aIn ? B.a : B.b, outside = aIn ? B.b : B.a, txt = null, pri = 5;
+      if (x.t === 'lock' && !(lkUnion & (1 << g.C.lockIdx[bi])) && !held[x.k]) {
+        var st = kst(end.ks, x.k);
+        var onlyWay = g.C.adj[outside].filter(function (e) { return inRoom[e.to]; }).length === 1;
+        if (d.keys[x.k] === null) { txt = 'The ' + keyName(x.k) + ' door to ' + roomLabel(d, outside) + ' needs ' + aKey(x.k) + ' key, and the house has none.'; pri = 2; }
+        else if (st === 2) { txt = 'The ' + keyName(x.k) + ' door to ' + roomLabel(d, outside) + ' still needs ' + aKey(x.k) + ' key, and I have none left.'; pri = 0; }
+        else if (d.keys[x.k] === outside) { txt = 'The ' + keyName(x.k) + ' key lies in ' + roomLabel(d, outside) + (onlyWay ? ', and the only way I could get into ' + roomLabel(d, outside) + ' is through the ' + keyName(x.k) + ' door.' : ', behind the ' + keyName(x.k) + ' door itself.'); pri = 0; }
+        else { txt = 'The ' + keyName(x.k) + ' door to ' + roomLabel(d, outside) + ' needs the ' + keyName(x.k) + ' key, which lies in ' + roomLabel(d, d.keys[x.k]) + ', out of my reach.'; pri = 1; }
+      } else if (x.t === 'gate' && !(lvUnion & (1 << x.l))) {
+        txt = d.levers[x.l] === null ? 'The gate to ' + roomLabel(d, outside) + ' waits for a ' + leverName(x.l) + ' lever that isn\'t in the house.' : 'The gate to ' + roomLabel(d, outside) + ' stays down: the ' + leverName(x.l) + ' lever in ' + roomLabel(d, d.levers[x.l]) + ' is out of my reach.';
+        pri = 1;
+      } else if (x.t === 'oneway') {
+        var from = x.d === 0 ? B.a : B.b;
+        if (from === outside) { txt = 'The one-way door to ' + roomLabel(d, outside) + ' only opens from the other side.'; pri = 3; }
+      }
+      if (txt) list.push({ b: bi, text: txt, pri: pri });
+    }
+    list.sort(function (a, b) { return a.pri - b.pri || a.b - b.b; });
+    return list;
+  }
+  function narrate(d, g, w) {
+    var names = [], last = -1;
+    w.states.forEach(function (c) { if (c === GOAL) return; var r = dec(c).r; if (r !== last) names.push(roomLabel(d, r)); last = r; });
+    var parts = [];
+    if (w.fromStart) {
+      var reach = w.closure.rooms.map(function (r) { return roomLabel(d, r); });
+      parts.push('I can\'t reach the final door from the moment I step in.');
+      parts.push('I can walk through ' + listJoin(reach) + ', and that is all.');
+    } else {
+      parts.push(names.join(', ') + '.');
+      var ca = w.crossingAction, from = w.states[w.crossingStep], to = w.states[w.crossingStep + 1];
+      if (ca[0] === 'm') {
+        var x = d.b[+ca.slice(1)], s0 = dec(from), s1 = dec(to);
+        if (x.t === 'lock' && kst(s0.ks, x.k) === 1 && kst(s1.ks, x.k) === 2) parts.push('I used my ' + keyName(x.k) + ' key on the ' + keyName(x.k) + ' door into ' + roomLabel(d, s1.r) + '.');
+        else if (x.t === 'oneway') parts.push('I went through the one-way door into ' + roomLabel(d, s1.r) + ', and it won\'t open from this side.');
+        else parts.push('I walked from ' + roomLabel(d, s0.r) + ' into ' + roomLabel(d, s1.r) + '.');
+      } else if (ca[0] === 'p') parts.push('I pulled the ' + leverName(+ca.slice(1)) + ' lever.');
+    }
+    w.blockers.slice(0, 2).forEach(function (b) { parts.push(b.text); });
+    if (w.kind === 'dead-end') parts.push('There is no legal move left at all.');
+    else parts.push(w.fromStart ? 'No legal path reaches the final door.' : 'I can still walk about, but no legal path reaches the final door from here.');
+    return parts.join(' ');
+  }
+  function listJoin(a) { if (a.length <= 1) return a.join(''); return a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+
+  // Note: the house has locks, yet the Guest can finish without spending any key.
+  function keylessFinish(g) {
+    if (g.goal < 0) return false;
+    var seen = new Uint8Array(g.codes.length), q = [0]; seen[0] = 1;
+    for (var h = 0; h < q.length; h++) {
+      if (q[h] === g.goal) return true;
+      g.out[q[h]].forEach(function (e) { if (e[2] < 0 && !seen[e[1]]) { seen[e[1]] = 1; q.push(e[1]); } });
+    }
+    return false;
+  }
+
+  function decisionStops(g, statesIdx) {
+    var stops = [];
+    for (var i = 0; i < statesIdx.length - 1; i++) {
+      var u = statesIdx[i], prev = i > 0 ? statesIdx[i - 1] : -1, set = {};
+      g.out[u].forEach(function (e) { if (e[1] !== prev) set[e[1]] = 1; });
+      if (Object.keys(set).length >= 2) stops.push(i);
+    }
+    return stops;
+  }
+
+  function validate(d, opts) {
+    var g = enumerate(d, opts);
+    var A = checkRooms(d, g), Bc = checkGoal(d, g), Cc = checkTools(d, g), D = checkSoftlocks(d, g);
+    var statuses = [A.status, Bc.status, Cc.status, D.status];
+    var status = statuses.indexOf('FAIL') >= 0 ? 'FAIL' : statuses.indexOf('INCONCLUSIVE') >= 0 ? 'INCONCLUSIVE' : 'PASS';
+    var notes = Cc.notes.slice();
+    var hasLocks = d.b.some(function (x) { return x.t === 'lock'; });
+    if (hasLocks && keylessFinish(g)) notes.unshift('Optional key challenge: the Guest can reach the final door without using a single key. That may be a dull house, or a deliberate joke.');
+    var dupes = {}; d.rooms.forEach(function (r) { var k = r.name.toLowerCase(); dupes[k] = (dupes[k] || 0) + 1; });
+    Object.keys(dupes).forEach(function (k) { if (dupes[k] > 1) notes.push('Two or more rooms share a name; they are told apart by room number.'); });
+    if (d.rooms.every(function (r) { return !r.note; })) notes.push('No room has a note yet, so the Guest walks in silence.');
+    var decisions = null;
+    if (Bc.status === 'PASS') {
+      decisions = decisionStops(g, Bc.states);
+      if (decisions.length === 0 && Bc.length > 1) notes.push('The shortest route has no real decisions: every stop offers one way on.');
+    }
+    var report = {
+      status: status, rev: revision(d),
+      checks: { A: A, B: Bc, C: Cc, D: D },
+      counts: { states: g.codes.length, edges: g.edges, goalStates: g.goal >= 0 ? 1 : 0, badStates: D.badCount, bound: LIM.provenStateBound, cap: g.cap, truncated: g.truncated, ms: Math.round(g.ms * 10) / 10 },
+      notes: notes,
+      decisions: decisions ? decisions.length : null,
+      decisionStops: decisions
+    };
+    Object.defineProperty(report, 'graph', { value: g, enumerable: false });
+    return report;
+  }
+
+  function canFinishCode(report, code) { var g = report.graph, i = g.idx[code]; return i >= 0 && !g.truncated ? !!g.can[i] : null; }
+  function reachableFrom(report, fromCode, targetCode) {
+    var g = report.graph, s = g.idx[fromCode], t = g.idx[targetCode];
+    if (s < 0 || t < 0) return null;
+    var seen = new Uint8Array(g.codes.length), q = [s]; seen[s] = 1;
+    for (var h = 0; h < q.length; h++) { if (q[h] === t) return true; var o = g.out[q[h]]; for (var e = 0; e < o.length; e++) if (!seen[o[e][1]]) { seen[o[e][1]] = 1; q.push(o[e][1]); } }
+    return false;
+  }
+
+  /* ---------------- repairs ---------------- */
+  function repairCandidates(d) {
+    var ops = [], k, r, b, l;
+    for (k = 0; k < NK; k++) for (r = -1; r < 9; r++) { var room = r < 0 ? null : r; if (room !== d.keys[k]) ops.push({ op: 'key', key: k, room: room }); }
+    for (b = 0; b < 12; b++) {
+      var opts = [{ t: 'wall' }, { t: 'arch' }, { t: 'lock', k: 0 }, { t: 'lock', k: 1 }, { t: 'lock', k: 2 }, { t: 'oneway', d: 0 }, { t: 'oneway', d: 1 }, { t: 'gate', l: 0 }, { t: 'gate', l: 1 }];
+      opts.forEach(function (o) { if (!sameB(o, d.b[b])) { var op = { op: 'boundary', b: b, t: o.t }; if (o.t === 'lock') op.k = o.k; if (o.t === 'oneway') op.d = o.d; if (o.t === 'gate') op.l = o.l; ops.push(op); } });
+    }
+    for (l = 0; l < NL; l++) for (r = -1; r < 9; r++) { var rm = r < 0 ? null : r; if (rm !== d.levers[l]) ops.push({ op: 'lever', lever: l, room: rm }); }
+    for (r = 0; r < 9; r++) { if (r !== d.front && r !== d.final) { ops.push({ op: 'front', room: r }); ops.push({ op: 'final', room: r }); } }
+    return ops;
+  }
+  function relevance(d, base, op) {
+    var w = base.checks.D.witness, score = 0;
+    if (op.op === 'front' || op.op === 'final') score -= 2;
+    if (op.op === 'key' || op.op === 'lever') score += 1;
+    if (w) {
+      var pathB = {}; w.actions.forEach(function (a) { if (a[0] === 'm') pathB[+a.slice(1)] = 1; });
+      var cb = w.crossingAction && w.crossingAction[0] === 'm' ? +w.crossingAction.slice(1) : -1;
+      if (op.op === 'boundary' && op.b === cb) score += 3;
+      else if (op.op === 'boundary' && pathB[op.b]) score += 2;
+      w.blockers.forEach(function (bl) { if (op.op === 'boundary' && op.b === bl.b) score += 2; });
+      if (op.op === 'key' && cb >= 0 && d.b[cb].t === 'lock' && d.b[cb].k === op.key) score += 2;
+    }
+    if (op.op === 'key' && op.room === null) score -= 1;
+    if (op.op === 'lever' && op.room === null) score -= 1;
+    return score;
+  }
+  function evaluateRepair(d, base, op) {
+    var r = applyEdit(d, op);
+    if (!r.ok) return null;
+    var v = validate(r.design);
+    if (base.checks.C.status === 'PASS' && v.checks.C.status !== 'PASS') return null; // never introduce an orphan key/lever/gate/lock
+    var full = v.status === 'PASS', local = false;
+    var w = base.checks.D.witness;
+    if (!full && w) {
+      var rp = replay(r.design, w.actions);
+      if (!rp.ok) local = true;
+      else { var cf = canFinishCode(v, codeOf(rp.final)); local = cf === true; }
+    }
+    if (!full && !local) return null;
+    return { op: op, summary: r.summary, kind: full ? 'full' : 'local', result: { status: v.status, checks: { A: v.checks.A.status, B: v.checks.B.status, C: v.checks.C.status, D: v.checks.D.status } } };
+  }
+  function rankRepairs(d, base, found, limits) {
+    limits = limits || { full: 6, local: 3 };
+    function srt(list) { return list.map(function (x, i) { return { x: x, s: relevance(d, base, x.op), i: i }; }).sort(function (a, b) { return b.s - a.s || a.i - b.i; }).map(function (y) { return y.x; }); }
+    var fulls = srt(found.filter(function (x) { return x.kind === 'full'; }));
+    var locals = srt(found.filter(function (x) { return x.kind === 'local'; }));
+    return { full: fulls.slice(0, limits.full), local: locals.slice(0, limits.local), totalFull: fulls.length, totalLocal: locals.length };
+  }
+  function suggestRepairs(d, base, limits) {
+    if (base.status === 'PASS') return { full: [], local: [], totalFull: 0, totalLocal: 0, tried: 0 };
+    var cands = repairCandidates(d), found = [];
+    cands.forEach(function (op) { var e = evaluateRepair(d, base, op); if (e) found.push(e); });
+    var res = rankRepairs(d, base, found, limits); res.tried = cands.length; return res;
+  }
+
+  /* ---------------- guest ledger ---------------- */
+  // trail: [{code, action}] where trail[0].action === null (start), each next entry reached by its action.
+  function ledger(d, report, trail) {
+    var codes = trail.map(function (t) { return t.code; }), visited = {}, picked = [], spentKeys = [], pulled = [], backouts = [], pnr = [];
+    codes.forEach(function (c) { if (c !== GOAL) visited[dec(c).r] = 1; });
+    for (var i = 1; i < trail.length; i++) {
+      var a = trail[i].action, s0 = dec(codes[i - 1]), s1 = dec(codes[i]);
+      if (!s1.done) pickedUpBetween(s0.ks, s1.ks).forEach(function (k) { picked.push(keyName(k)); });
+      if (!s1.done) for (var k = 0; k < NK; k++) if (kst(s0.ks, k) === 1 && kst(s1.ks, k) === 2) spentKeys.push(keyName(k));
+      if (a && a[0] === 'p') pulled.push(leverName(+a.slice(1)));
+      if (report && !s1.done) {
+        var back = reachableFrom(report, codes[i], codes[i - 1]);
+        if (back === false) pnr.push({ step: i, text: describeAction(d, codes[i - 1], a, codes[i]) });
+      }
+      // a back-out: entered a room and left by the same boundary without picking anything up or pulling a lever there
+      if (i >= 2 && a && a[0] === 'm' && trail[i - 1].action === a && codes[i] !== GOAL) {
+        var mid = dec(codes[i - 1]);
+        if (dec(codes[i - 2]).ks === mid.ks && mid.lv === dec(codes[i]).lv) backouts.push(roomLabel(d, mid.r));
+      }
+    }
+    var finished = codes[codes.length - 1] === GOAL;
+    return {
+      actions: trail.length - 1, finished: finished, roomsVisited: Object.keys(visited).length,
+      keysPicked: picked, keysSpent: spentKeys, leversPulled: pulled, backouts: backouts, pointsOfNoReturn: pnr,
+      shortest: report && report.checks.B.status === 'PASS' ? report.checks.B.length : null
+    };
+  }
+
+  /* ---------------- deed ---------------- */
+  function summarizeRoute(d, actions) {
+    var st = guestInitial(d), lines = [];
+    var init = dec(st.code), picked0 = pickedUpBetween(0, init.ks);
+    lines.push('Enter by the front door into ' + roomLabel(d, d.front) + '.' + (picked0.length ? ' Picked up the ' + picked0.map(keyName).join(' and ') + ' key.' : ''));
+    for (var i = 0; i < actions.length; i++) { var r = step(d, st, actions[i]); if (!r.ok) { lines.push('(route broken at step ' + (i + 1) + ')'); break; } lines.push(r.text); st = r.state; }
+    return lines;
+  }
+  function decisionCount(report) { return report.decisions; }
+  function fromVerifiedResult(d, report) {
+    if (!report || report.status !== 'PASS' || report.rev !== revision(d)) return null;
+    return {
+      name: d.name, mark: d.mark, mono: d.mono, rev: report.rev,
+      checks: ['Every room can be reached', 'The final door can be reached', 'Every key has a door, and every lever does something', 'No reachable state leaves the Guest permanently stuck'],
+      states: report.counts.states, bound: report.counts.bound, edges: report.counts.edges,
+      routeLength: report.checks.B.length, route: summarizeRoute(d, report.checks.B.actions),
+      decisions: report.decisions, decisionDefinition: M.TEXT.decisionDefinition,
+      notes: report.notes.slice(), disclaimer: M.TEXT.disclaimer
+    };
+  }
+
+
+  /* ---------------- local street storage (untrusted input) ---------------- */
+  // Stored shape: { v:1, slots:[ null | { bp:<serialized blueprint>, sealed:<8-hex revision>|null } x3 ] }
+  // Nothing derived (pass status, deed, routes, completions) is ever read from storage; it is recomputed.
+  function parseStore(raw) {
+    var res = { slots: [null, null, null], messages: [] };
+    if (raw === null || raw === undefined || raw === '') return res;
+    if (typeof raw !== 'string' || raw.length > LIM.saveBytes * 3 + 2000) { res.messages.push('Saved street was too large or unreadable and was ignored.'); return res; }
+    var o;
+    try { o = JSON.parse(raw); } catch (e) { res.messages.push('Saved street was not readable and was ignored.'); return res; }
+    if (!o || typeof o !== 'object' || Array.isArray(o) || !hasOwn.call(o, 'v') || o.v !== 1 || !hasOwn.call(o, 'slots') || !Array.isArray(o.slots) || o.slots.length !== 3) {
+      res.messages.push('Saved street had an unknown format and was ignored.'); return res;
+    }
+    o.slots.forEach(function (sl, i) {
+      if (sl === null) return;
+      if (!sl || typeof sl !== 'object' || Array.isArray(sl) || !hasOwn.call(sl, 'bp')) { res.messages.push('House ' + (i + 1) + ' was damaged and was cleared.'); return; }
+      var r = parseAndValidate(sl.bp);
+      if (!r.ok) { res.messages.push('House ' + (i + 1) + ' could not be read (' + r.errors[0] + ') and was cleared.'); return; }
+      var sealed = hasOwn.call(sl, 'sealed') && typeof sl.sealed === 'string' && /^[0-9a-f]{8}$/.test(sl.sealed) ? sl.sealed : null;
+      res.slots[i] = { design: r.design, sealed: sealed };
+    });
+    return res;
+  }
+  function serializeStore(slots) {
+    return JSON.stringify({ v: 1, slots: slots.map(function (sl) { return sl ? { bp: serializeObj(sl.design), sealed: sl.sealed || null } : null; }) });
+  }
+  // empty | draft | gold | superseded | refused  (gold only when the sealed revision matches AND a fresh full check passes)
+  function slotStatus(sl) {
+    if (!sl) return { status: 'empty' };
+    var rev = revision(sl.design);
+    if (!sl.sealed) return { status: 'draft', rev: rev };
+    if (sl.sealed !== rev) return { status: 'superseded', rev: rev };
+    var rep = validate(sl.design);
+    return { status: rep.status === 'PASS' ? 'gold' : 'refused', rev: rev, report: rep };
+  }
+
+  G.CreatortalDesign = Object.freeze({
+    createBlank: createBlank, sampleBlueprint: sampleBlueprint, fromBlueprint: fromBlueprint,
+    applyEdit: applyEdit, createHistory: createHistory, commit: commit, undo: undo, redo: redo,
+    serialize: serialize, serializeObj: serializeObj, parseAndValidate: parseAndValidate, revision: revision,
+    roomLabel: roomLabel, boundaryLabel: boundaryLabel, describeBoundary: describeBoundary, dirWord: dirWord,
+    lockCount: function (d) { return d.b.filter(function (x) { return x.t === 'lock'; }).length; },
+    cleanText: cleanText, cpLen: cpLen
+  });
+  G.CreatortalGuest = Object.freeze({
+    initialState: guestInitial, legalActions: legalActions, step: step, replay: replay,
+    describeAction: describeAction, inventoryText: inventoryText, heldKeys: heldKeys, codeOf: codeOf, stateOf: stateOf,
+    keyStatus: kst, GOAL: GOAL, ledger: ledger,
+    // exposed for audit: the single transition function and state codec
+    _transitions: function (d, code) { return transitions(compile(d), code); }, _enc: enc, _dec: dec
+  });
+  G.CreatortalValidator = Object.freeze({
+    enumerate: enumerate, validate: validate,
+    checkRooms: checkRooms, checkGoal: checkGoal, checkTools: checkTools, checkSoftlocks: checkSoftlocks,
+    shortestWin: function (d, g) { return checkGoal(d, g); }, shortestBadState: shortestBadState,
+    reverseGoalReachability: reverseGoalReachability, suggestRepairs: suggestRepairs,
+    repairCandidates: repairCandidates, evaluateRepair: evaluateRepair, rankRepairs: rankRepairs,
+    canFinishCode: canFinishCode, reachableFrom: reachableFrom, PROVEN_BOUND: CODE_SPACE
+  });
+  G.CreatortalStore = Object.freeze({ parseStore: parseStore, serializeStore: serializeStore, slotStatus: slotStatus });
+  G.CreatortalDeed = Object.freeze({ fromVerifiedResult: fromVerifiedResult, summarizeRoute: summarizeRoute, decisionCount: decisionCount });
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+</script>
+<script data-part="qa">
+/* DoorQuests · Creatortal #001 · built-in engine self-tests and diagnostic fixtures.
+   Author self-tests only: they are not an independent audit. Browser-only checks are reported NOT RUN here. */
+(function (G) {
+  'use strict';
+  var M = G.CreatortalModel, D = G.CreatortalDesign, V = G.CreatortalValidator, Gu = G.CreatortalGuest, De = G.CreatortalDeed, St = G.CreatortalStore;
+  var build = M.build, BP = M.BLUEPRINTS;
+
+  function withEdits(bp, ops) {
+    var d = D.fromBlueprint(bp);
+    ops.forEach(function (op) { var r = D.applyEdit(d, op); if (!r.ok) throw new Error('fixture edit refused: ' + r.reason); d = r.design; });
+    return D.serializeObj(d);
+  }
+  var NINE = M.DEFAULT_NAMES.map(function (n) { return [n, '']; });
+
+  // Diagnostic fixtures. Expected values were derived by hand for F06/F07 and are cross-checked by an independent oracle for all.
+  var FIXTURES = {
+    F01_tutorial_broken: BP.tutorial,
+    F02_tutorial_fixed: withEdits(BP.tutorial, [{ op: 'key', key: 0, room: 6 }]),
+    F03_lantern_house: BP.lantern,
+    F04_iron_key_trap: BP.ironTrap,
+    F05_blank: BP.blank,
+    F06_two_rooms_hand: build({ name: 'Two Rooms', rooms: NINE, walls: { '6-7': 'arch' }, front: 6, final: 7 }),
+    F07_one_lock_hand: build({ name: 'One Lock', rooms: NINE, walls: { '6-7': ['lock', 0] }, keys: [6, null, null], front: 6, final: 7 }),
+    F08_oneway_cycle_trap: build({ name: 'The Long Way Down', rooms: NINE, front: 6, final: 2,
+      walls: { '6-7': 'arch', '7-8': ['oneway', 7, 8], '5-8': 'arch', '4-5': 'arch', '3-6': 'arch', '0-3': 'arch', '0-1': 'arch', '1-2': 'arch' } }),
+    F09_oneway_with_return: build({ name: 'The Long Way Round', rooms: NINE, front: 6, final: 2,
+      walls: { '6-7': 'arch', '7-8': ['oneway', 7, 8], '5-8': 'arch', '4-5': 'arch', '4-7': 'arch', '3-6': 'arch', '0-3': 'arch', '0-1': 'arch', '1-2': 'arch' } }),
+    F10_orphan_key: withEdits(BP.lantern, [{ op: 'key', key: 1, room: 6 }]),
+    F11_orphan_lever: withEdits(BP.lantern, [{ op: 'lever', lever: 1, room: 6 }]),
+    F12_gate_without_lever: withEdits(BP.lantern, [{ op: 'lever', lever: 0, room: null }]),
+    F13_keyless_bypass: withEdits(BP.tutorial, [{ op: 'key', key: 0, room: 6 }, { op: 'boundary', b: 0, t: 'arch' }]),
+    F14_four_locks_one_key: build({ name: 'Four Locks', rooms: NINE, front: 6, final: 2,
+      walls: { '6-7': ['lock', 1], '3-6': ['lock', 1], '7-8': ['lock', 1], '0-3': ['lock', 1], '4-7': 'arch', '4-5': 'arch', '2-5': 'arch', '0-1': 'arch' }, keys: [null, 6, null] }),
+    F15_twelve_arches: build({ name: 'All Arches', rooms: NINE, front: 6, final: 2,
+      walls: { '0-1': 'arch', '1-2': 'arch', '3-4': 'arch', '4-5': 'arch', '6-7': 'arch', '7-8': 'arch', '0-3': 'arch', '1-4': 'arch', '2-5': 'arch', '3-6': 'arch', '4-7': 'arch', '5-8': 'arch' } }),
+    F16_ring_with_centre: build({ name: 'The Ring', rooms: NINE, front: 6, final: 2,
+      walls: { '0-1': 'arch', '1-2': 'arch', '2-5': 'arch', '5-8': 'arch', '7-8': 'arch', '6-7': 'arch', '3-6': 'arch', '0-3': 'arch', '1-4': 'arch' } }),
+    F17_two_traps: build({ name: 'Two Traps', rooms: NINE, front: 6, final: 2,
+      walls: { '3-6': 'arch', '3-4': ['lock', 1], '0-3': ['lock', 1], '0-1': 'arch', '1-2': 'arch', '6-7': 'arch', '7-8': ['oneway', 7, 8], '5-8': 'arch', '4-5': 'arch' }, keys: [null, 3, null] }),
+    F18_wrong_gate_mapping: build({ name: 'Crossed Wires', rooms: NINE, front: 6, final: 2,
+      walls: { '6-7': 'arch', '7-8': ['gate', 0], '3-6': 'arch', '0-3': ['gate', 1], '0-1': 'arch', '1-2': 'arch', '4-7': 'arch', '4-5': 'arch' }, levers: [8, 3] }),
+    F19_right_gate_mapping: build({ name: 'Straight Wires', rooms: NINE, front: 6, final: 2,
+      walls: { '6-7': 'arch', '7-8': 'arch', '3-6': 'arch', '0-3': ['gate', 0], '0-1': 'arch', '1-2': 'arch', '4-7': 'arch', '4-5': 'arch', '5-8': ['gate', 1] }, levers: [8, 4] }),
+    // The densest house found by the seeded hill-climbing search in test/maxstates.js (1,165 reachable states).
+    F20_dense: { v: 1, name: 'The Dense House', mark: 'spiral', mono: '', rooms: NINE,
+      b: [['oneway', 1], ['lock', 0], ['lock', 2], ['arch'], ['arch'], ['lock', 1], ['arch'], ['arch'], ['arch'], ['lock', 2], ['arch'], ['arch']],
+      keys: [2, 8, 6], levers: [4, 1], front: 7, final: 2 }
+  };
+
+  var results = [];
+  function rec(id, assertion, fn) {
+    var r;
+    try { r = fn(); } catch (e) { r = [false, 'threw: ' + (e && e.message)]; }
+    results.push({ id: id, assertion: assertion, status: r[0] === null ? 'NOT RUN' : (r[0] ? 'PASS' : 'FAIL'), evidence: r[1], env: r[0] === null ? 'browser harness' : 'engine (no DOM)' });
+  }
+  function fx(name) { return D.fromBlueprint(FIXTURES[name]); }
+  function val(name, opts) { return V.validate(fx(name), opts); }
+  function st(r) { return [r.checks.A.status, r.checks.B.status, r.checks.C.status, r.checks.D.status].join('/'); }
+  function browserOnly(id, a) { rec(id, a, function () { return [null, 'UI behaviour; checked by the separate browser harness']; }); }
+
+  function run() {
+    results = [];
+    var tB = val('F01_tutorial_broken'), tF = val('F02_tutorial_fixed'), trap = val('F04_iron_key_trap'), lan = val('F03_lantern_house');
+
+    browserOnly('CR-01', 'Opening communicates Doorwright role, Guest, midnight goal and an immediate action.');
+    rec('CR-02', 'Broken tutorial is unsolvable: brass key beyond its own brass door.', function () {
+      var d = fx('F01_tutorial_broken');
+      return [tB.checks.B.status === 'FAIL' && d.keys[0] === 1 && d.b[7].t === 'lock' && d.b[7].k === 0 && tB.checks.A.unreachable.indexOf(1) >= 0, st(tB) + '; unreachable rooms ' + tB.checks.A.unreachable.map(function (r) { return r + 1; }).join(',')];
+    });
+    rec('CR-03', 'Guest reports a reproducible failure with true narrative.', function () {
+      var w = tB.checks.D.witness, w2 = val('F01_tutorial_broken').checks.D.witness;
+      return [w.fromStart && /brass key lies in Study/.test(w.narration) && w.narration === w2.narration, w.narration];
+    });
+    rec('CR-04', 'One edit (brass key to Hall) produces a valid house; route replays to the exit.', function () {
+      var d = fx('F02_tutorial_fixed'), rp = Gu.replay(d, tF.checks.B.actions);
+      return [tF.status === 'PASS' && rp.ok && rp.final.done, 'status ' + tF.status + ', route ' + tF.checks.B.actions.join(' ')];
+    });
+    browserOnly('CR-05', 'Tutorial can be completed keyboard-only and text-first.');
+    browserOnly('CR-06', 'DoorKeeper hands off to the workshop with an optional starter blueprint.');
+
+    rec('CR-07', 'Nine cells and exactly 12 grid-adjacent boundaries; no diagonals.', function () {
+      var ok = M.BOUNDARIES.length === 12 && M.BOUNDARIES.every(function (b) { return (b.b === b.a + 1 && b.a % 3 !== 2) || b.b === b.a + 3; });
+      var bad = D.applyEdit(D.createBlank(), { op: 'boundary', b: 12, t: 'arch' });
+      return [ok && !bad.ok, '12 boundaries, all orthogonal; boundary 13 refused: ' + bad.reason];
+    });
+    rec('CR-08', 'Every boundary accepts wall, arch, lock, directed one-way and lever gate.', function () {
+      var d = D.createBlank(), ok = true;
+      for (var b = 0; b < 12; b++) [{ t: 'arch' }, { t: 'lock', k: 0 }, { t: 'oneway', d: 1 }, { t: 'gate', l: 1 }, { t: 'wall' }].forEach(function (o) {
+        var op = Object.assign({ op: 'boundary', b: b }, o), r = D.applyEdit(d, op); if (!r.ok) ok = false; else d = r.design;
+      });
+      return [ok, 'all 60 edits applied'];
+    });
+    rec('CR-09', 'One-way: forward legal, reverse refused, same in solver and Guest.', function () {
+      var d = fx('F08_oneway_cycle_trap'), s = Gu.initialState(d);
+      s = Gu.step(d, s, 'm4').state;              // Hall -> Kitchen
+      var fwd = Gu.step(d, s, 'm5');               // Kitchen -> Cellar (one-way)
+      var back = Gu.step(d, fwd.state, 'm5');      // Cellar -> Kitchen refused
+      var solverHas = Gu._transitions(d, fwd.state.code).some(function (t) { return t[0] === 'm5'; });
+      return [fwd.ok && !back.ok && !solverHas, 'forward ok, reverse: ' + back.reason];
+    });
+    rec('CR-10', 'Up to four locks; a fifth is refused without corrupting the design.', function () {
+      var d = D.createBlank();
+      [0, 1, 2, 3].forEach(function (b) { d = D.applyEdit(d, { op: 'boundary', b: b, t: 'lock', k: 0 }).design; });
+      var before = D.serialize(d), r = D.applyEdit(d, { op: 'boundary', b: 4, t: 'lock', k: 1 });
+      return [!r.ok && D.serialize(d) === before && D.lockCount(d) === 4, r.reason];
+    });
+    rec('CR-11', 'Three keys only; a fourth is refused; keys addressed by type.', function () {
+      var r = D.applyEdit(D.createBlank(), { op: 'key', key: 3, room: 0 });
+      var ok = [0, 1, 2].every(function (k) { return D.applyEdit(D.createBlank(), { op: 'key', key: k, room: 4 }).ok; });
+      return [!r.ok && ok, r.reason];
+    });
+    rec('CR-12', 'Two levers only; third refused; gates must bind a valid lever.', function () {
+      var r = D.applyEdit(D.createBlank(), { op: 'lever', lever: 2, room: 0 }), g = D.applyEdit(D.createBlank(), { op: 'boundary', b: 0, t: 'gate', l: 5 });
+      return [!r.ok && !g.ok, r.reason + ' / ' + g.reason];
+    });
+    rec('CR-13', 'Exactly one front and one final door; they cannot share a room.', function () {
+      var d = D.createBlank(), a = D.applyEdit(d, { op: 'front', room: 2 }), b = D.applyEdit(d, { op: 'final', room: 0 });
+      return [!a.ok && b.ok && b.design.final === 0 && b.design.front === 6, a.reason];
+    });
+    rec('CR-14', 'Room names: 24-character cap (code points); duplicates told apart by number.', function () {
+      var d = D.createBlank(), ok24 = D.applyEdit(d, { op: 'roomName', room: 0, text: 'ÄÖÜ🙂abcdefghijklmnopqrst' }), over = D.applyEdit(d, { op: 'roomName', room: 0, text: 'abcdefghijklmnopqrstuvwxy' });
+      var dd = D.applyEdit(d, { op: 'roomName', room: 0, text: 'Study' }).design;
+      return [ok24.ok && !over.ok && D.roomLabel(dd, 0) === 'Study (room 1)' && D.roomLabel(dd, 1) === 'Study (room 2)', over.reason + ' / ' + D.roomLabel(dd, 0)];
+    });
+    rec('CR-15', 'Room notes: 60-character cap; markup stored as inert text.', function () {
+      var d = D.createBlank(), note = '<img src=x onerror=alert(1)> "quotes" & \'apos\'';
+      var r = D.applyEdit(d, { op: 'roomNote', room: 0, text: note }), over = D.applyEdit(d, { op: 'roomNote', room: 0, text: new Array(62).join('x') });
+      return [r.ok && r.design.rooms[0].note === note && !over.ok, 'note kept as text; UI renders with textContent (browser check CR-57/AD-CR-11)'];
+    });
+    browserOnly('CR-16', 'Every picture edit has a labelled no-drag text equivalent.');
+    rec('CR-17', 'Undo/Redo restore exact blueprints; revision changes mark stale results.', function () {
+      var h = D.createHistory(fx('F03_lantern_house')), r0 = D.revision(h.present);
+      h = D.commit(h, { op: 'key', key: 0, room: 6 }).history; var r1 = D.revision(h.present);
+      h = D.undo(h).history; var r2 = D.revision(h.present); h = D.redo(h).history;
+      return [r0 === r2 && r1 !== r0 && D.revision(h.present) === r1, 'revisions ' + r0 + ' → ' + r1 + ' → undo ' + r2];
+    });
+    rec('CR-18', 'Resetting one slot leaves the other slots unchanged (store level).', function () {
+      var slots = [{ design: fx('F03_lantern_house'), sealed: null }, { design: fx('F04_iron_key_trap'), sealed: null }, null];
+      var raw1 = St.serializeStore(slots); slots[0] = null; var p = St.parseStore(St.serializeStore(slots)), p0 = St.parseStore(raw1);
+      return [p.slots[0] === null && D.serialize(p.slots[1].design) === D.serialize(p0.slots[1].design), 'slot 2 identical after slot 1 reset'];
+    });
+
+    rec('CR-19', 'A key enters inventory only in its own room.', function () {
+      var d = fx('F03_lantern_house'), s = Gu.initialState(d);
+      var held0 = Gu.keyStatus(s.ks, 2);
+      s = Gu.step(d, s, 'm9').state; var heldPantry = Gu.keyStatus(s.ks, 2);
+      s = Gu.step(d, s, 'm6').state; // Pantry -> Attic
+      return [held0 === 0 && heldPantry === 0 && Gu.keyStatus(s.ks, 2) === 1, 'silver key picked up on entering the Attic only'];
+    });
+    rec('CR-20', 'Spending a key removes it and opens its lock for good.', function () {
+      var d = fx('F07_one_lock_hand'), s = Gu.initialState(d), a = Gu.step(d, s, 'm4'), b = Gu.step(d, a.state, 'm4'), c = Gu.step(d, b.state, 'm4');
+      return [Gu.keyStatus(a.state.ks, 0) === 2 && b.ok && c.ok && Gu.keyStatus(c.state.ks, 0) === 2 && a.state.lk === 1, a.text];
+    });
+    rec('CR-21', 'Two locks, one key: irreversible spend is found as a softlock.', function () {
+      return [trap.checks.D.status === 'FAIL' && trap.checks.B.status === 'PASS', trap.checks.D.witness.narration];
+    });
+    rec('CR-22', 'A locked door cannot be crossed without its key; forged action ids are ignored.', function () {
+      var d = fx('F04_iron_key_trap'), s = Gu.initialState(d), r = Gu.step(d, s, 'm2'), f = Gu.step(d, s, 'zz'), g = Gu.step(d, s, 'm2;x');
+      return [!r.ok && !f.ok && !g.ok && r.state === s, r.reason];
+    });
+    rec('CR-23', 'A lever changes only its own gates.', function () {
+      var d = fx('F19_right_gate_mapping'), s = Gu.initialState(d);
+      s = Gu.step(d, s, 'm4').state; s = Gu.step(d, s, 'm5').state; // Hall -> Kitchen -> Cellar (copper lever here)
+      var ids = function (x) { return Gu.legalActions(d, x).map(function (a) { return a.id; }).join(','); };
+      var before = ids(s), pulled = Gu.step(d, s, 'p0').state, after = ids(pulled);
+      var pantryClosed = Gu.legalActions(d, Gu.stateOf(Gu._enc(3, 0, 0, 0))).some(function (a) { return a.id === 'm6'; });
+      var pantryOpen = Gu.legalActions(d, Gu.stateOf(Gu._enc(3, 0, 0, 1))).some(function (a) { return a.id === 'm6'; });
+      return [before === 'm5,p0' && after === 'm5' && !pantryClosed && pantryOpen, 'Cellar before: ' + before + '; after copper: ' + after + '; copper opens Pantry–Attic only, the oak gate stays shut'];
+    });
+    rec('CR-24', 'One-way and gate states persist through revisits and replay.', function () {
+      var d = fx('F19_right_gate_mapping'), acts = ['m4', 'm5', 'p0', 'm5', 'm4', 'm9', 'm6'], rp = Gu.replay(d, acts);
+      var rp2 = Gu.replay(d, acts);
+      return [rp.ok && rp.final.lv === 1 && rp.final.r === 0 && rp2.final.code === rp.final.code, 'replay reaches Attic through the copper gate both times'];
+    });
+    rec('CR-25', 'Completion only by the final-door action in the final room.', function () {
+      var d = fx('F03_lantern_house'), s = Gu.initialState(d), x = Gu.step(d, s, 'x'), any = false;
+      V.validate(d).graph.codes.forEach(function (c) { Gu._transitions(d, c).forEach(function (t) { if (t[1] === Gu.GOAL && (t[0] !== 'x' || Gu._dec(c).r !== d.final)) any = true; }); });
+      return [!x.ok && !any, 'no other transition reaches the outside state'];
+    });
+    rec('CR-26', 'Illegal actions do not change state.', function () {
+      var d = fx('F03_lantern_house'), s = Gu.initialState(d), code = s.code, r1 = Gu.step(d, s, 'p1'), r2 = Gu.step(d, s, 'm0');
+      return [!r1.ok && !r2.ok && s.code === code && r1.state.code === code, 'state code unchanged ' + code];
+    });
+
+    rec('CR-27', 'Validator enumerates all reachable states; hand-derived counts match.', function () {
+      var a = val('F06_two_rooms_hand').counts, b = val('F07_one_lock_hand').counts;
+      return [a.states === 3 && a.edges === 3 && b.states === 4 && b.edges === 4, 'F06 3 states/3 edges; F07 4 states/4 edges (hand-derived)'];
+    });
+    rec('CR-28', 'Report names the proven bound 15,553 (not a bare promise).', function () {
+      var big = val('F20_dense').counts;
+      return [lan.counts.bound === 15553 && V.PROVEN_BOUND === 15553 && big.states <= 15553, 'bound 15553; dense house explored ' + big.states];
+    });
+    rec('CR-29', 'A search over the cap returns INCONCLUSIVE, never PASS.', function () {
+      var r = val('F03_lantern_house', { cap: 20 });
+      return [r.status === 'INCONCLUSIVE' && r.checks.D.status === 'INCONCLUSIVE' && r.counts.truncated, st(r)];
+    });
+    rec('CR-30', 'Room check is existential (each room in at least one run).', function () {
+      var r = val('F08_oneway_cycle_trap');
+      return [r.checks.A.status === 'PASS' && r.checks.D.status === 'FAIL', 'all rooms reachable on some run, though some runs strand the Guest'];
+    });
+    rec('CR-31', 'Goal check requires actually opening the final door.', function () {
+      var r = val('F03_lantern_house'), last = r.checks.B.actions[r.checks.B.actions.length - 1];
+      return [last === 'x', 'last action ' + last];
+    });
+    rec('CR-32', 'Tool check flags an unmatched key and an orphan lever or gate precisely.', function () {
+      var a = val('F10_orphan_key').checks.C, b = val('F11_orphan_lever').checks.C, c = val('F12_gate_without_lever').checks.C;
+      return [a.status === 'FAIL' && b.status === 'FAIL' && c.status === 'FAIL' && /iron key is in Hall/.test(a.problems[0]) && /oak lever in Hall raises no gate/.test(b.problems[0]) && /copper lever/.test(c.problems[0]), [a.problems[0], b.problems[0], c.problems[0]].join(' | ')];
+    });
+    rec('CR-33', 'A non-terminal state with no moves is a softlock.', function () {
+      var r = val('F05_blank');
+      return [r.checks.D.status === 'FAIL' && r.checks.D.witness.kind === 'dead-end', r.checks.D.witness.narration];
+    });
+    rec('CR-34', 'A cycle with legal moves but no path to the goal is a softlock.', function () {
+      var r = val('F08_oneway_cycle_trap'), w = r.checks.D.witness;
+      return [w.kind === 'cycle' && w.actions.join() === 'm4,m5', w.narration];
+    });
+    rec('CR-35', 'Reverse reachability classifies every state of a hand-checked miniature.', function () {
+      var r = val('F04_iron_key_trap'), g = r.graph, ok = true, ev = [];
+      // hand rule for this house: a state can finish iff it is outside, or the iron key is not yet spent, or it was spent on the Attic lock (lock bit 1)
+      g.codes.forEach(function (c, i) {
+        var s = Gu._dec(c), expect = s.done || Gu.keyStatus(s.ks, 1) !== 2 || (s.lk & 2) !== 0;
+        if (!!g.can[i] !== expect) { ok = false; ev.push(c); }
+      });
+      return [ok && r.counts.badStates === 6, 'hand rule matched for all ' + g.codes.length + ' states; bad ' + r.counts.badStates];
+    });
+    rec('CR-36', 'Shortest bad witness is legal, deterministic and truly unrecoverable.', function () {
+      var d = fx('F04_iron_key_trap'), w = trap.checks.D.witness, rp = Gu.replay(d, w.actions), w2 = val('F04_iron_key_trap').checks.D.witness;
+      return [rp.ok && V.canFinishCode(trap, rp.final.code) === false && w2.actions.join() === w.actions.join(), w.actions.join(' ')];
+    });
+    rec('CR-37', 'The crossing step is reported only where the previous state could still finish.', function () {
+      var w = trap.checks.D.witness, pre = w.states[w.crossingStep], post = w.states[w.crossingStep + 1];
+      return [V.canFinishCode(trap, pre) === true && V.canFinishCode(trap, post) === false && w.crossingAction === 'm2' && tB.checks.D.witness.fromStart, 'crossing at step ' + (w.crossingStep + 1) + ' (' + w.crossingAction + '); tutorial is unrecoverable from the start'];
+    });
+    rec('CR-38', 'Narration names rooms, the spent key, the lock and what is left.', function () {
+      var n = trap.checks.D.witness.narration;
+      return [/^Hall, Pantry, Cellar\./.test(n) && /used my iron key on the iron door into Cellar/.test(n) && /iron door to Attic still needs an iron key, and I have none left/.test(n), n];
+    });
+    browserOnly('CR-39', 'Follow-the-Guest replays in Guest mode without fabricated actions.');
+    rec('CR-40', 'Every proposed fix is revalidated and labelled full or local truthfully.', function () {
+      var d = fx('F04_iron_key_trap'), rp = V.suggestRepairs(d, trap), ok = true;
+      rp.full.concat(rp.local).forEach(function (x) { var v = V.validate(D.applyEdit(d, x.op).design); if ((x.kind === 'full') !== (v.status === 'PASS')) ok = false; });
+      return [ok && rp.full.length > 0 && rp.local.length > 0, rp.totalFull + ' full, ' + rp.totalLocal + ' local of ' + rp.tried + ' single edits tried; top: ' + rp.full[0].summary];
+    });
+    rec('CR-41', 'Undoing an applied repair restores the same failure and witness.', function () {
+      var h = D.createHistory(fx('F04_iron_key_trap')), w0 = V.validate(h.present).checks.D.witness.actions.join();
+      h = D.commit(h, { op: 'boundary', b: 2, t: 'arch' }).history; var mid = V.validate(h.present).status;
+      h = D.undo(h).history; var w1 = V.validate(h.present).checks.D.witness.actions.join();
+      return [mid === 'PASS' && w0 === w1, 'after repair ' + mid + '; after undo witness ' + w1];
+    });
+    rec('CR-42', 'A house that can be finished without keys gets a Note, not a failure.', function () {
+      var r = val('F13_keyless_bypass');
+      return [r.status === 'PASS' && /Optional key challenge/.test(r.notes[0] || ''), r.notes[0]];
+    });
+
+    browserOnly('CR-43', 'Guest mode hides the plan and shows only the current room, note and exits.');
+    browserOnly('CR-44', 'Guest mode always offers Restart, Undo and Return, including in a trap.');
+    rec('CR-45', 'The Guest wins through the same lock/key/gate transitions as the solver.', function () {
+      var d = fx('F03_lantern_house'), rp = Gu.replay(d, lan.checks.B.actions), ok = rp.ok, g = lan.graph;
+      for (var i = 1; i < rp.states.length; i++) if (g.idx[rp.states[i].code] < 0) ok = false;
+      return [ok && rp.final.done, 'route of ' + lan.checks.B.length + ' actions replays; every state is in the solver graph'];
+    });
+    rec('CR-46', 'Ledger counts only events that happened.', function () {
+      var d = fx('F03_lantern_house'), rp = Gu.replay(d, lan.checks.B.actions);
+      var trail = rp.states.map(function (s, i) { return { code: s.code, action: i ? lan.checks.B.actions[i - 1] : null }; });
+      var L = Gu.ledger(d, lan, trail);
+      return [L.finished && L.actions === lan.checks.B.length && L.keysSpent.length === 2 && L.leversPulled.join() === 'copper' && L.backouts.length === 0, JSON.stringify({ spent: L.keysSpent, picked: L.keysPicked, pulled: L.leversPulled, rooms: L.roomsVisited })];
+    });
+    rec('CR-47', 'Points of no return appear only when the earlier state cannot be regained.', function () {
+      var d9 = fx('F09_oneway_with_return'), r9 = V.validate(d9), d8 = fx('F08_oneway_cycle_trap'), r8 = V.validate(d8);
+      function trail(d, acts) { var rp = Gu.replay(d, acts); return rp.states.map(function (s, i) { return { code: s.code, action: i ? acts[i - 1] : null }; }); }
+      var L9 = Gu.ledger(d9, r9, trail(d9, ['m4', 'm5'])), L8 = Gu.ledger(d8, r8, trail(d8, ['m4', 'm5']));
+      return [L9.pointsOfNoReturn.length === 0 && L8.pointsOfNoReturn.length === 1, 'with a way round: none; without: ' + (L8.pointsOfNoReturn[0] || {}).text];
+    });
+    rec('CR-48', 'Deed route lists real actions and replays.', function () {
+      var deed = De.fromVerifiedResult(fx('F03_lantern_house'), lan);
+      return [deed && deed.route.length === lan.checks.B.length + 1 && Gu.replay(fx('F03_lantern_house'), lan.checks.B.actions).final.done && /Pulled the copper lever/.test(deed.route.join(' ')), deed.route.length + ' lines'];
+    });
+    rec('CR-49', 'Real-decision count follows its written definition.', function () {
+      var g = lan.graph, path = lan.checks.B.states, n = 0;
+      for (var i = 0; i < path.length - 1; i++) { var set = {}; g.out[path[i]].forEach(function (e) { if (i === 0 || e[1] !== path[i - 1]) set[e[1]] = 1; }); if (Object.keys(set).length >= 2) n++; }
+      return [n === lan.decisions, 'recount ' + n + ' = reported ' + lan.decisions];
+    });
+    rec('CR-50', 'Street doors: gold only for a sealed, current, passing house.', function () {
+      var good = { design: fx('F03_lantern_house'), sealed: lan.rev }, stale = { design: fx('F10_orphan_key'), sealed: lan.rev }, draft = { design: fx('F03_lantern_house'), sealed: null };
+      var forged = { design: fx('F04_iron_key_trap'), sealed: trap.rev };
+      return [St.slotStatus(good).status === 'gold' && St.slotStatus(stale).status === 'superseded' && St.slotStatus(draft).status === 'draft' && St.slotStatus(forged).status === 'refused' && St.slotStatus(null).status === 'empty', 'gold / superseded / draft / refused / empty'];
+    });
+    browserOnly('CR-51', 'Deed prints alone with house name, mark and the honest disclaimer.');
+    rec('CR-52', 'Three designs with notes round-trip through the stored format.', function () {
+      var slots = [{ design: fx('F03_lantern_house'), sealed: lan.rev }, { design: fx('F04_iron_key_trap'), sealed: null }, { design: D.applyEdit(fx('F05_blank'), { op: 'roomNote', room: 4, text: 'Ünïcödé « » 東京 🙂' }).design, sealed: null }];
+      var raw = St.serializeStore(slots), back = St.parseStore(raw);
+      return [St.serializeStore(back.slots) === raw && back.messages.length === 0, raw.length + ' bytes, identical after round trip (browser storage itself: CR-52b in browser harness)'];
+    });
+    rec('CR-53', 'Forged pass flags, deeds and completions cannot mint a gold door.', function () {
+      var obj = JSON.parse(St.serializeStore([{ design: fx('F04_iron_key_trap'), sealed: null }, null, null]));
+      obj.slots[0].passed = true; obj.slots[0].deed = { routeLength: 1 }; obj.slots[0].completed = true; obj.passed = true;
+      obj.slots[0].sealed = V.validate(fx('F04_iron_key_trap')).rev;
+      var p = St.parseStore(JSON.stringify(obj)), s = St.slotStatus(p.slots[0]);
+      return [s.status === 'refused' && !('passed' in p.slots[0]) && !('deed' in p.slots[0]), 'status ' + s.status + '; extra fields dropped'];
+    });
+    rec('CR-54', 'Wrong version, oversized, malformed, __proto__ and markup saves are rejected or inert.', function () {
+      var bad = [
+        '{"v":2,"slots":[null,null,null]}',
+        'x'.repeat(70000),
+        '{not json',
+        '{"v":1,"slots":[{"bp":{"__proto__":{"polluted":1},"v":1}},null,null]}',
+        '{"v":1,"slots":"nope"}'
+      ];
+      var allRejected = bad.every(function (raw) { var p = St.parseStore(raw); return p.slots.every(function (x) { return x === null; }) && p.messages.length > 0; });
+      var mk = JSON.parse(St.serializeStore([{ design: fx('F05_blank'), sealed: null }, null, null]));
+      mk.slots[0].bp.rooms[0][0] = '<img src=x onerror=1>';
+      var p2 = St.parseStore(JSON.stringify(mk));
+      var badRooms = JSON.parse(St.serializeStore([{ design: fx('F05_blank'), sealed: null }, null, null])); badRooms.slots[0].bp.rooms[0][0] = 'x'.repeat(40);
+      var p3 = St.parseStore(JSON.stringify(badRooms));
+      return [allRejected && ({}).polluted === undefined && p2.slots[0] && p2.slots[0].design.rooms[0].name === '<img src=x onerror=1>' && p3.slots[0] === null, 'five bad saves rejected; markup kept as plain text for textContent rendering; overlong name rejected'];
+    });
+    ['CR-55', 'CR-56', 'CR-57', 'CR-58', 'CR-59', 'CR-60'].forEach(function (id, i) {
+      browserOnly(id, ['Keyboard-only authoring, validation, repair and Guest completion.', 'Text-first mode exposes every route and consequence.', 'Live announcements, focus restoration, labels and disabled reasons.', 'Reduced motion and still frames keep state and finale.', 'No page-wide horizontal overflow at 320–1280 px.', 'Offline session: no JavaScript errors, no network requests.'][i]);
+    });
+
+    /* adversarial */
+    rec('AD-CR-01', 'A key behind its own lock (tutorial and any design) is caught.', function () {
+      var d = D.applyEdit(fx('F07_one_lock_hand'), { op: 'key', key: 0, room: 7 }).design, r = V.validate(d);
+      return [tB.status === 'FAIL' && r.checks.B.status === 'FAIL' && /behind the brass door itself|only way I could get into/.test(r.checks.D.witness.narration), r.checks.D.witness.narration];
+    });
+    rec('AD-CR-02', 'Spending the only key on an optional lock is caught.', function () { return [trap.checks.D.status === 'FAIL' && trap.checks.D.witness.crossingAction === 'm2', trap.checks.D.witness.actions.join(' ')]; });
+    rec('AD-CR-03', 'A one-way door into a closed loop with no exit is a softlock.', function () { var r = val('F08_oneway_cycle_trap'); return [r.checks.D.witness.kind === 'cycle' && r.counts.badStates > 1, 'bad states ' + r.counts.badStates]; });
+    rec('AD-CR-04', 'A one-way door with another way back passes and is not a point of no return.', function () { var r = val('F09_oneway_with_return'); return [r.status === 'PASS', st(r)]; });
+    rec('AD-CR-05', 'Crossed lever wiring is caught; correct wiring replays.', function () {
+      var bad = val('F18_wrong_gate_mapping'), good = val('F19_right_gate_mapping'), rp = Gu.replay(fx('F19_right_gate_mapping'), good.checks.B.actions);
+      return [bad.status === 'FAIL' && good.status === 'PASS' && rp.final.done, 'crossed: ' + st(bad) + '; straight: ' + st(good)];
+    });
+    rec('AD-CR-06', 'Crossing an unlocked door again never spends another key.', function () {
+      var d = fx('F07_one_lock_hand'), rp = Gu.replay(d, ['m4', 'm4', 'm4', 'm4', 'm4']);
+      return [rp.ok && rp.states.every(function (s, i) { return i === 0 ? Gu.keyStatus(s.ks, 0) === 1 : Gu.keyStatus(s.ks, 0) === 2; }), 'five crossings, one spend'];
+    });
+    rec('AD-CR-07', 'Two rooms named Study keep witness and repair targets unambiguous.', function () {
+      var d = D.applyEdit(fx('F01_tutorial_broken'), { op: 'roomName', room: 0, text: 'Study' }).design, r = V.validate(d), rp = V.suggestRepairs(d, r);
+      return [/Study \(room 2\)/.test(r.checks.D.witness.narration) && rp.full.some(function (x) { return /Study \(room 1\)/.test(x.summary); }), r.checks.D.witness.narration];
+    });
+    rec('AD-CR-08', 'An unmatched key or idle lever fails Check C even with a winning route.', function () {
+      var a = val('F10_orphan_key'), b = val('F11_orphan_lever');
+      return [a.checks.B.status === 'PASS' && a.checks.C.status === 'FAIL' && b.checks.B.status === 'PASS' && b.checks.C.status === 'FAIL', st(a) + ' and ' + st(b)];
+    });
+    rec('AD-CR-09', 'The densest house finishes a complete search; under a small cap Check D is INCONCLUSIVE and the house never PASSes.', function () {
+      var full = val('F20_dense'), cut = val('F20_dense', { cap: 500 });
+      return [!full.counts.truncated && full.checks.D.status !== 'INCONCLUSIVE' && cut.status !== 'PASS' && cut.checks.D.status === 'INCONCLUSIVE', 'complete: ' + full.counts.states + ' states, ' + full.counts.edges + ' edges in ' + full.counts.ms + ' ms; cap 500: ' + st(cut)];
+    });
+    rec('AD-CR-10', 'A fix for one trap is labelled local while another trap remains.', function () {
+      var d = fx('F17_two_traps'), base = V.validate(d), e = V.evaluateRepair(d, base, { op: 'boundary', b: 5, t: 'arch' });
+      return [base.checks.D.witness.actions.join() === 'm4,m5' && e && e.kind === 'local' && e.result.status === 'FAIL', e ? e.summary + ' → ' + e.kind + ', house ' + e.result.status : 'no result'];
+    });
+    rec('AD-CR-11', 'Forged status, deed, completion, inventory and seal fields never mint a gold door.', function () {
+      function forge(sealed) {
+        var o = JSON.parse(St.serializeStore([{ design: fx('F01_tutorial_broken'), sealed: null }, null, null]));
+        Object.assign(o.slots[0], { status: 'gold', deed: { routeLength: 1 }, inventory: [0, 1, 2], completed: true, verified: true, sealed: sealed });
+        var p = St.parseStore(JSON.stringify(o)); return St.slotStatus(p.slots[0]).status;
+      }
+      var a = forge('deadbeef'), b = forge(tB.rev);
+      return [a === 'superseded' && b === 'refused', 'random seal: ' + a + '; matching seal on a failing house: ' + b];
+    });
+    browserOnly('AD-CR-12', 'Reload, edit after validation, Guest trap, undo and full reset leave no stale gold doors.');
+    rec('AD-CR-13', 'A deed is refused for a report that does not match the current revision.', function () {
+      var d = fx('F03_lantern_house'), d2 = D.applyEdit(d, { op: 'roomNote', room: 0, text: 'changed' }).design;
+      return [De.fromVerifiedResult(d2, lan) === null && De.fromVerifiedResult(d, lan) !== null, 'stale report refused'];
+    });
+    rec('AD-CR-14', 'Seeded random houses: solver, Guest replay and witnesses agree.', function () {
+      var seed = 20261111, n = 150, fails = 0, rnd = function () { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+      for (var i = 0; i < n; i++) {
+        var d = randomDesign(rnd), r = V.validate(d);
+        if (r.checks.B.status === 'PASS' && !Gu.replay(d, r.checks.B.actions).final.done) fails++;
+        if (r.checks.D.witness) { var rp = Gu.replay(d, r.checks.D.witness.actions); if (!rp.ok || V.canFinishCode(r, rp.final.code) !== false) fails++; }
+        var s = Gu.initialState(d);
+        for (var k = 0; k < 40; k++) { var acts = Gu.legalActions(d, s); if (!acts.length) break; var a = acts[Math.floor(rnd() * acts.length)]; s = Gu.step(d, s, a.id).state; if (r.graph.idx[s.code] < 0) fails++; }
+      }
+      return [fails === 0, n + ' seeded houses, ' + fails + ' disagreements'];
+    });
+    return results;
+  }
+
+  function randomDesign(rnd) {
+    var d = D.createBlank(), types = ['wall', 'arch', 'arch', 'arch', 'lock', 'oneway', 'gate'];
+    for (var b = 0; b < 12; b++) {
+      var t = types[Math.floor(rnd() * types.length)], op = { op: 'boundary', b: b, t: t };
+      if (t === 'lock') op.k = Math.floor(rnd() * 3); if (t === 'oneway') op.d = Math.floor(rnd() * 2); if (t === 'gate') op.l = Math.floor(rnd() * 2);
+      var r = D.applyEdit(d, op); if (r.ok) d = r.design;
+    }
+    for (var k = 0; k < 3; k++) if (rnd() < 0.8) { var r2 = D.applyEdit(d, { op: 'key', key: k, room: Math.floor(rnd() * 9) }); if (r2.ok) d = r2.design; }
+    for (var l = 0; l < 2; l++) if (rnd() < 0.6) { var r3 = D.applyEdit(d, { op: 'lever', lever: l, room: Math.floor(rnd() * 9) }); if (r3.ok) d = r3.design; }
+    var f = Math.floor(rnd() * 9), r4 = D.applyEdit(d, { op: 'front', room: f }); if (r4.ok) d = r4.design;
+    var g = Math.floor(rnd() * 9), r5 = D.applyEdit(d, { op: 'final', room: g }); if (r5.ok) d = r5.design;
+    return d;
+  }
+
+  function summary(res) {
+    res = res || results;
+    var c = { PASS: 0, FAIL: 0, 'NOT RUN': 0 };
+    res.forEach(function (r) { c[r.status]++; });
+    return { total: res.length, pass: c.PASS, fail: c.FAIL, notRun: c['NOT RUN'], failed: res.filter(function (r) { return r.status === 'FAIL'; }).map(function (r) { return r.id; }) };
+  }
+
+  G.CreatortalQA = Object.freeze({ run: run, summary: summary, FIXTURES: FIXTURES, randomDesign: randomDesign });
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+</script>
+<script data-part="ui">
+/* DoorQuests · Creatortal #001 · interface. All user text is written with textContent; no innerHTML with user data. */
+(function () {
+  'use strict';
+  var M = window.CreatortalModel, D = window.CreatortalDesign, V = window.CreatortalValidator, Gu = window.CreatortalGuest, De = window.CreatortalDeed, St = window.CreatortalStore;
+  var KEYS = M.KEYS, LEVERS = M.LEVERS, BOUNDS = M.BOUNDARIES, LIM = M.LIMITS;
+  var SVGNS = 'http://www.w3.org/2000/svg';
+
+  /* ---------- tiny DOM helpers ---------- */
+  function h(tag, props) {
+    var el = document.createElement(tag);
+    if (props) Object.keys(props).forEach(function (k) {
+      var v = props[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'class') el.className = v;
+      else if (k === 'text') el.textContent = v;
+      else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v);
+      else if (k === 'disabled' || k === 'checked' || k === 'selected' || k === 'open') el[k] = !!v;
+      else if (k === 'value') el.value = v;
+      else el.setAttribute(k, v === true ? '' : v);
+    });
+    for (var i = 2; i < arguments.length; i++) add(el, arguments[i]);
+    return el;
+  }
+  function add(el, c) {
+    if (c === null || c === undefined || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { add(el, x); }); return; }
+    el.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c);
+  }
+  function s(tag, attrs) {
+    var el = document.createElementNS(SVGNS, tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'text') el.textContent = attrs[k];
+      else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), attrs[k]);
+      else el.setAttribute(k, attrs[k]);
+    });
+    for (var i = 2; i < arguments.length; i++) if (arguments[i]) el.appendChild(arguments[i]);
+    return el;
+  }
+  function $(id) { return document.getElementById(id); }
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); return el; }
+  function btn(label, onclick, opts) {
+    opts = opts || {};
+    return h('button', { type: 'button', class: 'btn' + (opts.cls ? ' ' + opts.cls : ''), id: opts.id, onclick: onclick, disabled: opts.disabled, 'aria-describedby': opts.describedby, 'aria-pressed': opts.pressed }, label);
+  }
+  var liveTimer = null;
+  function announce(msg) {
+    var el = $('live'); el.textContent = '';
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(function () { el.textContent = msg; }, 60);
+  }
+  function withFocus(fn) {
+    var a = document.activeElement, id = a && a.id;
+    fn();
+    if (id && $(id) && document.activeElement !== $(id)) $(id).focus();
+  }
+
+  /* ---------- app state ---------- */
+  var A = {
+    screen: 'intro', mode: 'workshop',
+    tut: null,
+    slots: [null, null, null], cur: 0,
+    report: null, repairs: null, repairToken: 0,
+    sel: null, stage: null, editMsg: null,
+    textFirst: false, still: false,
+    persist: false, storageOK: false, storeMsgs: [], saveError: null,
+    guest: null, deed: null, deedDate: false, justHung: -1, tutHint: false
+  };
+
+  function curHist() { return A.mode === 'tutorial' ? A.tut.hist : (A.slots[A.cur] && A.slots[A.cur].hist); }
+  function curDesign() { var h0 = curHist(); return h0 ? h0.present : null; }
+  function setHist(nh) { if (A.mode === 'tutorial') A.tut.hist = nh; else A.slots[A.cur].hist = nh; }
+  function freshReport() { var d = curDesign(); return A.report && d && A.report.rev === D.revision(d) ? A.report : null; }
+
+  /* ---------- storage (opt-in, untrusted on read) ---------- */
+  function testStorage() {
+    try { var k = '__dq_test__'; window.localStorage.setItem(k, '1'); window.localStorage.removeItem(k); return true; } catch (e) { return false; }
+  }
+  function storeSlots() { return A.slots.map(function (sl) { return sl ? { design: sl.hist.present, sealed: sl.sealed } : null; }); }
+  function save() {
+    if (!A.persist || !A.storageOK) return;
+    try { window.localStorage.setItem(M.STORAGE_KEY, St.serializeStore(storeSlots())); A.saveError = null; }
+    catch (e) { A.saveError = 'Saving to this browser failed. Your houses are still here for this visit.'; }
+  }
+  function loadSaved() {
+    A.storageOK = testStorage();
+    if (!A.storageOK) return;
+    var raw = null;
+    try { raw = window.localStorage.getItem(M.STORAGE_KEY); } catch (e) { raw = null; }
+    if (raw === null) return;
+    var p = St.parseStore(raw);
+    A.storeMsgs = p.messages;
+    A.persist = true;
+    p.slots.forEach(function (sl, i) { A.slots[i] = sl ? { hist: D.createHistory(sl.design), sealed: sl.sealed } : null; });
+  }
+  function setPersist(on) {
+    A.persist = on && A.storageOK;
+    if (A.persist) save();
+    else { try { window.localStorage.removeItem(M.STORAGE_KEY); } catch (e) { /* storage unavailable */ } }
+  }
+
+  /* ---------- screens ---------- */
+  var SCREENS = { intro: 'scrIntro', editor: 'scrEditor', guest: 'scrGuest', street: 'scrStreet', deed: 'scrDeed', help: 'scrHelp' };
+  function show(name, opts) {
+    opts = opts || {};
+    A.screen = name;
+    Object.keys(SCREENS).forEach(function (k) { $(SCREENS[k]).classList.toggle('on', k === name); });
+    document.body.classList.toggle('on-deed', name === 'deed');
+    var navTarget = name === 'editor' && A.mode === 'workshop' ? 'workshop' : name;
+    Array.prototype.forEach.call(document.querySelectorAll('nav.main button'), function (b) {
+      if (b.getAttribute('data-go') === navTarget) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    render();
+    if (!opts.keepFocus) {
+      var hd = $(SCREENS[name]).querySelector('h1,h2');
+      if (hd) { hd.setAttribute('tabindex', '-1'); hd.focus(); }
+      window.scrollTo(0, 0);
+    }
+  }
+  function render() {
+    ({ intro: renderIntro, editor: renderEditor, guest: renderGuest, street: renderStreet, deed: renderDeed, help: renderHelp })[A.screen]();
+  }
+
+  /* ---------- icons ---------- */
+  var MARK_PATHS = {
+    moon: ['M15 3a9 9 0 1 0 6 15A7 7 0 0 1 15 3z'],
+    star: ['M12 2l3 7h7l-5.5 4.5 2 7.5-6.5-4.5-6.5 4.5 2-7.5L2 9h7z'],
+    key: ['M8 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8z', 'M12 12h10M18 12v4M21 12v3'],
+    owl: ['M5 5l3 3h8l3-3v9a7 7 0 0 1-14 0z', 'M9 11a1.5 1.5 0 1 0 0.01 0zM15 11a1.5 1.5 0 1 0 0.01 0z', 'M11 15l1 1 1-1'],
+    lantern: ['M9 3h6M8 6h8l1 3v9l-1 3H8l-1-3V9z', 'M12 10c2 2 1 5 0 5s-2-3 0-5z'],
+    compass: ['M12 3a9 9 0 1 0 0.01 0z', 'M12 6l2 6-2 6-2-6z'],
+    crown: ['M3 18h18l-2-10-4 4-3-7-3 7-4-4z'],
+    feather: ['M20 4C10 4 5 10 4 20c4-6 8-8 12-9-3-1-5-1-7 0 3-3 7-5 11-7z'],
+    bell: ['M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z', 'M10 20a2 2 0 0 0 4 0'],
+    eye: ['M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z', 'M12 9a3 3 0 1 0 0.01 0z'],
+    wave: ['M2 10c3-4 5-4 8 0s5 4 8 0 3-3 4-2', 'M2 16c3-4 5-4 8 0s5 4 8 0 3-3 4-2'],
+    spiral: ['M12 12a1 1 0 0 1 2 0a3 3 0 0 1-5 2a5 5 0 0 1 3-9a7 7 0 0 1 7 8a9 9 0 0 1-16 3']
+  };
+  function markIcon(id) {
+    var svg = s('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true', focusable: 'false', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.7', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+    (MARK_PATHS[id] || MARK_PATHS.moon).forEach(function (p) { svg.appendChild(s('path', { d: p })); });
+    return svg;
+  }
+  function markName(id) { var m = M.MARKS.filter(function (x) { return x.id === id; })[0]; return m ? m.name : id; }
+
+  /* ---------- the plan (decorative; every edit also exists in "The house in words") ---------- */
+  var CELL = 96, GAP = 22, X0 = 14, Y0 = 92;
+  function cellXY(i) { var r = Math.floor(i / 3), c = i % 3; return { x: X0 + c * (CELL + GAP), y: Y0 + r * (CELL + GAP) }; }
+  function gapCenter(bi) {
+    var B = BOUNDS[bi], p = cellXY(B.a);
+    return B.axis === 'ew' ? { x: p.x + CELL + GAP / 2, y: p.y + CELL / 2 } : { x: p.x + CELL / 2, y: p.y + CELL + GAP / 2 };
+  }
+  function short(n, max) { var a = Array.from(n); return a.length > max ? a.slice(0, max - 1).join('') + '…' : n; }
+  function drawPlan(d, opt) {
+    opt = opt || {};
+    var svg = s('svg', { viewBox: '0 0 360 446', 'aria-hidden': 'true', focusable: 'false', class: 'planArt' });
+    var defs = s('defs');
+    var pat = s('pattern', { id: 'hatch', width: '8', height: '8', patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, s('rect', { width: '8', height: '8', fill: '#141f42' }), s('line', { x1: '0', y1: '0', x2: '0', y2: '8', stroke: '#2c3d72', 'stroke-width': '3' }));
+    defs.appendChild(pat); svg.appendChild(defs);
+    svg.appendChild(s('polygon', { points: '4,86 180,12 356,86', fill: '#16244f', stroke: '#d4a548', 'stroke-width': '2' }));
+    svg.appendChild(s('rect', { x: '262', y: '30', width: '20', height: '30', fill: '#16244f', stroke: '#d4a548', 'stroke-width': '2' }));
+    svg.appendChild(s('text', { x: '180', y: '70', 'text-anchor': 'middle', fill: '#f2cf7a', 'font-family': 'Palatino, Georgia, serif', 'font-size': '15', text: short(d.name, 30) }));
+    svg.appendChild(s('rect', { x: '6', y: '84', width: '348', height: '354', rx: '4', fill: '#0a1330', stroke: '#d4a548', 'stroke-width': '2' }));
+    var un = opt.unreachable || [];
+    for (var i = 0; i < 9; i++) {
+      var p = cellXY(i), sel = opt.sel && opt.sel.kind === 'room' && opt.sel.i === i;
+      svg.appendChild(s('rect', { x: p.x, y: p.y, width: CELL, height: CELL, rx: '3', fill: un.indexOf(i) >= 0 ? 'url(#hatch)' : '#1f3268', stroke: sel ? '#ffe08a' : '#33488a', 'stroke-width': sel ? '4' : '1' }));
+      svg.appendChild(s('text', { x: p.x + 8, y: p.y + 20, fill: '#eef0f8', 'font-family': 'system-ui, sans-serif', 'font-size': '13', 'font-weight': '600', text: short(d.rooms[i].name, 12) }));
+      svg.appendChild(s('text', { x: p.x + CELL - 8, y: p.y + 38, fill: '#8d9acb', 'font-family': 'system-ui, sans-serif', 'font-size': '11', 'text-anchor': 'end', text: String(i + 1) }));
+      var ix = p.x + 8, iy = p.y + 74;
+      d.keys.forEach(function (r, k) {
+        if (r !== i) return;
+        svg.appendChild(s('circle', { cx: ix + 9, cy: iy, r: '9', fill: '#d4a548' }));
+        svg.appendChild(s('text', { x: ix + 9, y: iy + 4, 'text-anchor': 'middle', fill: '#1b1404', 'font-size': '11', 'font-weight': '700', 'font-family': 'system-ui, sans-serif', text: KEYS[k].letter }));
+        ix += 22;
+      });
+      d.levers.forEach(function (r, l) {
+        if (r !== i) return;
+        svg.appendChild(s('rect', { x: ix, y: iy - 9, width: '18', height: '18', rx: '3', fill: '#94d8ab' }));
+        svg.appendChild(s('text', { x: ix + 9, y: iy + 4, 'text-anchor': 'middle', fill: '#0e1a3a', 'font-size': '11', 'font-weight': '700', 'font-family': 'system-ui, sans-serif', text: LEVERS[l].letter }));
+        ix += 22;
+      });
+      if (d.front === i) svg.appendChild(s('text', { x: p.x + 8, y: p.y + 54, fill: '#b9c3e2', 'font-size': '11', 'font-family': 'system-ui, sans-serif', text: 'front door' }));
+      if (d.final === i) {
+        svg.appendChild(s('rect', { x: p.x + CELL - 22, y: p.y + 44, width: '14', height: '24', rx: '6', fill: '#f2cf7a' }));
+        svg.appendChild(s('text', { x: p.x + 8, y: p.y + 54, fill: '#f2cf7a', 'font-size': '11', 'font-family': 'system-ui, sans-serif', text: d.front === i ? '' : 'final door' }));
+      }
+      if (un.indexOf(i) >= 0) svg.appendChild(s('text', { x: p.x + 8, y: p.y + 38, fill: '#f39a7d', 'font-size': '12', 'font-family': 'system-ui, sans-serif', text: 'out of reach' }));
+    }
+    for (var b = 0; b < 12; b++) drawBoundary(svg, d, b, opt);
+    if (opt.route) opt.route.forEach(function (r, k) {
+      var p = cellXY(r), slot = opt.route.slice(0, k).filter(function (x) { return x === r; }).length;
+      svg.appendChild(s('circle', { cx: p.x + CELL - 14 - slot * 20, cy: p.y + CELL - 14, r: '9', fill: '#f2cf7a', stroke: '#1b1404' }));
+      svg.appendChild(s('text', { x: p.x + CELL - 14 - slot * 20, y: p.y + CELL - 10, 'text-anchor': 'middle', fill: '#1b1404', 'font-size': '11', 'font-weight': '700', 'font-family': 'system-ui, sans-serif', text: String(k + 1) }));
+    });
+    if (opt.wall >= 0) {
+      var c = gapCenter(opt.wall);
+      svg.appendChild(s('circle', { cx: c.x, cy: c.y, r: '18', fill: 'none', stroke: '#f39a7d', 'stroke-width': '3', 'stroke-dasharray': '5 4' }));
+    }
+    // hit areas: rooms first, walls on top
+    for (i = 0; i < 9; i++) (function (i) {
+      var p = cellXY(i);
+      svg.appendChild(s('rect', { x: p.x, y: p.y, width: CELL, height: CELL, fill: 'transparent', class: 'hit', onclick: function () { if (opt.onRoom) opt.onRoom(i); } }));
+    })(i);
+    for (b = 0; b < 12; b++) (function (b) {
+      var c = gapCenter(b), ew = BOUNDS[b].axis === 'ew';
+      svg.appendChild(s('rect', { x: c.x - (ew ? 22 : 32), y: c.y - (ew ? 32 : 22), width: ew ? 44 : 64, height: ew ? 64 : 44, fill: 'transparent', class: 'hit', onclick: function () { if (opt.onWall) opt.onWall(b); } }));
+    })(b);
+    return svg;
+  }
+  function drawBoundary(svg, d, b, opt) {
+    var x = d.b[b], c = gapCenter(b), ew = BOUNDS[b].axis === 'ew', sel = opt.sel && opt.sel.kind === 'wall' && opt.sel.i === b;
+    var pw = ew ? GAP + 2 : 52, ph = ew ? 52 : GAP + 2;
+    if (x.t !== 'wall') svg.appendChild(s('rect', { x: c.x - pw / 2, y: c.y - ph / 2, width: pw, height: ph, fill: '#1f3268' }));
+    if (sel) svg.appendChild(s('rect', { x: c.x - (ew ? 16 : 30), y: c.y - (ew ? 30 : 16), width: ew ? 32 : 60, height: ew ? 60 : 32, fill: 'none', stroke: '#ffe08a', 'stroke-width': '3', rx: '4' }));
+    if (x.t === 'arch') {
+      if (ew) { svg.appendChild(s('line', { x1: c.x - 11, y1: c.y - 26, x2: c.x + 11, y2: c.y - 26, stroke: '#8d9acb', 'stroke-width': '3' })); svg.appendChild(s('line', { x1: c.x - 11, y1: c.y + 26, x2: c.x + 11, y2: c.y + 26, stroke: '#8d9acb', 'stroke-width': '3' })); }
+      else { svg.appendChild(s('line', { x1: c.x - 26, y1: c.y - 11, x2: c.x - 26, y2: c.y + 11, stroke: '#8d9acb', 'stroke-width': '3' })); svg.appendChild(s('line', { x1: c.x + 26, y1: c.y - 11, x2: c.x + 26, y2: c.y + 11, stroke: '#8d9acb', 'stroke-width': '3' })); }
+    } else if (x.t === 'lock') {
+      svg.appendChild(s('rect', { x: c.x - (ew ? 9 : 20), y: c.y - (ew ? 20 : 9), width: ew ? 18 : 40, height: ew ? 40 : 18, rx: '3', fill: '#d4a548' }));
+      svg.appendChild(s('text', { x: c.x, y: c.y + 4, 'text-anchor': 'middle', fill: '#1b1404', 'font-size': '12', 'font-weight': '800', 'font-family': 'system-ui, sans-serif', text: KEYS[x.k].letter }));
+    } else if (x.t === 'oneway') {
+      var B = BOUNDS[b], toB = x.d === 0, pts;
+      if (ew) pts = toB ? [c.x + 9, c.y, c.x - 7, c.y - 12, c.x - 7, c.y + 12] : [c.x - 9, c.y, c.x + 7, c.y - 12, c.x + 7, c.y + 12];
+      else pts = toB ? [c.x, c.y + 9, c.x - 12, c.y - 7, c.x + 12, c.y - 7] : [c.x, c.y - 9, c.x - 12, c.y + 7, c.x + 12, c.y + 7];
+      svg.appendChild(s('polygon', { points: pts.join(' '), fill: '#f2cf7a' }));
+      void B;
+    } else if (x.t === 'gate') {
+      for (var k = -1; k <= 1; k++) svg.appendChild(s('line', ew ? { x1: c.x - 7, y1: c.y + k * 12, x2: c.x + 7, y2: c.y + k * 12, stroke: '#94d8ab', 'stroke-width': '3' } : { x1: c.x + k * 12, y1: c.y - 7, x2: c.x + k * 12, y2: c.y + 7, stroke: '#94d8ab', 'stroke-width': '3' }));
+      svg.appendChild(s('circle', { cx: ew ? c.x : c.x + 22, cy: ew ? c.y + 24 : c.y, r: '8', fill: '#94d8ab' }));
+      svg.appendChild(s('text', { x: ew ? c.x : c.x + 22, y: (ew ? c.y + 24 : c.y) + 4, 'text-anchor': 'middle', fill: '#0e1a3a', 'font-size': '10', 'font-weight': '800', 'font-family': 'system-ui, sans-serif', text: LEVERS[x.l].letter }));
+    }
+  }
+  function legend() {
+    return h('p', { class: 'caption' }, 'Tap a room, or the wall between two rooms, to change it. B, I and S mark the brass, iron and silver keys and their doors; C and O mark the copper and oak levers and their gates; an arrow is a one-way door; gold numbers trace the Guest’s route. Everything here can also be changed from "The house in words".');
+  }
+  function planHighlights(d, rep) {
+    var o = { route: null, wall: -1, unreachable: [] };
+    if (!rep) return o;
+    o.unreachable = rep.checks.A.unreachable || [];
+    var w = rep.checks.D.witness;
+    if (w) {
+      if (!w.fromStart) {
+        o.route = [d.front].concat(w.steps.filter(function (st) { return st.action[0] === 'm'; }).map(function (st) { return st.room; }));
+        if (w.crossingAction && w.crossingAction[0] === 'm') o.wall = +w.crossingAction.slice(1);
+      } else if (w.blockers.length) o.wall = w.blockers[0].b;
+    }
+    return o;
+  }
+
+  /* ---------- editing ---------- */
+  function edit(op, quietly) {
+    var r = D.commit(curHist(), op);
+    if (!r.ok) { A.editMsg = { text: r.reason, ok: false }; announce(r.reason); withFocus(renderEditor); return false; }
+    setHist(r.history);
+    if (A.mode === 'tutorial') A.tut.edits++;
+    changed(r.summary, quietly);
+    return true;
+  }
+  function changed(msg, quietly) {
+    A.repairToken++; A.repairs = null; A.editMsg = msg ? { text: msg, ok: true } : null;
+    save();
+    if (!quietly) { announce(msg + (A.report ? ' Ask the Guest again to recheck.' : '')); withFocus(renderEditor); }
+  }
+  function doUndo() {
+    var r = D.undo(curHist()); if (!r.ok) { announce(r.reason); return; }
+    setHist(r.history); changed(r.summary);
+    if (A.report && A.report.rev === D.revision(curDesign())) announce(r.summary + ' This version was already checked; its report is shown again.');
+  }
+  function doRedo() { var r = D.redo(curHist()); if (!r.ok) { announce(r.reason); return; } setHist(r.history); changed(r.summary); }
+
+  function askGuest() {
+    var d = curDesign();
+    A.report = V.validate(d);
+    A.repairToken++; A.repairs = null;
+    var r = A.report, c = r.checks, failed = ['A', 'B', 'C', 'D'].filter(function (k) { return c[k].status !== 'PASS'; });
+    var msg = r.status === 'PASS' ? 'The Guest checked every possible state. All four checks pass.' : r.status === 'INCONCLUSIVE' ? 'The search hit its limit, so the result is inconclusive.' : 'The house fails ' + failed.length + ' of 4 checks.';
+    if (c.D.witness) msg += ' ' + c.D.witness.narration;
+    if (A.mode === 'tutorial' && r.status === 'PASS') A.tut.passed = true;
+    renderEditor();
+    announce(msg);
+    var hd = $('hReport'); if (hd) hd.focus();
+    if (r.status === 'FAIL' && A.mode === 'workshop') startRepairs();
+  }
+  function startRepairs() {
+    var d = curDesign(), base = A.report, token = ++A.repairToken, cands = V.repairCandidates(d), found = [], i = 0;
+    A.repairs = { running: true, done: 0, total: cands.length };
+    function chunk() {
+      if (token !== A.repairToken) return;
+      var end = Math.min(i + 6, cands.length);
+      for (; i < end; i++) { var e = V.evaluateRepair(d, base, cands[i]); if (e) found.push(e); }
+      A.repairs.done = i;
+      var pr = $('repairProgress'); if (pr) pr.textContent = 'Trying single changes: ' + i + ' of ' + cands.length + '.';
+      if (i < cands.length) { setTimeout(chunk, 0); return; }
+      var res = V.rankRepairs(d, base, found);
+      res.running = false; res.tried = cands.length; A.repairs = res;
+      if (A.screen === 'editor') withFocus(renderReportOnly);
+      announce(res.totalFull ? 'The DoorKeeper found ' + res.totalFull + ' single change' + (res.totalFull > 1 ? 's' : '') + ' that make the whole house pass.' : 'No single change makes the whole house pass.');
+    }
+    setTimeout(chunk, 0);
+  }
+  function applyRepair(x) {
+    if (edit(x.op, true)) {
+      var before = A.report, after = V.validate(curDesign());
+      A.report = after; A.repairToken++; A.repairs = null;
+      A.editMsg = { text: 'Applied: ' + x.summary + ' Before: ' + statusWords(before) + '. After: ' + statusWords(after) + '. Undo puts it back.', ok: true };
+      renderEditor();
+      announce(A.editMsg.text);
+      var hd = $('hReport'); if (hd) hd.focus();
+      if (after.status === 'FAIL') startRepairs();
+    }
+  }
+  function statusWords(r) { return ['A', 'B', 'C', 'D'].map(function (k, i) { return 'check ' + (i + 1) + ' ' + r.checks[k].status.toLowerCase(); }).join(', '); }
+
+  /* ---------- intro ---------- */
+  function heroArt() {
+    var svg = s('svg', { viewBox: '0 0 440 330', 'aria-hidden': 'true', focusable: 'false' });
+    for (var i = 0; i < 26; i++) { var x = (i * 97) % 430 + 5, y = (i * 53) % 120 + 6; svg.appendChild(s('circle', { cx: x, cy: y, r: i % 3 ? '1' : '1.6', fill: '#f2cf7a', opacity: '0.6' })); }
+    svg.appendChild(s('polygon', { points: '70,150 190,80 310,150', fill: '#16244f', stroke: '#d4a548', 'stroke-width': '2' }));
+    svg.appendChild(s('rect', { x: '78', y: '150', width: '224', height: '160', fill: '#0a1330', stroke: '#d4a548', 'stroke-width': '2' }));
+    for (var r = 0; r < 3; r++) for (var c = 0; c < 3; c++) svg.appendChild(s('rect', { x: 86 + c * 72, y: 158 + r * 50, width: '64', height: '42', fill: (r * 3 + c) === 4 ? '#3a4f8f' : '#1f3268' }));
+    svg.appendChild(s('circle', { cx: '160', cy: '279', r: '6', fill: '#f2cf7a' }));
+    svg.appendChild(s('ellipse', { cx: '370', cy: '150', rx: '46', ry: '70', fill: '#f2cf7a', opacity: '0.18', class: 'door-glow' }));
+    svg.appendChild(s('rect', { x: '345', y: '100', width: '50', height: '96', rx: '24', fill: '#d4a548' }));
+    svg.appendChild(s('rect', { x: '352', y: '108', width: '36', height: '84', rx: '18', fill: '#f2cf7a' }));
+    svg.appendChild(s('circle', { cx: '380', cy: '152', r: '3', fill: '#1b1404' }));
+    svg.appendChild(s('line', { x1: '0', y1: '310', x2: '440', y2: '310', stroke: '#d4a548', 'stroke-width': '1', opacity: '0.5' }));
+    return svg;
+  }
+  function renderIntro() {
+    var el = clear($('scrIntro'));
+    var hasStreet = A.slots.some(Boolean);
+    el.appendChild(h('div', { class: 'hero' },
+      h('div', null,
+        h('h1', { id: 'hIntro' }, 'Nine Rooms for the Midnight Guest'),
+        h('p', { class: 'lede' }, 'You are the new Doorwright. The house rebuilds itself every evening, and at midnight a lantern-carrying Guest will knock. They can use only what you leave inside.'),
+        h('p', null, 'Tonight the house is half-built, and the Guest is already at the door.'),
+        h('div', { class: 'row' },
+          btn('Answer the knock', startTutorial, { cls: 'primary', id: 'bKnock' }),
+          hasStreet ? btn('Go to your street', function () { show('street'); }) : btn('Skip to the workshop', function () { openWorkshop(0); })
+        ),
+        A.storeMsgs.length ? h('div', { class: 'msg' }, A.storeMsgs.join(' ')) : null,
+        h('p', { class: 'small muted' }, 'Everything runs in this page. Nothing you make is sent anywhere.')
+      ),
+      heroArt()
+    ));
+  }
+
+  /* ---------- tutorial ---------- */
+  function startTutorial() {
+    A.tut = { hist: D.createHistory(D.sampleBlueprint('tutorial')), edits: 0, passed: false };
+    A.mode = 'tutorial'; A.sel = null; A.stage = null; A.editMsg = null; A.tutHint = false;
+    A.report = V.validate(A.tut.hist.present);
+    show('editor');
+    announce('The Guest has tried the half-built house. ' + A.report.checks.D.witness.narration);
+  }
+  function finishTutorial(start) {
+    var bp = start === 'blank' ? 'blank' : 'lantern';
+    var i = A.slots.indexOf(null); if (i < 0) i = 0;
+    if (!A.slots[i]) A.slots[i] = { hist: D.createHistory(D.sampleBlueprint(bp)), sealed: null };
+    A.mode = 'workshop'; A.cur = i; A.report = null; A.sel = null; A.editMsg = null; A.repairs = null;
+    save();
+    show('editor');
+    announce('Your workshop is open. House ' + (i + 1) + ' starts from ' + (bp === 'blank' ? 'an empty plan' : 'the Lantern House') + '.');
+  }
+  function openWorkshop(i) {
+    A.mode = 'workshop'; A.cur = i; A.report = null; A.sel = null; A.editMsg = null; A.repairs = null; A.repairToken++;
+    show('editor');
+  }
+
+  /* ---------- editor ---------- */
+  function renderEditor() {
+    var el = clear($('scrEditor')), tut = A.mode === 'tutorial';
+    if (!tut) el.appendChild(slotTabs());
+    if (!tut && !A.slots[A.cur]) { el.appendChild(startChooser()); return; }
+    var d = curDesign(), rep = freshReport();
+    var head = h('div', { class: 'status-line' },
+      h('h2', { id: 'hEditor' }, tut ? 'The half-built house' : d.name),
+      statusChip(d, rep));
+    el.appendChild(head);
+    if (tut) el.appendChild(tutorialIntro(rep));
+    var hl = planHighlights(d, rep);
+    var planCol = h('div', { class: 'planCol' },
+      h('div', { class: 'planBox' },
+        drawPlan(d, { sel: A.sel, route: hl.route, wall: hl.wall, unreachable: hl.unreachable, onRoom: function (i) { select({ kind: 'room', i: i }); }, onWall: function (b) { select({ kind: 'wall', i: b }); } }),
+        A.textFirst ? h('p', { class: 'caption' }, 'Text-first mode: the drawing is hidden. Use "The house in words" to see and change everything.') : legend(),
+        h('div', { class: 'toolbar' },
+          btn('Undo', doUndo, { id: 'bUndo', disabled: !curHist().past.length }),
+          btn('Redo', doRedo, { id: 'bRedo', disabled: !curHist().future.length }),
+          btn(A.textFirst ? 'Show the drawing' : 'Text-first mode', function () { A.textFirst = !A.textFirst; if (A.textFirst) A.wordsOpen = true; document.body.classList.toggle('textfirst', A.textFirst); withFocus(renderEditor); announce(A.textFirst ? 'Text-first mode on. The drawing is hidden.' : 'The drawing is shown again.'); }, { id: 'bText', pressed: String(A.textFirst) })
+        ),
+        curHist().past.length ? h('p', { class: 'small muted' }, 'Last change: ' + curHist().past[curHist().past.length - 1].label) : null
+      ));
+    var side = h('div', { class: 'stack' });
+    if (A.editMsg) side.appendChild(h('div', { class: 'msg' + (A.editMsg.ok ? ' ok' : ''), role: 'status' }, A.editMsg.text));
+    side.appendChild(selectionPanel(d));
+    side.appendChild(h('div', { class: 'panel quietp' },
+      btn(tut ? 'Ask the Guest to try again' : 'Ask the Guest to check the house', askGuest, { cls: 'primary block', id: 'bAsk' }),
+      h('p', { class: 'small muted' }, 'The Guest tries every possible state of the house: every room, every key in every pocket, every door open or shut. Proven limit: ' + LIM.provenStateBound.toLocaleString('en') + ' states.')
+    ));
+    var repBox = h('div', { id: 'reportBox' }); side.appendChild(repBox);
+    side.appendChild(wordsPanel(d));
+    if (!tut) side.appendChild(detailsPanel(d));
+    el.appendChild(h('div', { class: 'ed' }, planCol, side));
+    renderReportOnly();
+  }
+  function statusChip(d, rep) {
+    if (!rep) return h('span', { class: 'chip' }, A.report ? 'Changed since the last check' : 'Not checked yet');
+    if (rep.status === 'PASS') return h('span', { class: 'chip pass' }, 'Passes all four checks');
+    if (rep.status === 'INCONCLUSIVE') return h('span', { class: 'chip inc' }, 'Inconclusive');
+    var n = ['A', 'B', 'C', 'D'].filter(function (k) { return rep.checks[k].status !== 'PASS'; }).length;
+    return h('span', { class: 'chip fail' }, 'Fails ' + n + ' of 4 checks');
+  }
+  function slotTabs() {
+    var row = h('div', { class: 'slots', role: 'group', 'aria-label': 'Your three houses' });
+    A.slots.forEach(function (sl, i) {
+      var st = St.slotStatus(sl ? { design: sl.hist.present, sealed: sl.sealed } : null).status;
+      var label = 'House ' + (i + 1) + (sl ? ': ' + short(sl.hist.present.name, 18) : ': empty lot') + (st === 'gold' ? ' (gold door)' : '');
+      row.appendChild(h('button', { type: 'button', 'aria-pressed': String(i === A.cur), id: 'slot' + i, onclick: function () { openWorkshop(i); } }, label));
+    });
+    return row;
+  }
+  function startChooser() {
+    return h('div', { class: 'panel' },
+      h('h2', { id: 'hEditor' }, 'House ' + (A.cur + 1) + ' is an empty lot'),
+      h('p', null, 'Start from a sample you can change, or from nine bare rooms.'),
+      h('div', { class: 'stack' },
+        btn('Start from the Lantern House (it passes)', function () { newSlot('lantern'); }, { cls: 'primary block' }),
+        btn('Start from the Iron Key Trap (it has a softlock)', function () { newSlot('ironTrap'); }, { cls: 'block' }),
+        btn('Start from an empty plan', function () { newSlot('blank'); }, { cls: 'block' })));
+  }
+  function newSlot(which) {
+    A.slots[A.cur] = { hist: D.createHistory(D.sampleBlueprint(which)), sealed: null };
+    save(); A.report = null; renderEditor(); $('hEditor').setAttribute('tabindex', '-1'); $('hEditor').focus();
+    announce('House ' + (A.cur + 1) + ' started.');
+  }
+  function tutorialIntro(rep) {
+    var box = h('div', { class: 'stack' });
+    if (!A.tut.passed) {
+      box.appendChild(h('p', null, 'The Guest has already tried this house. Read what they found, make one change to the house, then ask them to try again.'));
+      box.appendChild(h('div', { class: 'row' },
+        btn(A.tutHint ? 'Hide the hint' : 'Show a hint', function () { A.tutHint = !A.tutHint; withFocus(renderEditor); }, { id: 'bHint', pressed: String(!!A.tutHint) })));
+      if (A.tutHint) box.appendChild(h('p', { class: 'small', role: 'note' }, M.TEXT.tutorialHint));
+    }
+    return box;
+  }
+  function select(sel) {
+    A.sel = sel; A.stage = null; A.editMsg = null;
+    renderEditor();
+    var hd = $('hSel'); if (hd) hd.focus();
+    announce(sel.kind === 'room' ? 'Selected ' + D.roomLabel(curDesign(), sel.i) + '.' : 'Selected the wall between ' + D.boundaryLabel(curDesign(), sel.i) + '.');
+  }
+
+  function selectionPanel(d) {
+    var p = h('div', { class: 'panel' });
+    if (!A.sel) {
+      p.appendChild(h('h3', { id: 'hSel', tabindex: '-1' }, 'Nothing selected'));
+      p.appendChild(h('p', { class: 'small' }, 'Choose a room or a wall on the plan, or from "The house in words" below.'));
+      return p;
+    }
+    return A.sel.kind === 'room' ? roomPanel(d, A.sel.i, p) : wallPanel(d, A.sel.i, p);
+  }
+  function counter(id, max) {
+    var c = h('span', { class: 'counter', id: id + 'Count', 'aria-live': 'off' });
+    function upd() { var n = D.cpLen($(id).value); c.textContent = n + ' of ' + max + ' characters'; c.classList.toggle('over', n > max); }
+    setTimeout(function () { if ($(id)) { $(id).addEventListener('input', upd); upd(); } }, 0);
+    return c;
+  }
+  function roomPanel(d, i, p) {
+    var room = d.rooms[i], label = D.roomLabel(d, i);
+    p.appendChild(h('h3', { id: 'hSel', tabindex: '-1' }, 'Room ' + (i + 1) + ': ' + room.name));
+    p.appendChild(h('p', { class: 'small muted' }, 'The ' + M.POSITIONS[i] + ' room of the house.'));
+    var preset = h('select', { id: 'selPreset', 'aria-label': 'Pick a ready-made room name', onchange: function () { if (this.value) { $('inName').value = this.value; $('inName').dispatchEvent(new Event('input')); } } },
+      h('option', { value: '' }, 'Pick a ready-made name…'),
+      M.PRESET_NAMES.map(function (n) { return h('option', { value: n }, n); }));
+    p.appendChild(h('label', { for: 'inName' }, 'Room name ', h('span', { class: 'hint' }, '(up to 24 characters)')));
+    p.appendChild(h('input', { type: 'text', id: 'inName', value: room.name, autocomplete: 'off', 'aria-describedby': 'inNameCount' }));
+    p.appendChild(h('div', { class: 'row' }, counter('inName', LIM.roomName)));
+    p.appendChild(h('div', { class: 'row', style: 'margin-top:6px' }, preset, btn('Save the name', function () { edit({ op: 'roomName', room: i, text: $('inName').value }); }, { id: 'bSaveName' })));
+    p.appendChild(h('label', { for: 'inNote' }, 'Note left in this room ', h('span', { class: 'hint' }, '(the Guest reads it; up to 60 characters)')));
+    p.appendChild(h('textarea', { id: 'inNote', rows: '2', 'aria-describedby': 'inNoteCount' }, room.note));
+    p.appendChild(h('div', { class: 'row' }, counter('inNote', LIM.roomNote), btn('Save the note', function () { edit({ op: 'roomNote', room: i, text: $('inNote').value }); }, { id: 'bSaveNote' })));
+
+    p.appendChild(h('h3', null, 'What is in ' + label));
+    var things = h('div', { class: 'stack' });
+    KEYS.forEach(function (k) {
+      var where = d.keys[k.id], here = where === i;
+      things.appendChild(h('div', { class: 'row' },
+        h('span', { style: 'flex:1 1 200px' }, 'The ' + k.name + ' key (' + k.letter + '): ' + (where === null ? 'not in the house' : here ? 'here' : 'in ' + D.roomLabel(d, where))),
+        here ? btn('Take it out of the house', function () { edit({ op: 'key', key: k.id, room: null }); }, { id: 'bKeyOut' + k.id })
+          : btn((where === null ? 'Put it here' : 'Move it here'), function () { edit({ op: 'key', key: k.id, room: i }); }, { id: 'bKeyHere' + k.id })));
+    });
+    LEVERS.forEach(function (l) {
+      var where = d.levers[l.id], here = where === i;
+      things.appendChild(h('div', { class: 'row' },
+        h('span', { style: 'flex:1 1 200px' }, 'The ' + l.name + ' lever (' + l.letter + '): ' + (where === null ? 'not in the house' : here ? 'here' : 'in ' + D.roomLabel(d, where))),
+        here ? btn('Take it out of the house', function () { edit({ op: 'lever', lever: l.id, room: null }); }, { id: 'bLevOut' + l.id })
+          : btn((where === null ? 'Put it here' : 'Move it here'), function () { edit({ op: 'lever', lever: l.id, room: i }); }, { id: 'bLevHere' + l.id })));
+    });
+    function doorRow(kind, word) {
+      var here = d[kind] === i, other = kind === 'front' ? d.final === i : d.front === i;
+      var why = 'why' + kind;
+      return h('div', { class: 'row' },
+        h('span', { style: 'flex:1 1 200px', id: why }, here ? 'The ' + word + ' door is in this room.' : other ? 'The ' + word + ' door cannot share a room with the ' + (kind === 'front' ? 'final' : 'front') + ' door.' : 'The ' + word + ' door is in ' + D.roomLabel(d, d[kind]) + '.'),
+        here ? null : btn('Move the ' + word + ' door here', function () { edit({ op: kind, room: i }); }, { id: 'bDoor' + kind, disabled: other, describedby: why }));
+    }
+    things.appendChild(doorRow('front', 'front'));
+    things.appendChild(doorRow('final', 'final'));
+    p.appendChild(things);
+    p.appendChild(h('h3', null, 'Walls of ' + label));
+    var wl = h('ul', { class: 'wordlist' });
+    BOUNDS.forEach(function (B) {
+      if (B.a !== i && B.b !== i) return;
+      var o = B.a === i ? B.b : B.a;
+      wl.appendChild(h('li', { class: 'row' }, h('span', { style: 'flex:1 1 200px' }, D.dirWord(i, o) + ' to ' + D.roomLabel(d, o) + ': ' + D.describeBoundary(d, B.id)),
+        btn('Change this wall', function () { select({ kind: 'wall', i: B.id }); }, { id: 'bW' + B.id })));
+    });
+    p.appendChild(wl);
+    return p;
+  }
+  function wallPanel(d, b, p) {
+    var B = BOUNDS[b], cur = d.b[b];
+    var st = A.stage || { t: cur.t, k: cur.t === 'lock' ? cur.k : 0, d: cur.t === 'oneway' ? cur.d : 0, l: cur.t === 'gate' ? cur.l : 0 };
+    A.stage = st;
+    p.appendChild(h('h3', { id: 'hSel', tabindex: '-1' }, 'Wall between ' + D.boundaryLabel(d, b)));
+    p.appendChild(h('p', null, 'Now: ' + D.describeBoundary(d, b) + '.'));
+    var fs = h('fieldset', null, h('legend', null, 'Kind of connection'));
+    [['wall', 'No connection (solid wall)'], ['arch', 'Open arch: both ways, always'], ['lock', 'Locked door: uses up one matching key, then stays open'], ['oneway', 'One-way door: only opens from one side'], ['gate', 'Lever gate: opens for good once its lever is pulled']].forEach(function (o) {
+      fs.appendChild(h('label', { class: 'radio' }, h('input', { type: 'radio', name: 'btype', value: o[0], id: 'rt_' + o[0], checked: st.t === o[0], onchange: function () { A.stage.t = o[0]; withFocus(renderEditor); } }), o[1]));
+    });
+    p.appendChild(fs);
+    if (st.t === 'lock') {
+      p.appendChild(h('label', { for: 'selKey' }, 'Which key opens it'));
+      p.appendChild(h('select', { id: 'selKey', onchange: function () { A.stage.k = +this.value; withFocus(renderEditor); } }, KEYS.map(function (k) {
+        return h('option', { value: String(k.id), selected: st.k === k.id }, k.name + ' key (' + (d.keys[k.id] === null ? 'not in the house yet' : 'in ' + D.roomLabel(d, d.keys[k.id])) + ')');
+      })));
+      p.appendChild(h('p', { class: 'small muted' }, 'Locked doors used: ' + D.lockCount(d) + ' of ' + LIM.locks + '. Each key is single-use: if two doors take the same key, the Guest must choose which one to open.'));
+    }
+    if (st.t === 'oneway') {
+      p.appendChild(h('label', { for: 'selDir' }, 'Direction'));
+      p.appendChild(h('select', { id: 'selDir', onchange: function () { A.stage.d = +this.value; withFocus(renderEditor); } },
+        h('option', { value: '0', selected: st.d === 0 }, 'From ' + D.roomLabel(d, B.a) + ' to ' + D.roomLabel(d, B.b)),
+        h('option', { value: '1', selected: st.d === 1 }, 'From ' + D.roomLabel(d, B.b) + ' to ' + D.roomLabel(d, B.a))));
+    }
+    if (st.t === 'gate') {
+      p.appendChild(h('label', { for: 'selLev' }, 'Which lever raises it'));
+      p.appendChild(h('select', { id: 'selLev', onchange: function () { A.stage.l = +this.value; withFocus(renderEditor); } }, LEVERS.map(function (l) {
+        return h('option', { value: String(l.id), selected: st.l === l.id }, l.name + ' lever (' + (d.levers[l.id] === null ? 'not in the house yet' : 'in ' + D.roomLabel(d, d.levers[l.id])) + ')');
+      })));
+    }
+    var op = { op: 'boundary', b: b, t: st.t }; if (st.t === 'lock') op.k = st.k; if (st.t === 'oneway') op.d = st.d; if (st.t === 'gate') op.l = st.l;
+    var preview = D.applyEdit(d, op);
+    p.appendChild(h('p', { id: 'wallPreview', role: 'status' }, preview.ok ? 'After: ' + D.describeBoundary(preview.design, b) + '.' : preview.reason));
+    p.appendChild(h('div', { class: 'row' },
+      btn('Apply this change', function () { if (edit(op)) A.stage = null; }, { cls: 'primary', id: 'bApplyWall', disabled: !preview.ok, describedby: 'wallPreview' }),
+      btn('Back to ' + D.roomLabel(d, B.a), function () { select({ kind: 'room', i: B.a }); }, { id: 'bBackA' }),
+      btn('Back to ' + D.roomLabel(d, B.b), function () { select({ kind: 'room', i: B.b }); }, { id: 'bBackB' })));
+    return p;
+  }
+
+  function wordsPanel(d) {
+    var det = h('details', { class: 'words', open: A.textFirst || A.wordsOpen, ontoggle: function () { A.wordsOpen = this.open; } }, h('summary', { id: 'sumWords' }, 'The house in words'));
+    det.appendChild(h('p', { class: 'small muted' }, 'Every room, what it holds and where its passages lead. Each "Change" button opens the same editor as the plan.'));
+    var ul = h('ul', { class: 'wordlist' });
+    for (var i = 0; i < 9; i++) (function (i) {
+      var bits = [];
+      d.keys.forEach(function (r, k) { if (r === i) bits.push(KEYS[k].name + ' key'); });
+      d.levers.forEach(function (r, l) { if (r === i) bits.push(LEVERS[l].name + ' lever'); });
+      if (d.front === i) bits.push('front door'); if (d.final === i) bits.push('final door');
+      var ex = h('ul', { class: 'exits' });
+      BOUNDS.forEach(function (B) {
+        if ((B.a !== i && B.b !== i) || d.b[B.id].t === 'wall') return;
+        var o = B.a === i ? B.b : B.a;
+        ex.appendChild(h('li', null, D.dirWord(i, o) + ' to ' + D.roomLabel(d, o) + ': ' + D.describeBoundary(d, B.id)));
+      });
+      if (!ex.firstChild) ex.appendChild(h('li', null, 'no passages'));
+      ul.appendChild(h('li', null,
+        h('div', { class: 'row' }, h('strong', { style: 'flex:1 1 200px' }, 'Room ' + (i + 1) + ' (' + M.POSITIONS[i] + '): ' + d.rooms[i].name), btn('Change room ' + (i + 1), function () { select({ kind: 'room', i: i }); }, { id: 'wr' + i })),
+        bits.length ? h('div', { class: 'small' }, 'Holds: ' + bits.join(', ')) : null,
+        d.rooms[i].note ? h('div', { class: 'note-q' }, '“' + d.rooms[i].note + '”') : null,
+        ex));
+    })(i);
+    det.appendChild(ul);
+    det.appendChild(h('h3', null, 'All twelve walls'));
+    var wl = h('ul', { class: 'wordlist' });
+    BOUNDS.forEach(function (B) {
+      wl.appendChild(h('li', { class: 'row' }, h('span', { style: 'flex:1 1 200px' }, 'Wall ' + (B.id + 1) + ', ' + D.boundaryLabel(d, B.id) + ': ' + D.describeBoundary(d, B.id)), btn('Change wall ' + (B.id + 1), function () { select({ kind: 'wall', i: B.id }); }, { id: 'ww' + B.id })));
+    });
+    det.appendChild(wl);
+    return det;
+  }
+
+  function detailsPanel(d) {
+    var p = h('div', { class: 'panel quietp' }, h('h3', null, 'The house itself'));
+    p.appendChild(h('label', { for: 'inHouse' }, 'House name ', h('span', { class: 'hint' }, '(up to 32 characters)')));
+    p.appendChild(h('input', { type: 'text', id: 'inHouse', value: d.name, autocomplete: 'off' }));
+    p.appendChild(h('div', { class: 'row' }, counter('inHouse', LIM.houseName), btn('Save the house name', function () { edit({ op: 'houseName', text: $('inHouse').value }); }, { id: 'bSaveHouse' })));
+    var fs = h('fieldset', null, h('legend', null, "Maker's mark (a decoration for your gold door)"));
+    var g = h('div', { class: 'marks' });
+    M.MARKS.forEach(function (m) {
+      g.appendChild(h('label', null, h('input', { type: 'radio', name: 'mark', value: m.id, id: 'mk_' + m.id, checked: d.mark === m.id, onchange: function () { edit({ op: 'mark', mark: m.id }); } }), markIcon(m.id), m.name));
+    });
+    fs.appendChild(g); p.appendChild(fs);
+    p.appendChild(h('label', { for: 'inMono' }, 'Monogram ', h('span', { class: 'hint' }, '(optional, up to 3 characters; any letters you like, not your real name)')));
+    p.appendChild(h('input', { type: 'text', id: 'inMono', value: d.mono, autocomplete: 'off' }));
+    p.appendChild(h('div', { class: 'row' }, counter('inMono', LIM.monogram), btn('Save the monogram', function () { edit({ op: 'mono', text: $('inMono').value }); }, { id: 'bSaveMono' })));
+    p.appendChild(h('h3', null, 'Start over'));
+    p.appendChild(h('p', { class: 'small muted' }, 'These replace the whole house. Undo brings it back.'));
+    p.appendChild(h('div', { class: 'stack' },
+      btn('Replace with the Lantern House (passes)', function () { replaceWith('lantern', 'The Lantern House'); }, { cls: 'block', id: 'bExL' }),
+      btn('Replace with the Iron Key Trap (has a softlock)', function () { replaceWith('ironTrap', 'The Iron Key Trap'); }, { cls: 'block', id: 'bExT' }),
+      btn('Reset to an empty plan', function () { replaceWith('blank', 'an empty plan'); }, { cls: 'block', id: 'bReset' })));
+    return p;
+  }
+  function replaceWith(which, label) {
+    confirmDlg('Replace everything in house ' + (A.cur + 1) + ' with ' + label + '? Undo can bring your version back.', 'Replace it').then(function (yes) {
+      if (!yes) return;
+      A.sel = null;
+      edit({ op: 'replace', blueprint: M.BLUEPRINTS[which], label: 'Replaced the house with ' + label + '.' });
+    });
+  }
+
+  /* ---------- the Guest's report ---------- */
+  var CHECK_TITLES = { A: 'Every room can be reached', B: 'The final door can be reached', C: 'Every key has a door, and every lever does something', D: 'No reachable state leaves the Guest permanently stuck' };
+  function renderReportOnly() {
+    var box = $('reportBox'); if (!box) return;
+    clear(box);
+    var d = curDesign(), rep = freshReport(), tut = A.mode === 'tutorial';
+    if (!rep) {
+      if (A.report) box.appendChild(h('div', { class: 'panel quietp' }, h('h3', { id: 'hReport', tabindex: '-1' }, 'The Guest’s report is out of date'), h('p', null, 'You changed the house after the last check. Ask the Guest again to see what holds now.')));
+      return;
+    }
+    var p = h('div', { class: 'panel' });
+    p.appendChild(h('h3', { id: 'hReport', tabindex: '-1' }, rep.status === 'PASS' ? 'The Guest got through' : rep.status === 'INCONCLUSIVE' ? 'The Guest could not finish checking' : 'The Guest found a problem'));
+    var w = rep.checks.D.witness;
+    var said = rep.status === 'PASS' ? 'I tried every possible state, ' + rep.counts.states + ' of them, and from every one I can still reach the final door.' : w ? w.narration : guestFailLine(d, rep);
+    p.appendChild(h('p', { class: 'guest-says' }, h('span', { class: 'who' }, 'The Guest'), said));
+    var ul = h('ul', { class: 'checks' });
+    ['A', 'B', 'C', 'D'].forEach(function (k, n) {
+      var c = rep.checks[k];
+      ul.appendChild(h('li', null, h('span', { class: 'mark ' + c.status }, c.status === 'INCONCLUSIVE' ? 'UNSURE' : c.status), h('span', null, (n + 1) + '. ' + CHECK_TITLES[k]), checkWhy(d, rep, k)));
+    });
+    p.appendChild(ul);
+    p.appendChild(h('p', { class: 'small muted' }, 'Searched ' + rep.counts.states.toLocaleString('en') + ' reachable states and ' + rep.counts.edges.toLocaleString('en') + ' moves' + (rep.counts.truncated ? ', stopping at the limit of ' + rep.counts.cap.toLocaleString('en') : ', a complete search') + ', in ' + rep.counts.ms + ' ms. The rules allow at most ' + rep.counts.bound.toLocaleString('en') + ' states in any house.'));
+    if (rep.notes.length) {
+      p.appendChild(h('h3', null, 'Notes (not failures)'));
+      p.appendChild(h('ul', { class: 'notes' }, rep.notes.map(function (n) { return h('li', null, n); })));
+    }
+    if (w) p.appendChild(witnessBlock(d, rep, w));
+    if (rep.status === 'FAIL' && !tut) p.appendChild(repairsBlock());
+    if (rep.status === 'PASS') p.appendChild(passBlock(d, rep));
+    box.appendChild(p);
+  }
+  function guestFailLine(d, rep) {
+    if (rep.checks.C.status === 'FAIL') return 'I can get through, but something in the house does nothing: ' + rep.checks.C.problems[0];
+    if (rep.checks.A.status === 'FAIL') return 'I can reach the final door, but I never find ' + rep.checks.A.unreachable.map(function (r) { return D.roomLabel(d, r); }).join(', ') + '.';
+    return 'I could not finish checking every state.';
+  }
+  function checkWhy(d, rep, k) {
+    var c = rep.checks[k], box = h('div', { class: 'why' });
+    if (k === 'A' && c.status === 'FAIL') box.appendChild(h('ul', null, c.details.map(function (x) { return h('li', null, D.roomLabel(d, x.room) + ': ' + x.why.join(' ')); })));
+    if (k === 'B') box.appendChild(document.createTextNode(c.status === 'PASS' ? 'Shortest way out: ' + c.length + ' actions. The final door opens from inside its room.' : c.finalRoomReached ? 'The Guest reaches the final room but cannot step out.' : 'The Guest never reaches ' + D.roomLabel(d, d.final) + ', where the final door is.'));
+    if (k === 'C' && c.status === 'FAIL') box.appendChild(h('ul', null, c.problems.map(function (x) { return h('li', null, x); })));
+    if (k === 'D' && c.status === 'FAIL') box.appendChild(document.createTextNode(c.badCount + ' of the ' + rep.counts.states + ' reachable states can never reach the final door.'));
+    if (c.status === 'INCONCLUSIVE') box.appendChild(document.createTextNode('Not every state was searched, so this cannot be decided.'));
+    return box.firstChild ? box : null;
+  }
+  function witnessBlock(d, rep, w) {
+    var box = h('div', null, h('h3', null, w.fromStart ? 'Where it goes wrong' : 'The Guest’s route to the trap'));
+    if (w.fromStart) {
+      box.appendChild(h('p', null, 'The house is stuck from the moment the Guest steps in. The rooms marked “out of reach” on the plan can never be entered.'));
+    } else {
+      var ol = h('ol', { class: 'route' });
+      ol.appendChild(h('li', null, 'Enter by the front door into ' + D.roomLabel(d, d.front) + '.', h('span', { class: 'inv' }, Gu.inventoryText(w.states[0]))));
+      w.steps.forEach(function (st, i) {
+        ol.appendChild(h('li', { class: i === w.crossingStep ? 'cross' : null }, (i === w.crossingStep ? 'Point of no recovery: ' : '') + st.text, h('span', { class: 'inv' }, st.after)));
+      });
+      box.appendChild(ol);
+    }
+    var row = h('div', { class: 'row' });
+    if (!w.fromStart) row.appendChild(btn('Follow the Guest, step by step', function () { enterGuest({ script: w.actions, from: A.mode }); }, { id: 'bFollow' }));
+    var focusWall = w.fromStart ? (w.blockers[0] && w.blockers[0].b) : (w.crossingAction && w.crossingAction[0] === 'm' ? +w.crossingAction.slice(1) : null);
+    if (focusWall !== null && focusWall !== undefined) row.appendChild(btn('Go to the wall that matters', function () { select({ kind: 'wall', i: focusWall }); }, { id: 'bGoWall' }));
+    box.appendChild(row);
+    return box;
+  }
+  function repairsBlock() {
+    var box = h('div', null, h('h3', null, 'Single changes that would help'));
+    var R = A.repairs;
+    if (!R || R.running) { box.appendChild(h('p', { id: 'repairProgress', class: 'small' }, R ? 'Trying single changes: ' + R.done + ' of ' + R.total + '.' : 'Waiting to try single changes.')); return box; }
+    box.appendChild(h('p', { class: 'small muted' }, 'The DoorKeeper tried ' + R.tried + ' single changes and checked each one completely. These are suggestions: you choose the fix, or a different one.'));
+    if (R.full.length) {
+      box.appendChild(h('p', null, 'Each of these makes all four checks pass:'));
+      box.appendChild(h('ul', { class: 'repairs' }, R.full.map(function (x, i) { return h('li', null, h('span', { class: 'what' }, x.summary), btn('Make this change', function () { applyRepair(x); }, { id: 'bRepF' + i })); })));
+      if (R.totalFull > R.full.length) box.appendChild(h('p', { class: 'small muted' }, (R.totalFull - R.full.length) + ' more single changes also work.'));
+    } else box.appendChild(h('p', null, 'No single change fixes the whole house. Try fixing the route shown above first, then ask the Guest again; a house with several problems usually needs several changes.'));
+    if (R.local.length) {
+      box.appendChild(h('p', null, 'These stop the route shown above from trapping the Guest, but the house would still fail a check:'));
+      box.appendChild(h('ul', { class: 'repairs' }, R.local.map(function (x, i) {
+        return h('li', null, h('span', { class: 'what' }, x.summary + ' (afterwards: ' + ['A', 'B', 'C', 'D'].map(function (k, n) { return 'check ' + (n + 1) + ' ' + x.result.checks[k].toLowerCase(); }).join(', ') + ')'), btn('Make this change', function () { applyRepair(x); }, { id: 'bRepL' + i }));
+      })));
+    }
+    return box;
+  }
+  function passBlock(d, rep) {
+    var box = h('div', null);
+    box.appendChild(h('p', null, 'Real decisions on the shortest route: ' + rep.decisions + '. ', h('span', { class: 'small muted' }, M.TEXT.decisionDefinition)));
+    if (A.mode === 'tutorial') {
+      var n = A.tut.edits;
+      box.appendChild(h('div', { class: 'keeper' }, h('span', { class: 'who' }, 'The DoorKeeper'),
+        (n === 1 ? 'One change, and the Guest walks through. ' : 'Mended in ' + n + ' changes. One would have done, but mended is mended. ') + M.TEXT.handoff));
+      box.appendChild(h('div', { class: 'row' },
+        btn('Walk the mended house as the Guest', function () { enterGuest({ from: 'tutorial' }); }, { id: 'bTutWalk' }),
+        btn('Build my own, starting from the Lantern House', function () { finishTutorial('lantern'); }, { cls: 'primary', id: 'bTutDone' }),
+        btn('Build my own from an empty plan', function () { finishTutorial('blank'); }, { id: 'bTutBlank' })));
+      return box;
+    }
+    var sl = A.slots[A.cur], hung = sl.sealed === rep.rev;
+    box.appendChild(h('div', { class: 'row' },
+      btn('Walk it as the Guest', function () { enterGuest({ from: 'workshop' }); }, { id: 'bWalk' }),
+      btn(hung ? 'The gold door is hung' : 'Hang the gold door on the street', hang, { cls: 'primary', id: 'bHang', disabled: hung })));
+    return box;
+  }
+  function hang() {
+    var rep = freshReport(); if (!rep || rep.status !== 'PASS') return;
+    A.slots[A.cur].sealed = rep.rev; A.justHung = A.cur; save();
+    show('street');
+    announce('A gold door now hangs on house ' + (A.cur + 1) + ', ' + curDesign().name + '. Its deed is ready.');
+  }
+
+  /* ---------- the Guest view ---------- */
+  function enterGuest(o) {
+    var d = o.design || curDesign(), rep = V.validate(d), st = Gu.initialState(d);
+    A.guest = { design: d, report: rep, trail: [{ code: st.code, action: null }], from: o.from, slot: o.slot, script: o.script ? { actions: o.script, pos: 0 } : null, seen: {}, last: 'You step in through the front door.', ended: false };
+    A.guest.seen[st.r] = 1;
+    var pk = Gu.heldKeys(st.code); if (pk.length) A.guest.last += ' You pick up the ' + pk.join(' and ') + ' key' + (pk.length > 1 ? 's' : '') + '.';
+    show('guest');
+    announce(A.guest.last + ' You are in ' + roomName(d, st.r) + '.');
+  }
+  function roomName(d, r) { return D.roomLabel(d, r); }
+  function gState() { var g = A.guest; return Gu.stateOf(g.trail[g.trail.length - 1].code); }
+  function guestDo(id) {
+    var g = A.guest, st = gState(), r = Gu.step(g.design, st, id);
+    if (!r.ok) { announce(r.reason); return; }
+    g.trail.push({ code: r.state.code, action: id });
+    if (!r.state.done) g.seen[r.state.r] = 1;
+    g.last = r.text;
+    if (r.state.done) { g.ended = true; }
+    renderGuest();
+    var stuck = !r.state.done && V.canFinishCode(g.report, r.state.code) === false;
+    announce(r.text + (r.state.done ? ' You are outside. The visit is over.' : ' You are in ' + roomName(g.design, r.state.r) + '.' + (stuck ? ' No legal path reaches the final door from here.' : '')));
+    var f = $(r.state.done ? 'hLedger' : 'hRoom'); if (f) f.focus();
+  }
+  function wayLabel(d, st, B, legalIds) {
+    var x = d.b[B.id], o = B.a === st.r ? B.b : B.a, dir = D.dirWord(st.r, o), id = 'm' + B.id, legal = legalIds.indexOf(id) >= 0;
+    var dest = A.guest.seen[o] ? roomName(d, o) : 'a room you have not seen yet', cap = dir.charAt(0).toUpperCase() + dir.slice(1);
+    var t;
+    if (x.t === 'arch') t = cap + ': through the open arch to ' + dest;
+    else if (x.t === 'oneway') t = legal ? cap + ': through the one-way door to ' + dest + ' (it will not open from the far side)' : cap + ': a one-way door that only opens from the other side';
+    else if (x.t === 'gate') t = legal ? cap + ': through the raised ' + LEVERS[x.l].name + ' gate to ' + dest : cap + ': a gate held shut; a ' + LEVERS[x.l].name + ' lever somewhere raises it';
+    else {
+      var li = 0; for (var j = 0; j < B.id; j++) if (d.b[j].t === 'lock') li++;
+      var open = (st.lk & (1 << li)) !== 0, ks = Gu.keyStatus(st.ks, x.k), kn = KEYS[x.k].name;
+      if (open) t = cap + ': through the open ' + kn + ' door to ' + dest;
+      else if (ks === 1) t = cap + ': unlock the ' + kn + ' door with your ' + kn + ' key (it will be used up) and go to ' + dest;
+      else t = cap + ': the ' + kn + ' door is locked' + (ks === 2 ? ', and you already used your ' + kn + ' key' : ' and you have no ' + kn + ' key');
+    }
+    return { text: t, legal: legal, id: id };
+  }
+  function renderGuest() {
+    var el = clear($('scrGuest')), g = A.guest;
+    if (!g) { el.appendChild(h('h2', { id: 'hGuest' }, 'No Guest visit yet')); return; }
+    var d = g.design, st = gState();
+    var wrap = h('div', { class: 'gview' });
+    wrap.appendChild(h('h2', { id: 'hGuest' }, 'Visiting ' + d.name));
+    wrap.appendChild(h('p', { class: 'muted' }, 'You are the Guest. There is no map: only the room you stand in, the note left there, and the doors you can see.'));
+    if (g.script) {
+      var sc = g.script, done = sc.pos >= sc.actions.length;
+      wrap.appendChild(h('div', { class: 'banner', role: 'status' },
+        done ? 'That is the whole route the Guest found. From here no legal path reaches the final door. You can keep looking around, step back, or return to fix the house.'
+          : 'Following the Guest’s trapped route: step ' + (sc.pos + 1) + ' of ' + sc.actions.length + '. Press "Take the Guest’s next step", or choose your own way.',
+        done ? null : h('div', { class: 'row', style: 'margin-top:8px' }, btn('Take the Guest’s next step', function () { var a = sc.actions[sc.pos]; sc.pos++; guestDo(a); }, { cls: 'primary', id: 'bScript' }), btn('Stop following and explore', function () { g.script = null; renderGuest(); }, { id: 'bScriptOff' }))));
+    }
+    if (st.done) {
+      wrap.appendChild(ledgerPanel());
+    } else {
+      var card = h('div', { class: 'roomcard' });
+      card.appendChild(h('p', { class: 'small muted', 'aria-live': 'off' }, g.last));
+      card.appendChild(h('h3', { id: 'hRoom', tabindex: '-1' }, roomName(d, st.r)));
+      card.appendChild(d.rooms[st.r].note ? h('blockquote', null, '“' + d.rooms[st.r].note + '”') : h('p', { class: 'muted' }, 'No note here.'));
+      card.appendChild(h('p', { class: 'pockets' }, 'Pockets: ' + Gu.inventoryText(st.code) + '.'));
+      var pulled = LEVERS.filter(function (l) { return st.lv & (1 << l.id); }).map(function (l) { return l.name; });
+      if (pulled.length) card.appendChild(h('p', { class: 'pockets' }, 'Levers pulled: ' + pulled.join(', ') + '.'));
+      var legal = Gu.legalActions(d, st).map(function (a) { return a.id; });
+      var ways = h('ul', { class: 'ways', 'aria-label': 'Ways on' });
+      BOUNDS.forEach(function (B) {
+        if ((B.a !== st.r && B.b !== st.r) || d.b[B.id].t === 'wall') return;
+        var w = wayLabel(d, st, B, legal);
+        ways.appendChild(h('li', null, btn(w.text, function () { guestDo(w.id); }, { id: 'g' + w.id, disabled: !w.legal })));
+      });
+      d.levers.forEach(function (r, l) {
+        if (r !== st.r) return;
+        if (st.lv & (1 << l)) ways.appendChild(h('li', null, h('p', { class: 'small' }, 'The ' + LEVERS[l].name + ' lever here is already pulled.')));
+        else ways.appendChild(h('li', null, btn('Pull the ' + LEVERS[l].name + ' lever', function () { guestDo('p' + l); }, { id: 'gp' + l })));
+      });
+      if (d.final === st.r) ways.appendChild(h('li', null, btn('Open the final door and step out into the night', function () { guestDo('x'); }, { cls: 'primary', id: 'gx' })));
+      if (!ways.firstChild) ways.appendChild(h('li', null, h('p', null, 'There is no way out of this room.')));
+      card.appendChild(ways);
+      wrap.appendChild(card);
+      if (V.canFinishCode(g.report, st.code) === false) wrap.appendChild(h('div', { class: 'trapnote', role: 'status' }, 'No legal path reaches the final door from here' + (legal.length ? ', though you can still walk about.' : ', and there is no move left.') + ' Undo a step, start again, or go back and change the house.'));
+    }
+    wrap.appendChild(h('div', { class: 'row', style: 'margin-top:14px' },
+      btn('Undo last step', function () { if (g.trail.length > 1) { g.trail.pop(); g.ended = false; if (g.script && g.script.pos > 0) g.script.pos--; g.last = 'You step back.'; renderGuest(); announce('Stepped back. You are in ' + roomName(d, gState().r) + '.'); var f = $('hRoom'); if (f) f.focus(); } }, { id: 'gUndo', disabled: g.trail.length < 2 }),
+      btn('Start again at the front door', function () { enterGuest({ design: d, from: g.from, slot: g.slot }); }, { id: 'gRestart' }),
+      st.done ? null : btn('End the visit and see the ledger', function () { g.ended = true; renderGuest(); var f = $('hLedger'); if (f) f.focus(); }, { id: 'gEnd' }),
+      btn(g.from === 'street' ? 'Back to the street' : g.from === 'tutorial' ? 'Back to the half-built house' : 'Back to the workshop', leaveGuest, { id: 'gBack' })));
+    if (g.ended && !st.done) wrap.appendChild(ledgerPanel());
+    el.appendChild(wrap);
+  }
+  function leaveGuest() {
+    var g = A.guest;
+    if (g.from === 'street') show('street');
+    else { A.mode = g.from === 'tutorial' ? 'tutorial' : 'workshop'; show('editor'); }
+  }
+  function ledgerPanel() {
+    var g = A.guest, L = Gu.ledger(g.design, g.report, g.trail);
+    var p = h('div', { class: 'panel', style: 'margin-top:14px' }, h('h3', { id: 'hLedger', tabindex: '-1' }, L.finished ? 'You stepped out into the night' : 'Ledger of this visit'));
+    var ul = h('ul', null,
+      h('li', null, 'Actions taken: ' + L.actions + (L.shortest !== null ? ' (the shortest way out takes ' + L.shortest + '; this is not a score)' : '')),
+      h('li', null, 'Rooms visited: ' + L.roomsVisited + ' of 9'),
+      h('li', null, 'Keys picked up: ' + (L.keysPicked.length ? L.keysPicked.join(', ') : 'none') + '; keys used up: ' + (L.keysSpent.length ? L.keysSpent.join(', ') : 'none')),
+      h('li', null, 'Levers pulled: ' + (L.leversPulled.length ? L.leversPulled.join(', ') : 'none')),
+      h('li', null, 'Dead ends you walked into and back out of: ' + (L.backouts.length ? L.backouts.join(', ') : 'none')));
+    p.appendChild(ul);
+    p.appendChild(h('h3', null, 'Points of no return'));
+    p.appendChild(h('p', { class: 'small muted' }, 'A step counts only if, after it, the Guest could never get back to exactly how things were before it: same room, same keys, same doors and levers.'));
+    p.appendChild(L.pointsOfNoReturn.length ? h('ol', { class: 'route' }, L.pointsOfNoReturn.map(function (x) { return h('li', null, 'Step ' + x.step + ': ' + x.text); })) : h('p', null, 'None on this visit.'));
+    return p;
+  }
+
+  /* ---------- street ---------- */
+  function lotArt(status, mark) {
+    var svg = s('svg', { viewBox: '0 0 200 170', 'aria-hidden': 'true', focusable: 'false' });
+    if (status === 'empty') {
+      svg.appendChild(s('rect', { x: '20', y: '150', width: '160', height: '4', fill: '#33488a' }));
+      svg.appendChild(s('text', { x: '100', y: '110', 'text-anchor': 'middle', fill: '#8d9acb', 'font-size': '14', 'font-family': 'system-ui, sans-serif', text: 'empty lot' }));
+      return svg;
+    }
+    svg.appendChild(s('polygon', { points: '30,70 100,22 170,70', fill: '#16244f', stroke: '#d4a548', 'stroke-width': '2' }));
+    svg.appendChild(s('rect', { x: '36', y: '70', width: '128', height: '82', fill: '#1f3268', stroke: '#d4a548', 'stroke-width': '2' }));
+    var gold = status === 'gold';
+    if (gold) svg.appendChild(s('ellipse', { cx: '100', cy: '118', rx: '34', ry: '40', fill: '#f2cf7a', opacity: '0.22' }));
+    svg.appendChild(s('rect', { x: '82', y: '96', width: '36', height: '56', rx: '17', fill: gold ? '#f2cf7a' : '#0a1330', stroke: gold ? '#d4a548' : '#8d9acb', 'stroke-width': '2', 'stroke-dasharray': gold ? '' : '4 3' }));
+    if (gold) { var g = s('g', { transform: 'translate(91 112) scale(0.75)', color: '#6b4b0f' }); var mi = markIcon(mark); Array.prototype.slice.call(mi.childNodes).forEach(function (n) { g.appendChild(n); }); g.setAttribute('fill', 'none'); g.setAttribute('stroke', 'currentColor'); g.setAttribute('stroke-width', '2'); svg.appendChild(g); }
+    svg.appendChild(s('rect', { x: '20', y: '152', width: '160', height: '4', fill: '#d4a548', opacity: '0.6' }));
+    return svg;
+  }
+  function renderStreet() {
+    var el = clear($('scrStreet'));
+    el.appendChild(h('h2', { id: 'hStreet' }, 'Your street'));
+    el.appendChild(h('p', null, 'Three lots, one house each. A house gets a gold door when it passes all four checks and you hang it. If you change it afterwards, the gold door is taken down until the Guest checks it again.'));
+    var row = h('div', { class: 'street' });
+    A.slots.forEach(function (sl, i) {
+      var info = St.slotStatus(sl ? { design: sl.hist.present, sealed: sl.sealed } : null), st = info.status;
+      var d = sl ? sl.hist.present : null;
+      var words = { empty: 'An empty lot.', draft: 'Being built. No gold door yet.', gold: 'Gold door hung. Passes all four checks.', superseded: 'Changed since its gold door was hung. Ask the Guest again, then re-hang it.', refused: 'The saved seal does not match a passing house, so no gold door.' }[st];
+      var lot = h('div', { class: 'lot' + (A.justHung === i && st === 'gold' ? ' gold-new' : '') },
+        lotArt(st, d ? d.mark : 'moon'),
+        h('h3', null, 'House ' + (i + 1) + (d ? ': ' + d.name : '')),
+        d && d.mono ? h('p', { class: 'small muted' }, 'Mark: ' + markName(d.mark) + ', monogram ' + d.mono) : d ? h('p', { class: 'small muted' }, 'Mark: ' + markName(d.mark)) : null,
+        h('p', null, words));
+      var r = h('div', { class: 'row' });
+      if (!sl) r.appendChild(btn('Build here', function () { openWorkshop(i); }, { id: 'stBuild' + i }));
+      else {
+        r.appendChild(btn('Edit', function () { openWorkshop(i); }, { id: 'stEdit' + i }));
+        r.appendChild(btn('Walk as the Guest', function () { enterGuest({ design: sl.hist.present, from: 'street', slot: i }); }, { id: 'stWalk' + i }));
+        if (st === 'gold') r.appendChild(btn('Read the deed', function () { openDeed(i); }, { cls: 'primary', id: 'stDeed' + i }));
+        r.appendChild(btn('Clear this lot', function () { clearLot(i); }, { cls: 'quiet', id: 'stClear' + i }));
+      }
+      lot.appendChild(r);
+      row.appendChild(lot);
+    });
+    el.appendChild(row);
+    el.appendChild(h('div', { class: 'ground' }));
+    if (A.justHung >= 0 && A.slots[A.justHung]) { el.appendChild(h('p', { class: 'keeper', role: 'status' }, h('span', { class: 'who' }, 'The DoorKeeper'), 'A gold door for ' + A.slots[A.justHung].hist.present.name + '. Well made.')); A.justHung = -1; }
+    var keep = h('div', { class: 'panel quietp' }, h('h3', null, 'Keeping your street'));
+    if (!A.storageOK) keep.appendChild(h('p', null, 'This browser is not allowing pages to store anything, so your houses last only while this page is open.'));
+    else {
+      keep.appendChild(h('label', { class: 'radio' }, h('input', { type: 'checkbox', id: 'cbPersist', checked: A.persist, onchange: function () { setPersist(this.checked); withFocus(renderStreet); announce(A.persist ? 'Your street will be kept in this browser.' : 'Your street is no longer kept in this browser; the saved copy was removed.'); } }), 'Keep my street in this browser'));
+      keep.appendChild(h('p', { class: 'small muted' }, 'Off by default. When on, your three houses are stored only in this browser on this device. Clearing browser data erases them, and nothing is ever sent anywhere.'));
+    }
+    if (A.saveError) keep.appendChild(h('div', { class: 'msg' }, A.saveError));
+    if (A.storeMsgs.length) keep.appendChild(h('div', { class: 'msg' }, A.storeMsgs.join(' ')));
+    keep.appendChild(btn('Burn all the drafts', burnAll, { id: 'bBurn' }));
+    el.appendChild(keep);
+  }
+  function clearLot(i) {
+    confirmDlg('Clear house ' + (i + 1) + ', ' + A.slots[i].hist.present.name + '? This cannot be undone.', 'Clear the lot').then(function (yes) {
+      if (!yes) return;
+      A.slots[i] = null; if (A.cur === i) { A.report = null; A.sel = null; }
+      save(); renderStreet(); announce('House ' + (i + 1) + ' cleared.'); var b = $('stBuild' + i); if (b) b.focus();
+    });
+  }
+  function burnAll() {
+    confirmDlg('Burn all three houses and remove anything saved in this browser? This cannot be undone.', 'Burn them all').then(function (yes) {
+      if (!yes) return;
+      A.slots = [null, null, null]; A.report = null; A.sel = null; A.storeMsgs = [];
+      try { window.localStorage.removeItem(M.STORAGE_KEY); } catch (e) { /* storage unavailable */ }
+      A.persist = false;
+      renderStreet(); announce('All three houses are gone, and nothing is saved in this browser.'); $('hStreet').focus();
+    });
+  }
+
+  /* ---------- deed ---------- */
+  function openDeed(i) {
+    var sl = A.slots[i], info = St.slotStatus({ design: sl.hist.present, sealed: sl.sealed });
+    if (info.status !== 'gold') { announce('This house has no current gold door, so there is no deed.'); return; }
+    A.deed = { slot: i, deed: De.fromVerifiedResult(sl.hist.present, info.report) };
+    show('deed');
+  }
+  function renderDeed() {
+    var el = clear($('scrDeed')), dd = A.deed && A.deed.deed;
+    if (!dd) { el.appendChild(h('h2', { id: 'hDeed' }, 'No deed to show')); return; }
+    el.appendChild(h('div', { class: 'deedbar noprint row' },
+      btn('Print the deed', function () { window.print(); }, { cls: 'primary', id: 'bPrint' }),
+      btn('Back to the street', function () { show('street'); }, { id: 'bDeedBack' }),
+      h('label', { class: 'radio' }, h('input', { type: 'checkbox', id: 'cbDate', checked: A.deedDate, onchange: function () { A.deedDate = this.checked; withFocus(renderDeed); } }), 'Add today’s date to the deed')));
+    var art = h('article', { id: 'deed', 'aria-labelledby': 'hDeed' });
+    art.appendChild(h('h2', { id: 'hDeed', tabindex: '-1' }, dd.name));
+    art.appendChild(h('p', { class: 'sub' }, 'Deed of a house that lets the Guest through'));
+    art.appendChild(h('div', { class: 'seal' }, markIcon(dd.mark), h('span', null, "Maker's mark: " + markName(dd.mark) + (dd.mono ? ', monogram ' + dd.mono : ''))));
+    art.appendChild(h('p', { class: 'sub' }, 'Blueprint revision ' + dd.rev + (A.deedDate ? ', dated ' + new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : '')));
+    art.appendChild(h('h3', null, 'Four checks, all passed'));
+    art.appendChild(h('ul', null, dd.checks.map(function (c) { return h('li', null, h('span', { class: 'tick' }, 'PASS '), c); })));
+    art.appendChild(h('p', null, 'The Guest searched all ' + dd.states.toLocaleString('en') + ' reachable states of this house (and ' + dd.edges.toLocaleString('en') + ' moves between them). No house under these rules can have more than ' + dd.bound.toLocaleString('en') + '.'));
+    art.appendChild(h('h3', null, 'The shortest way through: ' + dd.routeLength + ' actions'));
+    art.appendChild(h('p', { class: 'small' }, 'Each move through a doorway, each lever pulled and opening the final door counts as one action. Keys are picked up automatically.'));
+    art.appendChild(h('p', null, dd.route[0]));
+    art.appendChild(h('ol', null, dd.route.slice(1).map(function (l) { return h('li', null, l); })));
+    art.appendChild(h('h3', null, 'Real decisions on that route: ' + dd.decisions));
+    art.appendChild(h('p', { class: 'small' }, dd.decisionDefinition));
+    if (dd.notes.length) { art.appendChild(h('h3', null, 'Notes')); art.appendChild(h('ul', null, dd.notes.map(function (n) { return h('li', null, n); }))); }
+    art.appendChild(h('p', { class: 'dis' }, '“' + dd.disclaimer + '”'));
+    art.appendChild(h('p', { class: 'sub' }, 'The Guest'));
+    art.appendChild(h('p', { class: 'sub' }, 'DoorQuests · Creatortal No. 1 · Nine Rooms for the Midnight Guest · Created by The Axiom Continuum'));
+    el.appendChild(art);
+  }
+
+  /* ---------- help ---------- */
+  function renderHelp() {
+    var el = clear($('scrHelp'));
+    var dl = h('dl', null,
+      h('dt', null, 'Rooms and walls'), h('dd', null, 'Nine rooms on a 3 by 3 plan. Between each pair of side-by-side rooms there is one wall: twelve in all. A wall can stay solid or become one of four connections.'),
+      h('dt', null, 'Open arch'), h('dd', null, 'Both ways, any time.'),
+      h('dt', null, 'Locked door and keys'), h('dd', null, 'There are three keys (brass, iron, silver), one of each. The Guest picks a key up automatically on entering its room. A locked door takes one matching key the first time it is opened: the key is used up and the door stays open for good, both ways. Up to four locked doors, so two doors can want the same key, and the Guest must choose.'),
+      h('dt', null, 'One-way door'), h('dd', null, 'Opens only from the side you choose.'),
+      h('dt', null, 'Lever gate'), h('dd', null, 'Bound to the copper or the oak lever. Pulling a lever (in the room where it stands) raises all its gates for good.'),
+      h('dt', null, 'Front door and final door'), h('dd', null, 'The Guest enters by the front door. Opening the final door from inside its room ends the visit. They must be in different rooms, and the final door never needs a key.'),
+      h('dt', null, 'What the Guest checks'), h('dd', null, '1. Every room can be reached on at least one visit. 2. The final door can be opened on at least one visit. 3. Every key has a door that takes it, every lever raises a gate, and every lock and gate has its key or lever in the house. 4. From every state the Guest can possibly reach, the final door can still be reached.'),
+      h('dt', null, 'States and the limit'), h('dd', null, 'A state is where the Guest stands, what each key is doing (not yet found, carried, used up), which locked doors are open and which levers are pulled. Under these rules no house can have more than 9 × 27 × 16 × 4 + 1 = 15,553 states, so the Guest can always search them all.'),
+      h('dt', null, 'What the checks cannot tell you'), h('dd', null, M.TEXT.disclaimer),
+      h('dt', null, 'Privacy'), h('dd', null, 'Nothing leaves this page. Your street is kept in this browser only if you turn that on in the street, and you can burn it at any time.'));
+    el.appendChild(h('div', { class: 'help' }, h('h2', { id: 'hHelp' }, 'How the house works'), dl,
+      h('h3', null, 'For auditors'),
+      h('p', { class: 'small' }, 'Run the built-in engine self-tests. These are the author’s own checks, not an independent audit; checks that need a real browser are listed as NOT RUN.'),
+      btn('Run the built-in engine self-tests', function () {
+        var res = window.CreatortalQA.run(), sm = window.CreatortalQA.summary(res), out = $('qaOut');
+        clear(out); out.appendChild(h('p', null, sm.pass + ' pass, ' + sm.fail + ' fail, ' + sm.notRun + ' not run (of ' + sm.total + ').'));
+        out.appendChild(h('ul', null, res.map(function (r) { return h('li', null, r.status + ' ' + r.id + ': ' + r.assertion); })));
+        announce('Self-tests finished: ' + sm.pass + ' pass, ' + sm.fail + ' fail, ' + sm.notRun + ' not run.');
+      }, { id: 'bQA' }),
+      h('div', { id: 'qaOut', class: 'qa-out', tabindex: '0', 'aria-label': 'Self-test results' }),
+      h('h3', null, 'Motion'),
+      h('label', { class: 'radio' }, h('input', { type: 'checkbox', id: 'cbStill', checked: A.still, onchange: function () { A.still = this.checked; document.body.classList.toggle('still', A.still); announce(A.still ? 'Still frames on: nothing moves.' : 'Gentle motion allowed again.'); } }), 'Still frames: turn off every animation')));
+  }
+
+  /* ---------- dialog ---------- */
+  function confirmDlg(msg, okLabel) {
+    var dlg = $('dlg'), opener = document.activeElement;
+    if (!dlg.showModal) return Promise.resolve(window.confirm(msg));
+    return new Promise(function (resolve) {
+      $('dlgMsg').textContent = msg; $('dlgOk').textContent = okLabel || 'Yes';
+      function done(v) { $('dlgOk').onclick = null; $('dlgNo').onclick = null; dlg.onclose = null; if (dlg.open) dlg.close(); if (opener && opener.focus && document.contains(opener)) opener.focus(); resolve(v); }
+      $('dlgOk').onclick = function () { done(true); };
+      $('dlgNo').onclick = function () { done(false); };
+      dlg.onclose = function () { done(false); };
+      dlg.showModal(); $('dlgNo').focus();
+    });
+  }
+
+  /* ---------- start ---------- */
+  function boot() {
+    loadSaved();
+    Array.prototype.forEach.call(document.querySelectorAll('nav.main button'), function (b) {
+      b.addEventListener('click', function () {
+        var go = b.getAttribute('data-go');
+        if (go === 'workshop') { A.mode = 'workshop'; A.report = null; A.repairToken++; A.repairs = null; show('editor'); }
+        else show(go);
+      });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (A.screen !== 'editor') return;
+      var t = e.target && e.target.tagName;
+      if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); if (e.shiftKey) doRedo(); else doUndo(); }
+      else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); doRedo(); }
+    });
+    window.addEventListener('pagehide', save);
+    show('intro', { keepFocus: true });
+  }
+  window.NineRoomsUI = { state: A, show: show }; // for the browser test harness only; holds no secrets
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+</body>
+</html>
