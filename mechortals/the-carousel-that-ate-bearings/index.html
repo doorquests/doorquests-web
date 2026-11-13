@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index, follow">
+<title>The Carousel That Ate Bearings · Mechortals 001 · DoorQuests</title>
+<meta name="description" content="Published DoorQuests experience. A fictional mechanical detective case: three failed bearings, one seaward clue.">
+<!--
+  DoorQuests · Techortals · Mechortals 001 — "The Carousel That Ate Bearings" ★ FLAGSHIP
+  PUBLISHED EXPERIENCE. Built standalone from the Founding Day #029 build prompt.
+  No network requests, no external assets, no analytics (an approved analytics snippet, if any,
+  is a separate integration decision and is intentionally NOT included here).
+
+  ============================== MODEL ASSUMPTIONS (fictional, simplified) ==============================
+  Board axes (top-down map):  UP = landward (north, promenade)   DOWN = seaward (south, open sea)
+                              LEFT = west (machinery house, motor) RIGHT = east (carousel)
+  Drive: electric motor (west) -> flexible coupling -> drive shaft running west->east ->
+         pillow-block bearing housing "H" (the failing drive-shaft bearing, nearest the coupling) ->
+         pinion -> carousel ring gear.
+  Bearing: outer ring STATIONARY, clamped in housing H; inner ring ROTATES with the shaft.
+         A stationary-ring load zone keeps a fixed direction in housing coordinates. The rotating
+         inner ring carries load all the way around, so its marks do NOT keep a compass direction.
+         At each removal the qualified crew scribed an index notch on the outer ring facing
+         seaward in the housing (removal-sheet convention of this story).
+  Cross-section view (looking east from the motor side): up = sky, right = seaward,
+         down = deck, left = landward. So: notch (seaward); 90° clockwise = deck;
+         opposite = landward; 90° counter-clockwise = sky.
+  Normal load: shaft weight pushes down -> light, even polish on the deck side of every bearing.
+  Fault (authored case model): winter storms settled seaward piles P7–P9; the motor base tilted toward
+         the sea and its shaft centre moved mostly SEAWARD of the drive-shaft line (a small downward
+         part is folded into the normal deck-side load and not modelled). A flexible coupling with
+         parallel offset pulls the driven shaft end toward the motor's axis, i.e. seaward. Bearing H
+         resists that pull, so its stationary outer ring is pressed hardest on its seaward side.
+         This is a CASE-SPECIFIC mapping, not a universal law: real wear depends on load, fit,
+         lubrication, ring rotation, installation, contamination, alignment, housing support and
+         removal orientation. Qualified mechanical review is required before publication.
+  Units: "su" = invented survey units for this simulation only. Scenario tolerance ±0.5 su is a
+         story assumption, NOT an industry specification.
+  Season model: deterministic authored "seaward distress index" 0–10 (10 = modelled failure).
+         Offset uncorrected: +2.6 per week (fails in week 4). Realigned: +0.1 per week.
+  ============================== SAFETY CONSTRAINTS ==============================
+  The ride is closed and secured by qualified staff throughout. The player only RECOMMENDS.
+  No real-world alignment, teardown, fitting, lubrication, torque, clearance, tool, energized
+  diagnostic or restart instructions appear anywhere. Reopening happens only inside the fiction,
+  after the qualified crew's own inspection and clearance.
+  ============================== STATE DERIVATION ==============================
+  All progress is recomputed from raw evidence in computeGates(); there are no stored "passed"
+  flags. Saved data is sanitised on load (unknown fields ignored, inconsistent records dropped).
+-->
+<style>
+:root{
+  --ink:#0a1430; --ink2:#11204a; --panel:#152a5c; --panel2:#1b336e; --line:#3a5296;
+  --gold:#e3bd62; --gold2:#f4d98f; --text:#eef2fb; --muted:#c3cde6; --ok:#8fe0a8; --bad:#ffb4a8;
+  --rust:#d9774f; --focus:#ffe08a;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background-image:radial-gradient(ellipse at 20% -10%,#1d3a82 0,transparent 55%),radial-gradient(ellipse at 100% 30%,#18306b 0,transparent 45%);background-attachment:fixed;overflow-x:hidden}
+h1,h2,h3,h4{font-family:Georgia,"Times New Roman",serif;line-height:1.25;color:var(--gold2);margin:.2em 0 .5em}
+h1{font-size:1.65rem}h2{font-size:1.4rem}h3{font-size:1.15rem}h4{font-size:1rem;color:var(--gold)}
+a{color:var(--gold2)}
+p{margin:.45em 0}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+header.top{border-bottom:1px solid var(--line);padding:12px 0 10px;position:relative;overflow:hidden}
+.crumbs{font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.badge{display:inline-block;border:2px dashed var(--gold);color:var(--gold2);padding:2px 10px;border-radius:999px;font-weight:700;font-size:.85rem;letter-spacing:.02em}
+.tag{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:1px 8px;font-size:.85rem;margin:2px 4px 2px 0}
+.tagline{font-family:Georgia,serif;font-style:italic;color:var(--muted);margin:2px 0}
+.doors{position:absolute;right:-10px;top:4px;opacity:.18;pointer-events:none}
+@media (prefers-reduced-motion:no-preference){.floaty{animation:float 9s ease-in-out infinite}.floaty2{animation:float 12s ease-in-out infinite reverse}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+nav.acts{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+nav.acts button{flex:1 1 6.5em;min-width:0;min-height:52px;padding:4px;font-size:.8rem;line-height:1.2;overflow-wrap:anywhere}
+nav.acts button[aria-current="step"]{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+button{font:inherit;min-height:44px;padding:8px 14px;border-radius:10px;border:1px solid var(--gold);background:var(--panel2);color:var(--text);cursor:pointer}
+button:hover{background:#244087}
+button.primary{background:var(--gold);color:var(--ink);font-weight:700}
+button.primary:hover{background:var(--gold2)}
+button:disabled{opacity:.55;cursor:not-allowed;border-style:dashed}
+button.small{min-height:44px;padding:6px 10px;font-size:.9rem}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+.panel.alt{background:var(--ink2)}
+.grid2{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:700px){.grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:820px){.grid3{grid-template-columns:repeat(3,1fr)}}
+fieldset{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0}
+legend{font-weight:700;color:var(--gold2);padding:0 6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:6px 4px;min-height:44px;border-radius:8px}
+.opt:hover{background:rgba(255,255,255,.04)}
+.opt input{margin-top:5px;width:20px;height:20px;flex:0 0 auto;accent-color:var(--gold)}
+.fb{border-left:4px solid var(--muted);padding:6px 10px;margin:8px 0;background:rgba(255,255,255,.04);border-radius:0 8px 8px 0}
+.fb.ok{border-color:var(--ok)}.fb.bad{border-color:var(--bad)}.fb.info{border-color:var(--gold)}
+.fb .k{font-weight:700}
+.ok-t{color:var(--ok)}.bad-t{color:var(--bad)}
+.who{display:flex;gap:10px;align-items:flex-start}
+.who .av{flex:0 0 44px;height:44px;border-radius:50%;background:var(--panel2);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-weight:700;color:var(--gold2)}
+.tbl-wrap{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--ink2);color:var(--gold2)}
+caption{text-align:left;padding:6px 8px;color:var(--muted);font-size:.85rem}
+.gates{list-style:none;padding:0;margin:0}
+.gates li{padding:5px 0;border-bottom:1px dashed var(--line);display:flex;gap:8px}
+.gates .mk{flex:0 0 auto;font-weight:700;min-width:5.5em}
+.mk.y{color:var(--ok)}.mk.n{color:var(--muted)}
+svg{max-width:100%;height:auto;display:block}
+.svgbox{background:#0c1a3d;border:1px solid var(--line);border-radius:10px;padding:6px}
+.feat{display:flex;flex-direction:column;gap:6px}
+.feat button{text-align:left}
+.feat button[aria-pressed="true"]{border-style:solid;background:#22417f}
+.note{font-size:.88rem;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+details{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:10px 0;background:var(--ink2)}
+summary{cursor:pointer;font-weight:700;color:var(--gold2);min-height:32px}
+.locked{font-size:.85rem;color:var(--gold2)}
+.status-banner{border:2px solid var(--bad);padding:8px 12px;border-radius:10px;margin:10px 0}
+.ending{border:2px solid var(--gold);border-radius:16px;padding:16px;background:linear-gradient(160deg,#1c3a7a,#0f2050)}
+footer{border-top:1px solid var(--line);margin-top:24px;padding:16px 0 40px;font-size:.88rem;color:var(--muted)}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.journal{max-height:320px;overflow:auto;font-size:.88rem;padding-left:1.2em}
+@media (forced-colors:active){
+  button,.panel,fieldset,details,.badge{border:1px solid ButtonText}
+  button[aria-pressed="true"],nav.acts button[aria-current="step"]{outline:3px solid Highlight}
+  .svgbox{forced-color-adjust:none;background:#0c1a3d}
+}
+@media (max-width:420px){nav.acts button{font-size:.72rem}h1{font-size:1.4rem}}
+</style>
+</head>
+<body>
+<a class="vh" href="#main">Skip to the case</a>
+<header class="top">
+  <div class="wrap">
+    <svg class="doors" width="150" height="90" viewBox="0 0 150 90" aria-hidden="true" focusable="false">
+      <g class="floaty"><rect x="10" y="10" width="34" height="62" rx="4" fill="none" stroke="#e3bd62" stroke-width="3"/><circle cx="37" cy="44" r="3" fill="#e3bd62"/></g>
+      <g class="floaty2"><rect x="62" y="4" width="34" height="62" rx="4" fill="none" stroke="#e3bd62" stroke-width="3"/><circle cx="89" cy="38" r="3" fill="#e3bd62"/></g>
+      <g class="floaty"><rect x="110" y="16" width="30" height="56" rx="4" fill="none" stroke="#e3bd62" stroke-width="3"/></g>
+    </svg>
+    <div class="crumbs" aria-label="Collection path"><span>DoorQuests</span><span aria-hidden="true">›</span><span>Techortals</span><span aria-hidden="true">›</span><span>Mechortals</span><span aria-hidden="true">›</span><span>001</span></div>
+    <p class="note" style="margin:2px 0">Explore more experiences at doorquests.com/techortals/.</p>
+    <p><span class="badge">Experience No. 001 · Playable</span></p>
+    <h1>The Carousel That Ate Bearings <span aria-hidden="true">★</span><span class="vh">(Flagship)</span></h1>
+    <p><span class="tag">Techortals → Mechortals → 001</span><span class="tag">Beginner</span><span class="tag">About 12–20 min (estimate)</span></p>
+    <p class="tagline">Techortals · Diagnose. Repair. Build. Master.</p>
+  </div>
+</header>
+<main id="main" class="wrap">
+  <div id="banners"></div>
+  <nav class="acts" aria-label="Acts" id="actnav"></nav>
+  <div id="act"></div>
+  <section class="panel alt" aria-labelledby="cf-h">
+    <h2 id="cf-h">Case file</h2>
+    <h3>Progress</h3>
+    <p class="note">Each mark reflects the evidence as it stands right now. If a recorded reading becomes wrong, its mark (and anything that depends on it) is withdrawn.</p>
+    <ul class="gates" id="gates"></ul>
+    <details id="model-details">
+      <summary>Model assumptions and limits</summary>
+      <div id="model"></div>
+    </details>
+    <details id="journal-details">
+      <summary>Case journal (newest first)</summary>
+      <ol class="journal" id="journal" reversed></ol>
+    </details>
+    <div id="resetbox"></div>
+  </section>
+  <div id="live" class="vh" role="status" aria-live="polite"></div>
+</main>
+<footer>
+  <div class="wrap">
+    <p><span class="badge">Experience No. 001 · Playable</span></p>
+    <p>A fictional simulation. Pennywhistle Pier, its people, equipment, records and readings are invented. This is not an inspection, a procedure, or training for work on rides or machinery, and finishing it does not qualify anyone to do such work. Real rides are inspected and cleared by qualified people.</p>
+    <p><strong>DoorQuests</strong> · Choose Your Path. Find the Truth. Unlock the Impossible.<br><strong>Techortals</strong> · Diagnose. Repair. Build. Master.<br>Created by The Axiom Continuum.</p>
+  </div>
+</footer>
+<script>
+'use strict';
+/* ====================================================================================
+   DATA (all fictional)
+   ==================================================================================== */
+const KEY = 'doorquests:techortals:mechortals:001:v1';
+const BEARINGS = ['B01','B02','B03'];
+const BINFO = {
+  B01:{installed:'1 Mar', failed:'26 Mar', by:'Dot Merriweather (pier mechanic)', lot:'HB-2207', supplier:'Hartwell Bearings', delivered:'27 Feb'},
+  B02:{installed:'28 Mar', failed:'22 Apr', by:'Harlow & Sons (contract fitter)', lot:'HB-2231', supplier:'Hartwell Bearings', delivered:'27 Mar'},
+  B03:{installed:'24 Apr', failed:'19 May', by:'Ines Calloway (qualified lead)', lot:'CS-0418', supplier:'Corran Supply', delivered:'23 Apr'}
+};
+// position relative to the index notch -> compass direction (see model notes in <head>)
+const POS2Q = {at:'seaward', cw:'deck', opp:'landward', ccw:'sky'};
+const Q2POS = {seaward:'at', deck:'cw', landward:'opp', sky:'ccw'};
+const POSLABEL = {at:'Track band at the ▲ notch', cw:'Track band 90° clockwise from the notch', opp:'Track band opposite the notch', ccw:'Track band 90° counter-clockwise from the notch'};
+const QLABEL = {seaward:'Seaward side', landward:'Landward side', sky:'Sky side (top)', deck:'Deck side (bottom)', allround:'All the way around', none:'No clear distress', scattered:'Scattered — a different place each time'};
+function features(b){
+  const atText = {
+    B01:'Frosted, pitted running track across about a quarter of the ring, centred on the notch. Heavy, localised distress.',
+    B02:'Frosted track with small flakes lifted from the surface (spalling), centred on the notch. Heavy, localised distress.',
+    B03:'Frosted, pitted track centred on the notch, the deepest of the three. Heavy, localised distress.'}[b];
+  const list = [
+    {id:'at', label:POSLABEL.at, text:atText, kind:'heavy'},
+    {id:'cw', label:POSLABEL.cw, text:'Light, even polish. This is the normal mark where the shaft’s own weight rests; healthy bearings show it too.', kind:'polish'},
+    {id:'opp', label:POSLABEL.opp, text:'Clean track; the original finish is still visible.', kind:'clean'},
+    {id:'ccw', label:POSLABEL.ccw, text:'Clean track; the original finish is still visible.', kind:'clean'},
+    {id:'notch', label:'The ▲ index notch', text:'Scribed by the qualified crew at removal. The removal sheet records that it faced seaward in the housing.', kind:'info'},
+    {id:'stamp', label:'Stamp on the ring face', text:'Lot '+BINFO[b].lot+' · part PB-40 (fictional part code).', kind:'info'}
+  ];
+  if(b==='B02') list.push({id:'scuff', label:'Short bright scratch, outer face, sky side', text:'A tool mark from removal day on the outside face, not on the running track. It is not wear from running.', kind:'info'});
+  if(b==='B03') list.push({id:'tint', label:'Faint straw tint beside the notch band', text:'A light heat tint next to the heavy band. In this case it sits with the heavy load; colour alone does not settle a cause.', kind:'info'});
+  return list;
+}
+const DOCS = {
+  slips:{title:'Delivery slips', who:'Tests the manager’s bad-batch theory'},
+  grease:{title:'Grease log', who:'Tests the mechanic’s thin-grease theory'},
+  counts:{title:'Ride counts', who:'Tests the volunteer’s crowded-weekends theory'},
+  storm:{title:'Storm & pier inspection record', who:'Background on the pier itself'}
+};
+const DOCOPTS = {
+  slips:{a:'Three different lots from two suppliers failed the same way, so one bad batch is a weak common explanation — weakened, not impossible.', b:'The slips prove the bearings were perfect.', c:'It supports a bad batch: all three are the same part type.'},
+  grease:{a:'Right grade, on schedule, and in good condition at each removal: thin grease is weakened as the common cause. A log can’t rule it out completely.', b:'The log proves lubrication had nothing to do with it.', c:'It supports thin grease: they were greased every week.'},
+  counts:{a:'Each bearing failed after about 25 days whether the ride was quiet or packed, so crowding is a weak common cause. Ride counts are only a rough stand-in for force.', b:'The counts prove load can’t matter.', c:'It supports crowding: the busiest stretch had the most rides.'},
+  storm:{a:'Something under the machinery house may have moved. It is worth measuring, but this record doesn’t show the motor base itself moved.', b:'It proves the motor base moved.', c:'It’s irrelevant: storms don’t affect machinery.'}
+};
+const DOCFB = {
+  slips:{b:'Too strong. The slips say nothing about the inside of each bearing; they only show the lots differed.', c:'Same part type is expected — it’s the specified part. Three separate lots failing identically points away from one bad batch.'},
+  grease:{b:'Too strong. A log records what was done and seen; it can’t prove lubrication played no part.', c:'Regular greasing with the right grade is what the manual asks for. That makes thin grease less likely, not more.'},
+  counts:{b:'Too strong. Load matters to every bearing; the counts only show crowding doesn’t explain the repeat timing.', c:'The busiest stretch did have the most rides, but the quiet stretch failed after the same 25 days.'},
+  storm:{b:'Too strong. It shows settlement under the building and an open resurvey action, not a measured motor position.', c:'Settling piles can move whatever sits on them. That makes the base worth checking.'}
+};
+const CARDS = ['batch','grease','crowds','base'];
+const CINFO = {
+  batch:{name:'Bad bearing batch', who:'Rufus Penhallow, manager', loc:'Bearing stock shelf', model:'scattered', correct:'no',
+    why:'Faulty steel or heat treatment travels with the part, not the machine. Different lots would fail in their own places, with no reason to land at the same spot in the housing every time.'},
+  grease:{name:'Thin or wrong grease', who:'Dot Merriweather, mechanic', loc:'Grease point on housing H', model:'allround', correct:'no',
+    why:'Thin or wrong grease would starve the whole running track, so distress would spread around the ring (worst in the normal deck-side zone), not gather in one sideways patch.'},
+  crowds:{name:'Crowded weekends', who:'Sam Tilley, volunteer', loc:'Carousel platform', model:'deck', correct:'no',
+    why:'Riders add weight that pushes straight down. Heavier crowds would deepen the normal deck-side mark rather than create a sideways one.'},
+  base:{name:'Storm-shifted motor base', who:'Your own hypothesis, from the pier record', loc:'Motor base over piles P7–P9', model:'seaward', correct:'yes',
+    why:'If the motor sits seaward of the shaft line, the flexible coupling pulls the shaft end seaward. Bearing H, nearest the coupling, resists that pull, so its stationary outer ring is pressed hardest on its seaward side. (Case model, not a universal rule.)'}
+};
+const PREDOPTS = ['seaward','landward','deck','sky','allround','scattered'];
+const MAPINT = {yes:'Matches the heavy distress on all three specimens', no:'Doesn’t match — this cause is weakened (not ruled out)', partly:'Matches some of the specimens'};
+const JUST = {
+  insp:'The three bench inspections and their comparison',
+  slips:'Delivery slips (bad batch weakened)', grease:'Grease log (thin grease weakened)', counts:'Ride counts (crowding weakened)',
+  storm:'Storm & pier record (reason to check the base)',
+  map:'The map comparisons of all four suspects',
+  survey:'The crew’s base survey (independent measurement)',
+  notebook:'Engineer’s Notebook alignment readings (optional)',
+  deadline:'The summer opening date', manager:'The manager would rather we did something quick'
+};
+const HINTS = {
+  1:['Every option is a recommendation to Ines, the qualified lead. Nothing restarts without her sign-off.','Something has happened three times already. What does a fourth identical bearing change?','Holding service to investigate is the cautious path, but any choice is recorded and the case carries on either way.'],
+  2:['Examine the four track bands on each bearing and read what each looks like, not just where it is.','Use the stable key: the ▲ notch faced seaward when the crew removed the bearing. Clockwise from it is the deck side.','On all three, the heavy band sits at the notch. The deck-side polish is the normal weight mark. For the limitation, only the stationary, indexed outer ring keeps a fixed direction.'],
+  3:['Open a record before you interpret it.','Ask: if this suspect were the common cause, what would its record look like?','Different lots, sound grease, and the same 25-day interval despite very different crowds each weaken a suspect. None of them eliminates it outright.'],
+  4:['Place a card, predict, then run. Your prediction is locked once you run.','Compare each card’s predicted pattern with your bench comparison: heavy distress on the seaward side, all three times.','Only one suspect pushes sideways toward the sea. Wear alone isn’t enough, so ask the crew to measure the motor base too.'],
+  5:['Tick only evidence you’ve actually established.','Preview the quick fixes to see what the model says if the offset stays.','After the crew’s work and sign-off, run the season, read the result, then file a report that claims no more than the case shows.']
+};
+const ACTS = {1:'I · The Closed Pier', 2:'II · The Bench', 3:'III · The Paper Trail', 4:'IV · The Map', 5:'V · The Season'};
+
+/* ====================================================================================
+   STATE, PERSISTENCE AND VALIDATION
+   ==================================================================================== */
+function fresh(){
+  return {v:1, seq:0, act:1, initial:null, initialFirst:null,
+    examined:{B01:{},B02:{},B03:{}}, view:{B01:0,B02:0,B03:0}, obs:{B01:null,B02:null,B03:null}, cmp:null,
+    docsOpened:{}, docInt:{slips:null,grease:null,counts:null,storm:null},
+    placed:{}, pred:{batch:null,grease:null,crowds:null,base:null}, runs:{batch:null,grease:null,crowds:null,base:null},
+    mapInt:{batch:null,grease:null,crowds:null,base:null}, survey:null, surveyInt:{dir:null,adds:null},
+    nbOpened:false, nbAns:null, diag:null, rec:null, recFirst:null, just:{}, cf:{fourth:null,grease:null},
+    crew:null, season:null, seasonInt:null, report:{concl:null,ride:null,ack:false,submitted:null},
+    hints:{1:0,2:0,3:0,4:0,5:0}, journal:[]};
+}
+let S = fresh();
+let storageOK = true;
+let loadWarnings = [];
+const draft = {B01:{},B02:{},B03:{}}; // unsaved observation form selections
+const ui = {msg:{}, resetConfirm:false, open:{}};
+
+function en(v, list){ return list.indexOf(v) >= 0 ? v : null; }
+function isSeq(x, max){ return Number.isInteger(x) && x >= 0 && x <= max; }
+function sanitize(raw){
+  const d = fresh(); const w = [];
+  if(!raw || typeof raw !== 'object' || Array.isArray(raw)){ w.push('The saved case could not be read; starting fresh.'); return {s:d, w}; }
+  if(raw.v !== 1){ w.push('The saved case came from a different version and was not loaded; starting fresh.'); return {s:d, w}; }
+  const known = Object.keys(d);
+  Object.keys(raw).forEach(k => { if(known.indexOf(k) < 0) w.push('Ignored an unrecognised saved field ("'+String(k).slice(0,40)+'").'); });
+  d.seq = isSeq(raw.seq, 1e6) ? raw.seq : 0;
+  const MAX = d.seq;
+  d.act = en(raw.act,[1,2,3,4,5]) || 1;
+  d.initial = en(raw.initial,['replace','grease','hold']);
+  d.initialFirst = d.initial ? (en(raw.initialFirst,['replace','grease','hold']) || d.initial) : null;
+  BEARINGS.forEach(b => {
+    const ids = features(b).map(f => f.id);
+    const ex = raw.examined && raw.examined[b];
+    if(ex && typeof ex === 'object') Object.keys(ex).forEach(f => { if(ids.indexOf(f) >= 0 && ex[f] === true) d.examined[b][f] = true; });
+    d.view[b] = en(raw.view && raw.view[b],[0,90,180,270]) || 0;
+    const o = raw.obs && raw.obs[b];
+    if(o && typeof o === 'object'){
+      const quad = en(o.quad,['seaward','landward','sky','deck','allround','none']);
+      const limit = en(o.limit,['L1','L2','L3']);
+      if(quad && limit && examinedFor(d, b, quad)) d.obs[b] = {quad, limit};
+      else w.push('Dropped an incomplete or unsupported observation for '+b+'.');
+    }
+  });
+  d.cmp = BEARINGS.every(b => d.obs[b]) ? en(raw.cmp,['same','different','allround']) : null;
+  Object.keys(DOCS).forEach(k => {
+    if(raw.docsOpened && raw.docsOpened[k] === true) d.docsOpened[k] = true;
+    const v = en(raw.docInt && raw.docInt[k],['a','b','c']);
+    if(v && d.docsOpened[k]) d.docInt[k] = v; else if(v) w.push('Dropped a reading of a record that was never opened.');
+  });
+  CARDS.forEach(c => {
+    if(raw.placed && raw.placed[c] === true) d.placed[c] = true;
+    const p = en(raw.pred && raw.pred[c], PREDOPTS);
+    if(p && d.placed[c]) d.pred[c] = p;
+    const r = raw.runs && raw.runs[c];
+    if(r && typeof r === 'object'){
+      if(d.pred[c] && r.pred === d.pred[c] && isSeq(r.seq, MAX)) d.runs[c] = {pred:r.pred, seq:r.seq};
+      else w.push('Dropped a map comparison with no matching locked prediction.');
+    }
+    const mi = en(raw.mapInt && raw.mapInt[c],['yes','no','partly']);
+    if(mi && d.runs[c]) d.mapInt[c] = mi;
+  });
+  if(raw.survey && isSeq(raw.survey.seq, MAX) && d.runs.base && raw.survey.seq > d.runs.base.seq) d.survey = {seq:raw.survey.seq};
+  else if(raw.survey) w.push('Dropped a base survey that had no valid request behind it.');
+  if(d.survey){
+    d.surveyInt.dir = en(raw.surveyInt && raw.surveyInt.dir,['seaward','landward','none']);
+    d.surveyInt.adds = en(raw.surveyInt && raw.surveyInt.adds,['indep','proof','same']);
+  }
+  d.nbOpened = raw.nbOpened === true;
+  d.nbAns = (d.nbOpened && d.survey) ? en(raw.nbAns,['ok','in','land']) : null;
+  d.diag = en(raw.diag, CARDS);
+  d.rec = en(raw.rec,['fourth','grease','realign']);
+  d.recFirst = d.rec ? (en(raw.recFirst,['fourth','grease','realign']) || d.rec) : null;
+  if(raw.just && typeof raw.just === 'object') Object.keys(JUST).forEach(k => { if(raw.just[k] === true) d.just[k] = true; });
+  ['fourth','grease'].forEach(k => { const c = raw.cf && raw.cf[k]; if(c && isSeq(c.seq, MAX)) d.cf[k] = {seq:c.seq}; });
+  if(raw.crew && isSeq(raw.crew.seq, MAX) && d.rec === 'realign') d.crew = {seq:raw.crew.seq};
+  else if(raw.crew) w.push('Dropped a crew work record that didn’t match the recommendation.');
+  if(raw.season && d.crew && isSeq(raw.season.seq, MAX) && raw.season.seq > d.crew.seq) d.season = {seq:raw.season.seq};
+  else if(raw.season) w.push('Dropped a season run with no qualified crew work before it.');
+  d.seasonInt = d.season ? en(raw.seasonInt,['a','b','c']) : null;
+  if(raw.report && typeof raw.report === 'object'){
+    d.report.concl = en(raw.report.concl,['a','b','c']);
+    d.report.ride = en(raw.report.ride,['crew','now']);
+    d.report.ack = raw.report.ack === true;
+    d.report.submitted = (d.season && isSeq(raw.report.submitted, MAX)) ? raw.report.submitted : null;
+  }
+  if(raw.hints && typeof raw.hints === 'object') [1,2,3,4,5].forEach(i => { const h = raw.hints[i]; d.hints[i] = (Number.isInteger(h) && h >= 0 && h <= 3) ? h : 0; });
+  if(Array.isArray(raw.journal)) d.journal = raw.journal.filter(j => j && Number.isInteger(j.n) && typeof j.t === 'string').slice(-400).map(j => ({n:j.n, t:j.t.slice(0,400)}));
+  return {s:d, w};
+}
+function examinedFor(state, b, quad){
+  const ex = state.examined[b];
+  if(Q2POS[quad]) return !!ex[Q2POS[quad]];
+  if(quad === 'allround' || quad === 'none') return ['at','cw','opp','ccw'].every(p => ex[p]);
+  return false;
+}
+function load(){
+  let raw = null;
+  try { raw = window.localStorage.getItem(KEY); } catch(e){ storageOK = false; return; }
+  if(raw === null) return;
+  let parsed;
+  try { parsed = JSON.parse(raw); } catch(e){ loadWarnings.push('The saved case was damaged and could not be read; starting fresh.'); return; }
+  const r = sanitize(parsed); S = r.s; loadWarnings = loadWarnings.concat(r.w);
+}
+function save(){
+  if(!storageOK) return;
+  try { window.localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){ storageOK = false; }
+}
+function log(t){ S.seq += 1; S.journal.push({n:S.seq, t:t}); if(S.journal.length > 400) S.journal.shift(); }
+
+/* ====================================================================================
+   GATES — recomputed from current evidence every time (no sticky flags)
+   ==================================================================================== */
+function obsCorrect(b){ const o = S.obs[b]; return !!o && o.quad === 'seaward' && o.limit === 'L1'; }
+function earned(k, g){
+  switch(k){
+    case 'insp': return g.g2;
+    case 'slips': case 'grease': case 'counts': case 'storm': return S.docInt[k] === 'a';
+    case 'map': return g.mapAll;
+    case 'survey': return g.g4;
+    case 'notebook': return S.nbAns === 'ok';
+    default: return false;
+  }
+}
+function computeGates(){
+  const g = {};
+  g.g1 = !!S.initial;
+  g.obsOK = BEARINGS.every(obsCorrect);
+  g.g2 = g.obsOK && S.cmp === 'same';
+  g.docCount = ['slips','grease','counts'].filter(k => S.docInt[k] === 'a').length;
+  g.g3 = g.docCount >= 2;
+  g.g4 = !!S.survey && S.surveyInt.dir === 'seaward' && S.surveyInt.adds === 'indep';
+  g.mapAll = CARDS.every(c => !!S.runs[c] && S.mapInt[c] === CINFO[c].correct);
+  g.g5 = g.g2 && g.g3 && g.g4 && g.mapAll && S.diag === 'base';
+  const ticked = Object.keys(S.just).filter(k => S.just[k]);
+  g.justUnearned = ticked.filter(k => !earned(k, g));
+  g.justOK = !!S.just.insp && !!S.just.map && !!S.just.survey && (S.just.slips || S.just.grease || S.just.counts) && g.justUnearned.length === 0;
+  g.g6 = g.g5 && S.rec === 'realign' && g.justOK;
+  g.g7 = g.g6 && !!S.crew && !!S.season && S.season.seq > S.crew.seq;
+  g.reportOK = S.report.concl === 'a' && S.report.ride === 'crew' && S.report.ack === true;
+  g.g8 = g.g7 && S.seasonInt === 'a' && S.report.submitted !== null && g.reportOK;
+  g.all = g.g1 && g.g2 && g.g3 && g.g4 && g.g5 && g.g6 && g.g7 && g.g8;
+  return g;
+}
+function missingForDiagnosis(g){
+  const m = [];
+  if(!g.obsOK) m.push('all three bench observations recorded correctly');
+  else if(S.cmp !== 'same') m.push('the three-bearing comparison read correctly');
+  if(!g.g3) m.push('at least two rival-suspect records interpreted correctly ('+g.docCount+' of 2 so far)');
+  if(!g.mapAll) m.push('all four map comparisons run and read correctly');
+  if(!g.g4) m.push('the crew’s base survey requested and read correctly');
+  return m;
+}
+function missingForCrew(g){
+  const m = missingForDiagnosis(g);
+  if(S.diag !== 'base') m.push('a diagnosis that fits all the evidence');
+  if(S.rec !== 'realign') m.push('the qualified-crew realignment recommendation selected');
+  if(!S.just.insp) m.push('the bench inspections ticked as justification');
+  if(!S.just.map) m.push('the map comparisons ticked as justification');
+  if(!S.just.survey) m.push('the base survey ticked as justification');
+  if(!(S.just.slips || S.just.grease || S.just.counts)) m.push('at least one interpreted rival-suspect record ticked');
+  if(S.just.deadline || S.just.manager) m.push('remove reasons that aren’t evidence (deadline, manager’s preference)');
+  g.justUnearned.filter(k => k !== 'deadline' && k !== 'manager').forEach(k => m.push('“'+JUST[k]+'” is ticked but not currently established'));
+  return m;
+}
+
+/* ====================================================================================
+   SVG BUILDERS
+   ==================================================================================== */
+function arc(cx, cy, r1, r2, a1, a2){
+  const p = (r, a) => [cx + r*Math.cos(a*Math.PI/180), cy + r*Math.sin(a*Math.PI/180)].map(n => n.toFixed(1)).join(' ');
+  const large = (a2 - a1) > 180 ? 1 : 0;
+  return 'M'+p(r2,a1)+' A'+r2+' '+r2+' 0 '+large+' 1 '+p(r2,a2)+' L'+p(r1,a2)+' A'+r1+' '+r1+' 0 '+large+' 0 '+p(r1,a1)+' Z';
+}
+const PATDEFS = '<defs>'+
+  '<pattern id="pHeavy" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#d9774f"/><circle cx="2" cy="2" r="1.2" fill="#2a0f05"/><circle cx="5" cy="5" r="0.9" fill="#2a0f05"/></pattern>'+
+  '<pattern id="pPolish" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#8aa0c8"/><line x1="0" y1="0" x2="0" y2="6" stroke="#e8eefc" stroke-width="2"/></pattern>'+
+  '<pattern id="pEven" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#9fb2d6"/><line x1="0" y1="3" x2="6" y2="3" stroke="#e8eefc" stroke-width="1"/></pattern>'+
+  '</defs>';
+// kind: 'failed' (B01-B03) or 'even' (realigned B04 end-of-season)
+function bearingSVG(id, rot, examined, kind){
+  const bands = [['at',-45,45],['cw',45,135],['opp',135,225],['ccw',225,315]];
+  let s = '<svg viewBox="0 0 200 200" role="img" aria-labelledby="'+id+'-t '+id+'-d"><title id="'+id+'-t">'+(kind==='even'?'Bearing B04 at season end':'Bearing '+id.replace('svg-','')+' outer ring')+'</title><desc id="'+id+'-d">'+
+    (kind==='even' ? 'Outer ring with light, even polish on the deck side only and no heavy patch anywhere.' :
+     'Outer ring drawn with the index notch '+clockText(rot)+'. Heavy pitted band at the notch; light polish 90 degrees clockwise from it; other bands clean. See the text list for details.')+'</desc>'+PATDEFS;
+  s += '<g transform="rotate('+rot+' 100 100)">';
+  s += '<circle cx="100" cy="100" r="88" fill="#5a6c92" stroke="#c9d4ef" stroke-width="2"/>';
+  bands.forEach(([p,a1,a2]) => {
+    let fill = '#b9c6e2';
+    if(kind !== 'even'){ if(p==='at') fill = 'url(#pHeavy)'; else if(p==='cw') fill = 'url(#pPolish)'; }
+    else if(p==='cw') fill = 'url(#pEven)';
+    const ex = examined && examined[p];
+    s += '<path d="'+arc(100,100,60,78,a1+1,a2-1)+'" fill="'+fill+'" stroke="'+(ex?'#ffe08a':'#30406a')+'" stroke-width="'+(ex?3:1)+'" '+(ex?'stroke-dasharray="5 3"':'')+'/>';
+  });
+  s += '<circle cx="100" cy="100" r="58" fill="#2b3a62"/><circle cx="100" cy="100" r="44" fill="#7a88a8" stroke="#c9d4ef"/><circle cx="100" cy="100" r="26" fill="#0c1a3d" stroke="#c9d4ef"/>';
+  s += '<polygon points="196,100 184,92 184,108" fill="#e3bd62" stroke="#0c1a3d"/>';
+  s += '</g>';
+  s += '<text x="100" y="104" text-anchor="middle" font-size="9" fill="#c3cde6">inner ring</text>';
+  s += '</svg>';
+  return s;
+}
+function clockText(rot){ return {0:'at 3 o’clock (right)',90:'at 6 o’clock (bottom)',180:'at 9 o’clock (left)',270:'at 12 o’clock (top)'}[rot]; }
+function dialSVG(id, pattern, label){
+  // small cross-section dial in COMPASS terms (sky up, seaward right, deck down, landward left)
+  const band = {seaward:[-45,45], deck:[45,135], landward:[135,225], sky:[225,315]};
+  let s = '<svg viewBox="-20 0 160 130" role="img" aria-labelledby="'+id+'-t"><title id="'+id+'-t">'+label+': '+QLABEL[pattern]+'</title>'+PATDEFS;
+  s += '<circle cx="60" cy="60" r="44" fill="#5a6c92" stroke="#c9d4ef"/>';
+  Object.keys(band).forEach(q => {
+    let fill = '#b9c6e2';
+    if(pattern === q) fill = 'url(#pHeavy)';
+    if(pattern === 'allround') fill = 'url(#pHeavy)';
+    s += '<path d="'+arc(60,60,30,40,band[q][0]+1,band[q][1]-1)+'" fill="'+fill+'" stroke="#30406a"/>';
+  });
+  if(pattern === 'scattered'){ [[78,40],[42,82],[60,24]].forEach(([x,y],i) => { s += '<circle cx="'+x+'" cy="'+(y-4)+'" r="7" fill="#d9774f"/><text x="'+x+'" y="'+y+'" font-size="10" fill="#0a1430" font-weight="700" text-anchor="middle">'+(i+1)+'</text>'; }); }
+  s += '<circle cx="60" cy="60" r="28" fill="#2b3a62"/>';
+  s += '<text x="60" y="12" text-anchor="middle" font-size="9" fill="#c3cde6">SKY</text><text x="60" y="114" text-anchor="middle" font-size="9" fill="#c3cde6">DECK</text>';
+  s += '<text x="138" y="63" text-anchor="end" font-size="8" fill="#c3cde6">SEA</text><text x="-18" y="63" font-size="8" fill="#c3cde6">LAND</text>';
+  s += '<text x="60" y="127" text-anchor="middle" font-size="9" fill="#f4d98f">'+label+'</text>';
+  return s + '</svg>';
+}
+function mapSVG(){
+  const tok = {batch:[84,83], grease:[178,112], crowds:[300,108], base:[30,140]};
+  let s = '<svg viewBox="0 0 360 270" role="img" aria-labelledby="map-t map-d"><title id="map-t">Top-down board of the carousel drive on Pennywhistle Pier</title>'+
+    '<desc id="map-d">Landward promenade at the top, sea at the bottom. On the left, the machinery house holds the motor on its base over piles P7 to P9. A flexible coupling joins the motor to the drive shaft, which runs right through bearing housing H to the carousel on the right. Placed suspect cards and their predicted pushes are listed in the text below.</desc>'+
+    '<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#ffb4a8"/></marker></defs>';
+  s += '<rect x="0" y="0" width="360" height="34" fill="#2c3f6e"/><text x="180" y="22" text-anchor="middle" font-size="12" fill="#eef2fb">PROMENADE · LANDWARD ↑</text>';
+  s += '<rect x="0" y="34" width="360" height="190" fill="#4a3a28"/>';
+  for(let x=0;x<360;x+=12) s += '<line x1="'+x+'" y1="34" x2="'+x+'" y2="224" stroke="#3b2d1f" stroke-width="1"/>';
+  s += '<rect x="0" y="224" width="360" height="46" fill="#123a63"/><text x="180" y="256" text-anchor="middle" font-size="12" fill="#eef2fb">SEA · SEAWARD ↓</text>';
+  s += '<path d="M0,232 q15,-6 30,0 t30,0 t30,0 t30,0 t30,0 t30,0 t30,0 t30,0 t30,0 t30,0 t30,0 t30,0" fill="none" stroke="#5e8fc4"/>';
+  // machinery house
+  s += '<rect x="14" y="48" width="160" height="160" fill="#2a2140" stroke="#c3cde6" stroke-dasharray="4 3"/><text x="20" y="62" font-size="10" fill="#c3cde6">Machinery house (west)</text>';
+  [40,90,140].forEach((x,i) => { s += '<circle cx="'+x+'" cy="214" r="6" fill="#6b5a44" stroke="#ffb4a8"/><text x="'+x+'" y="'+(206)+'" font-size="8" text-anchor="middle" fill="#ffb4a8">P'+(7+i)+'</text>'; });
+  s += '<rect x="30" y="72" width="40" height="22" fill="#5a6c92" stroke="#c3cde6"/><text x="50" y="87" font-size="8" text-anchor="middle" fill="#eef2fb">stock</text>';
+  const shifted = !!S.survey;
+  // reference shaft line
+  s += '<line x1="40" y1="130" x2="300" y2="130" stroke="#e3bd62" stroke-dasharray="6 4" stroke-width="1.5"/><text x="186" y="122" font-size="8" fill="#e3bd62">design shaft line</text>';
+  // motor base + motor
+  const my = shifted ? 140 : 130;
+  s += '<rect x="44" y="'+(my-22)+'" width="56" height="44" fill="#33467a" stroke="#c3cde6"/><text x="72" y="'+(my-26)+'" font-size="8" text-anchor="middle" fill="#c3cde6">motor base</text>';
+  s += '<rect x="52" y="'+(my-12)+'" width="40" height="24" rx="4" fill="#7a88a8" stroke="#eef2fb"/><text x="72" y="'+(my+3)+'" font-size="9" text-anchor="middle" fill="#0a1430" font-weight="700">M</text>';
+  if(shifted){ s += '<text x="20" y="194" font-size="8" fill="#ffb4a8">surveyed: base seaward (offset drawn ×6)</text>'; }
+  // coupling
+  s += '<rect x="104" y="'+(shifted?124:122)+'" width="12" height="16" fill="#e3bd62" stroke="#0a1430"/><text x="110" y="'+(shifted?120:118)+'" font-size="8" text-anchor="middle" fill="#e3bd62">C</text>';
+  s += '<line x1="92" y1="'+my+'" x2="104" y2="'+(shifted?132:130)+'" stroke="#eef2fb" stroke-width="3"/>';
+  // shaft and bearing H
+  s += '<line x1="116" y1="130" x2="290" y2="130" stroke="#eef2fb" stroke-width="3"/>';
+  s += '<rect x="138" y="118" width="22" height="24" fill="#5a6c92" stroke="#e3bd62" stroke-width="2"/><text x="132" y="152" font-size="9" text-anchor="middle" fill="#e3bd62">H</text>';
+  // carousel
+  s += '<circle cx="300" cy="130" r="48" fill="#3b2f5e" stroke="#e3bd62"/><circle cx="300" cy="130" r="8" fill="#e3bd62"/><text x="300" y="76" font-size="9" text-anchor="middle" fill="#eef2fb">carousel (east)</text>';
+  // tokens and predicted pushes
+  CARDS.forEach((c,i) => {
+    if(!S.placed[c]) return;
+    const [x,y] = tok[c];
+    s += '<rect x="'+(x-9)+'" y="'+(y-9)+'" width="18" height="18" rx="3" fill="#e3bd62" stroke="#0a1430"/><text x="'+x+'" y="'+(y+4)+'" font-size="10" text-anchor="middle" fill="#0a1430" font-weight="700">'+(i+1)+'</text>';
+    if(S.runs[c]){
+      if(c === 'base') s += '<line x1="149" y1="142" x2="149" y2="180" stroke="#ffb4a8" stroke-width="3" marker-end="url(#arr)"/><text x="154" y="176" font-size="8" fill="#ffb4a8">pull: seaward</text>';
+      if(c === 'crowds') s += '<circle cx="300" cy="150" r="9" fill="none" stroke="#ffb4a8" stroke-width="2"/><path d="M294,144 L306,156 M306,144 L294,156" stroke="#ffb4a8" stroke-width="2"/><text x="300" y="172" font-size="8" text-anchor="middle" fill="#ffb4a8">push: into deck</text>';
+      if(c === 'grease') s += '<circle cx="149" cy="130" r="20" fill="none" stroke="#ffb4a8" stroke-width="2" stroke-dasharray="3 2"/><text x="149" y="104" font-size="8" text-anchor="middle" fill="#ffb4a8">all round</text>';
+      if(c === 'batch') s += '<text x="96" y="87" font-size="8" fill="#ffb4a8">? no fixed push</text>';
+    }
+  });
+  // compass
+  s += '<g transform="translate(212,72)"><circle r="18" fill="#0a1430" stroke="#e3bd62"/><path d="M0,-14 L4,-4 L-4,-4 Z" fill="#e3bd62"/><path d="M0,14 L4,4 L-4,4 Z" fill="#ffb4a8"/><text y="-20" font-size="7" text-anchor="middle" fill="#eef2fb">LAND</text><text y="27" font-size="7" text-anchor="middle" fill="#eef2fb">SEA</text></g>';
+  return s + '</svg>';
+}
+function seasonSVG(){
+  const W=320,H=170, x0=34, y0=140, xs=(W-44)/17, ys=110/10;
+  let s = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-labelledby="sea-t sea-d"><title id="sea-t">Simulated season: seaward distress index by week</title><desc id="sea-d">Model index from 0 to 10, where 10 is a modelled failure. The full values are in the table below.</desc>';
+  s += '<line x1="'+x0+'" y1="'+y0+'" x2="'+(W-8)+'" y2="'+y0+'" stroke="#c3cde6"/><line x1="'+x0+'" y1="'+y0+'" x2="'+x0+'" y2="20" stroke="#c3cde6"/>';
+  s += '<line x1="'+x0+'" y1="'+(y0-10*ys)+'" x2="'+(W-8)+'" y2="'+(y0-10*ys)+'" stroke="#ffb4a8" stroke-dasharray="4 3"/><text x="'+(x0+2)+'" y="'+(y0-10*ys-4)+'" font-size="8" fill="#ffb4a8">failure level (model) 10</text>';
+  [0,5,10].forEach(v => { s += '<text x="'+(x0-4)+'" y="'+(y0-v*ys+3)+'" font-size="8" text-anchor="end" fill="#c3cde6">'+v+'</text>'; });
+  [1,5,9,13,17].forEach(w => { s += '<text x="'+(x0+w*xs)+'" y="'+(y0+12)+'" font-size="8" text-anchor="middle" fill="#c3cde6">wk '+w+'</text>'; });
+  const line = (fn, col, dash) => { let pts = []; for(let w=1; w<=17; w++) pts.push((x0+w*xs).toFixed(1)+','+(y0-fn(w)*ys).toFixed(1)); return '<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="2.5" '+(dash?'stroke-dasharray="6 3"':'')+'/>'; };
+  if(S.cf.fourth || S.cf.grease){ s += line(cfIndex,'#ffb4a8',true); }
+  if(S.season){ s += line(rIndex,'#8fe0a8',false); }
+  s += '<text x="'+(W-10)+'" y="30" font-size="8" text-anchor="end" fill="#8fe0a8">'+(S.season?'solid: realigned':'')+'</text>';
+  s += '<text x="'+(W-10)+'" y="42" font-size="8" text-anchor="end" fill="#ffb4a8">'+((S.cf.fourth||S.cf.grease)?'dashed: offset left in place':'')+'</text>';
+  return s + '</svg>';
+}
+// Authored, deterministic season model (fictional). 17 weeks from summer opening to closing day.
+function cfIndex(w){ const k = ((w-1)%4)+1; return Math.min(10, Math.round(k*26)/10); }
+function rIndex(w){ return Math.round(w*0.1*10)/10; }
+function scenePier(){
+  return '<svg viewBox="0 0 360 150" role="img" aria-labelledby="pier-t pier-d"><title id="pier-t">Pennywhistle Pier at night</title><desc id="pier-d">A carousel under a striped canopy at the end of a wooden pier, with a CLOSED sign and a padlocked chain across the entrance. A workbench lamp glows in the machinery house beside it.</desc>'+
+  '<rect width="360" height="150" fill="#0c1a3d"/>'+
+  '<circle cx="300" cy="26" r="12" fill="#f4d98f" opacity=".85"/>'+
+  '<rect y="112" width="360" height="38" fill="#123a63"/>'+
+  '<rect x="10" y="98" width="340" height="12" fill="#5a4630"/>'+[20,70,120,170,220,270,320].map(x => '<rect x="'+x+'" y="110" width="6" height="34" fill="#3b2d1f"/>').join('')+
+  '<polygon points="170,38 230,60 110,60" fill="#d9774f"/><polygon points="170,38 190,60 150,60" fill="#e3bd62"/>'+
+  '<rect x="118" y="60" width="104" height="38" fill="#2a2140" stroke="#e3bd62"/>'+
+  [130,150,170,190,210].map((x,i) => '<line x1="'+x+'" y1="60" x2="'+x+'" y2="98" stroke="#c3cde6"/><ellipse cx="'+x+'" cy="'+(80+(i%2)*6)+'" rx="6" ry="4" fill="#eef2fb"/>').join('')+
+  '<path d="M112,92 Q170,104 228,92" stroke="#c3cde6" stroke-width="2" fill="none"/><rect x="160" y="88" width="20" height="10" fill="#e3bd62"/><text x="170" y="96" font-size="6" text-anchor="middle" fill="#0a1430">LOCK</text>'+
+  '<rect x="236" y="66" width="56" height="20" fill="#0a1430" stroke="#ffb4a8"/><text x="264" y="80" font-size="9" text-anchor="middle" fill="#ffb4a8">CLOSED</text>'+
+  '<rect x="34" y="62" width="62" height="36" fill="#2c3f6e" stroke="#c3cde6"/><circle cx="66" cy="76" r="5" fill="#f4d98f"/><text x="66" y="94" font-size="7" text-anchor="middle" fill="#eef2fb">machinery</text>'+
+  '</svg>';
+}
+
+/* ====================================================================================
+   RENDERING
+   ==================================================================================== */
+function esc(t){ return String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function radio(name, value, label, checked, disabled, extra){
+  const id = name+'--'+value;
+  return '<label class="opt" for="'+id+'"><input type="radio" id="'+id+'" name="'+name+'" value="'+value+'" '+(checked?'checked ':'')+(disabled?'disabled ':'')+(extra||'')+'><span>'+label+'</span></label>';
+}
+function fb(kind, html){ return '<div class="fb '+kind+'">'+html+'</div>'; }
+function hintBox(act){
+  const n = S.hints[act];
+  let s = '<details class="hints" id="hints-'+act+'" '+(ui.open['hints-'+act]?'open':'')+'><summary>Hints (optional)</summary>';
+  for(let i=0;i<n;i++) s += '<p><strong>Hint '+(i+1)+':</strong> '+HINTS[act][i]+'</p>';
+  if(n < 3) s += '<button type="button" class="small" id="hint-'+act+'" data-a="hint" data-act="'+act+'">Show hint '+(n+1)+' of 3</button>';
+  else s += '<p class="note">All hints shown.</p>';
+  return s + '</details>';
+}
+function renderNav(g){
+  const done = {1:g.g1, 2:g.g2, 3:g.g3, 4:g.g5, 5:g.all};
+  document.getElementById('actnav').innerHTML = [1,2,3,4,5].map(i => '<button type="button" id="nav-'+i+'" data-a="act" data-act="'+i+'" '+(S.act===i?'aria-current="step"':'')+'>'+ACTS[i]+(done[i]?' <span aria-hidden="true">✓</span><span class="vh"> (complete)</span>':'')+'</button>').join('');
+}
+function renderGates(g){
+  const rows = [
+    [g.g1,'Initial advice recorded'],
+    [g.g2,'Bench: three specimens recorded and compared'],
+    [g.g3,'Records: at least two rival suspects weighed ('+g.docCount+'/2)'],
+    [g.g4,'Motor base measured by the crew and interpreted'],
+    [g.g5,'Map comparisons run and diagnosis supported'],
+    [g.g6,'Qualified-crew recommendation justified'],
+    [g.g7,'Crew work signed off and season simulated'],
+    [g.g8,'Season result read and case report filed']
+  ];
+  document.getElementById('gates').innerHTML = rows.map(([ok,t]) => '<li><span class="mk '+(ok?'y':'n')+'">'+(ok?'✓ done':'○ not yet')+'</span><span>'+t+'</span></li>').join('');
+  const j = S.journal.slice().reverse();
+  document.getElementById('journal').innerHTML = j.length ? j.map(e => '<li value="'+e.n+'">'+esc(e.t)+'</li>').join('') : '<li>Nothing recorded yet.</li>';
+  document.getElementById('resetbox').innerHTML = ui.resetConfirm ?
+    '<div class="fb bad"><p>Erase this case’s saved progress? Other DoorQuests progress in this browser is not touched.</p><div class="row"><button type="button" id="reset-yes" data-a="reset-yes">Yes, erase this case</button><button type="button" id="reset-no" data-a="reset-no" class="primary">Cancel</button></div></div>' :
+    '<button type="button" id="reset" data-a="reset">Reset this case…</button>';
+}
+function renderModel(){
+  document.getElementById('model').innerHTML =
+  '<p>Everything here is a <strong>fictional, simplified case model</strong>. It needs review by qualified mechanical people before publication.</p>'+
+  '<ul>'+
+  '<li><strong>Map axes:</strong> up = landward (promenade), down = seaward, left = west (motor), right = east (carousel).</li>'+
+  '<li><strong>The bearing:</strong> the outer ring is stationary, held in housing H. The inner ring turns with the shaft. Only the stationary outer ring keeps a fixed direction, so it is the part compared across specimens. The rotating inner ring’s marks spread around it and are not used for direction.</li>'+
+  '<li><strong>The index:</strong> at each removal the qualified crew scribed a ▲ notch facing seaward in the housing. The bench views look east from the motor side: notch = seaward, 90° clockwise = deck, opposite = landward, 90° counter-clockwise = sky.</li>'+
+  '<li><strong>Normal load:</strong> the shaft’s weight leaves light, even polish on the deck side of every bearing.</li>'+
+  '<li><strong>The case’s fault:</strong> storm settlement under piles P7–P9 tilted the motor base toward the sea, moving the motor’s shaft centre mostly seaward of the drive-shaft line. A flexible coupling with that offset pulls the driven shaft end toward the motor’s axis (seaward), and bearing H resists it, so its outer ring is loaded hardest on the seaward side. The small downward part of the tilt is folded into the normal deck-side load.</li>'+
+  '<li><strong>What the mark can’t do:</strong> a load-zone mark shows where load concentrated, not why. Real wear also depends on fit, lubrication, ring rotation, installation, contamination, housing support and removal orientation. Seaward wear does not mean a base moved in general; here it is a repeated, case-specific clue that the crew’s measurement corroborates.</li>'+
+  '<li><strong>Units:</strong> “su” are invented survey units. The ±0.5 su tolerance is a story assumption, not an industry figure.</li>'+
+  '<li><strong>Season results</strong> come from an authored, deterministic “distress index” (0–10, where 10 is a modelled failure). They are not predictions of real bearing life.</li>'+
+  '</ul>';
+}
+function renderBanners(){
+  let s = '';
+  if(!storageOK) s += '<div class="status-banner" role="alert">This browser isn’t letting the page save progress. You can still play; progress will be lost when you close the page.</div>';
+  if(loadWarnings.length) s += '<div class="status-banner" role="alert"><p><strong>Saved progress was checked on loading.</strong></p><ul>'+loadWarnings.map(w => '<li>'+esc(w)+'</li>').join('')+'</ul><button type="button" class="small" id="dismiss-warn" data-a="dismiss-warn">Dismiss</button></div>';
+  document.getElementById('banners').innerHTML = s;
+}
+
+function act1(g){
+  let s = '<section aria-labelledby="act-h"><h2 id="act-h" tabindex="-1">Act '+ACTS[1]+'</h2>';
+  s += '<div class="svgbox">'+scenePier()+'</div>';
+  s += '<p class="note">Scene: the carousel sits dark at the end of Pennywhistle Pier, chained and padlocked with a CLOSED sign. Light spills from the machinery house, where three removed bearings wait on the bench.</p>';
+  s += '<div class="panel"><p><strong>Summer opening: 1 June — eleven days away.</strong> The same drive-shaft bearing has failed three times since March. The ride has been shut down and secured by the qualified crew.</p>'+
+    '<p>You are the new apprentice diagnostic assistant. You inspect, compare and recommend. All hands-on work, every safety check and any decision to reopen belong to the qualified lead.</p></div>';
+  s += '<div class="grid2">'+
+    '<div class="panel who"><div class="av" aria-hidden="true">IC</div><div><strong>Ines Calloway</strong>, qualified ride maintenance lead<br>“The ride stays locked out until I sign it off. A date on a poster doesn’t change that. Look at what’s on the bench and tell me what you think.”</div></div>'+
+    '<div class="panel who"><div class="av" aria-hidden="true">RP</div><div><strong>Rufus Penhallow</strong>, pier manager<br>“Three bearings in a row? A bad batch, surely. Order a different brand and let’s be open on the first.”</div></div>'+
+    '<div class="panel who"><div class="av" aria-hidden="true">DM</div><div><strong>Dot Merriweather</strong>, pier mechanic<br>“My money’s on the grease. Sea air, damp, cold mornings — it doesn’t stay where you put it.”</div></div>'+
+    '<div class="panel who"><div class="av" aria-hidden="true">ST</div><div><strong>Sam Tilley</strong>, volunteer<br>“You should see Saturday queues. That platform’s packed nose to tail. It has to be the weight.”</div></div>'+
+  '</div>';
+  s += '<fieldset><legend>Your first advice to Ines (a recommendation, not an action)</legend>'+
+    radio('initial','replace','Replace the bearing again so we can open on time', S.initial==='replace')+
+    radio('initial','grease','Add more grease and keep an eye on it', S.initial==='grease')+
+    radio('initial','hold','Hold service, investigate why they fail, and consider asking for an alignment assessment', S.initial==='hold')+
+    '</fieldset>';
+  if(S.initial){
+    const c = {
+      replace:'Ines logs it and sets one more PB-40 insert aside from stock. She doesn’t fit it: “Three in a row means something is eating them. Let’s find out what first.” The ride stays closed.',
+      grease:'Ines logs it and holds it: “Dot greases on schedule. If it’s grease, the records will say so.” The ride stays closed.',
+      hold:'Ines nods: “Good. The ride stays locked out, and we work out why before anything goes back in.”'}[S.initial];
+    s += fb('info','<p><span class="k">Recorded:</span> '+c+'</p>'+(S.initialFirst && S.initialFirst!==S.initial ? '<p class="note">Your first advice was “'+{replace:'replace again',grease:'add grease',hold:'hold and investigate'}[S.initialFirst]+'”; the revision is in the journal.</p>':'')+'<button type="button" class="primary" id="go-2" data-a="act" data-act="2">Go to the bench →</button>');
+  }
+  s += hintBox(1) + '</section>';
+  return s;
+}
+function obsFeedback(b){
+  const o = S.obs[b]; if(!o) return '';
+  const parts = [];
+  if(o.quad === 'seaward') parts.push('<span class="ok-t">Location: correct.</span> The heavy band sits at the notch, which faced seaward.');
+  else parts.push('<span class="bad-t">Location: not supported.</span> '+({
+    deck:'That light polish is the normal weight-bearing mark. Look for heavier distress.',
+    landward:'The band opposite the notch is clean.', sky:'That band is clean. A scratch on the outer face isn’t running-track wear.',
+    allround:'The four bands look different from one another; the distress isn’t all the way around.', none:'One band shows heavy, pitted distress.'}[o.quad]));
+  if(o.limit === 'L1') parts.push('<span class="ok-t">Limitation: correct.</span>');
+  else parts.push('<span class="bad-t">Limitation: not quite.</span> '+(o.limit==='L2' ? 'One mark shows where load concentrated; several different causes could do that.' : 'The inner ring turned with the shaft, so its marks spread around it. Only the stationary, indexed outer ring keeps a fixed direction.'));
+  return fb(obsCorrect(b)?'ok':'bad', '<p><span class="k">Recorded for '+b+':</span> '+QLABEL[o.quad]+'.</p><p>'+parts.join(' ')+'</p>'+(obsCorrect(b)?'':'<p>You can revise and record again.</p>'));
+}
+function act2(g){
+  let s = '<section aria-labelledby="act-h"><h2 id="act-h" tabindex="-1">Act '+ACTS[2]+'</h2>';
+  s += '<div class="panel"><h3>Orientation key (stays fixed)</h3><p>Each bearing is shown as Ines laid it on the bench, viewed <strong>looking east from the motor side</strong>. The ▲ <strong>notch</strong> was scribed on the stationary outer ring <strong>facing seaward</strong> at removal.</p>'+
+    '<p>From the notch: <strong>90° clockwise = deck</strong> (bottom), <strong>opposite = landward</strong>, <strong>90° counter-clockwise = sky</strong> (top). Turning the view on screen doesn’t change any of this.</p>'+
+    '<p class="note">Patterns: dark-dotted rust = heavy distress; striped = light polish; plain = clean. Every feature is also described in words.</p></div>';
+  s += '<div class="grid3">';
+  BEARINGS.forEach(b => {
+    const info = BINFO[b]; const fs = features(b); const ex = S.examined[b]; const rot = S.view[b];
+    s += '<div class="panel"><h3>'+b+'</h3><p class="note">Fitted '+info.installed+' by '+info.by+' · failed '+info.failed+'</p>';
+    s += '<div class="svgbox">'+bearingSVG('svg-'+b, rot, ex, 'failed')+'</div>';
+    s += '<p class="note" id="view-'+b+'">View: notch drawn '+clockText(rot)+'.</p>';
+    s += '<div class="row"><button type="button" class="small" id="rotl-'+b+'" data-a="rot" data-b="'+b+'" data-d="-90" aria-describedby="view-'+b+'">Turn view ↺</button><button type="button" class="small" id="rotr-'+b+'" data-a="rot" data-b="'+b+'" data-d="90" aria-describedby="view-'+b+'">Turn view ↻</button><button type="button" class="small" id="rot0-'+b+'" data-a="rot" data-b="'+b+'" data-d="0">Reset view</button></div>';
+    s += '<h4>Examine features</h4><div class="feat">';
+    fs.forEach(f => {
+      s += '<button type="button" id="ex-'+b+'-'+f.id+'" data-a="examine" data-b="'+b+'" data-f="'+f.id+'" aria-pressed="'+(!!ex[f.id])+'">'+(ex[f.id]?'✓ ':'')+f.label+'</button>';
+      if(ex[f.id]) s += '<p class="note" style="margin:0 0 6px 8px">'+f.text+'</p>';
+    });
+    s += '</div>';
+    const dq = draft[b].quad !== undefined ? draft[b].quad : (S.obs[b] && S.obs[b].quad);
+    const dl = draft[b].limit !== undefined ? draft[b].limit : (S.obs[b] && S.obs[b].limit);
+    s += '<fieldset><legend>Where is the heavy distress on '+b+'?</legend>'+
+      ['seaward','landward','sky','deck','allround','none'].map(q => radio('obsq-'+b, q, QLABEL[q], dq===q)).join('')+'</fieldset>';
+    s += '<fieldset><legend>What can this mark tell us?</legend>'+
+      radio('obsl-'+b,'L1','Where the stationary outer ring carried its heaviest load — not, on its own, why.', dl==='L1')+
+      radio('obsl-'+b,'L2','It proves what caused the failure.', dl==='L2')+
+      radio('obsl-'+b,'L3','Marks on the rotating inner ring would point the same compass way.', dl==='L3')+'</fieldset>';
+    s += '<button type="button" class="primary" id="rec-'+b+'" data-a="record-obs" data-b="'+b+'">Record observation for '+b+'</button>';
+    if(ui.msg['obs-'+b]) s += fb('bad', ui.msg['obs-'+b]);
+    s += obsFeedback(b);
+    s += '</div>';
+  });
+  s += '</div>';
+  // comparison board
+  s += '<div class="panel"><h3>Three-bearing comparison board</h3><p class="note">Filled from what you recorded, not from the answer.</p>';
+  s += '<div class="tbl-wrap"><table><caption>Your recorded observations</caption><thead><tr><th scope="col">Bearing</th><th scope="col">Lot</th><th scope="col">Heavy distress (your record)</th><th scope="col">Limitation understood?</th></tr></thead><tbody>'+
+    BEARINGS.map(b => { const o = S.obs[b]; return '<tr><th scope="row">'+b+'</th><td>'+BINFO[b].lot+'</td><td>'+(o?QLABEL[o.quad]:'not recorded')+'</td><td>'+(o?(o.limit==='L1'?'yes':'not yet'):'—')+'</td></tr>'; }).join('')+'</tbody></table></div>';
+  const allRec = BEARINGS.every(b => S.obs[b]);
+  if(!allRec) s += '<p class="note">Record all three bearings to compare them.</p>';
+  s += '<fieldset '+(allRec?'':'disabled')+'><legend>What do the three specimens show together?</legend>'+
+    radio('cmp','same','The same heavy distress on the seaward side of all three, in housing coordinates', S.cmp==='same', !allRec)+
+    radio('cmp','different','Distress in a different place on each one', S.cmp==='different', !allRec)+
+    radio('cmp','allround','Distress all the way around each one', S.cmp==='allround', !allRec)+'</fieldset>';
+  if(S.cmp){
+    if(S.cmp === 'same' && g.obsOK) s += fb('ok','<p><span class="k">A repeat pattern.</span> Three bearings, three lots, three different fitters, one seaward patch. Something keeps pushing the same way. On its own, though, the pattern doesn’t say what.</p><button type="button" class="primary" id="go-3" data-a="act" data-act="3">Check the records →</button>');
+    else if(S.cmp === 'same') s += fb('bad','<p>Your comparison says “the same seaward patch”, but at least one of your recorded observations doesn’t support that yet. Fix the observation(s) above.</p>');
+    else s += fb('bad','<p>Look again at your recorded locations; they don’t differ, and the distress isn’t all round.</p>');
+  }
+  s += hintBox(2) + '</section>';
+  return s;
+}
+function docBody(k){
+  if(k === 'slips') return '<div class="tbl-wrap"><table><caption>Delivery slips (fictional suppliers and lots)</caption><thead><tr><th scope="col">Bearing</th><th scope="col">Delivered</th><th scope="col">Supplier</th><th scope="col">Lot</th><th scope="col">Fitted by</th></tr></thead><tbody>'+
+    BEARINGS.map(b => '<tr><th scope="row">'+b+'</th><td>'+BINFO[b].delivered+'</td><td>'+BINFO[b].supplier+'</td><td>'+BINFO[b].lot+'</td><td>'+BINFO[b].by+'</td></tr>').join('')+'</tbody></table></div><p class="note">All three are part PB-40 (fictional), the part the ride manual specifies.</p>';
+  if(k === 'grease') return '<div class="tbl-wrap"><table><caption>Grease log, housing H (fictional)</caption><thead><tr><th scope="col">Date</th><th scope="col">Entry</th></tr></thead><tbody>'+
+    [['3, 10, 17, 24 Mar','Greased per manual: Pier Grade 2, manual amount. Initials DM.'],['26 Mar','B01 removed by crew. Grease present, amber, clean, normal consistency.'],['31 Mar; 7, 14, 21 Apr','Greased per manual. Initials DM.'],['22 Apr','B02 removed. Grease present, normal colour and consistency.'],['28 Apr; 5, 12 May','Greased per manual. Initials DM.'],['19 May','B03 removed. Grease present, matches grade on visual check.']]
+    .map(r => '<tr><th scope="row">'+r[0]+'</th><td>'+r[1]+'</td></tr>').join('')+'</tbody></table></div><p class="note">“Pier Grade 2” and the manual amount are fictional. A log shows what was done and seen, not everything that happened inside the bearing.</p>';
+  if(k === 'counts') return '<div class="tbl-wrap"><table><caption>Turnstile ride counts per bearing (fictional)</caption><thead><tr><th scope="col">Bearing</th><th scope="col">In service</th><th scope="col">Days</th><th scope="col">Rides counted</th><th scope="col">Busiest day</th></tr></thead><tbody>'+
+    '<tr><th scope="row">B01</th><td>1–26 Mar</td><td>25</td><td>2,140</td><td>412</td></tr><tr><th scope="row">B02</th><td>28 Mar–22 Apr</td><td>25</td><td>610</td><td>98 (wet April; 3 storm-closed days)</td></tr><tr><th scope="row">B03</th><td>24 Apr–19 May</td><td>25</td><td>3,980</td><td>1,120 (bank-holiday weekend)</td></tr></tbody></table></div><p class="note">Ride counts are a rough stand-in for load, not a measurement of force on the bearing.</p>';
+  if(k === 'storm') return '<div class="tbl-wrap"><table><caption>Pier record, winter (fictional)</caption><thead><tr><th scope="col">Date</th><th scope="col">Entry</th></tr></thead><tbody>'+
+    '<tr><th scope="row">9 Jan</th><td>Storm. Heavy swell over the seaward end; pier closed.</td></tr><tr><th scope="row">2 Feb</th><td>Second storm. Pier closed two days.</td></tr><tr><th scope="row">20 Feb</th><td>Pier engineer’s walk-round: seaward piles P7–P9 under the machinery house show settlement; floor there out of level toward the sea. Action: resurvey machinery mountings. <strong>Status: open.</strong></td></tr><tr><th scope="row">25 Feb</th><td>Winter overhaul complete. The previous drive bearing (fitted many seasons ago, no trouble recorded) replaced as routine.</td></tr></tbody></table></div>';
+  return '';
+}
+function act3(g){
+  let s = '<section aria-labelledby="act-h"><h2 id="act-h" tabindex="-1">Act '+ACTS[3]+'</h2>';
+  s += '<div class="panel"><h3>Hypothesis board</h3><div class="tbl-wrap"><table><caption>What each suspect predicts, and what your readings say so far</caption><thead><tr><th scope="col">Suspect</th><th scope="col">If true, we’d expect…</th><th scope="col">Your evidence so far</th><th scope="col">Limits</th></tr></thead><tbody>'+
+    '<tr><th scope="row">Bad batch (Rufus)</th><td>Failures tied to one lot or supplier</td><td>'+(S.docInt.slips==='a'?'Weakened: three lots, two suppliers':'—')+'</td><td>A shared design flaw could still exist</td></tr>'+
+    '<tr><th scope="row">Thin grease (Dot)</th><td>Wrong grade, missed greasing, or poor grease found at removal</td><td>'+(S.docInt.grease==='a'?'Weakened: right grade, on schedule, sound grease':'—')+'</td><td>A log can’t see inside the bearing</td></tr>'+
+    '<tr><th scope="row">Crowded weekends (Sam)</th><td>Faster failure when the ride is busier</td><td>'+(S.docInt.counts==='a'?'Weakened: same 25 days, quiet or busy':'—')+'</td><td>Ride counts only approximate load</td></tr>'+
+    '<tr><th scope="row">Storm-shifted base (new)</th><td>A record of movement under the drive, and a measurable offset</td><td>'+(S.docInt.storm==='a'?'Worth measuring (record read)':'—')+'</td><td>A record isn’t a measurement</td></tr>'+
+    '</tbody></table></div><p class="note">To move on, interpret at least two of the three rival-suspect records correctly. The pier record is useful background.</p></div>';
+  Object.keys(DOCS).forEach(k => {
+    const open = !!S.docsOpened[k]; const shown = !!(ui.docShown && ui.docShown[k]);
+    s += '<div class="panel"><h3>'+DOCS[k].title+'</h3><p class="note">'+DOCS[k].who+'</p>';
+    s += '<button type="button" id="doc-'+k+'" data-a="doc" data-k="'+k+'" aria-expanded="'+shown+'">'+(shown?'Hide record':(open?'Read record again':'Open record'))+'</button>';
+    if(shown) s += docBody(k);
+    s += '<fieldset '+(open?'':'disabled')+'><legend>Your reading of the '+DOCS[k].title.toLowerCase()+'</legend>'+
+      ['a','b','c'].map(v => radio('doc-'+k, v, DOCOPTS[k][v], S.docInt[k]===v, !open)).join('')+'</fieldset>';
+    if(!open) s += '<p class="note">Open the record before interpreting it.</p>';
+    if(S.docInt[k]){
+      s += S.docInt[k] === 'a' ? fb('ok','<p><span class="k">Well weighed.</span> '+DOCOPTS[k].a+'</p>') : fb('bad','<p><span class="k">Reconsider.</span> '+DOCFB[k][S.docInt[k]]+'</p>');
+    }
+    s += '</div>';
+  });
+  if(g.g3) s += fb('ok','<p>Two or more rival suspects are weakened by the records. None is impossible, but none explains a repeated seaward patch. Time to map it.</p><button type="button" class="primary" id="go-4" data-a="act" data-act="4">Open the map →</button>');
+  s += hintBox(3) + '</section>';
+  return s;
+}
+function act4(g){
+  let s = '<section aria-labelledby="act-h"><h2 id="act-h" tabindex="-1">Act '+ACTS[4]+'</h2>';
+  s += '<div class="panel"><p>Place each suspect on the board. Before you run its comparison, <strong>predict</strong> where it would put the heavy distress on bearing H’s outer ring. Your prediction locks when you run.</p>';
+  s += '<div class="svgbox">'+mapSVG()+'</div>';
+  s += '<p class="note">Legend: up = landward, down = seaward. M = motor on its base; C = flexible coupling; H = bearing housing; P7–P9 = seaward piles. Dashed gold = design shaft line. Numbered gold squares = placed cards: 1 bad batch (stock shelf), 2 grease (housing H), 3 crowds (platform), 4 base (motor base).</p>';
+  s += '<p><strong>Observed (from your bench comparison):</strong> '+(g.g2?'heavy distress on the seaward side of the stationary outer ring, on all three specimens.':'not established yet — complete the bench comparison in Act II first.')+'</p></div>';
+  CARDS.forEach((c,i) => {
+    const ci = CINFO[c]; const run = S.runs[c];
+    s += '<div class="panel"><h3>Card '+(i+1)+': '+ci.name+'</h3><p class="note">'+ci.who+' · board location: '+ci.loc+'</p>';
+    if(!S.placed[c]) s += '<button type="button" id="place-'+c+'" data-a="place" data-c="'+c+'">Place card on the '+ci.loc.toLowerCase()+'</button>';
+    else s += '<p>Placed on the board ('+ci.loc+').</p>';
+    s += '<fieldset '+(S.placed[c]&&!run?'':'disabled')+'><legend>Your prediction: if this were the cause, where would the heavy distress sit?</legend>'+
+      PREDOPTS.map(p => radio('pred-'+c, p, QLABEL[p], S.pred[c]===p, !S.placed[c] || !!run)).join('')+'</fieldset>';
+    if(run) s += '<p class="locked">🔒 Prediction locked at run: '+QLABEL[run.pred]+'.</p>';
+    if(!run){
+      s += '<button type="button" class="primary" id="run-'+c+'" data-a="run" data-c="'+c+'">Run comparison</button>';
+      if(ui.msg['run-'+c]) s += fb('bad', ui.msg['run-'+c]);
+    } else {
+      s += '<div class="grid2"><div class="svgbox">'+dialSVG('dp-'+c, ci.model, 'Model prediction')+'</div><div class="svgbox">'+dialSVG('do-'+c,'seaward','Observed, all three')+'</div></div>';
+      s += '<p><strong>Model prediction:</strong> '+QLABEL[ci.model]+'. '+ci.why+'</p>';
+      s += '<p>'+(run.pred===ci.model?'<span class="ok-t">Your prediction matched the model.</span>':'<span class="bad-t">Your prediction differed from the model</span> (that’s fine; predictions are for learning and stay on record).')+'</p>';
+      s += '<fieldset><legend>Does this suspect’s predicted pattern explain the observed pattern?</legend>'+
+        ['yes','no','partly'].map(v => radio('mapint-'+c, v, MAPINT[v], S.mapInt[c]===v)).join('')+'</fieldset>';
+      if(S.mapInt[c]){
+        if(S.mapInt[c] === ci.correct) s += fb('ok','<p>'+(c==='base'?'Agreed: a seaward pull at the coupling matches the seaward patch on all three. That’s a match, not proof — it needs an independent measurement.':'Agreed: weakened, not ruled out. Its predicted pattern doesn’t produce a repeated seaward patch.')+'</p>');
+        else s += fb('bad','<p>'+(c==='crowds'&&S.mapInt[c]==='partly'?'The deck-side polish is there, but it’s the light normal mark every bearing shows. It doesn’t explain the heavy seaward patch.':c==='base'?'Compare again: the predicted seaward patch is where all three specimens show heavy distress.':'Compare the two dials again: the predicted pattern and the repeated seaward patch don’t line up.')+' You can change your reading.</p>');
+      }
+    }
+    s += '</div>';
+  });
+  // survey
+  s += '<div class="panel"><h3>Ask the crew to measure the motor base</h3><p>Wear direction alone isn’t enough. Only the qualified crew can survey the mountings; you can request it.</p>';
+  if(!S.survey){
+    s += '<button type="button" id="survey" data-a="survey" '+(S.runs.base?'':'aria-describedby="survey-why"')+'>Request a base survey from Ines’s crew</button>';
+    if(!S.runs.base) s += '<p class="note" id="survey-why">Run the storm-shifted-base comparison first so the request has a reason.</p>';
+    if(ui.msg.survey) s += fb('bad', ui.msg.survey);
+  } else {
+    s += '<div class="tbl-wrap"><table><caption>Crew base survey (simulated; su = invented survey units)</caption><thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead><tbody>'+
+      '<tr><th scope="row">Base reference pin vs. its painted installation mark</th><td>3 su <strong>seaward</strong> of the mark</td></tr>'+
+      '<tr><th scope="row">Seaward hold-down bolts vs. landward bolts</th><td>Seaward bolts 1 su lower</td></tr>'+
+      '<tr><th scope="row">Crew note</th><td>Base has tilted toward the sea since installation. Ride remains locked out.</td></tr></tbody></table></div>';
+    s += '<fieldset><legend>Which way has the motor base moved?</legend>'+
+      radio('sdir','seaward','Seaward', S.surveyInt.dir==='seaward')+radio('sdir','landward','Landward', S.surveyInt.dir==='landward')+radio('sdir','none','It hasn’t moved', S.surveyInt.dir==='none')+'</fieldset>';
+    s += '<fieldset><legend>What does the survey add to the case?</legend>'+
+      radio('sadds','indep','An independent measurement that agrees with the wear', S.surveyInt.adds==='indep')+
+      radio('sadds','proof','Proof that misalignment always causes seaward wear', S.surveyInt.adds==='proof')+
+      radio('sadds','same','Nothing new — it’s the wear clue measured again', S.surveyInt.adds==='same')+'</fieldset>';
+    if(S.surveyInt.dir && S.surveyInt.adds){
+      s += g.g4 ? fb('ok','<p>Two different kinds of evidence — a mark on three parts and a measurement of the machine — point the same way.</p>') :
+        fb('bad','<p>'+(S.surveyInt.dir!=='seaward'?'Read the first row again: the pin sits seaward of its mark. ':'')+(S.surveyInt.adds==='proof'?'One case can’t prove a rule for every machine. ':S.surveyInt.adds==='same'?'The survey measures the machine, not the bearing — that’s what makes it independent. ':'')+'</p>');
+    }
+  }
+  s += '</div>';
+  // notebook
+  s += '<details '+(ui.open.nb?'open':'')+' id="nb"><summary>Engineer’s Notebook (optional, deeper)</summary>';
+  if(!S.survey) s += '<p>The alignment readings appear once the crew has surveyed the base.</p>';
+  else {
+    s += '<p>During the survey Ines also took simplified coupling readings. Sign convention: <strong>+ means the motor shaft sits seaward</strong> of the drive shaft; vertical − means the motor sits low. Units are invented su. The scenario tolerance is <strong>±0.5 su</strong> (a story assumption, not a specification).</p>';
+    s += '<div class="tbl-wrap"><table><caption>Coupling readings (fictional)</caption><thead><tr><th scope="col">Reading</th><th scope="col">Before</th><th scope="col">Scenario tolerance</th></tr></thead><tbody><tr><th scope="row">Horizontal parallel offset</th><td>+2.6 su</td><td>±0.5 su</td></tr><tr><th scope="row">Vertical parallel offset</th><td>−0.4 su</td><td>±0.5 su</td></tr><tr><th scope="row">Angular (per 100 su)</th><td>0.3 su</td><td>±0.5 su</td></tr></tbody></table></div>';
+    s += '<p class="note">Load picture: the offset coupling pulls the shaft end toward the motor’s axis (seaward). Bearing H pushes back, so the reaction sits on the seaward side of its outer ring, on top of the normal deck-side weight load.</p>';
+    s += '<fieldset><legend>What do the readings show?</legend>'+
+      radio('nb','ok','Horizontal offset is outside the scenario tolerance with the motor seaward — it agrees with the survey and the wear', S.nbAns==='ok')+
+      radio('nb','in','Everything is within tolerance', S.nbAns==='in')+
+      radio('nb','land','Outside tolerance with the motor landward', S.nbAns==='land')+'</fieldset>';
+    if(S.nbAns) s += S.nbAns==='ok' ? fb('ok','<p>Right: +2.6 su is well outside ±0.5 su, and + means seaward. The vertical and angular readings are inside the scenario tolerance.</p>') : fb('bad','<p>Check the sign convention and compare +2.6 with ±0.5.</p>');
+  }
+  s += '</details>';
+  // diagnosis
+  s += '<div class="panel"><h3>Your diagnosis</h3><fieldset><legend>Which explanation best fits all the evidence?</legend>'+
+    CARDS.map(c => radio('diag', c, CINFO[c].name, S.diag===c)).join('')+'</fieldset>';
+  if(S.diag){
+    const miss = missingForDiagnosis(g);
+    if(S.diag !== 'base') s += fb('bad','<p>That suspect doesn’t account for the repeated seaward patch and the measured base. Revise when ready.</p>');
+    else if(miss.length) s += fb('info','<p>Recorded as a working hypothesis. The case can’t treat it as established until you have: '+miss.join('; ')+'.</p>');
+    else s += fb('ok','<p><span class="k">Supported diagnosis.</span> The bearings were victims. The storm-shifted motor base is the best-supported cause in this case.</p><button type="button" class="primary" id="go-5" data-a="act" data-act="5">Decide what to recommend →</button>');
+  }
+  s += '</div>' + hintBox(4) + '</section>';
+  return s;
+}
+function cfPanel(k){
+  const grease = k === 'grease';
+  let s = '<div class="panel alt"><h4>Preview (simulation): '+(grease?'add grease only':'fit a fourth bearing only')+'</h4>';
+  s += '<p>'+(grease?'Extra grease goes in; the motor base stays where the storms left it. ':'Bearing B04 goes in alone; the motor base stays where the storms left it. ')+
+    'In the model the seaward distress index climbs 2.6 per week and reaches the modelled failure level in <strong>week 4</strong> — the same 25-day rhythm as B01–B03. Repeating the fix repeats the cycle: <strong>4 forced shutdowns</strong> before closing day. The ride stays closed after each one until the crew clears it.</p>';
+  if(grease) s += '<p class="note">'+(S.docInt.grease==='a'?'This preview assumes lubrication was already adequate, as the grease log you interpreted suggests.':'This preview assumes lubrication was already adequate. The grease log is the record that speaks to that; you haven’t interpreted it yet.')+'</p>';
+  return s + '<p class="bad-t">No safe-service ending on this branch. You can change your recommendation.</p></div>';
+}
+function act5(g){
+  let s = '<section aria-labelledby="act-h"><h2 id="act-h" tabindex="-1">Act '+ACTS[5]+'</h2>';
+  const locked = !!S.crew;
+  s += '<div class="panel"><h3>Your recommendation to Ines</h3><fieldset '+(locked?'disabled':'')+'><legend>What should happen next?</legend>'+
+    radio('rec','fourth','Fit a fourth bearing only', S.rec==='fourth', locked)+
+    radio('rec','grease','Add grease only', S.rec==='grease', locked)+
+    radio('rec','realign','Ask the qualified crew to realign the motor base and drive, fit a new bearing, and check the system', S.rec==='realign', locked)+'</fieldset>';
+  if(locked) s += '<p class="locked">🔒 The crew has acted on this recommendation; it’s now part of the record.</p>';
+  if(S.rec === 'fourth' || S.rec === 'grease'){
+    const k = S.rec;
+    if(!S.cf[k]) s += '<button type="button" id="cf-'+k+'" data-a="cf" data-k="'+k+'">Preview this season (simulation)</button>';
+    else s += cfPanel(k);
+  }
+  s += '</div>';
+  s += '<div class="panel"><h3>Justify it</h3><p class="note">Tick the evidence your recommendation rests on. Items you haven’t established yet are unavailable.</p><fieldset '+(locked?'disabled':'')+'><legend>Evidence</legend>';
+  Object.keys(JUST).forEach(k => {
+    const can = earned(k, g) || k === 'deadline' || k === 'manager';
+    const id = 'just--'+k;
+    s += '<label class="opt" for="'+id+'"><input type="checkbox" id="'+id+'" data-a="just" data-k="'+k+'" '+(S.just[k]?'checked ':'')+((!can&&!S.just[k])||locked?'disabled ':'')+'><span>'+JUST[k]+(can?'':' <span class="note">(not established yet)</span>')+'</span></label>';
+  });
+  s += '</fieldset></div>';
+  // crew request
+  s += '<div class="panel"><h3>Send the request to the qualified crew</h3>';
+  if(!S.crew){
+    s += '<button type="button" class="primary" id="crew" data-a="crew">Send recommendation to Ines</button>';
+    if(ui.msg.crew) s += fb('bad', ui.msg.crew);
+  } else {
+    s += fb('ok','<p><span class="k">Crew report (simulated).</span> Ines’s crew re-levelled and re-set the motor base, fitted bearing B04 with a fresh index notch, and checked the coupling: horizontal offset now +0.2 su, inside the scenario tolerance. Ines signed off the work; she will inspect and decide on reopening herself.</p>');
+    if(!g.g6) s += fb('bad','<p>The evidence behind this request is no longer complete ('+missingForCrew(g).join('; ')+'). The season result can’t count until that’s fixed.</p>');
+  }
+  s += '</div>';
+  // season
+  s += '<div class="panel"><h3>Fast-forward the summer season (simulation)</h3>';
+  if(!S.season){
+    s += '<button type="button" class="primary" id="season" data-a="season" '+(S.crew?'':'disabled')+'>Run the season</button>';
+    if(!S.crew) s += '<p class="note">Available after the qualified crew’s work and sign-off.</p>';
+    if(ui.msg.season) s += fb('bad', ui.msg.season);
+  }
+  if(S.season || S.cf.fourth || S.cf.grease){
+    s += '<div class="svgbox">'+seasonSVG()+'</div>';
+    s += '<div class="tbl-wrap"><table><caption>Seaward distress index by week (model, 10 = modelled failure)</caption><thead><tr><th scope="col">Week</th>'+(S.season?'<th scope="col">Realigned (B04)</th>':'')+((S.cf.fourth||S.cf.grease)?'<th scope="col">Offset left in place</th>':'')+'</tr></thead><tbody>';
+    for(let w=1; w<=17; w++) s += '<tr><th scope="row">'+w+'</th>'+(S.season?'<td>'+rIndex(w).toFixed(1)+'</td>':'')+((S.cf.fourth||S.cf.grease)?'<td>'+cfIndex(w).toFixed(1)+(cfIndex(w)>=10?' — failure, shutdown':'')+'</td>':'')+'</tr>';
+    s += '</tbody></table></div>';
+  }
+  if(S.season){
+    s += '<div class="grid2"><div class="svgbox">'+dialSVG('old-dial','seaward','B01–B03 (before)')+'</div><div class="svgbox">'+bearingSVG('svg-B04',0,{},'even')+'</div></div>';
+    s += '<p><strong>End of season (model):</strong> 17 weeks, closing day reached, 0 forced shutdowns. B04 shows only the light, even deck-side polish; no seaward patch.</p>';
+    s += '<fieldset><legend>What does the season result show?</legend>'+
+      radio('sint','a','In this model, removing the offset stopped the repeat seaward distress — the earlier bearings were victims.', S.seasonInt==='a')+
+      radio('sint','b','It proves misalignment always causes seaward wear on every machine.', S.seasonInt==='b')+
+      radio('sint','c','B04 simply came from a better batch.', S.seasonInt==='c')+'</fieldset>';
+    if(S.seasonInt) s += S.seasonInt==='a' ? fb('ok','<p>Right, and scoped to this model.</p>') : fb('bad','<p>'+(S.seasonInt==='b'?'One case can’t prove a rule for all machines.':'The batch didn’t change between the dashed and solid lines; the alignment did.')+'</p>');
+  }
+  s += '</div>';
+  // report
+  s += '<div class="panel"><h3>File the case report</h3>';
+  s += '<fieldset><legend>Conclusion</legend>'+
+    radio('rconcl','a','The bearings were victims. In this case the storm-shifted motor base pulled the shaft seaward, loading the seaward side of the stationary outer ring. Qualified realignment ended the repeat in the simulated season.', S.report.concl==='a')+
+    radio('rconcl','b','Seaward wear always means a motor base has moved.', S.report.concl==='b')+
+    radio('rconcl','c','The batch was bad; B04 came from a better one.', S.report.concl==='c')+'</fieldset>';
+  s += '<fieldset><legend>Ride status</legend>'+
+    radio('rride','crew','Reopens only after the qualified crew’s own inspection and clearance (in the story)', S.report.ride==='crew')+
+    radio('rride','now','Reopens now that the case is solved', S.report.ride==='now')+'</fieldset>';
+  s += '<label class="opt" for="rack"><input type="checkbox" id="rack" data-a="ack" '+(S.report.ack?'checked':'')+'><span>I understand this simulation is not an inspection and qualifies no one to work on rides or machinery.</span></label>';
+  s += '<button type="button" class="primary" id="submit" data-a="submit">Submit report</button>';
+  if(ui.msg.submit) s += fb('bad', ui.msg.submit);
+  if(S.report.submitted !== null && !g.g8) s += fb('bad','<p><span class="k">Report suspended.</span> Something it relied on is no longer supported. Check the progress list in the case file.</p>');
+  s += '</div>';
+  if(g.all) s += ending();
+  s += hintBox(5) + '</section>';
+  return s;
+}
+function ending(){
+  const lines = [];
+  lines.push('All three bench specimens recorded: heavy distress on the seaward side of the stationary outer ring.');
+  const docs = ['slips','grease','counts'].filter(k => S.docInt[k]==='a').map(k => DOCS[k].title.toLowerCase());
+  lines.push('Rival suspects weakened using the '+docs.join(', ').replace(/, ([^,]*)$/,' and $1')+'.');
+  if(S.docInt.storm==='a') lines.push('The pier record pointed you at the machinery house floor.');
+  lines.push('Four map comparisons run with predictions locked first; only the storm-shifted base matched.');
+  lines.push('The crew’s survey measured the base 3 su seaward of its mark.');
+  if(S.nbAns==='ok') lines.push('In the Engineer’s Notebook you read the +2.6 su coupling offset against the scenario tolerance.');
+  const cfs = ['fourth','grease'].filter(k => S.cf[k]);
+  if(cfs.length) lines.push('You previewed '+cfs.map(k => k==='fourth'?'the fourth-bearing-only season':'the grease-only season').join(' and ')+' and saw the modelled failure in week 4.');
+  if(S.initialFirst && S.initialFirst !== 'hold') lines.push('Your first advice was to '+(S.initialFirst==='replace'?'replace the bearing again':'add grease')+'; the evidence changed it.');
+  if(S.recFirst && S.recFirst !== 'realign') lines.push('You first recommended '+(S.recFirst==='fourth'?'a fourth bearing only':'grease only')+', then revised to qualified realignment.');
+  return '<div class="ending" id="ending" tabindex="-1"><h3>Closing day on Pennywhistle Pier</h3>'+
+    '<p>In the story, Ines walked the drive herself, cleared it, and the carousel turned all summer. On closing day she held up B04: just the faint, even polish of a bearing doing its job.</p>'+
+    '<h4>What you established</h4><ul>'+lines.map(l => '<li>'+l+'</li>').join('')+'</ul>'+
+    '<h4>What to carry forward</h4><ul><li>A failed part is often the victim of a deeper fault.</li><li>Several independent clues pointing the same way beat any single clue.</li><li>Wear direction was informative here only because of this case’s assumptions: a stationary, indexed outer ring and a known drive layout.</li><li>Find the root cause before replacing parts again.</li></ul>'+
+    '<p class="note">This ending is fiction. It is not an inspection or a qualification.</p></div>';
+}
+
+let firstRender = true;
+function render(focusId){
+  const active = focusId || (document.activeElement && document.activeElement.id) || null;
+  const g = computeGates();
+  renderBanners(); renderNav(g); renderGates(g);
+  const fn = {1:act1,2:act2,3:act3,4:act4,5:act5}[S.act];
+  document.getElementById('act').innerHTML = fn(g);
+  if(active){ const el = document.getElementById(active); if(el) el.focus({preventScroll:true}); }
+  firstRender = false;
+  save();
+}
+function announce(t){ const l = document.getElementById('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+
+/* ====================================================================================
+   EVENTS
+   ==================================================================================== */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-a]'); if(!t) return;
+  const a = t.dataset.a; const g = computeGates();
+  if(t.tagName === 'INPUT') return; // checkboxes handled on change
+  if(a === 'act'){ S.act = +t.dataset.act; ui.msg = {}; render('act-h'); window.scrollTo(0,0); const h = document.getElementById('act-h'); if(h) h.focus(); announce('Now in Act '+ACTS[S.act]); return; }
+  if(a === 'hint'){ const n = +t.dataset.act; if(S.hints[n] < 3){ S.hints[n]++; } render(S.hints[n] < 3 ? 'hint-'+n : 'act-h'); announce('Hint '+S.hints[n]+' shown.'); return; }
+  if(a === 'rot'){ const b = t.dataset.b; const d = +t.dataset.d; S.view[b] = d === 0 ? 0 : ((S.view[b] + d) % 360 + 360) % 360; render(); announce(b+' view: notch '+clockText(S.view[b])+'. The orientation key is unchanged.'); return; }
+  if(a === 'examine'){ const b = t.dataset.b, f = t.dataset.f; if(!S.examined[b][f]){ S.examined[b][f] = true; log(b+': examined '+features(b).find(x=>x.id===f).label.toLowerCase()+'.'); } render(); announce(features(b).find(x=>x.id===f).text); return; }
+  if(a === 'record-obs'){
+    const b = t.dataset.b;
+    const q = draft[b].quad !== undefined ? draft[b].quad : (S.obs[b] && S.obs[b].quad);
+    const l = draft[b].limit !== undefined ? draft[b].limit : (S.obs[b] && S.obs[b].limit);
+    if(!q || !l){ ui.msg['obs-'+b] = '<p>Choose both a location and what the mark can tell us.</p>'; render(); announce('Choose both answers for '+b+'.'); return; }
+    if(!examinedFor(S, b, q)){ ui.msg['obs-'+b] = '<p>Examine '+(Q2POS[q]?'that band':'all four track bands')+' on '+b+' before recording it.</p>'; render(); announce('Examine the band first.'); return; }
+    ui.msg['obs-'+b] = null; const prev = S.obs[b];
+    S.obs[b] = {quad:q, limit:l}; draft[b] = {};
+    log(b+': '+(prev?'revised':'recorded')+' observation — '+QLABEL[q]+'; limitation '+l+' ('+(obsCorrect(b)?'supported':'not supported')+').');
+    render(); announce(b+' observation recorded: '+(obsCorrect(b)?'supported.':'not supported yet; see feedback.')); return;
+  }
+  if(a === 'doc'){ const k = t.dataset.k; ui.docShown = ui.docShown || {}; if(!S.docsOpened[k]){ S.docsOpened[k] = true; log('Opened the '+DOCS[k].title.toLowerCase()+'.'); } ui.docShown[k] = !ui.docShown[k]; render(); announce(ui.docShown[k] ? DOCS[k].title+' open.' : DOCS[k].title+' hidden.'); return; }
+  if(a === 'place'){ const c = t.dataset.c; S.placed[c] = true; log('Placed card “'+CINFO[c].name+'” on the '+CINFO[c].loc.toLowerCase()+'.'); render('pred-'+c+'--seaward'); announce(CINFO[c].name+' placed. Now record a prediction.'); return; }
+  if(a === 'run'){
+    const c = t.dataset.c;
+    if(!S.placed[c]){ ui.msg['run-'+c] = '<p>Place the card first.</p>'; render(); return; }
+    if(!S.pred[c]){ ui.msg['run-'+c] = '<p>Record a prediction before running the comparison.</p>'; render(); announce('Blocked: record a prediction first.'); return; }
+    if(!g.g2){ ui.msg['run-'+c] = '<p>There’s nothing to compare against yet. Complete the bench comparison in Act II first.</p>'; render(); announce('Blocked: complete the bench comparison first.'); return; }
+    ui.msg['run-'+c] = null; S.seq++; S.runs[c] = {pred:S.pred[c], seq:S.seq};
+    log('Ran map comparison for “'+CINFO[c].name+'”. Locked prediction: '+QLABEL[S.pred[c]]+'. Model: '+QLABEL[CINFO[c].model]+'.');
+    render('mapint-'+c+'--yes'); announce('Comparison run. Model predicts '+QLABEL[CINFO[c].model]+'.'); return;
+  }
+  if(a === 'survey'){
+    if(!S.runs.base){ ui.msg.survey = '<p>Run the storm-shifted-base comparison first.</p>'; render(); return; }
+    ui.msg.survey = null; S.seq++; S.survey = {seq:S.seq}; log('Requested a base survey; the qualified crew measured the base 3 su seaward of its mark.');
+    render('sdir--seaward'); announce('Survey results are in.'); return;
+  }
+  if(a === 'cf'){ const k = t.dataset.k; S.seq++; S.cf[k] = {seq:S.seq}; log('Previewed the '+(k==='fourth'?'fourth-bearing-only':'grease-only')+' season: modelled failure in week 4; ride stays closed.'); render(); announce('Preview: modelled failure in week 4. The ride stays closed.'); return; }
+  if(a === 'crew'){
+    if(S.rec !== 'realign'){ ui.msg.crew = '<p>Ines: “That leaves whatever is eating bearings in place. I won’t restart on that. Preview it if you like, but bring me something that fixes the cause.”</p>'; log('Asked the crew to act on “'+(S.rec?{fourth:'fourth bearing only',grease:'grease only'}[S.rec]:'no recommendation')+'”; Ines declined.'); render(); announce('Ines declined.'); return; }
+    if(!g.g6){ ui.msg.crew = '<p>Ines: “I can’t sign off a realignment on a hunch. I need: '+missingForCrew(g).join('; ')+'.”</p>'; log('Asked for realignment without complete evidence; Ines asked for more.'); render(); announce('Ines needs more evidence.'); return; }
+    ui.msg.crew = null; S.seq++; S.crew = {seq:S.seq}; log('Ines’s crew realigned the motor base, fitted B04 and checked the coupling (+0.2 su). Work signed off by Ines.'); render('season'); announce('Crew work signed off.'); return;
+  }
+  if(a === 'season'){
+    if(!S.crew){ ui.msg.season = '<p>The season can only run after the crew’s work.</p>'; render(); return; }
+    if(!g.g6){ ui.msg.season = '<p>The evidence behind the crew request is incomplete: '+missingForCrew(g).join('; ')+'.</p>'; render(); return; }
+    ui.msg.season = null; S.seq++; S.season = {seq:S.seq}; log('Ran the simulated season: 17 weeks, 0 forced shutdowns, B04 shows only even deck-side polish.'); render('sint--a'); announce('Season simulated. Read the result.'); return;
+  }
+  if(a === 'submit'){
+    const miss = [];
+    if(!g.g7) miss.push('the crew’s work and the season run, backed by complete evidence');
+    if(S.seasonInt !== 'a') miss.push('a correct reading of the season result');
+    if(S.report.concl !== 'a') miss.push('a conclusion that claims no more than the case shows');
+    if(S.report.ride !== 'crew') miss.push('a ride status that leaves reopening to the qualified crew');
+    if(!S.report.ack) miss.push('the safety acknowledgement');
+    if(miss.length){ ui.msg.submit = '<p>Not ready to file. Still needed: '+miss.join('; ')+'.</p>'; log('Tried to submit the report; missing: '+miss.join('; ')+'.'); render(); announce('Report not ready.'); return; }
+    ui.msg.submit = null; S.seq++; S.report.submitted = S.seq; log('Case report filed.'); render('ending'); announce('Case report filed. The ending is shown.'); return;
+  }
+  if(a === 'reset'){ ui.resetConfirm = true; render('reset-no'); return; }
+  if(a === 'reset-no'){ ui.resetConfirm = false; render('reset'); return; }
+  if(a === 'reset-yes'){
+    try { window.localStorage.removeItem(KEY); } catch(e){}
+    S = fresh(); ui.resetConfirm = false; ui.msg = {}; ui.docShown = {}; BEARINGS.forEach(b => draft[b] = {}); loadWarnings = [];
+    render('act-h'); announce('This case was reset.'); return;
+  }
+  if(a === 'dismiss-warn'){ loadWarnings = []; render('act-h'); return; }
+});
+document.addEventListener('change', e => {
+  const t = e.target; const n = t.name; const v = t.value;
+  if(t.type === 'radio'){
+    if(n === 'initial'){ if(!S.initialFirst) S.initialFirst = v; const prev = S.initial; S.initial = v; log((prev?'Revised':'Recorded')+' first advice: '+({replace:'replace again',grease:'add grease',hold:'hold and investigate'}[v])+'.'); render(t.id); announce('Advice recorded.'); return; }
+    let m;
+    if((m = n.match(/^obsq-(B0[123])$/))){ draft[m[1]].quad = v; return; }
+    if((m = n.match(/^obsl-(B0[123])$/))){ draft[m[1]].limit = v; return; }
+    if(n === 'cmp'){ S.cmp = v; log('Comparison board: '+v+'.'); render(t.id); return; }
+    if((m = n.match(/^doc-(\w+)$/))){ if(!S.docsOpened[m[1]]) return; S.docInt[m[1]] = v; log('Interpreted the '+DOCS[m[1]].title.toLowerCase()+' ('+(v==='a'?'well weighed':'needs rethinking')+').'); render(t.id); return; }
+    if((m = n.match(/^pred-(\w+)$/))){ const c = m[1]; if(S.runs[c] || !S.placed[c]) { render(); return; } const prev = S.pred[c]; S.pred[c] = v; log((prev?'Changed':'Recorded')+' prediction for “'+CINFO[c].name+'”: '+QLABEL[v]+' (before running).'); render(t.id); return; }
+    if((m = n.match(/^mapint-(\w+)$/))){ const c = m[1]; if(!S.runs[c]) return; S.mapInt[c] = v; log('Map reading for “'+CINFO[c].name+'”: '+MAPINT[v]+'.'); render(t.id); return; }
+    if(n === 'sdir'){ S.surveyInt.dir = v; log('Survey reading: base moved '+v+'.'); render(t.id); return; }
+    if(n === 'sadds'){ S.surveyInt.adds = v; log('Survey adds: '+v+'.'); render(t.id); return; }
+    if(n === 'nb'){ S.nbAns = v; log('Notebook reading: '+v+'.'); render(t.id); return; }
+    if(n === 'diag'){ S.diag = v; log('Diagnosis set to “'+CINFO[v].name+'”.'); render(t.id); return; }
+    if(n === 'rec'){ if(S.crew) { render(); return; } if(!S.recFirst) S.recFirst = v; const prev = S.rec; S.rec = v; log((prev?'Revised':'Chose')+' recommendation: '+({fourth:'fourth bearing only',grease:'grease only',realign:'qualified-crew realignment'}[v])+'.'); ui.msg.crew = null; render(t.id); return; }
+    if(n === 'sint'){ S.seasonInt = v; log('Season reading: '+v+'.'); render(t.id); return; }
+    if(n === 'rconcl'){ S.report.concl = v; render(t.id); return; }
+    if(n === 'rride'){ S.report.ride = v; render(t.id); return; }
+  }
+  if(t.type === 'checkbox'){
+    if(t.dataset.a === 'just'){ if(S.crew){ render(); return; } const k = t.dataset.k; if(t.checked) S.just[k] = true; else delete S.just[k]; log((t.checked?'Ticked':'Unticked')+' justification: '+JUST[k]+'.'); render(t.id); return; }
+    if(t.dataset.a === 'ack'){ S.report.ack = t.checked; render(t.id); return; }
+  }
+});
+
+// Keep disclosure state across re-renders; opening the notebook is recorded as evidence of use.
+document.addEventListener('toggle', e => {
+  const d = e.target; if(!d || d.tagName !== 'DETAILS' || !d.id) return;
+  if(d.id === 'nb' || d.id.indexOf('hints-') === 0){
+    ui.open[d.id] = d.open;
+    if(d.id === 'nb' && d.open && !S.nbOpened){ S.nbOpened = true; log('Opened the Engineer’s Notebook.'); save(); }
+  }
+}, true);
+
+load();
+renderModel();
+render();
+</script>
+</body>
+</html>
