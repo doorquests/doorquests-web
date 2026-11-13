@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index, follow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<title>The Door That Knew First · Buildortals #001 · DoorQuests</title>
+<meta name="description" content="Buildortals #001 — The Door That Knew First, a playable beginner building-diagnostics investigation from DoorQuests.">
+<!--
+  DoorQuests · Techortals · Buildortals #001 — The Door That Knew First ★ FLAGSHIP
+  Prototype · Not published. Created by The Axiom Continuum.
+
+  ============================ SCENARIO MODEL NOTES ============================
+  Everything here is FICTIONAL and SIMPLIFIED for a bounded teaching game. Nothing
+  here is a real standard, threshold, method or structural guidance.
+
+  Coordinate system (identical in every view):
+    The player stands in the hallway facing NORTH into the back bedroom.
+    EAST is on the player's RIGHT, WEST on the LEFT. North-east (NE) = far right.
+    Door is in the bedroom's south wall. Hinges on the EAST jamb, latch on the WEST jamb.
+    Cutaway section looks north (east = right). Site plan: north up, east right.
+
+  Chosen mechanism (ONE, kept coherent):
+    The NE corner footing sits over a pocket of loosely placed fill ("made ground",
+    from a 1978 extension). Since a July storm broke the NE downspout's elbow,
+    roof water has discharged at the foot of the NE corner. In wet months the loose
+    fill becomes saturated, softens and compacts under the footing's weight, so the
+    NE corner moves DOWN (settlement). This compaction is largely NOT reversible:
+    drying stops further movement but does not lift the corner back. Each episode
+    densifies the fill, so later wet months cause somewhat less movement (hardening).
+    This is NOT expansive clay; there is no wet-season uplift anywhere in the model.
+
+  Cause-and-effect chain (text diagram):
+    rain -> rear gutter -> NE downspout -> broken elbow (no extension)
+         -> water concentrated at NE corner -> NE soil index rises (vs NW control)
+         -> loose fill under NE footing compacts -> NE corner moves DOWN
+         -> floor falls toward NE; east side of door opening drops more than west
+         -> frame out of square (casing head joint opens at top-east)
+         -> door (hung on east jamb) drops with it, tipping slightly
+         -> top-east gap WIDE, bottom-west gap PINCHED (diagonally opposite) -> door sticks.
+
+  Door kinematics (simplified lookup, D = model drop at the door's hinge/east side, mm,
+  measured relative to the hall datum; the frame head is held by ceiling framing that
+  bears on the stable central wall, so the head does not follow):
+    floor drop at east (hinge) side = D ; at west (latch) side = D/2
+    door drops with its east jamb by D and tips so its west side sits D/6 higher
+    TE (top-east)    = 3.0 + D        - swell
+    TW (top-west)    = 3.0 + 5D/6     - swell
+    BE (bottom-east) = 3.0            - swell
+    BW (bottom-west) = 3.0 - D/3      - swell   (3.0 mm = fictional as-hung gap)
+  Frame diagonals (opening 840 x 2040 mm, design diagonal 2206.2 mm):
+    top-west -> bottom-east = 2206.2 + D   * 2040/2206.2
+    top-east -> bottom-west = 2206.2 + D/2 * 2040/2206.2
+  Crack gauge (NE, opening in mm) = 0.35 * (D - D0), D0 = 2.6 mm (movement before purchase).
+  Floor level points = -D * weight (weights listed in DATA.floorPoints).
+
+  Moisture & movement (monthly, deterministic):
+    M[t]  = round1( 0.5*M[t-1] + 0.5*(18 + 0.25*rain + 0.34*roof*rain) )   (index units, 0-100)
+    roof  = 1 when NE roof water discharges at the corner, 0 when routed away (0.5 for July 2026)
+    ds[t] = round2( 0.16*max(0, (M[t-1]+M[t])/2 - 46) / (1 + (D[t-1]-D0)/2) + 0.2*ds[t-1] )
+    D[t]  = round2( D[t-1] + ds[t] )
+  Consistency table:
+    | Quantity                | Direction in model                        |
+    | NE corner               | moves down only                           |
+    | Floor                   | falls toward NE (more negative at NE)      |
+    | Door gaps               | TE grows, BW shrinks as D grows            |
+    | Diagonals               | TW->BE grows faster than TE->BW            |
+    | NE crack                | opens as D grows; never closes            |
+    | NW control soil          | no roof-water term, ever                   |
+    | Drainage fix            | moisture falls first; movement tails off   |
+    | Planing / hinge work    | change door clearances only               |
+  ---------------------------------------------------------------------------
+  TARGETED CORRECTION 2026-11-13 (audit findings F-001, F-002); model unchanged:
+    F-001  Final plans containing D together with A and/or B (AD, BD, ABD, ACD,
+           BCD, ABCD) are contradictory: D holds door work, A/B do it at once.
+           planConflict() is enforced in computeGates() (finRun/finInterpOk/
+           complete), in the frun handler and in normalize() (saved conflicting
+           runs fail closed). A/B remain previewable alone. simulate() untouched.
+    F-002  Reading the final run requires all 12 distinct months to have been
+           displayed (state.fin.visits, sorted unique indices). Run start credits
+           November only; each slider/button change credits only the month shown.
+           Legacy saves (no schema:2) get no visit credit; maxMonth is ignored.
+  ============================================================================
+-->
+<style>
+:root{
+  --bg:#081226; --bg2:#0d1b38; --panel:#112349; --panel2:#16295a; --line:#2c4580;
+  --gold:#e3c06a; --gold2:#f4dc9a; --ink:#eef2fb; --muted:#b8c3dc; --ok:#8fe0a8; --warn:#ffcf7a; --bad:#ff9e9e;
+  --focus:#ffe08a; --radius:12px;
+  --serif: "Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
+  --sans: system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(ellipse at 50% -10%,#1b2f63 0%,var(--bg) 55%) fixed,var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.55;overflow-x:hidden}
+a{color:var(--gold2)}
+h1,h2,h3,h4{font-family:var(--serif);line-height:1.2;color:var(--gold2);font-weight:600}
+h1{font-size:clamp(1.5rem,5vw,2.3rem);margin:.2em 0}
+h2{font-size:clamp(1.25rem,3.6vw,1.7rem);margin:.2em 0 .5em}
+h3{font-size:1.15rem;margin:1em 0 .4em}
+p{margin:.5em 0}
+.skip{position:absolute;left:-9999px;top:0;background:var(--gold);color:#000;padding:.6em 1em;z-index:99}
+.skip:focus{left:8px;top:8px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button,select,input,textarea{font:inherit}
+button{cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.site{border-bottom:1px solid var(--line);padding:14px 0 10px;background:linear-gradient(180deg,rgba(8,18,38,.4),rgba(8,18,38,0))}
+.brandrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.brand{font-family:var(--serif);font-size:1.15rem;letter-spacing:.06em;color:var(--gold)}
+.brand small{display:block;font-family:var(--sans);font-size:.78rem;letter-spacing:.02em;color:var(--muted)}
+.proto{display:inline-block;border:1px solid var(--warn);color:var(--warn);border-radius:999px;padding:.15em .7em;font-size:.82rem;font-weight:600}
+.back{color:var(--muted);font-size:.9rem}
+.titleblock{margin-top:8px}
+.meta{color:var(--muted);font-size:.92rem}
+.tagline{font-family:var(--serif);font-style:italic;color:var(--gold)}
+.statusbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:12px 0}
+.progress{flex:1 1 260px;min-width:0}
+.bar{height:10px;border-radius:99px;background:#0a1630;border:1px solid var(--line);overflow:hidden}
+.bar>span{display:block;height:100%;background:linear-gradient(90deg,#b88b2a,var(--gold2))}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.chip input{width:20px;height:20px;accent-color:var(--gold)}
+.warnbox{border:1px solid var(--warn);background:rgba(255,207,122,.08);color:var(--warn);border-radius:var(--radius);padding:8px 12px;margin:8px 0;font-size:.95rem}
+.badbox{border:1px solid var(--bad);background:rgba(255,158,158,.08);color:#ffd2d2;border-radius:var(--radius);padding:10px 12px;margin:10px 0}
+.okbox{border:1px solid var(--ok);background:rgba(143,224,168,.08);color:#d6f7e0;border-radius:var(--radius);padding:10px 12px;margin:10px 0}
+.layout{display:grid;grid-template-columns:1fr;gap:16px;margin:8px 0 32px}
+@media(min-width:900px){.layout{grid-template-columns:270px minmax(0,1fr)}}
+nav.case{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:10px}
+nav.case h2{font-size:1rem;margin:4px 6px 8px}
+.navlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media(min-width:900px){.navlist{grid-template-columns:1fr}}
+.navbtn{width:100%;min-height:48px;text-align:left;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);display:flex;flex-direction:column;gap:2px}
+.navbtn .n{font-size:.75rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.navbtn .s{font-size:.78rem;color:var(--muted)}
+.navbtn[aria-current="page"]{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;background:var(--panel2)}
+.navbtn:disabled{opacity:.55;cursor:not-allowed}
+.navbtn.done .s{color:var(--ok)}
+.navbtn.review .s{color:var(--bad)}
+.stratum-1{border-left:6px solid #c9a14a}.stratum-2{border-left:6px solid #a08360}.stratum-3{border-left:6px solid #7d6a55}.stratum-4{border-left:6px solid #6b6f78}.stratum-5{border-left:6px solid #5b4a33}
+main{min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:0 0 16px}
+.panel.soft{background:rgba(17,35,73,.6)}
+.story{font-family:var(--serif);font-size:1.08rem}
+.grid2{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:760px){.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.btn{min-height:44px;min-width:44px;padding:8px 16px;border-radius:10px;border:1px solid var(--gold);background:linear-gradient(180deg,#e9c977,#c99a3a);color:#1a1300;font-weight:700}
+.btn.secondary{background:var(--panel2);color:var(--ink);border-color:var(--line);font-weight:600}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+fieldset{border:1px solid var(--line);border-radius:10px;margin:12px 0;padding:10px 12px;min-width:0;max-width:100%}
+legend{font-weight:700;color:var(--gold2);padding:0 6px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:8px;min-height:44px}
+.opt:hover{background:rgba(255,255,255,.04)}
+.opt input{margin-top:4px;width:20px;height:20px;flex:0 0 auto;accent-color:var(--gold)}
+.opt.locked{opacity:.75}
+select{min-height:44px;max-width:100%;background:#0b1834;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+label.sel{display:block;margin:8px 0}
+label.sel span{display:block;font-weight:600;margin-bottom:4px}
+.tablewrap{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:10px;margin:10px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem;min-width:420px}
+caption{text-align:left;padding:8px 10px;color:var(--gold2);font-weight:700}
+th,td{border-top:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{color:var(--gold2);background:#0e1e42}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.cur td{background:rgba(227,192,106,.12)}
+.station{border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:14px 0;background:var(--bg2)}
+.station h3{margin-top:0}
+.stepper{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px;padding:0;list-style:none;font-size:.8rem}
+.stepper li{padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.stepper li.on{border-color:var(--gold);color:var(--gold2)}
+.stepper li.ok{border-color:var(--ok);color:var(--ok)}
+.result{border-left:4px solid var(--gold);background:rgba(227,192,106,.06);padding:8px 12px;border-radius:6px;margin:10px 0}
+.fb{margin:8px 0;padding:8px 12px;border-radius:8px}
+.fb.good{background:rgba(143,224,168,.1);border:1px solid var(--ok)}
+.fb.no{background:rgba(255,158,158,.08);border:1px solid var(--bad)}
+.tag{display:inline-block;font-size:.75rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);margin-right:4px}
+.tag.obs{border-color:#7fb3ff;color:#bcd6ff}.tag.cor{border-color:#c6a0ff;color:#ddc8ff}.tag.hyp{border-color:var(--gold);color:var(--gold2)}.tag.pro{border-color:var(--ok);color:var(--ok)}
+.figure{background:#091530;border:1px solid var(--line);border-radius:10px;padding:8px;margin:10px 0}
+.figure svg{display:block;width:100%;height:auto;max-height:480px}
+.figcap{font-size:.85rem;color:var(--muted);margin-top:4px}
+.corners{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.corners .btn{width:100%}
+.btn[aria-pressed="true"]{outline:2px solid var(--gold2);background:var(--panel2);color:var(--gold2)}
+.theories{display:grid;gap:8px}
+.theory{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--bg2)}
+.theory b{color:var(--gold2)}
+.status-open{color:var(--muted)}.status-weak{color:var(--warn)}.status-sup{color:var(--ok)}
+.hint{background:#0b1834;border:1px dashed var(--line);border-radius:8px;padding:8px 10px;margin:6px 0}
+details{margin:8px 0}
+summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--gold2);font-weight:600}
+.range{width:100%;min-height:44px;accent-color:var(--gold)}
+.monthcard{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:8px 0}
+.mc{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px}
+.mc .k{font-size:.78rem;color:var(--muted)}.mc .v{font-size:1.15rem;font-weight:700}
+.plancards{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:760px){.plancards{grid-template-columns:1fr 1fr}}
+.plancard{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg2)}
+.plancard h4{margin:.1em 0 .3em}
+.small{font-size:.88rem;color:var(--muted)}
+textarea{width:100%;min-height:110px;background:#0b1834;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+footer.site{border-top:1px solid var(--line);padding:16px 0 28px;color:var(--muted);font-size:.9rem;text-align:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.report h3{border-bottom:1px solid var(--line);padding-bottom:4px}
+.glow{filter:drop-shadow(0 0 6px rgba(244,220,154,.55))}
+@media (prefers-reduced-motion:no-preference){.fade{animation:fade .35s ease-out}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}}
+body.reduce .fade{animation:none}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the case</a>
+<header class="site">
+  <div class="wrap">
+    <div class="brandrow">
+      <div class="brand">DoorQuests<small>Techortals · Buildortals · Diagnose. Repair. Build. Master.</small></div>
+      <div><span class="proto">Experience No. 001 · Playable</span> <a class="back" href="/techortals/">← Techortals</a></div>
+    </div>
+    <div class="titleblock">
+      <h1>001 — The Door That Knew First <span aria-label="Flagship">★ FLAGSHIP</span></h1>
+      <div class="meta">Buildortals #001 · Building diagnostics; connected building systems; settlement and site drainage · Difficulty: <strong>Beginner</strong></div>
+      <div class="tagline">Choose Your Path. Find the Truth. Unlock the Impossible.</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="statusbar" id="statusbar"></div>
+  <div id="storagewarn"></div>
+  <div class="layout">
+    <nav class="case" aria-label="Case levels and desk" id="nav"></nav>
+    <main id="main" tabindex="-1"></main>
+  </div>
+</div>
+<div id="live" class="sr" aria-live="polite" aria-atomic="true"></div>
+<div id="alert" class="sr" role="alert" aria-atomic="true"></div>
+
+<footer class="site">
+  <div class="wrap">
+    <p><strong>DoorQuests</strong> — Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+    <p>Created by The Axiom Continuum · Techortals · Buildortals #001 · Playable experience</p>
+    <p class="small">A fictional browser game about reasoning from evidence. It is not structural, foundation, drainage, building-code or DIY guidance, and finishing it is not a professional qualification. All names, places, readings, prices and thresholds are invented for this scenario.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ===================== CANONICAL SCENARIO DATA (fictional) ===================== */
+var KEY = "doorquests:techortals:buildortals:001:v1";
+var VERSION = 1;
+var R1 = function(v){ return Math.round(v*10)/10; };
+var R2 = function(v){ return Math.round(v*100)/100; };
+var f1 = function(v){ return (Math.round(v*10)/10).toFixed(1); };
+
+var MODEL = {
+  asHungGap: 3.0,          // mm, fictional gap the door was hung with
+  D0: 2.6,                 // mm, movement already present at purchase (model start)
+  kSettle: 0.16,           // mm per index-point-month above critical (fictional)
+  mCrit: 46,               // index, fictional threshold for fill softening
+  harden: 2,               // mm, consolidation hardening scale
+  lagCarry: 0.2,           // fraction of last month's movement carried over (lag)
+  crackPerMm: 0.35,        // mm crack opening per mm of model drop
+  plane: 3.0,              // mm added at bottom-west by planing
+  hingeLift: 1.5,          // mm latch-side lift from hinge reset
+  ease: 2.6,               // mm added when the door is eased after stabilization
+  stickBelow: 1.0,         // mm effective bottom-west clearance below which the door sticks
+  tightBelow: 1.5,         // mm below which it brushes
+  openW: 840, openH: 2040, // mm opening size
+  M0NE: 44, M0NW: 43       // index at end of Feb 2026
+};
+MODEL.diag0 = Math.sqrt(MODEL.openW*MODEL.openW + MODEL.openH*MODEL.openH); // 2206.2
+MODEL.hOverD = MODEL.openH / MODEL.diag0;
+
+var HIST = {
+  months: ["Mar 2026","Apr 2026","May 2026","Jun 2026","Jul 2026","Aug 2026","Sep 2026","Oct 2026"],
+  dates:  ["2026-03-31","2026-04-30","2026-05-31","2026-06-30","2026-07-31","2026-08-31","2026-09-30","2026-10-31"],
+  rain:   [70,62,50,32,28,46,118,132],      // mm, owner's rain diary monthly totals (fictional)
+  normal: [65,60,55,45,40,48,62,72],        // mm, fictional long-term monthly averages
+  roof:   [0,0,0,0,0.5,1,1,1],              // NE roof water at corner (storm 18 Jul broke elbow)
+  swell:  [0.5,0.4,0.2,0.1,0.0,0.1,0.2,0.2],// mm, seasonal wood swelling
+  swCrack:[0.0,0.0,0.1,0.0,0.0,0.1,0.0,0.1] // mm, SW historic crack change (±0.1 reading resolution)
+};
+var PROJ = {
+  months: ["Nov 2026","Dec 2026","Jan 2027","Feb 2027","Mar 2027","Apr 2027","May 2027","Jun 2027","Jul 2027","Aug 2027","Sep 2027","Oct 2027"],
+  rain:   [105,96,92,88,84,62,50,34,30,44,70,80], // identical weather for every plan
+  normal: [80,82,78,70,65,60,55,45,40,48,62,72],
+  swell:  [0.3,0.4,0.4,0.4,0.5,0.4,0.2,0.1,0.0,0.1,0.2,0.2]
+};
+var CURRENT_SWELL = 0.2; // measurement day 8 Nov 2026
+
+function mStep(Mp, rain, roof){ return R1(0.5*Mp + 0.5*(18 + 0.25*rain + 0.34*roof*rain)); }
+function dsStep(Mp, M, D, dsPrev){
+  return R2(MODEL.kSettle*Math.max(0,(Mp+M)/2 - MODEL.mCrit)/(1+(D-MODEL.D0)/MODEL.harden) + MODEL.lagCarry*dsPrev);
+}
+function crackOf(D){ return R1(MODEL.crackPerMm*(D - MODEL.D0)); }
+function gapsOf(D, swell, adj){
+  adj = adj || {TW:0,BW:0};
+  var g = MODEL.asHungGap;
+  var c = function(v){ return R1(Math.max(0, v)); }; // a gap cannot be negative: 0.0 = binding
+  return { TE: c(g + D - swell), TW: c(g + 5*D/6 - swell + adj.TW), BE: c(g - swell), BW: c(g - D/3 - swell + adj.BW) };
+}
+function doorStatus(gp){ var m = Math.min(gp.BW, gp.TW); return m < MODEL.stickBelow ? "Sticks" : (m < MODEL.tightBelow ? "Brushes" : "Closes freely"); }
+function diagsOf(D){ return { a: Math.round(MODEL.diag0 + D*MODEL.hOverD), b: Math.round(MODEL.diag0 + (D/2)*MODEL.hOverD) }; }
+
+// History (derived once; every display reads from here)
+var H = (function(){
+  var M = MODEL.M0NE, W = MODEL.M0NW, D = MODEL.D0, ds = 0, out = [];
+  for (var i=0;i<8;i++){
+    var M2 = mStep(M, HIST.rain[i], HIST.roof[i]);
+    W = mStep(W, HIST.rain[i], 0);
+    var n = dsStep(M, M2, D, ds);
+    D = R2(D + n); ds = n; M = M2;
+    out.push({ month: HIST.months[i], date: HIST.dates[i], rain: HIST.rain[i], normal: HIST.normal[i], mNE: M2, mNW: W, D: D, ds: n, crack: crackOf(D), swCrack: HIST.swCrack[i] });
+  }
+  return { rows: out, M: M, W: W, D: D, ds: ds };
+})();
+var NOW = { D: H.D, gaps: gapsOf(H.D, CURRENT_SWELL), diags: diagsOf(H.D), crack: crackOf(H.D) };
+
+var FLOOR_POINTS = [ // weights * D (relative to hall datum, stable SW)
+  { id:"hallA", name:"Hall, by the closet (south-west)", w:0, fixed:0 },
+  { id:"hallB", name:"Hall, by the bedroom door", w:0, fixed:-1 },
+  { id:"latch", name:"Bedroom doorway, west (latch) side", w:0.5 },
+  { id:"hinge", name:"Bedroom doorway, east (hinge) side", w:1.0 },
+  { id:"centre", name:"Bedroom centre", w:1.5 },
+  { id:"nw", name:"Bedroom north-west corner", w:1.3 },
+  { id:"se", name:"Bedroom south-east corner", w:1.7 },
+  { id:"ne", name:"Bedroom north-east corner", w:2.7 }
+];
+function floorReadings(D){ return FLOOR_POINTS.map(function(p){ return { name:p.name, v: (p.fixed!==undefined) ? p.fixed : -Math.round(D*p.w) }; }); }
+
+function simulate(plan){
+  // plan: object {A,B,C,D booleans}. Same initial state + weather for every plan.
+  var M = H.M, W = H.W, D = H.D, ds = H.ds, adj = {TW:0,BW:0};
+  var roofOffFrom = plan.C ? 0 : (plan.D ? 1 : 99);
+  var rows = [], eased = false, stableRun = 0, lastCrack = crackOf(D), events;
+  if (plan.A){ adj.BW += MODEL.plane; }
+  if (plan.B){ adj.TW -= MODEL.hingeLift; adj.BW += MODEL.hingeLift; }
+  for (var i=0;i<12;i++){
+    events = [];
+    if (i===0 && plan.A) events.push("Carpenter planes the bottom edge on the latch (west) side.");
+    if (i===0 && plan.B) events.push("Carpenter resets the hinges to lift the latch side slightly.");
+    if (i===0 && plan.C) events.push("Drainage contractor routes the NE downspout to the existing approved drain line; discharge point verified.");
+    if (i===0 && plan.D) events.push("Household holds all door work. Structural engineer (fictional: Imani Clarke) reviews the records on site.");
+    if (i===1 && plan.D) events.push("Engineer's written finding (fictional): no immediate concern for continued occupancy while monitored; restore drainage; read gauge monthly; re-review in a year." + (plan.C ? "" : " Drainage restored this month on her recommendation."));
+    var roof = i < roofOffFrom ? 1 : 0;
+    var M2 = mStep(M, PROJ.rain[i], roof);
+    W = mStep(W, PROJ.rain[i], 0);
+    var n = dsStep(M, M2, D, ds);
+    D = R2(D + n); ds = n; M = M2;
+    var crack = crackOf(D);
+    if (plan.D && !eased){
+      stableRun = (Math.abs(crack - lastCrack) <= 0.05) ? stableRun + 1 : 0;
+      if (stableRun >= 3){
+        var test = gapsOf(D, PROJ.swell[i], adj);
+        if (test.BW < MODEL.tightBelow){ adj.BW += MODEL.ease; events.push("After three steady gauge readings, the engineer agrees in writing that the door can be eased; the carpenter eases it."); }
+        else events.push("Three steady gauge readings; the door already closes, so no easing is needed.");
+        eased = true;
+      }
+    }
+    lastCrack = crack;
+    var gp = gapsOf(D, PROJ.swell[i], adj);
+    if (i===11 && plan.D) events.push(stableRun>=3 || eased ? "Engineer's one-year re-review (fictional): no further movement recorded during monitoring; continue annual checks. This is a story finding, not a real inspection." : "Engineer's re-review (fictional): movement continuing; further investigation required.");
+    rows.push({ i:i, month: PROJ.months[i], rain: PROJ.rain[i], normal: PROJ.normal[i], mNE: M2, mNW: W, D: D, crack: crack, gaps: gp, status: doorStatus(gp), events: events });
+  }
+  return rows;
+}
+// F-001 (correction 2026-11-13): A/B are immediate cosmetic work; D is a hold-before-work policy.
+// In the FINAL plan they are mutually exclusive. Previews of A/B alone stay available.
+function planConflict(list){ return list.indexOf("D") >= 0 && (list.indexOf("A") >= 0 || list.indexOf("B") >= 0); }
+// F-002: distinct final-run months actually displayed (sorted unique indices 0-11).
+function cleanVisits(v){ if (!Array.isArray(v)) return []; var o = []; v.forEach(function(x){ if (typeof x === "number" && x === Math.floor(x) && x >= 0 && x <= 11 && o.indexOf(x) < 0) o.push(x); }); return o.sort(function(a,b){ return a-b; }); }
+function planFromKey(k){ return { A: k.indexOf("A")>=0, B: k.indexOf("B")>=0, C: k.indexOf("C")>=0, D: k.indexOf("D")>=0 }; }
+function firstSticksMonth(rows){ for (var i=0;i<rows.length;i++) if (rows[i].status==="Sticks") return i; return -1; }
+
+/* ===================== CONTENT ===================== */
+var CORNERS = {
+  TE:{ name:"Top-east corner (hinge side, top)", short:"top-east" },
+  TW:{ name:"Top-west corner (latch side, top)", short:"top-west" },
+  BE:{ name:"Bottom-east corner (hinge side, bottom)", short:"bottom-east" },
+  BW:{ name:"Bottom-west corner (latch side, bottom)", short:"bottom-west" }
+};
+var CORNER_ORDER = ["TW","TE","BW","BE"];
+var THEORIES = {
+  swell:{ name:"Humid-weather swelling", pred:"Gaps tighter all round; door-edge wood wetter than a comparable door; no floor slope or active crack needed." },
+  hinge:{ name:"Tired hinges", pred:"Loose or worn hinges; latch side droops (top-west widest, bottom-west tight); frame itself square." },
+  move:{ name:"Frame no longer square (possible building movement)", pred:"Out-of-square frame, matching floor slope, active cracking, and a source that explains why one area moved." }
+};
+var LEVELS = [
+  { id:"door", n:1, name:"The door", sub:"Leaf, edges, hinges" },
+  { id:"wall", n:2, name:"Wall & opening", sub:"Frame, diagonals, casing" },
+  { id:"floor", n:3, name:"Floor", sub:"Marble and level" },
+  { id:"foundation", n:4, name:"Foundation", sub:"Crack gauge" },
+  { id:"soil", n:5, name:"Soil & outside", sub:"Rain, soil, downspout" }
+];
+var DESK = [
+  { id:"file", name:"Case file", sub:"Theories, journal, notes" },
+  { id:"diagnosis", name:"Diagnosis", sub:"Name the likely chain" },
+  { id:"plans", name:"Household plan board", sub:"Preview four choices" },
+  { id:"final", name:"Twelve months", sub:"Final monitored plan" },
+  { id:"report", name:"Final report", sub:"Close the case" }
+];
+
+var SIZE_OPTS = (function(){ var c = NOW.crack; return [
+  { v:"small", t:"About " + f1(Math.max(0.1, R1(c/5))) + " mm since March" },
+  { v:"right", t:"About " + f1(c) + " mm since March" },
+  { v:"huge", t:"About " + Math.round(c*10) + " mm since March" } ]; })();
+
+var ST = {
+  s1:{ level:"door", group:"door", title:"Station 1 · The four corners", ev:"Door clearance map (four corners)",
+    ask:"Run a feeler card around the closed door and record the clearance at each corner. The door was hung with a " + f1(MODEL.asHungGap) + " mm gap all round (fictional as-hung record).",
+    predQ:"Before you measure, which pattern do you expect to find?",
+    pred:[ ["even","All four gaps tighter by about the same amount (what swelling would tend to do)"],
+           ["sag","Latch side drooping: top-west wide, bottom-west tight, hinge side normal (what hinge sag would tend to do)"],
+           ["diag","The widest and tightest corners on opposite diagonals (what a shifted, racked opening would tend to do)"],
+           ["unsure","Not sure yet. I'll let the gaps speak."] ],
+    interpQ:"What does this pattern tell you so far?",
+    interp:[ ["a","The door has swollen. Plane it and move on.","Swelling tends to tighten gaps all round. Here two corners are wider than the gap the door was hung with."],
+             ["b","The hinges have sagged. That settles it.","Sag would make the top-west (latch) corner the widest. Here the widest is top-east, on the hinge side."],
+             ["c","The widest and tightest corners sit on opposite diagonals. That fits an opening that has shifted, but swelling or the hinges could still play a part. I need more tests.","Good. You've described the pattern without overclaiming."],
+             ["d","The foundation is sinking.","A door gap can't tell you that on its own. Many things change door gaps."] ],
+    correct:"c",
+    hints:["Look for the largest and the smallest of the four numbers.","Is the widest corner on the same side as the tightest, or diagonally across?","A pattern can fit a theory without proving it. Choose the answer that leaves room for more tests."] },
+  s2:{ level:"door", group:"door", title:"Station 2 · Wood and weather", ev:"Door-edge wood moisture vs control door",
+    ask:"Dana Hollis, the surveyor monitoring the house, took pin-meter readings of door-edge wood moisture on three days. She read this door and the hall closet door, the same make and age on the west side of the house, alongside the indoor humidity.",
+    predQ:"If swelling were the main cause, what should the readings show?",
+    pred:[ ["wetter","This door's edge noticeably wetter than the closet door's"],["same","Both doors about the same"],["drier","This door drier than the closet door"],["unsure","Not sure"] ],
+    interpQ:"What do the readings do to the swelling theory?",
+    interp:[ ["a","Swelling is ruled out completely.","Too strong. Wood moves a little with the seasons, so swelling could still add a fraction of a millimetre."],
+             ["b","Swelling is weakened as the main cause. Both doors read about the same, yet only this one sticks. Seasonal swelling may add a little.","Right. It's weakened as the main cause but not ruled out."],
+             ["c","Swelling is confirmed.","The readings don't single this door out, so they can't confirm it."] ],
+    correct:"b",
+    hints:["Compare the two doors on the same day.","If both doors are equally damp but only one sticks, is moisture the main difference?","\"Weakened\" is not the same as \"impossible\"."] },
+  s3:{ level:"door", group:"door", title:"Station 3 · The hinges", ev:"Hinge condition and hinge-edge gap",
+    ask:"Check the three hinges for loose screws or play, then compare the gap along the hinge edge at the top and at the bottom. (Dana's notes include a screw-by-screw check.)",
+    predQ:"If the hinges had sagged, what would you expect to find?",
+    pred:[ ["sag","A loose top hinge, a hinge-edge gap opening at the top, and the widest corner at top-west"],["firm","Firm hinges, an even hinge edge, and the widest corner somewhere else"],["unsure","Not sure"] ],
+    interpQ:"What does the hinge check do to the hinge theory?",
+    interp:[ ["a","The hinges are the cause.","The hinges are firm and the pattern doesn't match sag."],
+             ["b","Hinge sag is weakened. The hinges are firm, the hinge edge is even, and the widest gap is at top-east, which sag wouldn't produce.","Right. It's not impossible in every house, but it's weakened here."],
+             ["c","Hinges can never cause sticking doors.","They often do. They just don't fit this evidence."] ],
+    correct:"b",
+    hints:["Sag usually starts with a loose top hinge.","Where was the widest corner in Station 1? Which corner would sag open?","Choose the answer about this door, not doors in general."] },
+  s4:{ level:"wall", group:"door", title:"Station 4 · Square or not?", ev:"Frame diagonals vs control opening; casing joint",
+    ask:"Measure both diagonals of the bedroom door opening (tape precision ±1 mm). Then measure the matching hall closet opening on the stable west side as a control, and look at the paint at the casing joints.",
+    predQ:"If the opening itself has shifted, what will the diagonals show?",
+    pred:[ ["equal","Both openings square: equal diagonals"],["one","Bedroom diagonals unequal, closet equal"],["both","Both openings out of square"],["unsure","Not sure"] ],
+    interpQ:"What do the diagonals tell you?",
+    interp:[ ["a","The whole house is twisting.","The closet opening is square, so the distortion is local, not whole-house."],
+             ["b","This proves the foundation has sunk.","It shows the opening is out of square. It doesn't show why."],
+             ["c","The bedroom opening is out of square while a matching opening on the west side is square. The distortion looks local and toward the east, but this doesn't say why.","Good. You found where it is without guessing the cause."] ],
+    correct:"c",
+    hints:["A square frame has equal diagonals.","Compare the bedroom with the closet. Is the problem everywhere or in one place?","Location isn't cause. Pick the answer that says only what you measured."] },
+  s5:{ level:"floor", group:"floor", title:"Station 5 · The marble and the level", ev:"Floor slope (marble screen + level readings)",
+    ask:"Set a marble down at three spots in the bedroom and note where it rolls. This is a quick screen, nothing more. Then read Dana's laser-level readings, taken against a fixed datum in the hall.",
+    predQ:"If part of the house has moved, where do you expect the marble to roll?",
+    pred:[ ["corner","Toward one low corner, consistently"],["random","In random directions"],["none","Nowhere. Floors are always level."],["unsure","Not sure"] ],
+    interpQ:"What does the floor tell you?",
+    interp:[ ["a","The marble proves settlement.","A marble is only a screening check. Drafts, warped boards or an uneven finish can move it."],
+             ["b","The floor falls toward the north-east corner. The marble is only a quick screen, but the level readings back it up. The hall is flat.","Right. Two independent checks agree, and you kept the marble's limits in mind."],
+             ["c","Every floor slopes, so this means nothing.","The hall readings are flat within the instrument's resolution. The bedroom isn't."] ],
+    correct:"b",
+    hints:["Look at the most negative level reading.","Does the marble agree with the level readings?","Remember what a marble can and can't show."] },
+  s6:{ level:"foundation", group:"floor", title:"Station 6 · The crack gauge", ev:"Dated crack-gauge readings (NE active, SW stable)",
+    ask:"In the crawlspace, Dana fixed tell-tale gauges across two cracks on 14 March 2026. One is a diagonal crack near the north-east corner, rising toward the west. The other is an old crack near the south-west corner. She reads them at the end of each month. Read both series.",
+    predQ:"If the north-east corner is still moving, what will its gauge show over time?",
+    pred:[ ["creep","Readings creeping up, especially after wet spells"],["steady","Steady readings"],["wobble","Readings going back and forth around zero"],["unsure","Not sure"] ],
+    interpQ:"What do the gauges mean?",
+    interp:[ ["a","The crack opening equals how far the house has dropped.","No. A gauge measures how much a crack has opened, not how far a corner has moved."],
+             ["b","Any crack means the house is unsafe.","Cracks are common. What matters here is that one is changing, and a qualified person must judge it."],
+             ["c","The NE crack is active and has opened mostly since September, while the SW crack is stable. The gauge measures crack opening, not how far the corner has dropped.","Right. You separated an active crack from a stable historic one."] ],
+    correct:"c",
+    hints:["Compare March with October for each crack.","When did the NE readings rise fastest?","Crack millimetres and settlement millimetres are different things."] },
+  s7:{ level:"soil", group:"water", title:"Station 7 · Rain, soil and timing", ev:"Rain diary + NE vs NW soil moisture",
+    ask:"Lay the owners' rain diary beside Dana's soil-moisture probe readings at two corners: the north-east corner and the north-west corner (control). The probes report a simulated moisture index from 0 to 100 that matches no real standard. Also check the 1978 extension record.",
+    predQ:"If roof water were reaching the NE corner, how would the two probes compare in wet months?",
+    pred:[ ["ne","NE well above NW, mostly after the water started"],["same","Both rise and fall together"],["nw","NW above NE"],["unsure","Not sure"] ],
+    interpQ:"What do the records show?",
+    interp:[ ["a","Rain cracks every house.","The control corner got the same rain and stayed much drier."],
+             ["b","From August the NE probe runs well above the control, most of all in the wet months, and the crack opened most as that corner got wettest. That's a correlation that fits a water-driven mechanism here. It isn't proof by itself.","Right. Correlation, timing and a plausible mechanism, all held carefully."],
+             ["c","The probes prove the foundation failed.","A probe reads moisture. It can't judge a foundation."] ],
+    correct:"b",
+    hints:["Find the month the two probes start to separate.","Compare that with the rain diary and the crack readings.","A strong pattern still isn't proof."] },
+  s8:{ level:"soil", group:"water", title:"Station 8 · Follow the water", ev:"NE downspout discharge (contractor record + testimony)",
+    ask:"Outside at last. Trace where the rear roof's water goes on the north-east side, then compare your trace with the drainage contractor's inspection record and a neighbour's account.",
+    predQ:"Where do you expect the NE downspout's water to end up?",
+    pred:[ ["drain","Carried away by its extension to the drain line"],["corner","Dumping at the foot of the NE corner"],["nw","Into the NW drain"],["unsure","Not sure"] ],
+    interpQ:"What does the outside evidence add?",
+    interp:[ ["a","Reconnect it and the door will be fixed.","Fixing the water source can stop future change. It doesn't undo movement that has already happened."],
+             ["b","Since the July storm, roof water from the NE downspout has been discharging right at the NE corner. That lines up with the wet probe and with where the house is moving. A professional still needs to confirm the mechanism.","Right. A lined-up story, not yet a verdict."],
+             ["c","Send the water toward the neighbour's side instead.","Never. Water must go to an approved, verified discharge point."] ],
+    correct:"b",
+    hints:["Follow the water from where it lands on the roof.","Where did the contractor say the water is landing?","Does the outside evidence point to the same corner as the floor and crack?"] }
+};
+var SEQ_OPTS = [ ["","Choose…"],["roof","Rear roof surface"],["gutter","Rear gutter"],["nedp","NE downspout"],["elbow","Broken elbow, no extension"],["necorner","Ground at the NE corner"],["nwdrain","NW drain line"],["front","Front garden"] ];
+var SEQ_RIGHT = ["roof","gutter","nedp","elbow","necorner"];
+
+var DIAGQ = {
+  primary:{ q:"Primary explanation (of the three original theories)", opts:[["swell",THEORIES.swell.name],["hinge",THEORIES.hinge.name],["move",THEORIES.move.name]], right:"move" },
+  swell:{ q:"Where does swelling stand?", opts:[["out","Ruled out entirely"],["minor","Weakened: a minor seasonal contributor at most"],["main","The main cause"]], right:"minor" },
+  hinge:{ q:"Where do the hinges stand?", opts:[["weak","Weakened: the hinges are firm and the pattern doesn't fit sag"],["main","The main cause"],["untested","Untested"]], right:"weak" },
+  mech:{ q:"Your working mechanism for this house", opts:[["always","Wet soil always makes houses sink."],["case","Working hypothesis: roof water dumping at the NE corner has soaked the loose fill under that footing, and the corner has moved down. The door is where it shows."],["unsafe","The broken downspout means the house is unsafe."]], right:"case" },
+  limits:{ q:"What is proven, and what needs a specialist?", opts:[["proven","We've proven settlement. No specialist needed."],["pattern","We've measured a pattern and a correlation. A structural professional needs to confirm the mechanism, how much has moved, whether it's safe, and what remedy fits."],["nothing","We can't conclude anything at all."]], right:"pattern" }
+};
+var GROUPS = { door:"Door & frame", floor:"Floor & foundation", water:"Soil & exterior water" };
+
+var PLANS = {
+  A:{ name:"A · Plane the door", what:"A carpenter shaves the bottom edge on the latch side (fictional quote $95).", benefit:"Quick, cheap, and the door feels right straight away.", limit:"Changes neither the wet corner nor the movement." },
+  B:{ name:"B · Reset the hinges", what:"A carpenter adjusts the hinges to lift the latch side a little.", benefit:"Right for a real hinge fault, and a small fit gain.", limit:"Doesn't treat movement of the opening." },
+  C:{ name:"C · Restore the drainage", what:"A drainage contractor routes the NE downspout to the existing approved drain line and verifies the discharge point.", benefit:"Removes the likely moisture driver at its source.", limit:"Not proof of structural safety. Existing distortion remains." },
+  D:{ name:"D · Hold and call a structural professional", what:"Hold all door work. A structural engineer reviews the measurements, judges occupancy, confirms the mechanism and plans any remedy.", benefit:"The safe escalation when active movement is suspected.", limit:"Takes time. Any remedy is done and signed off by qualified people." }
+};
+var PREVIEW_PRED = [ ["door","Door clearance changes first"],["soil","NE soil moisture changes first"],["crack","The crack gauge changes first"],["nothing","Nothing measurable changes"] ];
+var FINAL_INTERP = [
+  ["a","Everything is fixed, and the house is structurally cleared.","No one has issued a structural clearance. The engineer's monitoring continues."],
+  ["b","NE soil moisture fell first. The crack kept opening for a short lag, then stopped, but it didn't close. The existing distortion stayed, and only door work made the door close freely. Monitoring continues.","Right. That's arresting further change, with the existing damage handled separately."],
+  ["c","The crack closed back to zero once the soil dried.","Compacted fill doesn't spring back in this model. The crack stopped opening, but it didn't close."],
+  ["d","Nothing changed.","Look at the NE moisture and crack columns again."]
+];
+
+/* ===================== STATE ===================== */
+function freshStation(){ return { focus:"", pred:"", run:false, interp:"", hint:0 }; }
+function fresh(){
+  var st = {};
+  Object.keys(ST).forEach(function(k){ st[k] = freshStation(); });
+  st.s1.wide=""; st.s1.tight="";
+  st.s6.trend=""; st.s6.size="";
+  st.s8.seq=["","","","",""];
+  return {
+    v: VERSION, view:"door", plain:false, tech:false, introOpen:true,
+    corners:{TE:false,TW:false,BE:false,BW:false}, cornerSel:"TE",
+    st: st,
+    diag:{ primary:"", swell:"", hinge:"", mech:"", limits:"", cite:[] },
+    prev:{ A:{pred:"",run:false,month:0}, B:{pred:"",run:false,month:0}, C:{pred:"",run:false,month:0}, D:{pred:"",run:false,month:0} },
+    prevSel:"A",
+    fin:{ plan:[], pred:"", runKey:"", month:0, visits:[], interp:"" },
+    schema: 2,
+    notes:""
+  };
+}
+function inList(v, list){ return list.indexOf(v) >= 0; }
+function optVals(arr){ return arr.map(function(o){ return o[0]; }); }
+function str(v){ return typeof v === "string" ? v : ""; }
+function bool(v){ return v === true; }
+function intIn(v, lo, hi, d){ return (typeof v === "number" && isFinite(v)) ? Math.max(lo, Math.min(hi, Math.round(v))) : d; }
+
+function normalize(raw){
+  var s = fresh();
+  if (!raw || typeof raw !== "object" || raw.v !== VERSION) return { s:s, ok: !raw };
+  var views = LEVELS.map(function(l){return l.id;}).concat(DESK.map(function(d){return d.id;}));
+  if (inList(raw.view, views)) s.view = raw.view;
+  s.plain = bool(raw.plain); s.tech = bool(raw.tech); s.introOpen = raw.introOpen !== false;
+  if (raw.corners && typeof raw.corners === "object") Object.keys(s.corners).forEach(function(c){ s.corners[c] = bool(raw.corners[c]); });
+  if (inList(raw.cornerSel, Object.keys(CORNERS))) s.cornerSel = raw.cornerSel;
+  var rs = (raw.st && typeof raw.st === "object") ? raw.st : {};
+  Object.keys(ST).forEach(function(k){
+    var r = rs[k] && typeof rs[k] === "object" ? rs[k] : {}, d = s.st[k], def = ST[k];
+    d.focus = inList(r.focus, Object.keys(THEORIES)) ? r.focus : "";
+    d.pred = inList(r.pred, optVals(def.pred)) ? r.pred : "";
+    d.run = bool(r.run);
+    d.interp = inList(r.interp, optVals(def.interp)) ? r.interp : "";
+    d.hint = intIn(r.hint, 0, 3, 0);
+  });
+  var r1 = rs.s1 || {}; s.st.s1.wide = inList(r1.wide, Object.keys(CORNERS)) ? r1.wide : ""; s.st.s1.tight = inList(r1.tight, Object.keys(CORNERS)) ? r1.tight : "";
+  var r6 = rs.s6 || {}; s.st.s6.trend = inList(r6.trend, ["widening","steady","closing"]) ? r6.trend : ""; s.st.s6.size = inList(r6.size, optVals(SIZE_OPTS.map(function(o){return [o.v];}))) ? r6.size : "";
+  var r8 = rs.s8 || {}; if (Array.isArray(r8.seq)) for (var i=0;i<5;i++) s.st.s8.seq[i] = inList(r8.seq[i], optVals(SEQ_OPTS)) ? r8.seq[i] : "";
+  // ---- Fail closed: no result without its prerequisites (prediction first, earlier tests run) ----
+  var S = s.st;
+  if (!S.s1.pred) Object.keys(s.corners).forEach(function(c){ s.corners[c] = false; });
+  var allC = Object.keys(s.corners).every(function(c){ return s.corners[c]; });
+  var req = { s1: allC, s2: S.s1.run, s3: S.s1.run, s4: S.s1.run, s5: S.s4.run, s6: S.s5.run, s7: S.s6.run, s8: S.s5.run && S.s6.run && S.s7.run };
+  ["s1","s2","s3","s4","s5","s6","s7","s8"].forEach(function(k){
+    req.s2 = S.s1.run; req.s3 = S.s1.run; req.s4 = S.s1.run; req.s5 = S.s4.run; req.s6 = S.s5.run; req.s7 = S.s6.run; req.s8 = S.s5.run && S.s6.run && S.s7.run;
+    if (S[k].run && (!S[k].pred || !req[k])) S[k].run = false;
+    if (!S[k].run){ S[k].interp = ""; }
+  });
+  if (!S.s1.run){ S.s1.wide=""; S.s1.tight=""; }
+  if (!S.s6.run){ S.s6.trend=""; S.s6.size=""; }
+  // diagnosis
+  var rd = raw.diag && typeof raw.diag === "object" ? raw.diag : {};
+  Object.keys(DIAGQ).forEach(function(k){ s.diag[k] = inList(rd[k], optVals(DIAGQ[k].opts)) ? rd[k] : ""; });
+  if (Array.isArray(rd.cite)) s.diag.cite = rd.cite.filter(function(c, idx, a){ return inList(c, Object.keys(ST)) && a.indexOf(c)===idx && S[c].run; });
+  // previews
+  var rp = raw.prev && typeof raw.prev === "object" ? raw.prev : {};
+  Object.keys(s.prev).forEach(function(k){
+    var r = rp[k] && typeof rp[k] === "object" ? rp[k] : {};
+    s.prev[k].pred = inList(r.pred, optVals(PREVIEW_PRED)) ? r.pred : "";
+    s.prev[k].run = bool(r.run) && !!s.prev[k].pred;
+    s.prev[k].month = intIn(r.month, 0, 11, 0);
+  });
+  if (inList(raw.prevSel, Object.keys(PLANS))) s.prevSel = raw.prevSel;
+  var rf = raw.fin && typeof raw.fin === "object" ? raw.fin : {};
+  if (Array.isArray(rf.plan)) s.fin.plan = ["A","B","C","D"].filter(function(p){ return rf.plan.indexOf(p) >= 0; });
+  s.fin.pred = inList(rf.pred, optVals(PREVIEW_PRED)) ? rf.pred : "";
+  var key = s.fin.plan.join("");
+  // F-001: a saved run of a conflicting plan (e.g. A+D) fails closed; the checkbox selection is kept.
+  s.fin.runKey = (typeof rf.runKey === "string" && rf.runKey === key && key !== "" && s.fin.pred && !planConflict(s.fin.plan)) ? key : "";
+  // F-002: visits are validated; legacy saves (schema < 2) have no visit evidence and are never credited from maxMonth.
+  var visits = (raw.schema === 2) ? cleanVisits(rf.visits) : [];
+  if (s.fin.runKey){
+    if (visits.indexOf(0) < 0) visits.unshift(0);            // starting a run displays November
+    var m = intIn(rf.month, 0, 11, 0);
+    s.fin.month = visits.indexOf(m) >= 0 ? m : 0;           // never display (or credit) an unvisited month
+    s.fin.visits = cleanVisits(visits);
+    s.fin.interp = inList(rf.interp, optVals(FINAL_INTERP)) ? rf.interp : "";
+  } else { s.fin.month = 0; s.fin.visits = []; s.fin.interp = ""; }
+  s.notes = str(raw.notes).slice(0, 2000);
+  return { s:s, ok:true };
+}
+
+/* ===================== GATES (single source of truth) ===================== */
+function seqOk(seq){ return SEQ_RIGHT.every(function(v,i){ return seq[i] === v; }); }
+function computeGates(s){
+  var S = s.st, g = { ok:{}, unlocked:{}, canRun:{} };
+  var allC = Object.keys(s.corners).every(function(c){ return s.corners[c]; });
+  g.allCorners = allC;
+  g.ok.s1 = S.s1.run && S.s1.wide === "TE" && S.s1.tight === "BW" && S.s1.interp === ST.s1.correct;
+  ["s2","s3","s4","s5","s7"].forEach(function(k){ g.ok[k] = S[k].run && S[k].interp === ST[k].correct; });
+  g.ok.s6 = S.s6.run && S.s6.trend === "widening" && S.s6.size === "right" && S.s6.interp === ST.s6.correct;
+  g.unlocked.door = true;
+  g.unlocked.wall = S.s1.run;
+  g.unlocked.floor = g.unlocked.wall && S.s4.run;
+  g.unlocked.foundation = g.unlocked.floor && S.s5.run;
+  g.unlocked.soil = g.unlocked.foundation && S.s6.run;
+  g.exterior = g.unlocked.soil && S.s7.run && g.ok.s5 && g.ok.s6 && g.ok.s7; // earned through cross-layer evidence
+  g.ok.s8 = S.s8.run && g.exterior && seqOk(S.s8.seq) && S.s8.interp === ST.s8.correct;
+  g.canRun = { s1: allC, s2: S.s1.run, s3: S.s1.run, s4: g.unlocked.wall, s5: g.unlocked.floor, s6: g.unlocked.foundation, s7: g.unlocked.soil, s8: g.exterior };
+  g.stationsOk = Object.keys(ST).every(function(k){ return g.ok[k]; });
+  g.earned = Object.keys(ST).filter(function(k){ return g.ok[k]; });
+  var d = s.diag;
+  var citesOk = d.cite.length>0 && d.cite.every(function(c){ return g.ok[c]; }) && Object.keys(GROUPS).every(function(gr){ return d.cite.some(function(c){ return ST[c].group === gr; }); });
+  g.citesOk = citesOk;
+  g.diagAnswersOk = Object.keys(DIAGQ).every(function(k){ return d[k] === DIAGQ[k].right; });
+  g.diagOk = g.stationsOk && g.diagAnswersOk && citesOk;
+  g.plansUnlocked = g.diagOk;
+  var otherPrev = ["B","C","D"].some(function(k){ return s.prev[k].run; });
+  g.previewOk = g.plansUnlocked && s.prev.A.run && otherPrev;
+  g.finalUnlocked = g.previewOk;
+  var key = s.fin.plan.join("");
+  g.finKey = key;
+  g.finConflict = planConflict(s.fin.plan);
+  g.finRun = g.finalUnlocked && key !== "" && !g.finConflict && s.fin.runKey === key && !!s.fin.pred;
+  g.finVisited = g.finRun ? cleanVisits(s.fin.visits).length : 0;
+  g.finRead = g.finRun && g.finVisited === 12;
+  g.finHasD = s.fin.plan.indexOf("D") >= 0;
+  g.finInterpOk = g.finRead && g.finHasD && !g.finConflict && s.fin.interp === "b";
+  g.complete = g.diagOk && g.previewOk && g.finInterpOk && !g.finConflict;
+  // "review needed": something previously recorded is now wrong
+  g.review = Object.keys(ST).filter(function(k){ return S[k].run && S[k].interp && !g.ok[k]; });
+  var steps = Object.keys(ST).map(function(k){ return g.ok[k]; }).concat([g.diagOk, g.previewOk, g.finInterpOk, g.complete]);
+  g.done = steps.filter(Boolean).length; g.total = steps.length;
+  return g;
+}
+
+/* ===================== STORAGE ===================== */
+var storageOk = true, storageMsg = "";
+function loadState(){
+  var raw = null;
+  try { raw = window.localStorage.getItem(KEY); } catch(e){ storageOk = false; storageMsg = "Saving is unavailable in this browser, so progress lasts only until you close this page."; return fresh(); }
+  if (raw === null) return fresh();
+  var parsed;
+  try { parsed = JSON.parse(raw); } catch(e){ storageMsg = "A saved case couldn't be read, so you're starting fresh."; return fresh(); }
+  var n = normalize(parsed);
+  if (!n.ok) storageMsg = "A saved case didn't match this version, so you're starting fresh.";
+  return n.s;
+}
+function save(){
+  if (!storageOk) return;
+  try { window.localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch(e){ storageOk = false; storageMsg = "Saving stopped working, so progress lasts only until you close this page."; }
+}
+
+/* ===================== HELPERS ===================== */
+function esc(t){ return String(t).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]; }); }
+function plainMm(v){
+  if (!state.plain) return "";
+  var a = Math.abs(v), t;
+  if (a < 0.3) t = "about a hair's width";
+  else if (a < 1.2) t = "about the thickness of a credit card or less";
+  else if (a < 2.5) t = "about the thickness of a coin";
+  else if (a < 5) t = "about two coins stacked";
+  else if (a < 10) t = "about a pencil's width";
+  else t = "more than a pencil's width";
+  return " <span class=\"small\">(" + t + ")</span>";
+}
+function announce(msg){ var el = document.getElementById("live"); el.textContent = ""; setTimeout(function(){ el.textContent = msg; }, 30); }
+function radios(name, opts, cur, disabled, action, extra){
+  return opts.map(function(o,i){
+    var id = name + "-" + o[0];
+    return "<label class=\"opt" + (disabled?" locked":"") + "\" for=\"" + id + "\"><input type=\"radio\" id=\"" + id + "\" name=\"" + name + "\" value=\"" + esc(o[0]) + "\"" + (cur===o[0]?" checked":"") + (disabled?" disabled":"") + " data-action=\"" + action + "\"" + (extra||"") + "><span>" + esc(o[1]) + "</span></label>";
+  }).join("");
+}
+function table(caption, head, rows, opts){
+  opts = opts || {};
+  var h = "<div class=\"tablewrap\" role=\"region\" tabindex=\"0\" aria-label=\"" + esc(caption) + " (scrollable table)\"><table><caption>" + esc(caption) + "</caption><thead><tr>" +
+    head.map(function(c,i){ return "<th scope=\"col\"" + (opts.num && opts.num.indexOf(i)>=0 ? " class=\"num\"":"") + ">" + c + "</th>"; }).join("") + "</tr></thead><tbody>";
+  rows.forEach(function(r, ri){
+    h += "<tr" + (opts.cur === ri ? " class=\"cur\" aria-current=\"true\"" : "") + ">" + r.map(function(c,i){ return (i===0?"<th scope=\"row\"":"<td") + (opts.num && opts.num.indexOf(i)>=0 ? " class=\"num\"":"") + ">" + c + (i===0?"</th>":"</td>"); }).join("") + "</tr>";
+  });
+  return h + "</tbody></table></div>";
+}
+
+/* ===================== SVG FIGURES ===================== */
+function doorSVG(gp, D, showVals){
+  // Schematic, gaps exaggerated ×5. Viewer in hallway facing north: EAST on the RIGHT.
+  var X = 5, s = 0.13, fw = MODEL.openW*s, fh = MODEL.openH*s, x0 = 70, y0 = 30;
+  var headY = y0;
+  var floorW = y0 + fh + (D/2)*X*s*8, floorE = y0 + fh + D*X*s*8; // exaggerated floor fall
+  var tw = headY + gp.TW*X*0.6, te = headY + gp.TE*X*0.6, bw = floorW - gp.BW*X*0.6, be = floorE - gp.BE*X*0.6;
+  var dl = x0 + 6, dr = x0 + fw - 6;
+  var lab = function(x,y,t,anchor){ return "<text x=\"" + x + "\" y=\"" + y + "\" fill=\"#eef2fb\" font-size=\"11\" text-anchor=\"" + (anchor||"middle") + "\">" + t + "</text>"; };
+  var sel = state.cornerSel;
+  var mark = function(c, x, y){ var on = sel===c; var rec = state.corners[c];
+    return "<g><circle cx=\"" + x + "\" cy=\"" + y + "\" r=\"" + (on?9:7) + "\" fill=\"" + (rec?"#8fe0a8":"none") + "\" stroke=\"" + (on?"#ffe08a":"#e3c06a") + "\" stroke-width=\"" + (on?3:2) + "\"/>" + (rec?"<path d=\"M" + (x-4) + " " + y + " l3 3 l5 -6\" stroke=\"#081226\" stroke-width=\"2\" fill=\"none\"/>":"") + "</g>"; };
+  var v = function(c){ return showVals && state.corners[c] ? f1(gp[c]) + " mm" : "?"; };
+  var w = x0*2 + fw;
+  return "<svg viewBox=\"0 0 " + w + " " + (y0+fh+70) + "\" role=\"img\" aria-labelledby=\"doorT doorD\"><title id=\"doorT\">Back bedroom door seen from the hallway</title><desc id=\"doorD\">Schematic with gaps drawn five times larger than life. West is on the left (latch side), east on the right (hinges). The table below lists every value shown.</desc>" +
+    "<defs><radialGradient id=\"gl\" cx=\"50%\" cy=\"40%\" r=\"60%\"><stop offset=\"0\" stop-color=\"#f4dc9a\" stop-opacity=\".35\"/><stop offset=\"1\" stop-color=\"#f4dc9a\" stop-opacity=\"0\"/></radialGradient></defs>" +
+    "<rect x=\"" + (x0-30) + "\" y=\"" + (y0-20) + "\" width=\"" + (fw+60) + "\" height=\"" + (fh+40) + "\" fill=\"url(#gl)\"/>" +
+    "<rect x=\"" + (x0-8) + "\" y=\"" + (headY-8) + "\" width=\"" + (fw+16) + "\" height=\"8\" fill=\"#8a6a34\"/>" +
+    "<line x1=\"" + (x0-8) + "\" y1=\"" + (headY-8) + "\" x2=\"" + (x0-8) + "\" y2=\"" + (floorW) + "\" stroke=\"#8a6a34\" stroke-width=\"8\"/>" +
+    "<line x1=\"" + (x0+fw+8) + "\" y1=\"" + (headY-8) + "\" x2=\"" + (x0+fw+8) + "\" y2=\"" + (floorE) + "\" stroke=\"#8a6a34\" stroke-width=\"8\"/>" +
+    "<line x1=\"" + (x0-40) + "\" y1=\"" + floorW + "\" x2=\"" + (x0+fw+40) + "\" y2=\"" + floorE + "\" stroke=\"#b8c3dc\" stroke-width=\"3\"/>" +
+    "<polygon points=\"" + dl + "," + tw + " " + dr + "," + te + " " + dr + "," + be + " " + dl + "," + bw + "\" fill=\"#2a3f78\" stroke=\"#e3c06a\" stroke-width=\"2\"/>" +
+    "<rect x=\"" + (dl+12) + "\" y=\"" + (tw+16) + "\" width=\"" + (fw-36) + "\" height=\"" + (fh*0.36) + "\" fill=\"none\" stroke=\"#4e66a8\"/>" +
+    "<rect x=\"" + (dl+12) + "\" y=\"" + (tw+28+fh*0.36) + "\" width=\"" + (fw-36) + "\" height=\"" + (fh*0.4) + "\" fill=\"none\" stroke=\"#4e66a8\"/>" +
+    "<circle cx=\"" + (dl+10) + "\" cy=\"" + ((tw+bw)/2) + "\" r=\"4\" fill=\"#e3c06a\"/>" +
+    [0.12,0.5,0.88].map(function(p){ var y = te + (be-te)*p; return "<rect x=\"" + (dr-3) + "\" y=\"" + (y-7) + "\" width=\"6\" height=\"14\" fill=\"#c9a14a\"/>"; }).join("") +
+    mark("TW", dl+2, tw-2) + mark("TE", dr-2, te-2) + mark("BW", dl+2, bw+2) + mark("BE", dr-2, be+2) +
+    lab(x0-20, headY-14, "TW " + v("TW"), "start") + lab(x0+fw+20, headY-14, "TE " + v("TE"), "end") +
+    lab(x0-20, floorW+18, "BW " + v("BW"), "start") + lab(x0+fw+20, floorE+18, "BE " + v("BE"), "end") +
+    lab(18, y0+fh/2, "WEST", "start") + lab(w-18, y0+fh/2, "EAST", "end") +
+    lab(w/2, y0+fh+56, "Latch on the west · hinges on the east · gaps ×5", "middle") +
+    "</svg>";
+}
+function cutawaySVG(active){
+  var L = { door:1, wall:2, floor:3, foundation:4, soil:5 }[active] || 0;
+  var hl = function(n){ return L===n ? " class=\"glow\" stroke=\"#ffe08a\" stroke-width=\"3\"" : " stroke=\"#2c4580\""; };
+  return "<svg viewBox=\"0 0 360 250\" role=\"img\" aria-labelledby=\"cutT cutD\"><title id=\"cutT\">Stacked cutaway of 9 Tansy Row, looking north</title><desc id=\"cutD\">Five layers from top to bottom: door, wall and opening, floor, foundation, soil. Outside on the east (right) is the north-east downspout. The highlighted layer is the one you're investigating. Features you have recorded (the crack, the wet soil, the broken downspout elbow) appear once you record them.</desc>" +
+    "<polygon points=\"40,70 180,15 320,70\" fill=\"#24345e\" stroke=\"#2c4580\"/>" +
+    "<rect x=\"50\" y=\"70\" width=\"260\" height=\"90\" fill=\"#13244c\"" + hl(2) + "/>" +
+    "<rect x=\"205\" y=\"92\" width=\"34\" height=\"66\" fill=\"#2a3f78\"" + hl(1) + "/>" +
+    "<text x=\"222\" y=\"88\" fill=\"#e3c06a\" font-size=\"10\" text-anchor=\"middle\">door</text>" +
+    "<line x1=\"50\" y1=\"160\" x2=\"310\" y2=\"166\"" + hl(3) + " stroke-width=\"" + (L===3?5:4) + "\"/>" +
+    "<rect x=\"50\" y=\"168\" width=\"30\" height=\"36\" fill=\"#59606e\"" + hl(4) + "/><rect x=\"280\" y=\"172\" width=\"30\" height=\"36\" fill=\"#59606e\"" + hl(4) + "/>" +
+    (state.st.s6.run ? "<path d=\"M300 176 l-6 10 l4 6 l-6 10\" stroke=\"#ff9e9e\" stroke-width=\"2\" fill=\"none\"/>" : "") +
+    "<rect x=\"20\" y=\"208\" width=\"320\" height=\"38\" fill=\"#3d2f1e\"" + hl(5) + "/>" +
+    (state.st.s7.run ? "<ellipse cx=\"300\" cy=\"222\" rx=\"38\" ry=\"12\" fill=\"#2b5b7a\" opacity=\".8\"/>" : "") +
+    "<line x1=\"322\" y1=\"70\" x2=\"322\" y2=\"196\" stroke=\"#b8c3dc\" stroke-width=\"4\"/>" + (state.st.s8.run && G.exterior ? "<path d=\"M322 196 l8 8\" stroke=\"#ff9e9e\" stroke-width=\"4\"/>" : "<path d=\"M322 196 l-4 8 h24\" stroke=\"#b8c3dc\" stroke-width=\"4\" fill=\"none\"/>") +
+    "<text x=\"14\" y=\"130\" fill=\"#b8c3dc\" font-size=\"11\">W</text><text x=\"340\" y=\"130\" fill=\"#b8c3dc\" font-size=\"11\">E</text>" +
+    "<text x=\"180\" y=\"240\" fill=\"#eef2fb\" font-size=\"10\" text-anchor=\"middle\">soil (details appear as you investigate)</text>" +
+    "</svg>";
+}
+function sitePlanSVG(revealed){
+  return "<svg viewBox=\"0 0 360 300\" role=\"img\" aria-labelledby=\"spT spD\"><title id=\"spT\">Site plan of 9 Tansy Row, north at the top</title><desc id=\"spD\">House footprint with the back bedroom in the north-east. Downspouts at the north-west and north-east corners. Soil probes at both north corners. Crack gauge near the north-east corner. " + (revealed ? "The north-east downspout ends in a broken elbow, so water lands at the north-east corner. The north-west downspout runs to the drain line." : "Downspout discharge points are not yet traced.") + "</desc>" +
+    "<text x=\"180\" y=\"16\" fill=\"#e3c06a\" font-size=\"12\" text-anchor=\"middle\">N ↑ (back garden)</text>" +
+    "<rect x=\"60\" y=\"50\" width=\"240\" height=\"190\" fill=\"#13244c\" stroke=\"#2c4580\" stroke-width=\"2\"/>" +
+    "<rect x=\"190\" y=\"50\" width=\"110\" height=\"90\" fill=\"#1b3168\" stroke=\"#e3c06a\"/>" +
+    "<text x=\"245\" y=\"98\" fill=\"#eef2fb\" font-size=\"11\" text-anchor=\"middle\">Back bedroom</text>" +
+    "<rect x=\"215\" y=\"136\" width=\"24\" height=\"6\" fill=\"#e3c06a\"/><text x=\"227\" y=\"156\" fill=\"#e3c06a\" font-size=\"9\" text-anchor=\"middle\">door</text>" +
+    "<rect x=\"80\" y=\"200\" width=\"20\" height=\"6\" fill=\"#b8c3dc\"/><text x=\"90\" y=\"222\" fill=\"#b8c3dc\" font-size=\"9\" text-anchor=\"middle\">closet</text>" +
+    "<circle cx=\"60\" cy=\"50\" r=\"6\" fill=\"#b8c3dc\"/><circle cx=\"300\" cy=\"50\" r=\"6\" fill=\"#b8c3dc\"/>" +
+    "<text x=\"40\" y=\"40\" fill=\"#b8c3dc\" font-size=\"9\">NW dp</text><text x=\"304\" y=\"40\" fill=\"#b8c3dc\" font-size=\"9\">NE dp</text>" +
+    "<rect x=\"64\" y=\"58\" width=\"8\" height=\"8\" fill=\"none\" stroke=\"#8fe0a8\"/><text x=\"76\" y=\"66\" fill=\"#8fe0a8\" font-size=\"9\">probe NW</text>" +
+    "<rect x=\"286\" y=\"58\" width=\"8\" height=\"8\" fill=\"none\" stroke=\"#8fe0a8\"/><text x=\"246\" y=\"72\" fill=\"#8fe0a8\" font-size=\"9\">probe NE</text>" +
+    "<path d=\"M296 120 l-6 8 l4 4 l-6 8\" stroke=\"#ff9e9e\" stroke-width=\"2\" fill=\"none\"/><text x=\"250\" y=\"125\" fill=\"#ffb3b3\" font-size=\"9\">NE crack</text>" +
+    (revealed ? "<path d=\"M60 50 L20 50 L20 270\" stroke=\"#7fb3ff\" stroke-width=\"3\" fill=\"none\" stroke-dasharray=\"6 4\"/><text x=\"24\" y=\"285\" fill=\"#bcd6ff\" font-size=\"9\">NW → drain line</text>" +
+      "<ellipse cx=\"312\" cy=\"58\" rx=\"26\" ry=\"14\" fill=\"#2b5b7a\" opacity=\".85\"/><text x=\"318\" y=\"92\" fill=\"#bcd6ff\" font-size=\"9\" text-anchor=\"middle\">water lands here</text><path d=\"M300 50 l10 6\" stroke=\"#ff9e9e\" stroke-width=\"3\"/>" : "<text x=\"180\" y=\"275\" fill=\"#b8c3dc\" font-size=\"10\" text-anchor=\"middle\">Discharge points not yet traced</text>") +
+    "<text x=\"180\" y=\"296\" fill=\"#e3c06a\" font-size=\"11\" text-anchor=\"middle\">S · Tansy Row (street)</text>" +
+    "<text x=\"10\" y=\"150\" fill=\"#b8c3dc\" font-size=\"10\">W</text><text x=\"344\" y=\"150\" fill=\"#b8c3dc\" font-size=\"10\">E</text></svg>";
+}
+function lineChart(id, title, desc, labels, series, yMin, yMax, unit, curIdx, bars){
+  var W = 640, Hh = 260, L = 48, R = 16, T = 20, B = 46, pw = W-L-R, ph = Hh-T-B, n = labels.length;
+  var x = function(i){ return L + (n===1?pw/2: i*pw/(n-1)); };
+  var y = function(v){ return T + ph - (v - yMin)/(yMax - yMin)*ph; };
+  var out = "<svg viewBox=\"0 0 " + W + " " + Hh + "\" role=\"img\" aria-labelledby=\"" + id + "T " + id + "D\"><title id=\"" + id + "T\">" + esc(title) + "</title><desc id=\"" + id + "D\">" + esc(desc) + " Full values are in the table that follows.</desc>";
+  for (var k=0;k<=4;k++){ var v = yMin + (yMax-yMin)*k/4, yy = y(v); out += "<line x1=\"" + L + "\" x2=\"" + (W-R) + "\" y1=\"" + yy + "\" y2=\"" + yy + "\" stroke=\"#22386b\"/><text x=\"" + (L-6) + "\" y=\"" + (yy+4) + "\" fill=\"#b8c3dc\" font-size=\"11\" text-anchor=\"end\">" + (Math.round(v*10)/10) + "</text>"; }
+  out += "<text x=\"6\" y=\"14\" fill=\"#b8c3dc\" font-size=\"11\">" + esc(unit) + "</text>";
+  if (bars){ var bw = pw/n*0.5; bars.values.forEach(function(v,i){ var yy = y(Math.max(yMin, Math.min(yMax, v*bars.scale))); out += "<rect x=\"" + (x(i)-bw/2) + "\" y=\"" + yy + "\" width=\"" + bw + "\" height=\"" + (T+ph-yy) + "\" fill=\"#3a5596\" opacity=\".55\"/>"; }); }
+  if (typeof curIdx === "number"){ out += "<line x1=\"" + x(curIdx) + "\" x2=\"" + x(curIdx) + "\" y1=\"" + T + "\" y2=\"" + (T+ph) + "\" stroke=\"#ffe08a\" stroke-width=\"2\" stroke-dasharray=\"4 3\"/>"; }
+  labels.forEach(function(lb,i){ if (n<=8 || i%2===0) out += "<text x=\"" + x(i) + "\" y=\"" + (Hh-B+16) + "\" fill=\"#b8c3dc\" font-size=\"10\" text-anchor=\"middle\">" + esc(lb.replace(" 20"," '")) + "</text>"; });
+  var shapes = ["circle","square","triangle","diamond"];
+  series.forEach(function(sr, si){
+    var d = sr.values.map(function(v,i){ return (i?"L":"M") + x(i) + " " + y(Math.max(yMin,Math.min(yMax,v))); }).join(" ");
+    out += "<path d=\"" + d + "\" fill=\"none\" stroke=\"" + sr.color + "\" stroke-width=\"2.5\"" + (sr.dash?" stroke-dasharray=\"" + sr.dash + "\"":"") + "/>";
+    sr.values.forEach(function(v,i){ var cx = x(i), cy = y(Math.max(yMin,Math.min(yMax,v))), sh = shapes[si%4];
+      if (sh==="circle") out += "<circle cx=\"" + cx + "\" cy=\"" + cy + "\" r=\"4\" fill=\"" + sr.color + "\"/>";
+      else if (sh==="square") out += "<rect x=\"" + (cx-4) + "\" y=\"" + (cy-4) + "\" width=\"8\" height=\"8\" fill=\"" + sr.color + "\"/>";
+      else if (sh==="triangle") out += "<path d=\"M" + cx + " " + (cy-5) + " l5 9 h-10z\" fill=\"" + sr.color + "\"/>";
+      else out += "<path d=\"M" + cx + " " + (cy-5) + " l5 5 l-5 5 l-5 -5z\" fill=\"" + sr.color + "\"/>"; });
+  });
+  var lx = L;
+  series.forEach(function(sr, si){ out += "<text x=\"" + lx + "\" y=\"" + (Hh-6) + "\" fill=\"" + sr.color + "\" font-size=\"11\">" + ["●","■","▲","◆"][si%4] + " " + esc(sr.name) + "</text>"; lx += 14 + sr.name.length*6.2; });
+  return out + "</svg>";
+}
+
+/* ===================== RENDER ===================== */
+var state = loadState();
+var G = computeGates(state);
+
+function render(){
+  var active = document.activeElement, fid = active && active.id ? active.id : null;
+  G = computeGates(state);
+  document.body.classList.toggle("reduce", window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  renderStatus(); renderNav(); renderMain();
+  if (fid){ var el = document.getElementById(fid); if (el && !el.disabled) el.focus({preventScroll:true}); }
+  save();
+}
+var resetAsk = false;
+function renderStatus(){
+  var pct = Math.round(100*G.done/G.total);
+  var reviewTxt = G.review.length ? " · <strong style=\"color:#ffb3b3\">Review needed: " + G.review.length + "</strong>" : "";
+  var h = "<div class=\"progress\"><div id=\"progresslabel\">Case progress: " + G.done + " of " + G.total + " verified steps" + reviewTxt + (G.complete ? " · <strong style=\"color:#8fe0a8\">Case closed</strong>" : "") + "</div><div class=\"bar\" role=\"progressbar\" aria-labelledby=\"progresslabel\" aria-valuemin=\"0\" aria-valuemax=\"" + G.total + "\" aria-valuenow=\"" + G.done + "\"><span style=\"width:" + pct + "%\"></span></div></div>" +
+    "<div class=\"toggles\"><label class=\"chip\" for=\"tg-plain\"><input type=\"checkbox\" id=\"tg-plain\" data-action=\"toggle\" data-k=\"plain\"" + (state.plain?" checked":"") + "> Plain-language readings</label>" +
+    "<label class=\"chip\" for=\"tg-tech\"><input type=\"checkbox\" id=\"tg-tech\" data-action=\"toggle\" data-k=\"tech\"" + (state.tech?" checked":"") + "> Technical notes</label>" +
+    (resetAsk ? "<span class=\"chip\" role=\"group\" aria-label=\"Confirm reset\">Erase this case only? <button class=\"btn secondary\" id=\"reset-cancel\" data-action=\"resetCancel\">Cancel</button> <button class=\"btn\" id=\"reset-confirm\" data-action=\"resetConfirm\">Erase and restart</button></span>"
+              : "<button class=\"btn secondary\" id=\"reset-ask\" data-action=\"resetAsk\">Reset this experience</button>") + "</div>";
+  document.getElementById("statusbar").innerHTML = h;
+  document.getElementById("storagewarn").innerHTML = storageMsg ? "<div class=\"warnbox\" role=\"status\">" + esc(storageMsg) + "</div>" : "";
+}
+function levelStatus(id){
+  var ks = Object.keys(ST).filter(function(k){ return ST[k].level === id; });
+  if (ks.some(function(k){ return G.review.indexOf(k)>=0; })) return { cls:"review", t:"Review needed" };
+  if (ks.every(function(k){ return G.ok[k]; })) return { cls:"done", t:"✓ Understood" };
+  return { cls:"", t:"" };
+}
+function renderNav(){
+  var h = "<h2>The house, top to bottom</h2><ul class=\"navlist\">";
+  LEVELS.forEach(function(l){
+    var un = G.unlocked[l.id], st = levelStatus(l.id);
+    var lockWhy = { wall:"Locked: measure the door first", floor:"Locked: check the frame first", foundation:"Locked: check the floor first", soil:"Locked: read the crack gauge first" }[l.id];
+    h += "<li><button class=\"navbtn stratum-" + l.n + " " + st.cls + "\" id=\"nav-" + l.id + "\" data-action=\"view\" data-v=\"" + l.id + "\"" + (state.view===l.id?" aria-current=\"page\"":"") + (un?"":" disabled") + "><span class=\"n\">Layer " + l.n + "</span><span>" + l.name + "</span><span class=\"s\">" + (un ? (st.t || l.sub) : lockWhy) + "</span></button></li>";
+  });
+  h += "</ul><h2 style=\"margin-top:14px\">Case desk</h2><ul class=\"navlist\">";
+  DESK.forEach(function(d){
+    var un = d.id==="file" ? true : d.id==="diagnosis" ? true : d.id==="plans" ? G.plansUnlocked : d.id==="final" ? G.finalUnlocked : G.complete;
+    var why = d.id==="diagnosis" ? "Locked: all eight stations must be understood" : d.id==="plans" ? "Locked: file a sound diagnosis first" : d.id==="final" ? "Locked: preview plan A and one other" : "Locked: until the case is truly closed";
+    var done = d.id==="diagnosis" ? G.diagOk : d.id==="plans" ? G.previewOk : d.id==="final" ? G.finInterpOk : d.id==="report" ? G.complete : false;
+    h += "<li><button class=\"navbtn" + (done?" done":"") + "\" id=\"nav-" + d.id + "\" data-action=\"view\" data-v=\"" + d.id + "\"" + (state.view===d.id?" aria-current=\"page\"":"") + (un?"":" disabled") + "><span>" + d.name + "</span><span class=\"s\">" + (un ? (done ? "✓ Done" : d.sub) : why) + "</span></button></li>";
+  });
+  document.getElementById("nav").innerHTML = h + "</ul>";
+}
+function renderMain(){
+  var v = state.view;
+  // Never show a locked view (e.g. after a revoked interpretation)
+  if (LEVELS.some(function(l){ return l.id===v; }) && !G.unlocked[v]) v = state.view = "door";
+  if (v==="plans" && !G.plansUnlocked) v = state.view = "diagnosis";
+  if (v==="final" && !G.finalUnlocked) v = state.view = G.plansUnlocked ? "plans" : "diagnosis";
+  if (v==="report" && !G.complete) v = state.view = G.finalUnlocked ? "final" : (G.plansUnlocked ? "plans" : "diagnosis");
+  var m = document.getElementById("main"), h = "";
+  if (v==="door") h = viewDoor();
+  else if (v==="wall") h = viewLevel("wall", "Layer 2 · The wall and the opening", "<p class=\"story\">Behind the casing, the door frame is nailed into the wall framing. If the frame has gone out of square, the door is just the messenger.</p>");
+  else if (v==="floor") h = viewLevel("floor", "Layer 3 · The floor", "<p class=\"story\">June brings a marble from the boys' old games box. \"Is this a proper test?\" she asks. \"It's a start,\" you say. \"Not an answer.\"</p>");
+  else if (v==="foundation") h = viewLevel("foundation", "Layer 4 · The foundation", "<p class=\"story\">You don't go into the crawlspace. Dana Hollis does, with a lamp and a clipboard. She has been reading two crack gauges here every month since the owners bought the house, and she shares her log.</p>");
+  else if (v==="soil") h = viewSoil();
+  else if (v==="file") h = viewFile();
+  else if (v==="diagnosis") h = viewDiagnosis();
+  else if (v==="plans") h = viewPlans();
+  else if (v==="final") h = viewFinal();
+  else if (v==="report") h = viewReport();
+  m.innerHTML = h;
+}
+function intro(){
+  return "<details class=\"panel soft\" id=\"introbox\"" + (state.introOpen?" open":"") + "><summary id=\"intro-sum\">The story so far</summary>" +
+    "<p class=\"story\">June and Ravi Mendes moved into <strong>9 Tansy Row</strong> in March. Now the back bedroom door won't close without a shove, and a joiner has already quoted <strong>$95</strong> (fictional) to shave it down. \"It's the damp weather,\" he told them. \"Doors swell.\"</p>" +
+    "<p class=\"story\">You're the friend who \"knows about houses\". You aren't an engineer, and you won't climb, dig or open anything up. You'll look closely, ask for records, and reason. The door is your first witness.</p>" +
+    "<p class=\"small\">Three explanations compete: <strong>humid-weather swelling</strong>, <strong>tired hinges</strong>, or a <strong>frame no longer square</strong>. Before each major test you'll make a prediction. Wrong predictions are fine. What counts is reading the result honestly.</p></details>";
+}
+function viewDoor(){
+  var h = "<h2 id=\"view-h\" tabindex=\"-1\">Layer 1 · The door</h2>" + intro();
+  h += "<div class=\"grid2\"><div class=\"figure\">" + doorSVG(NOW.gaps, NOW.D, true) + "<div class=\"figcap\">Your view from the hallway, facing north into the bedroom. Gap values appear only after you record each corner.</div></div>";
+  h += "<div><div class=\"figure\">" + cutawaySVG("door") + "<div class=\"figcap\">Cutaway: you're at the door. Each test you complete opens the next layer down.</div></div>" + theoryPanel() + "</div></div>";
+  h += station("s1") + station("s2") + station("s3");
+  return h;
+}
+function viewLevel(id, title, story){
+  var h = "<h2 id=\"view-h\" tabindex=\"-1\">" + title + "</h2>" + story + "<div class=\"grid2\"><div class=\"figure\">" + cutawaySVG(id) + "<div class=\"figcap\">Cutaway, looking north. East is on the right, matching your view of the door.</div></div><div>" + theoryPanel() + "</div></div>";
+  Object.keys(ST).forEach(function(k){ if (ST[k].level===id) h += station(k); });
+  return h;
+}
+function viewSoil(){
+  var h = "<h2 id=\"view-h\" tabindex=\"-1\">Layer 5 · Soil and outside</h2><p class=\"story\">Under the house is the ground it stands on, and around it is the water that ground receives. Dana's monitoring includes two soil-moisture probes along the north wall.</p>";
+  h += "<div class=\"grid2\"><div class=\"figure\">" + sitePlanSVG(state.st.s8.run && G.exterior) + "<div class=\"figcap\">Site plan, north up, east right. Discharge paths appear only once you've traced them.</div></div><div>" + theoryPanel() + "</div></div>";
+  h += station("s7") + station("s8");
+  return h;
+}
+function theoryPanel(){
+  var t = theoryStatus();
+  return "<div class=\"panel soft\" aria-labelledby=\"th-h\"><h3 id=\"th-h\" style=\"margin-top:0\">The three theories</h3><div class=\"theories\">" +
+    Object.keys(THEORIES).map(function(k){ return "<div class=\"theory\"><b>" + THEORIES[k].name + "</b><br><span class=\"status-" + t[k].c + "\">Status: " + t[k].t + "</span>" + (state.tech ? "<div class=\"small\">Predicts: " + esc(THEORIES[k].pred) + "</div>" : "") + "</div>"; }).join("") + "</div></div>";
+}
+function theoryStatus(){
+  var o = { swell:{c:"open",t:"Open"}, hinge:{c:"open",t:"Open"}, move:{c:"open",t:"Open"} };
+  if (G.ok.s2) o.swell = { c:"weak", t:"Weakened: minor seasonal contributor at most" };
+  if (G.ok.s3) o.hinge = { c:"weak", t:"Weakened: hinges firm, pattern doesn't fit sag" };
+  if (G.ok.s1 && G.ok.s4) o.move = { c:"sup", t:"Supported by door and frame. Cause still unknown." };
+  if (o.move.c==="sup" && G.ok.s5 && G.ok.s6) o.move.t = "Supported across door, frame, floor and foundation. Needs a source.";
+  if (o.move.c==="sup" && G.ok.s5 && G.ok.s6 && G.ok.s7 && G.ok.s8) o.move.t = "Leading hypothesis with a plausible water source. Needs professional confirmation.";
+  return o;
+}
+
+function station(k){
+  var def = ST[k], s = state.st[k], can = G.canRun[k], ok = G.ok[k];
+  var id = "st-" + k;
+  var steps = [["Theory", !!s.focus],["Predict", !!s.pred],["Result", s.run],["Interpret", ok],["Saved", ok]];
+  var h = "<section class=\"station fade\" id=\"" + id + "\" aria-labelledby=\"" + id + "-h\"><h3 id=\"" + id + "-h\">" + def.title + (ok ? " <span class=\"tag pro\">✓ in case file</span>" : (G.review.indexOf(k)>=0 ? " <span class=\"tag\" style=\"border-color:#ff9e9e;color:#ffb3b3\">Review needed</span>" : "")) + "</h3>";
+  h += "<ol class=\"stepper\" aria-label=\"Station steps\">" + steps.map(function(x){ return "<li class=\"" + (x[1]?"ok":"") + "\">" + x[0] + (x[1]?" ✓":"") + "</li>"; }).join("") + "</ol>";
+  if (k==="s8" && !G.exterior){
+    h += "<p>" + esc(def.ask) + "</p><div class=\"warnbox\">Outside is still locked. To earn it, run and correctly interpret the floor (Station 5), the crack gauge (Station 6) and the soil records (Station 7). Only then is there a reason to go looking for a water source at one particular corner.</div>";
+    if (s.run) h += "<p class=\"small\">Your earlier trace and record are kept and will count again once those interpretations are corrected.</p>";
+    return h + "</section>";
+  }
+  if (!can && k!=="s1"){
+    h += "<p>" + esc(def.ask) + "</p><p class=\"small\">Available after you've recorded the four door corners.</p>";
+    return h + "</section>";
+  }
+  h += "<p>" + esc(def.ask) + "</p>";
+  // 1. theory focus
+  h += "<fieldset><legend>Which theory does this test speak to most?</legend>" + radios(k+"-focus", Object.keys(THEORIES).map(function(t){ return [t, THEORIES[t].name]; }), s.focus, false, "focus", " data-k=\"" + k + "\"") + "</fieldset>";
+  // 2. prediction
+  var predLocked = s.run || (k==="s1" && Object.keys(state.corners).some(function(c){ return state.corners[c]; }));
+  h += "<fieldset><legend>" + esc(def.predQ) + (predLocked ? " (locked once results appear)" : "") + "</legend>" + radios(k+"-pred", def.pred, s.pred, predLocked || !s.focus, "pred", " data-k=\"" + k + "\"") + (!s.focus ? "<p class=\"small\">Choose a theory first.</p>" : "") + "</fieldset>";
+  // 3. run / special inputs
+  if (k==="s1") h += s1Measure();
+  if (k==="s8") h += s8Trace();
+  if (!s.run){
+    var why = !s.pred ? "Make a prediction first." : (k==="s1" && !G.allCorners ? "Record all four corners first." : (k==="s8" && SEQ_RIGHT.some(function(_,i){ return !state.st.s8.seq[i]; }) ? "Fill in every step of your trace first." : ""));
+    var label = { s1:"Compare the four corners", s2:"Read Dana's moisture readings", s3:"Run the hinge check", s4:"Measure the diagonals", s5:"Roll the marble and read the level", s6:"Read the gauge log", s7:"Lay out the rain and soil records", s8:"Read the contractor's record" }[k];
+    h += "<div class=\"btnrow\"><button class=\"btn\" id=\"run-" + k + "\" data-action=\"run\" data-k=\"" + k + "\"" + (why?" disabled aria-describedby=\"why-" + k + "\"":"") + ">" + label + "</button></div>" + (why ? "<p class=\"small\" id=\"why-" + k + "\">" + why + "</p>" : "");
+    h += hints(k);
+    return h + "</section>";
+  }
+  // results
+  h += "<div class=\"result\" aria-labelledby=\"" + id + "-rh\"><h4 id=\"" + id + "-rh\" style=\"margin:.2em 0\">Result</h4>" + resultHTML(k) + "</div>";
+  h += predFeedback(k);
+  // 4. interpretation
+  if (k==="s1"){
+    var co = Object.keys(CORNERS).map(function(c){ return [c, CORNERS[c].name]; });
+    h += "<label class=\"sel\" for=\"s1-wide\"><span>Which corner is widest?</span><select id=\"s1-wide\" data-action=\"field\" data-k=\"s1\" data-f=\"wide\"><option value=\"\">Choose…</option>" + co.map(function(o){ return "<option value=\"" + o[0] + "\"" + (s.wide===o[0]?" selected":"") + ">" + o[1] + "</option>"; }).join("") + "</select></label>";
+    h += "<label class=\"sel\" for=\"s1-tight\"><span>Which corner is most pinched?</span><select id=\"s1-tight\" data-action=\"field\" data-k=\"s1\" data-f=\"tight\"><option value=\"\">Choose…</option>" + co.map(function(o){ return "<option value=\"" + o[0] + "\"" + (s.tight===o[0]?" selected":"") + ">" + o[1] + "</option>"; }).join("") + "</select></label>";
+    if (s.wide && s.wide!=="TE") h += "<div class=\"fb no\">Check the numbers again: which value is largest?</div>";
+    if (s.tight && s.tight!=="BW") h += "<div class=\"fb no\">Check the numbers again: which value is smallest?</div>";
+  }
+  if (k==="s6"){
+    h += "<label class=\"sel\" for=\"s6-trend\"><span>The NE crack over time is…</span><select id=\"s6-trend\" data-action=\"field\" data-k=\"s6\" data-f=\"trend\"><option value=\"\">Choose…</option>" + [["widening","widening"],["steady","steady"],["closing","closing"]].map(function(o){ return "<option value=\"" + o[0] + "\"" + (s.trend===o[0]?" selected":"") + ">" + o[1] + "</option>"; }).join("") + "</select></label>";
+    h += "<label class=\"sel\" for=\"s6-size\"><span>By how much?</span><select id=\"s6-size\" data-action=\"field\" data-k=\"s6\" data-f=\"size\"><option value=\"\">Choose…</option>" + SIZE_OPTS.map(function(o){ return "<option value=\"" + o.v + "\"" + (s.size===o.v?" selected":"") + ">" + o.t + "</option>"; }).join("") + "</select></label>";
+    if (s.trend && s.trend!=="widening") h += "<div class=\"fb no\">Compare the first and last NE readings again.</div>";
+    if (s.size && s.size!=="right") h += "<div class=\"fb no\">Read the October NE value against the March baseline.</div>";
+  }
+  h += "<fieldset><legend>" + esc(def.interpQ) + " (you can change this at any time)</legend>" + radios(k+"-interp", def.interp.map(function(o){ return [o[0], o[1]]; }), s.interp, false, "interp", " data-k=\"" + k + "\"") + "</fieldset>";
+  if (s.interp){
+    var o = def.interp.filter(function(x){ return x[0]===s.interp; })[0];
+    var good = s.interp === def.correct;
+    h += "<div class=\"fb " + (good?"good":"no") + "\" role=\"status\">" + (good ? "✓ " : "Not quite. ") + esc(o[2]) + (good && !ok ? " Finish the other parts of this station to file it." : "") + "</div>";
+  }
+  if (ok) h += "<p class=\"small\">Saved to the case file: <em>" + esc(def.ev) + "</em>.</p>";
+  h += hints(k);
+  return h + "</section>";
+}
+function hints(k){
+  var s = state.st[k], def = ST[k], h = "<div class=\"btnrow\">";
+  if (s.hint < 3) h += "<button class=\"btn secondary\" id=\"hint-" + k + "\" data-action=\"hint\" data-k=\"" + k + "\">Show hint " + (s.hint+1) + " of 3</button>";
+  h += "</div>";
+  for (var i=0;i<s.hint;i++) h += "<div class=\"hint\"><strong>Hint " + (i+1) + ":</strong> " + esc(def.hints[i]) + "</div>";
+  return h;
+}
+function predFeedback(k){
+  var s = state.st[k], def = ST[k];
+  var p = def.pred.filter(function(x){ return x[0]===s.pred; })[0];
+  var matches = { s1:"diag", s2:"same", s3:"firm", s4:"one", s5:"corner", s6:"creep", s7:"ne", s8:"corner" }[k];
+  return "<p class=\"small\">Your prediction: <em>" + esc(p ? p[1] : "") + "</em>. " + (s.pred===matches ? "It matched what was found." : (s.pred==="unsure" ? "You held off predicting. That's fine." : "It didn't match, and that's useful information. What matters next is reading the result honestly.")) + "</p>";
+}
+function s1Measure(){
+  var s = state.st.s1, dis = !s.pred;
+  var h = "<fieldset><legend>Measure each corner (select a corner, then record it)</legend>";
+  h += "<div class=\"corners\" role=\"group\" aria-label=\"Door corners\">" + CORNER_ORDER.map(function(c){ return "<button class=\"btn secondary\" id=\"corner-" + c + "\" data-action=\"corner\" data-c=\"" + c + "\" aria-pressed=\"" + (state.cornerSel===c) + "\"" + (dis?" disabled":"") + ">" + CORNERS[c].name + (state.corners[c] ? " ✓" : "") + "</button>"; }).join("") + "</div>";
+  h += "<div class=\"btnrow\"><button class=\"btn\" id=\"record-corner\" data-action=\"record\"" + (dis || state.corners[state.cornerSel] ? " disabled":"") + ">Record " + CORNERS[state.cornerSel].short + " clearance</button></div>";
+  if (dis) h += "<p class=\"small\">Make your prediction above before measuring.</p>";
+  var rows = CORNER_ORDER.map(function(c){ return [CORNERS[c].name, state.corners[c] ? f1(NOW.gaps[c]) + " mm" + plainMm(NOW.gaps[c]) : "not yet measured"]; });
+  h += table("Door clearance map, 8 Nov 2026 (as-hung gap " + f1(MODEL.asHungGap) + " mm)", ["Corner","Clearance"], rows);
+  return h + "</fieldset>";
+}
+function s8Trace(){
+  var s = state.st.s8;
+  var h = "<fieldset><legend>Follow the water: trace the north-east roof water, step by step</legend><p class=\"small\">This is your hypothesis. You can correct it after reading the record.</p>";
+  for (var i=0;i<5;i++){
+    h += "<label class=\"sel\" for=\"seq-" + i + "\"><span>Step " + (i+1) + "</span><select id=\"seq-" + i + "\" data-action=\"seq\" data-i=\"" + i + "\">" + SEQ_OPTS.map(function(o){ return "<option value=\"" + o[0] + "\"" + (s.seq[i]===o[0]?" selected":"") + ">" + o[1] + "</option>"; }).join("") + "</select></label>";
+  }
+  if (s.run){ h += seqOk(s.seq) ? "<div class=\"fb good\">✓ Your trace matches the record.</div>" : "<div class=\"fb no\">Your trace doesn't match the contractor's record yet. Compare it step by step.</div>"; }
+  return h + "</fieldset>";
+}
+function resultHTML(k){
+  var D = NOW.D, h = "";
+  if (k==="s1"){
+    h = "<p><span class=\"tag obs\">Observation</span> Widest: top-east, " + f1(NOW.gaps.TE) + " mm. Most pinched: bottom-west, " + f1(NOW.gaps.BW) + " mm, where the door drags. These two corners are <strong>diagonally opposite</strong>. Top-west is " + f1(NOW.gaps.TW) + " mm and bottom-east " + f1(NOW.gaps.BE) + " mm. You also notice the latch meets the strike plate low.</p>";
+    if (state.tech) h += "<p class=\"small\">Technical: if all four gaps had shrunk evenly, that would suggest swelling. If the latch side had drooped, top-west would be widest, which would suggest sag. A wide top-east with a pinched bottom-west suggests the opening around the door has shifted.</p>";
+  } else if (k==="s2"){
+    h = table("Door-edge wood moisture, % (fictional pin-meter readings)", ["Day","Bedroom door edge","Closet door edge (control)","Indoor RH %"], [["5 Nov","11","11","52"],["6 Nov","12","12","55"],["7 Nov","11","12","50"]], {num:[1,2,3]}) +
+      "<p><span class=\"tag obs\">Observation</span> Both doors read about the same, yet only the bedroom door sticks. The closet door closes freely with even gaps.</p>";
+  } else if (k==="s3"){
+    h = table("Hinge check (Dana's notes, fictional)", ["Item","Finding"], [["Screws, three hinges (9 total)","All tight, none stripped"],["Play when lifting the latch edge gently","None felt"],["Hinge-edge gap, top","3.0 mm"],["Hinge-edge gap, bottom","3.0 mm"],["Widest corner (from Station 1)","Top-east (hinge side)"]]) +
+      "<p><span class=\"tag obs\">Observation</span> The hinges are firm and the hinge edge is even. Sag would open the top of the hinge edge and widen top-west.</p>";
+  } else if (k==="s4"){
+    var dg = NOW.diags, d0 = Math.round(MODEL.diag0);
+    h = table("Frame diagonals, mm (tape ±1 mm; fictional)", ["Opening","Top-west → bottom-east","Top-east → bottom-west","Difference"], [["Bedroom door (east side of house)", dg.a, dg.b, (dg.a-dg.b)],["Hall closet (west side, control)", d0, d0, 0]], {num:[1,2,3]}) +
+      "<p><span class=\"tag obs\">Observation</span> The bedroom frame's diagonals differ by " + (dg.a-dg.b) + " mm. The closet frame is square within the tape's precision. There's a hairline paint crack at the top-east casing joint, fainter at top-west.</p>";
+    if (state.tech) h += "<p class=\"small\">Technical (fictional model): the frame head is held by ceiling framing, while the floor beneath the east jamb has dropped more than the west. The bottom-east corner has moved down most, which stretches the top-west → bottom-east diagonal most.</p>";
+  } else if (k==="s5"){
+    var fr = floorReadings(D);
+    h = table("Marble screen (quick, imprecise)", ["Start spot","Where it rolled"], [["Bedroom centre","Toward the north-east corner"],["Near the doorway","Toward the north-east (back-right)"],["By the west wall","Slowly east, then toward the north-east"]]) +
+      table("Laser-level readings vs hall datum, mm (Dana; resolution ±1 mm; fictional)", ["Point","Height"], fr.map(function(r){ return [r.name, (r.v>0?"+":"") + r.v + plainMm(r.v)]; }), {num:[1]}) +
+      "<p><span class=\"tag obs\">Observation</span> The bedroom falls toward the north-east corner, the lowest point at " + fr[7].v + " mm. The hall is flat within ±1 mm. <span class=\"tag\">Limit</span> A marble can be moved by drafts or an uneven finish, so it only screens. The level readings are the stronger record.</p>";
+  } else if (k==="s6"){
+    var rows = [["2026-03-14","Installed (baseline)","0.0","0.0"]].concat(H.rows.map(function(r){ return [r.date, "Dana Hollis", f1(r.crack) + plainMm(r.crack), f1(r.swCrack)]; }));
+    h = table("Tell-tale crack gauges, opening since baseline, mm (fictional)", ["Date","Read by","NE crack (active?)","SW crack (historic)"], rows, {num:[2,3]}) +
+      "<p><span class=\"tag obs\">Observation</span> The NE crack has opened " + f1(NOW.crack) + " mm since March, mostly in September and October. Its north side sits slightly lower, so the north side moved down. The SW crack has stayed within the gauge's ±0.1 mm reading resolution. <span class=\"tag\">Limit</span> Crack opening isn't the same as how far a corner dropped. These widths are specific to this story and are not safety thresholds.</p>";
+  } else if (k==="s7"){
+    var lab = H.rows.map(function(r){ return r.month; });
+    h = "<div class=\"figure\">" + lineChart("c7", "Soil moisture: NE corner vs NW control, with monthly rain", "NE and NW probe readings run close until July, then NE climbs well above NW, highest in September and October. Bars show rain.", lab, [
+          { name:"NE probe", values:H.rows.map(function(r){ return r.mNE; }), color:"#ff9e9e" },
+          { name:"NW control", values:H.rows.map(function(r){ return r.mNW; }), color:"#7fb3ff", dash:"6 4" } ], 0, 100, "index 0–100", null, { values:HIST.rain, scale:0.6 }) + "<div class=\"figcap\">Bars = monthly rain (scaled). Lines = simulated soil-moisture index, which matches no real standard.</div></div>" +
+      table("Rain, soil moisture and crack by month (fictional)", ["Month","Rain mm","Normal mm","NE index","NW index","NE crack mm"], H.rows.map(function(r){ return [r.month, r.rain, r.normal, f1(r.mNE), f1(r.mNW), f1(r.crack)]; }), {num:[1,2,3,4,5]}) +
+      "<p>Rain diary notes: <em>18 Jul — big thunderstorm, gutters overflowing. 14 Sep and 3 Oct — heavy all-day rain.</em></p>" +
+      "<p><span class=\"tag\">Archive</span> 1978 extension record (fictional): \"Made ground (loosely placed fill) to about 1.2 m around the north-east footing. Firm silty clay elsewhere.\"</p>" +
+      "<p><span class=\"tag cor\">Correlation</span> From August the NE probe runs well above the control. September and October were wetter than normal, and the NE crack opened most in October.</p>";
+  } else if (k==="s8"){
+    h = "<p><span class=\"tag obs\">Record</span> <strong>Brookline Drainage, inspection 6 Nov 2026 (Sam Ortiz, fictional):</strong> \"NE downspout separated at the bottom elbow, with the extension missing (pieces found behind the shed). Roof water from that half of the rear roof is discharging within about 0.3 m of the NE corner, and the ground there is soft. NW downspout connected and running to the existing drain line. Recommend reconnecting the NE downspout to the approved drain line and verifying discharge.\"</p>" +
+      "<p><span class=\"tag obs\">Testimony</span> Neighbour Mrs. Osei: \"In those October storms the water was pouring straight down that back corner.\"</p>" +
+      "<p><span class=\"tag hyp\">Hypothesis</span> Water concentrated at the NE corner + loose fill under that footing → corner moving down. This fits the floor, frame and crack evidence, and the July timing. A qualified professional must confirm it.</p>" +
+      "<p class=\"small\">The site plan above now shows both discharge paths.</p>";
+  }
+  return h;
+}
+
+function viewFile(){
+  var h = "<h2 id=\"view-h\" tabindex=\"-1\">Case file</h2>" + theoryPanel();
+  h += "<div class=\"panel\"><h3 style=\"margin-top:0\">Journal</h3>";
+  var any = false;
+  Object.keys(ST).forEach(function(k){
+    var s = state.st[k], def = ST[k];
+    if (!s.pred && !s.run) return; any = true;
+    var p = def.pred.filter(function(x){ return x[0]===s.pred; })[0];
+    var it = def.interp.filter(function(x){ return x[0]===s.interp; })[0];
+    h += "<div class=\"theory\" style=\"margin:8px 0\"><b>" + esc(def.title) + "</b> — " + (G.ok[k] ? "<span class=\"status-sup\">filed ✓</span>" : (G.review.indexOf(k)>=0 ? "<span style=\"color:#ffb3b3\">review needed</span>" : "<span class=\"status-open\">in progress</span>")) +
+      "<br><span class=\"small\">Predicted: " + esc(p ? p[1] : "—") + "</span><br><span class=\"small\">Result recorded: " + (s.run ? "yes" : "not yet") + "</span><br><span class=\"small\">Interpretation: " + esc(it ? it[1] : "—") + "</span></div>";
+  });
+  if (!any) h += "<p>Nothing recorded yet. Start at the door.</p>";
+  h += "</div><div class=\"panel\"><label for=\"notes\"><h3 style=\"margin-top:0\">Your notes (saved on this device)</h3></label><textarea id=\"notes\" data-action=\"notes\" maxlength=\"2000\">" + esc(state.notes) + "</textarea></div>";
+  h += "<div class=\"panel soft\"><h3 style=\"margin-top:0\">Observation, correlation, hypothesis, professional conclusion</h3><p><span class=\"tag obs\">Observation</span> something measured, such as a gap, a diagonal, a crack width or a soil reading. <span class=\"tag cor\">Correlation</span> two things changing together, such as wet months and crack growth. <span class=\"tag hyp\">Hypothesis</span> a proposed mechanism for this house. <span class=\"tag pro\">Professional conclusion</span> only a qualified person, after review, can confirm the mechanism, safety and remedy.</p></div>";
+  return h;
+}
+function viewDiagnosis(){
+  var h = "<h2 id=\"view-h\" tabindex=\"-1\">Diagnosis</h2>";
+  if (!G.stationsOk){
+    var miss = Object.keys(ST).filter(function(k){ return !G.ok[k]; }).map(function(k){ return ST[k].title; });
+    return h + "<div class=\"badbox\" role=\"status\">The diagnosis desk is closed until every station is run and correctly interpreted. Still open: " + esc(miss.join("; ")) + ".</div>";
+  }
+  h += "<p>Name the likely chain, but only as far as the evidence goes.</p>";
+  Object.keys(DIAGQ).forEach(function(k){
+    var q = DIAGQ[k], cur = state.diag[k];
+    h += "<fieldset><legend>" + esc(q.q) + "</legend>" + radios("dg-" + k, q.opts, cur, false, "diag", " data-k=\"" + k + "\"") + "</fieldset>";
+    if (cur && cur !== q.right) h += "<div class=\"fb no\" role=\"status\">That goes beyond, or falls short of, what your evidence shows. Look at the case file again.</div>";
+  });
+  h += "<fieldset><legend>Cite your evidence: at least one item from each of the three groups (only evidence you've earned can be cited)</legend>";
+  Object.keys(GROUPS).forEach(function(gr){
+    h += "<p class=\"small\" style=\"margin-top:10px\"><strong>" + GROUPS[gr] + "</strong></p>";
+    Object.keys(ST).filter(function(k){ return ST[k].group===gr; }).forEach(function(k){
+      var en = G.ok[k];
+      h += "<label class=\"opt" + (en?"":" locked") + "\" for=\"cite-" + k + "\"><input type=\"checkbox\" id=\"cite-" + k + "\" data-action=\"cite\" data-k=\"" + k + "\"" + (state.diag.cite.indexOf(k)>=0?" checked":"") + (en?"":" disabled") + "><span>" + esc(ST[k].ev) + (en?"":" (not earned)") + "</span></label>";
+    });
+  });
+  h += "</fieldset>";
+  if (state.diag.cite.length && !G.citesOk) h += "<div class=\"fb no\">Cite at least one item from each group: door and frame, floor and foundation, and soil and water.</div>";
+  h += G.diagOk ? "<div class=\"okbox\" role=\"status\">✓ Diagnosis filed: a working hypothesis built on independent evidence from every layer. Next comes the household plan board.</div><div class=\"btnrow\"><button class=\"btn\" id=\"go-plans\" data-action=\"view\" data-v=\"plans\">Go to the plan board</button></div>"
+                : "<p class=\"small\">The plan board opens when every answer is sound and your citations cover all three groups.</p>";
+  return h;
+}
+function monthTable(rows, cur){
+  return table("Twelve months, same weather for every plan (fictional)", ["Month","Rain mm","NE soil","NW soil","Model drop mm","NE crack mm","Bottom-west gap mm","Top-east gap mm","Door"],
+    rows.map(function(r){ return [r.month, r.rain, f1(r.mNE), f1(r.mNW), f1(r.D), f1(r.crack), f1(r.gaps.BW), f1(r.gaps.TE), r.status]; }), {num:[1,2,3,4,5,6,7], cur:cur});
+}
+function timeline(prefix, rows, cur){
+  var r = rows[cur], lab = rows.map(function(x){ return x.month; });
+  var h = "<div class=\"panel soft\"><label for=\"" + prefix + "-range\"><strong>Month: " + esc(r.month) + "</strong> (" + (cur+1) + " of 12)</label><input type=\"range\" class=\"range\" id=\"" + prefix + "-range\" min=\"0\" max=\"11\" step=\"1\" value=\"" + cur + "\" data-action=\"month\" data-p=\"" + prefix + "\" aria-valuetext=\"" + esc(r.month) + "\">" +
+    "<div class=\"btnrow\"><button class=\"btn secondary\" id=\"" + prefix + "-prev\" data-action=\"mstep\" data-p=\"" + prefix + "\" data-d=\"-1\"" + (cur===0?" disabled":"") + ">◀ Previous month</button><button class=\"btn secondary\" id=\"" + prefix + "-next\" data-action=\"mstep\" data-p=\"" + prefix + "\" data-d=\"1\"" + (cur===11?" disabled":"") + ">Next month ▶</button></div>" +
+    "<div class=\"monthcard\" aria-live=\"polite\"><div class=\"mc\"><div class=\"k\">Rain</div><div class=\"v\">" + r.rain + " mm</div></div><div class=\"mc\"><div class=\"k\">NE soil / NW control</div><div class=\"v\">" + f1(r.mNE) + " / " + f1(r.mNW) + "</div></div><div class=\"mc\"><div class=\"k\">NE crack</div><div class=\"v\">" + f1(r.crack) + " mm</div></div><div class=\"mc\"><div class=\"k\">Bottom-west gap</div><div class=\"v\">" + f1(r.gaps.BW) + " mm</div></div><div class=\"mc\"><div class=\"k\">Door</div><div class=\"v\">" + r.status + "</div></div></div>" +
+    (r.events.length ? "<ul>" + r.events.map(function(e){ return "<li>" + esc(e) + "</li>"; }).join("") + "</ul>" : "<p class=\"small\">No household events this month.</p>") + "</div>";
+  h += "<div class=\"figure\">" + lineChart(prefix + "c1", "Soil moisture over twelve months", "NE corner probe versus NW control under this plan.", lab, [
+       { name:"NE soil", values: rows.map(function(x){ return x.mNE; }), color:"#ff9e9e" },
+       { name:"NW control", values: rows.map(function(x){ return x.mNW; }), color:"#7fb3ff", dash:"6 4" } ], 0, 100, "index", cur, { values: rows.map(function(x){ return x.rain; }), scale:0.6 }) + "</div>";
+  h += "<div class=\"figure\">" + lineChart(prefix + "c2", "Crack gauge and door bottom-west clearance", "NE crack opening and the door's bottom-west gap in millimetres. Below 1.0 mm the door sticks in this model.", lab, [
+       { name:"NE crack mm", values: rows.map(function(x){ return x.crack; }), color:"#e3c06a" },
+       { name:"Bottom-west gap mm", values: rows.map(function(x){ return Math.max(0, x.gaps.BW); }), color:"#8fe0a8", dash:"5 3" } ], 0, 5, "mm", cur) + "<div class=\"figcap\">Dashed line marks the month you're viewing. The door sticks when the bottom-west gap is below " + f1(MODEL.stickBelow) + " mm (fictional).</div></div>";
+  h += monthTable(rows, cur);
+  return h;
+}
+function planOutcome(k, rows){
+  var fs = firstSticksMonth(rows), last = rows[11];
+  if (k==="A") return "Planing frees the door straight away, but the NE corner stays wet and the corner keeps moving. The door sticks again in <strong>" + (fs>=0 ? rows[fs].month : "—") + "</strong>. The crack reaches " + f1(last.crack) + " mm. This is symptom relief, not a fix.";
+  if (k==="B") return "The hinge reset gives a small gain, but the movement continues. The door sticks again in <strong>" + (fs>=0 ? rows[fs].month : "—") + "</strong>. The crack and soil readings are unchanged by hinge work. The crack reaches " + f1(last.crack) + " mm.";
+  if (k==="C") return "NE soil moisture falls within two months. The crack keeps opening for a short lag, then holds at " + f1(last.crack) + " mm. The existing distortion remains, so the door still " + (last.status==="Sticks"?"sticks":"is tight") + ". No one has evaluated whether the house is sound, so this is provisional only.";
+  return "Door work is held. The engineer reviews in November, and drainage is restored in December on her recommendation, one month later than plan C. Movement stops at a crack of " + f1(last.crack) + " mm. After three steady readings the door is eased with her written agreement. The crack doesn't close: compacted fill doesn't spring back.";
+}
+function viewPlans(){
+  var h = "<h2 id=\"view-h\" tabindex=\"-1\">Household plan board</h2><p class=\"story\">Ravi has the joiner's quote on the fridge. \"So do we plane it or not?\" Preview each option against the same twelve months of weather. Predict first, then run.</p>";
+  h += "<div class=\"plancards\">" + Object.keys(PLANS).map(function(k){ var p = PLANS[k], pv = state.prev[k];
+    return "<div class=\"plancard\"><h4>" + p.name + (pv.run ? " <span class=\"tag pro\">previewed</span>" : "") + "</h4><p class=\"small\">" + esc(p.what) + "</p><p class=\"small\"><strong>Benefit:</strong> " + esc(p.benefit) + "<br><strong>Limit:</strong> " + esc(p.limit) + "</p><button class=\"btn secondary\" id=\"psel-" + k + "\" data-action=\"psel\" data-k=\"" + k + "\" aria-pressed=\"" + (state.prevSel===k) + "\">Preview " + k + "</button></div>"; }).join("") + "</div>";
+  var k = state.prevSel, pv = state.prev[k];
+  h += "<section class=\"station\" aria-labelledby=\"pv-h\"><h3 id=\"pv-h\">Preview: " + PLANS[k].name + "</h3>";
+  h += "<fieldset><legend>Predict: under this plan, what changes first?" + (pv.run?" (locked after running)":"") + "</legend>" + radios("pp-" + k, PREVIEW_PRED, pv.pred, pv.run, "ppred", " data-k=\"" + k + "\"") + "</fieldset>";
+  if (!pv.run){
+    h += "<div class=\"btnrow\"><button class=\"btn\" id=\"prun-" + k + "\" data-action=\"prun\" data-k=\"" + k + "\"" + (pv.pred?"":" disabled") + ">Run twelve months</button></div>" + (pv.pred?"":"<p class=\"small\">Make a prediction first.</p>");
+  } else {
+    var rows = simulate(planFromKey(k));
+    var first = (k==="A"||k==="B") ? "door" : "soil";
+    h += "<p class=\"small\">Your prediction " + (pv.pred===first ? "matched: " : "didn't match: ") + (first==="door" ? "door clearance changes first, the day the carpenter works." : "NE soil moisture changes first. Movement follows with a lag.") + "</p>";
+    h += "<div class=\"result\"><strong>Outcome:</strong> " + planOutcome(k, rows) + "</div>";
+    h += timeline("pv" + k, rows, pv.month);
+  }
+  h += "</section>";
+  h += G.previewOk ? "<div class=\"okbox\">✓ You've seen the tempting fix and at least one alternative. Now choose a final monitored plan.</div><div class=\"btnrow\"><button class=\"btn\" id=\"go-final\" data-action=\"view\" data-v=\"final\">Choose the final plan</button></div>"
+                   : "<p class=\"small\">To continue, preview plan A (the tempting quick fix) and at least one other plan.</p>";
+  return h;
+}
+function viewFinal(){
+  var f = state.fin, key = G.finKey;
+  var h = "<h2 id=\"view-h\" tabindex=\"-1\">Twelve months: the final monitored plan</h2><p>Combine options if the evidence warrants it. Then predict, run, and step through all twelve months.</p>";
+  h += "<fieldset aria-describedby=\"fp-policy\"><legend>Your final household plan (choose one or more)</legend><p class=\"small\" id=\"fp-policy\"><strong>Plan rule:</strong> A and B mean doing cosmetic door work now. D means holding door work for professional review. They can't be part of the same final plan. A and B can still be previewed on their own at the plan board.</p>" + Object.keys(PLANS).map(function(k){ return "<label class=\"opt\" for=\"fp-" + k + "\"><input type=\"checkbox\" id=\"fp-" + k + "\" data-action=\"fplan\" data-k=\"" + k + "\"" + (f.plan.indexOf(k)>=0?" checked":"") + "><span><strong>" + PLANS[k].name + "</strong> — " + esc(PLANS[k].what) + "</span></label>"; }).join("") + "</fieldset>";
+  if (G.finConflict) h += "<div class=\"badbox\" id=\"fp-conflict\" role=\"alert\"><strong>These choices contradict each other.</strong> D holds all door work for the engineer, but " + (f.plan.indexOf("A")>=0 && f.plan.indexOf("B")>=0 ? "A and B" : (f.plan.indexOf("A")>=0 ? "A" : "B")) + " would do door work straight away. Untick " + (f.plan.indexOf("A")>=0 && f.plan.indexOf("B")>=0 ? "A and B" : (f.plan.indexOf("A")>=0 ? "A" : "B")) + ", or untick D, before running.</div>";
+  else if (key && !G.finHasD) h += "<div class=\"badbox\" role=\"status\">Active movement has been measured: the crack is still opening and the frame is out of square. A report can't be filed without a qualified structural review. You can still run this plan to see what happens.</div>";
+  h += "<fieldset><legend>Predict: under this plan, what changes first?" + (G.finRun?" (locked after running)":"") + "</legend>" + radios("fpred", PREVIEW_PRED, f.pred, G.finRun, "fpred") + "</fieldset>";
+  if (!G.finRun){
+    var why = !key ? "Choose at least one option." : (G.finConflict ? "Resolve the conflicting choices first (see the plan rule)." : (!f.pred ? "Make a prediction first." : ""));
+    h += "<div class=\"btnrow\"><button class=\"btn\" id=\"frun\" data-action=\"frun\"" + (why?" disabled":"") + ">Run the final twelve months</button></div>" + (why ? "<p class=\"small\">" + why + "</p>" : "");
+    return h;
+  }
+  var rows = simulate(planFromKey(key));
+  h += timeline("fin", rows, f.month);
+  h += monthsExamined(f);
+  if (!G.finHasD){ if (G.finRead) h += "<div class=\"badbox\">The run is complete, but without professional review this case can't be closed. Add plan D and run again.</div>"; }
+  else {
+    h += "<fieldset><legend>What did this run show? (you can change this)</legend>" + radios("finterp", FINAL_INTERP.map(function(o){ return [o[0], o[1]]; }), f.interp, false, "finterp") + "</fieldset>";
+    if (f.interp){ var o = FINAL_INTERP.filter(function(x){ return x[0]===f.interp; })[0]; h += "<div class=\"fb " + (f.interp==="b"?"good":"no") + "\" role=\"status\">" + esc(o[2]) + "</div>"; }
+  }
+  if (G.finHasD && !G.finRead && f.interp === "b") h += "<div class=\"badbox\" role=\"status\">The report stays locked until every month has been examined (" + G.finVisited + " of 12 so far).</div>";
+  if (G.complete) h += "<div class=\"okbox\" role=\"status\">✓ Every gate holds. Your final report is ready.</div><div class=\"btnrow\"><button class=\"btn\" id=\"go-report\" data-action=\"view\" data-v=\"report\">Open the final report</button></div>";
+  return h;
+}
+function monthsExamined(f){
+  var v = cleanVisits(f.visits), out = PROJ.months.filter(function(_, i){ return v.indexOf(i) < 0; });
+  return "<div class=\"panel soft\" aria-labelledby=\"mx-h\"><h3 id=\"mx-h\" style=\"margin-top:0\">Months examined: " + v.length + " of 12</h3>" +
+    "<ul class=\"stepper\" aria-label=\"Month visit record\">" + PROJ.months.map(function(m, i){ var on = v.indexOf(i) >= 0; return "<li class=\"" + (on ? "ok" : "") + "\">" + esc(m.replace(" 20"," '")) + (on ? " ✓ examined" : " · not yet") + "</li>"; }).join("") + "</ul>" +
+    (out.length ? "<p class=\"small\" role=\"status\">To finish reading the run, view each remaining month with the slider or the Previous/Next buttons: " + esc(out.join(", ")) + ". The table shows every month, but each must be viewed in turn.</p>" : "<p class=\"small\" role=\"status\">✓ All twelve months examined.</p>") + "</div>";
+}
+function viewReport(){
+  var rows = simulate(planFromKey(G.finKey)), last = rows[11], pl = state.fin.plan;
+  var cited = state.diag.cite.filter(function(c){ return G.ok[c]; });
+  var h = "<h2 id=\"view-h\" tabindex=\"-1\">Final report · 9 Tansy Row</h2><div class=\"report\">";
+  h += "<div class=\"okbox\"><strong>Outcome: cause addressed · movement stabilized in the model · professional monitoring continues.</strong><br><span class=\"small\">This is not a structural clearance. Only a qualified engineer can issue one, and in this story she has recommended continued annual checks.</span></div>";
+  h += "<h3>Primary explanation</h3><p>The frame is no longer square because of building movement, the leading hypothesis. Swelling is weakened to a minor seasonal contributor at most: both doors read the same moisture. Tired hinges are weakened: the hinges are firm, the hinge edge is even, and the wide corner is on the wrong side for sag.</p>";
+  h += "<h3>Evidence you collected and interpreted</h3><ul>" + cited.map(function(c){ return "<li>" + esc(ST[c].ev) + " — <em>" + esc(GROUPS[ST[c].group]) + "</em></li>"; }).join("") + "</ul>";
+  h += "<p class=\"small\">Also understood but not cited: " + esc(G.earned.filter(function(c){ return cited.indexOf(c)<0; }).map(function(c){ return ST[c].ev; }).join("; ") || "none") + ".</p>";
+  h += "<h3>Rain, moisture and movement</h3><p><span class=\"tag cor\">Correlation</span> After the July storm broke the NE downspout elbow, the NE probe ran well above the NW control. That gap was largest in the wet months of September and October, when the NE crack opened most. <span class=\"tag hyp\">Hypothesis for this house</span> Concentrated roof water saturated the loose fill under the NE footing, and the corner moved down. This is specific to this case, not a rule that wet soil always sinks.</p>";
+  h += "<h3>Recommendation</h3><ul><li><strong>Planing / hinges:</strong> cosmetic only while movement is active. In the preview, planing alone stuck again by spring.</li><li><strong>Drainage:</strong> restore it to an approved, verified discharge point. That removes the moisture driver, but it doesn't reverse existing distortion.</li><li><strong>Professional evaluation:</strong> essential. The structural engineer reviews, judges occupancy, monitors, and approves any door easing or further remedy.</li></ul>";
+  h += "<h3>Your twelve-month run (" + esc(pl.map(function(p){ return PLANS[p].name; }).join(" + ")) + ")</h3><p>By " + PROJ.months[11] + ": NE soil " + f1(last.mNE) + " (control " + f1(last.mNW) + "), NE crack held at " + f1(last.crack) + " mm, door: " + last.status.toLowerCase() + ". " + "Door work was held until the engineer agreed; monitoring continues.</p>";
+  h += "<h3>For June and Ravi</h3><p class=\"story\">\"The door was the first thing to notice, but it wasn't the problem. Roof water from one broken downspout was soaking the ground under the back corner of the house, and that corner moved a little. The door just happened to be where it showed. Shaving the door would have helped for a few weeks. Fixing the water and getting an engineer to watch the crack dealt with the cause.\"</p>";
+  h += "<h3>What this case did not prove</h3><p>The game showed a pattern, a correlation and a plausible mechanism in one fictional house. It didn't certify anyone's home, and in a real house the same symptoms can have other causes. Concerns about movement in a real building belong with a qualified structural engineer.</p>";
+  h += "<p class=\"tagline\">The little door knew something was changing. It took the whole house to tell you what.</p>";
+  return h + "</div>";
+}
+
+/* ===================== ACTIONS ===================== */
+function setView(v){ state.view = v; render(); var hd = document.getElementById("view-h"); if (hd) hd.focus(); window.scrollTo(0, document.getElementById("main").offsetTop - 8); }
+document.addEventListener("click", function(e){
+  var t = e.target.closest("[data-action]"); if (!t || t.disabled) return;
+  var a = t.getAttribute("data-action"), k = t.getAttribute("data-k");
+  if (a==="view"){ setView(t.getAttribute("data-v")); return; }
+  if (a==="resetAsk"){ resetAsk = true; render(); var c = document.getElementById("reset-cancel"); if (c) c.focus(); return; }
+  if (a==="resetCancel"){ resetAsk = false; render(); var r = document.getElementById("reset-ask"); if (r) r.focus(); announce("Reset cancelled. Your case is unchanged."); return; }
+  if (a==="resetConfirm"){ resetAsk = false; try { window.localStorage.removeItem(KEY); } catch(err){} state = fresh(); render(); setView("door"); announce("This case was reset. Other DoorQuests progress was not touched."); return; }
+  if (a==="corner"){ state.cornerSel = t.getAttribute("data-c"); render(); return; }
+  if (a==="record"){ if (!state.st.s1.pred) return; state.corners[state.cornerSel] = true; render(); announce(CORNERS[state.cornerSel].name + " recorded: " + f1(NOW.gaps[state.cornerSel]) + " millimetres."); return; }
+  if (a==="run"){ if (!state.st[k].pred || !computeGates(state).canRun[k]) return; if (k==="s8" && state.st.s8.seq.some(function(x){ return !x; })) return; state.st[k].run = true; render(); announce(ST[k].title + ": result recorded in the case file. Now interpret it."); return; }
+  if (a==="hint"){ state.st[k].hint = Math.min(3, state.st[k].hint + 1); render(); return; }
+  if (a==="psel"){ state.prevSel = k; render(); return; }
+  if (a==="prun"){ if (!state.prev[k].pred || !G.plansUnlocked) return; state.prev[k].run = true; state.prev[k].month = 0; render(); announce("Twelve-month preview of plan " + k + " is ready."); return; }
+  if (a==="frun"){ var key = state.fin.plan.join(""), gg = computeGates(state); if (!key || !state.fin.pred || !gg.finalUnlocked || planConflict(state.fin.plan)) { if (planConflict(state.fin.plan)) announce("Run refused: A or B cannot be combined with D in the final plan."); return; } state.fin.runKey = key; state.fin.month = 0; state.fin.visits = [0]; state.fin.interp = ""; render(); announce("Final twelve-month run is ready. Months examined: 1 of 12. View each month in turn."); return; }
+  if (a==="mstep"){ moveMonth(t.getAttribute("data-p"), parseInt(t.getAttribute("data-d"),10)); return; }
+});
+function moveMonth(p, d, abs){
+  var obj = p==="fin" ? state.fin : state.prev[p.replace("pv","")];
+  var m = typeof abs === "number" ? abs : obj.month + d;
+  obj.month = Math.max(0, Math.min(11, m));
+  if (p==="fin"){ if (!computeGates(state).finRun) return render(); var vv = cleanVisits(state.fin.visits); if (vv.indexOf(state.fin.month) < 0){ vv.push(state.fin.month); state.fin.visits = cleanVisits(vv); } }
+  render();
+}
+document.addEventListener("change", function(e){
+  var t = e.target, a = t.getAttribute("data-action"); if (!a) return;
+  var k = t.getAttribute("data-k"), before = computeGates(state);
+  if (a==="toggle"){ state[k] = t.checked; }
+  else if (a==="focus"){ state.st[k].focus = t.value; }
+  else if (a==="pred"){ if (state.st[k].run) return; if (k==="s1" && Object.keys(state.corners).some(function(c){ return state.corners[c]; })) return; state.st[k].pred = t.value; }
+  else if (a==="interp"){ if (!state.st[k].run) return; state.st[k].interp = t.value; }
+  else if (a==="field"){ if (!state.st[k].run) return; state.st[k][t.getAttribute("data-f")] = t.value; }
+  else if (a==="seq"){ state.st.s8.seq[parseInt(t.getAttribute("data-i"),10)] = t.value; }
+  else if (a==="diag"){ state.diag[k] = t.value; }
+  else if (a==="cite"){ var i = state.diag.cite.indexOf(k); if (t.checked && i<0 && G.ok[k]) state.diag.cite.push(k); if (!t.checked && i>=0) state.diag.cite.splice(i,1); }
+  else if (a==="ppred"){ if (state.prev[k].run) return; state.prev[k].pred = t.value; }
+  else if (a==="fplan"){ var j = state.fin.plan.indexOf(k); if (t.checked && j<0) state.fin.plan.push(k); if (!t.checked && j>=0) state.fin.plan.splice(j,1); state.fin.plan = ["A","B","C","D"].filter(function(p){ return state.fin.plan.indexOf(p)>=0; }); if (state.fin.runKey && state.fin.runKey !== state.fin.plan.join("")){ state.fin.runKey=""; state.fin.month=0; state.fin.visits=[]; state.fin.interp=""; state.fin.pred=""; } }
+  else if (a==="fpred"){ if (G.finRun) return; state.fin.pred = t.value; }
+  else if (a==="finterp"){ state.fin.interp = t.value; }
+  else if (a==="month"){ moveMonth(t.getAttribute("data-p"), 0, parseInt(t.value,10)); return; }
+  else if (a==="notes"){ state.notes = String(t.value).slice(0,2000); save(); return; }
+  else return;
+  render();
+  var after = computeGates(state);
+  if (before.complete && !after.complete) document.getElementById("alert").textContent = "Review needed: a changed answer means the case is no longer closed.";
+  else if (after.review.length > before.review.length) announce("Review needed: that interpretation doesn't fit the evidence. Progress depending on it is suspended.");
+  else if (after.done > before.done) announce("Verified step added. Progress: " + after.done + " of " + after.total + ".");
+});
+document.addEventListener("input", function(e){ var t = e.target; if (t.getAttribute("data-action")==="notes"){ state.notes = String(t.value).slice(0,2000); save(); } });
+document.addEventListener("toggle", function(e){ if (e.target.id==="introbox"){ state.introOpen = e.target.open; save(); } }, true);
+
+render();
+window.__DQ_BUILD001__ = { simulate: simulate, H: H, NOW: NOW, computeGates: computeGates, normalize: normalize, fresh: fresh, KEY: KEY, getState: function(){ return JSON.parse(JSON.stringify(state)); } };
+})();
+</script>
+</body>
+</html>
