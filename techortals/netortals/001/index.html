@@ -1,0 +1,1179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="DoorQuests · Techortals · Netortals #001 — Mail for the Empty Building. A fictional network investigation about round-trip reachability.">
+<title>Mail for the Empty Building · Netortals #001 · DoorQuests</title>
+<style>
+:root{
+  --navy:#0f1a2e; --navy2:#16243d; --navy3:#1f3150; --gold:#c9a95c; --gold2:#e3c987;
+  --parch:#f4ecda; --parch2:#e9dec4; --ink:#1d2433; --muted:#5a5f6b;
+  --ok:#1f6b3a; --okbg:#e2f1e5; --bad:#8a2323; --badbg:#f7e3e1; --unk:#5b4a14; --unkbg:#f5ecd0;
+  --focus:#ffd75e;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--navy);color:var(--parch);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
+h1,h2,h3,h4{font-family:Georgia,"Times New Roman",serif;line-height:1.25;margin:.2em 0 .5em}
+a{color:var(--gold2)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.skip{position:absolute;left:-999px;top:0;background:var(--gold);color:var(--navy);padding:8px 12px;z-index:10}
+.skip:focus{left:8px}
+header.top{padding:14px 16px 10px;border-bottom:1px solid #2c3f61;background:linear-gradient(180deg,#0b1424,#0f1a2e)}
+.brandrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brandrow svg{flex:0 0 auto}
+.brand small{display:block;color:var(--gold2);letter-spacing:.04em;font-size:.82rem}
+.brand h1{font-size:1.35rem;margin:.1em 0 0;color:var(--parch)}
+.star{color:var(--gold)}
+.badge{display:inline-block;border:1px solid var(--gold);color:var(--gold2);border-radius:999px;padding:2px 10px;font-size:.78rem;margin-top:6px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+button,.btn{font:inherit;min-height:44px;min-width:44px;padding:8px 14px;border-radius:8px;border:2px solid var(--gold);background:var(--navy3);color:var(--parch);cursor:pointer}
+button:hover{background:#2a4068}
+button.primary{background:var(--gold);color:var(--navy);font-weight:700}
+button.primary:hover{background:var(--gold2)}
+button.quiet{border-color:#55688c}
+button[disabled]{opacity:.55;cursor:not-allowed}
+nav.acts{padding:8px 16px;background:var(--navy2);border-bottom:1px solid #2c3f61}
+nav.acts ol{list-style:none;margin:0;padding:0;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+nav.acts li{flex:0 0 auto}
+nav.acts button{font-size:.88rem;padding:6px 10px;border-width:1px}
+nav.acts button[aria-current="step"]{background:var(--gold);color:var(--navy);font-weight:700}
+nav.acts .st{display:block;font-size:.72rem;opacity:.9}
+main{padding:16px;max-width:980px;margin:0 auto}
+.card{background:var(--parch);color:var(--ink);border-radius:12px;padding:16px;margin:0 0 16px;border:1px solid var(--parch2)}
+.card h2,.card h3{color:#14213a}
+.card.dark{background:var(--navy2);color:var(--parch);border-color:#2c3f61}
+.card.dark h2,.card.dark h3{color:var(--parch)}
+.kicker{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:#7a5d1d;margin:0}
+.dark .kicker{color:var(--gold2)}
+.clock{display:inline-block;background:var(--navy);color:var(--gold2);border-radius:6px;padding:2px 8px;font-variant-numeric:tabular-nums;font-size:.85rem}
+.scene p{margin:.45em 0}
+.say{border-left:4px solid var(--gold);padding:6px 10px;margin:8px 0;background:#fffaf0}
+.say b{font-family:Georgia,serif}
+fieldset{border:1px solid #c8b98f;border-radius:10px;margin:10px 0;padding:10px 12px}
+legend{font-weight:700;padding:0 6px}
+.opt{display:flex;gap:10px;align-items:flex-start;min-height:44px;padding:8px 6px;border-radius:8px;cursor:pointer}
+.opt:hover{background:#efe4c8}
+.opt input{width:22px;height:22px;margin-top:2px;flex:0 0 auto;accent-color:#14213a}
+.fb{border-radius:8px;padding:8px 10px;margin:8px 0;font-size:.95rem}
+.fb.ok{background:var(--okbg);color:var(--ok);border:1px solid #9cc8a6}
+.fb.bad{background:var(--badbg);color:var(--bad);border:1px solid #e0a9a3}
+.fb.unk{background:var(--unkbg);color:var(--unk);border:1px solid #d9c387}
+.fb.info{background:#e7ecf5;color:#1c2b48;border:1px solid #b8c4da}
+.tag{display:inline-block;font-size:.75rem;border-radius:999px;padding:1px 8px;margin-left:6px;border:1px solid currentColor;white-space:nowrap}
+.tblwrap{overflow-x:auto;max-width:100%;margin:8px 0;border:1px solid #d3c59e;border-radius:8px;background:#fffdf6}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:6px 8px;border-bottom:1px solid #e3d8bb;text-align:left;vertical-align:top}
+th{background:#efe4c8;font-weight:700}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.86em}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:.88rem;margin:8px 0}
+.meta dt{font-weight:700}
+.meta dd{margin:0}
+.grid2{display:grid;gap:12px}
+@media(min-width:760px){.grid2{grid-template-columns:1fr 1fr}}
+.station{border:1px solid #c8b98f;border-radius:10px;margin:12px 0;background:#fbf6ea}
+.station>summary{min-height:44px;padding:10px 12px;cursor:pointer;font-weight:700;list-style-position:inside}
+.station .inner{padding:0 12px 12px}
+.earned{color:var(--ok)}
+.pending{color:#7a5d1d}
+.hop{border:1px solid #d3c59e;border-radius:10px;padding:10px;margin:8px 0;background:#fffdf6}
+.hop h4{margin:0 0 6px;font-size:1rem}
+.hop .row{display:grid;gap:8px}
+@media(min-width:700px){.hop .row{grid-template-columns:1fr 1.6fr 1.4fr auto;align-items:end}}
+label.sel{display:block;font-size:.85rem;font-weight:700}
+select,input[type=number],input[type=text],textarea{font:inherit;min-height:44px;width:100%;padding:6px 8px;border:2px solid #8d7d55;border-radius:8px;background:#fff;color:var(--ink)}
+textarea{min-height:80px}
+.stampst{font-size:.85rem;margin-top:6px}
+.diagram{background:#0b1424;border-radius:10px;padding:8px;margin:10px 0;overflow-x:auto}
+.diagram svg{display:block;min-width:600px;width:100%;height:auto}
+.legend{font-size:.82rem;color:var(--parch);display:flex;gap:14px;flex-wrap:wrap;padding:4px 6px}
+.hist{list-style:none;padding:0;margin:8px 0}
+.hist li{border-left:4px solid #8d7d55;padding:4px 10px;margin:4px 0;background:#fffaf0;font-size:.92rem}
+.hist li.unsafe{border-color:var(--bad)}
+.hist li.safe{border-color:var(--ok)}
+.hist li.obs{border-color:#3b5b8c}
+.locked{opacity:.85}
+.progress{font-size:.85rem;color:var(--muted)}
+.dark .progress{color:#c7cfdd}
+footer{padding:20px 16px 40px;text-align:center;color:#aeb8cc;font-size:.85rem;border-top:1px solid #2c3f61}
+footer .tag{color:var(--gold2)}
+dialog{max-width:680px;width:calc(100% - 24px);border:2px solid var(--gold);border-radius:12px;padding:0;background:var(--parch);color:var(--ink)}
+dialog::backdrop{background:rgba(5,10,20,.7)}
+dialog .dhead{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#efe4c8}
+dialog .dbody{padding:10px 16px 16px;max-height:70vh;overflow:auto}
+dl.gloss dt{font-weight:700;margin-top:8px}
+dl.gloss dd{margin:2px 0 0}
+pre.report{white-space:pre-wrap;word-break:break-word;background:#fffdf6;border:1px solid #d3c59e;border-radius:8px;padding:10px;max-height:420px;overflow:auto;font-size:.8rem}
+.token{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.1rem;background:var(--navy);color:var(--gold2);padding:6px 10px;border-radius:8px;display:inline-block}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.door{animation:float 5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media (forced-colors:active){button[aria-current="step"],button.primary{outline:3px solid CanvasText}.fb{border:2px solid CanvasText}}
+@media(max-width:400px){main{padding:12px}.card{padding:12px}.brand h1{font-size:1.15rem}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the case</a>
+<header class="top">
+  <div class="brandrow">
+    <svg class="door" width="46" height="58" viewBox="0 0 46 58" role="img" aria-label="DoorQuests floating door emblem">
+      <ellipse cx="23" cy="55" rx="15" ry="2.5" fill="#000" opacity=".35"/>
+      <rect x="6" y="3" width="34" height="47" rx="3" fill="#1f3150" stroke="#c9a95c" stroke-width="2.5"/>
+      <rect x="11" y="8" width="24" height="17" rx="1.5" fill="none" stroke="#c9a95c" stroke-width="1.4"/>
+      <rect x="11" y="29" width="24" height="16" rx="1.5" fill="none" stroke="#c9a95c" stroke-width="1.4"/>
+      <path d="M14 16h6l3-4 3 8 3-4h3" fill="none" stroke="#e3c987" stroke-width="1.3"/>
+      <circle cx="33" cy="27" r="1.8" fill="#e3c987"/>
+    </svg>
+    <div class="brand">
+      <small>DoorQuests · Techortals · Netortals #001</small>
+      <h1>Mail for the Empty Building <span class="star" aria-label="flagship">★ FLAGSHIP</span></h1>
+      <span class="badge">Prototype · Not published · Fictional training case</span>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button type="button" id="btn-gloss" class="quiet">Glossary</button>
+    <button type="button" id="btn-reset" class="quiet">Reset this case</button>
+  </div>
+</header>
+<nav class="acts" aria-label="Case acts"><ol id="actnav"></ol></nav>
+<main id="main" tabindex="-1"></main>
+<div id="live" class="sr" role="status" aria-live="polite"></div>
+<footer>
+  <div><strong>DoorQuests</strong> — Choose Your Path. Find the Truth. Unlock the Impossible.</div>
+  <div>Techortals — Diagnose. Repair. Build. Master. · Created by The Axiom Continuum.</div>
+  <div style="margin-top:6px">A fictional, non-operational training story. All names, sites, addresses and records are invented. Nothing here is configuration guidance for real equipment.</div>
+  <div id="storemsg" style="margin-top:6px"></div>
+</footer>
+<dialog id="gloss" aria-labelledby="gloss-h">
+  <div class="dhead"><h2 id="gloss-h" style="margin:0;font-size:1.15rem">Glossary</h2><button type="button" id="gloss-close">Close</button></div>
+  <div class="dbody"><dl class="gloss" id="gloss-list"></dl></div>
+</dialog>
+<dialog id="confirm" aria-labelledby="confirm-h">
+  <div class="dhead"><h2 id="confirm-h" style="margin:0;font-size:1.15rem">Reset this case?</h2></div>
+  <div class="dbody"><p>This clears your progress in Netortals #001 only. Other DoorQuests games and their saves are not touched.</p>
+  <div class="toolbar"><button type="button" id="confirm-yes" class="primary">Yes, reset Netortals #001</button><button type="button" id="confirm-no">Cancel</button></div></div>
+</dialog>
+<script>
+'use strict';
+(function(){
+
+/* ===================== utilities ===================== */
+function deepFreeze(o){Object.getOwnPropertyNames(o).forEach(function(k){var v=o[k];if(v&&typeof v==='object'&&!Object.isFrozen(v))deepFreeze(v);});return Object.freeze(o);}
+function tms(s){if(s==null)return null;var m=/^(\d\d):(\d\d):(\d\d)(?:\.(\d{3}))?$/.exec(s);if(!m)return NaN;return((+m[1]*60+(+m[2]))*60+(+m[3]))*1000+(m[4]?+m[4]:0);}
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function fnv(str){var h=0x811c9dc5;for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return('00000000'+h.toString(16)).slice(-8).toUpperCase();}
+function h(tag,a){var e=document.createElement(tag);if(a){for(var k in a){var v=a[k];if(v==null||v===false)continue;if(k==='class')e.className=v;else if(k==='text')e.textContent=v;else if(k.slice(0,2)==='on')e.addEventListener(k.slice(2),v);else e.setAttribute(k,v===true?'':String(v));}}
+  for(var i=2;i<arguments.length;i++)add(e,arguments[i]);return e;}
+function add(e,c){if(c==null||c===false)return;if(Array.isArray(c)){c.forEach(function(x){add(e,x);});return;}e.append(c instanceof Node?c:document.createTextNode(String(c)));}
+function announce(t){var l=document.getElementById('live');l.textContent='';setTimeout(function(){l.textContent=t;},30);}
+
+/* ===================== CANONICAL CASE (single frozen source) ===================== */
+var CASE=deepFreeze({
+  id:'NET-001-SALTWICK', version:'1.0.0', schema:1,
+  storageKey:'doorquests:techortals:netortals:001:v1',
+  reportFile:'netortals-001-mail-for-the-empty-building-case-report.md',
+  title:'Mail for the Empty Building', collection:'Netortals', wing:'Techortals', number:'001',
+  caseDate:'Thursday 4 February (fictional case day, the morning after the storm)',
+  clock:'Saltwick Local Time (SLT), 24-hour hh:mm:ss.mmm. Every device in this case reports time from the same internal time source; offsets are under 20 ms and are verified in the records.',
+  lesson:'Connectivity is a round trip, so a request arriving proves nothing about the reply’s path home.',
+  people:{
+    wenna:{name:'Wenna Tregear',role:'Booking clerk at the temporary ticket cabin'},
+    dev:{name:'Dev Okonjo',role:'Booking-server analyst, operations centre'},
+    hester:{name:'Hester Pascoe',role:'Operations lead for Pier 1 desks and the passenger queue (authorised to confirm service restoration)'},
+    idris:{name:'Idris Kemp',role:'Qualified network engineer, network control (performs approved changes)'},
+    ros:{name:'Ros Penhallow',role:'Duty manager (approves changes)'},
+    you:{name:'You',role:'First-week trainee, network control'}
+  },
+  protocol:'The fictional ticket terminals use a one-datagram booking protocol (UDP port 7400): one request datagram, one offer datagram back, then a separate confirm datagram. Retries are set to 0 and the terminal waits 30 s before declaring a timeout. Because no connection set-up is needed, the server can receive a request and answer it even when answers cannot get home. (With a connection-based protocol the server would never have seen the request at all; this case deliberately uses the simpler design.)',
+  devices:[
+    {id:'CAB-07-T1',role:'Ticket terminal 1, moved to the cabin',addr:'10.40.12.31',where:'Temporary cabin by the gangway'},
+    {id:'CAB-07-T2',role:'Ticket terminal 2, moved to the cabin',addr:'10.40.12.32',where:'Temporary cabin by the gangway'},
+    {id:'CAB-EDGE',role:'New cabin edge router (LAN gateway 10.40.12.1)',addr:'uplink 10.40.254.9',where:'Temporary cabin'},
+    {id:'SAL-CORE',role:'Core router: chooses where each packet goes next',addr:'10.40.254.10 / .2 / .18',where:'Operations centre'},
+    {id:'OLD-HBR',role:'Old harbor-office edge router, still powered',addr:'uplink 10.40.254.1, management 10.40.250.4',where:'Boarded-up harbor building'},
+    {id:'BOOK-SRV',role:'Booking server (book.saltwick-ferry.example)',addr:'10.40.90.10, UDP 7400',where:'Operations centre'},
+    {id:'PIER-EDGE',role:'Pier 1 edge router',addr:'uplink 10.40.254.17',where:'Pier 1'},
+    {id:'P1-D1 / P1-D2',role:'Pier 1 sales desks',addr:'10.40.20.11 / 10.40.20.12',where:'Pier 1'},
+    {id:'MON-HARBOR',role:'Dashboard check labelled “Harbor Office”',addr:'probes 10.40.250.4',where:'Operations centre'}
+  ],
+  subnets:[
+    {net:'10.40.12.0/24',name:'Office subnet (moved from the harbor building to the cabin, addresses unchanged)'},
+    {net:'10.40.20.0/24',name:'Pier 1 desks'},
+    {net:'10.40.90.0/24',name:'Operations centre servers'},
+    {net:'10.40.254.0/24',name:'Router-to-router links (/30 each)'},
+    {net:'10.40.250.0/24',name:'Router management addresses'}
+  ],
+  verifiedLocal:'Already verified in the move records and not in dispute: both cabin terminals reach their gateway on CAB-EDGE (10.40.12.1), and CAB-EDGE sends everything else up its link to SAL-CORE. The open question is only how SAL-CORE sends traffic back to 10.40.12.0/24.',
+  cabin:[
+    {id:'SW-401',term:'CAB-07-T1',src:'10.40.12.31',sport:50211,send:'11:03:05.120',edgeOut:'11:03:05.124',coreFwd:'11:03:05.131',srvRx:'11:03:05.138',srvTx:'11:03:05.402',coreRet:'11:03:05.409',oldRx:null,timeout:'11:03:35.120',hold:'HOLD-7728',holdExp:'11:13:05'},
+    {id:'SW-402',term:'CAB-07-T2',src:'10.40.12.32',sport:50214,send:'11:06:41.500',edgeOut:'11:06:41.504',coreFwd:'11:06:41.511',srvRx:'11:06:41.518',srvTx:'11:06:41.771',coreRet:'11:06:41.778',oldRx:'11:06:41.790',timeout:'11:07:11.500',hold:'HOLD-7729',holdExp:'11:16:41'},
+    {id:'SW-403',term:'CAB-07-T1',src:'10.40.12.31',sport:50219,send:'11:09:12.250',edgeOut:'11:09:12.254',coreFwd:'11:09:12.261',srvRx:'11:09:12.269',srvTx:'11:09:12.530',coreRet:'11:09:12.537',oldRx:'11:09:12.549',timeout:'11:09:42.250',hold:'HOLD-7731',holdExp:'11:19:12'},
+    {id:'SW-404',term:'CAB-07-T2',src:'10.40.12.32',sport:50223,send:'11:11:58.010',edgeOut:'11:11:58.014',coreFwd:'11:11:58.021',srvRx:'11:11:58.029',srvTx:'11:11:58.301',coreRet:'11:11:58.308',oldRx:'11:11:58.320',timeout:'11:12:28.010',hold:'HOLD-7732',holdExp:'11:21:58'},
+    {id:'SW-405',term:'CAB-07-T1',src:'10.40.12.31',sport:50230,send:'11:14:20.640',edgeOut:'11:14:20.644',coreFwd:'11:14:20.651',srvRx:'11:14:20.659',srvTx:'11:14:20.912',coreRet:'11:14:20.919',oldRx:'11:14:20.931',timeout:'11:14:50.640',hold:'HOLD-7733',holdExp:'11:24:20'},
+    {id:'SW-406',term:'CAB-07-T2',src:'10.40.12.32',sport:50236,send:'11:17:03.330',edgeOut:'11:17:03.334',coreFwd:'11:17:03.341',srvRx:'11:17:03.349',srvTx:'11:17:03.611',coreRet:'11:17:03.618',oldRx:'11:17:03.630',timeout:'11:17:33.330',hold:'HOLD-7735',holdExp:'11:27:03'}
+  ],
+  pier:[
+    {id:'P1-121',term:'P1-D2',src:'10.40.20.12',sport:61402,send:'11:08:30.100',srvRx:'11:08:30.109',srvTx:'11:08:30.322',deskRx:'11:08:30.331',confirm:'11:08:31.020',booked:'11:08:31.402',hold:'HOLD-7730',booking:'BK-55021'},
+    {id:'P1-122',term:'P1-D1',src:'10.40.20.11',sport:61417,send:'11:16:10.700',srvRx:'11:16:10.709',srvTx:'11:16:10.934',deskRx:'11:16:10.943',confirm:'11:16:11.660',booked:'11:16:12.010',hold:'HOLD-7734',booking:'BK-55022'}
+  ],
+  post:[
+    {id:'SW-501',term:'CAB-07-T1',sport:50301,send:'13:44:10.200',edgeOut:'13:44:10.204',srvRx:'13:44:10.218',srvTx:'13:44:10.480',coreRet:'13:44:10.487',edgeIn:'13:44:10.495',clientRx:'13:44:10.499',confirm:'13:44:12.900',booked:'13:44:13.310',booking:'BK-55088',receipt:'RCPT-C0501'},
+    {id:'SW-502',term:'CAB-07-T2',sport:50305,send:'13:46:30.050',edgeOut:'13:46:30.054',srvRx:'13:46:30.068',srvTx:'13:46:30.322',coreRet:'13:46:30.329',edgeIn:'13:46:30.337',clientRx:'13:46:30.341',confirm:'13:46:32.410',booked:'13:46:32.790',booking:'BK-55090',receipt:'RCPT-C0502'},
+    {id:'SW-503',term:'CAB-07-T1',sport:50309,send:'13:49:05.700',edgeOut:'13:49:05.704',srvRx:'13:49:05.718',srvTx:'13:49:05.969',coreRet:'13:49:05.976',edgeIn:'13:49:05.984',clientRx:'13:49:05.988',confirm:'13:49:08.120',booked:'13:49:08.505',booking:'BK-55091',receipt:'RCPT-C0503'},
+    {id:'SW-504',term:'CAB-07-T2',sport:50314,send:'13:51:40.330',edgeOut:'13:51:40.334',srvRx:'13:51:40.348',srvTx:'13:51:40.611',coreRet:'13:51:40.618',edgeIn:'13:51:40.626',clientRx:'13:51:40.630',confirm:'13:51:42.700',booked:'13:51:43.080',booking:'BK-55092',receipt:'RCPT-C0504'}
+  ],
+  pierReg:[
+    {id:'P1-129',when:'before change',term:'P1-D1',send:'13:22:05.400',srvTx:'13:22:05.623',deskRx:'13:22:05.632',booked:'13:22:06.880',booking:'BK-55087'},
+    {id:'P1-131',when:'after change',term:'P1-D2',send:'13:44:55.800',srvTx:'13:44:56.021',deskRx:'13:44:56.030',booked:'13:44:57.240',booking:'BK-55089'}
+  ],
+  counters:[
+    {t:'10:40:00',filt:412,all:61220,cabinResp:0},
+    {t:'11:00:00',filt:412,all:62904,cabinResp:0},
+    {t:'11:20:00',filt:418,all:64511,cabinResp:6},
+    {t:'13:25:00',filt:418,all:74880,cabinResp:0},
+    {t:'13:40:00',filt:418,all:76031,cabinResp:0},
+    {t:'14:10:00',filt:418,all:78330,cabinResp:4}
+  ],
+  counterNote:'OLD-HBR uplink, inbound. “Filtered” counts only UDP datagrams from 10.40.90.10 port 7400 addressed to 10.40.12.0/24 (booking replies for the office subnet). “All” counts every inbound packet, including router keep-alives and the dashboard’s pings, so it rises whatever the cabin does. Values are cumulative since OLD-HBR restarted at 06:12 after the storm; the 412 earlier replies are legitimate sales made in the harbor office between 06:30 and 09:20, before the move. cabinResp = cabin booking replies BOOK-SRV transmitted between the previous reading and this one.',
+  deltaWindows:[
+    {id:'A',from:'11:00:00',to:'11:20:00',filtDelta:6,allDelta:1607,cabinResp:6,cabinReceived:0,verdict:'corroborating',why:'Six cabin replies were transmitted and the filtered counter rose by exactly six while none reached the cabin.'},
+    {id:'B',from:'11:20:00',to:'13:25:00',filtDelta:0,allDelta:10369,cabinResp:0,cabinReceived:0,verdict:'uninformative',why:'Cabin sales were paused under the hold, so no cabin replies existed to be diverted. A flat counter with no traffic proves nothing.'},
+    {id:'C',from:'13:40:00',to:'14:10:00',filtDelta:0,allDelta:2299,cabinResp:4,cabinReceived:4,verdict:'corroborating',why:'Four cabin replies flowed after the change, all four were captured arriving at the cabin, and the filtered counter stayed flat.'}
+  ],
+  dashboard:{label:'Harbor Office: healthy',check:'ICMP echo (ping) every 60 s to 10.40.250.4, the management address of OLD-HBR',lastRefresh:'11:24:00',rtt:'3 ms',measures:'Only that the old harbor router is powered and answers a ping. It does not test any booking, any terminal, or the cabin.'},
+  dns:{name:'book.saltwick-ferry.example',answer:'10.40.90.10',resolver:'RES-1 10.40.90.53',asked:'11:02:40.018 by CAB-07-T1 and 11:02:41.204 by CAB-07-T2',ttl:'3600 s',note:'The answer matches BOOK-SRV, and the server capture shows the cabin requests arriving at 10.40.90.10.'},
+  routeBefore:[
+    {prefix:'10.40.12.0/24',nh:'10.40.254.1 (OLD-HBR)',type:'static',changed:'2024-06-03 (CHG-1408, office link install)'},
+    {prefix:'10.40.20.0/24',nh:'10.40.254.17 (PIER-EDGE)',type:'static',changed:'2025-01-22'},
+    {prefix:'10.40.90.0/24',nh:'directly connected',type:'connected',changed:'—'},
+    {prefix:'10.40.254.8/30',nh:'directly connected (link to CAB-EDGE)',type:'connected',changed:'today 10:15 (MOVE-0317)'}
+  ],
+  routeAfter:{prefix:'10.40.12.0/24',nh:'10.40.254.9 (CAB-EDGE)',type:'static',changed:'today 13:36:20 (CHG-2291)'},
+  moveTicket:{id:'MOVE-0317',title:'Relocate harbor booking office to temporary cabin (storm damage)',owner:'Night shift network technician (off shift since 11:00)',
+    tasks:[
+      {n:1,text:'Move terminals CAB-07-T1 and CAB-07-T2 to the cabin; keep addresses 10.40.12.31/.32',status:'Done 09:40',truth:'done'},
+      {n:2,text:'Install CAB-EDGE and connect its uplink to SAL-CORE (10.40.254.8/30)',status:'Done 10:15',truth:'done'},
+      {n:3,text:'Configure gateway 10.40.12.1 on CAB-EDGE; check both terminals reach it',status:'Done 10:30',truth:'done'},
+      {n:4,text:'Verify cabin can reach BOOK-SRV (test: “request appears in server log”)',status:'Done 10:52',truth:'oneway'},
+      {n:5,text:'Update return route for 10.40.12.0/24 on SAL-CORE — see handover note',status:'(blank — no handover note attached)',truth:'open'},
+      {n:6,text:'Power down OLD-HBR',status:'Deferred — building closed by storm damage',truth:'deferred'}
+    ],
+    notListed:'Re-point the “Harbor Office” dashboard check at the cabin service'},
+  sandbox:{
+    restart:{label:'SANDBOX REPLAY — not a real action',lines:[
+      'Simulated BOOK-SRV restart 12:01:00–12:05:00 (training replay only; nothing was restarted).',
+      'Pier 1 in the replay: SIM-P1-901, SIM-P1-902 and SIM-P1-903 interrupted mid-sale, re-tried after 12:05, completed late. Real Pier 1 records are unchanged.',
+      'Cabin in the replay: SIM-SW-951 at 12:06:12 — server receives and replies, terminal times out at 12:06:42. No booking.',
+      'Old-router filtered counter in the replay: +1 for SIM-SW-951. The replies still go to the empty building.']},
+    declare:{label:'SANDBOX REPLAY — not a real action',lines:[
+      'Simulated cabin sale SIM-SW-952 at 12:02:30 after “the cabin is healthy” is announced.',
+      'Server replies at 12:02:30.264 (offer HOLD-SIM-952). Terminal times out at 12:03:00. No booking record exists.',
+      'In the replay the passenger is nearly handed a hand-written “ticket” that matches no booking. The replay stops before any ticket is issued.',
+      'The claim must be withdrawn: the server answering is not the cabin receiving.']}
+  },
+  change:{id:'CHG-2291',requested:'12:10 (raised by network control after the trainee’s escalation)',approved:'13:12 by Ros Penhallow, duty manager',window:'13:30–13:40',engineer:'Idris Kemp',implemented:'13:36:20',backout:'Restore the previous next hop for 10.40.12.0/24 (recorded in the change). Backout readiness confirmed at 13:28.',scope:'One route entry on SAL-CORE for 10.40.12.0/24. No server, Pier 1 or firewall changes.',restoredBy:'Hester Pascoe confirmed cabin service restored at 14:12 after the checks below.'}
+});
+
+/* ===================== ledger hops & sources (derived truth) ===================== */
+var HOPS={
+  cabin:[
+    {id:'O1',dir:'Outbound',from:'Cabin terminal',to:'CAB-EDGE',text:'Cabin terminal sends the request',at:'send'},
+    {id:'O2',dir:'Outbound',from:'CAB-EDGE',to:'SAL-CORE',text:'CAB-EDGE forwards the request up to SAL-CORE',at:'edgeOut'},
+    {id:'O3',dir:'Outbound',from:'SAL-CORE',to:'BOOK-SRV',text:'SAL-CORE forwards the request to BOOK-SRV',at:'coreFwd'},
+    {id:'O4',dir:'Outbound',from:'network',to:'BOOK-SRV',text:'BOOK-SRV receives the request',at:'srvRx'},
+    {id:'R1',dir:'Return',from:'BOOK-SRV',to:'SAL-CORE',text:'BOOK-SRV transmits the matching reply',at:'srvTx'},
+    {id:'R2',dir:'Return',from:'SAL-CORE',to:'OLD-HBR',text:'SAL-CORE forwards the reply to OLD-HBR (old building)',at:'coreRet'},
+    {id:'R3',dir:'Return',from:'SAL-CORE',to:'OLD-HBR',text:'OLD-HBR receives the reply on its uplink',at:'oldRx',fallback:'coreRet'},
+    {id:'R4',dir:'Return',from:'OLD-HBR',to:'old office LAN',text:'OLD-HBR delivers the reply onto the empty old-office network',at:'coreRet'},
+    {id:'R5',dir:'Return',from:'SAL-CORE',to:'CAB-EDGE',text:'CAB-EDGE receives the reply on its uplink (expected path home)',at:'srvTx'},
+    {id:'R6',dir:'Return',from:'CAB-EDGE',to:'Cabin terminal',text:'Cabin terminal receives the reply',at:'srvTx'}
+  ],
+  pier:[
+    {id:'PO1',dir:'Outbound',from:'Pier 1 desk',to:'PIER-EDGE',text:'Pier 1 desk sends the request',at:'send'},
+    {id:'PO4',dir:'Outbound',from:'network',to:'BOOK-SRV',text:'BOOK-SRV receives the request',at:'srvRx'},
+    {id:'PR1',dir:'Return',from:'BOOK-SRV',to:'SAL-CORE',text:'BOOK-SRV transmits the matching reply',at:'srvTx'},
+    {id:'PR6',dir:'Return',from:'PIER-EDGE',to:'Pier 1 desk',text:'Pier 1 desk receives the reply',at:'deskRx'},
+    {id:'PB',dir:'Outcome',from:'Pier 1 desk',to:'booking database',text:'Booking is confirmed and recorded',at:'booked'}
+  ]
+};
+function mapE(list,key){var o={};list.forEach(function(r){if(r[key])o[r.id]=r[key];});return o;}
+var C=CASE.cabin,P=CASE.pier;
+var SOURCES=deepFreeze([
+  {id:'CLIENT',station:'S1',kind:'client',label:'CAB-07 terminal trace and timeout log',observer:'CAB-07-T1 and CAB-07-T2 (terminal software trace, read by Wenna)',window:['11:02:00.000','11:20:00.000'],absenceOK:true,measures:['O1','R6'],entries:{O1:mapE(C,'send'),R6:{}}},
+  {id:'SRVAPP',station:'S2',kind:'applog',label:'BOOK-SRV application log',observer:'Booking application on BOOK-SRV (its own statements)',window:['11:00:00.000','11:30:00.000'],absenceOK:false,measures:[],entries:{}},
+  {id:'SRVCAP',station:'S2',kind:'capture',label:'BOOK-SRV network-interface capture',observer:'Capture on BOOK-SRV’s network interface (Dev Okonjo)',window:['11:00:00.000','11:30:00.000'],absenceOK:true,measures:['O4','R1','PO4','PR1'],entries:{O4:mapE(C,'srvRx'),R1:mapE(C,'srvTx'),PO4:mapE(P,'srvRx'),PR1:mapE(P,'srvTx')}},
+  {id:'EDGECAP',station:'S3',kind:'capture',label:'CAB-EDGE uplink capture (both directions)',observer:'Capture on CAB-EDGE’s link to SAL-CORE (move plan “first-hour capture”)',window:['11:02:00.000','11:20:00.000'],absenceOK:true,measures:['O2','R5'],entries:{O2:mapE(C,'edgeOut'),R5:{}}},
+  {id:'COREFLOW',station:'S4',kind:'flow',label:'SAL-CORE forwarding (flow) records',observer:'SAL-CORE flow export, paired to request IDs by address and port',window:['11:00:00.000','11:30:00.000'],absenceOK:false,measures:['O3','R2'],entries:{O3:mapE(C,'coreFwd'),R2:mapE(C,'coreRet')}},
+  {id:'ROUTE',station:'S4',kind:'route',label:'SAL-CORE route summary (snapshot 11:31:00)',observer:'SAL-CORE route table, read by Idris Kemp',window:null,absenceOK:false,measures:[],entries:{}},
+  {id:'OLDCAP',station:'S5',kind:'capture',label:'OLD-HBR uplink capture (inbound)',observer:'Capture on OLD-HBR’s uplink, started remotely by Idris Kemp',window:['11:05:00.000','11:20:00.000'],absenceOK:true,measures:['R3'],entries:{R3:mapE(C,'oldRx')}},
+  {id:'OLDCTR',station:'S5',kind:'counter',label:'OLD-HBR filtered reply counter',observer:'OLD-HBR interface counter (polled)',window:null,absenceOK:false,measures:[],entries:{}},
+  {id:'OLDALL',station:'S5',kind:'counter',label:'OLD-HBR all-packets counter (unfiltered)',observer:'OLD-HBR interface counter (polled)',window:null,absenceOK:false,measures:[],entries:{}},
+  {id:'MON',station:'S5',kind:'dashboard',label:'MON-HARBOR dashboard “Harbor Office: healthy”',observer:'Dashboard ping check of 10.40.250.4',window:null,absenceOK:false,measures:[],entries:{}},
+  {id:'MOVE',station:'S6',kind:'admin',label:'Move ticket MOVE-0317',observer:'Ticket system (administrative record)',window:null,absenceOK:false,measures:[],entries:{}},
+  {id:'DNS',station:'S7',kind:'dns',label:'Name lookup record (RES-1)',observer:'Resolver RES-1 query log',window:null,absenceOK:false,measures:[],entries:{}},
+  {id:'P1DESK',station:'S8',kind:'client',label:'Pier 1 desk trace',observer:'P1-D1 and P1-D2 terminal software trace',window:['11:00:00.000','11:30:00.000'],absenceOK:true,measures:['PO1','PR6'],entries:{PO1:mapE(P,'send'),PR6:mapE(P,'deskRx')}},
+  {id:'BOOKDB',station:'S8',kind:'record',label:'Booking database (confirmed bookings and holds)',observer:'Booking database records',window:['06:00:00.000','23:59:59.999'],absenceOK:true,measures:['PB'],entries:{PB:mapE(P,'booked')}}
+]);
+var SRCBY={};SOURCES.forEach(function(s){SRCBY[s.id]=s;});
+var TRACES={'SW-401':'cabin','SW-402':'cabin','SW-403':'cabin','SW-404':'cabin','SW-405':'cabin','SW-406':'cabin','P1-121':'pier','P1-122':'pier'};
+var REQUIRED_TRACES=['SW-401','SW-403','P1-121'];
+var STAMPS=['SEEN','NOT SEEN','UNKNOWN'];
+function traceRec(id){return TRACES[id]==='cabin'?C.filter(function(r){return r.id===id;})[0]:P.filter(function(r){return r.id===id;})[0];}
+function hopsFor(id){return HOPS[TRACES[id]];}
+function hopTime(id,hop){var r=traceRec(id);var v=r[hop.at];if(v==null&&hop.fallback)v=r[hop.fallback];return v;}
+function inWin(s,t){if(!s.window)return false;var x=tms(t);return x>=tms(s.window[0])&&x<=tms(s.window[1]);}
+function truth(id,hop){
+  var t=hopTime(id,hop);
+  var cov=SOURCES.filter(function(s){return s.measures.indexOf(hop.id)>=0&&inWin(s,t);});
+  var withE=cov.filter(function(s){return s.entries[hop.id]&&s.entries[hop.id][id];});
+  if(withE.length)return{stamp:'SEEN',valid:withE.map(function(s){return{src:s.id,entry:id};})};
+  var abs=cov.filter(function(s){return s.absenceOK;});
+  if(abs.length)return{stamp:'NOT SEEN',valid:abs.map(function(s){return{src:s.id,entry:'none'};})};
+  return{stamp:'UNKNOWN',valid:[{src:'NONE',entry:'none'}]};
+}
+function srcIds(s){var o={};Object.keys(s.entries).forEach(function(k){Object.keys(s.entries[k]).forEach(function(i){o[i]=1;});});return Object.keys(o).sort();}
+function hopById(id,hid){return hopsFor(id).filter(function(x){return x.id===hid;})[0];}
+var KIND_MSG={
+  route:'A route summary predicts where SAL-CORE would send traffic. It is not an observation of any particular packet. Cite a record that saw this request’s traffic.',
+  counter:'A counter shows how many packets passed, not which ones. It carries no request IDs, so it cannot prove that this particular reply took this hop.',
+  applog:'The application log is the booking program’s own statement (“reply sent”). For a packet hop, cite a capture that saw the packet on the wire.',
+  dashboard:'The dashboard only pings the old router’s management address. It observes no booking traffic at all.',
+  admin:'The move ticket is an administrative record. It can hint at a cause but it observes no traffic.',
+  dns:'The name lookup record shows which address the name pointed to. It does not watch packets on this hop.'
+};
+function validateHop(id,hid,e){
+  var hop=hopById(id,hid);var T=truth(id,hop);
+  if(!e||!e.s)return{ok:false,msg:'Choose a stamp.'};
+  var ok=e.s===T.stamp&&T.valid.some(function(v){return v.src===e.src&&v.entry===e.e;});
+  if(ok){var lbl=e.src==='NONE'?'no qualified observer covers this hop':SRCBY[e.src].label;return{ok:true,msg:'Accepted: '+e.s+' — '+lbl+'.'};}
+  var t=hopTime(id,hop);
+  if(!e.src)return{ok:false,msg:'Name the observer. A stamp with no source is only an opinion.'};
+  if(e.src==='NONE'){
+    if(e.s!=='UNKNOWN')return{ok:false,msg:e.s+' must cite the observer whose record covered this hop. “No observation” only supports UNKNOWN.'};
+    return{ok:false,msg:'A qualified observation does cover this hop for '+id+'. Look again at which records watch “'+hop.to+'”.'};
+  }
+  var s=SRCBY[e.src];
+  if(!s)return{ok:false,msg:'That source is not in your evidence.'};
+  if(s.measures.indexOf(hid)<0){
+    if(KIND_MSG[s.kind])return{ok:false,msg:KIND_MSG[s.kind]};
+    return{ok:false,msg:'“'+s.label+'” is observed at a different place. It does not watch this hop ('+hop.from+' → '+hop.to+').'};
+  }
+  if(!inWin(s,t))return{ok:false,msg:'“'+s.label+'” ran '+s.window[0].slice(0,8)+'–'+s.window[1].slice(0,8)+'. This hop for '+id+' happened at about '+t+', outside that window, so the record can neither show nor rule it out.'};
+  var has=s.entries[hid]&&s.entries[hid][id];
+  if(e.e&&e.e!=='none'&&e.e!==id)return{ok:false,msg:'That line belongs to '+e.e+', not '+id+'. Match the request ID you are tracing.'};
+  if((!e.e||e.e==='none')&&has)return{ok:false,msg:'This record does contain a line for '+id+' (at '+has+'). Select it.'};
+  if(e.e===id&&!has)return{ok:false,msg:'There is no line for '+id+' in this record.'};
+  if(has&&e.s!=='SEEN')return{ok:false,msg:'The record shows '+id+' at '+has+'. A matching line inside the window is SEEN.'};
+  if(!has&&e.s==='SEEN')return{ok:false,msg:'SEEN needs a matching line, and this record has none for '+id+'.'};
+  if(!has&&e.s==='UNKNOWN')return{ok:false,msg:'This record watched this hop for the whole window and saw nothing for '+id+'. That is an evidence-bound NOT SEEN (for this place and window only).'};
+  return{ok:false,msg:'That combination does not match the records.'};
+}
+
+/* ===================== content: Act I ===================== */
+var CLAIMS=[
+  {id:'c1',who:'Wenna',text:'Terminal CAB-07-T1 logged “no reply after 30 s” for request SW-403 at 11:09:42.250.',a:'obs',why:'A timestamped record made by the terminal itself, at a known place.'},
+  {id:'c2',who:'Dev',text:'The server’s application log shows “reply sent” for SW-403 at 11:09:12.530.',a:'obs',why:'A specific log line, though it is the application’s own statement — Act II tests what it can prove.'},
+  {id:'c3',who:'Dashboard',text:'“Harbor Office: healthy” — so the harbor network is fine and bookings should work.',a:'cert',why:'Jumps from a ping result to a sweeping claim about bookings that the check never tested.'},
+  {id:'c4',who:'Hester',text:'The Pier 1 staff told me they have been selling normally all morning.',a:'rep',why:'A second-hand account relayed by someone else, not yet checked against records.'},
+  {id:'c5',who:'Overheard',text:'The server must be broken — nothing is coming back.',a:'cert',why:'Treats one possibility as certain while the server log says replies were sent.'},
+  {id:'c6',who:'Dev',text:'If the server sent replies and the cabin got none, the replies are being lost somewhere between them.',a:'inf',why:'A reasoned conclusion from two observations. It could still be wrong.'},
+  {id:'c7',who:'Counter screen',text:'OLD-HBR’s filtered reply counter read 412 at 11:00:00 and 418 at 11:20:00.',a:'obs',why:'Two recorded counter readings at stated times.'},
+  {id:'c8',who:'Overheard',text:'Someone at the cabin must be typing the bookings wrong.',a:'cert',why:'An accusation with no evidence behind it. Nobody in this case is lying or careless.'},
+  {id:'c9',who:'Wenna',text:'The van driver said the lights were still on in the old building’s comms cupboard.',a:'rep',why:'A second-hand account of something someone else saw.'},
+  {id:'c10',who:'Hester',text:'Pier 1 uses the same server, so the server is probably able to process bookings.',a:'inf',why:'A cautious conclusion (“probably”) drawn from another observation.'}
+];
+var CLS=[{v:'obs',label:'Observation'},{v:'rep',label:'Report (second-hand)'},{v:'inf',label:'Inference'},{v:'cert',label:'Unsupported certainty'}];
+var POSTURES=[
+  {v:'restart',label:'Ask the server team to restart BOOK-SRV right away so the cabin can sell.',fb:'Pier 1 is selling through this very server. A restart would interrupt working desks before anyone has shown the server is at fault.'},
+  {v:'release',label:'Tell Wenna the cabin is fine — the server answered every request — and keep selling.',fb:'The server sending a reply is not the cabin receiving it. Six passengers have already timed out. Telling the queue they are booked could produce tickets that match no booking.'},
+  {v:'reroute',label:'Log in to the core router and try route changes until the cabin works.',fb:'Trainees never change production routing, and guessing at routes could break Pier 1 too. Route changes belong to the qualified engineer, under an approved change.'},
+  {v:'safe',label:'Preserve the logs and captures, protect Pier 1 (no restarts, no routing edits), and escalate to network control while we investigate.',fb:'Right. Nothing is touched, the evidence is kept, and working Pier 1 sales stay safe.'}
+];
+var HYPS=[
+  {v:'server',label:'The booking server is failing'},
+  {v:'app',label:'The booking application is misconfigured for the cabin'},
+  {v:'dns',label:'The cabin is looking up the wrong name or address'},
+  {v:'conn',label:'Something about the new cabin connection is faulty'}
+];
+
+/* ===================== content: Act II stations ===================== */
+var STATIONS=[
+  {id:'S1',title:'Cabin terminal send and timeout log',who:'wenna',
+   pred:[{v:'a',label:'Requests were never sent'},{v:'b',label:'Requests were sent, then timed out'},{v:'c',label:'Requests got replies that were rejected'}],
+   sup:[{v:'a',label:'The cabin terminals sent six requests (SW-401 to SW-406) and received no reply to any of them within 30 s.'},{v:'b',label:'The server never received the cabin requests.'},{v:'c',label:'The cabin network link is down.'},{v:'d',label:'The terminals are misconfigured.'}],supA:'a',
+   lim:[{v:'a',label:'It cannot show where the requests went after leaving the terminal, or whether a reply was sent and lost elsewhere.'},{v:'b',label:'It cannot be trusted because Wenna wrote it.'},{v:'c',label:'It proves nothing because timeouts are normal.'},{v:'d',label:'It has no limits: a timeout settles the cause.'}],limA:'a',
+   fbS:{b:'The terminal cannot see the server. It only knows that nothing came back.',c:'The terminal reached its gateway and sent requests, so the link was not simply down.',d:'Nothing in the log points to terminal settings; both terminals behave the same.'},
+   fbL:{b:'The record is machine-written and timestamped. The question is what it can observe, not whether a person is honest.',c:'A timeout on every request is not normal here; it is a symptom to explain.',d:'A timeout tells you that nothing arrived here, not why.'}},
+  {id:'S2',title:'BOOK-SRV application log and network capture',who:'dev',
+   pred:[{v:'a',label:'The server saw nothing from the cabin'},{v:'b',label:'The server received the requests and replied'},{v:'c',label:'The server received requests but crashed'}],
+   sup:[{v:'a',label:'The interface capture shows each cabin request arriving and a matching reply datagram leaving BOOK-SRV, with the same request IDs.'},{v:'b',label:'The application log alone proves the reply packets physically left the server.'},{v:'c',label:'The cabin received the replies.'},{v:'d',label:'Each reply created a confirmed booking.'}],supA:'a',
+   lim:[{v:'a',label:'Nothing here observes the replies after they leave the server, and an offer with a hold is not a confirmed booking.'},{v:'b',label:'Captures are less reliable than application logs.'},{v:'c',label:'It proves the cabin network is fine.'},{v:'d',label:'It proves the server has no bugs of any kind.'}],limA:'a',
+   fbS:{b:'The log is the program saying “I sent it”. The capture is what saw the datagram on the wire. Keep them apart.',c:'Nothing at the server can see what the cabin received.',d:'Look at the holds: each reply was an offer. With no confirm from the terminal, every hold expired after 10 minutes.'},
+   fbL:{b:'It’s the other way round for packet questions: a capture observes the wire, a log reports the program’s belief.',c:'The server sees only its own interface.',d:'Evidence can weaken “server failure”, but it never proves software flawless.'}},
+  {id:'S3',title:'CAB-EDGE uplink capture',who:'idris',
+   pred:[{v:'a',label:'Requests leave and replies come back'},{v:'b',label:'Requests leave, but no replies come back'},{v:'c',label:'Nothing leaves the cabin'}],
+   sup:[{v:'a',label:'All six requests left CAB-EDGE up the uplink, and no reply to any of them arrived on that uplink between 11:02:00 and 11:20:00.'},{v:'b',label:'The replies were dropped by CAB-EDGE after arriving.'},{v:'c',label:'The uplink cable is faulty.'},{v:'d',label:'The replies definitely do not exist anywhere.'}],supA:'a',
+   lim:[{v:'a',label:'It shows absence only at this link during this window. It cannot say where the replies went instead.'},{v:'b',label:'Absence here proves the server never replied.'},{v:'c',label:'It covers the whole day.'},{v:'d',label:'It proves the core router is broken.'}],limA:'a',
+   fbS:{b:'The capture is on the uplink itself; nothing arrived to be dropped.',c:'Requests leave over the same uplink, so it carries traffic.',d:'“Not seen” is bound to a place and a window, not a statement about the whole network.'},
+   fbL:{b:'The server capture shows replies leaving. Absence here only means they did not arrive here.',c:'Check the window: 11:02:00 to 11:20:00 only.',d:'It shows replies did not arrive here. It does not show why.'}},
+  {id:'S4',title:'SAL-CORE route summary and forwarding records',who:'idris',
+   pred:[{v:'a',label:'Replies are forwarded toward the cabin'},{v:'b',label:'Replies are forwarded somewhere else'},{v:'c',label:'Replies never reach the core'}],
+   sup:[{v:'a',label:'The forwarding records show each cabin reply sent to next hop 10.40.254.1 (OLD-HBR), and the route summary still lists OLD-HBR for 10.40.12.0/24.'},{v:'b',label:'The route summary alone proves exactly which packets were forwarded.'},{v:'c',label:'The core dropped the cabin replies.'},{v:'d',label:'The outbound requests were also sent to OLD-HBR.'}],supA:'a',
+   lim:[{v:'a',label:'A route entry predicts forwarding. The flow records observe it, but neither shows what happened after OLD-HBR.'},{v:'b',label:'Flow records include the booking content.'},{v:'c',label:'The route table proves the cabin received its replies.'},{v:'d',label:'There are no limits once a route is found.'}],limA:'a',
+   fbS:{b:'A route table says where traffic would go. The flow records say where this traffic did go.',c:'The flow records show the replies being forwarded, not dropped.',d:'Outbound requests went from CAB-EDGE to BOOK-SRV normally.'},
+   fbL:{b:'Flow records carry addresses, ports and times, not contents. IDs are paired using the server capture.',c:'The route points away from the cabin.',d:'Every record has a vantage point. This one ends at the core.'}},
+  {id:'S5',title:'OLD-HBR counters, uplink capture and the dashboard check',who:'idris',
+   pred:[{v:'a',label:'The old router sees no traffic'},{v:'b',label:'The old router receives cabin replies'},{v:'c',label:'The old router is switched off'}],
+   sup:[{v:'a',label:'The uplink capture shows replies for SW-402 to SW-406 arriving at OLD-HBR, and the filtered counter rose by 6 between 11:00 and 11:20.'},{v:'b',label:'The rising all-packets counter by itself proves the cabin replies went there.'},{v:'c',label:'The green dashboard proves bookings work.'},{v:'d',label:'OLD-HBR delivered the replies to the cabin terminals.'}],supA:'a',
+   lim:[{v:'a',label:'Nobody watched the old office’s inside network, SW-401 passed before the capture started at 11:05:00, and a counter alone identifies no packet.'},{v:'b',label:'The capture covers every request since 11:00.'},{v:'c',label:'The dashboard tests cabin bookings.'},{v:'d',label:'Counters show packet contents.'}],limA:'a',
+   fbS:{b:'The all-packets counter rises with keep-alives and pings whatever the cabin does. Use the capture with IDs.',c:'The dashboard pings the old router’s management address. It observes no booking.',d:'The terminals are in the cabin. Nothing at OLD-HBR can reach them.'},
+   fbL:{b:'Check the window: the capture began at 11:05:00. SW-401’s reply passed at about 11:03:05.',c:'It pings 10.40.250.4. That is all it measures.',d:'Counters count. They do not record contents or IDs.'}},
+  {id:'S6',title:'Move ticket MOVE-0317',who:'hester',
+   pred:[{v:'a',label:'Every move task is complete'},{v:'b',label:'A task is incomplete or missing'},{v:'c',label:'The ticket was never opened'}],
+   sup:[{v:'a',label:'Task 5 (update the return route for 10.40.12.0/24 on SAL-CORE) says “see handover note”, and no note is attached or marked done.'},{v:'b',label:'The ticket proves replies are going to OLD-HBR.'},{v:'c',label:'The night technician made a mistake on purpose.'},{v:'d',label:'Task 4 proved the cabin could complete bookings.'}],supA:'a',
+   lim:[{v:'a',label:'A missing note is an administrative clue. It does not by itself show where traffic went; network observations must confirm the consequence.'},{v:'b',label:'Tickets are always wrong.'},{v:'c',label:'A blank status proves the task was never done.'},{v:'d',label:'It has no limits.'}],limA:'a',
+   fbS:{b:'Paperwork cannot observe packets. It explains, and other records confirm.',c:'Nobody is accused. Handovers get lost in storm nights.',d:'Look at task 4’s test: “request appears in server log”. It checked one direction only.'},
+   fbL:{b:'Most of this ticket is accurate. The point is what a ticket can prove.',c:'A blank status shows no record. The work might still have been done without being written down, which is why the route must be checked.',d:'Every record has limits. This one never watched traffic.'}},
+  {id:'S7',title:'Name lookup record',who:'dev',
+   pred:[{v:'a',label:'The name points to the wrong address'},{v:'b',label:'The name points to BOOK-SRV'},{v:'c',label:'No lookup was made'}],
+   sup:[{v:'a',label:'Both terminals were told book.saltwick-ferry.example = 10.40.90.10 (BOOK-SRV), and requests arrived at that address.'},{v:'b',label:'The lookup proves replies came back.'},{v:'c',label:'The resolver is down.'},{v:'d',label:'The terminals used a stale cached answer for the wrong server.'}],supA:'a',
+   lim:[{v:'a',label:'It covers only how the name was turned into an address. It says nothing about the return path.'},{v:'b',label:'It proves the server is healthy.'},{v:'c',label:'It proves the routing is fine.'},{v:'d',label:'It has no limits.'}],limA:'a',
+   fbS:{b:'A name lookup happens before any request. It cannot see replies.',c:'The resolver answered both terminals at 11:02:40 and 11:02:41.',d:'The answer matches BOOK-SRV, and the server capture confirms the arrivals.'},
+   fbL:{b:'It shows the right address was used, not that the server is healthy.',c:'It is silent about routing.',d:'Every record has limits.'}},
+  {id:'S8',title:'Pier 1 control transactions',who:'hester',
+   pred:[{v:'a',label:'Pier 1 sales also fail'},{v:'b',label:'Pier 1 sales complete'},{v:'c',label:'Pier 1 has no records'}],
+   sup:[{v:'a',label:'P1-121 and P1-122 each received the server’s reply and ended in a confirmed booking (BK-55021, BK-55022) during the same window.'},{v:'b',label:'The cabin path must therefore work too.'},{v:'c',label:'The server restarted between Pier 1 sales.'},{v:'d',label:'Pier 1 and the cabin share the same return route.'}],supA:'a',
+   lim:[{v:'a',label:'Pier 1 replies return by a different route (10.40.20.0/24 via PIER-EDGE), so its success says nothing about the cabin’s return path.'},{v:'b',label:'It proves the cabin application settings are identical in every respect.'},{v:'c',label:'It proves the server can never fail.'},{v:'d',label:'It has no limits.'}],limA:'a',
+   fbS:{b:'Pier 1 has its own route home. Its success does not carry over to the cabin.',c:'No restart is recorded anywhere.',d:'Pier 1 is 10.40.20.0/24, returned via PIER-EDGE. The cabin is 10.40.12.0/24.'},
+   fbL:{b:'It weakens an application fault. It does not rule out every cabin-specific setting.',c:'A control shows the server working now, not that it can never fail.',d:'Controls are only as good as their similarity to the case.'}}
+];
+
+/* ===================== content: Act III summary ===================== */
+var SUMMARY_Q={q:'Which statement does your SW-403 ledger support?',opts:[
+  {v:'a',label:'The request reached the server; the server replied; the reply was seen arriving at the old building’s router; the cabin never saw it.'},
+  {v:'b',label:'The request reached the server, so the round trip worked.'},
+  {v:'c',label:'The server never replied, so the server is the fault.'},
+  {v:'d',label:'The reply was delivered to the cabin terminal through the old building.'}],a:'a',
+  fb:{b:'Arrival proves only the outbound half. The return half is what failed.',c:'The server capture shows the reply leaving.',d:'Nothing observed the old office network, and the cabin’s own records show no reply. That is NOT SEEN at the cabin and UNKNOWN inside the old building.'}};
+var DELTA_CLS=[{v:'corroborating',label:'Corroborating'},{v:'uninformative',label:'Uninformative (no relevant traffic)'},{v:'ambiguous',label:'Ambiguous (counts unrelated traffic)'}];
+
+/* ===================== content: Act IV ===================== */
+var BOARD={
+  pred:[{v:'p1',label:'Replies would never leave BOOK-SRV, and Pier 1 would struggle too'},{v:'p2',label:'Pier 1 would fail too, or cabin replies would be malformed or rejected'},{v:'p3',label:'Requests would arrive at some other address, or nowhere'},{v:'p4',label:'Requests would arrive, but replies would leave and not reach the cabin'}],
+  status:[{v:'sup',label:'Supported provisionally'},{v:'weak',label:'Weakened'},{v:'unres',label:'Unresolved'}],
+  ev:[{v:'srvcap',label:'BOOK-SRV capture: requests in, matched replies out'},{v:'pier',label:'Pier 1 controls: complete bookings in the same window'},{v:'dns',label:'Name lookup = 10.40.90.10, requests arrived there'},{v:'path',label:'CAB-EDGE saw no replies; SAL-CORE forwarded them to OLD-HBR; OLD-HBR captured them'},{v:'dash',label:'The green dashboard'}],
+  lim:[{v:'l1',label:'Does not rule out every possible server bug'},{v:'l2',label:'A cabin-only application setting is not completely excluded, though the replies were valid offers'},{v:'l3',label:'Says nothing about the return path'},{v:'l4',label:'The exact cause in the route table needs a qualified engineer’s review'}],
+  key:{server:{pred:'p1',status:'weak',ev:['srvcap','pier'],lim:'l1'},app:{pred:'p2',status:'weak',ev:['pier','srvcap'],lim:'l2'},dns:{pred:'p3',status:'weak',ev:['dns'],lim:'l3'},conn:{pred:'p4',status:'sup',ev:['path'],lim:'l4'}}
+};
+var TICKET_CATS=[{v:'done',label:'Completed'},{v:'oneway',label:'Completed, but checked only one direction'},{v:'open',label:'Open — no handover'},{v:'deferred',label:'Deferred'}];
+var ADMIN_Q={q:'Does the missing handover note, on its own, prove that replies are going to the old building?',opts:[
+  {v:'a',label:'No. It is an administrative clue. The SAL-CORE forwarding records and the OLD-HBR capture are the independent observations of what actually happened.'},
+  {v:'b',label:'Yes. If the task is not written down, it was not done, so the replies must go to OLD-HBR.'},
+  {v:'c',label:'No, so the ticket can be ignored completely.'}],a:'a',
+  fb:{b:'A blank status shows no record, not what the network did. Traffic observations confirm it.',c:'The ticket explains why the route may be stale. It is a useful clue, just not proof by itself.'}};
+var NEXT_Q={q:'What should you ask for next?',opts:[
+  {v:'edit',label:'Let me edit the SAL-CORE route for 10.40.12.0/24 myself; I know what’s wrong.'},
+  {v:'power',label:'Ask someone to power off OLD-HBR so it stops taking the replies.'},
+  {v:'review',label:'Request an authorised review of SAL-CORE’s return route for 10.40.12.0/24 by the qualified engineer, under change control.'},
+  {v:'restart',label:'Ask for BOOK-SRV to be restarted to clear any stuck state.'}],a:'review',
+  fb:{edit:'Trainees do not change production routing. Even a correct diagnosis goes through the qualified engineer and an approved change.',power:'Powering off OLD-HBR would not send replies to the cabin. They would simply vanish. It would also destroy the evidence, and it is not your call.',restart:'The server is answering correctly. A restart would only interrupt Pier 1.'}};
+var UNC_Q={q:'Which uncertainty should your notes record honestly?',opts:[
+  {v:'a',label:'The exact route entry must be confirmed by the engineer, and other services moved with the office may share the same stale route.'},
+  {v:'b',label:'There is no remaining uncertainty.'},
+  {v:'c',label:'We cannot know anything until the old building is reopened.'}],a:'a',
+  fb:{b:'Evidence narrows the explanation, but the engineer’s review is what confirms the exact cause.',c:'The cabin-side and core records already show plenty. Uncertainty is specific, not total.'}};
+
+/* ===================== content: Act V ===================== */
+var DECISIONS=[
+  {v:'hold',label:'Hold and escalate',desc:'Keep every record, protect Pier 1 and its sales, ask for an authorised engineer review of the return route, and handle the cabin queue.'},
+  {v:'restart',label:'Restart the booking server',desc:'Recommend a BOOK-SRV restart to clear whatever is stuck. (Shown only as a training-sandbox replay. You never restart anything.)'},
+  {v:'declare',label:'Declare the cabin healthy',desc:'The server answered every request, so tell the cabin to carry on selling. (Shown only as a training-sandbox replay.)'}
+];
+var WD_REASONS={
+  restart:[{v:'ev',label:'The sandbox showed Pier 1 sales interrupted, the next cabin request still timing out, and the old-router counter still rising. The server was never the broken part.',ok:true},{v:'always',label:'Restarts are always a bad idea.',ok:false,fb:'That is a rule of thumb, not evidence from this case. Name what the sandbox showed.'},{v:'mood',label:'Hester sounded annoyed.',ok:false,fb:'Someone’s mood is not evidence. What did the replay show?'}],
+  declare:[{v:'ev',label:'The sandbox showed the next cabin request still timing out with no booking created. “The server answered” does not mean the cabin received the answer.',ok:true},{v:'amber',label:'The dashboard turned amber.',ok:false,fb:'The dashboard stayed green throughout. It only pings the old router.'},{v:'wenna',label:'Wenna disagreed.',ok:false,fb:'Disagreement is not evidence. What did the replay show?'}]
+};
+var PLAN=[
+  {v:'preserve',label:'Preserve the terminal logs, captures, counters and flow records as they are',ok:true},
+  {v:'pier',label:'Protect Pier 1: no server restarts, no routing edits',ok:true},
+  {v:'review',label:'Ask for the qualified engineer’s review of the SAL-CORE return route under change control',ok:true},
+  {v:'queue',label:'Pause cabin sales and walk the cabin queue to the Pier 1 desks for the 12:45 sailing',ok:true},
+  {v:'retry',label:'Ask Wenna to keep resubmitting each booking until one gets through',ok:false,fb:'Every resubmission sends another reply to the empty building and leaves a passenger waiting. Pause the cabin instead.'},
+  {v:'poweroff',label:'Have someone switch off OLD-HBR to stop the stray traffic',ok:false,fb:'Switching off OLD-HBR would not bring replies to the cabin, would destroy evidence, and is not a trainee’s call.'}
+];
+
+/* ===================== content: Act VI ===================== */
+var VSRC=[
+  {v:'chg',label:'Change record CHG-2291'},
+  {v:'eng',label:'Idris Kemp’s route review (before/after)'},
+  {v:'srvcap',label:'BOOK-SRV interface capture'},
+  {v:'edgecap',label:'CAB-EDGE uplink capture'},
+  {v:'bookdb',label:'Booking database and cabin receipts'},
+  {v:'ctr',label:'OLD-HBR filtered counter'},
+  {v:'p1',label:'Pier 1 desk trace and booking database'},
+  {v:'applog',label:'BOOK-SRV application log (“reply sent”)'},
+  {v:'dash',label:'MON-HARBOR dashboard'},
+  {v:'none',label:'No single record (reasoning)'}
+];
+var AUTH=[{v:'direct',label:'Direct observation'},{v:'eng',label:'Qualified engineer finding'},{v:'admin',label:'Administrative record'},{v:'inf',label:'Inference'}];
+var FINDINGS=[
+  {id:'F1',text:'CHG-2291 was approved at 13:12 by Ros Penhallow for 13:30–13:40, with backout readiness confirmed at 13:28.',src:'chg',auth:'admin'},
+  {id:'F2',text:'Before the change, SAL-CORE’s route for 10.40.12.0/24 pointed to 10.40.254.1 (OLD-HBR), unchanged since 2024-06-03.',src:'eng',auth:'eng'},
+  {id:'F3',text:'At 13:36:20 the route for 10.40.12.0/24 was changed to next hop 10.40.254.9 (CAB-EDGE); nothing else was touched.',src:'eng',auth:'eng'},
+  {id:'F4',text:'Replies for SW-501 to SW-504 were captured leaving BOOK-SRV (13:44:10.480, 13:46:30.322, 13:49:05.969, 13:51:40.611).',src:'srvcap',auth:'direct'},
+  {id:'F5',text:'The matching replies were captured arriving on CAB-EDGE’s uplink, each 15 ms later (13:44:10.495, 13:46:30.337, 13:49:05.984, 13:51:40.626).',src:'edgecap',auth:'direct'},
+  {id:'F6',text:'Cabin bookings BK-55088, BK-55090, BK-55091 and BK-55092 were confirmed and receipts RCPT-C0501 to RCPT-C0504 printed.',src:'bookdb',auth:'direct'},
+  {id:'F7',text:'The OLD-HBR filtered counter read 418 at 13:40:00 and 418 at 14:10:00, while four cabin replies flowed.',src:'ctr',auth:'direct'},
+  {id:'F8',text:'Pier 1 sales P1-129 (13:22, before) and P1-131 (13:44, after) both completed (BK-55087, BK-55089).',src:'p1',auth:'direct'},
+  {id:'F9',text:'The route was probably left stale because the handover note for move task 5 was never written.',src:'none',auth:'inf'},
+  {id:'F10',text:'Backout was not needed; the previous route entry is preserved in the change record.',src:'chg',auth:'admin'}
+];
+var CHECKS=[
+  {id:'V1',text:'Real completed bookings at the cabin (reply received and booking recorded)',src:'bookdb',bad:{applog:'“Reply sent” at the server is exactly the partial evidence that misled everyone this morning. A completed booking needs the cabin to receive the reply and a booking record to exist.',srvcap:'The server capture shows the reply leaving, not the booking completing.',dash:'The dashboard never tests bookings.'}},
+  {id:'V2',text:'Both-end observations of the new test transactions (server egress and cabin ingress)',src:'srvcap+edgecap'},
+  {id:'V3',text:'Flat OLD-HBR filtered counter for cabin replies while cabin traffic flowed',src:'ctr'},
+  {id:'V4',text:'Pier 1 regression checks before and after the change',src:'p1'}
+];
+var VSTATUS=[{v:'verified',label:'Verified'},{v:'inferred',label:'Inferred'},{v:'unres',label:'Unresolved'}];
+var V2SRC=[{v:'srvcap+edgecap',label:'BOOK-SRV capture + CAB-EDGE capture'},{v:'srvcap',label:'BOOK-SRV capture only'},{v:'applog',label:'BOOK-SRV application log'},{v:'eng',label:'Idris Kemp’s route review'}];
+
+/* ===================== content: Act VII ===================== */
+var FINAL=[
+  {id:'q1',q:'What did SW-403’s arrival at BOOK-SRV prove?',opts:[{v:'a',label:'Only that the outbound half of the trip worked.'},{v:'b',label:'That the cabin was connected.'},{v:'c',label:'That a booking was made.'}],a:'a',fb:{b:'Connected means both directions. Arrival shows one.',c:'A booking needs the reply to reach the cabin and a confirm to follow.'}},
+  {id:'q2',q:'Who was telling the truth this morning?',opts:[{v:'a',label:'Both Wenna and Dev. Each reported what was observable at their own end.'},{v:'b',label:'Only Dev; the server logs are authoritative.'},{v:'c',label:'Only Wenna; logs can lie.'}],a:'a',fb:{b:'The cabin’s records are just as real. They watched a different place.',c:'The server capture confirms Dev’s statement.'}},
+  {id:'q3',q:'Why did the dashboard say “Harbor Office: healthy”?',opts:[{v:'a',label:'It pings OLD-HBR’s management address, and that powered router answered.'},{v:'b',label:'Cabin bookings were working when it refreshed.'},{v:'c',label:'It was broken.'}],a:'a',fb:{b:'It never tests bookings.',c:'It worked exactly as designed. It just measured something else.'}},
+  {id:'q4',q:'What role did OLD-HBR play?',opts:[{v:'a',label:'It received the diverted replies, which had nowhere useful to go, so its counters rose.'},{v:'b',label:'It blocked the outbound requests.'},{v:'c',label:'It delivered replies to the cabin late.'}],a:'a',fb:{b:'Outbound requests never went near it.',c:'The cabin saw no replies at all before the change.'}},
+  {id:'q5',q:'How should the report treat the move ticket’s missing handover note?',opts:[{v:'a',label:'As a likely explanation for the stale route, confirmed by network observations and the engineer’s review rather than by the ticket alone.'},{v:'b',label:'As the proof of the cause.'},{v:'c',label:'As irrelevant.'}],a:'a',fb:{b:'Paperwork explains; observations confirm.',c:'It explains how the route was missed, and it shapes the fix to the process.'}},
+  {id:'q6',q:'Match each stage with the record that proves it. Which ordering is right?',opts:[{v:'a',label:'Request arrival: BOOK-SRV capture → reply generated: BOOK-SRV capture → reply returned: CAB-EDGE capture and terminal → booking completed: booking database and receipt.'},{v:'b',label:'Request arrival: application log → reply generated: application log → reply returned: application log → booking completed: application log.'},{v:'c',label:'Request arrival: dashboard → reply returned: counter → booking completed: route table.'}],a:'a',fb:{b:'A log is the program’s own view. It cannot see the return trip or a confirmed booking.',c:'None of those records observes those stages.'}},
+  {id:'q7',q:'Why was a server restart (or declaring the cabin healthy) the wrong move?',opts:[{v:'a',label:'The server was not the broken part. A restart only disrupts Pier 1, and declaring health would promise bookings that do not exist.'},{v:'b',label:'Restarts take too long.'},{v:'c',label:'It was fine; it simply wasn’t needed.'}],a:'a',fb:{b:'Speed is not the issue. A restart targets the wrong part.',c:'It had real costs: Pier 1 interruptions and false bookings.'}},
+  {id:'q8',q:'What uncertainty remains after the fix?',opts:[{v:'a',label:'Whether other services moved with the office also have stale return routes, and OLD-HBR is still powered and unmonitored for its real purpose.'},{v:'b',label:'None; the case is fully closed.'},{v:'c',label:'Whether the server is secretly broken.'}],a:'a',fb:{b:'Good reports say what is still open.',c:'The server has been shown answering correctly throughout.'}},
+  {id:'q9',q:'Which process change best prevents a repeat?',opts:[{v:'a',label:'Move checklists must verify the round trip with a completed booking at the new site, and monitoring must be re-pointed at the service people actually use.'},{v:'b',label:'Never move offices.'},{v:'c',label:'Add a second dashboard that pings OLD-HBR.'}],a:'a',fb:{b:'Moves happen. Checks must cover both directions.',c:'Another ping of the wrong router repeats the original mistake.'}},
+  {id:'q10',q:'Choose the case’s primary lesson.',opts:[{v:'a',label:'Connectivity is a round trip, so a request arriving proves nothing about the reply’s path home.'},{v:'b',label:'Always trust the server log.'},{v:'c',label:'Green dashboards mean healthy services.'}],a:'a',fb:{b:'The log was true, and still not enough.',c:'A green check only tells you what it tests.'}}
+];
+
+/* ===================== glossary & hints ===================== */
+var GLOSSARY=[
+  ['Round trip','A request going out and its reply coming back. Both halves must work for a service to work.'],
+  ['Request / reply','The booking terminal’s question, and the server’s answer (here, a seat offer with a hold).'],
+  ['Packet / datagram','One unit of data travelling across the network. In this case each request and each reply is one datagram.'],
+  ['Route / next hop','A router’s rule for where to send traffic for an address range, and the neighbouring router it hands it to.'],
+  ['Return path','The route the reply takes home. It need not be the same as the outbound path, but it must reach the sender.'],
+  ['Stale route','A route entry that was right once and was never updated after something moved.'],
+  ['Log vs capture','A log is a program writing down what it believes it did. A capture records the packets actually seen on a wire or interface.'],
+  ['Flow record','A router’s summary of traffic it forwarded: addresses, ports, times and where it sent it. No contents.'],
+  ['Correlation ID','A label (like SW-403) used to match the same transaction across records. Flow records are matched by address and port.'],
+  ['Health check','An automatic test behind a dashboard light. It proves only what it tests (here: that one router answers a ping).'],
+  ['Counter / counter delta','A running total of packets; the delta is the change between two readings in a stated window.'],
+  ['Observation window','The time span a record covered. Outside it, the record can neither show nor rule anything out.'],
+  ['SEEN / NOT SEEN / UNKNOWN','SEEN: a qualified record saw this request at this hop in its window. NOT SEEN: a record that watched this hop for the whole window saw nothing. UNKNOWN: no record covered it.'],
+  ['Subnet','A block of addresses, such as 10.40.12.0/24 (10.40.12.0 to 10.40.12.255).'],
+  ['Hold / booking','An offer reserves a seat for 10 minutes (a hold). Only a confirm from the terminal turns it into a booking record.'],
+  ['Qualified change','A change to production equipment made by an authorised engineer under an approved, scoped plan with a way back (backout).']
+];
+var HINTS={
+  1:['Observations are records made at a stated place and time. Reports are passed on second-hand. Inferences reason from observations. Unsupported certainty claims more than any evidence shows.','The safe posture changes nothing and loses nothing.'],
+  2:['Predict first; any prediction is fine. The point is to notice when the record surprises you.','For each record ask: where was the observer, and what time window did it cover?','Station 5: the capture started at 11:05:00. Check that against SW-401.'],
+  3:['Pick a request, then work hop by hop. For each hop, find a record that actually watched that place during that request.','A route summary predicts, and a counter has no IDs. Neither can earn a SEEN for a specific packet.','Nobody watched the old office’s inside network. When no record covers a hop, that hop is UNKNOWN.','Counter delta = later reading minus earlier reading. Then ask whether any cabin replies existed in that window.'],
+  4:['A hypothesis is weakened when the evidence it predicts is missing and other evidence contradicts it.','Task 4 checked only that the request appeared in the server log.'],
+  5:['Every choice here is a recommendation in a sandbox. If you pick a risky one, read the replay and withdraw it for an evidence-based reason.'],
+  6:['Who said it, and how do they know? A capture is a direct observation. A route review is the engineer’s finding. A ticket is administrative. “Probably” is inference.','A booking completes only when a booking record exists, not when the server says “reply sent”.'],
+  7:['Separate four things: request arrival, reply generated, reply returned, booking completed.']
+};
+
+/* ===================== state ===================== */
+function fresh(){return{v:1,ui:{act:1,trace:'SW-403'},hints:{},
+  a1:{cls:{},posture:'',hyp:'',note:''},
+  a2:{pred:{},sup:{},lim:{}},
+  a3:{stamps:{},summary:'',dA:'',dAcls:'',dAll:'',dAllcls:''},
+  a4:{board:{},ticket:{},admin:'',next:'',unc:''},
+  a5:{hist:[],plan:{}},
+  a6:{find:{},checks:{},dC:'',dCcls:'',dB:''},
+  a7:{q:{}}};}
+var S=fresh();
+var storeOK=true;
+function inSet(v,list){return list.some(function(o){return o.v===v;});}
+function str(v,max){return typeof v==='string'?v.slice(0,max):'';}
+function sanitize(raw){
+  var o=fresh();
+  if(!raw||typeof raw!=='object'||Array.isArray(raw)||raw.v!==1)return o;
+  try{
+    if(raw.ui&&typeof raw.ui==='object'){var a=+raw.ui.act;if(a>=1&&a<=7&&Math.floor(a)===a)o.ui.act=a;if(TRACES[raw.ui.trace])o.ui.trace=raw.ui.trace;}
+    if(raw.hints&&typeof raw.hints==='object')for(var k=1;k<=7;k++){var n=+raw.hints[k];if(n>0&&n<=HINTS[k].length&&Math.floor(n)===n)o.hints[k]=n;}
+    var a1=raw.a1||{};if(a1.cls&&typeof a1.cls==='object')CLAIMS.forEach(function(c){if(inSet(a1.cls[c.id],CLS))o.a1.cls[c.id]=a1.cls[c.id];});
+    if(inSet(a1.posture,POSTURES))o.a1.posture=a1.posture;if(inSet(a1.hyp,HYPS))o.a1.hyp=a1.hyp;o.a1.note=str(a1.note,240);
+    var a2=raw.a2||{};STATIONS.forEach(function(s){['pred','sup','lim'].forEach(function(f){var src=a2[f]||{};var list=f==='pred'?s.pred:(f==='sup'?s.sup:s.lim);if(inSet(src[s.id],list))o.a2[f][s.id]=src[s.id];});});
+    var a3=raw.a3||{};var st=a3.stamps||{};
+    Object.keys(TRACES).forEach(function(t){var row=st[t];if(!row||typeof row!=='object')return;hopsFor(t).forEach(function(hp){var e=row[hp.id];if(!e||typeof e!=='object')return;
+      if(STAMPS.indexOf(e.s)<0)return;var src=e.src==='NONE'||SRCBY[e.src]?e.src:'';var en=e.e==='none'||e.e==='agg'||TRACES[e.e]?e.e:'';
+      if(src&&src!=='NONE'&&!earnedSrc(o,src))src='';
+      (o.a3.stamps[t]=o.a3.stamps[t]||{})[hp.id]={s:e.s,src:src,e:en};});});
+    if(inSet(a3.summary,SUMMARY_Q.opts))o.a3.summary=a3.summary;
+    ['dA','dAll'].forEach(function(f){var v=a3[f];if(typeof v==='string'&&/^-?\d{1,6}$/.test(v))o.a3[f]=v;});
+    ['dAcls','dAllcls'].forEach(function(f){if(inSet(a3[f],DELTA_CLS))o.a3[f]=a3[f];});
+    var a4=raw.a4||{};HYPS.forEach(function(hy){var b=(a4.board||{})[hy.v];if(!b||typeof b!=='object')return;var r={};
+      if(inSet(b.pred,BOARD.pred))r.pred=b.pred;if(inSet(b.status,BOARD.status))r.status=b.status;if(inSet(b.lim,BOARD.lim))r.lim=b.lim;
+      if(Array.isArray(b.ev))r.ev=b.ev.filter(function(x,i,arr){return inSet(x,BOARD.ev)&&arr.indexOf(x)===i;}).slice(0,5);o.a4.board[hy.v]=r;});
+    CASE.moveTicket.tasks.forEach(function(t){var v=(a4.ticket||{})['t'+t.n];if(inSet(v,TICKET_CATS))o.a4.ticket['t'+t.n]=v;});
+    if(inSet(a4.admin,ADMIN_Q.opts))o.a4.admin=a4.admin;if(inSet(a4.next,NEXT_Q.opts))o.a4.next=a4.next;if(inSet(a4.unc,UNC_Q.opts))o.a4.unc=a4.unc;
+    var a5=raw.a5||{};var hist=sanitizeHist(a5.hist);o.a5.hist=hist;
+    PLAN.forEach(function(p){if((a5.plan||{})[p.v]===true)o.a5.plan[p.v]=true;});
+    var a6=raw.a6||{};FINDINGS.forEach(function(f){var x=(a6.find||{})[f.id];if(!x||typeof x!=='object')return;var r={};if(inSet(x.src,VSRC))r.src=x.src;if(inSet(x.auth,AUTH))r.auth=x.auth;o.a6.find[f.id]=r;});
+    CHECKS.forEach(function(c){var x=(a6.checks||{})[c.id];if(!x||typeof x!=='object')return;var r={};if(inSet(x.st,VSTATUS))r.st=x.st;var list=c.id==='V2'?V2SRC:VSRC;if(inSet(x.src,list))r.src=x.src;o.a6.checks[c.id]=r;});
+    ['dC','dB'].forEach(function(f){var v=a6[f];if(typeof v==='string'&&/^-?\d{1,6}$/.test(v))o.a6[f]=v;});
+    if(inSet(a6.dCcls,DELTA_CLS))o.a6.dCcls=a6.dCcls;
+    var a7=raw.a7||{};FINAL.forEach(function(q){var v=(a7.q||{})[q.id];if(inSet(v,q.opts))o.a7.q[q.id]=v;});
+  }catch(err){return fresh();}
+  return o;
+}
+function earnedSrc(state,src){var s=SRCBY[src];return !!s&&stationEarned(state,s.station);}
+/* decision history: append-only, strictly ordered, contradictions rejected (whole log dropped) */
+function sanitizeHist(h){
+  if(!Array.isArray(h)||h.length>12)return[];
+  var out=[],active=null,usedUnsafe={};
+  for(var i=0;i<h.length;i++){var e=h[i];
+    if(!e||typeof e!=='object'||e.n!==i+1)return[];
+    if(e.k==='rec'){if(active||!inSet(e.o,DECISIONS))return[];if(e.o!=='hold'&&usedUnsafe[e.o])return[];
+      if(e.o==='hold'&&out.some(function(x){return x.k==='rec'&&x.o==='hold';}))return[];
+      out.push({n:e.n,k:'rec',o:e.o});active=e.o;
+      if(e.o!=='hold'){var nx=h[i+1];if(!nx||nx.k!=='obs'||nx.o!==e.o||nx.n!==i+2)return[];}}
+    else if(e.k==='obs'){var pv=out[out.length-1];if(!pv||pv.k!=='rec'||pv.o!==e.o)return[];out.push({n:e.n,k:'obs',o:e.o});}
+    else if(e.k==='wd'){if(!active||active==='hold'||e.o!==active)return[];var rs=WD_REASONS[e.o].filter(function(r){return r.v===e.r&&r.ok;});if(!rs.length)return[];
+      out.push({n:e.n,k:'wd',o:e.o,r:e.r});usedUnsafe[e.o]=true;active=null;}
+    else return[];
+  }
+  return out;
+}
+function load(){var raw=null;try{raw=window.localStorage.getItem(CASE.storageKey);}catch(e){storeOK=false;}
+  if(raw){try{S=sanitize(JSON.parse(raw));}catch(e){S=fresh();}}else S=fresh();}
+function save(){if(!storeOK)return;try{window.localStorage.setItem(CASE.storageKey,JSON.stringify(S));}catch(e){storeOK=false;}}
+
+/* ===================== gates (always recomputed from state) ===================== */
+function g1(st){st=st||S;return CLAIMS.every(function(c){return st.a1.cls[c.id]===c.a;})&&st.a1.posture==='safe'&&inSet(st.a1.hyp,HYPS);}
+function stationEarned(st,id){var s=STATIONS.filter(function(x){return x.id===id;})[0];return !!s&&!!st.a2.pred[id]&&st.a2.sup[id]===s.supA&&st.a2.lim[id]===s.limA;}
+function g2(st){st=st||S;return STATIONS.every(function(s){return stationEarned(st,s.id);});}
+function traceDone(st,t){return hopsFor(t).every(function(hp){var e=(st.a3.stamps[t]||{})[hp.id];return e&&validateHop(t,hp.id,e).ok;});}
+function deltaA(){return CASE.deltaWindows[0];}
+function g3parts(st){st=st||S;return{traces:REQUIRED_TRACES.every(function(t){return traceDone(st,t);}),summary:st.a3.summary===SUMMARY_Q.a,
+  delta:st.a3.dA===String(deltaA().filtDelta)&&st.a3.dAcls==='corroborating'&&st.a3.dAll===String(deltaA().allDelta)&&st.a3.dAllcls==='ambiguous'};}
+function g3(st){var p=g3parts(st);return p.traces&&p.summary&&p.delta;}
+function boardOK(st,hy){var b=st.a4.board[hy]||{},k=BOARD.key[hy];if(b.pred!==k.pred||b.status!==k.status||b.lim!==k.lim)return false;var ev=(b.ev||[]).slice().sort();return ev.length===k.ev.length&&k.ev.slice().sort().every(function(x,i){return ev[i]===x;});}
+function ticketOK(st){return CASE.moveTicket.tasks.every(function(t){return st.a4.ticket['t'+t.n]===t.truth;});}
+function g4(st){st=st||S;return HYPS.every(function(hy){return boardOK(st,hy.v);})&&ticketOK(st)&&st.a4.admin===ADMIN_Q.a&&st.a4.next===NEXT_Q.a&&st.a4.unc===UNC_Q.a;}
+function activeRec(st){var a=null;st.a5.hist.forEach(function(e){if(e.k==='rec')a=e.o;if(e.k==='wd')a=null;});return a;}
+function planOK(st){return PLAN.every(function(p){return !!st.a5.plan[p.v]===p.ok;});}
+function g5(st){st=st||S;return activeRec(st)==='hold'&&planOK(st)&&sanitizeHist(clone(st.a5.hist)).length===st.a5.hist.length;}
+function ending(st){st=st||S;var r=st.a5.hist.filter(function(e){return e.k==='wd';}).map(function(e){return e.o;});
+  var rs=r.indexOf('restart')>=0,dc=r.indexOf('declare')>=0;return rs&&dc?'both':rs?'restart':dc?'release':'clean';}
+function findOK(st,f){var x=st.a6.find[f.id]||{};return x.src===f.src&&x.auth===f.auth;}
+function checkOK(st,c){var x=st.a6.checks[c.id]||{};return x.st==='verified'&&x.src===c.src;}
+function g6parts(st){st=st||S;var wc=CASE.deltaWindows[2];return{find:FINDINGS.every(function(f){return findOK(st,f);}),checks:CHECKS.every(function(c){return checkOK(st,c);}),
+  delta:st.a6.dC===String(wc.filtDelta)&&st.a6.dCcls==='corroborating'&&st.a6.dB===String(CASE.deltaWindows[1].filtDelta)};}
+function g6(st){var p=g6parts(st);return p.find&&p.checks&&p.delta;}
+function g7(st){st=st||S;return FINAL.every(function(q){return st.a7.q[q.id]===q.a;});}
+var GATES=[g1,g2,g3,g4,g5,g6,g7];
+function gatesUpTo(n,st){for(var i=0;i<n;i++)if(!GATES[i](st))return false;return true;}
+function unlocked(n,st){return n===1||gatesUpTo(n-1,st);}
+function complete(st){return gatesUpTo(7,st||S);}
+function token(st){st=st||S;if(!complete(st))return null;var e=ending(st);var canon=FINAL.map(function(q){return q.a;}).join('')+'|'+REQUIRED_TRACES.join(',');
+  return 'NET001-'+{clean:'CLEAN',restart:'RSTRT',release:'RLSE',both:'BOTH'}[e]+'-'+fnv('netortals-001|'+CASE.version+'|'+e+'|'+canon).slice(0,6);}
+
+/* ===================== mutation ===================== */
+function set(fn,msg){fn(S);save();render();if(msg)announce(msg);}
+
+/* ===================== UI helpers ===================== */
+function radios(name,legend,opts,cur,onPick,extra){
+  var fs=h('fieldset',null,h('legend',null,legend));
+  opts.forEach(function(o){var id=name+'-'+o.v;
+    var inp=h('input',{type:'radio',name:name,id:id,value:o.v,checked:cur===o.v,onchange:function(){onPick(o.v);}});
+    fs.append(h('label',{class:'opt',for:id},inp,h('span',null,o.label)));});
+  if(extra)add(fs,extra);return fs;}
+function fb(kind,text){return h('div',{class:'fb '+kind,role:kind==='bad'?'alert':null},text);}
+function table(headers,rows,caption){var t=h('table',null,caption?h('caption',{class:'sr'},caption):null,h('thead',null,h('tr',null,headers.map(function(x){return h('th',{scope:'col'},x);}))),
+  h('tbody',null,rows.map(function(r){return h('tr',null,r.map(function(c,i){return i===0?h('th',{scope:'row'},c):h('td',null,c);}));})));
+  return h('div',{class:'tblwrap',tabindex:'0',role:'region','aria-label':caption||'Table'},t);}
+function meta(pairs){var d=h('dl',{class:'meta'});pairs.forEach(function(p){d.append(h('dt',null,p[0]),h('dd',null,p[1]));});return d;}
+function hintBox(act){var n=S.hints[act]||0,list=HINTS[act];
+  return h('div',{class:'card dark'},h('h3',null,'Hints (optional)'),
+    list.slice(0,n).map(function(t,i){return h('p',null,'Hint '+(i+1)+': '+t);}),
+    n<list.length?h('button',{type:'button',id:'hint-'+act,onclick:function(){set(function(s){s.hints[act]=n+1;},'Hint '+(n+1)+' shown.');}},n?'Show another hint':'Show a hint'):h('p',{class:'progress'},'All hints shown.'));}
+function sceneHead(kicker,title,clock){return[h('p',{class:'kicker'},kicker),h('h2',{tabindex:'-1',id:'act-h'},title),clock?h('span',{class:'clock'},clock+' SLT'):null];}
+function say(who,text){return h('div',{class:'say'},h('b',null,who+': '),text);}
+function gateCard(ok,okText,todo){return h('div',{class:'card'},ok?fb('ok',okText):h('div',null,h('h3',null,'Still to do'),h('ul',null,todo.map(function(t){return h('li',null,t);}))));}
+function nextBtn(n){if(n>7)return null;return h('button',{type:'button',class:'primary',id:'next-'+n,disabled:!unlocked(n),onclick:function(){go(n);}},'Continue to Act '+['I','II','III','IV','V','VI','VII'][n-1]);}
+function go(n){if(!unlocked(n))return;S.ui.act=n;save();render(true);}
+
+/* ===================== diagram ===================== */
+var STAMP_STYLE={'SEEN':{dash:'',mark:'✓',col:'#7fd39a'},'NOT SEEN':{dash:'8 6',mark:'✕',col:'#f29a8f'},'UNKNOWN':{dash:'2 5',mark:'?',col:'#e3c987'},'':{dash:'1 8',mark:'…',col:'#6f7f9c'}};
+function diagram(trace,showBuilding){
+  var NS='http://www.w3.org/2000/svg';function s(tag,a,txt){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;}
+  var pier=TRACES[trace]==='pier';
+  var svg=s('svg',{viewBox:pier?'0 0 760 200':'0 0 760 330',role:'img','aria-label':'Round-trip diagram for '+trace+'. The ledger table below carries the same information as text.'});
+  var nodes=pier?{A:[70,90,'Pier 1 desk'],B:[230,90,'PIER-EDGE'],C:[420,90,'SAL-CORE'],D:[640,90,'BOOK-SRV']}:{A:[70,90,'Cabin terminal'],B:[230,90,'CAB-EDGE'],C:[420,90,'SAL-CORE'],D:[640,90,'BOOK-SRV'],E:[420,260,'OLD-HBR'],F:[230,260,'Old office LAN']};
+  var st=S.a3.stamps[trace]||{};
+  function stampOf(hid){var e=st[hid];if(!e)return'';return validateHop(trace,hid,e).ok?e.s:'';}
+  /* edge: line coloured by the accepted stamp; marker at (cx,cy); label above / below / right */
+  function edge(x1,y1,x2,y2,hid,label,pos,cx,cy){var sp=STAMP_STYLE[stampOf(hid)];
+    svg.append(s('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:sp.col,'stroke-width':3,'stroke-dasharray':sp.dash}));
+    var mx=cx!=null?cx:(x1+x2)/2,my=cy!=null?cy:(y1+y2)/2;svg.append(s('circle',{cx:mx,cy:my,r:11,fill:'#0b1424',stroke:sp.col,'stroke-width':2}));
+    svg.append(s('text',{x:mx,y:my+5,'text-anchor':'middle','font-size':14,fill:sp.col,'font-weight':'700'},sp.mark));
+    var t=hid+(label?' '+label:'');
+    if(pos==='right')svg.append(s('text',{x:mx+18,y:my+4,'font-size':11,fill:'#c7cfdd'},t));
+    else svg.append(s('text',{x:mx,y:pos==='below'?my+27:my-17,'text-anchor':'middle','font-size':11,fill:'#c7cfdd'},t));}
+  function plain(x1,y1,x2,y2){svg.append(s('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:'#4a5a78','stroke-width':2}));}
+  svg.append(s('text',{x:16,y:16,'font-size':13,fill:'#e3c987'},'Outbound → runs along the top; return ← runs underneath. Trace '+trace+'.'));
+  if(pier){
+    edge(70,45,230,45,'PO1','sent','above');plain(230,45,420,45);plain(420,45,560,45);edge(560,45,720,45,'PO4','received','above',640,45);
+    edge(640,135,420,135,'PR1','reply sent','below',530,135);plain(420,135,230,135);edge(230,135,70,135,'PR6','reply received','below',150,135);
+    svg.append(s('text',{x:380,y:188,'font-size':12,fill:'#c7cfdd','text-anchor':'middle'},'PB booking recorded: '+(stampOf('PB')||'not yet stamped')));
+  }else{
+    edge(70,45,230,45,'O1','sent','above',150,45);edge(230,45,420,45,'O2','forwarded','above',325,45);edge(420,45,580,45,'O3','forwarded','above',500,45);edge(580,45,720,45,'O4','received','above',650,45);
+    edge(640,135,420,135,'R1','reply sent','above',530,135);
+    edge(420,135,230,135,'R5','expected home','below',325,135);edge(230,135,70,135,'R6','received?','below',150,135);
+    edge(450,110,450,178,'R2','forwarded to OLD-HBR','right',450,150);edge(450,186,450,240,'R3','arrives','right',450,213);
+    edge(362,260,288,260,'R4','delivered?','below',325,260);
+  }
+  Object.keys(nodes).forEach(function(k){var n=nodes[k];var g=s('g',{});
+    var boarded=(k==='E'||k==='F')&&showBuilding;
+    g.append(s('rect',{x:n[0]-58,y:n[1]-20,width:116,height:40,rx:8,fill:boarded?'#3a2a1a':'#1f3150',stroke:'#c9a95c','stroke-width':2}));
+    if(boarded){g.append(s('line',{x1:n[0]-58,y1:n[1]-20,x2:n[0]+58,y2:n[1]+20,stroke:'#8d6a3a','stroke-width':3}));g.append(s('line',{x1:n[0]+58,y1:n[1]-20,x2:n[0]-58,y2:n[1]+20,stroke:'#8d6a3a','stroke-width':3}));}
+    g.append(s('text',{x:n[0],y:n[1]+5,'text-anchor':'middle','font-size':12,fill:'#f4ecda','font-weight':'700'},n[2]));svg.append(g);});
+  if(!pier)svg.append(s('text',{x:350,y:318,'text-anchor':'middle','font-size':11,fill:'#c7cfdd'},'Boarded-up harbor building (OLD-HBR still powered; nobody inside)'));
+  var wrap=h('div',{class:'diagram',tabindex:'0',role:'region','aria-label':'Diagram for '+trace+' (scrolls sideways on narrow screens; the text ledger below has the same information)'});wrap.append(svg);
+  wrap.append(h('div',{class:'legend','aria-hidden':'true'},h('span',null,'✓ solid = SEEN'),h('span',null,'✕ dashed = NOT SEEN'),h('span',null,'? dotted = UNKNOWN'),h('span',null,'… = not yet stamped / not accepted')));
+  return wrap;}
+
+/* ===================== records (Act II) ===================== */
+function recordFor(id){
+  var p=CASE.people;
+  switch(id){
+  case 'S1':return h('div',null,meta([['Source','CAB-07 terminal trace and timeout log'],['Observer','Terminal software on CAB-07-T1 and CAB-07-T2'],['Interface','Each terminal’s own network connection'],['Window','11:02:00.000–11:20:00.000 SLT'],['Units','Times in SLT hh:mm:ss.mmm; timeout after 30 s, retries 0']]),
+    table(['Request','Terminal','Sent','Reply received?','Timed out at'],C.map(function(r){return[r.id,r.term,r.send,'none seen in window',r.timeout];}),'Cabin terminal log'),
+    h('p',null,'Totals: 6 requests sent, 0 replies received, 0 bookings completed, 6 timeouts.'));
+  case 'S2':return h('div',null,meta([['Sources','(a) Booking application log (the program’s own statements); (b) capture on BOOK-SRV’s network interface'],['Observer','BOOK-SRV, collected by Dev Okonjo'],['Window','11:00:00.000–11:30:00.000 SLT'],['Units','SLT; one datagram per request and per reply']]),
+    h('h4',null,'(a) Application log'),
+    table(['Request','Log line','Offer hold','Hold outcome'],C.map(function(r){return[r.id,'“reply sent” '+r.srvTx,r.hold,'expired '+r.holdExp+' (no confirm)'];}).concat(P.map(function(r){return[r.id,'“reply sent” '+r.srvTx,r.hold,'confirmed '+r.booked+' → '+r.booking];})),'Application log'),
+    h('h4',null,'(b) Interface capture'),
+    table(['Request','From','Request arrived','Reply left (to)'],C.map(function(r){return[r.id,r.src+':'+r.sport,r.srvRx,r.srvTx+' → '+r.src+':'+r.sport];}).concat(P.map(function(r){return[r.id,r.src+':'+r.sport,r.srvRx,r.srvTx+' → '+r.src+':'+r.sport];})),'Server capture'),
+    h('p',null,'Note: an application log line is the program saying it handed a reply to the network. Only the capture shows the datagram actually leaving the interface.'));
+  case 'S3':return h('div',null,meta([['Source','Capture on CAB-EDGE’s uplink to SAL-CORE, both directions'],['Observer','CAB-EDGE (move plan “first-hour capture”)'],['Window','11:02:00.000–11:20:00.000 SLT, continuous'],['Already verified',CASE.verifiedLocal]]),
+    table(['Request','Left CAB-EDGE uplink','Reply arrived on uplink'],C.map(function(r){return[r.id,r.edgeOut,'none in window'];}),'Cabin edge capture'),
+    h('p',null,'Other traffic on the uplink in the window: routing keep-alives only. Zero booking replies.'));
+  case 'S4':return h('div',null,meta([['Sources','(a) SAL-CORE route summary, snapshot 11:31:00 (read by Idris Kemp); (b) SAL-CORE flow records'],['Window (b)','11:00:00–11:30:00 SLT'],['Correlation','Flow records have no request IDs; they are paired to IDs by address and port using the BOOK-SRV capture']]),
+    h('h4',null,'(a) Route summary (abstract, not configuration)'),
+    table(['Address range','Next hop','Type','Last changed'],CASE.routeBefore.map(function(r){return[r.prefix,r.nh,r.type,r.changed];}),'Route summary'),
+    h('h4',null,'(b) Flow records'),
+    table(['Request (paired)','Request: in from CAB-EDGE, out to BOOK-SRV','Reply: forwarded at','Reply sent to next hop'],C.map(function(r){return[r.id,r.coreFwd,r.coreRet,'10.40.254.1 (OLD-HBR)'];}),'Core flow records'));
+  case 'S5':return h('div',null,meta([['Sources','(a) OLD-HBR uplink capture, inbound; (b) OLD-HBR counters; (c) MON-HARBOR dashboard check'],['Capture window','11:05:00.000–11:20:00.000 SLT (started remotely by Idris Kemp because the counters were rising in an empty building)'],['Not observed','Nobody captured the old office’s inside network']]),
+    h('h4',null,'(a) Uplink capture'),
+    table(['Request (paired)','Reply arrived at OLD-HBR'],C.map(function(r){return[r.id,r.oldRx?r.oldRx:'before capture began (reply forwarded by SAL-CORE at '+r.coreRet+')'];}),'Old router capture'),
+    h('h4',null,'(b) Counters (cumulative)'),
+    table(['Reading at','Filtered booking replies','All inbound packets','Cabin replies sent since previous reading'],CASE.counters.slice(0,3).map(function(c){return[c.t,String(c.filt),String(c.all),String(c.cabinResp)];}),'Old router counters'),
+    h('p',{style:'font-size:.88rem'},CASE.counterNote),
+    h('h4',null,'(c) Dashboard'),
+    meta([['Label',CASE.dashboard.label],['Check',CASE.dashboard.check],['Last refresh',CASE.dashboard.lastRefresh+' (RTT '+CASE.dashboard.rtt+')'],['Measures',CASE.dashboard.measures]]));
+  case 'S6':var mt=CASE.moveTicket;return h('div',null,meta([['Ticket',mt.id+' — '+mt.title],['Owner',mt.owner],['Kind','Administrative record']]),
+    table(['Task','Description','Status as written'],mt.tasks.map(function(t){return[String(t.n),t.text,t.status];}),'Move ticket'));
+  case 'S7':return h('div',null,meta([['Source','Resolver query log, '+CASE.dns.resolver],['Asked',CASE.dns.asked],['Name',CASE.dns.name],['Answer',CASE.dns.answer+' (TTL '+CASE.dns.ttl+')'],['Cross-check',CASE.dns.note]]));
+  case 'S8':return h('div',null,meta([['Sources','Pier 1 desk trace; booking database'],['Window','11:00:00–11:30:00 SLT'],['Route home','Pier 1 replies return via 10.40.20.0/24 → PIER-EDGE, not via the office subnet']]),
+    table(['Request','Desk','Sent','Server reply left','Desk received reply','Confirm sent','Booking'],P.map(function(r){return[r.id,r.term,r.send,r.srvTx,r.deskRx,r.confirm,r.booking+' at '+r.booked];}),'Pier 1 controls'));
+  }}
+
+/* ===================== Act views ===================== */
+function vAct1(){
+  var el=[];var p=CASE.people;
+  el.push(h('div',{class:'card scene'},sceneHead('Act I','The Cabin That Could Send','11:24:00'),
+    h('p',null,'The storm took the harbor office’s roof. By morning the old brick building is boarded up, and two ticket terminals — with their network addresses — have moved to a temporary cabin by the ferry gangway. The 12:45 sailing of the MV Gull’s Errand is filling, and the cabin queue is growing.'),
+    say(p.wenna.name+' (cabin)','We sent requests. Six of them. Nothing came back — every one timed out.'),
+    say(p.dev.name+' (server)','We received every one of those requests, and we sent a reply to each. I can show you the lines.'),
+    say(p.hester.name+' (operations)','Pier 1’s desks are selling fine on the same server. Whatever we do, don’t break Pier 1.'),
+    h('p',null,'On the wall screen, a dashboard tile glows green: “Harbor Office: healthy”. Beside it, the old building’s router is still counting traffic — in a building with nobody in it.'),
+    h('p',null,'You are the first-week trainee in network control. Your job today: find out what is true before anyone touches anything.')));
+  el.push(h('div',{class:'card'},h('h3',null,'What the status lights actually measure'),
+    table(['Status shown','What it really tests','What it does not test'],[
+      ['“Harbor Office: healthy” (green)',CASE.dashboard.check+'; last refresh '+CASE.dashboard.lastRefresh,'Any booking, any terminal, the cabin'],
+      ['“BOOK-SRV: up” (green)','The booking program is running and answering on the operations-centre network','Whether replies reach a given terminal'],
+      ['“Cabin: 0 of 6 completed” (red)','Tally of the cabin terminals’ own logs','Where the replies went']],'Status meanings')));
+  var c=h('div',{class:'card'},h('h3',null,'1. Sort the claims'),h('p',null,'Classify each statement. Wrong choices explain themselves, and you can change any answer.'));
+  CLAIMS.forEach(function(cl){var cur=S.a1.cls[cl.id];
+    var f=cur?(cur===cl.a?fb('ok','Right: '+cl.why):fb('bad','Not quite. '+cl.why+' Try another category.')):null;
+    c.append(radios('cls-'+cl.id,cl.who+': “'+cl.text+'”',CLS,cur,function(v){set(function(s){s.a1.cls[cl.id]=v;});},f));});
+  el.push(c);
+  var pc=POSTURES.filter(function(x){return x.v===S.a1.posture;})[0];
+  el.push(h('div',{class:'card'},h('h3',null,'2. Choose your first move'),
+    radios('posture','What do you recommend while the investigation starts?',POSTURES,S.a1.posture,function(v){set(function(s){s.a1.posture=v;});},pc?fb(pc.v==='safe'?'ok':'bad',pc.fb):null)));
+  el.push(h('div',{class:'card'},h('h3',null,'3. Record a first hunch'),h('p',null,'Any choice is acceptable. This is a starting hypothesis, and you can change it at any time. Later acts will test it.'),
+    radios('hyp','My first hypothesis',HYPS,S.a1.hyp,function(v){set(function(s){s.a1.hyp=v;});}),
+    h('label',{class:'sel',for:'hyp-note'},'Optional note (up to 240 characters)'),
+    h('textarea',{id:'hyp-note',maxlength:'240',onchange:function(e){var v=e.target.value;set(function(s){s.a1.note=str(v,240);},'Note saved.');}},S.a1.note)));
+  var todo=[];if(!CLAIMS.every(function(cl){return S.a1.cls[cl.id]===cl.a;}))todo.push('Classify all ten claims correctly ('+CLAIMS.filter(function(cl){return S.a1.cls[cl.id]===cl.a;}).length+'/10).');
+  if(S.a1.posture!=='safe')todo.push('Choose the safe first move.');if(!S.a1.hyp)todo.push('Record a first hypothesis.');
+  el.push(gateCard(g1(),'Act I complete. The evidence desk is open.',todo));el.push(nextBtn(2));el.push(hintBox(1));return el;}
+
+function vAct2(){
+  var el=[h('div',{class:'card scene'},sceneHead('Act II','Seven Records, Seven Limits','11:35:00'),
+    h('p',null,'Idris Kemp drops a stack of records on your desk on his way to a power fault at Pier 2. “Every one of these is true,” he says. “Every one of them is also blind to something. Find out what each can see.”'),
+    h('p',null,'Eight stations. For each one, predict first, then open the record, then say what it supports and what it cannot establish. A card is earned when both are right.'))];
+  var n=STATIONS.filter(function(s){return stationEarned(S,s.id);}).length;
+  el.push(h('p',{class:'progress'},'Cards earned: '+n+' of 8'));
+  STATIONS.forEach(function(s,i){var earned=stationEarned(S,s.id);var pred=S.a2.pred[s.id];
+    var det=h('details',{class:'station',id:'st-'+s.id,open:S.ui.open===s.id?true:null});
+    det.addEventListener('toggle',function(){if(det.open)S.ui.open=s.id;});
+    det.append(h('summary',null,'Station '+(i+1)+': '+s.title+' ',h('span',{class:earned?'earned':'pending'},earned?'✓ card earned':'… card not earned')));
+    var inner=h('div',{class:'inner'});
+    inner.append(radios('pred-'+s.id,'Prediction before opening: what will this record show?',s.pred,pred,function(v){set(function(st){st.a2.pred[s.id]=v;st.ui.open=s.id;},'Prediction recorded. Record opened.');}));
+    if(pred){inner.append(h('div',{class:'card',style:'background:#fffdf6'},h('h4',null,'Record'),recordFor(s.id)));
+      var ps=s.pred.filter(function(o){return o.v===pred;})[0];inner.append(fb('info','Your prediction was: “'+ps.label+'”. Compare it with the record. Revising your view is part of the work.'));
+      var sv=S.a2.sup[s.id],lv=S.a2.lim[s.id];
+      inner.append(radios('sup-'+s.id,'What does this record support?',s.sup,sv,function(v){set(function(st){st.a2.sup[s.id]=v;st.ui.open=s.id;});},sv?(sv===s.supA?fb('ok','Supported.'):fb('bad',s.fbS[sv]||'Not supported by this record.')):null));
+      inner.append(radios('lim-'+s.id,'What can it NOT establish?',s.lim,lv,function(v){set(function(st){st.a2.lim[s.id]=v;st.ui.open=s.id;});},lv?(lv===s.limA?fb('ok','That’s the right limit.'):fb('bad',s.fbL[lv]||'Look again at the record’s place and window.')):null));
+    }else inner.append(h('p',{class:'progress'},'The record opens after you make a prediction.'));
+    det.append(inner);el.push(det);});
+  el.push(gateCard(g2(),'All eight cards earned. The Round-Trip Ledger is open.',['Earn all eight cards ('+n+'/8).']));el.push(nextBtn(3));el.push(hintBox(2));return el;}
+
+function srcOptions(trace,hid){var opts=[{v:'',label:'— choose observer —'}];
+  SOURCES.forEach(function(s){if(stationEarned(S,s.station)){var w=s.window?' ['+s.window[0].slice(0,8)+'–'+s.window[1].slice(0,8)+']':' [no window]';opts.push({v:s.id,label:s.label+w});}});
+  opts.push({v:'NONE',label:'No observation covers this hop'});return opts;}
+function entryOptions(src){if(!src||src==='NONE')return[{v:'none',label:'— nothing to match —'}];var s=SRCBY[src];var ids=srcIds(s);
+  if(!ids.length)return[{v:'agg',label:'Aggregate or statement only — no request IDs'}];
+  return ids.map(function(i){return{v:i,label:'Line for '+i};}).concat([{v:'none',label:'No matching line in this record’s window'}]);}
+function selectEl(id,label,opts,cur,onch){var sel=h('select',{id:id,onchange:onch});opts.forEach(function(o){sel.append(h('option',{value:o.v,selected:o.v===cur?true:null},o.label));});
+  return h('div',null,h('label',{class:'sel',for:id},label),sel);}
+var draft={};
+function vAct3(){
+  var tr=S.ui.trace;var el=[h('div',{class:'card scene'},sceneHead('Act III','The Round-Trip Ledger','11:50:00'),
+    h('p',null,'Every hop of a request’s journey gets a stamp: SEEN, NOT SEEN or UNKNOWN — and every stamp must name the observer and the record line that earns it. Stamps are checked against the records the moment you press “Stamp hop”.'),
+    h('p',null,'Required: trace SW-403 and SW-401 completely, and the Pier 1 control P1-121. The other requests are optional.'),
+    fb('info','SEEN: a record that watched this hop during its window has a line for this request. NOT SEEN: a record that watched this hop for its whole window has no such line — true only for that place and window. UNKNOWN: no record covered this hop for this request.'))];
+  var tc=h('div',{class:'card'},h('h3',null,'Choose a request to trace'));
+  var trs=Object.keys(TRACES).map(function(t){var done=traceDone(S,t);return{v:t,label:t+(REQUIRED_TRACES.indexOf(t)>=0?' (required)':' (optional)')+(done?' — ✓ complete':'')};});
+  tc.append(radios('trace','Request to trace',trs,tr,function(v){set(function(s){s.ui.trace=v;});}));el.push(tc);
+  var rec=traceRec(tr);
+  el.push(h('div',{class:'card dark'},h('h3',null,tr+' round trip'),
+    h('p',null,TRACES[tr]==='cabin'?(rec.term+' ('+rec.src+':'+rec.sport+') → BOOK-SRV 10.40.90.10:7400. Sent '+rec.send+'.'):(rec.term+' ('+rec.src+':'+rec.sport+') → BOOK-SRV. Sent '+rec.send+'.')),
+    diagram(tr,true)));
+  var hc=h('div',{class:'card'},h('h3',null,'Hops'));
+  hopsFor(tr).forEach(function(hp){var key=tr+'|'+hp.id;var saved=(S.a3.stamps[tr]||{})[hp.id];var d=draft[key]||(saved?clone(saved):{s:'',src:'',e:''});draft[key]=d;
+    var res=saved?validateHop(tr,hp.id,saved):null;
+    var box=h('div',{class:'hop',id:'hop-'+hp.id});
+    box.append(h('h4',null,hp.id+' · '+hp.dir+': '+hp.text,res?h('span',{class:'tag',style:'color:'+(res.ok?'#1f6b3a':'#8a2323')},res.ok?'✓ accepted':'✕ not accepted'):null));
+    var row=h('div',{class:'row'});
+    row.append(selectEl('stamp-'+hp.id,'Stamp',[{v:'',label:'— stamp —'}].concat(STAMPS.map(function(x){return{v:x,label:x};})),d.s,function(e){d.s=e.target.value;}));
+    row.append(selectEl('src-'+hp.id,'Observer / record',srcOptions(tr,hp.id),d.src,function(e){d.src=e.target.value;var eo=entryOptions(d.src);d.e=eo[0].v;render();var x=document.getElementById('src-'+hp.id);if(x)x.focus();}));
+    var eo=entryOptions(d.src);if(!eo.some(function(o){return o.v===d.e;}))d.e=eo[0].v;
+    row.append(selectEl('ent-'+hp.id,'Matching entry',eo,d.e,function(e){d.e=e.target.value;}));
+    row.append(h('div',null,h('button',{type:'button',class:'primary',id:'stampbtn-'+hp.id,onclick:function(){var v={s:d.s,src:d.src,e:d.e};
+      set(function(s){(s.a3.stamps[tr]=s.a3.stamps[tr]||{})[hp.id]=v;});var r=validateHop(tr,hp.id,v);announce(hp.id+': '+r.msg);var b=document.getElementById('stampbtn-'+hp.id);if(b)b.focus();}},'Stamp hop')));
+    box.append(row);
+    if(res)box.append(fb(res.ok?'ok':'bad',res.msg));
+    hc.append(box);});
+  el.push(hc);
+  // text ledger
+  var rows=hopsFor(tr).map(function(hp){var e=(S.a3.stamps[tr]||{})[hp.id];var ok=e&&validateHop(tr,hp.id,e).ok;var s=e&&e.src&&e.src!=='NONE'?SRCBY[e.src]:null;
+    var t=hopTime(tr,hp);
+    return[hp.id,hp.dir,hp.from+' → '+hp.to,tr,s?s.observer:(e&&e.src==='NONE'?'No qualified observer':'—'),
+      s&&s.window?s.window[0].slice(0,8)+'–'+s.window[1].slice(0,8):(e?'—':'—'),
+      e?((ok?'':'(not accepted) ')+e.s):'not stamped',
+      e&&e.e&&TRACES[e.e]&&s&&s.entries[hp.id]&&s.entries[hp.id][e.e]?s.entries[hp.id][e.e]:(e?'no matching line':'—'),
+      ok?limitText(e):'—'];});
+  el.push(h('div',{class:'card'},h('h3',null,'Text ledger for '+tr+' (same information as the diagram)'),
+    table(['Hop','Direction','From → to','Request','Observer','Window','Stamp','Matched time','Limitation'],rows,'Round-Trip Ledger for '+tr)));
+  // summary
+  var sv=S.a3.summary;
+  el.push(h('div',{class:'card'},h('h3',null,'What the ledger shows'),traceDone(S,'SW-403')?
+    radios('summary',SUMMARY_Q.q,SUMMARY_Q.opts,sv,function(v){set(function(s){s.a3.summary=v;});},sv?(sv===SUMMARY_Q.a?fb('ok','Exactly. A request arriving is not two-way success. The outbound trip worked and the trip home ended at the wrong building.'):fb('bad',SUMMARY_Q.fb[sv])):null)
+    :h('p',{class:'progress'},'Complete the SW-403 trace to answer this.')));
+  // delta calculator
+  var A=deltaA();
+  el.push(h('div',{class:'card'},h('h3',null,'Counter delta calculator'),
+    h('p',null,'Window A: '+A.from+' to '+A.to+'. Use the OLD-HBR readings from Station 5.'),
+    table(['Reading at','Filtered booking replies','All inbound packets'],[[A.from,'412','62904'],[A.to,'418','64511']],'Window A readings'),
+    numField('dA','Filtered counter change in window A',S.a3.dA,function(v){set(function(s){s.a3.dA=v;});},String(A.filtDelta)),
+    radios('dAcls','Six cabin replies were transmitted in this window, and none reached the cabin. The filtered change is…',DELTA_CLS,S.a3.dAcls,function(v){set(function(s){s.a3.dAcls=v;});},S.a3.dAcls?(S.a3.dAcls==='corroborating'?fb('ok',A.why+' It corroborates the captures; it does not identify a packet by itself.'):fb('bad','The filtered counter only counts booking replies to the office subnet, and six were sent in this window. Compare the numbers.')):null),
+    numField('dAll','All-packets counter change in window A',S.a3.dAll,function(v){set(function(s){s.a3.dAll=v;});},String(A.allDelta)),
+    radios('dAllcls','The all-packets change is…',DELTA_CLS,S.a3.dAllcls,function(v){set(function(s){s.a3.dAllcls=v;});},S.a3.dAllcls?(S.a3.dAllcls==='ambiguous'?fb('ok','Right. It includes keep-alives and dashboard pings, so it rises whatever the cabin does.'):fb('bad','This counter includes keep-alives and pings. Can it tell you anything about six booking replies?')):null)));
+  var p=g3parts();var todo=[];REQUIRED_TRACES.forEach(function(t){if(!traceDone(S,t))todo.push('Complete the '+t+' trace with accepted stamps on every hop.');});
+  if(!p.summary)todo.push('Answer “What the ledger shows”.');if(!p.delta)todo.push('Finish the counter delta calculator.');
+  el.push(gateCard(g3(),'Ledger complete. The hypothesis board is open.',todo));el.push(nextBtn(4));el.push(hintBox(3));return el;}
+function limitText(e){if(e.src==='NONE')return'No record watched this hop; nothing can be concluded either way.';var s=SRCBY[e.src];
+  if(e.s==='NOT SEEN')return'Absence only at this place during '+s.window[0].slice(0,8)+'–'+s.window[1].slice(0,8);
+  return s.kind==='flow'?'Flow record paired by address and port; no contents':s.kind==='client'?'Terminal’s own view only':'Capture at this place only';}
+function numField(id,label,cur,onSet,correct){var inp=h('input',{type:'number',id:id,inputmode:'numeric',value:cur,step:'1',onchange:function(e){var v=String(e.target.value).trim();if(!/^-?\d{1,6}$/.test(v))v='';onSet(v);}});
+  return h('div',{style:'margin:10px 0'},h('label',{class:'sel',for:id},label),inp,cur!==''?(cur===correct?fb('ok','Correct: '+correct+'.'):fb('bad','Not quite. Subtract the earlier reading from the later one.')):null);}
+
+function vAct4(){
+  var el=[h('div',{class:'card scene'},sceneHead('Act IV','Four Stories and One Missing Handover','11:58:00'),
+    h('p',null,'Four explanations were on the table this morning. For each, say what it predicts, which evidence bears on it, its honest limitation, and where it now stands. Then rebuild the move ticket.'))];
+  HYPS.forEach(function(hy){var b=S.a4.board[hy.v]||{};var ok=boardOK(S,hy.v);var k=BOARD.key[hy.v];
+    var card=h('div',{class:'card',id:'board-'+hy.v},h('h3',null,hy.label,h('span',{class:'tag',style:'color:'+(ok?'#1f6b3a':'#7a5d1d')},ok?'✓ weighed':'in progress')));
+    function upd(f,v){set(function(s){var r=s.a4.board[hy.v]=s.a4.board[hy.v]||{};r[f]=v;});}
+    card.append(radios('bp-'+hy.v,'If this were true, we would expect…',BOARD.pred,b.pred,function(v){upd('pred',v);},b.pred?(b.pred===k.pred?fb('ok','That is its prediction.'):fb('bad','That prediction belongs to a different explanation.')):null));
+    var fs=h('fieldset',null,h('legend',null,'Evidence that bears on it (select all that apply)'));
+    BOARD.ev.forEach(function(o){var id='be-'+hy.v+'-'+o.v;var on=(b.ev||[]).indexOf(o.v)>=0;
+      fs.append(h('label',{class:'opt',for:id},h('input',{type:'checkbox',id:id,checked:on,onchange:function(e){var c=e.target.checked;set(function(s){var r=s.a4.board[hy.v]=s.a4.board[hy.v]||{};var ev=(r.ev||[]).filter(function(x){return x!==o.v;});if(c)ev.push(o.v);r.ev=ev;});}}),h('span',null,o.label)));});
+    if(b.ev&&b.ev.length){var evs=b.ev.slice().sort().join(),ke=k.ev.slice().sort().join();fs.append(evs===ke?fb('ok','That is the evidence that bears on it.'):fb('bad',(b.ev.indexOf('dash')>=0?'The dashboard pings one router and bears on none of these explanations. ':'')+'Pick exactly the records that test this explanation’s prediction.'));}
+    card.append(fs);
+    card.append(radios('bl-'+hy.v,'Its honest limitation',BOARD.lim,b.lim,function(v){upd('lim',v);},b.lim?(b.lim===k.lim?fb('ok','Fair limitation.'):fb('bad','That limitation fits another explanation.')):null));
+    card.append(radios('bs-'+hy.v,'Status now',BOARD.status,b.status,function(v){upd('status',v);},b.status?(b.status===k.status?fb('ok',k.status==='sup'?'Supported provisionally: only the qualified review can settle the exact cause.':'Weakened, not disproven.'):fb('bad',k.status==='sup'?'Its predictions match every observation so far.':'The evidence contradicts what it predicts.')):null));
+    el.push(card);});
+  var mt=CASE.moveTicket;var tk=h('div',{class:'card'},h('h3',null,'Rebuild move ticket '+mt.id));
+  mt.tasks.forEach(function(t){var cur=S.a4.ticket['t'+t.n];
+    tk.append(radios('tk-'+t.n,'Task '+t.n+': '+t.text+' — written status: '+t.status,TICKET_CATS,cur,function(v){set(function(s){s.a4.ticket['t'+t.n]=v;});},
+      cur?(cur===t.truth?fb('ok','Right.'):fb('bad',t.truth==='oneway'?'Look at the test it used: “request appears in server log”. Which direction did that check?':t.truth==='open'?'There is no completion record and no note.':t.truth==='deferred'?'Read the status again.':'There is a completion record for this, and nothing contradicts it.')):null));});
+  tk.append(fb('info','Not in the ticket at all: “'+mt.notListed+'”. That is why the dashboard still watches the old building.'));
+  el.push(tk);
+  function q(name,Q,field){var cur=S.a4[field];return radios(name,Q.q,Q.opts,cur,function(v){set(function(s){s.a4[field]=v;});},cur?(cur===Q.a?fb('ok','Agreed.'):fb('bad',Q.fb[cur])):null);}
+  el.push(h('div',{class:'card'},h('h3',null,'Clue versus confirmation'),q('admin',ADMIN_Q,'admin'),q('nextq',NEXT_Q,'next'),q('unc',UNC_Q,'unc')));
+  var todo=[];HYPS.forEach(function(hy){if(!boardOK(S,hy.v))todo.push('Weigh: '+hy.label+'.');});if(!ticketOK(S))todo.push('Classify all six move-ticket tasks.');
+  if(S.a4.admin!==ADMIN_Q.a)todo.push('Separate the clue from the confirmation.');if(S.a4.next!==NEXT_Q.a)todo.push('Choose the right next request.');if(S.a4.unc!==UNC_Q.a)todo.push('Record the honest uncertainty.');
+  el.push(gateCard(g4(),'Board complete. Hester needs a decision about the noon queue.',todo));el.push(nextBtn(5));el.push(hintBox(4));return el;}
+
+function vAct5(){
+  var act=activeRec(S);var el=[h('div',{class:'card scene'},sceneHead('Act V','The Noon Ticket Queue','12:00:00'),
+    say(CASE.people.hester.name,'The 12:45 is half full and the cabin queue is out the door. I need a recommendation from network control. What do we do?'),
+    h('p',null,'Your recommendation is replayed in the training sandbox. Nothing you choose here restarts, changes or switches off anything real. Only the engineer acts, under approval.'))];
+  var hist=S.a5.hist;
+  var dc=h('div',{class:'card'},h('h3',null,'Recommendation'));
+  if(act&&act!=='hold'){dc.append(fb('bad','Active recommendation: '+DECISIONS.filter(function(d){return d.v===act;})[0].label+'. Withdraw it before recommending anything else.'));}
+  else if(act==='hold'){dc.append(fb('ok','Active recommendation: Hold and escalate. Complete the hold plan below.'));}
+  DECISIONS.forEach(function(d){var used=d.v!=='hold'&&hist.some(function(e){return e.k==='wd'&&e.o===d.v;});
+    dc.append(h('div',{class:'hop'},h('h4',null,d.label),h('p',null,d.desc),
+      h('button',{type:'button',id:'rec-'+d.v,disabled:!!act||used||(d.v==='hold'&&hist.some(function(e){return e.k==='rec'&&e.o==='hold';}))?true:null,onclick:function(){recommend(d.v);}},used?'Already tried and withdrawn':'Recommend this')));});
+  el.push(dc);
+  if(act&&act!=='hold'){var sb=CASE.sandbox[act];
+    el.push(h('div',{class:'card dark'},h('h3',null,sb.label),h('ul',null,sb.lines.map(function(l){return h('li',null,l);}))));
+    var wid='wd-'+act;var cur=S.ui.wd||'';
+    var wf=h('div',{class:'card'},h('h3',null,'Withdraw this recommendation'),
+      radios(wid,'Why are you withdrawing it? (Give a reason the evidence supports.)',WD_REASONS[act],cur,function(v){S.ui.wd=v;render();}),
+      h('button',{type:'button',class:'primary',id:'wd-btn',onclick:function(){withdraw(act,S.ui.wd);}},'Withdraw recommendation'));
+    if(S.ui.wdfb)wf.append(fb('bad',S.ui.wdfb));el.push(wf);}
+  if(act==='hold'){var pc=h('div',{class:'card'},h('h3',null,'Hold plan'),h('p',null,'Tick everything that belongs in the hold, and nothing that doesn’t.'));
+    PLAN.forEach(function(p){var id='plan-'+p.v;var on=!!S.a5.plan[p.v];
+      pc.append(h('label',{class:'opt',for:id},h('input',{type:'checkbox',id:id,checked:on,onchange:function(e){var c=e.target.checked;set(function(s){if(c)s.a5.plan[p.v]=true;else delete s.a5.plan[p.v];});}}),h('span',null,p.label)));
+      if(on&&!p.ok)pc.append(fb('bad',p.fb));});
+    if(planOK(S))pc.append(fb('ok','Hold plan recorded. Hester walks the cabin queue to Pier 1 for the 12:45 sailing; Pier 1 keeps selling; network control raises change request CHG-2291 for Idris Kemp’s review.'));
+    el.push(pc);}
+  el.push(h('div',{class:'card'},h('h3',null,'Decision history (append-only)'),hist.length?h('ol',{class:'hist'},hist.map(function(e){return h('li',{class:e.k==='obs'?'obs':(e.k==='rec'&&e.o!=='hold'?'unsafe':'safe')},histText(e));})):h('p',{class:'progress'},'No decisions recorded yet.'),
+    h('p',{class:'progress'},'This is a fictional in-browser record of your choices. It is not tamper-proof or signed in any way.')));
+  var todo=[];if(act!=='hold')todo.push(act?'Withdraw the active risky recommendation with an evidence-based reason.':'Recommend a course of action.');if(act==='hold'&&!planOK(S))todo.push('Complete the hold plan.');
+  el.push(gateCard(g5(),'The hold stands. Pier 1 is protected, and the change goes to the qualified engineer.',todo));el.push(nextBtn(6));el.push(hintBox(5));return el;}
+function histText(e){var d=DECISIONS.filter(function(x){return x.v===e.o;})[0].label;
+  if(e.k==='rec')return'#'+e.n+' Recommended: '+d+(e.o==='hold'?'':' (unsafe)');
+  if(e.k==='obs')return'#'+e.n+' Sandbox replay observed: '+CASE.sandbox[e.o].lines[e.o==='restart'?1:1];
+  var r=WD_REASONS[e.o].filter(function(x){return x.v===e.r;})[0];return'#'+e.n+' Withdrawn: '+d+' — reason: '+r.label;}
+function recommend(v){if(activeRec(S))return;set(function(s){var n=s.a5.hist.length;s.a5.hist.push({n:n+1,k:'rec',o:v});if(v!=='hold')s.a5.hist.push({n:n+2,k:'obs',o:v});s.ui.wd='';s.ui.wdfb='';},v==='hold'?'Hold and escalate recommended.':'Sandbox replay shown. Read it, then withdraw the recommendation.');}
+function withdraw(o,r){var rs=WD_REASONS[o].filter(function(x){return x.v===r;})[0];
+  if(!rs){S.ui.wdfb='Choose a reason first.';render();announce(S.ui.wdfb);return;}
+  if(!rs.ok){S.ui.wdfb=rs.fb;render();announce(rs.fb);return;}
+  set(function(s){s.a5.hist.push({n:s.a5.hist.length+1,k:'wd',o:o,r:r});s.ui.wd='';s.ui.wdfb='';},'Recommendation withdrawn and recorded.');}
+
+function vAct6(){
+  var ch=CASE.change;var el=[h('div',{class:'card scene'},sceneHead('Act VI','The Qualified Change and the Return That Arrived','13:30:00 – 14:10:00'),
+    h('p',null,'Idris Kemp takes change request '+ch.id+' through approval. Within the approved window he reviews SAL-CORE’s return route and corrects it using his normal approved process (not shown here). Then the cabin tries again with fresh requests — a new verification cohort, SW-501 to SW-504. The six morning requests stay failed; they are not re-counted.'),
+    meta([['Change',ch.id],['Approved',ch.approved],['Window',ch.window],['Engineer',ch.engineer+' (qualified)'],['Scope',ch.scope],['Backout',ch.backout]]))];
+  el.push(h('div',{class:'card'},h('h3',null,'Engineer’s before/after route review (abstract)'),
+    table(['When','Address range','Next hop','Last changed'],[['Before',CASE.routeBefore[0].prefix,CASE.routeBefore[0].nh,CASE.routeBefore[0].changed],['After',CASE.routeAfter.prefix,CASE.routeAfter.nh,CASE.routeAfter.changed]],'Route before and after'),
+    h('h4',null,'Verification cohort (new requests after the change)'),
+    table(['Request','Sent','Reply left BOOK-SRV','SAL-CORE next hop','Reply arrived CAB-EDGE','Terminal received','Booking','Receipt'],CASE.post.map(function(r){return[r.id,r.send,r.srvTx,'10.40.254.9 (CAB-EDGE) at '+r.coreRet,r.edgeIn,r.clientRx,r.booking+' at '+r.booked,r.receipt];}),'Verification cohort'),
+    h('h4',null,'Pier 1 regression'),
+    table(['Request','When','Sent','Desk received reply','Booking'],CASE.pierReg.map(function(r){return[r.id,r.when,r.send,r.deskRx,r.booking+' at '+r.booked];}),'Pier 1 regression'),
+    h('h4',null,'OLD-HBR counters (cumulative)'),
+    table(['Reading at','Filtered booking replies','All inbound packets','Cabin replies sent since previous reading'],CASE.counters.slice(2).map(function(c){return[c.t,String(c.filt),String(c.all),String(c.cabinResp)];}),'Old router counters after'),
+    h('p',null,ch.restoredBy)));
+  var fc=h('div',{class:'card'},h('h3',null,'Match each finding to its source and authority'));
+  FINDINGS.forEach(function(f){var x=S.a6.find[f.id]||{};var ok=findOK(S,f);
+    var box=h('div',{class:'hop',id:'find-'+f.id},h('h4',null,f.id+': '+f.text));
+    var row=h('div',{class:'row'});
+    row.append(selectEl('fs-'+f.id,'Source',[{v:'',label:'— source —'}].concat(VSRC),x.src||'',function(e){var v=e.target.value;set(function(s){var r=s.a6.find[f.id]=s.a6.find[f.id]||{};r.src=v||undefined;});}));
+    row.append(selectEl('fa-'+f.id,'Authority',[{v:'',label:'— authority —'}].concat(AUTH),x.auth||'',function(e){var v=e.target.value;set(function(s){var r=s.a6.find[f.id]=s.a6.find[f.id]||{};r.auth=v||undefined;});}));
+    box.append(row);
+    if(x.src&&x.auth)box.append(ok?fb('ok','Matched.'):fb('bad',x.src!==f.src?'Which record actually contains this finding?':'Right source, wrong authority: is this seen on the wire, judged by the engineer, written in a record, or reasoned?'));
+    fc.append(box);});
+  el.push(fc);
+  var vc=h('div',{class:'card'},h('h3',null,'Independent verification: all four must hold'));
+  CHECKS.forEach(function(c){var x=S.a6.checks[c.id]||{};var list=c.id==='V2'?V2SRC:VSRC;
+    var box=h('div',{class:'hop',id:'chk-'+c.id},h('h4',null,c.id+': '+c.text));var row=h('div',{class:'row'});
+    row.append(selectEl('cs-'+c.id,'Status',[{v:'',label:'— status —'}].concat(VSTATUS),x.st||'',function(e){var v=e.target.value;set(function(s){var r=s.a6.checks[c.id]=s.a6.checks[c.id]||{};r.st=v||undefined;});}));
+    row.append(selectEl('cv-'+c.id,'Named source',[{v:'',label:'— source —'}].concat(list),x.src||'',function(e){var v=e.target.value;set(function(s){var r=s.a6.checks[c.id]=s.a6.checks[c.id]||{};r.src=v||undefined;});}));
+    box.append(row);
+    if(x.st&&x.src){if(checkOK(S,c))box.append(fb('ok','Verified, with the right source.'));
+      else if(x.src!==c.src)box.append(fb('bad',(c.bad&&c.bad[x.src])||(c.id==='V2'&&x.src==='srvcap'?'One end is not both ends. The cabin side must be observed too.':'That source does not establish this check.')));
+      else box.append(fb('bad','The named record directly shows this. Mark it verified.'));}
+    vc.append(box);});
+  var W=CASE.deltaWindows;
+  vc.append(h('h4',null,'Counter windows'));
+  vc.append(numField('dB','Window B ('+W[1].from+'–'+W[1].to+'): filtered change',S.a6.dB,function(v){set(function(s){s.a6.dB=v;});},String(W[1].filtDelta)));
+  if(S.a6.dB===String(W[1].filtDelta))vc.append(fb('info','Window B: '+W[1].why));
+  vc.append(numField('dC','Window C ('+W[2].from+'–'+W[2].to+'): filtered change',S.a6.dC,function(v){set(function(s){s.a6.dC=v;});},String(W[2].filtDelta)));
+  vc.append(radios('dCcls','Four cabin replies flowed in window C and reached the cabin. The flat filtered counter is…',DELTA_CLS,S.a6.dCcls,function(v){set(function(s){s.a6.dCcls=v;});},S.a6.dCcls?(S.a6.dCcls==='corroborating'?fb('ok',W[2].why):fb('bad','Unlike window B, real cabin replies existed in window C. A flat count while traffic flowed tells you something.')):null));
+  el.push(vc);
+  var p=g6parts();var todo=[];if(!p.find)todo.push('Match all ten findings ('+FINDINGS.filter(function(f){return findOK(S,f);}).length+'/10).');if(!p.checks)todo.push('Verify all four checks with the right sources.');if(!p.delta)todo.push('Complete the counter windows.');
+  el.push(gateCard(g6(),'Both directions corroborated, the cabin is booking, and Pier 1 is unharmed. Hester signs off the restoration.',todo));el.push(nextBtn(7));el.push(hintBox(6));return el;}
+
+var ENDINGS={
+  clean:{title:'The Hold That Kept Its Nerve',text:'You never touched a thing, and nothing you protected broke. Pier 1 sold through the noon rush, the cabin queue sailed at 12:45 from the Pier 1 desks, and by two o’clock the cabin printed its first real receipts. Wenna and Dev shake hands over the ledger: both of them were right all along.'},
+  restart:{title:'The Restart That Taught the Room',text:'Your first instinct was to restart the server. The sandbox showed what it would have cost: three interrupted Pier 1 sales and a cabin still timing out. You withdrew it on the evidence, held, and escalated. Hester keeps your replay for the next trainee induction.'},
+  release:{title:'The Green Light That Wasn’t',text:'You first believed that “the server answered” meant the cabin worked. The sandbox stopped a passenger from being handed a ticket that matched no booking. You withdrew the claim, held, and let the evidence and the engineer close the case.'},
+  both:{title:'Two Wrong Turns, One Right Road',text:'You tried both tempting shortcuts — a restart and a premature all-clear — and withdrew each on the evidence. The hold you finally recommended is the one that worked. The record keeps every step, because that’s how the next trainee learns.'}
+};
+function vAct7(){
+  var el=[h('div',{class:'card scene'},sceneHead('Act VII','Mail Delivered','14:20:00'),
+    h('p',null,'The cabin is printing receipts. Idris asks you to write the case brief for the morning meeting. Answer the brief’s questions; the report assembles itself from your ledger and records.'))];
+  var qc=h('div',{class:'card'},h('h3',null,'Final case brief'));
+  FINAL.forEach(function(q){var cur=S.a7.q[q.id];qc.append(radios('fq-'+q.id,q.q,q.opts,cur,function(v){set(function(s){s.a7.q[q.id]=v;});},cur?(cur===q.a?fb('ok','Yes.'):fb('bad',q.fb[cur])):null));});
+  el.push(qc);
+  var n=FINAL.filter(function(q){return S.a7.q[q.id]===q.a;}).length;
+  if(complete()){var e=ending();var E=ENDINGS[e];
+    el.push(h('div',{class:'card dark'},h('p',{class:'kicker'},'Ending'),h('h3',null,E.title),h('p',null,E.text),
+      h('p',null,'Completion token: ',h('span',{class:'token',id:'token'},token())),
+      h('p',{class:'progress'},'The token is an in-game marker for this fictional case. It is not a credential or certificate.'),
+      h('p',null,'Primary lesson: '+CASE.lesson)));
+    var md=buildReport();
+    el.push(h('div',{class:'card'},h('h3',null,'Case report'),
+      h('div',{class:'toolbar'},h('button',{type:'button',class:'primary',id:'dl',onclick:function(){download(md);}},'Download report (.md)'),
+        h('button',{type:'button',id:'copy',onclick:function(){copyReport();}},'Copy report text')),
+      h('label',{class:'sel',for:'report-text'},'Report text (select all and copy if the buttons don’t work)'),
+      h('textarea',{id:'report-text',readonly:true,style:'min-height:120px'},md),
+      h('h4',null,'Preview'),h('pre',{class:'report',id:'report-pre'},md)));
+  }else el.push(gateCard(false,'',['Answer all ten brief questions correctly ('+n+'/10).'].concat(gatesUpTo(6)?[]:['An earlier act is no longer complete. Return to it and reconfirm your answers.'])));
+  el.push(hintBox(7));return el;}
+
+/* ===================== report ===================== */
+function mdEsc(s){return String(s).replace(/[\\`*_{}\[\]()#+\-.!|<>~]/g,function(c){return'\\'+c;}).replace(/\r?\n/g,' ');}
+function buildReport(){
+  if(!complete())return'';var L=[];var p=CASE.people;var e=ending();
+  L.push('# DoorQuests · Techortals · Netortals #001');L.push('## Mail for the Empty Building ★ FLAGSHIP — Case report');L.push('');
+  L.push('| Field | Value |','|---|---|','| Case ID | '+CASE.id+' |','| Case date | '+CASE.caseDate+' |','| Clock | Saltwick Local Time (SLT) |','| Version | '+CASE.version+' |','| Ending | '+ENDINGS[e].title+' ('+e+') |','| Completion token | '+token()+' (in-game marker, not a credential) |');
+  L.push('');L.push('**Primary lesson:** '+CASE.lesson);L.push('');
+  L.push('## Witnesses and what each actually observed');
+  L.push('- **'+p.wenna.name+'** ('+p.wenna.role+'): terminal logs showed 6 requests sent, 0 replies received, 6 timeouts.');
+  L.push('- **'+p.dev.name+'** ('+p.dev.role+'): the server capture showed all 6 requests arriving and 6 matching replies leaving.');
+  L.push('- **'+p.hester.name+'** ('+p.hester.role+'): Pier 1 desks completed bookings throughout; confirmed cabin restoration at 14:12.');
+  L.push('- **'+p.idris.name+'** ('+p.idris.role+'): OLD-HBR capture and counters; route review; implemented '+CASE.change.id+'.');
+  L.push('- **'+p.ros.name+'** ('+p.ros.role+'): approved '+CASE.change.id+' at 13:12.');
+  L.push('');L.push('## Timeline (SLT)');
+  L.push('| Request | Sent | Server received | Reply left server | SAL-CORE forwarded reply to | Arrived OLD-HBR | Cabin outcome |','|---|---|---|---|---|---|---|');
+  C.forEach(function(r){L.push('| '+r.id+' | '+r.send+' | '+r.srvRx+' | '+r.srvTx+' | OLD-HBR at '+r.coreRet+' | '+(r.oldRx||'not observed (capture began 11:05:00)')+' | timeout '+r.timeout+', '+r.hold+' expired '+r.holdExp+' |');});
+  P.forEach(function(r){L.push('| '+r.id+' (Pier 1) | '+r.send+' | '+r.srvRx+' | '+r.srvTx+' | PIER-EDGE | n/a | desk received '+r.deskRx+', '+r.booking+' confirmed '+r.booked+' |');});
+  L.push('');L.push('Totals before the change: cabin requests 6, replies transmitted 6, replies received at cabin 0, cabin bookings 0, timeouts 6, retries 0. Pier 1 controls 2 of 2 completed.');
+  L.push('');L.push('## Round-Trip Ledger');
+  Object.keys(TRACES).forEach(function(t){var st=S.a3.stamps[t];if(!st)return;var any=hopsFor(t).some(function(hp){return st[hp.id];});if(!any)return;
+    L.push('');L.push('### '+t+(REQUIRED_TRACES.indexOf(t)>=0?' (required)':' (optional)'));
+    L.push('| Hop | Direction | From → to | Stamp | Observer / record | Window | Matched time | Accepted |','|---|---|---|---|---|---|---|---|');
+    hopsFor(t).forEach(function(hp){var x=st[hp.id];if(!x){L.push('| '+hp.id+' | '+hp.dir+' | '+hp.from+' → '+hp.to+' | (not stamped) | | | | |');return;}
+      var s=x.src&&x.src!=='NONE'?SRCBY[x.src]:null;var ok=validateHop(t,hp.id,x).ok;var mt=s&&s.entries[hp.id]&&s.entries[hp.id][t]&&x.e===t?s.entries[hp.id][t]:'—';
+      L.push('| '+hp.id+' | '+hp.dir+' | '+hp.from+' → '+hp.to+' | '+x.s+' | '+(s?s.label:'No qualified observer')+' | '+(s&&s.window?s.window[0]+'–'+s.window[1]:'—')+' | '+mt+' | '+(ok?'yes':'no')+' |');});});
+  L.push('');L.push('Meaning of stamps: SEEN = a record that watched this hop in its window has a line for the request. NOT SEEN = a record watching this hop for its whole window has none (true only for that place and window). UNKNOWN = no record covered the hop.');
+  L.push('');L.push('## Hypotheses');
+  HYPS.forEach(function(hy){var k=BOARD.key[hy.v];var st=BOARD.status.filter(function(x){return x.v===k.status;})[0].label;var lim=BOARD.lim.filter(function(x){return x.v===k.lim;})[0].label;
+    L.push('- **'+hy.label+'** — '+st+'. Limitation: '+lim+'.');});
+  L.push('- First hunch recorded in Act I: '+HYPS.filter(function(x){return x.v===S.a1.hyp;})[0].label+(S.a1.note?' — note: '+mdEsc(S.a1.note):''));
+  L.push('');L.push('## Move ticket '+CASE.moveTicket.id);
+  CASE.moveTicket.tasks.forEach(function(t){L.push('- Task '+t.n+': '+t.text+' — '+t.status+' — assessed: '+TICKET_CATS.filter(function(c){return c.v===t.truth;})[0].label);});
+  L.push('- Not listed: '+CASE.moveTicket.notListed);
+  L.push('- The missing handover note is an administrative clue. The stale route was confirmed by SAL-CORE forwarding records, the OLD-HBR capture and the qualified engineer’s review, not by the ticket alone.');
+  L.push('');L.push('## Decision history (append-only, fictional in-browser record; not tamper-proof)');
+  S.a5.hist.forEach(function(x){L.push('1. '+histText(x).replace(/^#\d+ /,''));});
+  L.push('- Hold plan: '+PLAN.filter(function(pl){return pl.ok;}).map(function(pl){return pl.label;}).join('; ')+'.');
+  L.push('- Sandbox replays are training simulations. No server was restarted and no route was edited by the trainee.');
+  L.push('');L.push('## Qualified change and disposition');
+  var ch=CASE.change;L.push('- '+ch.id+': approved '+ch.approved+'; window '+ch.window+'; engineer '+ch.engineer+'; implemented '+ch.implemented+'.');
+  L.push('- Scope: '+ch.scope);L.push('- Backout: '+ch.backout);
+  L.push('- Route for '+CASE.routeBefore[0].prefix+': before → '+CASE.routeBefore[0].nh+'; after → '+CASE.routeAfter.nh+'.');
+  L.push('');L.push('## OLD-HBR counter deltas (filtered = booking replies to 10.40.12.0/24)');
+  L.push('| Window | Filtered change | All-packets change | Cabin replies sent | Reached cabin | Reading |','|---|---|---|---|---|---|');
+  CASE.deltaWindows.forEach(function(w){L.push('| '+w.id+' '+w.from+'–'+w.to+' | '+w.filtDelta+' | '+w.allDelta+' | '+w.cabinResp+' | '+w.cabinReceived+' | '+w.verdict+' |');});
+  L.push('Lifetime cumulative values are not deltas: the filtered total of 418 includes 412 legitimate pre-move replies.');
+  L.push('');L.push('## Cabin success evidence (new verification cohort)');
+  L.push('| Request | Reply left BOOK-SRV | Reply arrived CAB-EDGE | Terminal received | Booking | Receipt |','|---|---|---|---|---|---|');
+  CASE.post.forEach(function(r){L.push('| '+r.id+' | '+r.srvTx+' | '+r.edgeIn+' | '+r.clientRx+' | '+r.booking+' at '+r.booked+' | '+r.receipt+' |');});
+  L.push('');L.push('## Pier 1 checks');
+  P.forEach(function(r){L.push('- '+r.id+' (morning control): '+r.booking+' confirmed '+r.booked);});
+  CASE.pierReg.forEach(function(r){L.push('- '+r.id+' ('+r.when+'): '+r.booking+' confirmed '+r.booked);});
+  L.push('');L.push('## Unresolved risks and improvements');
+  L.push('- Check whether other services moved with the office share the stale return route.');
+  L.push('- OLD-HBR remains powered; decommission it under a separate approved change once the building is safe.');
+  L.push('- Re-point the “Harbor Office” dashboard check at the cabin booking service, testing a completed round trip.');
+  L.push('- Move checklists must verify the round trip with a completed booking at the new site, not just a request in the server log.');
+  L.push('- Every move ticket task that says “see handover note” must have the note attached before sign-off.');
+  L.push('');L.push('---');
+  L.push('*Fictional, educational and non-operational. All people, places, addresses and records are invented. This report contains no configuration commands and grants no professional authority. Changes in the story were made only by a fictional qualified engineer under approval.*');
+  L.push('');L.push('DoorQuests — Choose Your Path. Find the Truth. Unlock the Impossible. · Techortals — Diagnose. Repair. Build. Master. · Created by The Axiom Continuum.');
+  return L.join('\n');}
+function download(md){if(!complete())return;try{var b=new Blob([md],{type:'text/markdown;charset=utf-8'});var u=URL.createObjectURL(b);var a=h('a',{href:u,download:CASE.reportFile});document.body.append(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},2000);announce('Report downloaded.');}catch(e){announce('Download is unavailable here. Use the report text box instead.');}}
+function copyReport(){var ta=document.getElementById('report-text');var done=function(){announce('Report copied.');};
+  try{if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(ta.value).then(done,function(){ta.select();try{document.execCommand('copy');done();}catch(e){announce('Select the text and copy it manually.');}});}else{ta.focus();ta.select();document.execCommand('copy');done();}}catch(e){announce('Select the text and copy it manually.');}}
+
+/* ===================== render ===================== */
+var ROMAN=['I','II','III','IV','V','VI','VII'];
+var TITLES=['The Cabin That Could Send','Seven Records, Seven Limits','The Round-Trip Ledger','Four Stories and One Missing Handover','The Noon Ticket Queue','The Qualified Change','Mail Delivered'];
+function render(focusHead){
+  var act=S.ui.act;if(!unlocked(act)){act=1;for(var i=7;i>=1;i--)if(unlocked(i)){act=i;break;}S.ui.act=act;}
+  var fid=document.activeElement&&document.activeElement.id;
+  var nav=document.getElementById('actnav');nav.textContent='';
+  for(var n=1;n<=7;n++){(function(n){var u=unlocked(n),done=u&&GATES[n-1](S);
+    var st=!u?'locked':done?'complete':(n===act?'current':'open');
+    nav.append(h('li',null,h('button',{type:'button',id:'nav-'+n,'aria-current':n===act?'step':null,disabled:u?null:true,onclick:function(){go(n);},'aria-label':'Act '+ROMAN[n-1]+': '+TITLES[n-1]+' ('+st+')'},'Act '+ROMAN[n-1],h('span',{class:'st'},st==='complete'?'✓ complete':st==='locked'?'\u{1F512} locked':st))));})(n);}
+  var m=document.getElementById('main');m.textContent='';
+  var views=[vAct1,vAct2,vAct3,vAct4,vAct5,vAct6,vAct7];add(m,views[act-1]());
+  if(!storeOK)document.getElementById('storemsg').textContent='Saving is unavailable in this browser, so progress will be lost when you close the page.';
+  if(focusHead){var hd=document.getElementById('act-h');if(hd)hd.focus();window.scrollTo(0,0);}
+  else if(fid){var x=document.getElementById(fid);if(x)x.focus({preventScroll:true});}
+}
+
+/* ===================== QA hook (read-only copies) ===================== */
+function invariants(){var out=[];function chk(name,ok){out.push({name:name,ok:!!ok});}
+  var ids=C.map(function(r){return r.id;}).concat(P.map(function(r){return r.id;}),CASE.post.map(function(r){return r.id;}),CASE.pierReg.map(function(r){return r.id;}));
+  chk('request IDs unique',ids.length===new Set(ids).size);chk('six or more cabin requests',C.length>=6);
+  C.forEach(function(r){var seq=['send','edgeOut','coreFwd','srvRx','srvTx','coreRet'];if(r.oldRx)seq.push('oldRx');var ok=true;for(var i=1;i<seq.length;i++)if(!(tms(r[seq[i]])>tms(r[seq[i-1]])))ok=false;
+    chk(r.id+' events ordered',ok);chk(r.id+' timeout after send',tms(r.timeout)>tms(r.send));chk(r.id+' server receipt before reply',tms(r.srvRx)<tms(r.srvTx));if(r.oldRx)chk(r.id+' reply before old-router ingress',tms(r.srvTx)<tms(r.oldRx));
+    chk(r.id+' timeout is send + 30 s',tms(r.timeout)-tms(r.send)===30000);chk(r.id+' hold expires 10 min after reply',Math.abs(tms(r.holdExp+'.000')-tms(r.srvTx)-600000)<1000);});
+  CASE.post.forEach(function(r){var seq=['send','edgeOut','srvRx','srvTx','coreRet','edgeIn','clientRx','confirm','booked'];var ok=true;for(var i=1;i<seq.length;i++)if(!(tms(r[seq[i]])>tms(r[seq[i-1]])))ok=false;chk(r.id+' post-change events ordered',ok);});
+  P.forEach(function(r){chk(r.id+' pier ordered',tms(r.send)<tms(r.srvRx)&&tms(r.srvRx)<tms(r.srvTx)&&tms(r.srvTx)<tms(r.deskRx)&&tms(r.deskRx)<tms(r.booked));});
+  var bk=P.map(function(r){return[r.booking,r.booked];}).concat(CASE.pierReg.map(function(r){return[r.booking,r.booked];}),CASE.post.map(function(r){return[r.booking,r.booked];})).sort(function(a,b){return tms(a[1])-tms(b[1]);});
+  chk('booking numbers rise with confirm time',bk.every(function(x,i){return i===0||+x[0].slice(3)>+bk[i-1][0].slice(3);}));
+  chk('no cabin booking before the change',C.every(function(r){return !r.booking;}));
+  var holds=C.map(function(r){return r.hold;}).concat(P.map(function(r){return r.hold;}));chk('holds unique',holds.length===new Set(holds).size);
+  var W=CASE.deltaWindows,K=CASE.counters;function at(t){return K.filter(function(c){return c.t===t;})[0];}
+  W.forEach(function(w){chk('window '+w.id+' filtered delta matches readings',at(w.to).filt-at(w.from).filt===w.filtDelta);chk('window '+w.id+' all delta matches readings',at(w.to).all-at(w.from).all===w.allDelta);});
+  chk('window A delta equals cabin replies sent in window',W[0].filtDelta===C.filter(function(r){return tms(r.srvTx)>=tms(W[0].from)&&tms(r.srvTx)<=tms(W[0].to);}).length);
+  chk('window C cabin replies = verification cohort',W[2].cabinResp===CASE.post.length);
+  chk('old-router capture window excludes SW-401 reply',tms(C[0].coreRet)<tms('11:05:00.000'));
+  chk('dashboard probes the old router only',/10\.40\.250\.4/.test(CASE.dashboard.check));
+  chk('move ticket lacks return-route handover',CASE.moveTicket.tasks.some(function(t){return t.truth==='open'&&/return route/.test(t.text);}));
+  chk('ledger: SW-403 R3 SEEN, R4 UNKNOWN, R5 NOT SEEN, R6 NOT SEEN',truth('SW-403',hopById('SW-403','R3')).stamp==='SEEN'&&truth('SW-403',hopById('SW-403','R4')).stamp==='UNKNOWN'&&truth('SW-403',hopById('SW-403','R5')).stamp==='NOT SEEN'&&truth('SW-403',hopById('SW-403','R6')).stamp==='NOT SEEN');
+  chk('ledger: SW-401 R3 UNKNOWN (outside capture window)',truth('SW-401',hopById('SW-401','R3')).stamp==='UNKNOWN');
+  chk('addresses are private or documentation ranges',JSON.stringify(CASE).match(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g).every(function(a){return /^10\./.test(a)||/^(192\.0\.2|198\.51\.100|203\.0\.113)\./.test(a);}));
+  return out;}
+var QA=Object.freeze({
+  version:CASE.version,storageKey:CASE.storageKey,
+  gates:function(){var o={};for(var i=1;i<=7;i++)o['act'+i]={unlocked:unlocked(i),passed:GATES[i-1](S)};o.complete=complete();o.ending=complete()?ending():null;o.token=token();o.g3=g3parts();o.g6=g6parts();return clone(o);},
+  invariants:function(){return clone(invariants());},
+  dataset:function(){return clone({cabin:CASE.cabin,pier:CASE.pier,post:CASE.post,pierReg:CASE.pierReg,counters:CASE.counters,deltaWindows:CASE.deltaWindows,dashboard:CASE.dashboard,sources:SOURCES.map(function(s){return{id:s.id,kind:s.kind,window:s.window,measures:s.measures};}),
+    truth:Object.keys(TRACES).reduce(function(o,t){o[t]={};hopsFor(t).forEach(function(hp){o[t][hp.id]=truth(t,hp);});return o;},{})});},
+  validateHop:function(t,hid,e){return clone(validateHop(t,hid,clone(e||{})));},
+  state:function(){return clone(S);},
+  report:function(){return buildReport();}
+});
+try{Object.defineProperty(window,'__DQ_NETORTALS_001_QA',{value:QA,writable:false,configurable:false,enumerable:false});}catch(e){}
+
+/* ===================== boot ===================== */
+var gl=document.getElementById('gloss-list');GLOSSARY.forEach(function(g){gl.append(h('dt',null,g[0]),h('dd',null,g[1]));});
+var dlg=document.getElementById('gloss');
+document.getElementById('btn-gloss').addEventListener('click',function(){if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','');});
+document.getElementById('gloss-close').addEventListener('click',function(){if(dlg.close)dlg.close();else dlg.removeAttribute('open');document.getElementById('btn-gloss').focus();});
+var cdlg=document.getElementById('confirm');
+function closeConfirm(){if(cdlg.close)cdlg.close();else cdlg.removeAttribute('open');document.getElementById('btn-reset').focus();}
+document.getElementById('btn-reset').addEventListener('click',function(){if(cdlg.showModal)cdlg.showModal();else cdlg.setAttribute('open','');document.getElementById('confirm-no').focus();});
+document.getElementById('confirm-no').addEventListener('click',closeConfirm);
+document.getElementById('confirm-yes').addEventListener('click',function(){
+  try{window.localStorage.removeItem(CASE.storageKey);}catch(e){}S=fresh();draft={};closeConfirm();render(true);announce('This case has been reset.');});
+load();render();
+})();
+</script>
+</body>
+</html>
