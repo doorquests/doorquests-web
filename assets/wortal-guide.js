@@ -6,7 +6,7 @@ const styles=[['read','Read & Imagine'],['think','Think & Investigate'],['act','
 const moods=[['wonder','Wonder'],['suspense','Suspense'],['curiosity','Curiosity'],['adventure','Adventure'],['challenge','Challenge']];
 const form=document.getElementById('warden-form')||document.getElementById('warden-form-enhanced');if(!form)return;
 const classic=form.id==='warden-form',result=document.getElementById(classic?'warden-result':'guide-result');if(!result)return;
-const options=(label,name,data,describe)=>'<fieldset class="w2-field"><legend>'+label+'</legend><div class="w2-options">'+data.map(([v,t])=>'<label class="w2-option"><input type="radio" name="'+name+'" value="'+v+'" required><span>'+v+(describe?'<small>'+t+'</small>':'')+'</span></label>').join('')+'</div></fieldset>';
+const options=(label,name,data,describe)=>'<fieldset class="w2-field"><legend>'+label+'</legend><div class="w2-options">'+data.map(([v,t])=>'<label class="w2-option"><input type="radio" name="'+name+'" value="'+v+'" required><span>'+(describe?v:t)+(describe?'<small>'+t+'</small>':'')+'</span></label>').join('')+'</div></fieldset>';
 form.innerHTML=options('1. What kind of door calls to you?','kind',families,true)+options('2. How do you want to engage?','style',styles,false)+options('3. What mood suits you?','mood',moods,false)+'<div class="w2-actions"><button class="w2-primary" type="submit">Find My Door →</button><button type="button" id="w2-random">Surprise Me ✦</button></div><p class="w2-note">Wortal recommends published playable experiences only. Futuortals is an exploratory preview.</p>';
 if(!classic)result.textContent='Choose a family, how you want to play, and a mood.';
 let current=null,currentChoices=null,attempt=0;
