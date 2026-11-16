@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light">
+<meta name="description" content="Knock and Wait on Little Door Lane: a Kindortals Feelings and Friendship prototype from DoorQuests. Prototype for Founder playtest only.">
+<title>Knock and Wait on Little Door Lane · Kindortals prototype</title>
+<style>
+:root{
+  --ink:#2b2833; --ink-soft:#4d4858; --paper:#fffaf0; --paper-2:#fbf1dc; --line:#2b2833;
+  --focus:#1d4ed8; --accent:#a8461f; --ok:#2f6b3a;
+  --radius:18px; --gap:14px;
+  font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  color:var(--ink);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:#bfe3f7;line-height:1.45;font-size:18px;overflow-x:hidden}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* sky */
+.sky{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.sky>div{position:absolute;inset:0;opacity:0;transition:opacity 2.4s ease}
+.s-morning{background:linear-gradient(#bfe3f7,#ffe8c2)}
+.s-day{background:linear-gradient(#8fcdf0,#e6f5ff)}
+.s-afternoon{background:linear-gradient(#93c6e8,#ffe2b8)}
+.s-golden{background:linear-gradient(#f2a96b,#ffdca6)}
+.s-dusk{background:linear-gradient(#3d3a7a,#8a5a8f 55%,#f09a6c)}
+.s-night{background:linear-gradient(#111734,#2b3168)}
+body[data-phase="morning"] .s-morning,body[data-phase="day"] .s-day,body[data-phase="afternoon"] .s-afternoon,
+body[data-phase="golden"] .s-golden,body[data-phase="dusk"] .s-dusk,body[data-phase="night"] .s-night{opacity:1}
+.stars{opacity:0;transition:opacity 3s ease}
+body[data-phase="dusk"] .stars{opacity:.55}
+body[data-phase="night"] .stars{opacity:1}
+.stars i{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff6d8}
+.orb{position:absolute;width:64px;height:64px;border-radius:50%;right:8%;top:12%;transition:top 2.4s ease,background 2.4s ease,box-shadow 2.4s ease;background:#ffd45c;box-shadow:0 0 40px #ffe08a}
+body[data-phase="golden"] .orb{top:30%;background:#ffb04d}
+body[data-phase="dusk"] .orb{top:62%;background:#ff9a57;box-shadow:0 0 30px #ffb47a}
+body[data-phase="night"] .orb{top:10%;background:#f4f0d8;box-shadow:0 0 30px #c9c7ff}
+
+/* chrome */
+.proto{background:#2b2833;color:#fff;font-size:14px;text-align:center;padding:6px 12px;font-weight:600}
+.topbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;max-width:980px;margin:0 auto}
+.brand{background:var(--paper);border:2px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:800;font-size:16px}
+.brand small{display:block;font-weight:600;font-size:12px;color:var(--ink-soft)}
+.tools{display:flex;flex-wrap:wrap;gap:6px}
+.tool{min-height:44px;min-width:44px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:2px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.tool[aria-pressed="true"]{background:#fff0b8;box-shadow:inset 0 0 0 2px var(--line)}
+.tool[aria-pressed="true"]::after{content:"on";font-size:12px;border:1.5px solid var(--line);border-radius:6px;padding:0 4px}
+.tool[aria-pressed="false"]::after{content:"off";font-size:12px;border:1.5px dashed var(--ink-soft);border-radius:6px;padding:0 4px;color:var(--ink-soft)}
+.tool:disabled{opacity:.6;cursor:not-allowed}
+svg.ic{width:26px;height:26px;flex:none;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+main{max-width:980px;margin:0 auto;padding:0 12px 28px}
+main:focus{outline:none}
+.panel{background:var(--paper);border:3px solid var(--line);border-radius:var(--radius);padding:16px;margin:10px 0;box-shadow:0 6px 0 rgba(43,40,51,.18)}
+h1,h2,h3{line-height:1.2;margin:.1em 0 .4em}
+h1{font-size:28px} h2{font-size:24px} h3{font-size:19px}
+h1:focus,h2:focus{outline:3px dashed var(--focus);outline-offset:4px}
+p{margin:.3em 0 .6em}
+
+/* buttons */
+.btn{min-height:56px;min-width:56px;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:10px 18px;border-radius:16px;border:3px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-weight:800;font-size:19px;cursor:pointer;box-shadow:0 4px 0 var(--line);text-align:left}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--line)}
+.btn.big{min-height:72px;font-size:22px;padding:12px 24px}
+.btn.primary{background:#ffd76a}
+.btn.soft{background:var(--paper-2);box-shadow:0 3px 0 var(--line);font-size:17px;min-height:50px}
+.btn[aria-pressed="true"]{background:#fff0b8;outline:4px solid var(--line);outline-offset:2px}
+.btn[aria-pressed="true"] .tick{display:inline-flex}
+.btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:0 2px 0 var(--line)}
+.btn svg.ic{width:34px;height:34px}
+.tick{display:none;align-items:center;gap:4px;font-size:14px;border:2px solid var(--line);border-radius:8px;padding:1px 6px;background:#fff}
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.stack{display:grid;gap:12px}
+.grid-picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.pick{flex-direction:column;min-height:110px;text-align:center;font-size:17px}
+.pick svg.ic{width:48px;height:48px}
+
+/* dialogue */
+.dialogue{background:#fff;border:3px solid var(--line);border-radius:18px;padding:12px 14px;position:relative;font-size:20px}
+.dialogue:focus{outline:3px dashed var(--focus);outline-offset:3px}
+.speaker{display:inline-block;font-size:15px;font-weight:800;background:var(--paper-2);border:2px solid var(--line);border-radius:999px;padding:2px 10px;margin-bottom:6px}
+.narr{font-size:18px;color:var(--ink-soft);margin-top:8px}
+.card-held{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--line);border-radius:10px;padding:4px 10px;background:#fffdf5;font-size:15px;font-weight:700;margin-top:6px}
+
+/* steps */
+.steps{list-style:none;display:flex;flex-wrap:wrap;gap:6px;padding:0;margin:8px 0 12px}
+.steps li{display:flex;align-items:center;gap:6px;border:2px solid var(--ink-soft);border-radius:999px;padding:4px 10px;font-size:15px;font-weight:700;color:var(--ink-soft);background:#fff}
+.steps li[aria-current="step"]{border:3px solid var(--line);color:var(--ink);background:#fff0b8;text-decoration:underline;text-underline-offset:3px}
+.steps li.done{border-style:dashed}
+.steps li .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;border:2px solid currentColor;font-size:13px}
+
+/* lane */
+.lane{list-style:none;padding:0;margin:0;display:grid;gap:4px}
+.lane li{display:flex}
+.lane li{justify-content:flex-start}
+.lane li:nth-child(4n+3){justify-content:flex-end}
+.lane li.stones{height:22px;gap:10px;justify-content:center}
+.stones i{width:26px;height:12px;border-radius:50%;background:#c9b48a;border:2px solid #8a7550}
+.house{width:min(320px,88%);display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:22px;border:3px solid var(--line);background:var(--paper);cursor:pointer;font:inherit;color:var(--ink);text-align:left;box-shadow:0 5px 0 var(--line);min-height:120px}
+.house:active{transform:translateY(2px);box-shadow:0 3px 0 var(--line)}
+.lane li:nth-child(4n+1) .house{transform:rotate(-1.5deg)}
+.lane li:nth-child(4n+3) .house{transform:rotate(1.2deg)}
+.house svg.hs{width:104px;height:110px;flex:none}
+.house .nm{font-size:21px;font-weight:800;display:block}
+.house .dl{font-size:14px;color:var(--ink-soft);display:block}
+.house .st{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:15px;font-weight:700;border:2px solid var(--line);border-radius:10px;padding:2px 8px;background:#fff}
+.house .st.new{border-style:dashed}
+.house .st svg.ic{width:20px;height:20px}
+.house.mine{cursor:default;box-shadow:0 3px 0 var(--ink-soft)}
+@media (min-width:860px){
+  .lane{grid-template-columns:repeat(3,1fr);gap:18px 14px;align-items:start}
+  .lane li{justify-content:center!important}
+  .lane li.o1{margin-top:40px}
+  .lane li.o2{margin-top:12px}
+  .lane li.stones{display:none}
+  .house{width:100%}
+}
+
+/* door view */
+.doorwrap{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:center}
+.doorview{width:min(260px,70vw);height:auto}
+.wiggle{animation:wig .35s ease-in-out 3}
+@keyframes wig{0%,100%{transform:rotate(0)}25%{transform:rotate(-2deg)}75%{transform:rotate(2deg)}}
+.waitdots i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--ink);margin:0 4px;animation:blink 1.2s infinite}
+.waitdots i:nth-child(2){animation-delay:.2s}.waitdots i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+.appear{animation:pop .5s ease-out}
+@keyframes pop{from{transform:scale(.92);opacity:.3}to{transform:scale(1);opacity:1}}
+.visitor{width:min(170px,40vw)}
+
+/* finale */
+.tableau{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;list-style:none;padding:0;margin:10px 0}
+.tableau li{background:#fff;border:3px solid var(--line);border-radius:16px;padding:10px;text-align:center;font-size:16px}
+.tableau li>svg{width:84px;height:84px}
+.tableau .with{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:800;border:2px solid var(--line);border-radius:8px;padding:0 6px;margin-top:4px}
+.tableau .with svg.ic{width:18px;height:18px}
+.lesson{font-size:24px;font-weight:800;text-align:center;background:#fff0b8;border:3px solid var(--line);border-radius:18px;padding:14px}
+
+details.story{background:var(--paper-2);border:2px solid var(--line);border-radius:14px;padding:8px 12px;margin-top:12px;font-size:16px}
+details.story summary{cursor:pointer;font-weight:800;min-height:40px;display:flex;align-items:center}
+details.story ul{margin:6px 0;padding-left:20px}
+
+footer{max-width:980px;margin:0 auto;padding:6px 12px 30px;font-size:14px}
+footer .panel{font-size:14px;padding:10px 14px}
+.storage-note{font-weight:700}
+
+dialog{border:3px solid var(--line);border-radius:20px;padding:0;max-width:min(640px,94vw);background:var(--paper);color:var(--ink)}
+dialog::backdrop{background:rgba(20,20,40,.55)}
+.dlg{padding:18px;max-height:82vh;overflow:auto;font-size:16px}
+.dlg h2{font-size:22px}
+.dlg dt{font-weight:800;margin-top:8px}
+.dlg dd{margin:2px 0 6px 0}
+
+.calm *,.calm *::before,.calm *::after{animation:none!important;transition:none!important}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+@media (max-width:600px){
+  .topbar{padding:8px 10px;gap:6px}
+  .brand{font-size:15px;padding:4px 12px}
+  .tools{gap:4px}
+  .tool{font-size:13.5px;padding:4px 9px;gap:4px}
+  .tool svg.ic{width:20px;height:20px}
+}
+@media (max-width:360px){
+  body{font-size:17px}
+  .btn{font-size:17px;padding:8px 12px}
+  .btn.big{font-size:19px}
+  .house svg.hs{width:84px;height:90px}
+  .house .nm{font-size:19px}
+  h1{font-size:24px}
+}
+</style>
+</head>
+<body data-phase="morning">
+<div class="sky" aria-hidden="true">
+  <div class="s-morning"></div><div class="s-day"></div><div class="s-afternoon"></div><div class="s-golden"></div><div class="s-dusk"></div><div class="s-night"></div>
+  <div class="stars" id="stars"></div>
+  <div class="orb"></div>
+</div>
+<div class="proto" role="note">PROTOTYPE · Founder playtest only · Not publicly published · Not finalized</div>
+<header class="topbar">
+  <div class="brand">Little Door Lane<small>Kindortals · Feelings &amp; Friendship #001</small></div>
+  <div class="tools" role="group" aria-label="Settings and help">
+    <button type="button" class="tool" id="t-hear" aria-describedby="hear-desc"><svg class="ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M8 12h32v20H22l-8 8v-8H8z"/><path d="M16 22h16"/></svg>Hear again</button>
+    <span id="hear-desc" class="sr-only">Repeats the words on screen. Uses the device voice if read aloud is available.</span>
+    <button type="button" class="tool" id="t-sound" aria-pressed="false"><svg class="ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M8 18h8l10-8v28l-10-8H8z"/><path d="M32 18c3 3 3 9 0 12"/></svg>Sounds</button>
+    <button type="button" class="tool" id="t-speech" aria-pressed="false"><svg class="ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M8 12h32v20H22l-8 8v-8H8z"/><path d="M16 20h4M24 20h8M16 26h12"/></svg>Read aloud</button>
+    <button type="button" class="tool" id="t-calm" aria-pressed="false"><svg class="ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M8 24c6-10 10-10 16 0s10 10 16 0"/></svg>Calm motion</button>
+    <button type="button" class="tool" id="t-grown"><svg class="ic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="18" cy="14" r="5"/><circle cx="33" cy="19" r="4"/><path d="M8 40c0-10 6-15 10-15s10 5 10 15M27 40c0-8 3-12 6-12s8 4 8 12"/></svg>For grown-ups</button>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" aria-label="Little Door Lane story"></main>
+<div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+<footer>
+  <div class="panel">
+    <p>Created by The Axiom Continuum · DoorQuests · Gradortals · Kindortals · Feelings &amp; Friendship #001 · Prototype only.</p>
+    <p class="storage-note" id="storage-note" hidden>This device isn't saving progress right now, so the story will start fresh if the page is closed.</p>
+  </div>
+</footer>
+
+<dialog id="dlg-grown" aria-labelledby="g-title">
+  <div class="dlg">
+    <h2 id="g-title">For grown-ups</h2>
+    <p><strong>Prototype status:</strong> a Founder-playtest prototype. Not finalized, not classroom-tested, not published.</p>
+    <h3>What this story practices</h3>
+    <p>An invitation is an offer, not a demand. Your child picks a picture invitation, knocks, waits, and listens. Each neighbor answers in their own way, and every answer is treated as a good, complete answer. At dusk, a neighbor knocks on your child's own door, and your child chooses the answer.</p>
+    <dl>
+      <dt>Yes</dt><dd>They play or visit together.</dd>
+      <dt>No</dt><dd>A whole answer. Nobody needs to explain it or change it.</dd>
+      <dt>Later</dt><dd>It means maybe, not a delayed yes. Asking again is a new question that can get a new answer.</dd>
+      <dt>Watch</dt><dd>Being nearby and watching is a real way to take part. Nobody is pulled in.</dd>
+      <dt>Alone time</dt><dd>One neighbor happily chooses to be alone. That isn't sad or unfriendly.</dd>
+    </dl>
+    <h3>The neighbors</h3>
+    <p>Bramble the hedgehog loves lively play. Mo the otter talks with picture cards and often has a different idea. Tansy the mouse says "later." Wick the owl likes to watch from the window. Rue the rabbit enjoys being alone with a book.</p>
+    <h3>How to help</h3>
+    <p>Read the words aloud, point to the pictures, and let your child make each choice, including letting a door be. Please don't steer them toward "yes" or toward visiting everyone. There are no points or scores, and nothing is counted. Every ending is complete, whether many neighbors gather or none do.</p>
+    <h3>Sound and read aloud</h3>
+    <p>Both are off by default. Sounds are short, soft tones made by the browser. Read aloud uses your device's built-in voice, so it varies by device. It is not recorded narration, and it may be missing on some devices. All words always appear on screen.</p>
+    <h3>Privacy and saving</h3>
+    <p>Everything stays on this device. There's no account, tracking, camera, microphone, or chat, and the story works offline. Progress is saved in this browser's storage under the key <code>doorquests:gradortals:kindortals:feelings-friendship:001:v1</code>. Starting over clears only that key.</p>
+    <p id="g-storage" class="storage-note" hidden>Right now this browser isn't allowing storage, so progress will be lost when the page closes.</p>
+    <div class="row" style="margin-top:12px">
+      <button type="button" class="btn soft" id="g-reset">Start over</button>
+      <button type="button" class="btn primary" id="g-close">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dlg-reset" aria-labelledby="r-title">
+  <div class="dlg">
+    <h2 id="r-title">Start over?</h2>
+    <p>This clears this story's saved progress on this device and goes back to the start. Other DoorQuests progress is not touched. Your sound and motion settings stay the same.</p>
+    <div class="row">
+      <button type="button" class="btn primary" id="r-yes">Yes, start over</button>
+      <button type="button" class="btn soft" id="r-no">Keep playing</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function(){
+'use strict';
+var KEY='doorquests:gradortals:kindortals:feelings-friendship:001:v1';
+var ORDER=['bramble','mo','tansy','wick','rue'];
+
+/* ---------- icons ---------- */
+var IC={
+  blocks:'<rect x="8" y="24" width="14" height="14" rx="2"/><rect x="26" y="24" width="14" height="14" rx="2"/><rect x="17" y="10" width="14" height="14" rx="2"/>',
+  boats:'<path d="M6 30h36l-6 9H12z"/><path d="M24 30V8l12 18H24"/>',
+  hop:'<path d="M18 36V10l18-4v24"/><circle cx="13" cy="36" r="5"/><circle cx="31" cy="30" r="5"/>',
+  clouds:'<path d="M12 34h24a8 8 0 0 0 0-16 11 11 0 0 0-21-2A9 9 0 0 0 12 34z"/>',
+  wave:'<path d="M16 26V12a3 3 0 0 1 6 0v12M22 22V8a3 3 0 0 1 6 0v14M28 22V11a3 3 0 0 1 6 0v15c0 9-6 14-13 14s-11-5-14-10l-3-5a3 3 0 0 1 5-3l5 5"/>',
+  hello:'<path d="M16 26V12a3 3 0 0 1 6 0v12M22 22V8a3 3 0 0 1 6 0v14M28 22V11a3 3 0 0 1 6 0v15c0 9-6 14-13 14s-11-5-14-10l-3-5a3 3 0 0 1 5-3l5 5"/><path d="M38 6l3-3M41 12h4"/>',
+  kites:'<path d="M24 4l12 14-12 16-12-16z"/><path d="M12 18h24M24 4v30"/><path d="M24 34c-3 4 3 6 0 10"/>',
+  bubbles:'<circle cx="18" cy="28" r="10"/><circle cx="34" cy="15" r="7"/><circle cx="37" cy="35" r="4"/>',
+  star:'<path d="M24 6l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z"/>',
+  moon:'<path d="M30 6a18 18 0 1 0 12 26A14 14 0 0 1 30 6z"/>',
+  leaf:'<path d="M10 38C10 20 22 10 40 10c0 18-10 28-28 28z"/><path d="M10 38L28 20"/>',
+  knock:'<circle cx="24" cy="26" r="16"/><circle cx="31" cy="28" r="3"/><path d="M8 6l4 4M40 6l-4 4M24 2v5"/>',
+  later:'<circle cx="24" cy="24" r="16"/><path d="M24 14v10l7 5"/>',
+  window:'<rect x="10" y="10" width="28" height="28" rx="14"/><path d="M24 10v28M10 24h28"/>',
+  book:'<path d="M8 12c6-2 11-1 16 3v24c-5-4-10-5-16-3z"/><path d="M40 12c-6-2-11-1-16 3v24c5-4 10-5 16-3z"/>',
+  yes:'<path d="M16 22l7-12c2-3 6-1 5 2l-2 8h10c3 0 5 3 4 5l-4 12c-1 2-2 3-4 3H16z"/><rect x="6" y="22" width="10" height="18" rx="2"/>',
+  home:'<path d="M6 24L24 8l18 16"/><path d="M12 20v20h24V20"/><path d="M20 40V30h8v10"/>',
+  chat:'<path d="M8 12h32v20H22l-8 8v-8H8z"/><path d="M16 22h16"/>',
+  quiet:'<path d="M30 6a18 18 0 1 0 12 26A14 14 0 0 1 30 6z"/><path d="M8 8h6l-6 6h6"/>',
+  back:'<path d="M30 10L16 24l14 14"/>',
+  check:'<path d="M10 25l9 9 19-20"/>',
+  dots:'<circle cx="12" cy="24" r="3"/><circle cx="24" cy="24" r="3"/><circle cx="36" cy="24" r="3"/>',
+  basket:'<path d="M8 20h32l-4 18H12z"/><path d="M14 20c0-8 20-8 20 0"/>',
+  sun:'<circle cx="24" cy="24" r="8"/><path d="M24 6v6M24 36v6M6 24h6M36 24h6M11 11l4 4M33 33l4 4M11 37l4-4M33 15l4-4"/>',
+  cup:'<path d="M10 18h24v8a12 12 0 0 1-24 0z"/><path d="M34 20h4a4 4 0 0 1 0 8h-4"/><path d="M18 6c0 3 3 3 3 6M26 6c0 3 3 3 3 6"/>',
+  cricket:'<path d="M10 38C10 20 22 10 40 10c0 18-10 28-28 28z"/><path d="M34 34l6 6M38 30l6 2"/>',
+  door:'<circle cx="24" cy="24" r="17"/><circle cx="31" cy="26" r="2.5"/>',
+  together:'<circle cx="16" cy="16" r="6"/><circle cx="32" cy="16" r="6"/><path d="M6 40c0-9 5-14 10-14s10 5 10 14M22 40c0-9 5-14 10-14s10 5 10 14"/>'
+};
+function ic(name,cls){return '<svg class="ic'+(cls?' '+cls:'')+'" viewBox="0 0 48 48" aria-hidden="true" focusable="false">'+(IC[name]||IC.dots)+'</svg>';}
+
+/* ---------- authored content ---------- */
+var INV={
+  blocks:{label:'Blocks',phrase:'build with blocks',noun:'blocks'},
+  boats:{label:'Paper boats',phrase:'make paper boats',noun:'boats'},
+  hop:{label:'Hop and dance',phrase:'hop and dance',noun:'hopping'},
+  clouds:{label:'Cloud watching',phrase:'watch the clouds',noun:'cloud watching'},
+  hello:{label:'Just say hello',phrase:'say hello',noun:'hello'},
+  kites:{label:'Kites',phrase:'fly kites',noun:'kites'},
+  bubbles:{label:'Bubbles',phrase:'blow bubbles',noun:'bubbles'}
+};
+var DAYS=[
+  {name:'A sunny day',invs:['blocks','boats','hop','clouds','hello'],bramble:'hop',mo:'boats',tansy:'yes',visitor:'bramble',
+   dusk:{act:'look at the first stars',ing:'looks at the first stars',icon:'star'}},
+  {name:'A breezy day',invs:['blocks','kites','bubbles','clouds','hello'],bramble:'bubbles',mo:'kites',tansy:'no',visitor:'mo',
+   dusk:{act:'watch the moon come up',ing:'watches the moon come up',icon:'moon'}},
+  {name:'A puddle day',invs:['hello','boats','blocks','hop','clouds'],bramble:'hop',mo:'boats',tansy:'yes',visitor:'tansy',
+   dusk:{act:'listen to the crickets',ing:'listens to the crickets',icon:'cricket'}}
+];
+var NB={
+  bramble:{name:'Bramble',kind:'hedgehog',symbol:'star',pat:'zigzag',wall:'#f6c8a8',roofC:'#c4553b',door:'#8c3b2a',roof:'M10 68 L80 14 L150 68 Z',doorDesc:'a red round door with a star and zigzag stripes'},
+  mo:{name:'Mo',kind:'otter',symbol:'boats',pat:'waves',wall:'#cfe3ef',roofC:'#3f6f8f',door:'#2e5873',roof:'M12 68 Q80 -6 148 68 Z',doorDesc:'a blue round door with a boat and wavy lines'},
+  tansy:{name:'Tansy',kind:'mouse',symbol:'cup',pat:'dots',wall:'#f3e2b3',roofC:'#9a7b2e',door:'#6e5520',roof:'M18 68 L80 2 L142 68 Z',doorDesc:'a golden-brown round door with a teacup and dots'},
+  wick:{name:'Wick',kind:'owl',symbol:'window',pat:'checks',wall:'#d9e8cf',roofC:'#4f7a45',door:'#3b5d33',roof:'M8 72 L66 18 L152 62 Z',doorDesc:'a green round door with a window shape and checks'},
+  rue:{name:'Rue',kind:'rabbit',symbol:'book',pat:'rings',wall:'#e6d6ee',roofC:'#7a5a8e',door:'#5a3f6b',roof:'M14 68 C14 6 146 6 146 68 Z',doorDesc:'a purple round door with a book and little rings'},
+  me:{name:'You',kind:'you',symbol:'sun',pat:'dots',wall:'#fff1c9',roofC:'#d98b2b',door:'#a85d12',roof:'M12 68 L80 12 L148 68 Z',doorDesc:'your own round door with a sun'}
+};
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+/* Pure: what a neighbor says to an invitation. fresh = Tansy being asked a second time. */
+function respFor(di,nid,inv,fresh){
+  var D=DAYS[di],I=INV[inv];
+  if(!D||!I||D.invs.indexOf(inv)<0||ORDER.indexOf(nid)<0)return null;
+  if(nid==='bramble'){
+    var W=D.bramble,WI=INV[W],line,expr='happy';
+    if(inv===W){line='Yes! I love to '+WI.phrase+'! Let’s go!';expr='excited';}
+    else if(inv==='hello'){line='Hi, hi! Want to '+WI.phrase+' with me?';expr='excited';}
+    else{line='Hmm, not '+I.noun+' today. I feel bouncy! Want to '+WI.phrase+' instead? Another time is okay too.';}
+    return {speaker:'Bramble',line:line,expr:expr,pending:{s:'asked',inv:inv},
+      options:[{id:'played',label:cap(WI.phrase)+' together',icon:W},{id:'waved',label:'Wave goodbye',icon:'wave'}]};
+  }
+  if(nid==='mo'){
+    var M=D.mo,MI=INV[M],l2,card;
+    if(inv===M){card='yes';l2='Mo holds up a picture card. It shows a thumbs up. It means: “Yes, '+MI.noun+'!”';}
+    else if(inv==='hello'){card=M;l2='Mo slides a picture card under the door. It shows '+MI.noun+'. It means: “Hi! '+cap(MI.noun)+'?”';}
+    else{card=M;l2='Mo slides a picture card under the door. It shows '+MI.noun+'. It means: “Not '+I.noun+' today. '+cap(MI.noun)+'?”';}
+    var sep=(inv==='hello'||inv===M)?'Wave and walk on':'Play my own way, and wave';
+    return {speaker:'Mo (picture card)',line:l2,expr:'happy',card:card,pending:{s:'asked',inv:inv},
+      options:[{id:'together',label:cap(MI.phrase)+' together',icon:M},{id:'separate',label:sep,icon:'wave'}]};
+  }
+  if(nid==='tansy'){
+    if(!fresh)return {speaker:'Tansy',line:'Later, please. I’m finishing my puzzle.',expr:'calm',record:{s:'later'},
+      options:[{id:'ok',label:'Okay, later',icon:'later'},{id:'wave',label:'Wave goodbye',icon:'wave'}]};
+    if(D.tansy==='no')return {speaker:'Tansy',line:'Thank you for asking again. I’d like to stay in tonight.',expr:'calm',record:{s:'laterNo'},
+      options:[{id:'ok',label:'Okay, goodnight',icon:'wave'}]};
+    var hl=inv==='hello';
+    return {speaker:'Tansy',line:hl?'Hello again! My puzzle is done. Come sit on my step?':'My puzzle is done! Yes, '+I.phrase+' sounds nice.',expr:'happy',pending:{s:'askedAgain',inv:inv},
+      options:[{id:'laterYes',label:hl?'Sit on the step together':cap(I.phrase)+' together',icon:hl?'together':inv},{id:'laterWave',label:'Wave goodbye',icon:'wave'}]};
+  }
+  if(nid==='wick')return {speaker:'Wick',line:inv==='hello'?'Hello! I like to watch. I’ll watch from my window.':'Oh, thank you for asking! I like to watch. I’ll watch from my window.',expr:'calm',record:{s:'watching'},
+    options:[{id:'ok',label:'Okay! Enjoy watching',icon:'window'},{id:'wave',label:'Wave hello',icon:'wave'}]};
+  if(nid==='rue')return {speaker:'Rue',line:'No, thank you. I like being alone today. I’m reading my book.',expr:'calm',record:{s:'alone'},
+    options:[{id:'ok',label:'Okay! Enjoy your book',icon:'book'},{id:'wave',label:'Wave goodbye',icon:'wave'}]};
+  return null;
+}
+/* Pure: what happens after the child's response option. */
+function outcomeFor(di,nid,inv,opt,fresh){
+  var D=DAYS[di],I=INV[inv];if(!D||!I)return null;
+  if(nid==='bramble'){var W=D.bramble;
+    if(opt==='played')return {text:'You and Bramble '+INV[W].phrase+' up and down the lane. Bramble is giggling.',record:{s:'played',act:W}};
+    if(opt==='waved')return {text:'You waved. Bramble waved back: “Bye! Have fun!”',record:{s:'waved'}};}
+  if(nid==='mo'){var M=D.mo;
+    if(opt==='together')return {text:'You and Mo '+INV[M].phrase+' together. Mo holds up a new card: a big smile.',record:{s:'together',act:M}};
+    if(opt==='separate')return {text:(inv==='hello'||inv===M)?'You wave and walk on. Mo gives a little wave back.':'Mo makes '+INV[M].noun+'. You '+I.phrase+' nearby. Mo gives a little wave.',record:{s:'separate',act:inv}};}
+  if(nid==='tansy'){
+    if(!fresh){
+      if(opt==='ok')return {text:'Later means maybe. Tansy might want to play later, or might not. Both are okay.',record:null};
+      if(opt==='wave')return {text:'You waved, and Tansy waved from the window. Later means maybe, not a promise.',record:null};}
+    else if(D.tansy==='no'){if(opt==='ok')return {text:'Tansy is staying in. You asked, and Tansy answered. All done.',record:null};}
+    else{
+      if(opt==='laterYes')return {text:inv==='hello'?'You sit on Tansy’s step and say hello. The puzzle is finished.':'You and Tansy '+I.phrase+' together. The puzzle is finished.',record:{s:'laterYes',act:inv}};
+      if(opt==='laterWave')return {text:'You waved goodbye, and Tansy waved too.',record:{s:'laterWave'}};}
+  }
+  if(nid==='wick'){
+    if(opt==='ok')return {text:'Wick watches from the window. Watching is one way to be part of things.',record:null};
+    if(opt==='wave')return {text:'You waved. Wick waved back from the window and kept watching.',record:null};}
+  if(nid==='rue'){
+    if(opt==='ok')return {text:'Rue said no. That is a whole answer. Rue is happy with the book.',record:null};
+    if(opt==='wave')return {text:'You waved goodbye. Rue gave a small wave and went back to reading.',record:null};}
+  return null;
+}
+var DUSK_ANS=['yes','no','later','watch'];
+var DUSK_LABEL={yes:'Yes, please',no:'No, thank you',later:'Later',watch:'I’ll watch'};
+var DUSK_ICON={yes:'yes',no:'home',later:'later',watch:'window'};
+function duskInvite(di){var D=DAYS[di],v=D.visitor;
+  if(v==='mo')return {speaker:'Mo (picture card)',line:'Mo slides a picture card under your door. It shows the moon. It means: “Watch the moon come up with me?”',card:'moon'};
+  return {speaker:NB[v].name,line:'Knock, knock! It’s '+NB[v].name+'. Want to '+D.dusk.act+' with me?'};}
+function duskReply(di,ans,mode){var D=DAYS[di],V=NB[D.visitor].name,mo=D.visitor==='mo';
+  if(ans==='yes'){
+    if(!mode)return {speaker:V,line:mo?'Mo holds up a card: a big smile.':'Yay! How would you like to visit?',narr:'You said yes. You choose how to spend the visit.'};
+    return {speaker:'Storyteller',line:mode==='chat'?'You and '+V+' '+D.dusk.act+' on your step and chat a little.':'You and '+V+' '+D.dusk.act+' on your step, quiet and cozy.',narr:'You visited in your own way.'};}
+  if(ans==='no')return {speaker:V,line:mo?'Mo holds up a card: a wave. It means: “Okay! Goodnight!”':'Okay! Thanks for telling me. Goodnight!',narr:'You said no. '+V+' heard you and walked home. Your evening is yours.'};
+  if(ans==='later')return {speaker:V,line:mo?'Mo holds up a card: a wave. It means: “Maybe another time, maybe not. Goodnight!”':'Okay. Maybe another time, or maybe not. Either way is fine. Goodnight!',narr:'Later means maybe. Nobody has to come back, and you don’t have to say yes later.'};
+  if(ans==='watch')return {speaker:V,line:mo?'Mo holds up a card: a thumbs up. It means: “Sure, watch from your window!”':'Sure! You can watch from your window.',narr:'You watch from your window while '+V+' '+D.dusk.ing+'. '+V+' waves now and then. You can wave back, or just watch.'};
+  return null;}
+
+var STATUS={
+  bramble:{played:'Played with you',waved:'Waved goodbye'},
+  mo:{together:'Played with you',separate:'Played their own way'},
+  tansy:{later:'Said “later”',laterYes:'Played with you later',laterWave:'Waved goodbye',laterNo:'Staying in'},
+  wick:{watching:'Watching from the window'},
+  rue:{alone:'Enjoying alone time'}
+};
+function statusText(nid,rec){
+  if(!rec)return 'Not visited yet';
+  if(rec.s==='peace')return 'You let this door be';
+  if(rec.s==='asked'||rec.s==='askedAgain')return 'Waiting for your answer';
+  return (STATUS[nid]&&STATUS[nid][rec.s])||'Visited';
+}
+function storyLine(di,nid,rec){var N=NB[nid].name,D=DAYS[di];
+  if(!rec)return null;
+  if(rec.s==='peace')return 'You let '+N+'’s door be today.';
+  if(rec.s==='asked'||rec.s==='askedAgain')return N+' answered. Your turn to answer '+N+'.';
+  switch(nid+':'+rec.s){
+    case 'bramble:played':return 'You and Bramble got to '+INV[rec.act].phrase+' together.';
+    case 'bramble:waved':return 'Bramble is home, still bouncing.';
+    case 'mo:together':return 'You and Mo got to '+INV[rec.act].phrase+' together.';
+    case 'mo:separate':return 'Mo played their own way, and you did too.';
+    case 'tansy:later':return 'Tansy said “later,” and that was okay.';
+    case 'tansy:laterYes':return rec.act==='hello'?'Tansy was ready later, and you sat on the step together.':'Tansy was ready later, and you got to '+INV[rec.act].phrase+' together.';
+    case 'tansy:laterWave':return 'Tansy was ready later, and you waved goodbye.';
+    case 'tansy:laterNo':return 'Tansy chose to stay in. Cozy!';
+    case 'wick:watching':return 'Wick watched from the window, just as Wick likes.';
+    case 'rue:alone':return 'Rue enjoyed alone time with a book.';
+  }
+  return null;}
+function duskStory(di,dk){if(!dk.confirmed)return null;var V=NB[DAYS[di].visitor].name;
+  if(dk.pick==='yes')return 'You said yes to '+V+(dk.yesMode==='quiet'?' and visited quietly.':dk.yesMode==='chat'?' and chatted a little.':'.');
+  if(dk.pick==='no')return 'You said no to '+V+'. '+V+' heard you.';
+  if(dk.pick==='later')return 'You told '+V+' “later.” That means maybe.';
+  if(dk.pick==='watch')return 'You watched from your window.';
+  return null;}
+
+/* ---------- creature art ---------- */
+function eyes(cx,cy,expr,gap){gap=gap||11;
+  if(expr==='calm')return '<path d="M'+(cx-gap-5)+' '+cy+' Q'+(cx-gap)+' '+(cy-5)+' '+(cx-gap+5)+' '+cy+'M'+(cx+gap-5)+' '+cy+' Q'+(cx+gap)+' '+(cy-5)+' '+(cx+gap+5)+' '+cy+'" stroke="#2b2833" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  return '<circle cx="'+(cx-gap)+'" cy="'+cy+'" r="4" fill="#2b2833"/><circle cx="'+(cx+gap)+'" cy="'+cy+'" r="4" fill="#2b2833"/><circle cx="'+(cx-gap+1.3)+'" cy="'+(cy-1.3)+'" r="1.3" fill="#fff"/><circle cx="'+(cx+gap+1.3)+'" cy="'+(cy-1.3)+'" r="1.3" fill="#fff"/>';}
+function mouth(cx,y,expr){
+  if(expr==='excited')return '<path d="M'+(cx-9)+' '+y+' Q'+cx+' '+(y+13)+' '+(cx+9)+' '+y+' Z" fill="#7a2f2f" stroke="#2b2833" stroke-width="2"/>';
+  if(expr==='calm')return '<path d="M'+(cx-6)+' '+y+' Q'+cx+' '+(y+5)+' '+(cx+6)+' '+y+'" stroke="#2b2833" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  return '<path d="M'+(cx-8)+' '+y+' Q'+cx+' '+(y+9)+' '+(cx+8)+' '+y+'" stroke="#2b2833" stroke-width="3" fill="none" stroke-linecap="round"/>';}
+function creature(nid,expr){var s='';expr=expr||'happy';
+  if(nid==='bramble'){var pts=[],i;for(i=0;i<=18;i++){var a=Math.PI+i*Math.PI/18,r=i%2?50:38;pts.push((60+r*Math.cos(a)).toFixed(1)+','+(72+r*Math.sin(a)*0.95).toFixed(1));}
+    s='<polygon points="'+pts.join(' ')+'" fill="#6b4329" stroke="#2b2833" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="60" cy="80" rx="42" ry="30" fill="#7a4f33" stroke="#2b2833" stroke-width="2.5"/><ellipse cx="60" cy="84" rx="27" ry="22" fill="#f2d2b0" stroke="#2b2833" stroke-width="2"/>'+eyes(60,78,expr,10)+'<circle cx="60" cy="87" r="3.5" fill="#2b2833"/>'+mouth(60,92,expr);}
+  else if(nid==='mo'){s='<path d="M86 116 Q112 112 110 88" stroke="#6f4f38" stroke-width="10" fill="none" stroke-linecap="round"/><circle cx="29" cy="54" r="6" fill="#6f4f38" stroke="#2b2833" stroke-width="2.5"/><circle cx="91" cy="54" r="6" fill="#6f4f38" stroke="#2b2833" stroke-width="2.5"/><ellipse cx="60" cy="110" rx="30" ry="22" fill="#8a6448" stroke="#2b2833" stroke-width="2.5"/><ellipse cx="60" cy="110" rx="17" ry="15" fill="#ead2b5"/><ellipse cx="60" cy="66" rx="36" ry="27" fill="#8a6448" stroke="#2b2833" stroke-width="2.5"/><ellipse cx="60" cy="80" rx="23" ry="13" fill="#ead2b5" stroke="#2b2833" stroke-width="2"/>'+eyes(60,60,expr,12)+'<ellipse cx="60" cy="74" rx="5" ry="3.5" fill="#2b2833"/>'+mouth(60,82,expr)+'<path d="M40 76h-12M40 81l-11 3M80 76h12M80 81l11 3" stroke="#2b2833" stroke-width="1.6"/>';}
+  else if(nid==='tansy'){s='<circle cx="35" cy="36" r="17" fill="#bdb7af" stroke="#2b2833" stroke-width="2.5"/><circle cx="35" cy="36" r="9" fill="#f0b6be"/><circle cx="85" cy="36" r="17" fill="#bdb7af" stroke="#2b2833" stroke-width="2.5"/><circle cx="85" cy="36" r="9" fill="#f0b6be"/><path d="M28 120 Q60 84 92 120Z" fill="#e9a85c" stroke="#2b2833" stroke-width="2.5"/><circle cx="60" cy="68" r="30" fill="#cbc6bf" stroke="#2b2833" stroke-width="2.5"/>'+eyes(60,64,expr,11)+'<circle cx="60" cy="75" r="3.5" fill="#e07f8e" stroke="#2b2833" stroke-width="1.5"/>'+mouth(60,82,expr);}
+  else if(nid==='wick'){var ec=expr==='calm';s='<path d="M30 34 L38 18 L46 32Z M74 32 L82 18 L90 34Z" fill="#8f6238" stroke="#2b2833" stroke-width="2.5" stroke-linejoin="round"/><ellipse cx="60" cy="72" rx="38" ry="42" fill="#a9784a" stroke="#2b2833" stroke-width="2.5"/><ellipse cx="60" cy="88" rx="22" ry="22" fill="#ecd8b6" stroke="#2b2833" stroke-width="2"/><circle cx="46" cy="58" r="13" fill="#fff" stroke="#2b2833" stroke-width="2.5"/><circle cx="74" cy="58" r="13" fill="#fff" stroke="#2b2833" stroke-width="2.5"/>'+(ec?'<path d="M36 58 Q46 52 56 58M64 58 Q74 52 84 58" stroke="#2b2833" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M37 60 Q46 66 55 60M65 60 Q74 66 83 60" stroke="#2b2833" stroke-width="2" fill="none"/>':'<circle cx="47" cy="59" r="5.5" fill="#2b2833"/><circle cx="75" cy="59" r="5.5" fill="#2b2833"/><circle cx="48.5" cy="57.5" r="1.6" fill="#fff"/><circle cx="76.5" cy="57.5" r="1.6" fill="#fff"/>')+'<path d="M55 68 L65 68 L60 77Z" fill="#f0a23a" stroke="#2b2833" stroke-width="2" stroke-linejoin="round"/>';}
+  else if(nid==='rue'){s='<ellipse cx="46" cy="24" rx="9" ry="24" fill="#efe6dc" stroke="#2b2833" stroke-width="2.5"/><ellipse cx="74" cy="24" rx="9" ry="24" fill="#efe6dc" stroke="#2b2833" stroke-width="2.5"/><ellipse cx="46" cy="26" rx="4" ry="15" fill="#f2c1c8"/><ellipse cx="74" cy="26" rx="4" ry="15" fill="#f2c1c8"/><ellipse cx="60" cy="110" rx="34" ry="20" fill="#efe6dc" stroke="#2b2833" stroke-width="2.5"/><circle cx="60" cy="66" r="29" fill="#f6efe7" stroke="#2b2833" stroke-width="2.5"/>'+eyes(60,62,expr,11)+'<path d="M57 72 L63 72 L60 76Z" fill="#e07f8e"/>'+mouth(60,80,expr)+'<path d="M36 96 L60 102 L84 96 L84 116 L60 120 L36 116Z" fill="#5b7fbf" stroke="#2b2833" stroke-width="2.5" stroke-linejoin="round"/><path d="M60 102 V120" stroke="#2b2833" stroke-width="2"/>';}
+  return s;}
+function creatureSVG(nid,expr,cls,label){
+  return '<svg class="'+(cls||'')+'" viewBox="0 0 120 124" '+(label?'role="img" aria-label="'+esc(label)+'"':'aria-hidden="true"')+' focusable="false">'+creature(nid,expr)+'</svg>';}
+
+var uid=0;
+function pattern(nid,id){var c='rgba(43,40,51,.35)',p=NB[nid].pat;
+  var body={zigzag:'<path d="M0 10 L5 4 L10 10 L15 4 L20 10" stroke="'+c+'" stroke-width="2" fill="none"/>',
+    waves:'<path d="M0 8 Q5 3 10 8 T20 8" stroke="'+c+'" stroke-width="2" fill="none"/>',
+    dots:'<circle cx="5" cy="5" r="2" fill="'+c+'"/><circle cx="15" cy="15" r="2" fill="'+c+'"/>',
+    checks:'<rect x="0" y="0" width="10" height="10" fill="'+c+'" opacity=".5"/><rect x="10" y="10" width="10" height="10" fill="'+c+'" opacity=".5"/>',
+    rings:'<circle cx="10" cy="10" r="4.5" stroke="'+c+'" stroke-width="2" fill="none"/>'}[p];
+  return '<pattern id="'+id+'" width="20" height="20" patternUnits="userSpaceOnUse">'+body+'</pattern>';}
+function houseSVG(nid,lit){var N=NB[nid],id='p'+nid+(++uid);
+  return '<svg class="hs" viewBox="0 0 160 170" aria-hidden="true" focusable="false"><defs>'+pattern(nid,id)+'</defs>'+
+  '<rect x="118" y="16" width="14" height="34" fill="'+N.roofC+'" stroke="#2b2833" stroke-width="3"/>'+
+  '<rect x="22" y="62" width="116" height="102" rx="8" fill="'+N.wall+'" stroke="#2b2833" stroke-width="3"/>'+
+  '<rect x="24" y="64" width="112" height="98" rx="7" fill="url(#'+id+')"/>'+
+  '<path d="'+N.roof+'" fill="'+N.roofC+'" stroke="#2b2833" stroke-width="3" stroke-linejoin="round"/>'+
+  '<circle cx="118" cy="88" r="12" fill="'+(lit?'#ffd96b':'#cfe6f2')+'" stroke="#2b2833" stroke-width="3"/>'+
+  '<circle cx="74" cy="126" r="31" fill="'+N.door+'" stroke="#2b2833" stroke-width="3"/>'+
+  '<g transform="translate(56,107) scale(.75)" stroke="#fffaf0" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">'+IC[N.symbol]+'</g>'+
+  '<circle cx="95" cy="130" r="3.5" fill="#ffd76a" stroke="#2b2833" stroke-width="1.5"/></svg>';}
+/* big door view: mode closed | waiting | open */
+function doorView(nid,mode,expr,cardIcon,label){var N=NB[nid];
+  var inner;
+  if(mode==='open'){
+    inner='<circle cx="120" cy="120" r="96" fill="#fff1cf" stroke="#2b2833" stroke-width="4"/>'+
+      '<ellipse cx="30" cy="120" rx="22" ry="96" fill="'+N.door+'" stroke="#2b2833" stroke-width="4"/>'+
+      '<g transform="translate(58,50) scale(1.05)">'+creature(nid,expr)+'</g>';
+    if(cardIcon)inner+='<g transform="translate(150,150)"><rect x="0" y="0" width="64" height="64" rx="8" fill="#fff" stroke="#2b2833" stroke-width="3"/><g transform="translate(8,8)" stroke="#2b2833" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">'+IC[cardIcon]+'</g></g>';
+  }else{
+    inner='<g class="'+(mode==='waiting'?'wiggle':'')+'" style="transform-origin:120px 120px"><circle cx="120" cy="120" r="96" fill="'+N.door+'" stroke="#2b2833" stroke-width="4"/>'+
+      '<circle cx="120" cy="120" r="80" fill="none" stroke="rgba(255,250,240,.35)" stroke-width="3"/>'+
+      '<g transform="translate(84,70) scale(1.5)" stroke="#fffaf0" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">'+IC[N.symbol]+'</g>'+
+      '<circle cx="176" cy="134" r="8" fill="#ffd76a" stroke="#2b2833" stroke-width="2.5"/>'+
+      '<rect x="98" y="172" width="44" height="8" rx="3" fill="#2b2833" opacity=".55"/></g>';
+  }
+  return '<svg class="doorview'+(mode==='open'?' appear':'')+'" viewBox="0 0 240 240" role="img" aria-label="'+esc(label)+'" focusable="false">'+inner+'</svg>';}
+
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+/* ---------- state ---------- */
+var osReduce=false;try{osReduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+function fresh(day,settings){var d={};ORDER.forEach(function(n){d[n]=null;});
+  return {v:1,day:day||0,screen:'welcome',door:null,doors:d,picks:{},tansyAsked:false,afterLater:false,
+    dusk:{pick:null,confirmed:false,yesMode:null},
+    settings:settings||{sound:false,speech:false,calm:false}};}
+var ALLOWED={bramble:['peace','asked','played','waved'],mo:['peace','asked','together','separate'],
+  tansy:['peace','later','askedAgain','laterYes','laterWave','laterNo'],wick:['peace','watching'],rue:['peace','alone']};
+function isDecided(rec){return !!rec&&rec.s!=='asked'&&rec.s!=='askedAgain';}
+function allDecided(st){return ORDER.every(function(n){return isDecided(st.doors[n]);});}
+function sanitize(raw){
+  if(!raw||typeof raw!=='object'||Array.isArray(raw)||raw.v!==1)return null;
+  var day=(raw.day===0||raw.day===1||raw.day===2)?raw.day:0,D=DAYS[day];
+  var st0=raw.settings&&typeof raw.settings==='object'?raw.settings:{};
+  var st=fresh(day,{sound:st0.sound===true,speech:st0.speech===true,calm:st0.calm===true});
+  var doors=raw.doors&&typeof raw.doors==='object'?raw.doors:{};
+  ORDER.forEach(function(n){var r=doors[n];
+    if(!r||typeof r!=='object'||typeof r.s!=='string'||ALLOWED[n].indexOf(r.s)<0){st.doors[n]=null;return;}
+    var s=r.s,ok=true,out={s:s};
+    if(s==='asked'||s==='askedAgain'){ok=typeof r.inv==='string'&&D.invs.indexOf(r.inv)>=0;out.inv=r.inv;}
+    if(n==='bramble'&&s==='played'){ok=r.act===D.bramble;out.act=r.act;}
+    if(n==='mo'&&s==='together'){ok=r.act===D.mo;out.act=r.act;}
+    if(n==='mo'&&s==='separate'){ok=typeof r.act==='string'&&D.invs.indexOf(r.act)>=0;out.act=r.act;}
+    if(n==='tansy'){
+      if(s==='laterYes'){ok=D.tansy==='yes'&&typeof r.act==='string'&&D.invs.indexOf(r.act)>=0;out.act=r.act;}
+      if(s==='askedAgain'||s==='laterWave')ok=ok&&D.tansy==='yes';
+      if(s==='laterNo')ok=D.tansy==='no';
+    }
+    st.doors[n]=ok?out:null;});
+  var tr=st.doors.tansy;
+  st.tansyAsked=!!(tr&&['askedAgain','laterYes','laterWave','laterNo'].indexOf(tr.s)>=0);
+  st.afterLater=raw.afterLater===true&&!!tr&&tr.s==='later';
+  if(raw.picks&&typeof raw.picks==='object')ORDER.forEach(function(n){var p=raw.picks[n];if(typeof p==='string'&&D.invs.indexOf(p)>=0)st.picks[n]=p;});
+  var dk=raw.dusk&&typeof raw.dusk==='object'?raw.dusk:{};
+  var ad=allDecided(st);
+  st.dusk.pick=(ad&&DUSK_ANS.indexOf(dk.pick)>=0)?dk.pick:null;
+  st.dusk.confirmed=!!(ad&&st.dusk.pick&&dk.confirmed===true);
+  st.dusk.yesMode=(st.dusk.confirmed&&st.dusk.pick==='yes'&&(dk.yesMode==='chat'||dk.yesMode==='quiet'))?dk.yesMode:null;
+  var sc=raw.screen;
+  if(sc==='finale'&&st.dusk.confirmed&&(st.dusk.pick!=='yes'||st.dusk.yesMode))st.screen='finale';
+  else if((sc==='finale'||sc==='dusk')&&ad)st.screen='dusk';
+  else if(sc==='door'&&ORDER.indexOf(raw.door)>=0){st.screen='door';st.door=raw.door;}
+  else if(sc==='lane'||sc==='door'||sc==='dusk'||sc==='finale')st.screen='lane';
+  else st.screen='welcome';
+  return st;}
+
+var storageOK=true,state;
+function loadState(){
+  var raw=null;
+  try{var t=window.localStorage.getItem(KEY);if(t)raw=JSON.parse(t);}
+  catch(e){if(e&&e.name!=='SyntaxError')storageOK=false;raw=null;}
+  try{window.localStorage.setItem(KEY+':probe','1');window.localStorage.removeItem(KEY+':probe');}catch(e){storageOK=false;}
+  var s=null;try{s=sanitize(raw);}catch(e){s=null;}
+  state=s||fresh(0,{sound:false,speech:false,calm:false});}
+function save(){if(!storageOK)return;
+  try{window.localStorage.setItem(KEY,JSON.stringify(state));}catch(e){storageOK=false;showStorageNote();}}
+function showStorageNote(){var a=document.getElementById('storage-note'),b=document.getElementById('g-storage');if(a)a.hidden=storageOK;if(b)b.hidden=storageOK;}
+
+/* transient UI */
+var ui={step:'pick',resp:null,outcome:null,fresh:false,token:0,timer:null,line:null,narr:null,speaker:null};
+var interacted=false;
+
+/* ---------- audio ---------- */
+var actx=null;
+function tone(freq,at,dur,vol,type){try{
+  if(!actx){var C=window.AudioContext||window.webkitAudioContext;if(!C)return;actx=new C();}
+  var t=actx.currentTime+at,o=actx.createOscillator(),g=actx.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(vol,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+dur+0.05);}catch(e){}}
+function sfx(kind){if(!state.settings.sound)return;
+  if(kind==='knock'){tone(140,0,0.18,0.25,'triangle');tone(130,0.28,0.18,0.25,'triangle');}
+  else if(kind==='open'){tone(523,0,0.4,0.06);tone(659,0.12,0.45,0.05);}
+  else if(kind==='dusk'){tone(392,0,0.7,0.05);tone(494,0.25,0.7,0.04);tone(587,0.5,0.9,0.04);}}
+var speechOK=('speechSynthesis' in window)&&typeof window.SpeechSynthesisUtterance==='function';
+function speak(text,force){if(!speechOK||!text)return;if(!force&&(!state.settings.speech||!interacted))return;
+  try{window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.rate=0.9;u.pitch=1.05;window.speechSynthesis.speak(u);}catch(e){}}
+function stopSpeech(){if(speechOK){try{window.speechSynthesis.cancel();}catch(e){}}}
+
+var live=document.getElementById('live');
+var lastSaid='';
+function say(text){lastSaid=text;live.textContent='';setTimeout(function(){live.textContent=text;},40);speak(text);}
+
+/* ---------- rendering ---------- */
+var main=document.getElementById('main');
+function phaseFor(){
+  if(state.screen==='finale')return 'night';
+  if(state.screen==='dusk')return 'dusk';
+  if(state.screen==='welcome')return 'morning';
+  var c=ORDER.filter(function(n){return isDecided(state.doors[n]);}).length;
+  return c===0?'morning':c<=2?'day':c<=4?'afternoon':'golden';}
+function storyDetails(){
+  var items=[];ORDER.forEach(function(n){var l=storyLine(state.day,n,state.doors[n]);if(l)items.push(l);});
+  var dl=duskStory(state.day,state.dusk);if(dl)items.push(dl);
+  return '<details class="story"><summary>Story so far</summary>'+(items.length?'<ul>'+items.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul>':'<p>Nothing yet. The lane is waiting.</p>')+'</details>';}
+function dialogueBox(speaker,line,narr,card){
+  return '<div class="dialogue" id="dlg-box" tabindex="-1"><span class="speaker">'+esc(speaker)+'</span><div id="dlg-line">'+esc(line)+'</div>'+
+    (card?'<div class="card-held">'+ic(card)+' Picture card: '+esc(card==='yes'?'thumbs up':(INV[card]?INV[card].noun:card))+'</div>':'')+
+    (narr?'<div class="narr" id="dlg-narr">'+esc(narr)+'</div>':'')+'</div>';}
+
+function render(focusSel){
+  clearTimeout(ui.timer);
+  document.body.setAttribute('data-phase',phaseFor());
+  var html='';
+  if(state.screen==='welcome')html=renderWelcome();
+  else if(state.screen==='lane')html=renderLane();
+  else if(state.screen==='door')html=renderDoor();
+  else if(state.screen==='dusk')html=renderDusk();
+  else html=renderFinale();
+  main.innerHTML=html;
+  syncTools();
+  if(focusSel){var el=main.querySelector(focusSel)||main.querySelector('h1,h2');if(el){try{el.focus({preventScroll:false});}catch(e){el.focus();}}}
+}
+
+function renderWelcome(){
+  var steps=[['basket','Pick a picture invitation'],['knock','Knock'],['dots','Wait'],['chat','Listen'],['check','Answer kindly']];
+  return '<section class="panel" aria-labelledby="w-h"><h1 id="w-h" tabindex="-1">Knock and Wait on Little Door Lane</h1>'+
+  '<div class="doorwrap">'+ORDER.map(function(n){return houseSVG(n,false);}).join('').replace(/class="hs"/g,'class="hs" style="width:84px;height:90px"')+'</div>'+
+  dialogueBox('Storyteller','Welcome to Little Door Lane! You have a basket of picture invitations. Five neighbors live behind five round doors.','Pick an invitation, knock, wait, and listen. Every answer is a good answer. Yes, no, later, or watching.')+
+  '<ol class="steps" aria-label="How to visit a door">'+steps.map(function(s,i){return '<li><span class="n">'+(i+1)+'</span>'+ic(s[0])+esc(s[1])+'</li>';}).join('')+'</ol>'+
+  '<div class="row"><button type="button" class="btn big primary" data-act="start">'+ic('basket')+'Walk onto the lane</button></div></section>';}
+
+function renderLane(){
+  var D=DAYS[state.day],ad=allDecided(state);
+  var cards=ORDER.map(function(n,i){var N=NB[n],rec=state.doors[n],st=statusText(n,rec),isNew=!rec;
+    return '<li class="o'+(i%3)+'"><button type="button" class="house" data-act="door:'+n+'" aria-label="'+esc(N.name+'’s door. '+st+'.')+'">'+houseSVG(n,isDecided(rec))+
+    '<span><span class="nm">'+esc(N.name)+'</span><span class="dl">'+esc(cap(N.doorDesc))+'</span><span class="st'+(isNew?' new':'')+'">'+ic(isNew?'dots':(rec.s==='asked'||rec.s==='askedAgain')?'chat':'check')+esc(st)+'</span></span></button></li>';});
+  var stones='<li aria-hidden="true" class="stones"><i></i><i></i><i></i></li>';
+  var out=[];cards.forEach(function(c,i){out.push(c);if(i<cards.length-1)out.push(stones);});
+  var mine='<li class="o2"><div class="house mine" role="group" aria-label="Your house">'+houseSVG('me',ad)+'<span><span class="nm">Your house</span><span class="dl">Your own round door with a sun</span><span class="st">'+ic('home')+(ad?'The lights are on':'Waiting for evening')+'</span></span></div></li>';
+  var line=ad?'The sun is going down. Every door has had its turn. Time to head home.':'Which door will you visit? You can knock, or let a door be.';
+  return '<section class="panel" aria-labelledby="lane-h"><h1 id="lane-h" tabindex="-1">Little Door Lane</h1><p>'+esc(D.name)+'.</p>'+
+    dialogueBox('Storyteller',line,ad?null:'There is no rush, and you can visit doors in any order.')+'</section>'+
+    '<section aria-label="The doors on the lane"><ul class="lane" data-arrows>'+out.join('')+stones+mine+'</ul></section>'+
+    (ad?'<div class="panel"><button type="button" class="btn big primary" data-act="home">'+ic('home')+'Head home for the evening</button></div>':'')+
+    '<div class="panel">'+storyDetails()+'</div>';}
+
+function stepsBar(cur){var names=['Pick','Knock','Wait','Listen','Answer'],icons=['basket','knock','dots','chat','check'];
+  return '<ol class="steps" aria-label="Steps">'+names.map(function(n,i){var c=i===cur?' aria-current="step"':'';var d=i<cur?' class="done"':'';
+    return '<li'+c+d+'><span class="n">'+(i+1)+'</span>'+ic(icons[i])+esc(n)+(i<cur?'<span class="sr-only"> (done)</span>':'')+'</li>';}).join('')+'</ol>';}
+
+function renderDoor(){
+  var n=state.door,N=NB[n],rec=state.doors[n],D=DAYS[state.day];
+  var head='<h2 id="door-h" tabindex="-1">'+esc(N.name)+'’s door</h2>';
+  var back='<button type="button" class="btn soft" data-act="lane" id="back-lane">'+ic('back')+'Back to the lane</button>';
+  var body='';
+  if(ui.step==='pick'){
+    var pick=state.picks[n]||null;
+    var line=ui.fresh?'You can ask Tansy again with a new invitation. Tansy might say yes, or no. Both are okay.':
+      (pick?'You picked '+INV[pick].label.toLowerCase()+'. You can change it. Ready to knock?':'Pick a picture invitation from your basket. Then knock.');
+    body=stepsBar(pick?1:0)+'<div class="doorwrap">'+doorView(n,'closed',null,null,N.name+'’s closed door: '+N.doorDesc+'.')+'</div>'+
+      dialogueBox('Storyteller',line,ui.fresh?null:'Or you can let this door be today. That’s okay too.')+
+      '<h3 id="pick-h">Your picture invitations</h3><div class="grid-picks" role="group" aria-labelledby="pick-h" data-arrows>'+
+      D.invs.map(function(k){var on=pick===k;return '<button type="button" class="btn pick" data-act="pick:'+k+'" aria-pressed="'+on+'">'+ic(k==='hello'?'hello':k)+'<span>'+esc(INV[k].label)+'</span><span class="tick">'+ic('check')+'picked</span></button>';}).join('')+'</div>'+
+      '<div class="row" style="margin-top:14px" data-arrows><button type="button" class="btn big primary" data-act="knock" id="knock-btn"'+(pick?'':' disabled aria-describedby="knock-hint"')+'>'+ic('knock')+'Knock on the door</button>'+
+      (pick?'':'<span id="knock-hint" class="sr-only">Pick an invitation first.</span>')+
+      (ui.fresh?'<button type="button" class="btn soft" data-act="cancelAsk">'+ic('leaf')+'Don’t ask again</button>':'<button type="button" class="btn soft" data-act="peace">'+ic('leaf')+'Let this door be</button>')+back+'</div>';
+  }else if(ui.step==='waiting'){
+    body=stepsBar(2)+'<div class="doorwrap">'+doorView(n,'waiting',null,null,N.name+'’s door. You knocked, and now you wait.')+'</div>'+
+      dialogueBox('Storyteller','Knock, knock… Now we wait and listen.',null)+
+      '<p id="wait-status" tabindex="-1" class="waitdots" role="status"><i></i><i></i><i></i><span class="sr-only">Waiting for '+esc(N.name)+' to answer.</span></p><div class="row">'+back+'</div>';
+  }else if(ui.step==='answer'){
+    var r=ui.resp;
+    body=stepsBar(3)+'<div class="doorwrap">'+doorView(n,'open',r.expr,r.card||null,N.name+' the '+N.kind+' at the open door, looking '+(r.expr==='excited'?'excited':r.expr==='calm'?'calm and content':'friendly')+'.')+'</div>'+
+      dialogueBox(r.speaker,r.line,null,r.card||null)+
+      '<h3 id="ans-h">What will you do?</h3><div class="stack" role="group" aria-labelledby="ans-h" data-arrows>'+
+      r.options.map(function(o){return '<button type="button" class="btn big" data-act="opt:'+o.id+'">'+ic(o.icon==='hello'?'hello':o.icon)+'<span>'+esc(o.label)+'</span></button>';}).join('')+'</div>';
+  }else if(ui.step==='outcome'){
+    var o=ui.outcome,peace=rec&&rec.s==='peace';
+    body=stepsBar(5)+'<div class="doorwrap">'+(peace?doorView(n,'closed',null,null,N.name+'’s door, closed and peaceful.'):doorView(n,'open',o.expr||'happy',null,N.name+' the '+N.kind+', content.'))+'</div>'+
+      dialogueBox('Storyteller',o.text,'You listened. '+N.name+'’s answer is respected.')+'<div class="row" style="margin-top:12px">'+back.replace('btn soft','btn big primary')+'</div>';
+  }else{ /* recap */
+    var st=statusText(n,rec),line2=storyLine(state.day,n,rec)||st;
+    var extra='';
+    if(rec&&rec.s==='peace')extra='<button type="button" class="btn big" data-act="knockAfterAll">'+ic('knock')+'Knock after all</button>';
+    if(rec&&rec.s==='later'&&!state.tansyAsked){
+      extra=state.afterLater?'<button type="button" class="btn big" data-act="askAgain">'+ic('chat')+'Ask Tansy again</button>':'<p>Tansy is still busy with the puzzle. You can visit another door first.</p>';}
+    body='<div class="doorwrap">'+doorView(n,rec&&rec.s==='peace'?'closed':'open','calm',null,N.name+'’s door. '+st+'.')+'</div>'+
+      dialogueBox('Storyteller',line2,rec&&rec.s==='later'?'Later means maybe. Asking again is a new question, and Tansy can say yes or no.':null)+
+      '<div class="row" style="margin-top:12px" data-arrows>'+extra+back+'</div>';
+  }
+  return '<section class="panel" aria-labelledby="door-h">'+head+body+'</section><div class="panel">'+storyDetails()+'</div>';}
+
+function renderDusk(){
+  var D=DAYS[state.day],V=D.visitor,dk=state.dusk,inv=duskInvite(state.day);
+  var visitorArt=creatureSVG(V,'happy','visitor',NB[V].name+' the '+NB[V].kind+' standing outside your door.');
+  var body='';
+  if(!dk.confirmed){
+    var sel=dk.pick;
+    body=dialogueBox(inv.speaker,inv.line,sel?'You picked “'+DUSK_LABEL[sel]+'.” You can change it, or press “This is my answer.”':'It’s your door, so it’s your choice. Every answer is okay.',inv.card||null)+
+      '<h3 id="dans-h">Your answer</h3><div class="grid-picks" role="group" aria-labelledby="dans-h" data-arrows>'+
+      DUSK_ANS.map(function(a){return '<button type="button" class="btn pick" data-act="dpick:'+a+'" aria-pressed="'+(sel===a)+'">'+ic(DUSK_ICON[a])+'<span>'+esc(DUSK_LABEL[a])+'</span><span class="tick">'+ic('check')+'picked</span></button>';}).join('')+'</div>'+
+      '<div class="row" style="margin-top:14px"><button type="button" class="btn big primary" data-act="dconfirm" id="dconfirm"'+(sel?'':' disabled')+'>'+ic('check')+'This is my answer</button></div>';
+  }else if(dk.pick==='yes'&&!dk.yesMode){
+    var r=duskReply(state.day,'yes',null);
+    body=dialogueBox(r.speaker,r.line,r.narr)+'<h3 id="ym-h">How would you like to visit?</h3><div class="stack" role="group" aria-labelledby="ym-h" data-arrows>'+
+      '<button type="button" class="btn big" data-act="ymode:chat">'+ic('chat')+'Chat a little</button>'+
+      '<button type="button" class="btn big" data-act="ymode:quiet">'+ic('quiet')+'Quiet together</button></div>';
+  }else{
+    var rr=duskReply(state.day,dk.pick,dk.yesMode);
+    body=dialogueBox(rr.speaker,rr.line,rr.narr)+'<div class="row" style="margin-top:14px"><button type="button" class="btn big primary" data-act="finale" id="dusk-next">'+ic('moon')+'See the lane tonight</button></div>';
+  }
+  return '<section class="panel" aria-labelledby="dusk-h"><h1 id="dusk-h" tabindex="-1">A knock at your door</h1><p>Dusk is falling on Little Door Lane. The windows are glowing.</p>'+
+    '<div class="doorwrap">'+doorView('me','closed',null,null,'Your own round door with a sun on it.')+visitorArt+'</div>'+body+'</section><div class="panel">'+storyDetails()+'</div>';}
+
+function renderFinale(){
+  var D=DAYS[state.day],dk=state.dusk,V=NB[D.visitor].name;
+  var gathered=0;
+  var items=ORDER.map(function(n){var rec=state.doors[n],w=rec&&['played','together','laterYes'].indexOf(rec.s)>=0;if(w)gathered++;
+    var expr=rec&&rec.s==='peace'?'calm':(n==='wick'||n==='rue'||n==='tansy')?'calm':'happy';
+    return '<li>'+creatureSVG(n,expr)+'<div><strong>'+esc(NB[n].name)+'</strong></div><div>'+esc(storyLine(state.day,n,rec)||'')+'</div>'+(w?'<span class="with">'+ic('together')+'with you</span>':'')+'</li>';});
+  var meLine=dk.pick==='yes'?'You and '+V+' '+D.dusk.act+' on your step'+(dk.yesMode==='quiet'?', quietly.':', chatting a little.'):
+    dk.pick==='no'?'You had your evening your own way. '+V+' heard your no.':
+    dk.pick==='later'?'You said “later.” Maybe another time, maybe not.':'You watched from your window, cozy and comfy.';
+  if(dk.pick==='yes')gathered++;
+  items.push('<li><svg viewBox="0 0 160 170" aria-hidden="true" focusable="false" style="width:84px;height:84px">'+houseSVG('me',true).replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')+'</svg><div><strong>You</strong></div><div>'+esc(meLine)+'</div></li>');
+  var mood=gathered>=3?'Lots of neighbors spent time together today, and some chose their own way.':
+    gathered>=1?'A few neighbors spent time together, and others chose their own way.':
+    'Everyone chose their own way today, and so did you. The lane is cozy and quiet.';
+  return '<section class="panel" aria-labelledby="fin-h"><h1 id="fin-h" tabindex="-1">Night on Little Door Lane</h1>'+
+    dialogueBox('Storyteller',mood,'Every window glows. Every answer was heard.')+
+    '<ul class="tableau" aria-label="Tonight on the lane">'+items.join('')+'</ul>'+
+    '<p class="lesson">An invitation is a choice.<br>Listening matters.<br>Your choice matters too.</p>'+
+    '<div class="row" style="margin-top:14px"><button type="button" class="btn big primary" data-act="newday" id="newday">'+ic('sun')+'Start a new day</button></div></section>';}
+
+/* ---------- actions ---------- */
+function setDoor(n,rec){state.doors[n]=rec;
+  if(n!=='tansy'&&isDecided(rec)&&state.doors.tansy&&state.doors.tansy.s==='later')state.afterLater=true;
+  if(n==='tansy'&&rec&&rec.s==='later')state.afterLater=false;}
+function openDoor(n){var rec=state.doors[n];state.screen='door';state.door=n;ui.fresh=false;ui.outcome=null;
+  if(!rec){ui.step='pick';}
+  else if(rec.s==='asked'||rec.s==='askedAgain'){ui.fresh=rec.s==='askedAgain';ui.resp=respFor(state.day,n,rec.inv,ui.fresh);ui.step=ui.resp?'answer':'pick';}
+  else ui.step='recap';}
+function currentText(){var b=document.getElementById('dlg-box');return b?b.innerText.replace(/\s+/g,' ').trim():'';}
+
+function act(a){
+  interacted=true;
+  var p=a.split(':'),cmd=p[0],arg=p[1],focus=null;
+  if(cmd!=='hear')stopSpeech();
+  switch(cmd){
+  case 'start':state.screen='lane';focus='#lane-h';break;
+  case 'door':if(ORDER.indexOf(arg)<0)return;openDoor(arg);ui.token++;focus=ui.step==='answer'?'[data-act^="opt:"]':'#door-h';break;
+  case 'pick':if(state.screen!=='door'||ui.step!=='pick'||DAYS[state.day].invs.indexOf(arg)<0)return;state.picks[state.door]=arg;focus='[data-act="pick:'+arg+'"]';break;
+  case 'knock':{
+    if(state.screen!=='door'||ui.step!=='pick')return;
+    var n=state.door,inv=state.picks[n];if(!inv)return;
+    ui.step='waiting';var tok=++ui.token;sfx('knock');save();render('#wait-status');say('Knock, knock. Now we wait and listen.');
+    ui.timer=setTimeout(function(){if(tok!==ui.token||state.screen!=='door'||state.door!==n||ui.step!=='waiting')return;
+      var r=respFor(state.day,n,inv,ui.fresh);if(!r){ui.step='pick';render('#door-h');return;}
+      if(ui.fresh)state.tansyAsked=true;
+      if(r.record)setDoor(n,r.record);else if(r.pending)setDoor(n,r.pending);
+      ui.resp=r;ui.step='answer';sfx('open');save();render('[data-act^="opt:"]');say(r.speaker+': '+r.line);
+    },(state.settings.calm||osReduce)?600:1200);
+    return;}
+  case 'opt':{
+    if(state.screen!=='door'||ui.step!=='answer'||!ui.resp)return;
+    var nn=state.door,rr=ui.resp,okOpt=rr.options.some(function(o){return o.id===arg;});if(!okOpt)return;
+    var rec0=state.doors[nn],inv2=rec0&&rec0.inv?rec0.inv:state.picks[nn];
+    var oc=outcomeFor(state.day,nn,inv2,arg,ui.fresh);if(!oc)return;
+    if(oc.record)setDoor(nn,oc.record);
+    ui.outcome={text:oc.text,expr:rr.expr};ui.step='outcome';save();render('#back-lane');say(oc.text);return;}
+  case 'peace':if(state.screen!=='door'||ui.step!=='pick'||ui.fresh)return;
+    setDoor(state.door,{s:'peace'});ui.outcome={text:'You let '+NB[state.door].name+'’s door be today. That’s okay too.'};ui.step='outcome';save();render('#back-lane');say(ui.outcome.text);return;
+  case 'knockAfterAll':if(state.screen!=='door'||!state.doors[state.door]||state.doors[state.door].s!=='peace')return;
+    state.doors[state.door]=null;ui.step='pick';focus='#door-h';break;
+  case 'askAgain':if(state.door!=='tansy'||!state.doors.tansy||state.doors.tansy.s!=='later'||state.tansyAsked||!state.afterLater)return;
+    ui.fresh=true;ui.step='pick';focus='#door-h';break;
+  case 'cancelAsk':if(!ui.fresh)return;ui.fresh=false;ui.step='recap';focus='#door-h';break;
+  case 'lane':{var from=state.door;ui.token++;state.screen='lane';ui.step='pick';ui.fresh=false;focus=from?'[data-act="door:'+from+'"]':'#lane-h';break;}
+  case 'home':if(!allDecided(state))return;state.screen='dusk';sfx('dusk');focus='#dusk-h';break;
+  case 'dpick':if(state.screen!=='dusk'||state.dusk.confirmed||DUSK_ANS.indexOf(arg)<0)return;state.dusk.pick=arg;focus='[data-act="dpick:'+arg+'"]';break;
+  case 'dconfirm':if(state.screen!=='dusk'||state.dusk.confirmed||!state.dusk.pick)return;state.dusk.confirmed=true;
+    focus=state.dusk.pick==='yes'?'[data-act^="ymode:"]':'#dusk-next';break;
+  case 'ymode':if(!state.dusk.confirmed||state.dusk.pick!=='yes'||state.dusk.yesMode||(arg!=='chat'&&arg!=='quiet'))return;state.dusk.yesMode=arg;focus='#dusk-next';break;
+  case 'finale':if(!state.dusk.confirmed||(state.dusk.pick==='yes'&&!state.dusk.yesMode))return;state.screen='finale';focus='#fin-h';break;
+  case 'newday':if(state.screen!=='finale')return;state=fresh((state.day+1)%DAYS.length,state.settings);state.screen='lane';ui.step='pick';focus='#lane-h';break;
+  default:return;}
+  save();render(focus);
+  var t=currentText();if(t)say(t);
+}
+
+main.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(!b||b.disabled||!main.contains(b))return;act(b.getAttribute('data-act'));});
+document.addEventListener('keydown',function(e){interacted=true;
+  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].indexOf(e.key)<0)return;
+  var g=e.target.closest&&e.target.closest('[data-arrows]');if(!g)return;
+  var items=Array.prototype.slice.call(g.querySelectorAll('button')).filter(function(b){return !b.disabled;});
+  var i=items.indexOf(e.target);if(i<0)return;
+  var d=(e.key==='ArrowRight'||e.key==='ArrowDown')?1:-1;var nx=items[(i+d+items.length)%items.length];
+  if(nx){e.preventDefault();nx.focus();}});
+
+/* ---------- tools ---------- */
+var tSound=document.getElementById('t-sound'),tSpeech=document.getElementById('t-speech'),tCalm=document.getElementById('t-calm');
+function syncTools(){
+  tSound.setAttribute('aria-pressed',String(!!state.settings.sound));
+  if(!speechOK){tSpeech.disabled=true;tSpeech.removeAttribute('aria-pressed');tSpeech.lastChild.textContent='Read aloud: not available on this device';}
+  else tSpeech.setAttribute('aria-pressed',String(!!state.settings.speech));
+  var calm=!!state.settings.calm||osReduce;
+  document.documentElement.classList.toggle('calm',calm);
+  if(osReduce){tCalm.disabled=true;tCalm.setAttribute('aria-pressed','true');tCalm.lastChild.textContent='Calm motion (device)';tCalm.title='Your device asks for less motion, so calm motion stays on.';}
+  else tCalm.setAttribute('aria-pressed',String(!!state.settings.calm));
+  showStorageNote();}
+tSound.addEventListener('click',function(){interacted=true;state.settings.sound=!state.settings.sound;save();syncTools();if(state.settings.sound)tone(660,0,0.2,0.05);});
+tSpeech.addEventListener('click',function(){interacted=true;if(!speechOK)return;state.settings.speech=!state.settings.speech;save();syncTools();if(state.settings.speech)speak(currentText(),true);else stopSpeech();});
+tCalm.addEventListener('click',function(){interacted=true;if(osReduce)return;state.settings.calm=!state.settings.calm;save();syncTools();});
+document.getElementById('t-hear').addEventListener('click',function(){interacted=true;var t=currentText();if(!t)return;
+  live.textContent='';setTimeout(function(){live.textContent=t;},40);if(speechOK)speak(t,true);
+  var b=document.getElementById('dlg-box');if(b){b.classList.remove('appear');void b.offsetWidth;b.classList.add('appear');}});
+var dG=document.getElementById('dlg-grown'),dR=document.getElementById('dlg-reset');
+function openDlg(d,focusId){if(typeof d.showModal==='function'){if(!d.open)d.showModal();}else d.setAttribute('open','');var f=document.getElementById(focusId);if(f)f.focus();}
+function closeDlg(d){if(typeof d.close==='function'&&d.open)d.close();else d.removeAttribute('open');}
+var reopenFocus=null;
+document.getElementById('t-grown').addEventListener('click',function(){reopenFocus=document.getElementById('t-grown');openDlg(dG,'g-close');});
+document.getElementById('g-close').addEventListener('click',function(){closeDlg(dG);});
+dG.addEventListener('close',function(){if(!dR.open&&reopenFocus)reopenFocus.focus();});
+document.getElementById('g-reset').addEventListener('click',function(){closeDlg(dG);openDlg(dR,'r-no');});
+document.getElementById('r-no').addEventListener('click',function(){closeDlg(dR);});
+dR.addEventListener('close',function(){if(dR.returnValue!=='reset'){var t=document.getElementById('t-grown');if(t)t.focus();}dR.returnValue='';});
+document.getElementById('r-yes').addEventListener('click',function(){
+  var keep=state.settings;try{window.localStorage.removeItem(KEY);}catch(e){}
+  state=fresh(0,keep);ui={step:'pick',resp:null,outcome:null,fresh:false,token:ui.token+1,timer:null};stopSpeech();
+  dR.returnValue='reset';closeDlg(dR);save();render('#w-h');});
+
+/* stars */
+(function(){var s=document.getElementById('stars'),h='',i,x,y;for(i=0;i<40;i++){x=(i*37%100);y=(i*53%55);h+='<i style="left:'+x+'%;top:'+y+'%"></i>';}s.innerHTML=h;})();
+
+/* ---------- boot ---------- */
+loadState();
+if(state.screen==='door'){openDoor(state.door);if(ui.step==='answer'&&!ui.resp)ui.step='pick';}
+render(null);
+save();
+
+/* read-only QA hook */
+function clone(o){return JSON.parse(JSON.stringify(o));}
+window.__DQ_KNOCKWAIT_QA__=Object.freeze({
+  version:'001-v1-prototype',
+  storageKey:KEY,
+  getState:function(){return clone({state:state,ui:{step:ui.step,fresh:ui.fresh},storageOK:storageOK,speechOK:speechOK,osReduce:osReduce});},
+  respFor:function(d,n,i,f){var r=respFor(d,n,i,!!f);return r?clone(r):null;},
+  outcomeFor:function(d,n,i,o,f){var r=outcomeFor(d,n,i,o,!!f);return r?clone(r):null;},
+  duskReply:function(d,a,m){var r=duskReply(d,a,m||null);return r?clone(r):null;},
+  sanitize:function(raw){var r=sanitize(clone(raw===undefined?null:raw));return r?clone(r):null;},
+  enumerate:function(){var cases=[],problems=[];
+    DAYS.forEach(function(D,di){ORDER.forEach(function(n){[false,true].forEach(function(f){if(f&&n!=='tansy')return;
+      D.invs.forEach(function(inv){var r=respFor(di,n,inv,f);if(!r){problems.push([di,n,inv,f,'no response']);return;}
+        if(!r.options.length)problems.push([di,n,inv,f,'no options']);
+        if(!r.record&&!r.pending)problems.push([di,n,inv,f,'no state change']);
+        r.options.forEach(function(o){var oc=outcomeFor(di,n,inv,o.id,f);cases.push({day:di,neighbor:n,inv:inv,fresh:f,option:o.id,ok:!!(oc&&oc.text)});if(!oc||!oc.text)problems.push([di,n,inv,f,o.id,'no outcome']);});});});});
+      DUSK_ANS.forEach(function(a){var modes=a==='yes'?['chat','quiet']:[null];modes.forEach(function(m){var r=duskReply(di,a,m);cases.push({day:di,dusk:a,mode:m,ok:!!(r&&r.line&&r.narr)});if(!r)problems.push([di,a,m,'no dusk reply']);});});});
+    return {count:cases.length,problems:problems,cases:cases};}
+});
+})();
+</script>
+</body>
+</html>

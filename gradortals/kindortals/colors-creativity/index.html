@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; media-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="robots" content="noindex, nofollow">
+<title>The Splat That Woke Up · Kindortals · DoorQuests</title>
+<meta name="description" content="DoorQuests · Gradortals · Kindortals · Colors &amp; Creativity #001 — The Splat That Woke Up. Prototype.">
+<style>
+:root{
+  --paper:#fbf6ea; --paper2:#f3ead4; --ink:#2b2338; --ink-soft:#4f4660;
+  --edge:#d9c9a3; --accent:#5b3fa3; --accent-ink:#ffffff; --focus:#1a5fd1;
+  --btn:#ffffff; --btn-on:#efe7ff; --good:#2d6a3f; --sky:#dcecfb; --grass:#cfe8b5;
+  --shadow:0 3px 0 rgba(43,35,56,.18);
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#e9dfc6;color:var(--ink)}
+body{min-height:100vh;display:flex;justify-content:center}
+#app{width:100%;max-width:560px;min-height:100vh;background:var(--paper);display:flex;flex-direction:column;
+  box-shadow:0 0 0 1px var(--edge), 0 10px 30px rgba(0,0,0,.08)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px;border-radius:12px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* top bar */
+.bar{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--paper2);border-bottom:2px solid var(--edge)}
+.bar .left,.bar .right{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tog{display:inline-flex;align-items:center;gap:5px;min-height:44px;min-width:44px;padding:4px 10px;border-radius:22px;border:2px solid var(--edge);background:var(--btn);font-size:14px;font-weight:700}
+.tog[aria-pressed="false"]{opacity:.75;background:#f4f1ea}
+.tog[aria-pressed="false"] .state::after{content:" off"}
+.tog[aria-pressed="true"] .state::after{content:" on"}
+.tog svg{width:22px;height:22px}
+.progress{display:flex;gap:6px;align-items:center;justify-content:center;padding:6px 0 0;font-weight:700;font-size:14px;color:var(--ink-soft)}
+.pip{width:26px;height:26px;border-radius:50%;border:3px solid var(--ink-soft);display:inline-grid;place-items:center;font-size:13px;background:#fff}
+.pip.done{background:var(--ink-soft);color:#fff}
+.pip.now{border-color:var(--accent);box-shadow:0 0 0 3px #d7caff}
+.pip.star{border-radius:6px}
+
+/* screens */
+.screen{flex:1;display:none;flex-direction:column;padding:10px 12px 16px}
+.screen.on{display:flex}
+h1,h2{margin:4px 0;line-height:1.15;text-align:center}
+h1{font-size:30px}
+h2{font-size:22px}
+.kicker{text-align:center;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
+.credit{text-align:center;font-size:13px;color:var(--ink-soft);margin-top:8px}
+
+/* speech bubble */
+.say{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
+.say .dabmini{flex:0 0 52px;height:52px}
+.bubble{flex:1;background:#fff;border:3px solid var(--ink);border-radius:18px;padding:8px 12px;font-size:19px;font-weight:700;line-height:1.3;position:relative;min-height:52px}
+.bubble::before{content:"";position:absolute;left:-12px;top:14px;border:8px solid transparent;border-right-color:var(--ink)}
+.again{flex:0 0 auto;min-width:48px;min-height:48px;border-radius:50%;border:3px solid var(--ink);background:#fff8d6;display:grid;place-items:center}
+.again svg{width:26px;height:26px}
+
+/* stage */
+.stage-wrap{position:relative;border:3px solid var(--ink);border-radius:20px;overflow:hidden;background:var(--paper)}
+.stage{display:block;width:100%;height:auto;aspect-ratio:320/340;touch-action:manipulation}
+.stage-wrap:focus-visible{outline:5px solid var(--focus);outline-offset:3px}
+.caption{font-size:16px;color:var(--ink);background:#fff;border:2px dashed var(--edge);border-radius:12px;padding:6px 10px;margin-top:8px;line-height:1.35}
+.caption b{font-weight:800}
+
+.row{display:flex;gap:10px;justify-content:center;align-items:center;margin-top:10px;flex-wrap:wrap}
+.big{min-height:60px;min-width:60px;padding:8px 18px;border-radius:30px;border:3px solid var(--ink);background:var(--btn);font-weight:800;font-size:19px;display:inline-flex;align-items:center;gap:8px;box-shadow:var(--shadow)}
+.big:active{transform:translateY(2px);box-shadow:none}
+.big svg{width:30px;height:30px}
+.primary{background:var(--accent);color:var(--accent-ink);border-color:#2f1e66}
+.primary.waiting{background:#cfc5e6;color:#2b2338;border-style:dashed}
+.round{width:64px;height:64px;padding:0;justify-content:center;border-radius:50%}
+
+/* pieces */
+.pieces{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.piece{position:relative;min-height:96px;border-radius:18px;border:3px solid var(--ink);background:var(--btn);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px;font-weight:800;font-size:17px;box-shadow:var(--shadow)}
+.piece svg{width:56px;height:46px}
+.piece[aria-pressed="true"]{background:var(--btn-on);border-width:4px;border-style:double;border-color:var(--accent)}
+.piece .tick{position:absolute;top:4px;right:6px;width:26px;height:26px;border-radius:50%;background:var(--good);color:#fff;font-size:17px;line-height:26px;text-align:center;display:none}
+.piece[aria-pressed="true"] .tick{display:block}
+.piece .hint{font-size:12px;font-weight:700;color:var(--ink-soft)}
+
+.gallery{display:flex;gap:8px;justify-content:center;margin-top:10px;align-items:stretch}
+.slot{flex:0 0 31%;border:2px dashed var(--edge);border-radius:14px;background:#fffdf7;padding:4px;text-align:center;font-size:12px;font-weight:700;color:var(--ink-soft)}
+.slot svg{width:100%;height:auto;display:block}
+.slot.filled{border-style:solid;border-color:var(--ink-soft)}
+
+/* title */
+.cover{margin:6px auto 0;width:100%;max-width:420px}
+.choicecol{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:12px}
+
+/* finale */
+.finale-list{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:6px}
+.finale-list li{background:#fff;border:2px solid var(--edge);border-radius:12px;padding:6px 10px;font-size:16px;line-height:1.35}
+
+/* grown-ups */
+.gu-btn{font-size:13px;font-weight:700;min-height:44px;padding:4px 10px;border-radius:22px;border:2px solid var(--edge);background:transparent}
+dialog{max-width:520px;width:calc(100% - 24px);border:3px solid var(--ink);border-radius:18px;padding:0;color:var(--ink);background:#fff}
+dialog::backdrop{background:rgba(30,20,40,.45)}
+.dlg{padding:14px 16px 16px;font-size:15px;line-height:1.45}
+.dlg h2{text-align:left;font-size:20px}
+.dlg h3{font-size:16px;margin:12px 0 4px}
+.dlg ul{margin:4px 0;padding-left:20px}
+.dlg .row{justify-content:flex-start}
+.small{min-height:44px;padding:6px 14px;border-radius:22px;border:2px solid var(--ink);background:#fff;font-weight:800}
+.warn{border-color:#7a2e2e}
+
+/* motion */
+.spin{animation:spin 1.6s linear infinite;transform-box:fill-box;transform-origin:center}
+.flapL{animation:flapL .9s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:100% 60%}
+.flapR{animation:flapR .9s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:0% 60%}
+.sway{animation:sway 2.4s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}
+.stepA{animation:step .7s ease-in-out infinite alternate}
+.stepB{animation:step .7s ease-in-out infinite alternate-reverse}
+.blink{animation:blink 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.b-fly{animation:bob 2.2s ease-in-out infinite alternate}
+.b-float{animation:rock 2.6s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 90%}
+.b-roll{animation:scoot 2.4s ease-in-out infinite alternate}
+.b-walk{animation:hop .7s ease-in-out infinite alternate}
+.b-sit{animation:wiggle 3s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 100%}
+.drift-sky{animation:driftSky 14s ease-in-out infinite alternate}
+.drift-river{animation:driftRiver 16s ease-in-out infinite alternate}
+.drift-road{animation:driftRoad 11s ease-in-out infinite alternate}
+.drift-meadow{animation:driftMeadow 13s ease-in-out infinite alternate}
+.fadein{animation:fadein .8s ease-out both}
+.drop{animation:drop .9s cubic-bezier(.3,1.4,.5,1) both}
+.hic{animation:hic .5s ease-in-out 2}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flapL{from{transform:rotate(-14deg)}to{transform:rotate(16deg)}}
+@keyframes flapR{from{transform:rotate(14deg)}to{transform:rotate(-16deg)}}
+@keyframes sway{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+@keyframes step{from{transform:translateY(0)}to{transform:translateY(-7px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes bob{from{transform:translateY(4px)}to{transform:translateY(-14px)}}
+@keyframes rock{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+@keyframes scoot{from{transform:translateX(-18px)}to{transform:translateX(18px)}}
+@keyframes hop{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+@keyframes wiggle{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+@keyframes driftSky{from{transform:translateX(-30px)}to{transform:translateX(40px)}}
+@keyframes driftRiver{from{transform:translateX(30px)}to{transform:translateX(-35px)}}
+@keyframes driftRoad{from{transform:translateX(-45px)}to{transform:translateX(45px)}}
+@keyframes driftMeadow{from{transform:translateX(20px)}to{transform:translateX(-25px)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes drop{from{transform:translateY(-120px) scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes hic{0%,100%{transform:none}50%{transform:translateY(-6px) rotate(-6deg)}}
+body.calm *, body.calm *::before, body.calm *::after{animation:none!important;transition:none!important}
+@media (prefers-reduced-motion: reduce){
+  body:not(.motion-ok) *, body:not(.motion-ok) *::before, body:not(.motion-ok) *::after{animation:none!important;transition:none!important}
+}
+.env{transition:opacity .6s ease}
+.env.hide{opacity:0}
+@media (max-width:360px){ .piece{min-height:86px;font-size:15px} .bubble{font-size:17px} h1{font-size:26px} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="bar" role="toolbar" aria-label="Settings">
+    <div class="left">
+      <button class="tog" id="tSound" aria-pressed="true" type="button" title="Soft chimes">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8c1.5 1.2 1.5 6.8 0 8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <span>Chimes<span class="state"></span></span></button>
+      <button class="tog" id="tVoice" aria-pressed="true" type="button" title="Device voice reads Dab's words">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="currentColor"/><path d="M2 21c0-4 3-7 7-7s7 3 7 7z" fill="currentColor"/><path d="M18 6c2 2 2 6 0 8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <span>Voice<span class="state"></span></span></button>
+      <button class="tog" id="tCalm" aria-pressed="false" type="button" title="Calm motion stops all movement">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-4 6-4 9 0s6 4 9 0" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+        <span>Calm<span class="state"></span></span></button>
+    </div>
+    <div class="right">
+      <button class="gu-btn" id="guOpen" type="button" aria-haspopup="dialog">For grown-ups</button>
+    </div>
+  </div>
+
+  <div id="live" class="sr" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- TITLE -->
+  <section class="screen on" id="sTitle" aria-labelledby="titleH">
+    <p class="kicker">DoorQuests · Kindortals · Colors &amp; Creativity · #001</p>
+    <h1 id="titleH">The Splat That Woke Up</h1>
+    <svg class="cover" viewBox="0 0 320 230" role="img" aria-label="A blank storybook lies open. Dab, a friendly paint pot with a smiling face, peeks over the top.">
+      <rect x="20" y="40" width="280" height="170" rx="14" fill="#7b5ad6"/>
+      <path d="M160 50 C120 40 60 42 34 52 L34 200 C60 190 120 190 160 202 Z" fill="#fffdf6" stroke="#2b2338" stroke-width="4"/>
+      <path d="M160 50 C200 40 260 42 286 52 L286 200 C260 190 200 190 160 202 Z" fill="#fffdf6" stroke="#2b2338" stroke-width="4"/>
+      <line x1="160" y1="50" x2="160" y2="202" stroke="#2b2338" stroke-width="3"/>
+      <g id="coverDab" transform="translate(234 50)"></g>
+      <g id="coverSplat" transform="translate(96 132) scale(.34)"></g>
+    </svg>
+    <div class="say"><svg class="dabmini" viewBox="-40 -46 80 92" aria-hidden="true"><g class="dabSlot"></g></svg>
+      <div class="bubble" id="titleSay">Hi! I'm Dab. Oops… I sometimes go splat!</div></div>
+    <div class="choicecol" id="titleChoices"></div>
+    <p class="credit">Created by The Axiom Continuum · Prototype</p>
+  </section>
+
+  <!-- PAGE -->
+  <section class="screen" id="sPage" aria-labelledby="pageH">
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <h2 id="pageH">Page 1</h2>
+    <div class="say"><svg class="dabmini" viewBox="-40 -46 80 92" aria-hidden="true"><g class="dabSlot"></g></svg>
+      <div class="bubble" id="say" aria-hidden="true">…</div>
+      <button class="again" id="hearAgain" type="button" aria-label="Hear that again">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#2b2338"/><path d="M16 8c1.5 1.2 1.5 6.8 0 8M18.5 6c2.6 2.4 2.6 9.6 0 12" stroke="#2b2338" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="stage-wrap" id="stageWrap" tabindex="0" role="group" aria-label="Your splat. Use the left and right arrow keys to turn it.">
+      <svg class="stage" id="stage" viewBox="-160 -175 320 340" role="img" aria-labelledby="stageDesc">
+        <title id="stageDesc">Your splat</title>
+        <g id="stageEnv"></g>
+        <g id="stageCreation"></g>
+      </svg>
+    </div>
+    <p class="caption" id="caption" aria-hidden="true"></p>
+
+    <div id="editControls">
+      <div class="row" role="group" aria-label="Turn the splat">
+        <button class="big round" id="rotL" type="button" aria-label="Turn splat left">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v4H4" stroke="#2b2338" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 9A8 8 0 1 1 6 17" stroke="#2b2338" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></button>
+        <button class="big" id="newSplat" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c2 3 7 2 7 6s3 5 0 8-6 4-9 3-7-2-6-6-3-5 0-8 6-6 8-3z" fill="#f2c230" stroke="#2b2338" stroke-width="1.6"/></svg>
+          New splat</button>
+        <button class="big round" id="rotR" type="button" aria-label="Turn splat right">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5v4h4" stroke="#2b2338" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5 9A8 8 0 1 0 18 17" stroke="#2b2338" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="pieces" id="pieces" role="group" aria-label="Picture pieces. Tap a piece to add it. Tap it again to take it off."></div>
+      <div class="row">
+        <button class="big primary waiting" id="wake" type="button" aria-describedby="wakeHint">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.6 6.3L21 9l-5 4.4L17.5 20 12 16.6 6.5 20 8 13.4 3 9l6.4-.7z" fill="currentColor"/></svg>
+          Wake it up!</button>
+      </div>
+      <p class="sr" id="wakeHint">Add at least one picture piece first. Any piece is a good idea.</p>
+    </div>
+
+    <div id="awakeControls" hidden>
+      <div class="row">
+        <button class="big" id="changeIt" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1L19 8l-3-3L5 16z" fill="#f2c230" stroke="#2b2338" stroke-width="1.6"/></svg>
+          Change it</button>
+        <button class="big primary" id="nextPage" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="nextLabel">Next page</span></button>
+      </div>
+    </div>
+
+    <div class="gallery" id="gallery" aria-label="Your storybook so far"></div>
+  </section>
+
+  <!-- FINALE -->
+  <section class="screen" id="sFinale" aria-labelledby="finH">
+    <div class="progress" id="progress2" aria-hidden="true"></div>
+    <p class="kicker">The last page</p>
+    <h2 id="finH">The Awakening World</h2>
+    <div class="say"><svg class="dabmini" viewBox="-40 -46 80 92" aria-hidden="true"><g class="dabSlot"></g></svg>
+      <div class="bubble" id="finSay" aria-hidden="true">…</div>
+      <button class="again" id="finAgain" type="button" aria-label="Hear that again">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#2b2338"/><path d="M16 8c1.5 1.2 1.5 6.8 0 8M18.5 6c2.6 2.4 2.6 9.6 0 12" stroke="#2b2338" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="stage-wrap">
+      <svg class="stage" id="world" viewBox="0 0 360 440" role="img" aria-labelledby="worldDesc" style="aspect-ratio:360/440">
+        <title id="worldDesc">Your awakening world</title>
+        <g id="worldG"></g>
+      </svg>
+    </div>
+    <ul class="finale-list" id="finList" aria-label="What lives in your world"></ul>
+    <div class="row">
+      <button class="big" id="backToPage3" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H7M12 6l-6 6 6 6" stroke="#2b2338" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Look back</button>
+      <button class="big primary" id="playAgain" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c2 3 7 2 7 6s3 5 0 8-6 4-9 3-7-2-6-6-3-5 0-8 6-6 8-3z" fill="#f2c230" stroke="#2b2338" stroke-width="1.6"/></svg>
+        New splats!</button>
+    </div>
+    <p class="credit">Created by The Axiom Continuum · Prototype</p>
+  </section>
+</div>
+
+<dialog id="gu" aria-labelledby="guH">
+  <div class="dlg">
+    <h2 id="guH">For grown-ups</h2>
+    <p><b>The idea:</b> an unplanned mark can start an original idea. Dab the paint pot drops a splat, and your child decides what it could become.</p>
+    <h3>How to play</h3>
+    <ul>
+      <li>Turn the splat with the curved arrows (or the arrow keys when the picture is focused).</li>
+      <li>Tap picture pieces — wheels, wings, a sail, legs, windows, eyes — to add them. Tap again to take one off.</li>
+      <li>"New splat" swaps the splat but keeps the chosen pieces. "Wake it up!" brings the creation to life. "Change it" goes back to editing.</li>
+      <li>After three pages, all three creations live together in the Awakening World.</li>
+    </ul>
+    <h3>No single right answer</h3>
+    <p>Every combination of pieces makes something: a flying house, a sailing creature, a splat that simply sits and smiles. Dab only describes what happened and never judges. There are no scores, timers or wrong answers.</p>
+    <h3>Playing again</h3>
+    <p>"New splats!" starts again with different splat shapes, colors and piece choices. Progress saves on this device only, so a refresh picks up where you were.</p>
+    <h3>Sound and voice</h3>
+    <p>Chimes are made by the browser and need no download. Voice uses your device's built-in speech, if it has one; voices differ between devices and some devices have none. Every spoken line is also shown in Dab's speech bubble. <span id="voiceStatus"></span></p>
+    <h3>Privacy</h3>
+    <p>No account, no personal information, no ads, no tracking and no internet connection are used. <span id="storeStatus"></span></p>
+    <div class="row">
+      <button class="small warn" id="resetBtn" type="button">Start over from the beginning…</button>
+      <button class="small" id="guClose" type="button">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="confirm" aria-labelledby="cfH">
+  <div class="dlg">
+    <h2 id="cfH">Start over?</h2>
+    <p>This clears the creations saved for this activity on this device. Nothing else is changed.</p>
+    <div class="row">
+      <button class="small" id="cfKeep" type="button">Keep my creations</button>
+      <button class="small warn" id="cfYes" type="button">Yes, start over</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function(){
+'use strict';
+var KEY='doorquests:gradortals:kindortals:colors-creativity:001:v1';
+var SCHEMA=1;
+
+/* ---------- content ---------- */
+var COLORS=[
+  {id:'sun',  name:'sunny yellow', fill:'#f2c230', dark:'#9a7400'},
+  {id:'berry',name:'berry pink',   fill:'#e2577f', dark:'#8e2246'},
+  {id:'sea',  name:'ocean blue',   fill:'#3d7dd8', dark:'#1d4a8c'},
+  {id:'leaf', name:'leafy green',  fill:'#4caf6a', dark:'#23663a'},
+  {id:'pump', name:'pumpkin orange',fill:'#f08a3c',dark:'#93460d'},
+  {id:'grape',name:'grape purple', fill:'#8e62c9', dark:'#4f2c86'}
+];
+var SHAPES=[
+  {id:'bumpy',  name:'bumpy',  r:[78,62,80,66,76,60,82,64], drops:[[96,-50,9],[-92,40,7],[60,88,6]]},
+  {id:'starry', name:'starry', r:[88,56,86,54,90,58,84,52,88,56], drops:[[-70,-86,8],[100,30,6]]},
+  {id:'wobbly', name:'wobbly', r:[70,80,74,64,84,70,62,78,72], drops:[[-100,-20,10],[86,-70,6],[-40,96,6]]},
+  {id:'puddle', name:'puddle', r:[86,70,58,66,86,72,58,64], drops:[[104,10,8],[-104,-6,8]]},
+  {id:'cloudy', name:'cloudy', r:[74,82,74,82,74,82,74,82,74,82,74,82], drops:[[0,-104,7],[92,74,6]]},
+  {id:'zigzag', name:'zigzag', r:[84,64,80,60,86,66,78,58,82,62,80,60,84,64], drops:[[-90,70,7],[96,-66,7],[20,-104,5]]}
+];
+var PIECE_IDS=['wheels','wings','sail','legs','windows','eyes'];
+var PIECES={
+  wheels:{label:'Wheels', hint:'to roll', add:'Now it can roll!', off:'The wheels came off.'},
+  wings:{label:'Wings', hint:'to fly', add:'You gave it wings!', off:'The wings came off.'},
+  sail:{label:'Sail', hint:'to float', add:'Up goes a sail. It can float!', off:'The sail came down.'},
+  legs:{label:'Legs', hint:'to walk', add:'Legs! Now it can walk!', off:'The legs went away.'},
+  windows:{label:'Windows', hint:'a home', add:'Windows! Someone could live inside!', off:'The windows went away.'},
+  eyes:{label:'Eyes', hint:'to look', add:'Eyes! It is looking around!', off:'The eyes closed and went away.'}
+};
+/* Which piece sets each page offers, per replay variant */
+var SETS=[
+  [['wheels','wings','windows','eyes'],['sail','legs','windows','eyes'],PIECE_IDS],
+  [['sail','legs','eyes','windows'],['wheels','wings','eyes','windows'],PIECE_IDS],
+  [['wings','legs','windows','eyes'],['wheels','sail','windows','eyes'],PIECE_IDS]
+];
+
+/* ---------- state ---------- */
+function freshPages(run){
+  var p=[],i;
+  for(i=0;i<3;i++){
+    p.push({shape:(run*2+i)%SHAPES.length, color:(run+i*2)%COLORS.length, rot:0, pieces:[], v:0});
+  }
+  return p;
+}
+function freshState(run, settings){
+  return {schema:SCHEMA, run:run, scene:'title', page:0, awake:false, pages:freshPages(run),
+          done:[false,false,false], finale:false,
+          settings:settings||{sound:true, voice:true, calm:false}};
+}
+var storageOK=true;
+var S=load();
+
+function load(){
+  var raw=null;
+  try{ raw=localStorage.getItem(KEY); }catch(e){ storageOK=false; }
+  if(!raw) return freshState(0);
+  try{ return sanitize(JSON.parse(raw)); }catch(e){ return freshState(0); }
+}
+function intIn(v,lo,hi,def){ return (typeof v==='number' && isFinite(v) && Math.floor(v)===v && v>=lo && v<=hi)? v : def; }
+function sanitize(o){
+  if(!o || typeof o!=='object' || o.schema!==SCHEMA) return freshState(0);
+  var run=intIn(o.run,0,999999,0);
+  var st=freshState(run);
+  var set=o.settings||{};
+  st.settings={sound:set.sound!==false, voice:set.voice!==false, calm:set.calm===true};
+  if(Array.isArray(o.pages) && o.pages.length===3){
+    for(var i=0;i<3;i++){
+      var q=o.pages[i]||{};
+      var allowed=offered(run,i);
+      var pcs=Array.isArray(q.pieces)? q.pieces.filter(function(x,ix,a){return allowed.indexOf(x)>=0 && a.indexOf(x)===ix;}) : [];
+      st.pages[i]={shape:intIn(q.shape,0,SHAPES.length-1,st.pages[i].shape),
+                   color:intIn(q.color,0,COLORS.length-1,st.pages[i].color),
+                   rot:[0,90,180,270].indexOf(q.rot)>=0? q.rot : 0,
+                   pieces:pcs, v:intIn(q.v,0,999999,0)};
+    }
+  }
+  var done=Array.isArray(o.done)? o.done : [];
+  for(var j=0;j<3;j++){ st.done[j]= done[j]===true && st.pages[j].pieces.length>0; }
+  /* progress must be contiguous */
+  for(j=1;j<3;j++){ if(st.done[j] && !st.done[j-1]) st.done[j]=false; }
+  var firstOpen=st.done.indexOf(false); if(firstOpen<0) firstOpen=3;
+  st.finale= o.finale===true && firstOpen===3;
+  var scene=['title','page','finale'].indexOf(o.scene)>=0? o.scene : 'title';
+  if(scene==='finale' && !st.finale) scene='page';
+  st.scene=scene;
+  st.page=intIn(o.page,0,2,0);
+  if(st.page>firstOpen) st.page=Math.min(firstOpen,2);
+  st.awake= o.awake===true && st.pages[st.page].pieces.length>0;
+  return st;
+}
+function save(){
+  if(!storageOK) return;
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ storageOK=false; }
+}
+function offered(run,page){ return SETS[run%SETS.length][page]; }
+
+/* ---------- creation model (deterministic, covers every combination) ---------- */
+var MOVERS=['wings','sail','wheels','legs'];
+var MOVE_WORD={wings:'flying',sail:'sailing',wheels:'rolling',legs:'walking'};
+var MOVE_ZONE={wings:'sky',sail:'river',wheels:'road',legs:'meadow'};
+var MOVE_DO={wings:'flaps up into the sky',sail:'floats along the river',wheels:'rolls along the road',legs:'strolls across the meadow'};
+var MOVE_ALSO={wings:'flutter',sail:'catch the wind',wheels:'roll',legs:'walk'};
+function has(c,p){ return c.pieces.indexOf(p)>=0; }
+function describe(page){
+  var c=page, w=has(c,'windows'), e=has(c,'eyes');
+  var movers=MOVERS.filter(function(m){return has(c,m);});
+  var noun = w&&e ? 'house creature' : w ? 'house' : e ? 'creature' : 'splat';
+  var name, special=null, key=c.pieces.slice().sort().join('+');
+  var specials={
+    'wheels+windows':'rolling house', 'windows+wings':'flying house', 'sail+windows':'floating houseboat',
+    'eyes+legs':'walking creature', 'eyes+wings':'flying creature', 'sail+wheels':'parade cart with a sail',
+    'eyes+sail':'sailing creature', 'legs+windows':'walking house', 'eyes+wheels':'rolling creature'
+  };
+  if(specials[key]) special=specials[key];
+  if(special) name=special;
+  else if(movers.length===0) name = noun==='house'? 'cozy little house' : noun==='creature'? 'friendly creature' : 'house creature';
+  else if(movers.length===1) name = MOVE_WORD[movers[0]]+' '+noun;
+  else if(movers.length===2) name = MOVE_WORD[movers[0]]+', '+MOVE_WORD[movers[1]]+' '+noun;
+  else name = 'go-anywhere '+noun;
+  var zone = movers.length? MOVE_ZONE[movers[0]] : 'hill';
+  var does;
+  if(movers.length){
+    does='It '+MOVE_DO[movers[0]]+'.';
+    var rest=movers.slice(1).map(function(m){return MOVE_ALSO[m];});
+    if(rest.length===1) does+=' It can '+rest[0]+' too!';
+    else if(rest.length>1) does+=' It can '+rest.slice(0,-1).join(', ')+' and '+rest[rest.length-1]+' too!';
+  } else if(w && e){ does='It sits on the hill, blinks, and its windows glow.'; }
+  else if(w){ does='It sits on the hill and its windows glow warm.'; }
+  else { does='It sits on the hill, blinks, and looks all around.'; }
+  if(movers.length && w && !e) does+=' Its windows glow.';
+  if(movers.length && e && !w) does+=' It blinks and looks around.';
+  if(movers.length && w && e) does+=' Its windows glow and its eyes blink.';
+  var article=/^[aeiou]/.test(name)? 'an ':'a ';
+  return {name:name, article:article, zone:zone, does:does, primary:movers[0]||'sit'};
+}
+function splatWords(p){ return 'a '+SHAPES[p.shape].name+', '+COLORS[p.color].name+' splat'; }
+
+/* ---------- SVG drawing (all generated in code; no external assets) ---------- */
+var NS='http://www.w3.org/2000/svg';
+function el(tag, attrs, parent){
+  var n=document.createElementNS(NS,tag);
+  if(attrs) for(var k in attrs) n.setAttribute(k, attrs[k]);
+  if(parent) parent.appendChild(n);
+  return n;
+}
+function clear(n){ while(n.firstChild) n.removeChild(n.firstChild); }
+function blobPath(r){
+  var n=r.length, pts=[], i;
+  for(i=0;i<n;i++){ var a=-Math.PI/2+i*2*Math.PI/n; pts.push([Math.cos(a)*r[i], Math.sin(a)*r[i]]); }
+  var d='M'+pts[0][0].toFixed(1)+' '+pts[0][1].toFixed(1);
+  for(i=0;i<n;i++){
+    var p0=pts[(i-1+n)%n], p1=pts[i], p2=pts[(i+1)%n], p3=pts[(i+2)%n];
+    var c1=[p1[0]+(p2[0]-p0[0])/6, p1[1]+(p2[1]-p0[1])/6], c2=[p2[0]-(p3[0]-p1[0])/6, p2[1]-(p3[1]-p1[1])/6];
+    d+=' C'+c1[0].toFixed(1)+' '+c1[1].toFixed(1)+' '+c2[0].toFixed(1)+' '+c2[1].toFixed(1)+' '+p2[0].toFixed(1)+' '+p2[1].toFixed(1);
+  }
+  return d+'Z';
+}
+function drawSplatBody(g, page){
+  var sh=SHAPES[page.shape], co=COLORS[page.color];
+  var b=el('g',{transform:'rotate('+page.rot+')'},g);
+  el('path',{d:blobPath(sh.r), fill:co.fill, stroke:co.dark, 'stroke-width':5, 'stroke-linejoin':'round'},b);
+  /* a soft highlight shows it's wet paint */
+  el('ellipse',{cx:-26,cy:-36,rx:20,ry:10,fill:'#ffffff',opacity:.35,transform:'rotate(-25 -26 -36)'},b);
+  sh.drops.forEach(function(d){ el('circle',{cx:d[0],cy:d[1],r:d[2],fill:co.fill,stroke:co.dark,'stroke-width':3},b); });
+  return b;
+}
+function drawPieces(g, page, animate){
+  var A=animate;
+  if(has(page,'sail')){
+    var s=el('g',{'class':A?'sway':''},g);
+    el('line',{x1:0,y1:-58,x2:0,y2:-166,stroke:'#6b4a2b','stroke-width':7,'stroke-linecap':'round'},s);
+    el('path',{d:'M6 -160 L6 -74 L76 -84 Z',fill:'#fffaf0',stroke:'#2b2338','stroke-width':4,'stroke-linejoin':'round'},s);
+    el('path',{d:'M20 -132 L20 -86 M40 -110 L40 -86',stroke:'#c9b88f','stroke-width':3},s);
+    el('path',{d:'M0 -166 L-24 -158 L0 -150 Z',fill:'#e2577f',stroke:'#2b2338','stroke-width':2.5},s);
+  }
+  if(has(page,'wings')){
+    var wl=el('g',{},g); var wr=el('g',{transform:'scale(-1 1)'},g);
+    [wl,wr].forEach(function(w,ix){
+      var wing=el('g',{'class':A?(ix===0?'flapL':'flapR'):''},w);
+      el('path',{d:'M-64 -18 C-112 -78 -160 -26 -128 2 C-152 16 -124 46 -68 16 Z',fill:'#ffffff',stroke:'#2b2338','stroke-width':4,'stroke-linejoin':'round'},wing);
+      el('path',{d:'M-76 -6 C-98 -24 -118 -26 -132 -18 M-74 6 C-96 2 -116 8 -128 20',stroke:'#9aa3b5','stroke-width':3,fill:'none','stroke-linecap':'round'},wing);
+    });
+  }
+  if(has(page,'legs')){
+    [[-24,'stepA'],[24,'stepB']].forEach(function(L){
+      var lg=el('g',{'class':A?L[1]:''},g);
+      el('path',{d:'M'+L[0]+' 58 L'+(L[0]*1.15)+' 106',stroke:'#2b2338','stroke-width':10,'stroke-linecap':'round'},lg);
+      el('ellipse',{cx:L[0]*1.15+(L[0]<0?-8:8),cy:110,rx:17,ry:9,fill:'#e2577f',stroke:'#2b2338','stroke-width':3.5},lg);
+    });
+  }
+  if(has(page,'wheels')){
+    [-54,54].forEach(function(x){
+      var wh=el('g',{transform:'translate('+x+' 76)'},g);
+      var sp=el('g',{'class':A?'spin':''},wh);
+      el('circle',{r:25,fill:'#3a3448',stroke:'#2b2338','stroke-width':3},sp);
+      el('circle',{r:17,fill:'#f4efe2'},sp);
+      el('path',{d:'M0 -17 V17 M-17 0 H17 M-12 -12 L12 12 M12 -12 L-12 12',stroke:'#3a3448','stroke-width':3},sp);
+      el('circle',{r:5,fill:'#3a3448'},sp);
+    });
+  }
+  if(has(page,'windows')){
+    [[-48,6],[18,6]].forEach(function(W){
+      el('rect',{x:W[0],y:W[1],width:30,height:28,rx:4,fill:'#ffe9a8',stroke:'#2b2338','stroke-width':4},g);
+      el('path',{d:'M'+(W[0]+15)+' '+W[1]+' V'+(W[1]+28)+' M'+W[0]+' '+(W[1]+14)+' H'+(W[0]+30),stroke:'#2b2338','stroke-width':3},g);
+    });
+    el('rect',{x:-13,y:30,width:26,height:38,rx:13,fill:'#7a4b2c',stroke:'#2b2338','stroke-width':4},g);
+    el('circle',{cx:7,cy:50,r:2.6,fill:'#f2c230'},g);
+  }
+  if(has(page,'eyes')){
+    [-26,26].forEach(function(x){
+      var e=el('g',{'class':A?'blink':''},g);
+      el('circle',{cx:x,cy:-34,r:16,fill:'#ffffff',stroke:'#2b2338','stroke-width':4},e);
+      el('circle',{cx:x+3,cy:-31,r:7,fill:'#2b2338'},e);
+      el('circle',{cx:x+5,cy:-34,r:2.2,fill:'#ffffff'},e);
+    });
+    if(!has(page,'windows')) el('path',{d:'M-18 -6 Q0 12 18 -6',stroke:'#2b2338','stroke-width':5,fill:'none','stroke-linecap':'round'},g);
+    else el('path',{d:'M-12 -10 Q0 0 12 -10',stroke:'#2b2338','stroke-width':4,fill:'none','stroke-linecap':'round'},g);
+  }
+}
+function behaviourClass(page){
+  var d=describe(page);
+  return {wings:'b-fly', sail:'b-float', wheels:'b-roll', legs:'b-walk', sit:'b-sit'}[d.primary];
+}
+function drawCreation(g, page, animate){
+  var outer=el('g',{'class':(animate && page.pieces.length)? behaviourClass(page):''},g);
+  drawSplatBody(outer,page);
+  drawPieces(outer,page,animate);
+  return outer;
+}
+function drawDab(g, small){
+  /* Dab: a friendly paint pot */
+  var d=el('g',{},g);
+  el('path',{d:'M-30 -20 L30 -20 L24 38 Q0 46 -24 38 Z',fill:'#cfd6e6',stroke:'#2b2338','stroke-width':4,'stroke-linejoin':'round'},d);
+  el('ellipse',{cx:0,cy:-20,rx:30,ry:9,fill:'#8e62c9',stroke:'#2b2338','stroke-width':4},d);
+  el('path',{d:'M-24 -20 Q-20 -2 -12 -14 Q-6 4 2 -14 Q10 -2 18 -16',fill:'#8e62c9',stroke:'#2b2338','stroke-width':3,'stroke-linejoin':'round'},d);
+  el('path',{d:'M-30 -18 Q0 -44 30 -18',fill:'none',stroke:'#2b2338','stroke-width':3.5},d);
+  el('circle',{cx:-10,cy:10,r:4.5,fill:'#2b2338'},d);
+  el('circle',{cx:10,cy:10,r:4.5,fill:'#2b2338'},d);
+  el('path',{d:'M-9 22 Q0 30 9 22',stroke:'#2b2338','stroke-width':3.5,fill:'none','stroke-linecap':'round'},d);
+  el('circle',{cx:-18,cy:20,r:4,fill:'#f39bb4',opacity:.8},d);
+  el('circle',{cx:18,cy:20,r:4,fill:'#f39bb4',opacity:.8},d);
+  return d;
+}
+
+/* environment on the creation page: each piece wakes part of the page */
+function drawEnv(g, page, fresh){
+  clear(g);
+  el('rect',{x:-160,y:-175,width:320,height:340,fill:'#fffdf6'},g);
+  /* page lines of a blank storybook */
+  for(var y=-150;y<160;y+=34) el('line',{x1:-150,y1:y,x2:150,y2:y,stroke:'#efe4c8','stroke-width':1.5},g);
+  var on=function(p){return has(page,p);};
+  function layer(p, build){
+    var L=el('g',{'class':'env'+(on(p)?' fadein':' hide'),'data-env':p},g);
+    if(!on(p)) L.setAttribute('aria-hidden','true');
+    build(L);
+  }
+  layer('wings',function(L){
+    el('rect',{x:-160,y:-175,width:320,height:120,fill:'#dcecfb'},L);
+    [[-110,-140],[90,-120]].forEach(function(c){
+      el('path',{d:'M'+c[0]+' '+c[1]+' a16 16 0 0 1 30 -6 a14 14 0 0 1 24 8 a12 12 0 0 1 -4 22 h-46 a12 12 0 0 1 -4 -24z',fill:'#ffffff',stroke:'#9ab4d6','stroke-width':3},L);
+    });
+  });
+  layer('legs',function(L){
+    el('path',{d:'M-160 120 Q-60 100 0 116 T160 112 V165 H-160 Z',fill:'#cfe8b5',stroke:'#7fae63','stroke-width':3},L);
+    [[-130,118],[-100,128],[110,120],[136,130]].forEach(function(f){
+      el('circle',{cx:f[0],cy:f[1]-10,r:6,fill:'#ffffff',stroke:'#2b2338','stroke-width':2},L);
+      el('circle',{cx:f[0],cy:f[1]-10,r:2.5,fill:'#f2c230'},L);
+    });
+  });
+  layer('wheels',function(L){
+    el('rect',{x:-160,y:102,width:320,height:22,fill:'#8a8496',stroke:'#2b2338','stroke-width':2},L);
+    for(var x=-150;x<160;x+=40) el('rect',{x:x,y:111,width:20,height:4,fill:'#ffffff'},L);
+  });
+  layer('sail',function(L){
+    el('path',{d:'M-160 128 Q-120 120 -80 128 T0 128 T80 128 T160 128 V165 H-160 Z',fill:'#7fb6ea',stroke:'#3d6fa8','stroke-width':3},L);
+    el('path',{d:'M-140 146 q10 -6 20 0 M-40 152 q10 -6 20 0 M60 146 q10 -6 20 0',stroke:'#ffffff','stroke-width':3,fill:'none','stroke-linecap':'round'},L);
+  });
+  layer('windows',function(L){
+    el('line',{x1:128,y1:-2,x2:128,y2:100,stroke:'#2b2338','stroke-width':4},L);
+    el('circle',{cx:128,cy:-10,r:12,fill:'#ffe9a8',stroke:'#2b2338','stroke-width':3},L);
+    el('path',{d:'M-152 96 h56 M-146 82 v20 M-130 82 v20 M-114 82 v20 M-98 82 v20',stroke:'#7a4b2c','stroke-width':4,'stroke-linecap':'round'},L);
+  });
+  layer('eyes',function(L){
+    [[-118,-60],[118,-78]].forEach(function(b){
+      el('path',{d:'M'+b[0]+' '+b[1]+' q-14 -14 -18 2 q4 10 18 -2 q14 -14 18 2 q-4 10 -18 -2',fill:'#f39bb4',stroke:'#2b2338','stroke-width':2},L);
+    });
+  });
+  if(fresh){ /* Dab peeks from the corner */ }
+}
+
+/* ---------- audio: generated chimes, no files ---------- */
+var AC=null;
+function chime(notes){
+  if(!S.settings.sound) return;
+  try{
+    if(!AC){ var C=window.AudioContext||window.webkitAudioContext; if(!C) return; AC=new C(); }
+    if(AC.state==='suspended') AC.resume();
+    var t=AC.currentTime;
+    notes.forEach(function(f,i){
+      var o=AC.createOscillator(), g=AC.createGain();
+      o.type='sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,t+i*.12);
+      g.gain.exponentialRampToValueAtTime(0.12,t+i*.12+.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+i*.12+.6);
+      o.connect(g); g.connect(AC.destination); o.start(t+i*.12); o.stop(t+i*.12+.65);
+    });
+  }catch(e){}
+}
+var NOTE={wheels:523,wings:659,sail:587,legs:494,windows:698,eyes:784};
+
+/* ---------- voice: optional device speech ---------- */
+var voiceInfo='Not tried yet.';
+var lastLine='';
+function speak(text){
+  lastLine=text;
+  document.getElementById('live').textContent=text;
+  if(!S.settings.voice) return;
+  try{
+    if(!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance!=='function'){ voiceInfo='This device has no built-in voice, so Dab’s words appear in the bubble only.'; return; }
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.rate=0.92; u.pitch=1.1; u.lang='en-US';
+    u.onstart=function(){ voiceInfo='The device voice spoke on this device.'; };
+    u.onerror=function(){ voiceInfo='The device voice could not speak just now. The bubble still shows every word.'; };
+    window.speechSynthesis.speak(u);
+    if(voiceInfo==='Not tried yet.') voiceInfo='A voice line was requested; whether you heard it depends on this device.';
+  }catch(e){ voiceInfo='The device voice could not speak just now.'; }
+}
+function say(bubbleId, text){
+  document.getElementById(bubbleId).textContent=text;
+  speak(text);
+}
+
+/* ---------- rendering ---------- */
+var $=function(id){return document.getElementById(id);};
+function show(id){
+  ['sTitle','sPage','sFinale'].forEach(function(s){ $(s).classList.toggle('on', s===id); });
+}
+function renderToggles(){
+  $('tSound').setAttribute('aria-pressed', String(S.settings.sound));
+  $('tVoice').setAttribute('aria-pressed', String(S.settings.voice));
+  $('tCalm').setAttribute('aria-pressed', String(S.settings.calm));
+  document.body.classList.toggle('calm', S.settings.calm);
+  document.body.classList.toggle('motion-ok', false);
+}
+function renderProgress(target){
+  var box=$(target); clear(box);
+  for(var i=0;i<3;i++){
+    var p=document.createElement('span');
+    p.className='pip'+(S.done[i]?' done':'')+((S.scene==='page'&&S.page===i)?' now':'');
+    p.textContent=String(i+1);
+    box.appendChild(p);
+  }
+  var f=document.createElement('span');
+  f.className='pip star'+(S.scene==='finale'?' now':'')+(S.finale?' done':'');
+  f.textContent='★'; box.appendChild(f);
+}
+function iconFor(id){
+  var s=document.createElementNS(NS,'svg'); s.setAttribute('viewBox','-60 -50 120 100'); s.setAttribute('aria-hidden','true');
+  var g=el('g',{},s);
+  var demo={pieces:[id]};
+  if(id==='wheels'){ g.setAttribute('transform','translate(0 -70) scale(.9)'); }
+  if(id==='wings'){ g.setAttribute('transform','translate(0 6) scale(.42)'); }
+  if(id==='sail'){ g.setAttribute('transform','translate(-14 70) scale(.62)'); }
+  if(id==='legs'){ g.setAttribute('transform','translate(0 -80) scale(.85)'); }
+  if(id==='windows'){ g.setAttribute('transform','translate(6 -36) scale(1.05)'); }
+  if(id==='eyes'){ g.setAttribute('transform','translate(0 34) scale(1.3)'); }
+  drawPieces(g, demo, false);
+  return s;
+}
+function renderPieces(){
+  var box=$('pieces'); clear(box);
+  var page=S.pages[S.page];
+  offered(S.run,S.page).forEach(function(id){
+    var b=document.createElement('button');
+    b.type='button'; b.className='piece'; b.dataset.piece=id;
+    var on=has(page,id);
+    b.setAttribute('aria-pressed', String(on));
+    b.setAttribute('aria-label', PIECES[id].label+', '+PIECES[id].hint+(on?'. On the splat. Tap to take off.':'. Tap to add.'));
+    b.appendChild(iconFor(id));
+    var t=document.createElement('span'); t.textContent=PIECES[id].label; b.appendChild(t);
+    var h=document.createElement('span'); h.className='hint'; h.textContent=PIECES[id].hint; b.appendChild(h);
+    var k=document.createElement('span'); k.className='tick'; k.setAttribute('aria-hidden','true'); k.textContent='✓'; b.appendChild(k);
+    b.addEventListener('click', function(){ togglePiece(id); });
+    box.appendChild(b);
+  });
+}
+function renderStage(fresh){
+  var page=S.pages[S.page];
+  drawEnv($('stageEnv'), page, fresh);
+  var g=$('stageCreation'); clear(g);
+  var holder=el('g',{'class':fresh?'drop':''},g);
+  drawCreation(holder, page, S.awake);
+  var d=describe(page);
+  var text = page.pieces.length
+      ? 'Your splat is becoming '+d.article+d.name+'. '+(S.awake? d.does : 'Pieces on it: '+page.pieces.map(function(p){return PIECES[p].label.toLowerCase();}).join(', ')+'.')
+      : 'Your splat: '+splatWords(page)+', turned '+rotWords(page.rot)+'. No pieces yet.';
+  $('stageDesc').textContent=text;
+  var cap=$('caption'); clear(cap);
+  var b=document.createElement('b');
+  if(page.pieces.length){ b.textContent=(S.awake?'Awake! ':'')+cap1(d.article+d.name)+'.'; cap.appendChild(b); cap.appendChild(document.createTextNode(' '+(S.awake? d.does : ('Made from '+splatWords(page)+' with '+listWords(page.pieces)+'.')))); }
+  else { b.textContent=cap1(splatWords(page))+'.'; cap.appendChild(b); cap.appendChild(document.createTextNode(' Turned '+rotWords(page.rot)+'. What could it be?')); }
+}
+function cap1(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function listWords(arr){
+  var w=arr.map(function(p){return PIECES[p].label.toLowerCase();});
+  if(w.length===1) return w[0];
+  return w.slice(0,-1).join(', ')+' and '+w[w.length-1];
+}
+function rotWords(r){ return r===0?'the first way':r===90?'a quarter turn':r===180?'upside down':'three quarter turns'; }
+function renderGallery(){
+  var box=$('gallery'); clear(box);
+  for(var i=0;i<3;i++){
+    var s=document.createElement('div'); s.className='slot'+(S.done[i]?' filled':'');
+    if(S.done[i]){
+      var svg=document.createElementNS(NS,'svg'); svg.setAttribute('viewBox','-170 -180 340 310'); svg.setAttribute('role','img');
+      var d=describe(S.pages[i]); svg.setAttribute('aria-label','Page '+(i+1)+': '+d.article+d.name);
+      drawCreation(el('g',{},svg), S.pages[i], false);
+      s.appendChild(svg);
+      var t=document.createElement('div'); t.textContent=cap1(d.name); s.appendChild(t);
+    } else {
+      s.textContent='Page '+(i+1); s.setAttribute('aria-label','Page '+(i+1)+', not made yet');
+    }
+    box.appendChild(s);
+  }
+}
+function renderPage(fresh){
+  show('sPage');
+  renderProgress('progress');
+  $('pageH').textContent='Page '+(S.page+1)+' of 3';
+  $('editControls').hidden=S.awake;
+  $('awakeControls').hidden=!S.awake;
+  $('nextLabel').textContent= S.page===2? 'See my world' : 'Next page';
+  $('wake').classList.toggle('waiting', S.pages[S.page].pieces.length===0);
+  if(!S.awake) renderPieces();
+  renderStage(fresh);
+  renderGallery();
+}
+
+/* ---------- actions ---------- */
+function startPage(i, intro){
+  S.scene='page'; S.page=i; S.awake=false;
+  save(); renderPage(true);
+  var page=S.pages[i];
+  var lines=[
+    'Hic! Oops! I dropped '+splatWords(page)+'. Let’s not wipe it away. What could it be? Turn it, and tap a picture piece!',
+    'Hic! Another splat! This one is '+splatWords(page)+'. Turn it and add pieces. Different pieces make different things!',
+    'Hic! One more splat: '+splatWords(page)+'. Now every piece is here. Try a surprising mix!'
+  ];
+  if(intro!==false) say('say', lines[i]);
+  chime([392,330,262]);
+  hic();
+}
+function hic(){
+  document.querySelectorAll('.dabSlot').forEach(function(s){ s.classList.remove('hic'); void s.getBoundingClientRect(); s.classList.add('hic'); });
+}
+function togglePiece(id){
+  if(S.scene!=='page' || S.awake) return;
+  var page=S.pages[S.page];
+  if(offered(S.run,S.page).indexOf(id)<0) return;
+  var ix=page.pieces.indexOf(id), msg;
+  if(ix>=0){ page.pieces.splice(ix,1); msg=PIECES[id].off+' '+(page.pieces.length? 'Now it is '+describe(page).article+describe(page).name+'.' : 'It is a splat again. You can try a different idea!'); chime([NOTE[id],NOTE[id]*0.75]); }
+  else { page.pieces.push(id); var d=describe(page); msg=PIECES[id].add+' Look what your splat is becoming: '+d.article+d.name+'!'; chime([NOTE[id],NOTE[id]*1.25]); }
+  save();
+  renderPage(false);
+  var btn=document.querySelector('.piece[data-piece="'+id+'"]'); if(btn) btn.focus();
+  say('say', msg);
+}
+function rotate(dir){
+  if(S.scene!=='page' || S.awake) return;
+  var page=S.pages[S.page];
+  page.rot=(page.rot+(dir>0?90:270))%360;
+  save(); renderStage(false);
+  chime([dir>0?440:392]);
+  say('say', 'Turn! Now it is '+rotWords(page.rot)+'. '+(page.pieces.length? 'Same pieces, new look.' : 'Does it look like something now?'));
+}
+function newSplat(){
+  if(S.scene!=='page' || S.awake) return;
+  var page=S.pages[S.page];
+  page.v+=1;
+  /* step to the next shape and color that no other page in this book uses,
+     so each page's splat stays different in shape (not only color) */
+  function usedElsewhere(field, val){
+    for(var j=0;j<3;j++) if(j!==S.page && S.pages[j][field]===val) return true;
+    return false;
+  }
+  var guard;
+  for(guard=0;guard<SHAPES.length;guard++){ page.shape=(page.shape+1)%SHAPES.length; if(!usedElsewhere('shape',page.shape)) break; }
+  for(guard=0;guard<COLORS.length;guard++){ page.color=(page.color+1)%COLORS.length; if(!usedElsewhere('color',page.color)) break; }
+  page.rot=0;
+  save(); renderStage(true);
+  hic(); chime([392,330,262]);
+  say('say', 'Hic! A brand-new splat: '+splatWords(page)+'. '+(page.pieces.length? 'Your pieces stayed on!' : 'What could this one be?'));
+}
+function wake(){
+  if(S.scene!=='page' || S.awake) return;
+  var page=S.pages[S.page];
+  if(!page.pieces.length){
+    say('say','Tap a picture piece first. Any piece is a good idea!');
+    var first=document.querySelector('.piece'); if(first) first.focus();
+    return;
+  }
+  S.awake=true; S.done[S.page]=true;
+  if(S.page===2) S.finale=true;
+  save();
+  renderPage(false);
+  var d=describe(page);
+  chime([523,659,784,1047]);
+  say('say','Wake up, splat! It’s '+d.article+d.name+'! '+d.does+' That changed the storybook page!');
+  $('nextPage').focus();
+}
+function changeIt(){
+  if(S.scene!=='page' || !S.awake) return;
+  S.awake=false; save(); renderPage(false);
+  say('say','Let’s change it! Add, take off, or turn. You can try a different idea too.');
+  var first=document.querySelector('.piece'); if(first) first.focus();
+}
+function nextPage(){
+  if(S.scene!=='page' || !S.awake) return;
+  if(S.page<2) startPage(S.page+1);
+  else openFinale();
+}
+function openFinale(){
+  if(!S.finale) return;
+  S.scene='finale'; S.awake=false; save();
+  show('sFinale'); renderProgress('progress2');
+  drawWorld();
+  var names=S.pages.map(function(p){var d=describe(p);return d.article+d.name;});
+  say('finSay','Look! Your three splats woke up the whole book: '+names[0]+', '+names[1]+', and '+names[2]+'. A surprise splat can start a brand-new idea!');
+  chime([523,659,784,1047,1319]);
+  $('playAgain').focus();
+}
+function drawWorld(){
+  var g=$('worldG'); clear(g);
+  var zones={sky:[], river:[], road:[], meadow:[], hill:[]};
+  S.pages.forEach(function(p,i){ zones[describe(p).zone].push(i); });
+  /* scenery: sky, hill, road, river, meadow are always present so every zone has a home */
+  el('rect',{x:0,y:0,width:360,height:440,fill:'#fffdf6'},g);
+  el('rect',{x:0,y:0,width:360,height:150,fill:'#dcecfb'},g);
+  el('circle',{cx:310,cy:40,r:22,fill:'#ffe08a',stroke:'#c99a10','stroke-width':3},g);
+  [[40,40],[170,24]].forEach(function(c){ el('path',{d:'M'+c[0]+' '+c[1]+' a16 16 0 0 1 30 -6 a14 14 0 0 1 24 8 a12 12 0 0 1 -4 22 h-46 a12 12 0 0 1 -4 -24z',fill:'#fff',stroke:'#9ab4d6','stroke-width':3},g); });
+  el('path',{d:'M0 210 Q90 140 190 190 T360 180 V240 H0 Z',fill:'#bfe0a0',stroke:'#7fae63','stroke-width':3},g);
+  el('rect',{x:0,y:240,width:360,height:42,fill:'#8a8496',stroke:'#2b2338','stroke-width':2},g);
+  for(var x=8;x<360;x+=44) el('rect',{x:x,y:259,width:22,height:5,fill:'#fff'},g);
+  el('path',{d:'M0 296 Q45 286 90 296 T180 296 T270 296 T360 296 V352 H0 Z',fill:'#7fb6ea',stroke:'#3d6fa8','stroke-width':3},g);
+  el('rect',{x:0,y:352,width:360,height:88,fill:'#cfe8b5'},g);
+  [[30,380],[90,420],[300,392],[250,428]].forEach(function(f){ el('circle',{cx:f[0],cy:f[1],r:6,fill:'#fff',stroke:'#2b2338','stroke-width':2},g); el('circle',{cx:f[0],cy:f[1],r:2.5,fill:'#f2c230'},g); });
+  /* zone labels so places are not shown by color alone */
+  [['Sky',8,130],['Hill',8,222],['Road',8,276],['River',8,344],['Meadow',8,432]].forEach(function(L){
+    el('rect',{x:L[1]-3,y:L[2]-13,width:L[0].length*8+10,height:17,rx:8,fill:'#ffffff',opacity:.85},g);
+    var t=el('text',{x:L[1]+2,y:L[2],'font-size':12,'font-weight':700,fill:'#2b2338'},g); t.textContent=L[0];
+  });
+  var base={sky:[[120,86],[250,92],[185,66]], hill:[[120,188],[260,184],[190,176]], road:[[120,240],[260,240],[190,240]],
+            river:[[120,316],[260,318],[190,312]], meadow:[[120,394],[260,398],[190,402]]};
+  var drift={sky:'drift-sky',river:'drift-river',road:'drift-road',meadow:'drift-meadow',hill:''};
+  /* replay changes the finale's motion a little */
+  var flip=S.run%2===1;
+  Object.keys(zones).forEach(function(z){
+    zones[z].forEach(function(pi,k){
+      var pos=base[z][k];
+      var mover=el('g',{'class':drift[z],style:flip?'animation-direction:alternate-reverse':''},g);
+      var place=el('g',{transform:'translate('+pos[0]+' '+pos[1]+') scale(.3)'},mover);
+      drawCreation(place, S.pages[pi], true);
+    });
+  });
+  $('worldDesc').textContent='Your awakening world. '+S.pages.map(function(p,i){var d=describe(p);return 'Page '+(i+1)+': '+d.article+d.name+'. '+d.does;}).join(' ');
+  var list=$('finList'); clear(list);
+  S.pages.forEach(function(p,i){
+    var d=describe(p), li=document.createElement('li');
+    var b=document.createElement('b'); b.textContent='Page '+(i+1)+': '+cap1(d.article+d.name)+'. ';
+    li.appendChild(b); li.appendChild(document.createTextNode(d.does+' It began as '+splatWords(p)+'.'));
+    list.appendChild(li);
+  });
+}
+function playAgain(){
+  var settings=S.settings;
+  S=freshState(S.run+1, settings);
+  startPage(0);
+}
+function backToPage3(){
+  S.scene='page'; S.page=2; S.awake=true; save(); renderPage(false);
+  say('say','Here is your third creation. You can change it, then come back to your world.');
+}
+
+/* ---------- title ---------- */
+function renderTitle(){
+  show('sTitle');
+  var box=$('titleChoices'); clear(box);
+  var started = S.done.some(Boolean) || S.pages.some(function(p){return p.pieces.length>0;}) || S.scene!=='title';
+  if(started){
+    var k=document.createElement('button'); k.type='button'; k.className='big primary'; k.id='keepGoing';
+    k.textContent='▶  Keep going'; k.addEventListener('click', resume); box.appendChild(k);
+    var f=document.createElement('button'); f.type='button'; f.className='big'; f.id='freshStart';
+    f.textContent='Start a new book'; f.addEventListener('click', function(){ askReset(); }); box.appendChild(f);
+  } else {
+    var o=document.createElement('button'); o.type='button'; o.className='big primary'; o.id='openBook';
+    o.textContent='▶  Open the book'; o.addEventListener('click', function(){ startPage(0); }); box.appendChild(o);
+  }
+  var cd=$('coverDab'); clear(cd); drawDab(cd);
+  var cs=$('coverSplat'); clear(cs); drawSplatBody(cs,{shape:S.run%SHAPES.length,color:(S.run+1)%COLORS.length,rot:0,pieces:[]});
+}
+function resume(){
+  if(S.scene==='finale' && S.finale){ openFinale(); return; }
+  S.scene='page'; save(); renderPage(false);
+  var page=S.pages[S.page], d=describe(page);
+  say('say', S.awake? ('Welcome back! Here is your '+d.name+'.') : page.pieces.length? ('Welcome back! Your splat is becoming '+d.article+d.name+'.') : ('Welcome back! Here is '+splatWords(page)+'. What could it be?'));
+}
+
+/* ---------- grown-ups and reset ---------- */
+function openDlg(d){ try{ d.showModal(); }catch(e){ d.setAttribute('open',''); } }
+function closeDlg(d){ try{ d.close(); }catch(e){ d.removeAttribute('open'); } }
+var resetReturn=null;
+function askReset(){ resetReturn=document.activeElement; openDlg($('confirm')); $('cfKeep').focus(); }
+function doReset(){
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  var settings=S.settings;
+  S=freshState(0, settings);
+  closeDlg($('confirm')); closeDlg($('gu'));
+  save();
+  renderTitle();
+  var ob=$('openBook'); if(ob) ob.focus();
+  speak('Starting a fresh book.');
+}
+
+/* ---------- wiring ---------- */
+document.querySelectorAll('.dabSlot').forEach(function(s){ drawDab(s); s.setAttribute('transform','scale(.8)'); });
+$('rotL').addEventListener('click', function(){ rotate(-1); });
+$('rotR').addEventListener('click', function(){ rotate(1); });
+$('newSplat').addEventListener('click', newSplat);
+$('wake').addEventListener('click', wake);
+$('changeIt').addEventListener('click', changeIt);
+$('nextPage').addEventListener('click', nextPage);
+$('playAgain').addEventListener('click', playAgain);
+$('backToPage3').addEventListener('click', backToPage3);
+$('hearAgain').addEventListener('click', function(){ speak(lastLine || $('say').textContent); });
+$('finAgain').addEventListener('click', function(){ speak(lastLine || $('finSay').textContent); });
+$('stageWrap').addEventListener('keydown', function(e){
+  if(e.key==='ArrowLeft'){ e.preventDefault(); rotate(-1); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); rotate(1); }
+});
+$('stageWrap').addEventListener('click', function(){ if(!S.awake && S.scene==='page') rotate(1); });
+$('pieces').addEventListener('keydown', function(e){
+  var btns=Array.prototype.slice.call(document.querySelectorAll('.piece'));
+  var i=btns.indexOf(document.activeElement); if(i<0) return;
+  var cols=3, j=-1;
+  if(e.key==='ArrowRight') j=(i+1)%btns.length;
+  else if(e.key==='ArrowLeft') j=(i-1+btns.length)%btns.length;
+  else if(e.key==='ArrowDown') j=Math.min(i+cols, btns.length-1);
+  else if(e.key==='ArrowUp') j=Math.max(i-cols, 0);
+  if(j>=0){ e.preventDefault(); btns[j].focus(); }
+});
+$('tSound').addEventListener('click', function(){ S.settings.sound=!S.settings.sound; save(); renderToggles(); if(S.settings.sound) chime([523,659]); });
+$('tVoice').addEventListener('click', function(){
+  S.settings.voice=!S.settings.voice;
+  if(!S.settings.voice){ try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} }
+  save(); renderToggles();
+  if(S.settings.voice) speak('Voice is on. I will read my words to you.');
+  else document.getElementById('live').textContent='Voice is off. Dab’s words stay in the bubble.';
+});
+$('tCalm').addEventListener('click', function(){ S.settings.calm=!S.settings.calm; save(); renderToggles(); document.getElementById('live').textContent= S.settings.calm? 'Calm motion is on. Nothing moves.' : 'Calm motion is off.'; });
+var guReturn=null;
+$('guOpen').addEventListener('click', function(){
+  guReturn=document.activeElement;
+  $('voiceStatus').textContent='Voice status on this device: '+voiceInfo;
+  $('storeStatus').textContent= storageOK? 'Progress is saved in this browser only, under one key for this activity.' : 'Saving is turned off in this browser, so progress lasts only until the page closes.';
+  openDlg($('gu')); $('guClose').focus();
+});
+$('guClose').addEventListener('click', function(){ closeDlg($('gu')); if(guReturn) guReturn.focus(); });
+$('gu').addEventListener('close', function(){ if(guReturn && document.body.contains(guReturn)) guReturn.focus(); });
+$('resetBtn').addEventListener('click', askReset);
+$('cfKeep').addEventListener('click', function(){ closeDlg($('confirm')); if(resetReturn && document.body.contains(resetReturn)) resetReturn.focus(); });
+$('cfYes').addEventListener('click', doReset);
+
+/* ---------- boot ---------- */
+renderToggles();
+renderTitle();
+if(S.scene!=='title') $('titleSay').textContent='Welcome back! Your storybook is waiting.';
+
+/* read-only QA hook (deep copies, frozen) */
+var hook={
+  storageKey:function(){return KEY;},
+  state:function(){return JSON.parse(JSON.stringify(S));},
+  describe:function(pieces){ return JSON.parse(JSON.stringify(describe({pieces:pieces.slice(),shape:0,color:0,rot:0}))); },
+  offered:function(run,page){ return offered(run,page).slice(); },
+  lastLine:function(){ return lastLine; },
+  storageOK:function(){ return storageOK; }
+};
+try{ Object.defineProperty(window,'__DQ_KINDORTALS_CC_001_QA',{value:Object.freeze(hook),writable:false,configurable:false}); }catch(e){}
+})();
+</script>
+</body>
+</html>
