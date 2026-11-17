@@ -1,0 +1,1365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-mqSYSVTXBDPniOs9rSSgV9d9ObEGBA0RGKDYC+jB48Y='; style-src 'sha256-mE3o1F6707b1PNie+eF31c823a+bEcWpeQ8Cw+qwDCU='; img-src data:; connect-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Prototype. A first-grade DoorQuests clock mystery: wind a paper village day in half-hour steps, gather clue cards, and plan a delivery before the deadline.">
+<meta name="doorquests:hierarchy" content="Gradortals / Firsortals (Grade 1) / Time &amp; Money / #001">
+<meta name="doorquests:status" content="prototype - creator QA only - not audited - not Founder accepted - not published">
+<title>The Day Inside Thimblewick Clock · Time &amp; Money #001 · Firsortals · Gradortals · DoorQuests</title>
+<style>
+:root{
+  color-scheme:light;
+  --paper:#fbf4e4;--paper2:#f3e7cc;--card:#fffdf7;--ink:#2b2118;--soft:#5b4a3a;
+  --brass:#a8781f;--brass2:#e2b860;--teal:#1f5f66;--teal2:#d8ecec;--rose:#8c2f39;--rose2:#f8e1e1;
+  --ok:#2f6b2f;--ok2:#e3f1df;--line:#c9b48c;--focus:#0b57d0;
+}
+*{box-sizing:border-box}
+html{font-size:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",Verdana,system-ui,sans-serif;font-size:1.15rem;line-height:1.5}
+a{color:var(--teal)}
+.proto{background:#3b2a12;color:#fff6dd;text-align:center;font-size:.9rem;padding:.35rem .75rem}
+header.top{padding:.75rem 1rem .25rem;max-width:1200px;margin:0 auto}
+.crumb{font-size:.85rem;color:var(--soft);margin:0}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.6rem,4.5vw,2.4rem);margin:.15rem 0 .1rem;line-height:1.15}
+.tag{margin:0;color:var(--soft);font-style:italic;font-size:.95rem}
+main{max-width:1200px;margin:0 auto;padding:0 1rem 2rem}
+h2{font-family:Georgia,serif;font-size:1.35rem;margin:0 0 .5rem}
+h3{font-size:1.1rem;margin:.75rem 0 .35rem}
+.panel{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:1rem;margin:0 0 1rem}
+button,select{font:inherit;color:var(--ink)}
+button{min-height:48px;min-width:48px;padding:.5rem .9rem;border-radius:12px;border:2px solid var(--ink);background:#fff8e6;cursor:pointer;font-weight:600}
+button:hover{background:#ffefc4}
+button[disabled]{opacity:.55;cursor:not-allowed}
+button.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+button.primary:hover{background:#174a50}
+button.quiet{background:transparent;border-color:var(--line);font-weight:500}
+button[aria-pressed="true"],button.sel{background:var(--brass2);border-color:var(--brass);box-shadow:inset 0 0 0 2px var(--brass)}
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
+select{min-height:48px;padding:.4rem .6rem;border-radius:10px;border:2px solid var(--ink);background:#fff;max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+
+/* door */
+#door{display:grid;place-items:center;text-align:center;padding:1rem 0 2rem}
+#door svg{width:min(360px,80vw);height:auto}
+#door p{max-width:34rem;margin:.6rem auto}
+
+/* bubble */
+.pim{display:flex;gap:.75rem;align-items:flex-start;background:#fff;border:3px solid var(--brass);border-radius:18px;padding:.75rem}
+.pim svg{flex:0 0 64px;width:64px;height:64px}
+.pim .say{flex:1;min-width:0}
+.pim .say p{margin:0 0 .4rem;font-size:1.2rem}
+.pim .tools{display:flex;flex-wrap:wrap;gap:.5rem}
+.note{font-size:.95rem;color:var(--soft)}
+
+/* layout */
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:1rem;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.clockbox{text-align:center}
+#clock{width:min(260px,70vw);height:auto;display:block;margin:0 auto}
+#clock .hand{transform-box:view-box;transform-origin:100px 100px;transition:transform .6s ease}
+.digital{display:inline-block;font-family:"Courier New",monospace;font-size:1.7rem;font-weight:700;background:#1d1a16;color:#ffe8a3;border-radius:8px;padding:.1rem .7rem;margin:.4rem 0}
+.handtext{margin:.2rem 0 .6rem;font-size:1.05rem}
+.wind{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
+.wind button{font-size:1.15rem;flex:1 1 9rem}
+.timeline{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(5.6rem,100%),1fr));gap:.4rem;margin:.8rem 0 0;padding:0;list-style:none}
+.timeline button{width:100%;font-size:.95rem;padding:.35rem .2rem}
+.timeline .seenmark{display:block;font-size:.7rem;font-weight:500}
+#scene{width:100%;height:auto;display:block;border-radius:12px;border:2px solid var(--line);background:#e9f2ec}
+.places{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(9rem,100%),1fr));gap:.5rem;margin:.75rem 0}
+.places button{text-align:left}
+.close{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:.75rem;align-items:start;background:var(--teal2);border-radius:12px;padding:.75rem;margin-top:.5rem}
+@media (max-width:520px){.close{grid-template-columns:minmax(0,1fr)}}
+.close svg{width:100%;height:auto;border-radius:10px;border:2px solid var(--teal);background:#e9f2ec}
+.close ul{margin:.2rem 0;padding-left:1.2rem}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(12.5rem,100%),1fr));gap:.6rem;list-style:none;margin:0;padding:0}
+.card{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:.5rem;display:flex;flex-direction:column;gap:.35rem}
+.card svg{width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#e9f2ec}
+.card .cap{font-weight:700;font-size:.95rem}
+.card .txt{font-size:.92rem;margin:0}
+.card label{display:flex;gap:.5rem;align-items:center;min-height:44px;font-weight:600;cursor:pointer}
+.card input{width:28px;height:28px}
+.empty{color:var(--soft);font-style:italic}
+
+/* tell / plan */
+fieldset{min-width:0;max-width:100%;border:2px solid var(--line);border-radius:12px;margin:.5rem 0;padding:.6rem .75rem}
+legend{font-weight:700;padding:0 .3rem}
+.choices{display:flex;flex-wrap:wrap;gap:.5rem}
+.choices label{display:flex;align-items:center;gap:.5rem;min-height:48px;padding:.35rem .75rem;border:2px solid var(--ink);border-radius:12px;background:#fff8e6;cursor:pointer;font-weight:600}
+.choices label{max-width:100%}
+.choices label span{min-width:0;overflow-wrap:anywhere}
+.choices input{flex:0 0 auto;width:24px;height:24px;margin:0}
+.choices label:has(input:checked){background:var(--brass2);border-color:var(--brass)}
+.routes label{flex:1 1 min(15rem,100%);align-items:flex-start}
+.routes small{display:block;font-weight:400;font-size:.92rem}
+.feedback{border-radius:12px;padding:.6rem .8rem;margin:.6rem 0;border:2px solid var(--teal);background:var(--teal2)}
+.feedback.good{border-color:var(--ok);background:var(--ok2)}
+.feedback.try{border-color:var(--rose);background:var(--rose2)}
+.trip{list-style:none;margin:.4rem 0;padding:0}
+.trip li{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;padding:.25rem 0;border-bottom:1px dashed var(--line)}
+.trip li svg{flex:0 0 40px;width:40px;height:40px}
+.trip .t{font-weight:700;min-width:min(6.2rem,40%)}
+.trip li span:last-child{flex:1 1 12rem;min-width:0;overflow-wrap:anywhere}
+.locked{background:var(--paper2);border-style:dashed}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:.35rem .45rem;text-align:left;vertical-align:top}
+th{background:var(--paper2)}
+.tablewrap{overflow-x:auto}
+.badge{display:inline-block;border:2px solid currentColor;border-radius:999px;padding:0 .5rem;font-size:.85rem;font-weight:700}
+.badge.ok{color:var(--ok)}.badge.no{color:var(--rose)}
+.fest{text-align:center}
+.fest svg{width:min(420px,90%);height:auto}
+details>summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+footer{max-width:1200px;margin:0 auto;padding:1rem;font-size:.9rem;color:var(--soft);text-align:center}
+dialog{border:3px solid var(--ink);border-radius:16px;max-width:30rem;width:calc(100% - 2rem);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(30,20,10,.45)}
+.qa{background:#fff3c4;border:2px dashed #7a5b00;padding:.5rem;font-size:.85rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+html.rm *{transition:none!important;animation:none!important}
+</style>
+</head>
+<body>
+<div class="proto" role="note">PROTOTYPE · creator build for audit and Founder playtest · not published</div>
+<header class="top">
+  <p class="crumb">DoorQuests › Gradortals › Firsortals (Grade 1) › Time &amp; Money · #001 ★ Flagship</p>
+  <h1>The Day Inside Thimblewick Clock</h1>
+  <p class="tag">Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+</header>
+<noscript><main><p class="panel">This clock village needs JavaScript to run. Please turn JavaScript on.</p></main></noscript>
+<main id="app">
+  <div id="qa" class="qa" hidden></div>
+  <section id="door" aria-labelledby="doorh">
+    <h2 id="doorh" class="sr">The brass door</h2>
+    <svg viewBox="0 0 300 360" role="img" aria-label="A brass mantel clock with a small round-topped door in its front.">
+      <rect x="20" y="40" width="260" height="310" rx="30" fill="#7a4e1d" stroke="#2b2118" stroke-width="4"/>
+      <path d="M40 60 Q150 -10 260 60" fill="#a8781f" stroke="#2b2118" stroke-width="4"/>
+      <circle cx="150" cy="110" r="52" fill="#fffdf2" stroke="#e2b860" stroke-width="8"/>
+      <line x1="150" y1="110" x2="150" y2="72" stroke="#2b2118" stroke-width="4" stroke-linecap="round"/>
+      <line x1="150" y1="110" x2="126" y2="96" stroke="#2b2118" stroke-width="7" stroke-linecap="round"/>
+      <path d="M100 335 V230 Q150 175 200 230 V335 Z" fill="#e2b860" stroke="#2b2118" stroke-width="4"/>
+      <circle cx="185" cy="285" r="7" fill="#7a4e1d" stroke="#2b2118" stroke-width="2"/>
+      <path d="M118 320 V240 Q150 205 182 240 V320" fill="none" stroke="#a8781f" stroke-width="3"/>
+    </svg>
+    <p>Inside this old mantel clock is a tiny paper village called <strong>Thimblewick</strong>. Today is festival day.</p>
+    <button type="button" id="openDoor" class="primary">Open the brass door</button>
+  </section>
+
+  <div id="game" hidden>
+    <section class="panel" aria-labelledby="caseh">
+      <div class="row">
+        <h2 id="caseh" class="sr">Mystery</h2>
+        <p id="caseName" class="note"></p>
+      </div>
+      <div class="row">
+        <label for="caseSel">Mystery:</label>
+        <select id="caseSel"></select>
+        <button type="button" id="caseOpen" class="quiet">Open this mystery</button>
+        <button type="button" id="restart" class="quiet">Start this mystery again</button>
+        <button type="button" id="resetAll" class="quiet">Reset everything</button>
+        <button type="button" id="motion" class="quiet" aria-pressed="false">Less motion</button>
+      </div>
+    </section>
+
+    <section class="pim" aria-labelledby="pimh">
+      <h2 id="pimh" class="sr">Pim says</h2>
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <ellipse cx="34" cy="38" rx="26" ry="20" fill="#7a5a3a"/>
+        <path d="M10 34 l-6-8 l9 2 l-3-10 l9 6 l1-11 l7 9 l5-10 l3 11 l8-8 l-1 11 l9-4 l-4 9" fill="#5b3f25"/>
+        <ellipse cx="18" cy="42" rx="12" ry="10" fill="#f0d7b0"/>
+        <circle cx="16" cy="39" r="2.2" fill="#2b2118"/>
+        <circle cx="7" cy="44" r="2.4" fill="#2b2118"/>
+      </svg>
+      <div class="say">
+        <p id="pimSay" aria-live="polite"></p>
+        <div class="tools">
+          <button type="button" id="tutNext" class="primary" hidden>Next</button>
+          <button type="button" id="tutSkip" class="quiet" hidden>Skip Pim's lesson</button>
+          <button type="button" id="hint" class="quiet">Pim's hint</button>
+          <button type="button" id="speak" class="quiet">Read aloud</button>
+        </div>
+        <p id="speakNote" class="note" hidden></p>
+      </div>
+    </section>
+    <p id="status" class="sr" role="status" aria-live="polite"></p>
+
+    <div class="grid">
+      <section class="panel clockbox" aria-labelledby="clockh">
+        <h2 id="clockh">The village clock</h2>
+        <svg id="clock" viewBox="0 0 200 200" aria-hidden="true"></svg>
+        <div><span id="digital" class="digital"></span></div>
+        <p id="handText" class="handtext"></p>
+        <div class="wind">
+          <button type="button" id="back">◀ Wind back</button>
+          <button type="button" id="fwd">Wind forward ▶</button>
+        </div>
+        <p class="note">Each wind moves the clock 30 minutes.</p>
+        <h3 id="tlh">Jump to a time</h3>
+        <ul id="timeline" class="timeline" aria-labelledby="tlh"></ul>
+      </section>
+
+      <section class="panel" aria-labelledby="villh">
+        <h2 id="villh">Thimblewick at <span id="villTime"></span></h2>
+        <div id="sceneWrap"></div>
+        <h3 id="lookh">Look closely at a place</h3>
+        <div id="places" class="places" role="group" aria-labelledby="lookh"></div>
+        <div id="closeBox" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <section class="panel" aria-labelledby="cardh">
+      <h2 id="cardh">Clue cards</h2>
+      <p class="note">Each card shows what you saw at one place and one time.</p>
+      <ul id="cards" class="cards"></ul>
+    </section>
+
+    <section class="panel" id="tell" aria-labelledby="tellh">
+      <h2 id="tellh">Tell Pim what you found</h2>
+      <div id="tellBody"></div>
+    </section>
+
+    <section class="panel" id="plan" aria-labelledby="planh">
+      <h2 id="planh">Plan the trip</h2>
+      <div id="planBody"></div>
+    </section>
+
+    <section class="panel" id="end" aria-labelledby="endh" hidden>
+      <h2 id="endh">The festival</h2>
+      <div id="endBody"></div>
+    </section>
+
+    <section class="panel" id="report" aria-labelledby="reph">
+      <h2 id="reph">Village Report</h2>
+      <p class="note">Everything in the pictures is written here too.</p>
+      <div id="repBody"></div>
+    </section>
+  </div>
+
+  <dialog id="confirm" aria-labelledby="cfh">
+    <h2 id="cfh">Are you sure?</h2>
+    <p id="cfText"></p>
+    <div class="row">
+      <button type="button" id="cfYes" class="primary">Yes</button>
+      <button type="button" id="cfNo">No, go back</button>
+    </div>
+  </dialog>
+</main>
+<footer>
+  <p>Created by The Axiom Continuum · DoorQuests · Gradortals · Firsortals · Time &amp; Money #001</p>
+  <p>Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+  <p>Privacy: this page makes no network requests and asks nothing about you. It saves game progress only in this browser.</p>
+</footer>
+<script>(function () {
+'use strict';
+
+/* =========================================================
+   The Day Inside Thimblewick Clock — DoorQuests Firsortals
+   Time & Money #001. Created by The Axiom Continuum.
+   Pipeline: world truth -> observed snapshot -> clue card ->
+   deduction -> plan -> simulated trip -> result -> report.
+   ========================================================= */
+
+var KEY = 'doorquests:gradortals:firsortals:time-money:001:v1';
+var N = 11;               // eleven half-hour states, index 0..10
+var MAX_SAVE = 20000;     // characters
+var MAX_TRIALS = 40;
+
+/* ---------- time model: one canonical integer index ---------- */
+function mins(i) { return 540 + i * 30; }            // minutes after midnight, 9:00 = 540
+function h12(i) { var h = Math.floor(mins(i) / 60); return ((h + 11) % 12) + 1; }
+function mm(i) { return mins(i) % 60; }
+function label(i) {
+  var h = Math.floor(mins(i) / 60);
+  return h12(i) + ':' + (mm(i) ? '30' : '00') + ' ' + (h < 12 ? 'AM' : 'PM');
+}
+var NUMW = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+function nextHour(h) { return h === 12 ? 1 : h + 1; }
+function timeWords(i) {
+  var h = h12(i);
+  if (mm(i) === 0) return NUMW[h] + " o'clock" + (h === 12 && Math.floor(mins(i) / 60) === 12 ? ' (noon)' : '');
+  return 'half past ' + NUMW[h];
+}
+function hands(i) {
+  var h = h12(i);
+  var minute = mm(i) === 0 ? 'on 12' : 'on 6';
+  var hour = mm(i) === 0 ? 'on ' + h : 'halfway between ' + h + ' and ' + nextHour(h);
+  return { minute: minute, hour: hour,
+    text: label(i) + ': minute hand ' + minute + '; hour hand ' + hour + '.' };
+}
+/* cumulative angles so the hands always move forward in time */
+function minuteAngle(i) { return i * 180; }
+function hourAngle(i) { return 270 + i * 15; }
+function dur(steps) {
+  var h = Math.floor(steps / 2), half = steps % 2, out = [];
+  if (h) out.push(h + (h === 1 ? ' hour' : ' hours'));
+  if (half) out.push('30 minutes');
+  return out.length ? out.join(' ') : 'no time';
+}
+
+/* ---------- places ---------- */
+var PLACES = [
+  { id: 'square', name: 'Clock Square', zoom: [330, 80, 280, 250] },
+  { id: 'bakery', name: 'Bakery', zoom: [20, 15, 240, 215] },
+  { id: 'pier', name: 'Pier', zoom: [40, 205, 300, 190] },
+  { id: 'cart', name: 'Mott’s cart', zoom: null },
+  { id: 'hill', name: 'Kite Hill', zoom: [470, 10, 250, 230] }
+];
+var PLACE = {};
+PLACES.forEach(function (p) { PLACE[p.id] = p; });
+var CART_POS = { cartSquare: [500, 300], cartBakery: [185, 190], cartPier: [110, 345] };
+
+/* ---------- authored world truth ----------
+   fact: [place, fromIndex, toIndex, text, options]
+   options: item 'seen' | 'clue'; draw flag; close: only in a close look */
+function F(p, a, b, txt, o) { o = o || {}; return { p: p, a: a, b: b, txt: txt, item: o.item || null, draw: o.draw || null, close: !!o.close }; }
+
+var CASES = [
+  {
+    id: 'kite', founder: true,
+    menu: 'The missing festival kite',
+    item: 'kite', Item: 'Kite',
+    holder: 'cart', last: 'bakery', now: 5, deadline: 9,
+    from: 'the Pier', dest: 'Kite Hill',
+    intro: 'Oh no! The festival kite is missing! It must fly on Kite Hill at 1:30. Wind the clock and look closely to find clues.',
+    found: 'Mott the mole lifts his cart cover. “Oh my! The kite slid off the bakery roof into my cart!” Mott and the kite are at the Pier.',
+    planIntro: 'It is 11:30 at the Pier. The kite must reach Kite Hill by 1:30. Mott says, “My cart can go at 12:30.” The ferry sign says a ferry leaves at 12:00. Test a plan to see what happens.',
+    win: 'The festival kite rises over Kite Hill. Everyone cheers, and Mott waves his hat!',
+    ideas: [{ r: 'cart', d: 7, txt: 'Mott’s idea: the cart at 12:30' }, { r: 'ferry', d: 6, txt: 'The noon ferry at 12:00' }],
+    notice: [['n1', 'The kite was on the bakery roof at 10:30.'], ['n2', 'The bakery roof was empty at 11:00.'], ['n3', 'A striped ribbon poked out of Mott’s cart.']],
+    because: [['b1', 'it gets to Kite Hill by 1:30.'], ['b2', 'it does not get stuck behind the parade.'], ['b3', 'it leaves at the right time.']],
+    routes: [
+      { id: 'ferry', name: 'Ferry', vehicle: 'ferry', departs: [4, 6, 8],
+        about: 'Ferries leave the Pier at 11:00, 12:00 and 1:00. The ride to Hill Landing takes 1 hour. Then walk 30 minutes up Kite Hill.',
+        leave: 'The ferry leaves the Pier with the kite.',
+        legs: [{ to: 'Hill Landing', n: 2, how: 'by ferry down the river' }, { to: 'Kite Hill', n: 1, how: 'walking up the hill path' }],
+        blocks: [] },
+      { id: 'cart', name: 'Mott’s cart', vehicle: 'cart', departs: [6, 7, 8, 9, 10],
+        about: 'Mott’s cart is ready from 12:00. It takes 30 minutes to Clock Square, then 30 minutes up to Kite Hill.',
+        leave: 'Mott’s cart rolls away from the Pier with the kite.',
+        legs: [{ to: 'Clock Square', n: 1, how: 'over the stone bridge' }, { to: 'Kite Hill', n: 1, how: 'up the hill road' }],
+        blocks: [{ before: 1, at: [8], until: 9, place: 'Clock Square', why: 'The parade fills Clock Square. The cart must wait.', clear: 'The parade moves on. The cart can go.' }] }
+    ],
+    facts: [
+      F('square', 0, 10, 'The clock tower stands over the square.'),
+      F('square', 0, 0, 'The festival kite lies on the kite table. It is blue with a striped tail.', { item: 'seen', draw: 'kiteTable' }),
+      F('square', 1, 10, 'The kite table is empty.', { draw: 'tableEmpty' }),
+      F('square', 0, 1, 'Mott’s cart is here, unloading festival tables.', { draw: 'cartSquare' }),
+      F('square', 0, 7, 'Neighbors hang paper flags. The parade starts at 1:00.'),
+      F('square', 8, 8, 'The parade fills the square! Carts must wait until 1:30.', { draw: 'parade' }),
+      F('square', 9, 10, 'The parade has moved on. The square is clear.'),
+      F('bakery', 0, 10, 'Fern the badger sells warm festival buns.'),
+      F('bakery', 1, 3, 'The blue kite is stuck on the bakery roof, by the chimney.', { item: 'seen', draw: 'kiteRoof' }),
+      F('bakery', 2, 3, 'Mott’s cart is parked right under the roof. Its cover is open.', { draw: 'cartBakery' }),
+      F('bakery', 4, 4, 'The roof is empty now. Mott’s cart is gone too.'),
+      F('bakery', 5, 10, 'The roof is empty.'),
+      F('pier', 0, 10, 'A sign says: Ferry to Hill Landing at 11:00, 12:00 and 1:00. The ride takes 1 hour.'),
+      F('pier', 4, 4, 'A ferry is at the pier. It leaves now.', { draw: 'ferry' }),
+      F('pier', 6, 6, 'A ferry is at the pier. It leaves now.', { draw: 'ferry' }),
+      F('pier', 8, 8, 'A ferry is at the pier. It leaves now.', { draw: 'ferry' }),
+      F('pier', 4, 10, 'Mott’s cart is parked here.', { draw: 'cartPier' }),
+      F('pier', 5, 5, 'Mott eats his lunch on a bench. He says his cart can leave at 12:00.'),
+      F('pier', 6, 10, 'Mott naps in the sun beside his cart.'),
+      F('cart', 0, 1, 'Mott’s cart is in Clock Square. It is full of festival tables.'),
+      F('cart', 2, 3, 'Mott’s cart is at the Bakery. It holds bread crates. The cover is open.'),
+      F('cart', 4, 10, 'Mott’s cart is at the Pier. The cover is closed now.'),
+      F('cart', 4, 10, 'A striped ribbon tail pokes out from under the cart cover!', { item: 'clue', draw: 'ribbon', close: true }),
+      F('hill', 0, 8, 'Friends get Kite Hill ready. The kite flight starts at 1:30.'),
+      F('hill', 9, 10, 'It is time for the kite flight, but there is no festival kite.')
+    ]
+  },
+  {
+    id: 'drum', founder: false,
+    menu: 'The quiet parade drum',
+    item: 'drum', Item: 'Drum',
+    holder: 'hill', last: 'square', now: 5, deadline: 8,
+    from: 'Kite Hill', dest: 'Clock Square',
+    intro: 'Juniper’s parade drum is missing! The parade starts in Clock Square at 1:00. Wind the clock and look closely to find clues.',
+    found: 'Sprocket the squirrel lifts his blanket. “Is this a drum? I used it as a stool!” He finishes his song at 11:30, then gives the drum back on Kite Hill.',
+    planIntro: 'It is 11:30 on Kite Hill. The drum must reach Clock Square by 1:00. Walking with the heavy drum is slow. The goat wagon is fast, but it only leaves at set times. Test a plan to see what happens.',
+    win: 'Boom, boom, boom! Juniper leads the parade with her drum.',
+    ideas: [{ r: 'walk', d: 6, txt: 'Walk at 12:00' }, { r: 'wagon', d: 6, txt: 'Goat wagon at 12:00' }],
+    notice: [['n1', 'The drum was on the steps at 9:30.'], ['n2', 'The steps were empty at 10:00.'], ['n3', 'Something round was under Sprocket’s blanket.']],
+    because: [['b1', 'it gets to Clock Square by 1:00.'], ['b2', 'the trip is short enough.'], ['b3', 'it leaves at the right time.']],
+    routes: [
+      { id: 'walk', name: 'Walk', vehicle: 'walk', departs: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        about: 'Walking down the long hill path with the heavy drum takes 1 hour 30 minutes. You can start at any time.',
+        leave: 'Start walking down the hill path with the drum.',
+        legs: [{ to: 'Clock Square', n: 3, how: 'walking slowly down the long hill path' }],
+        blocks: [] },
+      { id: 'wagon', name: 'Goat wagon', vehicle: 'goat wagon', departs: [6, 7, 8],
+        about: 'Bramble the goat’s wagon leaves Kite Hill at 12:00, 12:30 and 1:00. The ride takes 30 minutes.',
+        leave: 'Bramble’s goat wagon rolls off with the drum.',
+        legs: [{ to: 'Clock Square', n: 1, how: 'riding the goat wagon' }],
+        blocks: [] }
+    ],
+    facts: [
+      F('square', 0, 10, 'The clock tower stands over the square.'),
+      F('square', 0, 1, 'Juniper’s red parade drum sits on the bandstand steps.', { item: 'seen', draw: 'drumSteps' }),
+      F('square', 2, 2, 'The bandstand steps are empty. Small wheel tracks lead away.'),
+      F('square', 3, 7, 'The bandstand steps are empty. Juniper the rabbit looks worried.'),
+      F('square', 0, 7, 'The parade starts here at 1:00.'),
+      F('square', 8, 8, 'Parade time! Juniper has no drum, so the band is quiet.', { draw: 'parade' }),
+      F('square', 9, 10, 'The parade is over.'),
+      F('bakery', 0, 10, 'Fern the badger sells warm festival buns.'),
+      F('bakery', 0, 10, 'Mott’s cart rests by the bakery with flour sacks.', { draw: 'cartBakery' }),
+      F('pier', 0, 10, 'Little boats bob by the pier.'),
+      F('cart', 0, 10, 'Mott’s cart rests by the bakery. It holds flour sacks.'),
+      F('hill', 0, 1, 'The hill is quiet. A goat eats grass.'),
+      F('hill', 0, 10, 'A sign says: Goat wagon to Clock Square at 12:00, 12:30 and 1:00. The ride takes 30 minutes.', { draw: 'wagonSign' }),
+      F('hill', 2, 10, 'Sprocket the squirrel sits on a picnic blanket and sings.', { draw: 'sprocket' }),
+      F('hill', 2, 10, 'Under Sprocket’s blanket is something round with a red rim. Thump, thump!', { item: 'clue', draw: 'drumHidden', close: true }),
+      F('hill', 5, 5, 'Sprocket says, “I finish my song at 11:30.”'),
+      F('hill', 6, 8, 'Bramble the goat waits with her wagon.', { draw: 'wagon' })
+    ]
+  },
+  {
+    id: 'banner', founder: false,
+    menu: 'The wandering banner',
+    item: 'banner', Item: 'Banner',
+    holder: 'bakery', last: 'pier', now: 6, deadline: 9,
+    from: 'the Bakery', dest: 'Clock Square',
+    intro: 'The festival banner is missing! Otto the owl must hang it on the clock tower before he flies home at 1:30. Wind the clock and look closely to find clues.',
+    found: 'Fern the badger unfolds the cloth. “FESTIVAL! This is not a tablecloth at all. The wind blew it onto my shelf!” The banner is at the Bakery.',
+    planIntro: 'It is 12:00 at the Bakery. The banner must reach Otto in Clock Square by 1:30. The Bridge way is short, but the bridge can go up for boats. The Long Lane never closes, but it is long. Test a plan to see what happens.',
+    win: 'Otto hangs the banner on the clock tower. It flutters over the whole festival!',
+    ideas: [{ r: 'bridge', d: 7, txt: 'Bridge way at 12:30' }, { r: 'lane', d: 6, txt: 'Long Lane at 12:00' }],
+    notice: [['n1', 'The banner was on the washing line at 11:30.'], ['n2', 'The washing line was empty at 12:00.'], ['n3', 'A cloth with painted letters was on Fern’s shelf.']],
+    because: [['b1', 'it gets to Otto by 1:30.'], ['b2', 'it does not wait for the bridge.'], ['b3', 'it leaves at the right time.']],
+    routes: [
+      { id: 'bridge', name: 'Bridge way', vehicle: 'walk', departs: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        about: 'Walk 30 minutes to the stone bridge, cross, then walk 30 minutes to Clock Square. You can start at any time.',
+        leave: 'Start walking to the stone bridge with the banner.',
+        legs: [{ to: 'the stone bridge', n: 1, how: 'walking along the river' }, { to: 'Clock Square', n: 1, how: 'crossing and walking to the tower' }],
+        blocks: [{ before: 1, at: [8], until: 9, place: 'the stone bridge', why: 'The bridge is up for a tall boat. You must wait.', clear: 'The bridge comes down. You can cross.' }] },
+      { id: 'lane', name: 'Long Lane', vehicle: 'walk', departs: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        about: 'Walk the Long Lane around the river bend. It takes 1 hour 30 minutes and never closes. You can start at any time.',
+        leave: 'Start walking the Long Lane with the banner.',
+        legs: [{ to: 'Clock Square', n: 3, how: 'walking the Long Lane around the river bend' }],
+        blocks: [] }
+    ],
+    facts: [
+      F('square', 0, 10, 'The clock tower stands over the square.'),
+      F('square', 0, 8, 'Otto the owl waits on the clock tower to hang the banner. He flies home at 1:30.', { draw: 'otto' }),
+      F('square', 9, 10, 'Otto has flown home. The tower has no banner.'),
+      F('square', 0, 10, 'Mott’s cart sits in the square with pots of flowers.', { draw: 'cartSquare' }),
+      F('bakery', 0, 10, 'Fern the badger sells warm festival buns.'),
+      F('bakery', 6, 10, 'Fern folds a big cloth and puts it on her shelf.'),
+      F('bakery', 6, 10, 'The cloth on the shelf has big painted letters: F, E, S, T…', { item: 'clue', draw: 'bannerShelf', close: true }),
+      F('pier', 0, 10, 'Wren the bird hangs washing and sings.'),
+      F('pier', 0, 5, 'The long festival banner hangs on Wren’s washing line to dry.', { item: 'seen', draw: 'bannerLine' }),
+      F('pier', 5, 5, 'The wind is getting stronger.'),
+      F('pier', 6, 6, 'The washing line is empty. One clothes peg lies on the boards.'),
+      F('pier', 7, 10, 'The washing line is empty.'),
+      F('pier', 0, 7, 'Upstream, the stone bridge is down. People can cross.'),
+      F('pier', 8, 8, 'Upstream, the stone bridge is up for a tall boat! Walkers must wait until 1:30.', { draw: 'bridgeUp' }),
+      F('pier', 9, 10, 'Upstream, the stone bridge is down again.'),
+      F('cart', 0, 10, 'Mott’s cart sits in Clock Square with pots of flowers.'),
+      F('hill', 0, 10, 'Friends fly small kites on Kite Hill.')
+    ]
+  }
+];
+var CASE = {};
+CASES.forEach(function (c) {
+  CASE[c.id] = c;
+  c.route = {};
+  c.routes.forEach(function (r) { c.route[r.id] = r; });
+});
+
+/* ---------- truth queries (pure) ---------- */
+function factsAt(c, p, t) { return c.facts.filter(function (f) { return f.p === p && f.a <= t && t <= f.b; }); }
+function isSeen(c, p, t) { return t >= 0 && t < N && factsAt(c, p, t).some(function (f) { return f.item === 'seen'; }); }
+function isClue(c, p, t) { return factsAt(c, p, t).some(function (f) { return f.item === 'clue'; }); }
+function observe(c, p, t) {
+  var all = factsAt(c, p, t);
+  return { close: all.map(function (f) { return f.txt; }),
+           brief: all.filter(function (f) { return !f.close; }).map(function (f) { return f.txt; }) };
+}
+/* THI-01 (r1): a close-only drawing appears only in a close look at its OWN place.
+   lookPlace null/undefined = village overview, which never shows close-only drawings. */
+function drawFlags(c, t, lookPlace) {
+  var out = {};
+  c.facts.forEach(function (f) {
+    if (f.draw && f.a <= t && t <= f.b && (!f.close || (lookPlace && f.p === lookPlace))) out[f.draw] = true;
+  });
+  return out;
+}
+function cartPos(flags) {
+  if (flags.cartSquare) return CART_POS.cartSquare;
+  if (flags.cartBakery) return CART_POS.cartBakery;
+  if (flags.cartPier) return CART_POS.cartPier;
+  return null;
+}
+function zoomFor(c, p, t) {
+  if (p !== 'cart') return PLACE[p].zoom;
+  var pos = cartPos(drawFlags(c, t, null)) || [300, 200];
+  return [pos[0] - 95, pos[1] - 85, 190, 140];
+}
+
+/* ---------- trip simulation (pure) ---------- */
+function trip(c, rid, d) {
+  var r = c.route[rid];
+  var res = { r: rid, d: d, ok: false, kind: '', steps: [], arrive: null, leave: null, waits: [], reason: '' };
+  if (!r || !(d >= 0 && d < N && Math.floor(d) === d)) { res.kind = 'invalid'; res.reason = 'That plan is not complete.'; return res; }
+  if (d < c.now) {
+    res.kind = 'past';
+    res.reason = label(d) + ' is earlier than ' + label(c.now) + '. Our plan starts at ' + label(c.now) + ', and we cannot go back in time.';
+    res.steps.push({ t: c.now, txt: 'Now it is ' + label(c.now) + '. ' + label(d) + ' has already passed.' });
+    return res;
+  }
+  var t = d;
+  res.steps.push({ t: t, txt: 'The plan starts from ' + c.from + '.' });
+  var first = null;
+  for (var k = 0; k < r.departs.length; k++) { if (r.departs[k] >= t) { first = r.departs[k]; break; } }
+  if (first === null) {
+    res.kind = 'none';
+    var lastDep = r.departs[r.departs.length - 1];
+    res.reason = 'No ' + r.vehicle + ' leaves at ' + label(d) + ' or later. The last one leaves at ' + label(lastDep) + '.';
+    res.steps.push({ t: t, txt: 'There is no ' + r.vehicle + ' left today.' });
+    return res;
+  }
+  if (first > t) {
+    res.waits.push({ kind: 'vehicle', from: t, to: first });
+    res.steps.push({ t: t, txt: 'Wait ' + dur(first - t) + ' for the ' + r.vehicle + '.' });
+    t = first;
+  }
+  res.leave = t;
+  res.steps.push({ t: t, txt: r.leave });
+  for (var i = 0; i < r.legs.length; i++) {
+    for (var b = 0; b < r.blocks.length; b++) {
+      var bl = r.blocks[b];
+      if (bl.before === i && bl.at.indexOf(t) !== -1) {
+        res.waits.push({ kind: 'block', from: t, to: bl.until, place: bl.place });
+        res.steps.push({ t: t, txt: bl.why });
+        t = bl.until;
+        res.steps.push({ t: t, txt: bl.clear });
+      }
+    }
+    t += r.legs[i].n;
+    res.steps.push({ t: t, txt: 'Arrive at ' + r.legs[i].to + ' after ' + dur(r.legs[i].n) + ' ' + r.legs[i].how + '.' });
+  }
+  res.arrive = t;
+  res.ok = t <= c.deadline;
+  res.kind = res.ok ? 'ok' : 'late';
+  var why = '';
+  res.waits.forEach(function (w) {
+    if (w.kind === 'block') why += ' It waited ' + dur(w.to - w.from) + ' at ' + w.place + '.';
+    else why += ' It waited ' + dur(w.to - w.from) + ' for the ' + r.vehicle + '.';
+  });
+  if (res.ok) {
+    res.reason = 'The ' + c.item + ' arrived at ' + c.dest + ' at ' + label(t) + '. ' +
+      (t === c.deadline ? 'That is just in time for ' + label(c.deadline) + '!' : 'That is before ' + label(c.deadline) + '. In time!') + why;
+  } else {
+    res.reason = 'The ' + c.item + ' arrived at ' + c.dest + ' at ' + label(t) + '. That is after ' + label(c.deadline) + ', so it was too late.' + why;
+  }
+  return res;
+}
+
+/* ---------- deduction rule (pure) ----------
+   Accepted only when the chosen cards include:
+   SAW  - a card at the place where the item was seen LAST,
+   GONE - the same place at the very next time, item gone,
+   CLUE - a clue card at the answer place.                 */
+function checkProof(c, ans, cards) {
+  var roles = cards.map(function (k) { return { p: k[0], t: k[1], seen: isSeen(c, k[0], k[1]), clue: isClue(c, k[0], k[1]) }; });
+  var pairLast = false, pairOther = null, anySeen = false;
+  roles.forEach(function (s) {
+    if (!s.seen) return;
+    anySeen = true;
+    if (isSeen(c, s.p, s.t + 1)) return;
+    roles.forEach(function (g) {
+      if (g.p === s.p && g.t === s.t + 1 && !g.seen) {
+        if (s.p === c.last) pairLast = true; else pairOther = s.p;
+      }
+    });
+  });
+  var clueOK = roles.some(function (r) { return r.clue && r.p === ans; });
+  var need = [];
+  if (!pairLast) {
+    if (pairOther) need.push('pairOther');
+    else if (anySeen) need.push('next');
+    else need.push('saw');
+  }
+  if (!clueOK) need.push('clue');
+  return { ok: pairLast && clueOK && ans === c.holder, need: need, pairOther: pairOther };
+}
+
+/* ---------- state ---------- */
+function freshCase() { return { t: 0, looked: [], proof: null, tries: 0, trials: [], refl: { n: null, c: null, b: null } }; }
+function freshState() {
+  var s = { v: 1, tut: false, entered: false, active: 'kite', rm: false, cases: {} };
+  CASES.forEach(function (c) { s.cases[c.id] = freshCase(); });
+  return s;
+}
+function isInt(x, lo, hi) { return typeof x === 'number' && Math.floor(x) === x && x >= lo && x <= hi; }
+
+/* validate untrusted saved JSON; never trust stored completion */
+function validate(raw) {
+  var report = { ok: true, notes: [] };
+  var s = freshState();
+  if (typeof raw !== 'string') { report.ok = false; report.notes.push('not text'); return { s: s, report: report }; }
+  if (raw.length > MAX_SAVE) { report.ok = false; report.notes.push('too large'); return { s: s, report: report }; }
+  var o;
+  try { o = JSON.parse(raw); } catch (e) { report.ok = false; report.notes.push('not JSON'); return { s: s, report: report }; }
+  if (!o || typeof o !== 'object' || Array.isArray(o) || o.v !== 1) { report.ok = false; report.notes.push('wrong shape or version'); return { s: s, report: report }; }
+  s.tut = o.tut === true;
+  s.entered = o.entered === true;
+  s.rm = o.rm === true;
+  if (typeof o.active === 'string' && CASE.hasOwnProperty(o.active)) s.active = o.active; else if (o.active !== undefined) report.notes.push('bad active case');
+  var cs = (o.cases && typeof o.cases === 'object' && !Array.isArray(o.cases)) ? o.cases : {};
+  CASES.forEach(function (c) {
+    var x = cs[c.id], out = s.cases[c.id];
+    if (!x || typeof x !== 'object' || Array.isArray(x)) return;
+    if (isInt(x.t, 0, N - 1)) out.t = x.t; else if (x.t !== undefined) report.notes.push(c.id + ': bad time');
+    if (Array.isArray(x.looked)) {
+      x.looked.slice(0, PLACES.length * N).forEach(function (k) {
+        if (Array.isArray(k) && k.length === 2 && typeof k[0] === 'string' && PLACE.hasOwnProperty(k[0]) && isInt(k[1], 0, N - 1) &&
+            !out.looked.some(function (q) { return q[0] === k[0] && q[1] === k[1]; })) out.looked.push([k[0], k[1]]);
+        else report.notes.push(c.id + ': dropped a bad card');
+      });
+    }
+    if (isInt(x.tries, 0, 9999)) out.tries = x.tries;
+    if (x.proof && typeof x.proof === 'object') {
+      var pr = x.proof, okShape = typeof pr.a === 'string' && PLACE.hasOwnProperty(pr.a) && Array.isArray(pr.c) && pr.c.length <= 6;
+      var cards = [];
+      if (okShape) pr.c.forEach(function (i) { if (isInt(i, 0, out.looked.length - 1)) cards.push(out.looked[i]); else okShape = false; });
+      if (okShape && checkProof(c, pr.a, cards).ok) out.proof = { a: pr.a, c: pr.c.slice() };
+      else report.notes.push(c.id + ': proof rejected');
+    }
+    if (Array.isArray(x.trials)) {
+      if (!out.proof && x.trials.length) report.notes.push(c.id + ': plan tests before solving were rejected');
+      else x.trials.slice(0, MAX_TRIALS).forEach(function (tr) {
+        if (tr && typeof tr === 'object' && typeof tr.r === 'string' && c.route.hasOwnProperty(tr.r) && isInt(tr.d, 0, N - 1) &&
+            (tr.p === null || tr.p === undefined || tr.p === 'yes' || tr.p === 'no' || tr.p === 'unsure') &&
+            !out.trials.some(function (q) { return q.r === tr.r && q.d === tr.d; })) out.trials.push({ r: tr.r, d: tr.d, p: tr.p || null });
+        else report.notes.push(c.id + ': dropped a bad plan test');
+      });
+    }
+    if (x.refl && typeof x.refl === 'object' && solved(c, out)) {
+      if (c.notice.some(function (n) { return n[0] === x.refl.n; })) out.refl.n = x.refl.n;
+      if (c.because.some(function (n) { return n[0] === x.refl.b; })) out.refl.b = x.refl.b;
+      if (isInt(x.refl.c, 0, out.trials.length - 1) && trip(c, out.trials[x.refl.c].r, out.trials[x.refl.c].d).ok) out.refl.c = x.refl.c;
+    }
+  });
+  if (report.notes.length) report.ok = false;
+  return { s: s, report: report };
+}
+function deduced(cs) { return !!cs.proof; }
+function solved(c, cs) {
+  return !!cs.proof && cs.trials.some(function (tr) { return trip(c, tr.r, tr.d).ok; });
+}
+
+/* ---------- storage (one key only) ---------- */
+var storageOK = true, storageNote = '';
+function load() {
+  var raw = null;
+  try { raw = window.localStorage.getItem(KEY); }
+  catch (e) { storageOK = false; storageNote = 'Saving is turned off in this browser. You can still play.'; return freshState(); }
+  if (raw === null) return freshState();
+  var v = validate(raw);
+  if (!v.report.ok) storageNote = 'Some saved notes could not be trusted, so Pim set them aside.';
+  return v.s;
+}
+function save() {
+  if (!storageOK) return;
+  try {
+    var txt = JSON.stringify(S);
+    if (txt.length > MAX_SAVE) { storageNote = 'Your notebook is full, so new notes are not saved.'; return; }
+    window.localStorage.setItem(KEY, txt);
+  } catch (e) { storageOK = false; storageNote = 'Saving stopped working in this browser. You can still play.'; }
+}
+function wipe() { try { window.localStorage.removeItem(KEY); } catch (e) { /* ignore */ } }
+
+/* ---------- SVG art (authored strings only; no saved text) ---------- */
+function clockSVG(i, size) {
+  var s = '<circle cx="100" cy="100" r="94" fill="#e2b860" stroke="#2b2118" stroke-width="4"/>' +
+    '<circle cx="100" cy="100" r="80" fill="#fffdf2" stroke="#a8781f" stroke-width="3"/>';
+  for (var n = 1; n <= 12 && size !== 'small'; n++) {
+    var a = (n * 30 - 90) * Math.PI / 180;
+    var x = (100 + 64 * Math.cos(a)).toFixed(1), y = (100 + 64 * Math.sin(a) + 7).toFixed(1);
+    s += '<text x="' + x + '" y="' + y + '" text-anchor="middle" font-size="20" font-family="Georgia,serif" font-weight="700" fill="#2b2118">' + n + '</text>';
+  }
+  for (var m = 0; m < 60; m++) {
+    var b = (m * 6 - 90) * Math.PI / 180, r1 = m % 5 ? 76 : 72;
+    s += '<line x1="' + (100 + r1 * Math.cos(b)).toFixed(1) + '" y1="' + (100 + r1 * Math.sin(b)).toFixed(1) + '" x2="' + (100 + 79 * Math.cos(b)).toFixed(1) + '" y2="' + (100 + 79 * Math.sin(b)).toFixed(1) + '" stroke="#2b2118" stroke-width="' + (m % 5 ? 1 : 2.5) + '"/>';
+  }
+  var ma = minuteAngle(i) % 360, ha = hourAngle(i) % 360;
+  if (size === 'small') {
+    s += '<line x1="100" y1="100" x2="100" y2="28" stroke="#1f5f66" stroke-width="8" stroke-linecap="round" transform="rotate(' + ma + ' 100 100)"/>' +
+      '<line x1="100" y1="100" x2="100" y2="52" stroke="#2b2118" stroke-width="14" stroke-linecap="round" transform="rotate(' + ha + ' 100 100)"/>';
+  } else {
+    s += '<g class="hand" id="hourHand"><path d="M93 104 L100 48 L107 104 Z" fill="#2b2118"/><line x1="100" y1="100" x2="100" y2="58" stroke="#2b2118" stroke-width="11" stroke-linecap="round"/></g>' +
+      '<g class="hand" id="minHand"><line x1="100" y1="112" x2="100" y2="26" stroke="#1f5f66" stroke-width="5" stroke-linecap="round"/><circle cx="100" cy="26" r="4" fill="#1f5f66"/></g>';
+  }
+  return s + '<circle cx="100" cy="100" r="6" fill="#a8781f" stroke="#2b2118" stroke-width="2"/>';
+}
+
+function sceneSVG(c, t, flags, vb, ariaLabel) {
+  var o = '<svg viewBox="' + vb.join(' ') + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + ariaLabel + '">';
+  // paper sky and ground
+  o += '<rect x="0" y="0" width="720" height="400" fill="#f6ead0"/>';
+  o += '<path d="M0 150 Q200 120 360 150 T720 140 V400 H0Z" fill="#cfe3c6"/>';
+  // hill
+  o += '<path d="M470 210 Q600 10 720 180 V230 H470Z" fill="#9fc58a" stroke="#2b2118" stroke-width="2"/>';
+  o += '<path d="M510 205 Q560 150 600 110" fill="none" stroke="#e8dcc0" stroke-width="7" stroke-dasharray="10 6"/>';
+  // river
+  o += '<path d="M230 0 Q300 120 260 200 T300 400 H360 Q320 300 330 200 T290 0Z" fill="#8fc1d6" stroke="#2b2118" stroke-width="2"/>';
+  // bridge
+  if (flags.bridgeUp) {
+    o += '<path d="M245 205 L285 160 L292 166 L252 212Z" fill="#a39280" stroke="#2b2118" stroke-width="2"/>' +
+         '<path d="M345 205 L305 160 L298 166 L338 212Z" fill="#a39280" stroke="#2b2118" stroke-width="2"/>' +
+         '<path d="M285 120 L305 120 L300 190 L290 190Z" fill="#fffdf2" stroke="#2b2118" stroke-width="2"/>';
+  } else {
+    o += '<path d="M240 200 Q295 175 350 200 V214 Q295 192 240 214Z" fill="#a39280" stroke="#2b2118" stroke-width="2"/>';
+  }
+  // bakery
+  o += '<rect x="80" y="80" width="130" height="90" fill="#f4c99a" stroke="#2b2118" stroke-width="2"/>' +
+       '<path d="M70 82 L145 35 L220 82Z" fill="#b5523b" stroke="#2b2118" stroke-width="2"/>' +
+       '<rect x="170" y="38" width="16" height="30" fill="#8a6b52" stroke="#2b2118" stroke-width="2"/>' +
+       '<rect x="125" y="120" width="34" height="50" fill="#7a4e1d"/><rect x="90" y="105" width="28" height="22" fill="#fffdf2" stroke="#2b2118"/>' +
+       '<text x="145" y="102" text-anchor="middle" font-size="15" font-weight="700" fill="#2b2118">BAKERY</text>';
+  if (flags.bannerShelf) o += '<g data-close="bannerShelf"><rect x="168" y="128" width="34" height="12" fill="#f8e1e1" stroke="#8c2f39" stroke-width="2"/><text x="185" y="138" text-anchor="middle" font-size="9" font-weight="700" fill="#8c2f39">FEST</text></g>';
+  // pier
+  o += '<rect x="130" y="300" width="130" height="18" fill="#a07a4f" stroke="#2b2118" stroke-width="2"/>' +
+       '<rect x="140" y="318" width="8" height="30" fill="#7a5a3a"/><rect x="240" y="318" width="8" height="30" fill="#7a5a3a"/>' +
+       '<text x="150" y="294" font-size="15" font-weight="700" fill="#2b2118">PIER</text>' +
+       '<line x1="70" y1="230" x2="70" y2="300" stroke="#2b2118" stroke-width="4"/><line x1="200" y1="230" x2="200" y2="300" stroke="#2b2118" stroke-width="4"/>' +
+       '<path d="M70 235 Q135 250 200 235" fill="none" stroke="#2b2118" stroke-width="1.5"/>';
+  if (flags.bannerLine) o += '<path d="M78 238 L192 238 L192 262 Q135 272 78 262Z" fill="#f8e1e1" stroke="#8c2f39" stroke-width="2"/><text x="135" y="256" text-anchor="middle" font-size="13" font-weight="700" fill="#8c2f39">FESTIVAL</text>';
+  if (flags.ferry) o += '<path d="M245 330 H330 L318 352 H257Z" fill="#fffdf2" stroke="#2b2118" stroke-width="2"/><rect x="270" y="314" width="30" height="16" fill="#1f5f66"/><text x="287" y="346" text-anchor="middle" font-size="10" font-weight="700" fill="#2b2118">FERRY</text>';
+  // square + tower
+  o += '<ellipse cx="460" cy="290" rx="120" ry="45" fill="#e8dcc0" stroke="#2b2118" stroke-width="2"/>' +
+       '<rect x="420" y="150" width="60" height="120" fill="#c9b48c" stroke="#2b2118" stroke-width="2"/>' +
+       '<path d="M412 152 L450 105 L488 152Z" fill="#7a4e1d" stroke="#2b2118" stroke-width="2"/>' +
+       '<g transform="translate(430 170) scale(0.2)">' + clockSVG(t, 'small') + '</g>' +
+       '<text x="460" y="330" text-anchor="middle" font-size="15" font-weight="700" fill="#2b2118">CLOCK SQUARE</text>';
+  if (flags.otto) o += '<ellipse cx="450" cy="98" rx="13" ry="15" fill="#8a6b52" stroke="#2b2118" stroke-width="2"/><circle cx="445" cy="94" r="4" fill="#fffdf2"/><circle cx="455" cy="94" r="4" fill="#fffdf2"/><circle cx="445" cy="94" r="1.6" fill="#2b2118"/><circle cx="455" cy="94" r="1.6" fill="#2b2118"/>';
+  if (flags.kiteTable || flags.tableEmpty) o += '<rect x="370" y="282" width="56" height="8" fill="#7a4e1d"/><rect x="374" y="290" width="5" height="16" fill="#7a4e1d"/><rect x="417" y="290" width="5" height="16" fill="#7a4e1d"/>';
+  if (flags.kiteTable) o += kite(398, 268, 0.6, true);
+  if (flags.drumSteps) o += '<rect x="500" y="270" width="50" height="10" fill="#c9b48c" stroke="#2b2118"/><ellipse cx="525" cy="262" rx="16" ry="6" fill="#fffdf2" stroke="#8c2f39" stroke-width="3"/><rect x="509" y="262" width="32" height="14" fill="#c0392b"/><ellipse cx="525" cy="276" rx="16" ry="6" fill="#c0392b" stroke="#8c2f39" stroke-width="2"/>';
+  if (flags.parade) {
+    for (var q = 0; q < 6; q++) {
+      var px = 380 + q * 30;
+      o += '<circle cx="' + px + '" cy="250" r="7" fill="#f0d7b0" stroke="#2b2118"/><rect x="' + (px - 6) + '" y="257" width="12" height="20" fill="' + (q % 2 ? '#1f5f66' : '#8c2f39') + '"/><path d="M' + (px + 6) + ' 245 l0 -18 l12 5 l-12 5" fill="#e2b860" stroke="#2b2118"/>';
+    }
+  }
+  // kite on roof
+  if (flags.kiteRoof) o += kite(178, 40, 0.75, true);
+  // cart
+  var cp = cartPos(flags);
+  if (cp) {
+    var x = cp[0], y = cp[1];
+    o += '<rect x="' + (x - 34) + '" y="' + (y - 26) + '" width="68" height="30" fill="#b07c45" stroke="#2b2118" stroke-width="2"/>' +
+         '<path d="M' + (x - 38) + ' ' + (y - 26) + ' Q' + x + ' ' + (y - 52) + ' ' + (x + 38) + ' ' + (y - 26) + 'Z" fill="#e8dcc0" stroke="#2b2118" stroke-width="2"/>' +
+         '<circle cx="' + (x - 20) + '" cy="' + (y + 6) + '" r="10" fill="#5b4a3a" stroke="#2b2118" stroke-width="2"/><circle cx="' + (x + 20) + '" cy="' + (y + 6) + '" r="10" fill="#5b4a3a" stroke="#2b2118" stroke-width="2"/>' +
+         '<text x="' + x + '" y="' + (y - 6) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#2b2118">MOTT</text>';
+    if (flags.ribbon) o += '<g data-close="ribbon"><path d="M' + (x + 30) + ' ' + (y - 30) + ' q16 10 6 26 q-8 12 8 24" fill="none" stroke="#1f5f66" stroke-width="5" stroke-dasharray="6 5"/><path d="M' + (x + 30) + ' ' + (y - 30) + ' q16 10 6 26 q-8 12 8 24" fill="none" stroke="#e2b860" stroke-width="5" stroke-dasharray="5 6" stroke-dashoffset="5"/></g>';
+  }
+  // hill people
+  o += '<text x="640" y="200" text-anchor="middle" font-size="15" font-weight="700" fill="#2b2118">KITE HILL</text>';
+  if (flags.sprocket) o += '<rect x="560" y="120" width="70" height="26" rx="4" fill="#f8e1e1" stroke="#8c2f39" stroke-width="2"/><circle cx="645" cy="122" r="11" fill="#c46a2b" stroke="#2b2118" stroke-width="2"/><path d="M652 128 q18 -6 12 -26" fill="none" stroke="#c46a2b" stroke-width="7"/>';
+  if (flags.drumHidden) o += '<g data-close="drumHidden"><path d="M572 120 Q595 98 618 120" fill="#f8e1e1" stroke="#8c2f39" stroke-width="2"/><rect x="580" y="128" width="30" height="6" fill="#c0392b" stroke="#8c2f39"/></g>';
+  if (flags.wagonSign) o += '<rect x="660" y="150" width="44" height="28" fill="#fffdf2" stroke="#2b2118" stroke-width="2"/><line x1="682" y1="178" x2="682" y2="196" stroke="#2b2118" stroke-width="3"/><text x="682" y="168" text-anchor="middle" font-size="9" font-weight="700" fill="#2b2118">WAGON</text>';
+  if (flags.wagon) o += '<rect x="520" y="170" width="44" height="18" fill="#b07c45" stroke="#2b2118" stroke-width="2"/><circle cx="530" cy="192" r="6" fill="#5b4a3a"/><circle cx="554" cy="192" r="6" fill="#5b4a3a"/><ellipse cx="584" cy="178" rx="15" ry="10" fill="#fffdf2" stroke="#2b2118" stroke-width="2"/>';
+  return o + '</svg>';
+}
+function kite(x, y, s, tail) {
+  var o = '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><path d="M0 -30 L22 0 L0 34 L-22 0Z" fill="#3a6fb5" stroke="#2b2118" stroke-width="3"/><line x1="0" y1="-30" x2="0" y2="34" stroke="#2b2118" stroke-width="2"/><line x1="-22" y1="0" x2="22" y2="0" stroke="#2b2118" stroke-width="2"/>';
+  if (tail) o += '<path d="M0 34 q14 12 0 24 q-14 12 0 24" fill="none" stroke="#1f5f66" stroke-width="5" stroke-dasharray="6 5"/><path d="M0 34 q14 12 0 24 q-14 12 0 24" fill="none" stroke="#e2b860" stroke-width="5" stroke-dasharray="5 6" stroke-dashoffset="5"/>';
+  return o + '</g>';
+}
+
+/* ---------- DOM helpers (text via textContent only) ---------- */
+function $(id) { return document.getElementById(id); }
+function el(tag, attrs, text) {
+  var e = document.createElement(tag);
+  if (attrs) Object.keys(attrs).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+  if (text !== undefined && text !== null) e.textContent = text;
+  return e;
+}
+function clear(e) { while (e.firstChild) e.removeChild(e.firstChild); }
+function svgBox(markup) { var d = el('div'); d.innerHTML = markup; return d.firstChild; }
+
+/* ---------- app state ---------- */
+var S = load();
+var ui = { tutStep: 0, look: null, lookMsg: '', draftR: null, draftD: null, draftP: null, shown: null, showMsg: '', hintI: 0,
+  tellA: null, tellC: [], tellMsg: null, pim: '', cfAction: null };
+function C() { return CASE[S.active]; }
+function CS() { return S.cases[S.active]; }
+
+/* ---------- Pim's words ---------- */
+function pimText() {
+  var c = C(), cs = CS();
+  if (!S.tut) {
+    if (ui.tutStep === 0) return 'Hi! I am Pim. This clock shows 9:00. The minute hand points to 12. The hour hand points to 9. Press “Wind forward” to move the clock 30 minutes.';
+    if (ui.tutStep === 1) return 'Now it is 9:30. The minute hand moved down to 6. The hour hand moved halfway between 9 and 10. Press “Wind back” to go back to 9:00.';
+    return 'Back to 9:00! Winding forward and back shows the village at each time. Press Next to start our mystery.';
+  }
+  if (solved(c, cs)) return c.win + ' Look at your Festival Report below.';
+  if (deduced(cs)) return c.planIntro;
+  return c.intro;
+}
+var HINTS = {
+  look: ['Wind to 9:00. Look closely at each place.', 'Find the last time you saw the {item}.', 'Wind forward one step. Look at that same place again.', 'Something changed! Look closely at every place at that time.'],
+  plan: ['Pick a way to go and a time to leave. Then test it.', 'Follow each step of the trip on the clock.', 'If the trip waited, ask why. Look at that time in the village.', 'Try a different way, or leave at a different time.']
+};
+function hintText() {
+  var c = C(), list = deduced(CS()) ? HINTS.plan : HINTS.look;
+  return list[ui.hintI % list.length].replace('{item}', c.item);
+}
+
+/* ---------- render ---------- */
+function render() {
+  var c = C(), cs = CS();
+  document.documentElement.classList.toggle('rm', !!S.rm);
+  $('motion').setAttribute('aria-pressed', S.rm ? 'true' : 'false');
+  $('door').hidden = !!S.entered;
+  $('game').hidden = !S.entered;
+  if (!S.entered) return;
+  $('caseName').textContent = 'Mystery: ' + c.menu + (c.founder ? '' : ' (extra mystery)');
+  // case selector
+  var sel = $('caseSel');
+  if (!sel.options.length) CASES.forEach(function (k) { sel.appendChild(el('option', { value: k.id }, k.menu + (solved(k, S.cases[k.id]) ? ' ✓ solved' : ''))); });
+  CASES.forEach(function (k, i) { sel.options[i].textContent = k.menu + (solved(k, S.cases[k.id]) ? ' (solved)' : ''); });
+  if (document.activeElement !== sel) sel.value = S.active;
+  // pim
+  var say = ui.pim || pimText();
+  $('pimSay').textContent = say;
+  $('tutNext').hidden = !(!S.tut && ui.tutStep === 2);
+  $('tutSkip').hidden = !!S.tut;
+  $('hint').hidden = !S.tut || solved(c, cs);
+  $('speakNote').hidden = !$('speakNote').textContent;
+  renderClock();
+  renderScene();
+  renderCards();
+  renderTell();
+  renderPlan();
+  renderEnd();
+  renderReport();
+}
+
+function renderClock() {
+  var cs = CS(), t = cs.t, svg = $('clock');
+  if (!svg.firstChild) svg.innerHTML = clockSVG(0, 'big');
+  $('minHand').style.transform = 'rotate(' + minuteAngle(t) + 'deg)';
+  $('hourHand').style.transform = 'rotate(' + hourAngle(t) + 'deg)';
+  $('digital').textContent = label(t);
+  var h = hands(t);
+  $('handText').textContent = 'It is ' + timeWords(t) + '. Minute hand ' + h.minute + '. Hour hand ' + h.hour + '.';
+  $('villTime').textContent = label(t);
+  $('back').disabled = false; $('fwd').disabled = false;
+  $('back').setAttribute('aria-label', 'Wind back 30 minutes' + (t === 0 ? ' (this is the start of the day)' : ', to ' + label(t - 1)));
+  $('fwd').setAttribute('aria-label', 'Wind forward 30 minutes' + (t === N - 1 ? ' (this is the end of the day)' : ', to ' + label(t + 1)));
+  var tl = $('timeline');
+  if (!tl.firstChild) {
+    for (var i = 0; i < N; i++) {
+      var li = el('li'), b = el('button', { type: 'button', 'data-t': String(i) });
+      b.appendChild(el('span', null, label(i)));
+      b.appendChild(el('span', { class: 'seenmark' }, ''));
+      b.addEventListener('click', onJump);
+      li.appendChild(b); tl.appendChild(li);
+    }
+  }
+  var looked = {};
+  cs.looked.forEach(function (k) { looked[k[1]] = true; });
+  Array.prototype.forEach.call(tl.querySelectorAll('button'), function (b) {
+    var i = +b.getAttribute('data-t');
+    b.setAttribute('aria-pressed', i === t ? 'true' : 'false');
+    b.setAttribute('aria-label', label(i) + (looked[i] ? ', you have clue cards from this time' : ''));
+    b.lastChild.textContent = looked[i] ? '• cards' : '';
+  });
+}
+
+function renderScene() {
+  var c = C(), t = CS().t;
+  var wrap = $('sceneWrap'); clear(wrap);
+  var svg = svgBox(sceneSVG(c, t, drawFlags(c, t, null), [0, 0, 720, 400], 'Picture of Thimblewick at ' + label(t) + '. The Village Report below says what is in the picture.'));
+  svg.setAttribute('id', 'scene');
+  wrap.appendChild(svg);
+  var pl = $('places'); clear(pl);
+  PLACES.forEach(function (p) {
+    var b = el('button', { type: 'button', 'data-p': p.id }, 'Look at ' + p.name);
+    b.addEventListener('click', onLook);
+    pl.appendChild(b);
+  });
+  var box = $('closeBox'); clear(box);
+  if (ui.look) {
+    var obs = observe(c, ui.look, t);
+    var d = el('div', { class: 'close' });
+    d.appendChild(svgBox(sceneSVG(c, t, drawFlags(c, t, ui.look), zoomFor(c, ui.look, t), 'Close look at ' + PLACE[ui.look].name + ' at ' + label(t) + '.')));
+    var tx = el('div');
+    tx.appendChild(el('h3', null, PLACE[ui.look].name + ' at ' + label(t)));
+    var ul = el('ul');
+    (obs.close.length ? obs.close : ['All is quiet here.']).forEach(function (s) { ul.appendChild(el('li', null, s)); });
+    tx.appendChild(ul);
+    if (ui.lookMsg) tx.appendChild(el('p', { class: 'note' }, ui.lookMsg));
+    d.appendChild(tx);
+    box.appendChild(d);
+  }
+}
+
+function cardTitle(idx, k) { return 'Card ' + (idx + 1) + ' · ' + PLACE[k[0]].name + ' · ' + label(k[1]); }
+function cardNode(c, k, idx, selectable, checked) {
+  var li = el('li', { class: 'card' });
+  li.appendChild(svgBox(sceneSVG(c, k[1], drawFlags(c, k[1], k[0]), zoomFor(c, k[0], k[1]), 'Picture for ' + cardTitle(idx, k))));
+  if (selectable) {
+    var lab = el('label');
+    var cb = el('input', { type: 'checkbox', 'data-i': String(idx) });
+    if (checked) cb.checked = true;
+    cb.addEventListener('change', onPickCard);
+    lab.appendChild(cb); lab.appendChild(el('span', null, cardTitle(idx, k)));
+    li.appendChild(lab);
+  } else li.appendChild(el('span', { class: 'cap' }, cardTitle(idx, k)));
+  var obs = observe(c, k[0], k[1]);
+  li.appendChild(el('p', { class: 'txt' }, (obs.close.length ? obs.close : ['All is quiet here.']).join(' ')));
+  return li;
+}
+function renderCards() {
+  var c = C(), cs = CS(), ul = $('cards'); clear(ul);
+  if (!cs.looked.length) { ul.appendChild(el('li', { class: 'empty' }, 'No cards yet. Press a “Look at” button to make one.')); return; }
+  cs.looked.forEach(function (k, i) { ul.appendChild(cardNode(c, k, i, false)); });
+}
+
+function renderTell() {
+  var c = C(), cs = CS(), body = $('tellBody'); clear(body);
+  if (!S.tut) { body.appendChild(el('p', { class: 'empty' }, 'Finish Pim’s short clock lesson first.')); return; }
+  if (deduced(cs)) {
+    body.appendChild(el('p', { class: 'feedback good' }, 'Found it! ' + c.found));
+    var ul = el('ul', { class: 'cards' });
+    cs.proof.c.forEach(function (i) { ul.appendChild(cardNode(c, cs.looked[i], i, false)); });
+    body.appendChild(ul);
+    return;
+  }
+  body.appendChild(el('p', null, 'Where is the ' + c.item + ' now? Then show Pim your proof: a card where you SAW it, a card from the very next time when it was GONE, and a CLUE card from where it is now.'));
+  var fs = el('fieldset'); fs.appendChild(el('legend', null, 'Where is the ' + c.item + ' now?'));
+  var ch = el('div', { class: 'choices' });
+  PLACES.forEach(function (p) {
+    var lab = el('label'), r = el('input', { type: 'radio', name: 'ans', value: p.id });
+    if (ui.tellA === p.id) r.checked = true;
+    r.addEventListener('change', function () { ui.tellA = p.id; ui.tellMsg = null; });
+    lab.appendChild(r); lab.appendChild(el('span', null, p.name)); ch.appendChild(lab);
+  });
+  fs.appendChild(ch); body.appendChild(fs);
+  var fs2 = el('fieldset'); fs2.appendChild(el('legend', null, 'Pick your proof cards (up to 4)'));
+  if (!cs.looked.length) fs2.appendChild(el('p', { class: 'empty' }, 'You need clue cards first. Look closely at places.'));
+  else {
+    var ul2 = el('ul', { class: 'cards' });
+    cs.looked.forEach(function (k, i) { ul2.appendChild(cardNode(c, k, i, true, ui.tellC.indexOf(i) !== -1)); });
+    fs2.appendChild(ul2);
+  }
+  body.appendChild(fs2);
+  var b = el('button', { type: 'button', class: 'primary', id: 'tellBtn' }, 'Tell Pim');
+  b.addEventListener('click', onTell);
+  body.appendChild(b);
+  if (ui.tellMsg) body.appendChild(el('p', { class: 'feedback try', role: 'status' }, ui.tellMsg));
+}
+
+function clockMini(t) { return '<svg viewBox="0 0 200 200" aria-hidden="true">' + clockSVG(t, 'small') + '</svg>'; }
+function tripNode(c, res, n) {
+  var d = el('div');
+  d.appendChild(el('p', { class: 'feedback ' + (res.ok ? 'good' : 'try') }, (n ? 'Test ' + n + ': ' : '') + res.reason));
+  var ol = el('ol', { class: 'trip', 'aria-label': 'Trip steps' });
+  res.steps.forEach(function (s) {
+    var li = el('li');
+    li.appendChild(svgBox(clockMini(s.t)));
+    li.appendChild(el('span', { class: 't' }, label(s.t)));
+    li.appendChild(el('span', null, s.txt));
+    ol.appendChild(li);
+  });
+  d.appendChild(ol);
+  return d;
+}
+function routeName(c, rid) { return c.route[rid].name; }
+function predWords(p) { return p === 'yes' ? 'in time' : p === 'no' ? 'too late' : p === 'unsure' ? 'not sure' : 'no guess'; }
+
+function renderPlan() {
+  var c = C(), cs = CS(), body = $('planBody'), sec = $('plan'); clear(body);
+  if (!deduced(cs)) {
+    sec.classList.add('locked');
+    body.appendChild(el('p', { class: 'empty' }, 'First find the ' + c.item + ' and tell Pim. Then you can plan the trip.'));
+    return;
+  }
+  sec.classList.remove('locked');
+  body.appendChild(el('p', null, 'Goal: take the ' + c.item + ' from ' + c.from + ' to ' + c.dest + ' by ' + label(c.deadline) + '. The plan starts at ' + label(c.now) + '.'));
+  var ideas = el('div', { class: 'row' });
+  ideas.appendChild(el('span', { class: 'note' }, 'Ideas to try:'));
+  c.ideas.forEach(function (idea) {
+    var b = el('button', { type: 'button', class: 'quiet' }, idea.txt);
+    b.addEventListener('click', function () { ui.draftR = idea.r; ui.draftD = idea.d; ui.shown = null; ui.showMsg = ''; render(); $('testBtn').focus(); });
+    ideas.appendChild(b);
+  });
+  body.appendChild(ideas);
+  var fs = el('fieldset'); fs.appendChild(el('legend', null, '1. Which way?'));
+  var ch = el('div', { class: 'choices routes' });
+  c.routes.forEach(function (r) {
+    var lab = el('label'), rb = el('input', { type: 'radio', name: 'route', value: r.id });
+    if (ui.draftR === r.id) rb.checked = true;
+    rb.addEventListener('change', function () { ui.draftR = r.id; ui.shown = null; ui.showMsg = ''; renderPlanFooter(); renderReport(); });
+    var sp = el('span', null, r.name); sp.appendChild(el('small', null, r.about));
+    lab.appendChild(rb); lab.appendChild(sp); ch.appendChild(lab);
+  });
+  fs.appendChild(ch); body.appendChild(fs);
+  var fs2 = el('fieldset'); fs2.appendChild(el('legend', null, '2. Leave at what time?'));
+  var sl = el('select', { id: 'depSel', 'aria-label': 'Leave at what time?' });
+  sl.appendChild(el('option', { value: '' }, 'Pick a time'));
+  for (var i = 0; i < N; i++) sl.appendChild(el('option', { value: String(i) }, label(i)));
+  sl.value = ui.draftD === null ? '' : String(ui.draftD);
+  sl.addEventListener('change', function () { ui.draftD = sl.value === '' ? null : +sl.value; ui.shown = null; ui.showMsg = ''; renderPlanFooter(); renderReport(); });
+  fs2.appendChild(sl); body.appendChild(fs2);
+  var fs3 = el('fieldset'); fs3.appendChild(el('legend', null, '3. Guess first (you can skip): will it get there by ' + label(c.deadline) + '?'));
+  var ch3 = el('div', { class: 'choices' });
+  [['yes', 'Yes, in time'], ['no', 'No, too late'], ['unsure', 'Not sure']].forEach(function (p) {
+    var lab = el('label'), rb = el('input', { type: 'radio', name: 'pred', value: p[0] });
+    if (ui.draftP === p[0]) rb.checked = true;
+    rb.addEventListener('change', function () { ui.draftP = p[0]; });
+    lab.appendChild(rb); lab.appendChild(el('span', null, p[1])); ch3.appendChild(lab);
+  });
+  fs3.appendChild(ch3); body.appendChild(fs3);
+  var foot = el('div', { id: 'planFoot' });
+  body.appendChild(foot);
+  renderPlanFooter();
+  // history
+  body.appendChild(el('h3', null, 'Plans you tested'));
+  if (!cs.trials.length) body.appendChild(el('p', { class: 'empty' }, 'No tests yet.'));
+  else {
+    var wrap = el('div', { class: 'tablewrap', tabindex: '0', role: 'region', 'aria-label': 'Plans you tested (table, scrolls sideways on small screens)' }), tb = el('table');
+    var hr = el('tr'); ['Test', 'Way', 'Planned start', 'Left at', 'Arrived', 'Your guess', 'Result'].forEach(function (h) { hr.appendChild(el('th', { scope: 'col' }, h)); });
+    var th = el('thead'); th.appendChild(hr); tb.appendChild(th);
+    var tbody = el('tbody');
+    cs.trials.forEach(function (tr, k) {
+      var res = trip(c, tr.r, tr.d), row = el('tr');
+      row.appendChild(el('td', null, String(k + 1)));
+      row.appendChild(el('td', null, routeName(c, tr.r)));
+      row.appendChild(el('td', null, label(tr.d)));
+      row.appendChild(el('td', null, res.leave === null ? 'did not leave' : label(res.leave)));
+      row.appendChild(el('td', null, res.arrive === null ? '—' : label(res.arrive)));
+      row.appendChild(el('td', null, predWords(tr.p)));
+      var td = el('td'); td.appendChild(el('span', { class: 'badge ' + (res.ok ? 'ok' : 'no') }, res.ok ? 'In time' : 'Not in time'));
+      row.appendChild(td);
+      tbody.appendChild(row);
+    });
+    tb.appendChild(tbody); wrap.appendChild(tb); body.appendChild(wrap);
+  }
+}
+function renderPlanFooter() {
+  var c = C(), cs = CS(), foot = $('planFoot');
+  if (!foot) return;
+  clear(foot);
+  var b = el('button', { type: 'button', class: 'primary', id: 'testBtn' }, 'Test this plan');
+  b.disabled = !(ui.draftR && ui.draftD !== null);
+  b.addEventListener('click', onTest);
+  foot.appendChild(b);
+  if (!b.disabled) foot.appendChild(el('p', { class: 'note' }, 'Plan: ' + routeName(c, ui.draftR) + ', planned start ' + label(ui.draftD) + '.'));
+  if (ui.showMsg) foot.appendChild(el('p', { class: 'note', role: 'status' }, ui.showMsg));
+  if (ui.shown !== null && cs.trials[ui.shown]) {
+    var tr = cs.trials[ui.shown];
+    var res = trip(c, tr.r, tr.d);
+    var head = el('h3', { id: 'resultHead', tabindex: '-1' }, 'Result of test ' + (ui.shown + 1));
+    foot.appendChild(head);
+    if (tr.p) foot.appendChild(el('p', null, 'You guessed: ' + predWords(tr.p) + '. It was ' + (res.ok ? 'in time' : 'not in time') + '.'));
+    foot.appendChild(tripNode(c, res, 0));
+    if (!res.ok) foot.appendChild(el('p', { class: 'note' }, 'That is useful to know. Try a different way or a different time. Your clue cards and old tests stay saved.'));
+  }
+}
+
+function renderEnd() {
+  var c = C(), cs = CS(), sec = $('end'), body = $('endBody');
+  sec.hidden = !solved(c, cs);
+  clear(body);
+  if (sec.hidden) return;
+  var winIdx = []; cs.trials.forEach(function (tr, k) { if (trip(c, tr.r, tr.d).ok) winIdx.push(k); });
+  var first = cs.trials[winIdx[0]], fr = trip(c, first.r, first.d);
+  var f = el('div', { class: 'fest' });
+  var art = '<svg viewBox="0 0 420 220" role="img" aria-label="Festival picture: the ' + c.item + ' arrives at ' + c.dest + ' and the villagers cheer.">' +
+    '<rect width="420" height="220" fill="#f6ead0"/><path d="M0 170 Q210 110 420 170 V220 H0Z" fill="#9fc58a"/>';
+  for (var q = 0; q < 7; q++) art += '<path d="M' + (20 + q * 60) + ' 20 l30 0 l-15 24z" fill="' + (q % 2 ? '#1f5f66' : '#8c2f39') + '"/>';
+  if (c.id === 'kite') art += kite(300, 70, 1, true);
+  if (c.id === 'drum') art += '<rect x="185" y="110" width="50" height="34" fill="#c0392b" stroke="#2b2118" stroke-width="2"/><ellipse cx="210" cy="110" rx="25" ry="8" fill="#fffdf2" stroke="#8c2f39" stroke-width="3"/>';
+  if (c.id === 'banner') art += '<rect x="150" y="40" width="120" height="70" fill="#c9b48c" stroke="#2b2118" stroke-width="2"/><path d="M130 60 H290 V86 Q210 98 130 86Z" fill="#f8e1e1" stroke="#8c2f39" stroke-width="2"/><text x="210" y="80" text-anchor="middle" font-size="18" font-weight="700" fill="#8c2f39">FESTIVAL</text>';
+  for (var p = 0; p < 6; p++) art += '<circle cx="' + (60 + p * 60) + '" cy="168" r="10" fill="#f0d7b0" stroke="#2b2118"/><rect x="' + (52 + p * 60) + '" y="178" width="16" height="24" fill="' + (p % 2 ? '#e2b860' : '#3a6fb5') + '"/>';
+  f.appendChild(svgBox(art + '</svg>'));
+  f.appendChild(el('p', { class: 'feedback good' }, c.win + ' It arrived at ' + label(fr.arrive) + ', and the deadline was ' + label(c.deadline) + '.'));
+  body.appendChild(f);
+  body.appendChild(el('h3', null, 'Tell what you did'));
+  var fs = el('fieldset'); fs.appendChild(el('legend', null, 'I noticed…'));
+  var ch = el('div', { class: 'choices' });
+  c.notice.forEach(function (n) {
+    var lab = el('label'), r = el('input', { type: 'radio', name: 'refn', value: n[0] });
+    if (cs.refl.n === n[0]) r.checked = true;
+    r.addEventListener('change', function () { cs.refl.n = n[0]; save(); renderReport(); });
+    lab.appendChild(r); lab.appendChild(el('span', null, n[1])); ch.appendChild(lab);
+  });
+  fs.appendChild(ch); body.appendChild(fs);
+  var fs2 = el('fieldset'); fs2.appendChild(el('legend', null, 'I chose…'));
+  var ch2 = el('div', { class: 'choices' });
+  winIdx.forEach(function (k) {
+    var tr = cs.trials[k], lab = el('label'), r = el('input', { type: 'radio', name: 'refc', value: String(k) });
+    if (cs.refl.c === k) r.checked = true;
+    r.addEventListener('change', function () { cs.refl.c = k; save(); renderReport(); });
+    lab.appendChild(r); lab.appendChild(el('span', null, routeName(c, tr.r) + ', starting ' + label(tr.d))); ch2.appendChild(lab);
+  });
+  fs2.appendChild(ch2); body.appendChild(fs2);
+  var fs3 = el('fieldset'); fs3.appendChild(el('legend', null, '…because'));
+  var ch3 = el('div', { class: 'choices' });
+  c.because.forEach(function (n) {
+    var lab = el('label'), r = el('input', { type: 'radio', name: 'refb', value: n[0] });
+    if (cs.refl.b === n[0]) r.checked = true;
+    r.addEventListener('change', function () { cs.refl.b = n[0]; save(); renderReport(); });
+    lab.appendChild(r); lab.appendChild(el('span', null, n[1])); ch3.appendChild(lab);
+  });
+  fs3.appendChild(ch3); body.appendChild(fs3);
+  var next = el('div', { class: 'row' });
+  CASES.forEach(function (k) {
+    if (k.id === c.id) return;
+    var b = el('button', { type: 'button' }, 'Try “' + k.menu + '”');
+    b.addEventListener('click', function () { askConfirm('Open “' + k.menu + '”? Your notes for this mystery stay saved.', function () { switchCase(k.id); }); });
+    next.appendChild(b);
+  });
+  body.appendChild(next);
+}
+
+function renderReport() {
+  var c = C(), cs = CS(), t = cs.t, body = $('repBody'); clear(body);
+  var h = hands(t);
+  body.appendChild(el('h3', null, 'Now: ' + label(t) + ' (' + timeWords(t) + ')'));
+  body.appendChild(el('p', null, 'Minute hand ' + h.minute + '. Hour hand ' + h.hour + '.'));
+  body.appendChild(el('p', null, 'You can look closely at: ' + PLACES.map(function (p) { return p.name; }).join(', ') + '.'));
+  var ul = el('ul');
+  PLACES.forEach(function (p) {
+    var o = observe(c, p.id, t).brief;
+    ul.appendChild(el('li', null, p.name + ': ' + (o.length ? o.join(' ') : 'All is quiet here.')));
+  });
+  body.appendChild(ul);
+  body.appendChild(el('h3', null, 'Clue cards (' + cs.looked.length + ')'));
+  if (!cs.looked.length) body.appendChild(el('p', { class: 'empty' }, 'None yet.'));
+  else {
+    var ol = el('ul');
+    cs.looked.forEach(function (k, i) { ol.appendChild(el('li', null, cardTitle(i, k) + ': ' + (observe(c, k[0], k[1]).close.join(' ') || 'All is quiet here.'))); });
+    body.appendChild(ol);
+  }
+  body.appendChild(el('h3', null, 'Finding'));
+  if (deduced(cs)) {
+    var pc = cs.proof.c.map(function (i) { return cs.looked[i]; });
+    var saw = null, gone = null;
+    pc.forEach(function (k) { if (k[0] === c.last && isSeen(c, k[0], k[1]) && !isSeen(c, k[0], k[1] + 1)) saw = k; });
+    if (saw) pc.forEach(function (k) { if (k[0] === saw[0] && k[1] === saw[1] + 1) gone = k; });
+    body.appendChild(el('p', null, 'What changed: at ' + label(saw[1]) + ' the ' + c.item + ' was at ' + PLACE[saw[0]].name + '. At ' + label(gone[1]) + ' it was gone.'));
+    body.appendChild(el('p', null, 'Finding: the ' + c.item + ' was in ' + PLACE[cs.proof.a].name + '. Proof cards: ' + cs.proof.c.map(function (i) { return i + 1; }).join(', ') + '.'));
+  } else body.appendChild(el('p', { class: 'empty' }, 'Not found yet.' + (cs.tries ? ' Ideas told to Pim: ' + cs.tries + '.' : '')));
+  body.appendChild(el('h3', null, 'Plan tests (' + cs.trials.length + ')'));
+  if (!cs.trials.length) body.appendChild(el('p', { class: 'empty' }, deduced(cs) ? 'No tests yet.' : 'Planning opens after the ' + c.item + ' is found.'));
+  else {
+    var ol2 = el('ol');
+    cs.trials.forEach(function (tr) {
+      var res = trip(c, tr.r, tr.d);
+      ol2.appendChild(el('li', null, routeName(c, tr.r) + ', planned start ' + label(tr.d) + '. ' +
+        (res.leave !== null ? 'Left at ' + label(res.leave) + '. ' : '') + res.reason + ' Guess: ' + predWords(tr.p) + '.'));
+    });
+    body.appendChild(ol2);
+  }
+  if (deduced(cs) && (ui.draftR || ui.draftD !== null)) {
+    var same = -1;
+    cs.trials.forEach(function (tr, k) { if (tr.r === ui.draftR && tr.d === ui.draftD) same = k; });
+    body.appendChild(el('p', { class: 'note' }, same !== -1
+      ? 'Current choice: the same plan as test ' + (same + 1) + '.'
+      : 'Draft plan (not tested yet): ' + (ui.draftR ? routeName(c, ui.draftR) : 'no way picked') + ', ' + (ui.draftD === null ? 'no time picked' : 'start ' + label(ui.draftD)) + '.'));
+  }
+  if (solved(c, cs)) {
+    body.appendChild(el('h3', null, 'Festival report'));
+    var wins = cs.trials.map(function (tr) { return trip(c, tr.r, tr.d); }).filter(function (r) { return r.ok; });
+    body.appendChild(el('p', null, 'Delivered: the ' + c.item + ' reached ' + c.dest + ' at ' + label(wins[0].arrive) + '. The deadline was ' + label(c.deadline) + '.'));
+    var looks = {}; cs.looked.forEach(function (k) { looks[k[1]] = true; });
+    body.appendChild(el('p', null, 'Clock times you looked at: ' + Object.keys(looks).map(Number).sort(function (a, b) { return a - b; }).map(label).join(', ') + '.'));
+    var n = c.notice.filter(function (x) { return x[0] === cs.refl.n; })[0];
+    var b = c.because.filter(function (x) { return x[0] === cs.refl.b; })[0];
+    var ct = cs.refl.c !== null ? cs.trials[cs.refl.c] : null;
+    body.appendChild(el('p', null, 'I noticed: ' + (n ? n[1] : '(not picked yet)')));
+    body.appendChild(el('p', null, 'I chose: ' + (ct ? routeName(c, ct.r) + ', starting ' + label(ct.d) : '(not picked yet)') + (b ? ', because ' + b[1] : '')));
+  }
+  if (storageNote) body.appendChild(el('p', { class: 'note' }, storageNote));
+}
+
+/* ---------- actions ---------- */
+function status(msg) { $('status').textContent = ''; window.setTimeout(function () { $('status').textContent = msg; }, 30); }
+function setTime(t, how) {
+  var cs = CS();
+  if (t < 0 || t >= N) {
+    ui.pim = t < 0 ? 'This is 9:00, the start of our day. The clock cannot wind back any more.' : 'This is 2:00, the end of our day. The clock cannot wind forward any more.';
+    render(); status(ui.pim); return;
+  }
+  cs.t = t; ui.look = null; ui.lookMsg = '';
+  if (!S.tut) {
+    if (ui.tutStep === 0 && t === 1) ui.tutStep = 1;
+    else if (ui.tutStep === 1 && t === 0) ui.tutStep = 2;
+  }
+  ui.pim = '';
+  save(); render();
+  status(hands(t).text);
+}
+function onJump(e) { setTime(+e.currentTarget.getAttribute('data-t')); }
+function onLook(e) {
+  var p = e.currentTarget.getAttribute('data-p'), cs = CS(), t = cs.t;
+  if (!PLACE.hasOwnProperty(p)) return;
+  var idx = -1;
+  cs.looked.forEach(function (k, i) { if (k[0] === p && k[1] === t) idx = i; });
+  if (idx === -1) { cs.looked.push([p, t]); idx = cs.looked.length - 1; ui.lookMsg = 'Card ' + (idx + 1) + ' added to your clue cards.'; }
+  else ui.lookMsg = 'You already have this card. It is card ' + (idx + 1) + '.';
+  ui.look = p; ui.pim = '';
+  save(); render();
+  status(PLACE[p].name + ' at ' + label(t) + '. ' + ui.lookMsg);
+}
+function onPickCard(e) {
+  var i = +e.currentTarget.getAttribute('data-i');
+  if (e.currentTarget.checked) {
+    if (ui.tellC.length >= 4) { e.currentTarget.checked = false; ui.tellMsg = 'Pick up to 4 cards. Uncheck one first.'; renderTell(); return; }
+    if (ui.tellC.indexOf(i) === -1) ui.tellC.push(i);
+  } else ui.tellC = ui.tellC.filter(function (x) { return x !== i; });
+  ui.tellMsg = null;
+}
+function onTell() {
+  var c = C(), cs = CS();
+  if (!ui.tellA) { ui.tellMsg = 'First pick where you think the ' + c.item + ' is now.'; renderTell(); focusMsg(); return; }
+  var cards = ui.tellC.filter(function (i) { return i >= 0 && i < cs.looked.length; });
+  if (!cards.length) { ui.tellMsg = 'Pick some proof cards too.'; renderTell(); focusMsg(); return; }
+  cs.tries++;
+  var res = checkProof(c, ui.tellA, cards.map(function (i) { return cs.looked[i]; }));
+  if (res.ok) {
+    cs.proof = { a: ui.tellA, c: cards.slice().sort(function (a, b) { return a - b; }) };
+    ui.tellMsg = null; ui.pim = '';
+    save(); render();
+    status('You found the ' + c.item + '! ' + c.found);
+    $('planh').setAttribute('tabindex', '-1'); $('planh').focus();
+    return;
+  }
+  var parts = [];
+  res.need.forEach(function (n) {
+    if (n === 'saw') parts.push('Pick a card where you SAW the ' + c.item + '.');
+    if (n === 'next') parts.push('Find the LAST time you saw the ' + c.item + ' at a place. Add the card from the very next time at that same place, when it was GONE.');
+    if (n === 'pairOther') parts.push('Your cards show the ' + c.item + ' leaving ' + PLACE[res.pairOther].name + '. Did you see it anywhere later? Use the last place you saw it.');
+    if (n === 'clue') parts.push('Pick a CLUE card that shows the ' + c.item + ' is at ' + PLACE[ui.tellA].name + '. Do you have one? If not, look closely there, or try another place.');
+  });
+  ui.tellMsg = 'Pim says: Not yet! ' + parts.join(' ');
+  save(); renderTell(); renderReport(); focusMsg();
+}
+function focusMsg() { var m = document.querySelector('#tellBody .feedback'); if (m) { m.setAttribute('tabindex', '-1'); m.focus(); } }
+var testing = false;
+function onTest() {
+  var c = C(), cs = CS();
+  if (testing || !deduced(cs) || !ui.draftR || ui.draftD === null || !c.route[ui.draftR]) return;
+  testing = true;
+  var dup = -1;
+  cs.trials.forEach(function (tr, k) { if (tr.r === ui.draftR && tr.d === ui.draftD) dup = k; });
+  if (dup !== -1) { ui.shown = dup; ui.showMsg = 'You tested this plan already. Here is test ' + (dup + 1) + ' again.'; }
+  else if (cs.trials.length >= MAX_TRIALS) { ui.showMsg = 'Your plan notebook is full.'; ui.shown = null; }
+  else {
+    cs.trials.push({ r: ui.draftR, d: ui.draftD, p: ui.draftP });
+    ui.shown = cs.trials.length - 1; ui.showMsg = '';
+    ui.draftP = null;
+  }
+  ui.pim = '';
+  save(); render();
+  var head = $('resultHead'); if (head) head.focus();
+  if (ui.shown !== null) { var r = cs.trials[ui.shown]; status(trip(c, r.r, r.d).reason); }
+  testing = false;
+}
+function switchCase(id) {
+  if (!CASE.hasOwnProperty(id)) return;
+  S.active = id;
+  ui.look = null; ui.lookMsg = ''; ui.draftR = null; ui.draftD = null; ui.draftP = null; ui.shown = null; ui.showMsg = '';
+  ui.tellA = null; ui.tellC = []; ui.tellMsg = null; ui.hintI = 0; ui.pim = '';
+  save(); render();
+  status('Opened: ' + CASE[id].menu + '. ' + pimText());
+  $('pimSay').setAttribute('tabindex', '-1'); $('pimSay').focus();
+}
+function askConfirm(text, fn) {
+  var d = $('confirm');
+  $('cfText').textContent = text;
+  ui.cfAction = fn;
+  ui.cfReturn = document.activeElement;
+  if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+  $('cfNo').focus();
+}
+function closeConfirm(yes) {
+  var d = $('confirm'), fn = ui.cfAction;
+  ui.cfAction = null;
+  if (typeof d.close === 'function' && d.open) d.close(); else d.removeAttribute('open');
+  if (yes && fn) fn();
+  else if (ui.cfReturn && ui.cfReturn.focus) ui.cfReturn.focus();
+}
+
+/* ---------- speech (optional) ---------- */
+function speak() {
+  var txt = $('pimSay').textContent, note = $('speakNote');
+  if (!('speechSynthesis' in window) || typeof window.SpeechSynthesisUtterance !== 'function') {
+    note.textContent = 'Read aloud is not available in this browser. All of Pim’s words are written above.'; note.hidden = false; return;
+  }
+  try {
+    window.speechSynthesis.cancel();
+    var u = new window.SpeechSynthesisUtterance(txt);
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+    note.textContent = 'Reading aloud. The words stay on the screen.'; note.hidden = false;
+  } catch (e) { note.textContent = 'Read aloud did not work here. All of Pim’s words are written above.'; note.hidden = false; }
+}
+
+/* ---------- wiring ---------- */
+function init() {
+  $('openDoor').addEventListener('click', function () { S.entered = true; save(); render(); $('pimSay').setAttribute('tabindex', '-1'); $('pimSay').focus(); });
+  $('fwd').addEventListener('click', function () { setTime(CS().t + 1); });
+  $('back').addEventListener('click', function () { setTime(CS().t - 1); });
+  $('tutNext').addEventListener('click', function () { S.tut = true; ui.pim = ''; save(); render(); $('pimSay').focus(); });
+  $('tutSkip').addEventListener('click', function () { S.tut = true; ui.pim = ''; save(); render(); $('pimSay').setAttribute('tabindex', '-1'); $('pimSay').focus(); });
+  $('hint').addEventListener('click', function () { ui.pim = 'Hint: ' + hintText(); ui.hintI++; render(); });
+  $('speak').addEventListener('click', speak);
+  $('motion').addEventListener('click', function () { S.rm = !S.rm; save(); render(); });
+  $('caseOpen').addEventListener('click', function () {
+    var id = $('caseSel').value;
+    if (id === S.active || !CASE.hasOwnProperty(id)) { status('That mystery is already open.'); return; }
+    askConfirm('Open “' + CASE[id].menu + '”? Your notes for “' + C().menu + '” stay saved.', function () { switchCase(id); });
+  });
+  $('restart').addEventListener('click', function () {
+    askConfirm('Start “' + C().menu + '” again? This clears its clue cards and plan tests. Other mysteries stay saved.', function () {
+      S.cases[S.active] = freshCase(); switchCase(S.active);
+    });
+  });
+  $('resetAll').addEventListener('click', function () {
+    askConfirm('Reset everything? This clears all mysteries and Pim’s lesson.', function () {
+      wipe(); var keep = S.rm; S = freshState(); S.entered = true; S.rm = keep; ui.tutStep = 0; switchCase('kite');
+    });
+  });
+  $('cfYes').addEventListener('click', function () { closeConfirm(true); });
+  $('cfNo').addEventListener('click', function () { closeConfirm(false); });
+  $('confirm').addEventListener('cancel', function (e) { e.preventDefault(); closeConfirm(false); });
+  if (S.tut) ui.tutStep = 2;
+  // read-only QA hook
+  var qs = window.location.search || '';
+  if (/(^\?|&)qa=1(&|$)/.test(qs)) {
+    var api = {
+      key: KEY, N: N, label: label, timeWords: timeWords, hands: hands, minuteAngle: minuteAngle, hourAngle: hourAngle,
+      caseIds: CASES.map(function (c) { return c.id; }),
+      caseInfo: function (id) { var c = CASE[id]; return c ? JSON.parse(JSON.stringify({ id: c.id, holder: c.holder, last: c.last, now: c.now, deadline: c.deadline, routes: c.routes.map(function (r) { return r.id; }) })) : null; },
+      observe: function (id, p, t) { return CASE[id] ? observe(CASE[id], p, t) : null; },
+      seen: function (id, p, t) { return isSeen(CASE[id], p, t); },
+      clue: function (id, p, t) { return isClue(CASE[id], p, t); },
+      closeDraws: function (id, p, t) { return CASE[id].facts.filter(function (f) { return f.close && f.draw && f.p === p && f.a <= t && t <= f.b; }).map(function (f) { return f.draw; }); },
+      drawFlags: function (id, t, p) { return JSON.parse(JSON.stringify(drawFlags(CASE[id], t, p || null))); },
+      trip: function (id, r, d) { return JSON.parse(JSON.stringify(trip(CASE[id], r, d))); },
+      checkProof: function (id, a, cards) { return checkProof(CASE[id], a, cards); },
+      validate: function (raw) { var v = validate(raw); return JSON.parse(JSON.stringify(v)); },
+      snapshot: function () { return JSON.parse(JSON.stringify(S)); }
+    };
+    window.ThimblewickQA = Object.freeze(api);
+    var q = $('qa'); q.hidden = false; q.textContent = 'QA mode: a read-only test hook is on. It never changes the game.';
+  }
+  render();
+}
+init();
+})();
+</script>
+</body>
+</html>
