@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<meta name="description" content="DoorQuests · Dwortals · The Silent Tongue #001 — The Porter's Lantern. A branching fantasy adventure. Provisional build pending Founder review.">
+<meta name="description" content="DoorQuests · Dwortals · The Silent Tongue #001 — The Porter's Lantern. A branching fantasy adventure.">
 <title>The Porter's Lantern · Dwortals #001 · DoorQuests</title>
 <style>
 /* DoorQuests · Dwortals #001 The Porter's Lantern — styles.css
@@ -100,6 +100,8 @@ button { font: inherit; color: inherit; }
 .m-slots b.person { background: #8fb7ff; }
 .m-slots b.story { background: #7a7a8c; border-color: #c9c9da; }
 @media (min-width: 720px) { .hud { grid-template-columns: 1fr 1fr 1.3fr; } .meter-pack { grid-column: auto; } }
+/* Short viewports (e.g. 200% zoom): stop the HUD from covering the story */
+@media (max-height: 560px) { .hud { position: static; } }
 
 /* ---------- layout ---------- */
 main { max-width: 760px; margin: 0 auto; padding: 12px 14px 64px; outline: none; }
@@ -162,26 +164,47 @@ main { max-width: 760px; margin: 0 auto; padding: 12px 14px 64px; outline: none;
 .lore details p { color: var(--ink-soft); }
 
 .choices { margin-top: 14px; }
-.choice-group { margin: 0 0 12px; padding: 0; border: 0; }
-.choice-group > h3 { font-family: var(--sans); font-size: .78em; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); margin: 12px 0 6px; }
 .choice-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .choice {
-  width: 100%; text-align: left; display: grid; gap: 2px; padding: 12px 14px 12px 44px; position: relative; min-height: 52px;
+  width: 100%; text-align: left; display: grid; grid-template-columns: 30px 1fr; column-gap: 10px; row-gap: 4px; align-items: start;
+  padding: 12px 14px; position: relative; min-height: 52px;
   border-radius: 12px; border: 1px solid var(--line); background: linear-gradient(180deg, #1b3263, #142a54); cursor: pointer;
-  transition: border-color .15s, transform .15s, background .15s;
+  transition: border-color .15s, background .15s;
 }
-.choice::before {
-  content: attr(data-n); position: absolute; left: 12px; top: 12px; width: 22px; height: 22px; border-radius: 50%;
-  border: 1px solid var(--gold); color: var(--gold); font-size: .75em; display: grid; place-items: center; font-weight: 700;
+.choice > *:not(.c-num) { grid-column: 2; }
+.c-num {
+  grid-column: 1; grid-row: 1 / span 6; width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--gold); color: var(--gold); font-size: .8em; display: grid; place-items: center; font-weight: 700;
 }
-.choice:hover:not(:disabled) { border-color: var(--gold); transform: translateY(-1px); background: linear-gradient(180deg, #213b72, #19305e); }
+.c-num-equip { border-style: dashed; color: var(--info); border-color: #3d5d93; font-size: .7em; }
+.choice:hover:not(:disabled) { border-color: var(--gold); background: linear-gradient(180deg, #213b72, #19305e); }
 .choice .c-label { font-weight: 600; }
 .choice .c-cost { font-size: .84em; color: var(--ink-soft); }
+.choice .c-risk { font-size: .8em; color: #ffd27a; font-style: italic; }
 .choice .c-reason { font-size: .84em; color: var(--cost); }
+.choice .chips { margin: 0; }
 .choice:disabled { cursor: not-allowed; opacity: .62; background: #10203f; }
 .choice[aria-pressed="true"] { border-color: var(--gold-hi); background: linear-gradient(180deg, #3a3415, #2a2810); }
 .choice[aria-pressed="true"] .c-label::after { content: "  ✓ on the pan"; color: var(--gold-hi); font-weight: 400; font-size: .85em; }
 .choice-primary { border-color: var(--gold); }
+.choice-equip { background: linear-gradient(180deg, #172a50, #11224a); border-style: dashed; }
+.choice-section { margin: 0 0 14px; }
+.group-h { font-family: var(--sans); font-size: .8em; text-transform: uppercase; letter-spacing: .1em; color: var(--gold); margin: 14px 0 2px; }
+.group-sub { font-size: .82em; color: var(--ink-soft); margin: 0 0 8px; }
+.choice-group > h4 { font-size: .78em; color: var(--ink-soft); margin: 10px 0 6px; font-weight: 600; }
+.alert { border-radius: 10px; padding: 10px 12px; margin: 4px 0 12px; font-size: .95em; }
+.alert-low { background: #3a2a08; border: 2px solid #e0a43a; color: #ffe7b0; }
+.alert-out { background: #2a0f12; border: 2px solid #e06a5a; color: #ffd6cf; }
+.alert strong::before { content: "⚠ "; }
+.meter.warn .m-text { color: #ffd27a; font-weight: 700; }
+.pack-summary { font-size: .85em; color: var(--ink-soft); margin: 0 0 8px; }
+.carry { margin-top: 12px; }
+.carry:focus { outline: 3px solid var(--focus); }
+.export-msg { min-height: 1.4em; margin-top: 8px; }
+.export-msg.ok { color: var(--gain); }
+.export-msg.err { color: var(--cost); }
+.bk-sec { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px 12px; display: grid; gap: 8px; }
+.bk-sec h3 { margin: 4px 0; font-size: 1em; }
 
 /* pack widget */
 .pack-widget { background: rgba(10, 20, 48, .7); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin: 6px 0 12px; }
@@ -267,7 +290,6 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   .choice, .btn, .tab, .mode-card { border: 2px solid CanvasText; }
   .chip::before { forced-color-adjust: none; }
 }
-
 </style>
 </head>
 <body>
@@ -324,7 +346,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     </div>
     <h1 id="start-title">The Porter's Lantern</h1>
     <p class="lede">You are hired to carry other people's things into the Kestrel Deeps. Nobody expects you to matter.</p>
-    <p class="provisional">Provisional build for Founder review · Chapter #001 of 31 · No account, no network, saves stay in this browser.</p>
+    <p class="provisional">Door #001 of 31 · No account needed · Your progress is saved in this browser only.</p>
 
     <div class="mode-cards">
       <article class="mode-card" aria-labelledby="mc-epic-h">
@@ -340,7 +362,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         <div class="row" id="act-free"></div>
       </article>
     </div>
-    <p class="small"><button type="button" class="linkish" id="btn-backups-start">Backups: export or import a save</button></p>
+    <p class="small"><button type="button" class="linkish" id="btn-backups-start">Backups: export or restore a save</button></p>
   </section>
 
   <!-- Game screen -->
@@ -393,7 +415,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       <button type="button" id="btn-title" class="btn">Return to title (progress is saved)</button>
       <button type="button" id="btn-restart" class="btn btn-danger">Restart this chapter…</button>
     </div>
-    <button type="button" id="btn-backups" class="btn">Backups: export or import…</button>
+    <button type="button" id="btn-backups" class="btn">Backups: export or restore…</button>
     <details class="small"><summary>About saving</summary>
       <p>Saves live in this browser's local storage, one slot for Epic Journey and one for Free Exploration. They do not sync between devices or browsers, and clearing site data erases them. Export a backup to keep a copy. The previous checkpoint is kept as a one-step fallback if the current save is damaged.</p>
     </details>
@@ -412,12 +434,25 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       <label class="check"><input type="radio" name="bk-mode" value="epic" checked> Epic Journey</label>
       <label class="check"><input type="radio" name="bk-mode" value="free"> Free Exploration</label>
     </fieldset>
-    <button type="button" id="bk-export" class="btn">Download backup (.json)</button>
-    <label for="bk-file" class="lbl">Import from a file</label>
-    <input type="file" id="bk-file" accept="application/json,.json">
-    <label for="bk-text" class="lbl">…or paste backup JSON</label>
-    <textarea id="bk-text" rows="4" spellcheck="false"></textarea>
-    <button type="button" id="bk-import" class="btn">Validate and import</button>
+    <section aria-labelledby="bk-exp-h" class="bk-sec">
+      <h3 id="bk-exp-h">Export (keeps a copy; changes nothing)</h3>
+      <div class="row">
+        <button type="button" id="bk-export" class="btn">Download backup (.json)</button>
+        <button type="button" id="bk-show" class="btn">Show backup text</button>
+      </div>
+      <div id="bk-out-wrap" hidden>
+        <label for="bk-out" class="lbl">Backup text (select all and copy)</label>
+        <textarea id="bk-out" rows="4" spellcheck="false" readonly></textarea>
+      </div>
+    </section>
+    <section aria-labelledby="bk-imp-h" class="bk-sec">
+      <h3 id="bk-imp-h">Restore (replaces the chosen save)</h3>
+      <label for="bk-file" class="lbl">Restore from a file</label>
+      <input type="file" id="bk-file" accept="application/json,.json">
+      <label for="bk-text" class="lbl">…or paste backup text</label>
+      <textarea id="bk-text" rows="4" spellcheck="false"></textarea>
+      <button type="button" id="bk-import" class="btn">Check and restore</button>
+    </section>
     <p id="bk-msg" class="bk-msg" role="status"></p>
   </div>
 </dialog>
@@ -770,6 +805,12 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       coins: s.coins,
       tongue: { holder: s.tongue.holder, location: s.tongue.location, identityKnown: s.tongue.identityKnown,
         humsNearDragonBreath: s.tongue.humsNearDragonBreath, sourceRoute: s.tongue.sourceRoute },
+      // Knowledge and physical custody are deliberately separate fields: later chapters may
+      // take the object away while the hero keeps knowing what it is.
+      knowsSilentTongue: !!s.tongue.identityKnown,
+      tongueCustody: { inHeroCustody: s.tongue.holder === 'hero', carried: !!s.tongue.carried, location: s.tongue.location, holder: s.tongue.holder },
+      keepsakes: (s.pocket.keepsakes || []).slice(),
+      knowledgeIds: s.knowledge.map(function (k) { return k.id; }),
       tuck: { companion: !!b.tuck.returned, bond: !!b.tuck.bond },
       names: s.craftNames.map(function (c) { return c.id; }),
       bonds: { odran: b.odran.trust, mirelle: b.mirelle.trust, brask: b.brask.trust, braskStatus: b.brask.status,
@@ -804,7 +845,6 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     readForNextChapter: readForNextChapter, toWorldKeyringEntry: toWorldKeyringEntry
   };
 });
-
 </script>
 <script>
 /*
@@ -826,14 +866,14 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   /* ================================================================ ITEMS */
   // slots = frame capacity; load = physical strain the Delvekin floors count.
   var ITEMS = {
-    rope:     { name: 'Rope', slots: 1, load: 1, uses: 3, kind: 'tool', desc: 'Thirty feet of tarred hemp. Frays after 3 uses.' },
-    crowbar:  { name: 'Crowbar', slots: 1, load: 2, uses: 3, kind: 'tool', desc: 'Black iron, heavy. Pries, levers, persuades. 3 uses.' },
-    moss:     { name: 'Healing Moss', slots: 1, load: 0, qty: 2, kind: 'consumable', desc: 'Two pads in one bundle. Each restores 4 Vitality — yours or someone else\'s.' },
-    chalk:    { name: 'Chalk', slots: 1, load: 0, uses: 3, kind: 'tool', desc: 'Guild marking chalk. Weighs nothing. 3 uses.' },
-    salt:     { name: 'Salt', slots: 1, load: 1, qty: 2, kind: 'consumable', desc: 'A pouch with two good handfuls. Beasts will not cross a salt line; deep folk prize it.' },
+    rope:     { name: 'Rope', slots: 1, load: 1, uses: 3, kind: 'tool', desc: 'Thirty feet of tarred hemp for climbing, tying and levering. 3 uses before it frays.' },
+    crowbar:  { name: 'Crowbar', slots: 1, load: 2, uses: 3, kind: 'tool', desc: 'Black iron, heavy. Pries and levers. 3 uses.' },
+    moss:     { name: 'Healing Moss', slots: 1, load: 0, qty: 2, kind: 'consumable', desc: 'One bundle holding 2 pads (1 slot). Each pad restores 4 Vitality, yours or someone else\'s.' },
+    chalk:    { name: 'Chalk', slots: 1, load: 0, uses: 3, kind: 'tool', desc: 'Guild marking chalk for marking safe ground. Weighs nothing. 3 uses.' },
+    salt:     { name: 'Salt', slots: 1, load: 1, qty: 2, kind: 'consumable', desc: 'One pouch holding 2 handfuls (1 slot). Beasts will not cross a salt line; deep folk prize it.' },
     bell:     { name: 'Recall Bell', slots: 1, load: 1, uses: 1, kind: 'tool', desc: 'Rings once in the Guild gatehouse when shaken. One use.' },
-    oil:      { name: 'Spare Oil', slots: 1, load: 1, qty: 1, cost: 1, kind: 'consumable', desc: 'One flask of your lamp oil. Refills 4 Light. Costs 1 silver.' },
-    bread:    { name: 'Bread', slots: 1, load: 1, qty: 2, kind: 'consumable', desc: 'Two extra loaves wrapped in cloth (separate from the loaves on your belt).' },
+    oil:      { name: 'Spare Oil', slots: 1, load: 1, qty: 1, cost: 1, kind: 'consumable', desc: 'One flask of your lamp oil (1 slot). Refills 4 Light. Costs 1 silver.' },
+    bread:    { name: 'Bread', slots: 1, load: 1, qty: 2, kind: 'consumable', desc: 'One cloth holding 2 extra loaves (1 slot), separate from the loaves on your belt.' },
     shield:   { name: 'Sir Odran\'s Shield', slots: 2, load: 3, kind: 'loan', desc: 'A knight\'s kite shield, on loan. Two slots, heavy. Odran will want it back.' },
     tongue:   { name: 'The Silent Tongue', slots: 1, load: 1, kind: 'story', desc: 'An iron bell-clapper with no bell. Hums near dragon breath.' },
     bluelamp: { name: 'Blue-Flame Lamp', slots: 1, load: 1, kind: 'treasure', desc: 'A dragon\'s gift. Burns without oil if you are patient with it.' },
@@ -850,9 +890,9 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   };
   var START_COINS = 5;
   var BG = {
-    docks:  { name: 'Docks', desc: 'Knots are second nature. Knot-work with Rope takes no extra time (no Light cost), though it still wears the rope.' },
-    farm:   { name: 'Farm', desc: 'Sturdier than you look: +1 maximum and starting Vitality (13).' },
-    forest: { name: 'Forest-edge', desc: 'One free Sense in Darkness: feel for a living presence or a hidden danger.' }
+    docks:  { name: 'Docks', desc: 'Knots are second nature. If you pack Rope, tying it takes you no extra time, so no extra lamp oil burns. The rope still wears out.' },
+    farm:   { name: 'Farm', desc: 'Sturdier than you look: you start with 13 Vitality instead of 12.' },
+    forest: { name: 'Forest-edge', desc: 'Once this chapter you can use Sense in Darkness: close your eyes and feel for living things or hidden danger nearby.' }
   };
   var WEIGHTS = { crown: { name: 'Crown', notches: 1 }, bell: { name: 'Bell', notches: 2 }, anvil: { name: 'Anvil', notches: 3 }, drake: { name: 'Drake', notches: 5 } };
   var BEAT_NAMES = ['', 'Guild Hall', 'Packing', 'Collapse at the Gate', 'Portcullis', 'Gallery of Scales', 'Hound Stair / Hushhold\'s Edge',
@@ -914,7 +954,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   function qty(s, id) { var g = entry(s, id); return g ? (g.qty || g.uses || 0) : 0; }
   function spendLight(s, n, ctx) {
     var spend = Math.min(n, s.light.remaining);
-    if (spend > 0) { s.light.remaining -= spend; chip(ctx, 'Light −' + spend, 'cost'); }
+    if (spend > 0) { s.light.remaining -= spend; s.flags.lightBurned = (s.flags.lightBurned || 0) + spend; chip(ctx, 'Light −' + spend, 'cost'); }
     if (s.light.remaining === 0) {
       if (s.light.lit) { s.light.lit = false; say(ctx, 'Your lantern gutters and goes out. The dark is total.'); }
       if (s.hero.conditions.indexOf('In darkness') < 0) s.hero.conditions.push('In darkness');
@@ -974,7 +1014,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     o = o || {};
     if (o.guided) { chip(ctx, 'Guided: no Light spent', 'info'); return next; }
     if (s.light.remaining > 0) { if (!s.light.lit) s.light.lit = true; spendLight(s, 1, ctx); return next; }
-    if (tuckHere(s)) { chip(ctx, 'Tuck\'s glow lights the way', 'gain'); return next; }
+    if (tuckHere(s)) { chip(ctx, 'Tuck\'s glow lights the way', 'info'); return next; }
     hurt(s, 1, ctx, 'feeling your way in the dark');
     return next;
   }
@@ -1035,7 +1075,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       { label: 'Ask about the Delvekin', text: 'The clerk shrugs. "Old builders. Short, clever, gone. Their floors hold a porter carrying a sensible load. Carry an unsensible one and you\'ll meet the floor below."' }
     ],
     options: function () {
-      return [O('sign', 'Sign the porter\'s ledger', { cost: 'Begins your contract' }, function (s, ctx) {
+      return [O('sign', 'Sign the porter\'s ledger', { note: 'Starts your contract' }, function (s, ctx) {
         say(ctx, 'You sign. The clerk blots it. "Where were you before you needed coin?"');
         return 'hall_background';
       })];
@@ -1044,14 +1084,16 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 
   S.hall_background = {
     beat: 1, title: 'Where You Come From', art: 'hall',
-    text: function () { return ['The clerk\'s quill hovers over the line marked BACKGROUND. It is the only question anyone will ask about you today.']; },
+    text: function () { return ['The clerk\'s quill hovers over the line marked BACKGROUND. It is the only question anyone will ask about you today.',
+      'Before you answer, three things every porter learns on the first day. Light: your lantern burns oil, and every move from one place to the next in the Deeps uses up 1 Light. Rope: a pack item you may choose later, used for climbing, tying and levering; it wears out after a few uses. Sense in Darkness: a knack some forest folk have for feeling living things and hidden dangers in the dark.']; },
+    lore: [{ label: 'How do Vitality and Light work?', text: 'Vitality is your strength and health: falls, bites and hard labour lower it; bread and healing moss restore it. It never drops below 1: at the brink, something always pulls you back. Light is your lamp oil: it runs down as you travel. In the dark you can still move, but feeling your way costs Vitality unless something lights or guides you.' }],
     options: function () {
       function pick(id, label) {
-        return O('bg:' + id, label, { cost: BG[id].desc }, function (s, ctx) {
+        return O('bg:' + id, label, { note: BG[id].desc }, function (s, ctx) {
           s.hero.background = id;
           if (id === 'farm') { s.hero.maxVit = 13; s.hero.vit = 13; chip(ctx, 'Max Vitality 13', 'gain'); }
           if (id === 'forest') { s.hero.senseCharge = true; chip(ctx, 'Sense in Darkness ×1', 'gain'); }
-          if (id === 'docks') chip(ctx, 'Knot-work: no time cost', 'gain');
+          if (id === 'docks') chip(ctx, 'Knot-work: no time cost', 'info');
           return 'hall_kettlekin';
         });
       }
@@ -1070,7 +1112,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     },
     options: function () {
       return [
-        O('feed', 'Break off a loaf and give it to the kettlekin', { cost: 'Belt bread 2 → 1' }, function (s, ctx) {
+        O('feed', 'Break off a loaf and give it to the kettlekin', { note: 'Your belt loaves are all the food you carry so far' }, function (s, ctx) {
           s.pocket.bread -= 1; s.consumed.bread = (s.consumed.bread || 0) + 1;
           s.bonds.tuck.bond = true;
           chip(ctx, 'Bread −1 (given away)', 'cost');
@@ -1078,7 +1120,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
           know(s, 'fed-kettlekin', 'You gave a loaf to a hungry kettlekin in the Guild Hall.', null, 'deed');
           return 'hall_oil';
         }),
-        O('keep', 'Keep both loaves and shoo it gently away', { cost: 'Belt bread stays 2' }, function (s, ctx) {
+        O('keep', 'Keep both loaves and shoo it gently away', { note: 'You keep your bread' }, function (s, ctx) {
           say(ctx, 'It blinks once, slowly, and slips back into the ashes of the hearth.');
           return 'hall_oil';
         })
@@ -1092,13 +1134,14 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       return [
         'An old woman with a tray of flasks blocks the stair down. "Nobody goes into the Deeps on Guild oil. Guild oil is a joke."',
         'Your purse: ' + s.coins + ' silver. She holds up two flasks: fish-oil, cloudy and gold, and clearwick, thin as water.',
-        '"Fish-oil\'s bright and it\'s cheap. Things down there will smell you coming. Clearwick\'s quiet. It costs more and it shows you less."'
+        '"Fish-oil\'s bright and it\'s cheap. Things down there will smell you coming. Clearwick\'s quiet. It costs more and it shows you less."',
+        '"And mind," she adds, tapping the flasks. "Every move from one place to the next down there burns about one measure. Fish-oil gives you eight measures. Clearwick gives you five. A trip through the Deeps takes eight or so. Pack a spare flask, or learn to love the dark."'
       ];
     },
     options: function (s) {
       function buy(id) {
         var o = OIL[id];
-        return O('oil:' + id, 'Buy ' + o.name + ' — ' + o.price + ' silver', { cost: 'Light ' + o.light + ' · ' + o.desc + ' · Purse ' + s.coins + ' → ' + (s.coins - o.price) },
+        return O('oil:' + id, 'Buy ' + o.name + ' — ' + o.price + ' silver', { note: o.desc + ' Lasts about ' + o.light + ' moves between places.' },
           function (s2, ctx) {
             s2.coins -= o.price;
             s2.light = { oilType: id, remaining: o.light, max: o.light, scented: o.scented, lit: true };
@@ -1132,31 +1175,31 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       PACK_CHOICES.forEach(function (id) {
         var it = ITEMS[id];
         if (has(s, id)) {
-          opts.push(O('remove:' + id, 'Take out ' + it.name, { group: 'In your pack', cost: 'Frees ' + it.slots + ' slot · Load −' + it.load + (it.cost ? ' · refund ' + it.cost + ' silver' : '') },
+          opts.push(O('remove:' + id, 'Take the ' + it.name + ' out of your pack', { kind: 'equip', note: 'In your pack: ' + it.desc + ' · ' + it.slots + ' slot · Load ' + it.load },
             function (s2, ctx) { removeGear(s2, id, null, null); if (it.cost) { s2.coins += it.cost; chip(ctx, 'Silver +' + it.cost, 'gain'); } chip(ctx, it.name + ' back on the shelf', 'info'); return 'pack'; }));
         } else {
           var noRoom = slotsFree(s) < it.slots, noCoin = it.cost && s.coins < it.cost;
-          opts.push(O('add:' + id, 'Pack ' + it.name, {
-            group: 'Guild stores', cost: it.desc + ' · 1 slot · Load ' + it.load + (it.cost ? ' · ' + it.cost + ' silver' : ''),
+          opts.push(O('add:' + id, 'Pack the ' + it.name, {
+            kind: 'equip', note: it.desc + ' · ' + it.slots + ' slot · Load ' + it.load,
             disabled: noRoom || noCoin, reason: noRoom ? 'No free slot — take something out first.' : (noCoin ? 'Not enough silver.' : '')
           }, function (s2, ctx) { addGear(s2, id, ctx); if (it.cost) { s2.coins -= it.cost; chip(ctx, 'Silver −' + it.cost, 'cost'); } return 'pack'; }));
         }
       });
       if (!F(s, 'shieldDecided')) {
         var room = slotsFree(s) >= 2;
-        opts.push(O('shield:accept', 'Accept Sir Odran\'s shield (loan)', { group: 'Sir Odran\'s request', cost: '2 slots · Load 3 · must be returned',
+        opts.push(O('shield:accept', 'Accept Sir Odran\'s shield (loan)', { group: 'Sir Odran\'s request', note: '2 slots · Load 3 · a loan: return it at the Guild',
           disabled: !room, reason: room ? '' : 'Needs 2 free slots. Take two items out first.' }, function (s2, ctx) {
           addGear(s2, 'shield', ctx, { loanedBy: 'odran' }); flag(s2, 'shieldDecided'); flag(s2, 'shieldAccepted');
           trust(s2, 'odran', 1, ctx); say(ctx, '"Good." Odran almost smiles. "Don\'t scratch it."');
           return 'pack';
         }));
-        opts.push(O('shield:decline', 'Decline — your frame is for the expedition\'s stores', { group: 'Sir Odran\'s request', cost: 'Odran trust −1' }, function (s2, ctx) {
+        opts.push(O('shield:decline', 'Decline — your frame is for the expedition\'s stores', { group: 'Sir Odran\'s request', note: 'Odran will remember this' }, function (s2, ctx) {
           flag(s2, 'shieldDecided'); flag(s2, 'shieldDeclined'); trust(s2, 'odran', -1, ctx);
           say(ctx, 'Odran\'s jaw tightens. "As you like, porter." He slings the shield on his own back with a great deal of noise.');
           return 'pack';
         }));
       } else if (F(s, 'shieldAccepted') && has(s, 'shield')) {
-        opts.push(O('shield:return', 'Hand the shield back to Odran after all', { group: 'Sir Odran\'s request', cost: 'Frees 2 slots · Odran trust −1' }, function (s2, ctx) {
+        opts.push(O('shield:return', 'Hand the shield back to Odran after all', { group: 'Sir Odran\'s request', note: 'Frees 2 slots · Odran will remember this' }, function (s2, ctx) {
           removeGear(s2, 'shield', null, null); flag(s2, 'shieldAccepted', false); flag(s2, 'shieldDeclined'); trust(s2, 'odran', -1, ctx);
           say(ctx, 'Odran takes it back without a word, which is somehow worse than a word.');
           return 'pack';
@@ -1164,7 +1207,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       }
       var used = slotsUsed(s);
       opts.push(O('confirm', 'Review pack and Keyring changes', {
-        group: 'Ready', cost: used + ' of 6 slots · Load ' + loadOf(s) + (used < 6 ? ' · ' + (6 - used) + ' slot(s) still empty' : ''),
+        group: 'Ready', note: 'Nothing changes yet. ' + used + ' of 6 slots used · Load ' + loadOf(s) + (used < 6 ? ' · ' + (6 - used) + ' slot' + (6 - used > 1 ? 's' : '') + ' still empty' : ''),
         disabled: !F(s, 'shieldDecided'), reason: F(s, 'shieldDecided') ? '' : 'Answer Sir Odran about his shield first.'
       }, function () { return 'pack_review'; }));
       return opts;
@@ -1177,11 +1220,12 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       var d = diffLines(s.sub.packBase, snapshotForDiff(s));
       var t = ['You heft the frame. ' + (loadOf(s) >= FLOOR_LIMIT ? 'It is heavy. Heavier than a sensible porter would carry over an old floor.' : 'It sits well on your shoulders.')];
       t.push('Keyring changes if you set out now: ' + (d.length ? d.join('; ') : 'no changes') + '.');
+      t.push('At the top of the gate stair, dust trickles from a cracked ceiling. "Mind your heads," the clerk calls after you. "That stair sheds stone." ' + (F(s, 'shieldAccepted') ? 'Odran\'s shield on your frame would take a falling stone for you.' : 'Without cover, a porter may take a knock on the way down.'));
       return t;
     },
     options: function (s) {
       return [
-        O('descend', 'Shoulder the pack and follow the expedition down', { cost: 'Locks in your pack' }, function (s2, ctx) {
+        O('descend', 'Shoulder the pack and follow the expedition down', { note: F(s, 'shieldAccepted') ? 'Locks in your pack · the stair ceiling is cracked, but Odran\'s shield covers your head' : 'Locks in your pack · the stair ceiling is cracked; without cover, expect a knock' }, function (s2, ctx) {
           flag(s2, 'packConfirmed');
           s2.bonds.odran.status = 'with'; s2.bonds.mirelle.status = 'with'; s2.bonds.brask.status = 'with';
           if (F(s2, 'shieldAccepted')) {
@@ -1193,7 +1237,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
           }
           return 'collapse';
         }),
-        O('repack', 'Go back and repack', {}, function () { return 'pack'; })
+        O('repack', 'Go back and repack', { note: 'Nothing changes' }, function () { return 'pack'; })
       ];
     }
   };
@@ -1206,30 +1250,31 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       var t = ['When the dust settles, the expedition is in pieces.',
         'Sir Odran is pinned under a fallen beam, one arm trapped, his voice tight: "Porter. The beam. If you would be so kind."',
         'From somewhere further down, faint and echoing, comes Mirelle\'s voice: "Is anyone there? My leg — I can\'t — "',
-        'And Brask\'s lamp is already bobbing away down a side passage. "I\'ll scout for a way round!" he calls, and is gone.'];
+        'And Brask\'s lamp is already bobbing away down a side passage. "I\'ll scout for a way round!" he calls, and is gone.',
+        'From here on, every move from one place to the next burns 1 Light from your lantern. Each choice shows what it will cost before you make it.'];
       if (F(s, 'shieldAccepted')) t.push(odranWith(s) ? '' : 'Odran\'s eyes find his shield on your frame, dented now. "It saved your skull? Then it has earned its keep."');
       else t.push('"You\'d have been glad of that shield," Odran manages, through his teeth.');
       return t.filter(Boolean);
     },
     options: function (s) {
       var o = [];
-      if (has(s, 'crowbar')) o.push(O('free:crowbar', 'Lever the beam off Odran with the crowbar', { group: 'Free Odran', cost: 'Crowbar −1 use' }, function (s2, ctx) {
+      if (has(s, 'crowbar')) o.push(O('free:crowbar', 'Lever the beam off Odran with the crowbar', { group: 'Free Odran' }, function (s2, ctx) {
         consume(s2, 'crowbar', ctx, 'Crowbar −1 use'); return freeOdran(s2, ctx, 'The crowbar bites, the beam lifts, and Odran rolls free.');
       }));
-      if (has(s, 'rope')) o.push(O('free:rope', 'Rig a rope lever over the rubble', { group: 'Free Odran', cost: 'Rope −1 use' + (isDocks(s) ? ' · knot-work: no time lost' : ' · Light −1 (fiddly knots take time)') }, function (s2, ctx) {
+      if (has(s, 'rope')) o.push(O('free:rope', 'Rig a rope lever over the rubble', { group: 'Free Odran', note: isDocks(s) ? 'Docks knot-work: no extra time' : 'Fiddly knots take time, and time burns oil' }, function (s2, ctx) {
         consume(s2, 'rope', ctx, 'Rope −1 use');
-        if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no time lost', 'gain');
+        if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no time lost', 'info');
         return freeOdran(s2, ctx, isDocks(s2) ? 'Your hands tie the hitch before your head has finished deciding to. The beam swings up like a gate.' : 'It takes three tries to get the knot right, but the beam swings up and Odran crawls free.');
       }));
-      o.push(O('free:hands', 'Heave the beam with your bare hands', { group: 'Free Odran', cost: 'Vitality −2' }, function (s2, ctx) {
+      o.push(O('free:hands', 'Heave the beam with your bare hands', { group: 'Free Odran', note: 'Hard on your back' }, function (s2, ctx) {
         hurt(s2, 2, ctx, 'strain'); return freeOdran(s2, ctx, 'Something in your back complains loudly, but the beam shifts and Odran drags himself out.');
       }));
-      o.push(O('mirelle', 'Leave Odran and follow Mirelle\'s voice', { group: 'Follow Mirelle', cost: 'Odran trust −1 · he must dig himself out' }, function (s2, ctx) {
+      o.push(O('mirelle', 'Leave Odran and follow Mirelle\'s voice', { group: 'Follow Mirelle', note: 'He must dig himself out' }, function (s2, ctx) {
         trust(s2, 'odran', -1, ctx); flag(s2, 'leftOdran');
         say(ctx, '"Go, then," Odran grunts. "I am a knight. I will dig myself out." You hear him start to do exactly that as you go.');
         return travel(s2, ctx, 'portcullis');
       }));
-      if (senseAvailable(s)) o.push(O('sense', 'Sense in Darkness: feel for who is alive, and where', { group: 'Forest-edge', cost: 'Uses your one Sense' }, function (s2, ctx) {
+      if (senseAvailable(s)) o.push(O('sense', 'Sense in Darkness: feel for who is alive, and where', { group: 'Forest-edge', note: 'Your one Sense this chapter' }, function (s2, ctx) {
         useSense(s2, ctx);
         know(s2, 'sense-collapse', 'Sense in Darkness: Mirelle is alive, two levels down. Brask\'s footsteps go not toward her but toward something warm and enormous, far below.', ctx);
         say(ctx, 'You close your eyes. Mirelle: alive, frightened, two levels down. Brask: moving fast, away from her, toward a warmth so large it feels like weather.');
@@ -1257,16 +1302,16 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     lore: [{ label: 'Look closely at the weights', text: 'Each weight has notches filed into its rim. Crown: 1 notch. Bell: 2 notches. Anvil: 3 notches. Drake: 5 notches.' }],
     options: function (s) {
       var o = [];
-      if (has(s, 'crowbar')) o.push(O('crowbar', 'Pry the teeth up with the crowbar', { cost: 'Crowbar −1 use' }, function (s2, ctx) {
+      if (has(s, 'crowbar')) o.push(O('crowbar', 'Pry the teeth up with the crowbar', {}, function (s2, ctx) {
         consume(s2, 'crowbar', ctx, 'Crowbar −1 use'); say(ctx, 'Iron shrieks on iron. The teeth rise a hand\'s width, then two, and you wedge them open.');
         flag(s2, 'portcullisBy', 'crowbar'); return travel(s2, ctx, 'gallery');
       }));
-      o.push(O('puzzle', 'Work the counterweight', { cost: 'Puzzle · a wrong load costs 1 Vitality' }, function (s2) { s2.sub.pan = s2.sub.pan || []; return 'portcullis_puzzle'; }));
-      if (odranWith(s)) o.push(O('odran', 'Heave the teeth up together with Odran', { cost: 'Vitality −2 · Odran trust +1' }, function (s2, ctx) {
+      o.push(O('puzzle', 'Work the counterweight', { note: 'Puzzle · a wrong load hurts; you can retry or step back' }, function (s2) { s2.sub.pan = s2.sub.pan || []; return 'portcullis_puzzle'; }));
+      if (odranWith(s)) o.push(O('odran', 'Heave the teeth up together with Odran', {}, function (s2, ctx) {
         hurt(s2, 2, ctx, 'heaving'); trust(s2, 'odran', 1, ctx); say(ctx, 'You and Odran get your shoulders under the bottom bar. On three. On three again. On "please," and it rises.');
         flag(s2, 'portcullisBy', 'odran'); return travel(s2, ctx, 'gallery');
       }));
-      else o.push(O('heave', 'Heave the teeth up alone', { cost: 'Vitality −3' }, function (s2, ctx) {
+      else o.push(O('heave', 'Heave the teeth up alone', { note: 'The hardest way' }, function (s2, ctx) {
         hurt(s2, 3, ctx, 'heaving alone'); say(ctx, 'It is the hardest thing you have ever lifted. It is enough.');
         flag(s2, 'portcullisBy', 'heave'); return travel(s2, ctx, 'gallery');
       }));
@@ -1285,10 +1330,10 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       var pan = s.sub.pan || [];
       var o = Object.keys(WEIGHTS).map(function (w) {
         var on = pan.indexOf(w) >= 0;
-        return O('w:' + w, (on ? 'Take the ' : 'Place the ') + WEIGHTS[w].name + (on ? ' off the pan' : ' on the pan'), { group: 'Weights', pressed: on, cost: WEIGHTS[w].notches + ' notch' + (WEIGHTS[w].notches > 1 ? 'es' : '') },
+        return O('w:' + w, (on ? 'Take the ' : 'Place the ') + WEIGHTS[w].name + (on ? ' off the pan' : ' on the pan'), { group: 'Weights', pressed: on, note: WEIGHTS[w].notches + ' notch' + (WEIGHTS[w].notches > 1 ? 'es' : '') },
           function (s2) { var p = s2.sub.pan; var i = p.indexOf(w); if (i >= 0) p.splice(i, 1); else p.push(w); return 'portcullis_puzzle'; });
       });
-      o.push(O('lower', 'Lower the pan', { group: 'Act', disabled: pan.length === 0, reason: 'Put at least one weight on the pan.', cost: 'Correct: the gate opens · Wrong: Vitality −1' }, function (s2, ctx) {
+      o.push(O('lower', 'Lower the pan', { group: 'Act', conceal: true, disabled: pan.length === 0, reason: 'Put at least one weight on the pan.', note: 'Tests your weights. Right total: the gate opens. Wrong total: the chain whips back (Vitality −1), and you can try again.' }, function (s2, ctx) {
         var total = s2.sub.pan.reduce(function (a, w) { return a + WEIGHTS[w].notches; }, 0);
         if (total === 10) {
           say(ctx, 'The pan sinks with a satisfied clunk. Somewhere inside the wall, a chain pays out, and the teeth rise all the way up and lock.');
@@ -1318,22 +1363,22 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     },
     options: function (s) {
       var L = loadOf(s), o = [];
-      if (has(s, 'chalk')) o.push(O('chalk', 'Chalk the sound plates and step only on those', { cost: 'Chalk −1 use · safe at any Load' }, function (s2, ctx) {
+      if (has(s, 'chalk')) o.push(O('chalk', 'Chalk the sound plates and step only on those', { note: 'Safe at any Load' }, function (s2, ctx) {
         consume(s2, 'chalk', ctx, 'Chalk −1 use');
         say(ctx, 'You find the old marks and renew them, plate by plate. Where the chalk says go, the floor holds, no matter what you carry.');
         flag(s2, 'galleryBy', 'chalk'); return 'gallery_junction';
       }));
-      if (senseAvailable(s)) o.push(O('sense', 'Sense in Darkness: feel which plates are hollow', { cost: 'Uses your one Sense · safe crossing' }, function (s2, ctx) {
+      if (senseAvailable(s)) o.push(O('sense', 'Sense in Darkness: feel which plates are hollow', { note: 'Your one Sense this chapter · safe crossing' }, function (s2, ctx) {
         useSense(s2, ctx); say(ctx, 'With your eyes closed the hollow plates feel like held breath. You step around every one of them.');
         know(s2, 'sense-gallery', 'Sense in Darkness: the hollow plates of the Gallery felt like held breath.', ctx);
         flag(s2, 'galleryBy', 'sense'); return 'gallery_junction';
       }));
-      o.push(O('cross', 'Walk the plates', { cost: 'Load ' + L + (L >= FLOOR_LIMIT ? ' · the plates are groaning — they may not hold' : ' · the plates sound steady') }, function (s2, ctx) {
+      o.push(O('cross', 'Walk the plates', { note: 'Load ' + L + (L >= FLOOR_LIMIT ? ' — at or over 6, the plates are groaning' : ' — under 6, the plates sound steady') }, function (s2, ctx) {
         if (loadOf(s2) < FLOOR_LIMIT) { say(ctx, 'Plate by plate, the floor hums and holds.'); flag(s2, 'galleryBy', 'light-load'); return 'gallery_junction'; }
         flag(s2, 'galleryFell');
         if (has(s2, 'rope')) {
           consume(s2, 'rope', ctx, 'Rope −1 use');
-          if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no time lost', 'gain');
+          if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no time lost', 'info');
           hurt(s2, 1, ctx, 'rope-burn');
           say(ctx, 'Halfway across the plate drops out from under you. ' + (isDocks(s2) ? 'Your hands have already hitched the rope to a plate-ring.' : 'You get a loop of rope around a plate-ring in time.') + ' You are lowered, burned and swinging, into the dark below.');
           flag(s2, 'galleryBy', 'rope-fall');
@@ -1345,7 +1390,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         if (odranWith(s2)) { s2.bonds.odran.status = 'separated'; say(ctx, 'High above, Odran shouts your name. "I\'ll find a way down! Keep moving!"'); }
         return travel(s2, ctx, 'hushhold');
       }));
-      if (s.gear.length) o.push(O('setdown', 'Set some gear down here before crossing', { cost: 'Items stay in the Gallery; you can pick them back up before you leave' }, function (s2) {
+      if (s.gear.length) o.push(O('setdown', 'Set some gear down here before crossing', { note: 'Items stay in the Gallery; you can pick them back up before you leave' }, function (s2) {
         s2.sub.setdown = { where: 'the Gallery of Scales', returnTo: 'gallery', purpose: 'Lighten your Load before the plates. Floor fails at Load ' + FLOOR_LIMIT + ' or more.' };
         return 'setdown';
       }));
@@ -1357,10 +1402,10 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     text: function (s) {
       return ['Beyond the plates the passage splits.', 'Up: a stair worn by claws, smelling of wet fur.', 'Down: steps into a hush so complete you can hear your own lantern burn.'];
     },
-    options: function () {
+    options: function (s) {
       return [
-        O('up', 'Climb the Hound Stair', { cost: 'Light −1' }, function (s2, ctx) { flag(s2, 'route', 'upper'); return travel(s2, ctx, 'hounds'); }),
-        O('down', 'Descend to the hush', { cost: 'Light −1' }, function (s2, ctx) { flag(s2, 'route', 'lower'); return travel(s2, ctx, 'hushhold'); })
+        O('up', 'Climb the Hound Stair', { note: 'It smells of wet fur' }, function (s2, ctx) { flag(s2, 'route', 'upper'); return travel(s2, ctx, 'hounds'); }),
+        O('down', 'Descend to the hush', { note: s.light.oilType === 'fish' && s.light.lit ? 'Whoever lives in the hush may not welcome a bright, smelly lamp' : 'Quiet down there. Very quiet.' }, function (s2, ctx) { flag(s2, 'route', 'lower'); return travel(s2, ctx, 'hushhold'); })
       ];
     }
   };
@@ -1377,24 +1422,33 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       s.gear.forEach(function (g) {
         if (g.item === 'mirelle') return;
         if (g.item === 'tongue') return; // the Tongue is placed via its own custody choice
-        o.push(O('drop:' + g.item, 'Set down ' + ITEMS[g.item].name, { group: 'Set down', cost: 'Frees ' + ITEMS[g.item].slots + ' slot' + (ITEMS[g.item].slots > 1 ? 's' : '') + ' · Load −' + ITEMS[g.item].load + (g.item === 'shield' ? ' · Odran will notice' : '') },
-          function (s2, ctx) { removeGear(s2, g.item, ctx, sd.where); return 'setdown'; }));
+        o.push(O('drop:' + g.item, 'Set down ' + ITEMS[g.item].name, { group: 'Set down', kind: 'equip', note: 'Stays at ' + sd.where + ' · frees ' + ITEMS[g.item].slots + ' slot' + (ITEMS[g.item].slots > 1 ? 's' : '') + ' · Load −' + ITEMS[g.item].load + (g.item === 'shield' ? ' · Odran will notice' : '') },
+          function (s2, ctx) {
+            removeGear(s2, g.item, ctx, sd.where);
+            if (g.item === 'stolenlamp' && sd.where === 'Vesperine\'s hall') {
+              // Left among her own lights: the dragon has it back, so the counted-lamp debt lapses.
+              s2.debts = s2.debts.filter(function (d) { return d.id !== 'counted-lamp'; });
+              flag(s2, 'stolenLampLeftWithDragon');
+              say(ctx, 'You set the stolen lamp down among the dragon\'s lost lights. Whatever Vesperine counts next, it will be there.');
+            }
+            return 'setdown';
+          }));
       });
       if (sd.allowEntrust && odranWith(s)) s.gear.forEach(function (g) {
         if (g.item === 'mirelle' || g.item === 'tongue' || g.item === 'shield') return;
-        o.push(O('entrust:' + g.item, 'Ask Odran to carry the ' + ITEMS[g.item].name, { group: 'Hand off', cost: 'Returned to you at the Guild' }, function (s2, ctx) {
+        o.push(O('entrust:' + g.item, 'Ask Odran to carry the ' + ITEMS[g.item].name, { group: 'Hand off', kind: 'equip', note: 'Odran hands it back at the Guild. If your frame is full then, it goes into your Guild locker (still yours).' }, function (s2, ctx) {
           var it = removeGear(s2, g.item, null, null); it.where = 'carried by Sir Odran'; it.to = 'odran'; s2.entrusted.push(it);
-          chip(ctx, ITEMS[g.item].name + ' → Odran', 'info'); return 'setdown';
+           return 'setdown';
         }));
       });
       s.leftBehind.forEach(function (g, i) {
         if (g.where !== sd.where) return;
         var room = slotsFree(s) >= ITEMS[g.item].slots;
-        o.push(O('pick:' + i, 'Pick the ' + ITEMS[g.item].name + ' back up', { group: 'Left here', disabled: !room, reason: 'No room on your frame.' }, function (s2, ctx) {
+        o.push(O('pick:' + i, 'Pick the ' + ITEMS[g.item].name + ' back up', { group: 'Left here', kind: 'equip', disabled: !room, reason: 'No room on your frame.' }, function (s2, ctx) {
           var it = s2.leftBehind.splice(i, 1)[0]; delete it.where; s2.gear.push(it); chip(ctx, '+' + ITEMS[it.item].name, 'gain'); return 'setdown';
         }));
       });
-      o.push(O('done', 'Done', { group: 'Continue', cost: 'Slots ' + slotsUsed(s) + '/6 · Load ' + loadOf(s) }, function (s2) { var r = s2.sub.setdown.returnTo; s2.sub.setdown = null; return r; }));
+      o.push(O('done', 'Done', { group: 'Continue', note: 'Slots ' + slotsUsed(s) + ' of 6 · Load ' + loadOf(s) }, function (s2) { var r = s2.sub.setdown.returnTo; s2.sub.setdown = null; return r; }));
       return o;
     }
   };
@@ -1419,39 +1473,39 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       if (F(s, 'hounds') === 'awake') {
         var dmg = 4 - (has(s, 'crowbar') ? 1 : 0) - (has(s, 'shield') ? 1 : 0) - (odranWith(s) ? 1 : 0);
         dmg = Math.max(1, dmg);
-        o.push(O('fight', 'Fight them off', { cost: 'Expect Vitality −' + dmg + ' (crowbar, shield and Odran each help)' }, function (s2, ctx) {
+        o.push(O('fight', 'Fight them off', { note: 'Crowbar, shield and Odran each lessen the bites' }, function (s2, ctx) {
           hurt(s2, dmg, ctx, 'bites');
           if (has(s2, 'crowbar')) consume(s2, 'crowbar', ctx, 'Crowbar −1 use');
           say(ctx, 'It is short and ugly. When it is over, both hounds are bolting down a side tunnel, yelping, and you are bleeding from places you did not know could bleed.');
           flag(s2, 'hounds', 'defeated'); return travel(s2, ctx, 'mirelle');
         }));
-        if (breadCount(s) > 0) o.push(O('bread', 'Throw them a loaf', { cost: 'Bread −1' }, function (s2, ctx) {
+        if (breadCount(s) > 0) o.push(O('bread', 'Throw them a loaf', {}, function (s2, ctx) {
           useBread(s2, ctx); say(ctx, 'You tear the loaf in two and toss a half to each. They stop being terrifying at once and start being enormous, wagging, crumb-faced dogs.');
           flag(s2, 'hounds', 'fed'); know(s2, 'hounds-fed', 'You fed the cave-hounds on the stair. They seemed to memorise your smell.', ctx, 'deed');
           return travel(s2, ctx, 'mirelle');
         }));
-        if (has(s, 'salt')) o.push(O('salt', 'Pour a salt line across the landing', { cost: 'Salt −1' }, function (s2, ctx) {
+        if (has(s, 'salt')) o.push(O('salt', 'Pour a salt line across the landing', {}, function (s2, ctx) {
           consume(s2, 'salt', ctx, 'Salt −1'); say(ctx, 'They pace up to the white line and stop, whining, as if it were a wall. You walk past them close enough to touch.');
           flag(s2, 'hounds', 'avoided'); return travel(s2, ctx, 'mirelle');
         }));
-        if (has(s, 'oil')) o.push(O('oil', 'Hurl the spare oil flask down the far tunnel', { cost: 'Spare Oil −1 (lost)' }, function (s2, ctx) {
+        if (has(s, 'oil')) o.push(O('oil', 'Hurl the spare oil flask down the far tunnel', { note: 'The flask is gone for good' }, function (s2, ctx) {
           consume(s2, 'oil', ctx, 'Spare Oil −1'); say(ctx, 'The flask shatters somewhere far off and the whole tunnel smells of harbor. Both hounds go after it like arrows.');
           flag(s2, 'hounds', 'avoided'); return travel(s2, ctx, 'mirelle');
         }));
-        if (has(s, 'shield')) o.push(O('shield', 'Shove past behind Odran\'s shield', { cost: 'Vitality −1' }, function (s2, ctx) {
+        if (has(s, 'shield')) o.push(O('shield', 'Shove past behind Odran\'s shield', {}, function (s2, ctx) {
           hurt(s2, 1, ctx, 'a bite on the shield-rim'); flag(s2, 'shieldUsedHounds');
           say(ctx, 'You put the kite shield in front of you and walk. Teeth score the paint. You do not stop walking.');
           flag(s2, 'hounds', 'avoided'); return travel(s2, ctx, 'mirelle');
         }));
-        if (!F(s, 'retreatedFromHounds')) o.push(O('retreat', 'Back away down to the hush below', { cost: 'Light −1' }, function (s2, ctx) {
+        if (!F(s, 'retreatedFromHounds')) o.push(O('retreat', 'Back away down to the hush below', {}, function (s2, ctx) {
           flag(s2, 'retreatedFromHounds'); flag(s2, 'hounds', 'avoided'); say(ctx, 'You back down the stair one step at a time. They do not follow, quite.');
           return travel(s2, ctx, 'hushhold');
         }));
       } else {
-        o.push(O('creep', 'Creep past them', { cost: 'Light −1' }, function (s2, ctx) {
+        o.push(O('creep', 'Creep past them', {}, function (s2, ctx) {
           say(ctx, 'One of them twitches a paw in a dream. That is all.'); flag(s2, 'hounds', 'asleep-passed'); return travel(s2, ctx, 'mirelle');
         }));
-        if (breadCount(s) > 0) o.push(O('gift', 'Leave a loaf by their noses before you go', { cost: 'Bread −1' }, function (s2, ctx) {
+        if (breadCount(s) > 0) o.push(O('gift', 'Leave a loaf by their noses before you go', { note: 'A kindness they may remember' }, function (s2, ctx) {
           useBread(s2, ctx); say(ctx, 'You set it down as gently as a held breath. One nose twitches toward it in its sleep.');
           flag(s2, 'hounds', 'fed'); know(s2, 'hounds-fed', 'You left bread for the sleeping cave-hounds on the stair.', ctx, 'deed');
           return travel(s2, ctx, 'mirelle');
@@ -1481,31 +1535,31 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     },
     options: function (s) {
       var o = [], g = s.bonds.lanternless.goodwill;
-      if (s.light.lit && !F(s, 'shuttered')) o.push(O('shutter', 'Shutter your lantern and lower your voice', { cost: 'Goodwill +1 · no Light spent while shuttered' }, function (s2, ctx) {
+      if (s.light.lit && !F(s, 'shuttered')) o.push(O('shutter', 'Shutter your lantern and lower your voice', { note: 'No oil burns while it is shuttered' }, function (s2, ctx) {
         flag(s2, 'shuttered'); s2.light.lit = false; s2.bonds.lanternless.goodwill += 1; chip(ctx, 'Lanternless goodwill +1', 'gain');
         say(ctx, 'You close the shutter. Dark rushes in like water. A long, relieved breath sounds from three places at once.');
         return 'hushhold';
       }));
       if (!F(s, 'giftedLanternless')) {
-        if (breadCount(s) > 0) o.push(O('gift:bread', 'Offer them bread', { cost: 'Bread −1 · Goodwill +1' }, function (s2, ctx) {
+        if (breadCount(s) > 0) o.push(O('gift:bread', 'Offer them bread', {}, function (s2, ctx) {
           useBread(s2, ctx); flag(s2, 'giftedLanternless', 'bread'); s2.bonds.lanternless.goodwill += 1; chip(ctx, 'Lanternless goodwill +1', 'gain');
           say(ctx, 'Cool fingers take the bread from your hand. Someone laughs, a sound like pebbles in a stream. "Surface bread. It is very loud bread."');
           return 'hushhold';
         }));
-        if (has(s, 'salt')) o.push(O('gift:salt', 'Offer them salt', { cost: 'Salt −1 · Goodwill +1' }, function (s2, ctx) {
+        if (has(s, 'salt')) o.push(O('gift:salt', 'Offer them salt', {}, function (s2, ctx) {
           consume(s2, 'salt', ctx, 'Salt −1'); flag(s2, 'giftedLanternless', 'salt'); s2.bonds.lanternless.goodwill += 1; chip(ctx, 'Lanternless goodwill +1', 'gain');
           say(ctx, 'A hiss of pleasure. "Salt. You know what is precious, lantern-carrier."');
           return 'hushhold';
         }));
       }
-      o.push(O('guide', 'Ask them to lead you to the hurt woman you can hear', { cost: g >= 1 ? 'Guided: no Light spent' : 'They do not trust you enough yet (goodwill ' + g + ')', disabled: g < 1, reason: 'Earn their goodwill first: respect their dark, or offer a gift.' },
+      o.push(O('guide', 'Ask them to lead you to the hurt woman you can hear', { note: g >= 1 ? 'Guided: no lamp oil burned' : 'They do not trust you enough yet', disabled: g < 1, reason: 'Earn their goodwill first: respect their dark, or offer a gift.' },
         function (s2, ctx) {
           if (s2.bonds.lanternless.goodwill >= 2) { s2.bonds.lanternless.friend = true; chip(ctx, 'Lanternless: friend', 'gain'); know(s2, 'lanternless-friend', 'The Lanternless call you "the quiet carrier" and will answer if you call into the dark.', ctx, 'deed'); }
           say(ctx, 'A hand finds your elbow. You are walked through the dark, steadily, around drops you never see.');
           if (F(s2, 'shuttered') && s2.light.remaining > 0) s2.light.lit = true;
           return travel(s2, ctx, 'mirelle', { guided: true });
         }));
-      o.push(O('alone', 'Push on alone with your lantern up', { cost: (s.light.oilType === 'fish' ? 'Goodwill −1 · ' : '') + 'Light −1' }, function (s2, ctx) {
+      o.push(O('alone', 'Push on alone with your lantern up', { note: s.light.oilType === 'fish' ? 'Your bright lamp offends them' : '' }, function (s2, ctx) {
         if (s2.light.oilType === 'fish') { s2.bonds.lanternless.goodwill -= 1; chip(ctx, 'Lanternless goodwill −1', 'cost'); }
         if (s2.light.remaining > 0) s2.light.lit = true;
         say(ctx, 'You go on by your own light. Behind you, the hush closes up again as though you had never been there.');
@@ -1535,43 +1589,43 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     },
     options: function (s) {
       var o = [];
-      if (has(s, 'moss')) o.push(O('moss', 'Treat her leg with healing moss', { cost: 'Moss −1 · she can walk' }, function (s2, ctx) {
+      if (has(s, 'moss')) o.push(O('moss', 'Treat her leg with healing moss', { note: 'She can walk again' }, function (s2, ctx) {
         consume(s2, 'moss', ctx, 'Moss −1');
         s2.bonds.mirelle.status = 'walking'; trust(s2, 'mirelle', 2, ctx);
         say(ctx, 'The moss goes on cold and turns warm. The swelling eases. Mirelle tests the leg, swears, and stands. Then she reaches over and presses two fingers to the wick of your lantern.');
         say(ctx, '"Say it with me: Kindle. Not loud. Like asking." The wick catches, oil or no oil. "One spark of it is yours now. It comes back slowly."');
-        s2.craftNames.push({ id: 'kindle', name: 'Kindle', usesLeft: 1, desc: 'Ask a wick to burn without oil: +3 Light. Recovers between chapters (provisional).' });
+        s2.craftNames.push({ id: 'kindle', name: 'Kindle', usesLeft: 1, desc: 'Ask a wick to burn without oil: +3 Light.' });
         chip(ctx, 'Name learned: Kindle', 'gain');
         know(s2, 'kindle', 'Mirelle taught you the Name Kindle: ask a wick to burn without oil.', null, 'deed');
         return travel(s2, ctx, 'throat');
       }));
       var canCarry = slotsFree(s) >= 2;
       o.push(O('carry', 'Strap her to your pack frame and carry her', {
-        cost: 'Takes 2 slots and Load 4 · Mirelle trust +1 · Guild pays double for carrying home the injured',
+        note: '2 slots and Load 4 on your frame · the Guild pays double for carrying home the injured',
         disabled: !canCarry, reason: 'Your frame needs 2 free slots for her. Set some gear down first.'
       }, function (s2, ctx) {
-        addGear(s2, 'mirelle', null); s2.bonds.mirelle.status = 'carried'; trust(s2, 'mirelle', 1, ctx); chip(ctx, 'Carrying Mirelle (Load +4)', 'info');
+        addGear(s2, 'mirelle', null); s2.bonds.mirelle.status = 'carried'; trust(s2, 'mirelle', 1, ctx); 
         say(ctx, 'She is lighter than she looks and heavier than anything else you have carried. "Don\'t drop me," she says. "I know a Name for porters who drop me."');
         return travel(s2, ctx, 'throat');
       }));
-      if (!canCarry) o.push(O('setdown', 'Set gear down here to make room for her', { cost: 'Items stay on the ledge' }, function (s2) {
+      if (!canCarry) o.push(O('setdown', 'Set gear down here to make room for her', { note: 'Items stay on the ledge' }, function (s2) {
         s2.sub.setdown = { where: 'Mirelle\'s Ledge', returnTo: 'mirelle', purpose: 'Make two slots of room on your frame for Mirelle. Whatever you set down stays on this ledge.' };
         return 'setdown';
       }));
-      if (s.bonds.lanternless.friend) o.push(O('lanternless', 'Call softly into the dark for the Lanternless to carry her', { cost: 'Mirelle trust +1 · she leaves by their ways' }, function (s2, ctx) {
+      if (s.bonds.lanternless.friend) o.push(O('lanternless', 'Call softly into the dark for the Lanternless to carry her', { note: 'She leaves by their dark ways' }, function (s2, ctx) {
         s2.bonds.mirelle.status = 'withHelpers'; trust(s2, 'mirelle', 1, ctx); s2.bonds.lanternless.goodwill += 1;
         say(ctx, 'Three tall, pale shapes unfold out of the dark. Mirelle stares at them, then at you. "You have interesting friends, porter." They lift her like a sleeping child and are gone.');
         know(s2, 'mirelle-lanternless', 'The Lanternless carried Mirelle out by their own dark ways.', null, 'deed');
         return travel(s2, ctx, 'throat');
       }));
-      o.push(O('supply', 'Leave her supplies and promise to send help', { cost: (breadCount(s) > 0 ? 'Bread −1 · ' : '') + 'Light −2 (oil poured off for her)' }, function (s2, ctx) {
+      o.push(O('supply', 'Leave her supplies and promise to send help', { note: 'Some of your lamp oil goes to her' }, function (s2, ctx) {
         if (breadCount(s2) > 0) useBread(s2, ctx);
         spendLight(s2, 2, ctx);
         s2.bonds.mirelle.status = 'supplied';
         say(ctx, 'You pour some of your oil into her spare lamp and leave what food you can. "Come back," she says. It is not quite a question.');
         return travel(s2, ctx, 'throat');
       }));
-      o.push(O('leave', 'Leave her where she is', { cost: 'Mirelle trust −2' }, function (s2, ctx) {
+      o.push(O('leave', 'Leave her where she is', {}, function (s2, ctx) {
         s2.bonds.mirelle.status = 'left'; trust(s2, 'mirelle', -2, ctx);
         say(ctx, '"Go on, then," Mirelle says, and looks away at the black water.');
         return travel(s2, ctx, 'throat');
@@ -1594,9 +1648,10 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       if (s.bonds.odran.status === 'pinned' || s.bonds.odran.status === 'separated') {
         var wasPinned = s.bonds.odran.status === 'pinned';
         s.bonds.odran.status = 'battered';
-        say(ctx, wasPinned ? 'A figure limps out of a side tunnel, grey with dust from crown to boots: Sir Odran, battered and bleeding, having dug himself out exactly as he promised. "Porter," he says, with great dignity, and sits down hard.'
-          : 'Sir Odran climbs down out of a crevice, scraped raw from a long descent. "Found a way down," he says. "Found several. Most of them hurt."');
-        chip(ctx, 'Odran rejoins (battered)', 'info');
+        s.bonds.odran.batteredBy = wasPinned ? 'dug-out' : 'climbed-down';
+        say(ctx, wasPinned ? 'A figure limps out of a side tunnel, grey with dust from crown to boots: Sir Odran. With no one to lift the beam, he spent hours working his trapped arm free and digging through the rubble alone. He is bruised, bleeding and battered, but he did exactly what he promised. "Porter," he says, with great dignity, and sits down hard.'
+          : 'Sir Odran climbs down out of a crevice, scraped raw. When the Gallery floor gave way under you, he went looking for another way down and found several, all of them sharp. "Most of them hurt," he says. He is battered, but here.');
+        chip(ctx, 'Odran rejoins you, battered', 'info');
       }
     },
     text: function (s) {
@@ -1608,10 +1663,10 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     },
     options: function (s) {
       return [
-        O('pebbles', 'Play Pebblechief\'s game for a guided crossing', { cost: 'Puzzle · losing costs a toll, never your passage' }, function (s2) {
+        O('pebbles', 'Play Pebblechief\'s game for a guided crossing', { note: 'Puzzle · losing costs a small toll, never your passage' }, function (s2) {
           s2.sub.peb = { left: 14, log: [] }; return 'throat_pebbles';
         }),
-        O('bridge', 'Try the Fraying Bridge', { cost: 'Bridge bears Load ' + BRIDGE_LIMIT + ' · you have ' + loadOf(s) }, function () { return 'throat_bridge'; })
+        O('bridge', 'Try the Fraying Bridge', { note: 'Bears Load ' + BRIDGE_LIMIT + ' at a time · you carry Load ' + loadOf(s) }, function () { return 'throat_bridge'; })
       ];
     }
   };
@@ -1628,7 +1683,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       var p = s.sub.peb, o = [];
       [1, 2, 3].forEach(function (n) {
         if (n > p.left) return;
-        o.push(O('take:' + n, 'Take ' + n + ' pebble' + (n > 1 ? 's' : ''), { group: 'Your turn', cost: 'Leaves ' + (p.left - n) }, function (s2, ctx) {
+        o.push(O('take:' + n, 'Take ' + n + ' pebble' + (n > 1 ? 's' : ''), { group: 'Your turn', conceal: true, note: 'Leaves ' + (p.left - n) + ' · then Pebblechief takes his turn' }, function (s2, ctx) {
           var q = s2.sub.peb; q.left -= n; q.log.push('You take ' + n + ' (' + q.left + ' left).');
           if (q.left === 0) { q.result = 'lost'; say(ctx, 'You pick up the last pebble and realise what you have done. Pebblechief beams.'); return 'throat_toll'; }
           var t = (q.left - 1) % 4; if (t === 0) t = 1; t = Math.min(t, q.left);
@@ -1653,15 +1708,15 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     text: function () { return ['"A toll, a toll," Pebblechief sings. "Something small. Something you will miss a little." Then his folk will walk you over the hidden ledge.']; },
     options: function (s) {
       var o = [];
-      if (s.coins >= 1) o.push(O('toll:coin', 'Pay one silver', { cost: 'Silver −1' }, function (s2, ctx) { s2.coins -= 1; chip(ctx, 'Silver −1', 'cost'); return payToll(s2, ctx, 'a silver coin'); }));
-      if (breadCount(s) > 0) o.push(O('toll:bread', 'Pay a loaf of bread', { cost: 'Bread −1' }, function (s2, ctx) { useBread(s2, ctx); return payToll(s2, ctx, 'a loaf'); }));
+      if (s.coins >= 1) o.push(O('toll:coin', 'Pay one silver', {}, function (s2, ctx) { s2.coins -= 1; chip(ctx, 'Silver −1', 'cost'); return payToll(s2, ctx, 'a silver coin'); }));
+      if (breadCount(s) > 0) o.push(O('toll:bread', 'Pay a loaf of bread', {}, function (s2, ctx) { useBread(s2, ctx); return payToll(s2, ctx, 'a loaf'); }));
       s.gear.forEach(function (g) {
         if (g.item === 'mirelle' || g.item === 'shield') return;
-        o.push(O('toll:' + g.item, 'Pay with your ' + ITEMS[g.item].name, { cost: ITEMS[g.item].name + ' lost' }, function (s2, ctx) {
+        o.push(O('toll:item:' + g.item, 'Pay with your ' + ITEMS[g.item].name + unitText(g), {}, function (s2, ctx) {
           removeGear(s2, g.item, ctx, 'Pebblechief\'s hoard'); return payToll(s2, ctx, 'your ' + ITEMS[g.item].name.toLowerCase());
         }));
       });
-      o.push(O('toll:story', 'Pay with a true story instead', { cost: 'Free — but he chooses which story' }, function (s2, ctx) {
+      o.push(O('toll:story', 'Pay with a true story instead', { note: 'Costs nothing but he chooses which story' }, function (s2, ctx) {
         return payToll(s2, ctx, 'the story of ' + (s2.bonds.tuck.bond ? 'the kettlekin and the bread' : 'your first day as a porter'));
       }));
       return o;
@@ -1682,32 +1737,32 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     },
     options: function (s) {
       var L = loadOf(s), o = [];
-      o.push(O('cross', 'Cross now', { cost: L <= BRIDGE_LIMIT ? 'Load ' + L + ' — within the limit · Light −1' : 'Load ' + L + ' is over ' + BRIDGE_LIMIT, disabled: L > BRIDGE_LIMIT, reason: 'Too heavy for the bridge. Lighten the load, make two trips, or get help.' },
+      o.push(O('cross', 'Cross now', { note: L <= BRIDGE_LIMIT ? 'Load ' + L + ' — within the limit' : 'Load ' + L + ' is over ' + BRIDGE_LIMIT, disabled: L > BRIDGE_LIMIT, reason: 'Too heavy for the bridge. Lighten the load, make two trips, or get help.' },
         function (s2, ctx) { say(ctx, 'Plank by plank. The draft pushes up at you like a hand. You do not look down, and then you are across.'); flag(s2, 'throatBy', 'bridge'); return travel(s2, ctx, 'hall_lights'); }));
-      if (odranWith(s)) o.push(O('anchor', 'Let Odran anchor the lines while you cross', { cost: 'Bridge bears up to Load 8 · Odran trust +1' + (s.bonds.odran.status === 'battered' ? ' · costs Odran dearly' : ''), disabled: L > 8, reason: 'Even anchored, the bridge will not bear more than Load 8.' },
+      if (odranWith(s)) o.push(O('anchor', 'Let Odran anchor the lines while you cross', { note: 'The bridge bears up to Load 8' + (s.bonds.odran.status === 'battered' ? ' · hard on battered Odran' : ''), disabled: L > 8, reason: 'Even anchored, the bridge will not bear more than Load 8.' },
         function (s2, ctx) {
           trust(s2, 'odran', 1, ctx); flag(s2, 'odranAnchored');
           say(ctx, 'Odran leans back against the lines like a man holding a horse. The bridge steadies. Halfway across you hear him grunt, and keep going.');
           if (s2.bonds.odran.status === 'battered') say(ctx, 'He follows you over afterwards, very slowly, and does not complain once.');
           flag(s2, 'throatBy', 'bridge-anchored'); return travel(s2, ctx, 'hall_lights');
         }));
-      o.push(O('twotrips', 'Make two trips, carrying half each time', { cost: 'Bridge bears up to Load 8 in two trips · ' + (s.light.remaining >= 2 ? 'Light −2' : 'extra trip in the dark: Vitality −1'), disabled: L > 8, reason: 'Even in two trips you can\'t ferry more than Load 8.' },
+      o.push(O('twotrips', 'Make two trips, carrying half each time', { note: 'Up to Load 8 across two crossings · the extra crossing ' + (s.light.remaining >= 2 ? 'burns more oil' : 'in poor light will bruise you'), disabled: L > 8, reason: 'Even in two trips you can\'t ferry more than Load 8.' },
         function (s2, ctx) {
           if (s2.light.remaining >= 2) spendLight(s2, 1, ctx); else hurt(s2, 1, ctx, 'an extra crossing in poor light');
           say(ctx, 'You cross with half your load, set it down, cross back, and do it all again. The bridge complains every step of the way, but it holds.');
           flag(s2, 'throatBy', 'bridge-two-trips'); return travel(s2, ctx, 'hall_lights');
         }));
-      if (has(s, 'rope')) o.push(O('ropeline', 'Ferry your gear across on a rope line', { cost: 'Rope −1 use' + (isDocks(s) ? ' · knot-work: no time lost' : ' · Light −1') + ' · you cross carrying almost nothing', disabled: L - packLoadMovable(s) > BRIDGE_LIMIT, reason: 'Even without your gear, what you carry is over the limit.' },
+      if (has(s, 'rope')) o.push(O('ropeline', 'Ferry your gear across on a rope line', { note: (isDocks(s) ? 'Docks knot-work: no extra time' : 'Rigging takes time, and time burns oil') + ' · you cross nearly empty-handed', disabled: L - packLoadMovable(s) > BRIDGE_LIMIT, reason: 'Even without your gear, what you carry is over the limit.' },
         function (s2, ctx) {
-          consume(s2, 'rope', ctx, 'Rope −1 use'); if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no time lost', 'gain');
+          consume(s2, 'rope', ctx, 'Rope −1 use'); if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no time lost', 'info');
           say(ctx, 'You rig a running line and haul your gear over in a bundle while you cross nearly empty-handed.');
           flag(s2, 'throatBy', 'bridge-rope'); return travel(s2, ctx, 'hall_lights');
         }));
-      if (s.gear.some(function (g) { return g.item !== 'mirelle'; })) o.push(O('setdown', 'Leave some gear at the anchor post', { cost: 'Items stay at the Throat' }, function (s2) {
+      if (s.gear.some(function (g) { return g.item !== 'mirelle'; })) o.push(O('setdown', 'Leave some gear at the anchor post', { note: 'Items stay at the Throat' }, function (s2) {
         s2.sub.setdown = { where: 'the Throat', returnTo: 'throat_bridge', purpose: 'The bridge bears Load ' + BRIDGE_LIMIT + '. Whatever you leave here stays at the Throat.' };
         return 'setdown';
       }));
-      if (!F(s, 'pebblesPlayed')) o.push(O('pebbles', 'Go back to Pebblechief\'s game', { cost: 'Puzzle · always gets you across' }, function (s2) { s2.sub.peb = { left: 14, log: [] }; return 'throat_pebbles'; }));
+      if (!F(s, 'pebblesPlayed')) o.push(O('pebbles', 'Go back to Pebblechief\'s game', { note: 'Puzzle · always gets you across' }, function (s2) { s2.sub.peb = { left: 14, log: [] }; return 'throat_pebbles'; }));
       return o;
     }
   };
@@ -1734,14 +1789,14 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     },
     options: function (s) {
       var o = [];
-      if (odranWith(s) || s.bonds.mirelle.status === 'walking') o.push(O('witness', 'Call ' + (odranWith(s) ? 'Odran' : 'Mirelle') + ' in as a witness and confront Brask', { cost: 'Brask exposed before a witness · Guild standing will rise' }, function (s2, ctx) {
+      if (odranWith(s) || s.bonds.mirelle.status === 'walking') o.push(O('witness', 'Call ' + (odranWith(s) ? 'Odran' : 'Mirelle') + ' in as a witness and confront Brask', { note: 'Brask exposed before a witness · the Guild will hear of it' }, function (s2, ctx) {
         var w = odranWith(s2) ? 'odran' : 'mirelle';
         s2.bonds.brask.status = 'exposed'; s2.bonds.brask.witness = w; trust(s2, 'brask', -3, ctx); flag(s2, 'bundleRecovered');
         say(ctx, (w === 'odran' ? 'Odran fills the archway like a door slamming.' : 'Mirelle steps out beside you, leaning on her stick.') + ' "Scouting, were you?" Brask looks at the bundle, at you, at the witness. He sets it down very carefully and puts his hands up, still smiling, because smiling is what he has left.');
         know(s2, 'brask-thief', 'Brask was caught wrapping three lamps, one burning blue, in the Hall of Lost Lights. ' + (w === 'odran' ? 'Sir Odran' : 'Mirelle') + ' witnessed it.', null, 'clue');
         return 'vesperine';
       }));
-      o.push(O('confront', 'Step out and confront Brask yourself', { cost: 'Brask exposed — your word against his' }, function (s2, ctx) {
+      o.push(O('confront', 'Step out and confront Brask yourself', { note: 'Your word against his' }, function (s2, ctx) {
         s2.bonds.brask.status = 'exposed'; s2.bonds.brask.witness = has(s2, 'mirelle') ? 'mirelle' : 'hero'; trust(s2, 'brask', -3, ctx); flag(s2, 'bundleRecovered');
         if (has(s2, 'mirelle')) { say(ctx, '"Put it down, Brask," you say. Mirelle, on your back, adds: "I see you too." Brask laughs once, drops the bundle and bolts into a crack in the wall.'); s2.bonds.brask.status = 'exposed'; }
         else say(ctx, '"Put it down, Brask." He considers you: a porter, alone. Then he drops the bundle anyway and slips into a crack in the wall. "Your word against mine, porter," floats back out.');
@@ -1750,7 +1805,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         return 'vesperine';
       }));
       var room = slotsFree(s) >= 1;
-      o.push(O('share', 'Offer to share the take', { cost: 'Brask hands you the Blue-Flame Lamp (1 slot) · partnership', disabled: !room, reason: 'No free slot for a lamp. Set something down first.' }, function (s2, ctx) {
+      o.push(O('share', 'Offer to share the take', { note: 'A partnership in theft. ' + (has(s, 'mirelle') ? 'Mirelle, on your back, will see everything. ' : '') + 'If the Guild ever learns of it, your standing will suffer.', disabled: !room, reason: 'No free slot for a lamp. Set something down first.' }, function (s2, ctx) {
         s2.bonds.brask.status = 'partner'; trust(s2, 'brask', 3, ctx);
         addGear(s2, 'stolenlamp', ctx, { hot: true, from: 'vesperine' }); flag(s2, 'holdingStolenLamp');
         if (has(s2, 'mirelle')) { flag(s2, 'theftWitnessed', 'mirelle'); say(ctx, 'Brask grins and presses the blue lamp into your hands. "Partners. Half of what it fetches in the Crossing." On your back, Mirelle says nothing at all, which is worse than anything she could have said.'); }
@@ -1761,14 +1816,14 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       if (!room) o.push(O('setdown', 'Set something down to free a slot', {}, function (s2) {
         s2.sub.setdown = { where: 'the Hall of Lost Lights', returnTo: 'hall_lights', purpose: 'Free a slot. Anything left here joins the dragon\'s lost lights.' }; return 'setdown';
       }));
-      o.push(O('watch', 'Stay in the shadows and watch', { cost: 'Learn what Brask knows · he leaves with the lamps' }, function (s2, ctx) {
+      o.push(O('watch', 'Stay in the shadows and watch', { note: 'Learn what he knows · he leaves with the lamps' }, function (s2, ctx) {
         s2.bonds.brask.status = 'observed';
         say(ctx, 'You hold still. Brask finishes wrapping, then freezes as a vast slow breath stirs every lamp in the hall at once. When it passes he goes to the scratched wall and counts under his breath, the way a man checks a lock. Then he slips away down a crack with the bundle.');
         know(s2, 'counting', 'The dragon who owns these lamps counts them every time she wakes. Each scratch on the wall is a lamp. A missing one will be noticed.', null, 'clue');
         know(s2, 'brask-thief', 'You watched Brask steal three lamps, one burning blue, and leave by a crack in the wall.', null, 'clue');
         return 'vesperine';
       }));
-      if (senseAvailable(s)) o.push(O('sense', 'Sense in Darkness: feel what lies beneath the hall', { cost: 'Uses your one Sense' }, function (s2, ctx) {
+      if (senseAvailable(s)) o.push(O('sense', 'Sense in Darkness: feel what lies beneath the hall', { note: 'Your one Sense this chapter' }, function (s2, ctx) {
         useSense(s2, ctx); know(s2, 'sense-dragon', 'Sense in Darkness: beneath the Hall of Lost Lights, something vast is breathing, slowly, in its sleep.', ctx);
         say(ctx, 'Under your feet, the floor is warm and moving, very slowly. Up. And down. Something enormous is asleep, and you are standing on it.');
         return 'hall_lights';
@@ -1802,13 +1857,13 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     },
     options: function (s) {
       var o = [];
-      if (F(s, 'bundleRecovered')) o.push(O('return', 'Return the stolen lamps to her', { cost: 'Earns her favour' }, function (s2, ctx) {
+      if (F(s, 'bundleRecovered')) o.push(O('return', 'Return the stolen lamps to her', { note: 'Earns her favour' }, function (s2, ctx) {
         flag(s2, 'lampsReturned'); s2.bonds.vesperine.attitude = 'grateful'; grantSeal(s2, ctx);
         say(ctx, 'You set the bundle down and unwrap it. Three lamps; one blue. Vesperine counts them with one claw-tip, very gently. "Returned," she says, as if tasting a rare word. "By a porter."');
         s2.tongue.sourceRoute = 'returned-lamps';
         return 'vesperine_gift';
       }));
-      if (s.bonds.brask.status === 'observed') o.push(O('tell', 'Tell her who has been taking her lights', { cost: 'Brask exposed by the dragon herself' }, function (s2, ctx) {
+      if (s.bonds.brask.status === 'observed') o.push(O('tell', 'Tell her who has been taking her lights', { note: 'Brask exposed by the dragon herself' }, function (s2, ctx) {
         s2.bonds.brask.status = 'exposed'; s2.bonds.brask.witness = 'vesperine'; trust(s2, 'brask', -3, ctx);
         flag(s2, 'lampsReturned'); flag(s2, 'bundleRecovered'); s2.bonds.vesperine.attitude = 'grateful'; grantSeal(s2, ctx);
         say(ctx, 'Vesperine slides one claw into a crack in the wall and draws Brask out by his collar, bundle and all. She counts the lamps. She looks at Brask the way you might look at a moth. Then she sets him down in front of you. "Carry him out too. Your Guild may have him. I find I am not hungry."');
@@ -1816,14 +1871,14 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         return 'vesperine_gift';
       }));
       if (F(s, 'holdingStolenLamp')) {
-        o.push(O('giveback', 'Take the stolen lamp out and give it back', { cost: 'Brask will be furious · no profit' }, function (s2, ctx) {
-          removeGear(s2, 'stolenlamp', null, null); flag(s2, 'holdingStolenLamp', false); flag(s2, 'gaveBackStolenLamp'); chip(ctx, 'Stolen lamp returned', 'info');
+        o.push(O('giveback', 'Take the stolen lamp out and give it back', { note: 'Brask will be furious · no profit' }, function (s2, ctx) {
+          removeGear(s2, 'stolenlamp', null, null); flag(s2, 'holdingStolenLamp', false); flag(s2, 'gaveBackStolenLamp'); 
           trust(s2, 'brask', -2, ctx); s2.bonds.vesperine.attitude = 'wary';
           say(ctx, '"You returned what you took," Vesperine says. "That is not nothing. It is not much, either." She nudges the Tongue toward you.');
           s2.tongue.sourceRoute = 'confessed';
           return 'tongue_custody';
         }));
-        o.push(O('hide', 'Say nothing and keep the lamp hidden', { cost: 'Profit · but she counts her lamps' }, function (s2, ctx) {
+        o.push(O('hide', 'Say nothing and keep the lamp hidden', { note: 'Profit — but she counts her lamps' }, function (s2, ctx) {
           flag(s2, 'keptStolenLamp'); s2.bonds.vesperine.attitude = 'unaware';
           addDebt(s2, ctx, 'counted-lamp', 'vesperine', 'Vesperine counts her lamps each time she wakes. One is missing, and it is in your pack.');
           say(ctx, 'You keep your face very still. Vesperine regards you for a long moment. "Take the Tongue," she says. "I will count my lights again when I next wake. I always do."');
@@ -1831,7 +1886,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
           return 'tongue_custody';
         }));
       }
-      o.push(O('negotiate', 'Bargain: you will carry it out if she grants everyone safe passage', { cost: tuckHere(s) ? 'Peaceful · Tuck\'s presence may win her mark' : 'Peaceful · no favours' }, function (s2, ctx) {
+      o.push(O('negotiate', 'Bargain: you will carry it out if she grants everyone safe passage', { note: tuckHere(s) ? 'Peaceful · Tuck\'s presence may win her favour' : 'Peaceful' }, function (s2, ctx) {
         flag(s2, 'negotiated');
         if (s2.bonds.vesperine.attitude !== 'grateful') s2.bonds.vesperine.attitude = 'agreeable';
         say(ctx, '"Done," Vesperine says at once. "You are the first thing that has walked into my hall and asked for less than it wanted." ');
@@ -1839,7 +1894,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         s2.tongue.sourceRoute = s2.tongue.sourceRoute || 'bargain';
         return s2.bonds.vesperine.seal ? 'vesperine_gift' : 'tongue_custody';
       }));
-      o.push(O('bluff', 'Bluff: claim the Guild sent you to fetch it', { cost: s.light.scented ? 'Risky — she can smell your nerves' : 'Risky' }, function (s2, ctx) {
+      o.push(O('bluff', 'Bluff: claim the Guild sent you to fetch it', { conceal: true, note: 'Risky. If she sees through you: dragon breath (a heavy blow to your Vitality). If not: you walk out owing nothing.' + (s.light.scented ? ' She can smell a great deal.' : '') }, function (s2, ctx) {
         if (s2.light.scented) {
           say(ctx, '"The Guild," she repeats, "sent a porter who smells of cheap fish to fetch a dragon\'s secret." Her breath rolls out — not at you, quite. Beside you.');
           var brink = breath(s2, ctx);
@@ -1852,14 +1907,15 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         say(ctx, 'Vesperine laughs, and lamps all over the hall ring in sympathy. "A clever lie, from a quiet lamp. Take it, liar. You carry it either way."');
         s2.tongue.sourceRoute = 'bluff'; return 'tongue_custody';
       }));
-      o.push(O('debt', 'Offer a year of service so she lets everyone go unharmed', { cost: 'Binding: you will owe Vesperine a year' }, function (s2, ctx) {
+      o.push(O('debt', 'Offer a year of service so she lets everyone go unharmed', { note: 'Binding: a year of service, called when she chooses' }, function (s2, ctx) {
         addDebt(s2, ctx, 'year-debt', 'vesperine', 'Vesperine\'s Year-Debt: a year of service, called at a time of her choosing.');
         s2.bonds.vesperine.attitude = 'owner'; flag(s2, 'dragonRoad');
-        say(ctx, 'Vesperine is silent so long that the lamps stop chiming. "A year," she says at last. "Freely offered. Very well. I accept, and in exchange: no harm to you or yours tonight, and my own road up and out." A scale the size of your palm drops at your feet. Words you cannot read glow on it, then fade.');
+        say(ctx, 'Vesperine is silent so long that the lamps stop chiming. "A year," she says at last. "Freely offered. Very well. I accept, and in exchange: no harm to you or yours tonight, and my own road up and out." A scale the size of your palm drops at your feet. Words you cannot read glow on it, then fade. You pick it up. It is warm, and small enough for a pocket.');
+        grantScale(s2, ctx);
         s2.tongue.sourceRoute = 'year-debt';
         return 'tongue_custody';
       }));
-      o.push(O('flee', 'Grab the Tongue and run', { cost: 'Dragon breath: Vitality −6' + (has(s, 'shield') ? ' (Odran\'s shield halves it)' : '') }, function (s2, ctx) {
+      o.push(O('flee', 'Grab the Tongue and run', { note: 'Dragon breath' + (has(s, 'shield') ? ' · Odran\'s shield takes half' : '') }, function (s2, ctx) {
         flag(s2, 'fled'); s2.bonds.vesperine.attitude = 'hostile';
         say(ctx, 'You snatch up the humming iron and run. Behind you the hall fills with a sound like a forge drawing breath.');
         var brink = breath(s2, ctx);
@@ -1881,6 +1937,14 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     s.bonds.vesperine.seal = true; chip(ctx, 'Vesperine\'s Seal', 'gain');
     know(s, 'seal', 'Vesperine\'s Seal: a mark of her favour, pressed warm into the back of your hand. It fades from sight but not from her memory.', null, 'deed');
   }
+  /** Vesperine's debt-token: a palm-sized keepsake carried in the pocket (no pack slot, like Pebblechief's pebble). */
+  var SCALE = 'Vesperine\'s scale (the token of your Year-Debt)';
+  function hasScale(s) { return s.pocket.keepsakes.indexOf(SCALE) >= 0; }
+  function grantScale(s, ctx) {
+    if (hasScale(s)) return;
+    s.pocket.keepsakes.push(SCALE); s.bonds.vesperine.debtToken = true;
+    if (ctx) chip(ctx, '+Vesperine\'s scale (keepsake)', 'gain');
+  }
   function addDebt(s, ctx, id, to, text) {
     if (s.debts.some(function (d) { return d.id === id; })) return;
     s.debts.push({ id: id, to: to, text: text }); chip(ctx, 'Debt: ' + (id === 'year-debt' ? 'a year to Vesperine' : 'a counted lamp'), 'cost');
@@ -1893,13 +1957,15 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     },
     options: function () {
       return [
-        O('accept', 'Accept: a year of service', { cost: 'Binding debt · she carries you to her road' }, function (s2, ctx) {
+        O('accept', 'Accept: a year of service', { note: 'Binding debt · she shows you her road' }, function (s2, ctx) {
           addDebt(s2, ctx, 'year-debt', 'vesperine', 'Vesperine\'s Year-Debt: a year of service, accepted on the brink, called at a time of her choosing.');
           s2.bonds.vesperine.attitude = 'owner'; flag(s2, 'dragonRoad'); heal(s2, 2, ctx, 'Dragon-warmth');
+          say(ctx, 'A scale the size of your palm drops onto your chest, warm as a coal. Words you cannot read glow on it, then fade. You close your hand around it.');
+          grantScale(s2, ctx);
           say(ctx, '"Accepted." Her breath washes over you again, but warm this time, like a hearth. "Get up. You are mine for a year, and I do not keep broken things."');
           s2.tongue.sourceRoute = 'brink-debt'; return 'tongue_custody';
         }),
-        O('refuse', 'Refuse. You will take your chances.', { cost: 'She throws you out — no debt' }, function (s2, ctx) {
+        O('refuse', 'Refuse. You will take your chances.', { note: 'No debt · she throws you out' }, function (s2, ctx) {
           flag(s2, 'thrownOut');
           say(ctx, 'Vesperine laughs. "Then go." The Tongue lands on your chest with a thump, and a gust of her breath rolls you, tumbling, into a crack that leads up toward fresher air.');
           s2.tongue.sourceRoute = 'thrown-out'; return 'tongue_custody';
@@ -1919,13 +1985,13 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       var o = [];
       if (F(s, 'lampsReturned') && !F(s, 'blueLampDecided')) {
         var room = slotsFree(s) >= 1;
-        o.push(O('lamp:take', 'Accept the Blue-Flame Lamp', { cost: '1 slot · Load 1', disabled: !room, reason: 'No free slot. Set something down, or decline.' }, function (s2, ctx) {
+        o.push(O('lamp:take', 'Accept the Blue-Flame Lamp', { note: '1 slot · Load 1', disabled: !room, reason: 'No free slot. Set something down, or decline.' }, function (s2, ctx) {
           addGear(s2, 'bluelamp', ctx, { gift: 'vesperine' }); flag(s2, 'blueLampDecided'); return 'tongue_custody';
         }));
         if (!room) o.push(O('setdown', 'Set something down to make room', {}, function (s2) {
           s2.sub.setdown = { where: 'Vesperine\'s hall', returnTo: 'vesperine_gift', purpose: 'Make room for the dragon\'s gift. Anything left here joins her lost lights.', allowEntrust: true }; return 'setdown';
         }));
-        o.push(O('lamp:decline', 'Decline the lamp politely', { cost: 'No lamp' }, function (s2, ctx) {
+        o.push(O('lamp:decline', 'Decline the lamp politely', {}, function (s2, ctx) {
           flag(s2, 'blueLampDecided'); say(ctx, '"Modest," Vesperine says. "Rarer than blue fire." She seems pleased.'); return 'tongue_custody';
         }));
       } else o.push(O('continue', 'Turn to the Tongue', {}, function () { return 'tongue_custody'; }));
@@ -1944,15 +2010,15 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     options: function (s) {
       var o = [];
       var room = slotsFree(s) >= 1;
-      o.push(O('pack', 'Stow it in your pack', { cost: '1 slot · Load 1', disabled: !room, reason: 'No free slot. Set something down, hand something off, or hand-carry it.' }, function (s2, ctx) {
+      o.push(O('pack', 'Stow it in your pack', { note: '1 slot · Load 1', disabled: !room, reason: 'No free slot. Set something down, hand something off, or hand-carry it.' }, function (s2, ctx) {
         addGear(s2, 'tongue', null); takeTongue(s2, ctx, 'pack'); return travel(s2, ctx, 'wayout', { guided: F(s2, 'dragonRoad') });
       }));
-      if (!room) o.push(O('setdown', 'Set something down or hand it off to make room', { cost: 'Leave items here, or ask Odran to carry one' }, function (s2) {
+      if (!room) o.push(O('setdown', 'Set something down or hand it off to make room', { note: 'Leave items here, or ask Odran to carry one' }, function (s2) {
         s2.sub.setdown = { where: 'Vesperine\'s hall', returnTo: 'tongue_custody', purpose: 'Make room for the Tongue. Items left here join the dragon\'s lost lights. Odran can carry one item for you if he is here.', allowEntrust: true };
         return 'setdown';
       }));
-      o.push(O('hand', 'Carry it in your hands (one-time story carry)', { cost: 'Load +1 · climbing costs +1 Vitality · must be packed or lockered at the Guild' }, function (s2, ctx) {
-        takeTongue(s2, ctx, 'hand'); chip(ctx, 'Hand-carrying the Tongue', 'info');
+      o.push(O('hand', 'Carry it in your hands (one-time story carry)', { note: 'Load +1 · climbing one-handed hurts · at the Guild it must go in your pack or a Guild locker' }, function (s2, ctx) {
+        takeTongue(s2, ctx, 'hand'); 
         if (s2.hero.conditions.indexOf('Hands full') < 0) s2.hero.conditions.push('Hands full');
         return travel(s2, ctx, 'wayout', { guided: F(s2, 'dragonRoad') });
       }));
@@ -1989,39 +2055,39 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       var o = [], hand = s.tongue.location === 'hand';
       function climbCost(base) { return base + (hand ? 1 : 0); }
       function done(s2, ctx, route, line) { flag(s2, 'exitRoute', route); say(ctx, line); return 'ledger'; }
-      if (F(s, 'dragonRoad')) o.push(O('dragonroad', 'Take Vesperine\'s road', { cost: 'Free · her scale glows the way' }, function (s2, ctx) {
-        return done(s2, ctx, 'dragon-road', 'The scale at your feet glows, and a passage you could swear was solid rock opens on a smooth, warm road that winds up and up until you smell rain.');
+      if (F(s, 'dragonRoad')) o.push(O('dragonroad', 'Take Vesperine\'s road', { note: 'Her road: no oil, no climb' }, function (s2, ctx) {
+        return done(s2, ctx, 'dragon-road', (hasScale(s2) ? 'The scale in your pocket grows warm and glows through the cloth, and' : 'Vesperine\'s word holds:') + ' a passage you could swear was solid rock opens on a smooth, warm road that winds up and up until you smell rain.');
       }));
-      if (F(s, 'hounds') === 'fed') o.push(O('hounds', 'Follow the hounds', { cost: 'Free · they remember your bread' }, function (s2, ctx) {
+      if (F(s, 'hounds') === 'fed') o.push(O('hounds', 'Follow the hounds', { note: 'They remember your bread' }, function (s2, ctx) {
         return done(s2, ctx, 'hounds', 'The hounds lead you up the stair and through three turnings you would never have chosen, and sit down, panting, at the foot of the Guild gate as if they had planned it all along.');
       }));
-      if (s.bonds.lanternless.friend) o.push(O('lanternless', 'Let the Lanternless lead you by the dark ways', { cost: 'Free · no Light needed' }, function (s2, ctx) {
+      if (s.bonds.lanternless.friend) o.push(O('lanternless', 'Let the Lanternless lead you by the dark ways', { note: 'No light needed' }, function (s2, ctx) {
         return done(s2, ctx, 'lanternless', 'You walk in perfect dark for a long time, a hand on your elbow, and come out into grey dawn light at the old Delvekin gate.' + (s2.bonds.mirelle.status === 'withHelpers' ? ' Mirelle is waiting there, wrapped in a Lanternless cloak.' : ''));
       }));
-      if (tuckHere(s)) o.push(O('tuck', 'Follow Tuck to the air draft', { cost: 'Tuck finds the safe side of the draft' + (hand ? ' · Vitality −1 (hands full)' : '') }, function (s2, ctx) {
+      if (tuckHere(s)) o.push(O('tuck', 'Follow Tuck to the air draft', { note: 'Tuck finds the safe side of the draft' + (hand ? ' · climbing one-handed' : '') }, function (s2, ctx) {
         if (hand) hurt(s2, 1, ctx, 'climbing one-handed');
         return done(s2, ctx, 'tuck-draft', 'Tuck hops from ledge to ledge up the windy chimney, lighting every handhold just before you need it.');
       }));
-      if (has(s, 'bluelamp')) o.push(O('bluelamp', 'Light the Blue-Flame Lamp and walk out', { cost: 'Free · it burns without oil' }, function (s2, ctx) {
+      if (has(s, 'bluelamp')) o.push(O('bluelamp', 'Light the Blue-Flame Lamp and walk out', { note: 'It burns without oil' }, function (s2, ctx) {
         return done(s2, ctx, 'blue-lamp', 'You are patient with it. The blue flame wakes, and by its deep-water light you walk the long way round, unhurried, all the way to the gate.');
       }));
-      if (has(s, 'rope')) o.push(O('rope', 'Climb the old shaft on your rope', { cost: 'Rope −1 use' + (hand ? ' · Vitality −1 (hands full)' : '') }, function (s2, ctx) {
+      if (has(s, 'rope')) o.push(O('rope', 'Climb the old shaft on your rope', { note: hand ? 'Climbing one-handed' : '' }, function (s2, ctx) {
         consume(s2, 'rope', ctx, 'Rope −1 use'); if (hand) hurt(s2, 1, ctx, 'climbing one-handed');
         return done(s2, ctx, 'rope-shaft', 'You throw a loop over an iron spike far above and climb, hand over hand, toward a square of grey sky.');
       }));
-      if (has(s, 'bell')) o.push(O('bell', 'Ring the Recall Bell', { cost: 'Recall Bell used' }, function (s2, ctx) {
+      if (has(s, 'bell')) o.push(O('bell', 'Ring the Recall Bell', { note: 'The Guild hauls you up' }, function (s2, ctx) {
         consume(s2, 'bell', ctx, 'Recall Bell used');
         return done(s2, ctx, 'recall-bell', 'Far above, in the Guild gatehouse, a bell you will never hear rings once. An hour later a basket on a chain comes clanking down the nearest shaft.');
       }));
       if (s.light.remaining >= 1) {
         var safe = F(s, 'hounds') === 'fed' || F(s, 'hounds') === 'defeated';
-        o.push(O('lantern', 'Walk the Hound Stair by lantern-light', { cost: 'Light −1' + (safe ? '' : ' · hounds on the stair: Vitality −2') }, function (s2, ctx) {
+        o.push(O('lantern', 'Walk the Hound Stair by lantern-light', { note: safe ? '' : 'The hounds hold the stair' }, function (s2, ctx) {
           spendLight(s2, 1, ctx);
           if (!safe) { hurt(s2, 2, ctx, 'snapping jaws'); return done(s2, ctx, 'lantern-hounds', 'The hounds are awake now and they hold the stair. You edge past them with your back to the wall and their teeth an inch from your sleeve.'); }
           return done(s2, ctx, 'lantern', 'By the last of your lantern you climb the long stair and come out at the Guild gate.');
         }));
       }
-      o.push(O('draft', 'Climb the air draft blind', { cost: 'Last resort · Vitality −' + climbCost(2) }, function (s2, ctx) {
+      o.push(O('draft', 'Climb the air draft blind', { note: 'Always possible · a blind, bruising climb' }, function (s2, ctx) {
         hurt(s2, climbCost(2), ctx, 'a blind climb');
         return done(s2, ctx, 'draft', 'You climb toward the moving air by feel alone, scraping skin off both hands, until the air smells of rain.');
       }));
@@ -2038,8 +2104,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       // Entrusted items come back to the hero
       s.entrusted.slice().forEach(function (g) {
         var it = { item: g.item }; if ('uses' in g) it.uses = g.uses; if ('qty' in g) it.qty = g.qty;
-        if (slotsFree(s) >= ITEMS[g.item].slots) { s.gear.push(it); chip(ctx, ITEMS[g.item].name + ' returned by Odran', 'info'); }
-        else { it.where = 'Guild locker'; s.stored.push(it); chip(ctx, ITEMS[g.item].name + ' → Guild locker', 'info'); }
+        if (slotsFree(s) >= ITEMS[g.item].slots) { s.gear.push(it); say(ctx, 'Odran hands back your ' + ITEMS[g.item].name.toLowerCase() + '.'); }
+        else { it.where = 'Guild locker'; s.stored.push(it); say(ctx, 'Your frame is full, so Odran puts your ' + ITEMS[g.item].name.toLowerCase() + ' in your Guild locker. It is still yours.'); }
       });
       s.entrusted = [];
       // Mirelle comes off the frame
@@ -2063,29 +2129,29 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     options: function (s) {
       var o = [];
       if (s.tongue.location === 'hand') {
-        o.push(O('t:pack', 'Stow the Tongue in your pack', { group: 'The Tongue', cost: '1 slot', disabled: slotsFree(s) < 1, reason: 'No free slot. Use a Guild locker instead.' }, function (s2, ctx) {
+        o.push(O('t:pack', 'Stow the Tongue in your pack', { group: 'The Tongue', note: '1 slot', disabled: slotsFree(s) < 1, reason: 'No free slot. Use a Guild locker instead.' }, function (s2, ctx) {
           addGear(s2, 'tongue', null); s2.tongue.location = 'pack'; s2.tongue.carried = true;
-          s2.hero.conditions = s2.hero.conditions.filter(function (c) { return c !== 'Hands full'; }); chip(ctx, 'Tongue → pack', 'info'); return 'ledger';
+          s2.hero.conditions = s2.hero.conditions.filter(function (c) { return c !== 'Hands full'; });  return 'ledger';
         }));
-        o.push(O('t:locker', 'Place the Tongue in a Guild locker (still yours)', { group: 'The Tongue', cost: 'Stored, not carried' }, function (s2, ctx) {
+        o.push(O('t:locker', 'Place the Tongue in a Guild locker (still yours)', { group: 'The Tongue', note: 'Stored, not carried; still in your custody' }, function (s2, ctx) {
           s2.tongue.location = 'guild-locker'; s2.tongue.carried = false;
-          s2.hero.conditions = s2.hero.conditions.filter(function (c) { return c !== 'Hands full'; }); chip(ctx, 'Tongue → Guild locker', 'info'); return 'ledger';
+          s2.hero.conditions = s2.hero.conditions.filter(function (c) { return c !== 'Hands full'; });  return 'ledger';
         }));
       }
       if (F(s, 'shieldAccepted') && has(s, 'shield') && !F(s, 'shieldReconciled')) {
-        o.push(O('shield:return', 'Return Sir Odran\'s shield', { group: 'Odran\'s shield', cost: 'Odran trust +1' }, function (s2, ctx) {
-          removeGear(s2, 'shield', null, null); flag(s2, 'shieldReconciled', 'returned'); trust(s2, 'odran', 1, ctx); chip(ctx, 'Shield returned', 'info');
+        o.push(O('shield:return', 'Return Sir Odran\'s shield', { group: 'Odran\'s shield' }, function (s2, ctx) {
+          removeGear(s2, 'shield', null, null); flag(s2, 'shieldReconciled', 'returned'); trust(s2, 'odran', 1, ctx); 
           say(ctx, F(s2, 'shieldScorched') ? 'Odran turns the blistered shield over in his hands. "Dragon-fire," he says, wondering. "I will never repaint it."' : 'Odran takes it back and runs a thumb over a fresh scratch. "It came home," he says. "So did you."');
           return 'ledger';
         }));
-        o.push(O('shield:keep', 'Keep the shield', { group: 'Odran\'s shield', cost: 'Odran trust −3 · Guild −1 · Article 12' }, function (s2, ctx) {
+        o.push(O('shield:keep', 'Keep the shield', { group: 'Odran\'s shield', note: 'Article 12: loaned equipment goes back to its owner. The Guild will note this when you sign.' }, function (s2, ctx) {
           flag(s2, 'shieldReconciled', 'kept'); trust(s2, 'odran', -3, ctx); entry(s2, 'shield').loanedBy = 'odran (unreturned)';
           say(ctx, 'Odran looks at you for a long time. "Article twelve," is all he says, to the clerk.');
           return 'ledger';
         }));
       }
       var blocked = s.tongue.location === 'hand' ? 'Stow the Tongue first.' : (F(s, 'shieldAccepted') && has(s, 'shield') && !F(s, 'shieldReconciled') ? 'Decide about Odran\'s shield first.' : '');
-      o.push(O('sign', 'Sign the Guild Ledger and close the chapter', { group: 'Close', cost: 'Commits this ending', disabled: !!blocked, reason: blocked }, function (s2, ctx) {
+      o.push(O('sign', 'Sign the Guild Ledger and close the chapter', { group: 'Close', note: 'Closes the chapter and pays your contract', disabled: !!blocked, reason: blocked }, function (s2, ctx) {
         applyLedger(s2, ctx); return 'ending';
       }));
       return o;
@@ -2115,7 +2181,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (b.brask.status === 'partner') {
       if (F(s, 'theftWitnessed')) { stand -= 3; items.push('Partnered in theft; Mirelle testified (−3).'); }
       else { stand -= 1; items.push('Associated with a suspected thief (−1).'); }
-      if (F(s, 'keptStolenLamp')) { pay += 12; lines.push('Brask\'s share of the stolen lamp, paid in the alley: +12 silver (not declared).'); }
+      if (F(s, 'keptStolenLamp') && possessesItem(s, 'stolenlamp')) { pay += 12; lines.push('Brask\'s share of the stolen lamp, paid in the alley: +12 silver (not declared).'); }
     }
     var shieldLost = F(s, 'shieldAccepted') && !has(s, 'shield') && F(s, 'shieldReconciled') !== 'returned' && s.leftBehind.some(function (g) { return g.item === 'shield'; });
     if (shieldLost) { pay -= 2; stand -= 1; lines.push('Odran\'s loaned shield lost in the Deeps: −2 silver (Article 12).'); items.push('Lost a loaned shield (−1).'); }
@@ -2163,7 +2229,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     var b = s.bonds, mv = b.mirelle.via || b.mirelle.status;
     var mirelleRescued = mv === 'walking' || mv === 'carried' || mv === 'withHelpers';
     var id;
-    if (b.brask.status === 'partner' && F(s, 'keptStolenLamp')) id = 'E3';
+    if (b.brask.status === 'partner' && F(s, 'keptStolenLamp') && possessesItem(s, 'stolenlamp')) id = 'E3';
     else if (s.debts.some(function (d) { return d.id === 'year-debt'; })) id = 'E4';
     else if (b.odran.rescuedByYou && mirelleRescued && b.brask.status === 'exposed' && F(s, 'lampsReturned') &&
       F(s, 'shieldReconciled') !== 'kept' && !(F(s, 'shieldAccepted') && s.leftBehind.some(function (g) { return g.item === 'shield'; })) &&
@@ -2174,42 +2240,87 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   }
 
   /* ================================================================ ending prose */
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  function mirelleRescued(s) { var v = s.bonds.mirelle.via || s.bonds.mirelle.status; return v === 'walking' || v === 'carried' || v === 'withHelpers'; }
+  function possessesItem(s, id) {
+    return has(s, id) || s.stored.some(function (g) { return g.item === id; }) || s.entrusted.some(function (g) { return g.item === id; });
+  }
+  function lightBurned(s) {
+    if (typeof s.flags.lightBurned === 'number') return s.flags.lightBurned;
+    // Saves started before this counter existed: reconstruct from the lamp's own record.
+    var kd = s.craftNames.filter(function (c) { return c.id === 'kindle'; })[0];
+    return Math.max(0, s.light.max + 4 * (s.consumed.oil || 0) + 3 * (kd ? 1 - kd.usesLeft : 0) - s.light.remaining);
+  }
+  /**
+   * Everything the run actually spent or lost, from recorded state only (F08).
+   * Items merely moved into a Guild locker or carried by Odran are NOT costs.
+   */
+  function costLines(s) {
+    var c = [], u = s.consumed, b = s.bonds;
+    if (u.bread) c.push(plural(u.bread, 'loaf', 'loaves') + ' of bread' + (b.tuck.bond ? (u.bread === 1 ? ' (given to a hungry kettlekin)' : ' (one given to a hungry kettlekin)') : ''));
+    if (u.moss) c.push(plural(u.moss, 'pad', 'pads') + ' of healing moss');
+    if (u.salt) c.push(plural(u.salt, 'handful', 'handfuls') + ' of salt');
+    if (u.oil) c.push(plural(u.oil, 'flask', 'flasks') + ' of spare oil');
+    ['rope', 'crowbar', 'chalk'].forEach(function (k) { if (u[k]) c.push(ITEMS[k].name + ': ' + plural(u[k], 'use', 'uses')); });
+    if (u.bell) c.push('The Recall Bell (rung)');
+    var lb = lightBurned(s); if (lb) c.push(plural(lb, 'measure', 'measures') + ' of lamp oil burned');
+    var spent = START_COINS + (s.ledger ? s.ledger.pay : 0) - s.coins;
+    if (spent > 0) c.push(plural(spent, 'silver', 'silver') + ' spent');
+    s.leftBehind.forEach(function (it) { c.push(ITEMS[it.item].name + (it.where === 'Pebblechief\'s hoard' ? ', paid to Pebblechief' : ', left at ' + it.where)); });
+    if (s.hero.vit < s.hero.maxVit) c.push('Vitality ' + s.hero.vit + ' of ' + s.hero.maxVit + (s.hero.conditions.length ? ' (' + s.hero.conditions.join(', ') + ')' : ''));
+    if (s.hero.brinks) c.push('Brought to the brink ' + plural(s.hero.brinks, 'time', 'times'));
+    s.debts.forEach(function (d) { c.push(d.text); });
+    if (b.guild.blacklisted) c.push('Struck from the Lantern Guild rolls');
+    if (s.ledger) s.ledger.items.forEach(function (x) { if (/\(−\d\)/.test(x)) c.push('Guild: ' + x); });
+    if (b.odran.trust < 0) c.push('Sir Odran\'s cool regard (trust ' + b.odran.trust + ')');
+    if (b.mirelle.trust < 0) c.push('Mirelle\'s disappointment (trust ' + b.mirelle.trust + ')');
+    return c;
+  }
+
   function endingProse(s) {
-    var id = s.ending.id, b = s.bonds, p = [];
+    var id = s.ending.id, b = s.bonds, p = [], mv = b.mirelle.via || b.mirelle.status;
     var shieldLine = F(s, 'shieldReconciled') === 'returned' ? 'Odran\'s shield, returned' + (F(s, 'shieldScorched') ? ' with its paint blistered by dragon-fire' : ' with one new scratch') + ', ' : '';
     var lampLine = has(s, 'bluelamp') ? 'a lamp that burns blue without oil, freely given, ' : '';
+    var sealLine = b.vesperine.seal ? 'a warm, invisible mark on the back of your hand that only a dragon can read' : 'the dragon\'s word, which is worth more than ink';
+    var mirelleArrival = mv === 'carried' ? 'set down at last from your frame' : mv === 'withHelpers' ? 'wrapped in a Lanternless cloak, carried to the gate by people who will not give their names' : 'walking on her own two feet';
     if (id === 'E1') {
-      p.push('The Guild Hall bell rings three times for a full return, and the clerk has to look up the custom, because no one can remember the last time it rang for a porter\'s expedition. Sir Odran comes through the door first, insisting on it, then holds it open: for Mirelle, ' + (b.mirelle.via === 'carried' ? 'set down at last from your frame' : 'walking on her own two feet') + ', and for you. ' + (b.brask.fled ? 'Brask does not come back at all; the wardens are already writing his name on a list.' : 'Brask comes last, between two Guild wardens, still smiling, though it no longer reaches his eyes.'));
-      p.push('On the ledger table you lay out what you carried home: ' + shieldLine + lampLine + 'and a warm, invisible mark on the back of your hand that only a dragon can read. The clerk writes a line he has never written before: returned to their owner, a dragon, by agreement.');
+      p.push('The Guild Hall bell rings three times for a full return, and the clerk has to look up the custom, because no one can remember the last time it rang for a porter\'s expedition. Sir Odran comes through the door first, insisting on it, then holds it open: for Mirelle, ' + mirelleArrival + ', and for you. ' + (b.brask.fled ? 'Brask does not come back at all; the wardens are already writing his name on a list.' : 'Brask comes last, between two Guild wardens, still smiling, though it no longer reaches his eyes.'));
+      p.push('On the ledger table you lay out what you carried home: ' + shieldLine + lampLine + 'and ' + sealLine + '. The clerk writes a line he has never written before: returned to their owner, a dragon, by agreement.');
       p.push('Later, when the hall has emptied, you take out the iron clapper. Here, far from any dragon\'s breath, it is cold and silent. You hear Vesperine anyway, a bell under water: "' + BRIDGE_QUOTE + '" Everyone came home. The Tongue did not. Not yet.');
     } else if (id === 'E2') {
-      var who = b.mirelle.via === 'withHelpers' ? 'Mirelle comes home wrapped in a Lanternless cloak, carried by people who have never seen the sun and will not tell the clerk their names'
-        : b.mirelle.via === 'carried' ? 'Mirelle comes home on your back, every step of the way, and the clerk doubles your day-rate without being asked'
-        : b.mirelle.via === 'walking' ? 'Mirelle comes home limping beside you, her leg bound in moss, a Name she taught you still warm in your lantern'
-        : b.mirelle.via === 'supplied' ? 'Mirelle comes home two days after you, found by the Guild\'s searchers sitting beside a lamp you filled for her, alive and furious and grateful'
+      var who = mv === 'withHelpers' ? 'Mirelle comes home wrapped in a Lanternless cloak, carried by people who have never seen the sun and will not tell the clerk their names'
+        : mv === 'carried' ? 'Mirelle comes home on your back, every step of the way, and the clerk doubles your day-rate without being asked'
+        : mv === 'walking' ? 'Mirelle comes home limping beside you, her leg bound in moss' + (s.craftNames.length ? ', a Name she taught you still warm in your lantern' : '')
+        : mv === 'supplied' ? 'Mirelle comes home two days after you, found by the Guild\'s searchers sitting beside a lamp you filled for her, alive and furious and grateful'
         : 'The Lanternless walk you to the gate and no further. They do not come into the light. But the clerk sees the pale hands let go of your elbow, and goes very quiet';
       p.push(who + '.');
-      p.push('It is not a clean report. ' + (b.brask.status === 'exposed' ? 'Brask\'s theft is on record, ' : b.brask.status === 'observed' ? 'Brask has gone south with three stolen lamps, and you are the only one who saw it, ' : 'Too much is missing from the expedition\'s account, ') + (s.leftBehind.length ? 'gear was left behind in the dark, ' : '') + 'and the Guild\'s pay-master frowns over every line. But the people who mattered most down there are alive, and some of them know your name now.');
-      var spent = [];
-      s.leftBehind.forEach(function (it) { spent.push('your ' + ITEMS[it.item].name.toLowerCase() + ', left at ' + it.where); });
-      if (s.consumed.moss) spent.push('healing moss');
-      if (s.consumed.bread) spent.push(s.consumed.bread + ' loaf' + (s.consumed.bread > 1 ? 'ves' : '') + ' of bread');
+      p.push('It is not a clean report. ' + (b.brask.status === 'exposed' ? 'Brask\'s theft is on record, ' : b.brask.status === 'observed' ? 'Brask has gone south with three stolen lamps, and you are the only one who saw it, ' : 'Too much is missing from the expedition\'s account, ') + (s.leftBehind.length ? 'gear was left behind in the dark, ' : '') + 'and the Guild\'s pay-master frowns over every line. But ' + (mirelleRescued(s) || mv === 'supplied' ? 'the people who mattered most down there are alive' : 'you kept faith with the folk who live in the dark') + ', and some of them know your name now.');
+      var spent = [], u = s.consumed;
+      s.leftBehind.forEach(function (it) { spent.push('your ' + ITEMS[it.item].name.toLowerCase() + (it.where === 'Pebblechief\'s hoard' ? ', paid as a toll' : ', left at ' + it.where)); });
+      if (u.moss) spent.push(plural(u.moss, 'pad', 'pads') + ' of healing moss');
+      if (u.bread) spent.push(plural(u.bread, 'loaf', 'loaves') + ' of bread');
       if (s.hero.vit < s.hero.maxVit) spent.push('a good deal of your own blood');
       if (!spent.length) spent.push('time, oil and nerve');
       p.push('What it cost is written in the margins: ' + spent.join(', ') + '. The clerk reads it out like a list of losses. To you it sounds more like a list of reasons.');
       p.push('In your ' + (s.tongue.location === 'pack' ? 'pack' : 'Guild locker') + ' sits the iron clapper you never asked for. You remember the dragon\'s eye and her voice: "' + BRIDGE_QUOTE + '" Someone down south lost something that sings near dragons. Someone else will want it back.');
     } else if (id === 'E3') {
-      p.push('You sign the ledger with a steady hand. The stolen lamp sits in your pack, warm as a secret. ' + (F(s, 'theftWitnessed') ? 'It does not stay a secret long. Mirelle tells the clerk exactly what she saw from your back, and the clerk, without a word, draws a line through your name. Brask is already gone.' : 'Nobody asks. Brask catches your eye across the hall, winks, and is gone before the wardens think to look for him.'));
+      p.push('You sign the ledger with a steady hand. The stolen lamp is ' + (has(s, 'stolenlamp') ? 'in your pack' : 'tucked away where the Guild will not look') + ', warm as a secret. ' + (F(s, 'theftWitnessed') ? 'It does not stay a secret long. Mirelle tells the clerk exactly what she saw from your back, and the clerk, without a word, draws a line through your name. Brask is already gone.' : 'Nobody asks. Brask catches your eye across the hall, winks, and is gone before the wardens think to look for him.'));
       p.push('That night, in the alley behind the Tipped Lantern tavern, a man you have never met counts twelve silver into your hand and does not ask your name. It is more than the Guild paid you. It does not feel like more.');
       p.push('You lie awake with the blue lamp beside your bed, unlit, and the iron clapper beside it. A dragon counts her lights every time she wakes. One of them is missing, and it is here. And you keep hearing her voice: "' + BRIDGE_QUOTE + '" You know where Brask is going. You know where the Tongue came from. Perhaps they are the same direction. Perhaps that is the point.');
     } else if (id === 'E4') {
-      p.push((F(s, 'thrownOut') ? '' : 'You come up out of the Deeps by a road no Guild map shows, a smooth warm passage that closes behind you like a mouth. ') + 'The Guild clerk looks at your face, then at your hand, where a dragon\'s scale glows once and fades. He writes something in the margin of the ledger and underlines it twice.');
-      p.push((b.mirelle.via === 'carried' || b.mirelle.via === 'walking' || b.mirelle.via === 'withHelpers' ? 'Everyone you went down to save is alive. ' : 'Not everyone came home the way they should have. ') + 'Sir Odran will not sit beside you at supper, though he sends over his wine. The Guild pays your wages in full and very quietly, the way you pay a man who is about to leave for a long time.');
+      var road = F(s, 'exitRoute') === 'dragon-road';
+      p.push((road ? 'You come up out of the Deeps by a road no Guild map shows, a smooth warm passage that closes behind you like a mouth. ' : 'You come up out of the Deeps with a dragon\'s promise in your head and a year missing from your future. ') + 'The Guild clerk looks at your face' + (hasScale(s) ? ', then at the palm-sized scale you set on the counter. It glows once and fades. He' : '. He') + ' writes something in the margin of the ledger and underlines it twice.');
+      var mline = mirelleRescued(s) ? 'Mirelle is home, and alive because of you. ' : mv === 'supplied' ? 'Mirelle comes home later, found beside the lamp you filled for her. ' : 'Mirelle is home only because the Guild\'s searchers found her, and she knows it. ';
+      var oline = (b.odran.trust >= 1 || (b.odran.rescuedByYou && b.odran.trust >= 0)) ? 'Sir Odran sits beside you at supper anyway. He says nothing at all about dragons, which from Odran is a kindness. '
+        : b.odran.trust <= -1 ? 'Sir Odran will not sit beside you at supper, though he sends over his wine. '
+        : 'Sir Odran sits two places down at supper and watches you as though you might vanish before the pudding. ';
+      p.push(mline + oline + 'The Guild pays your wages in full and very quietly, the way you pay a man who is about to leave for a long time.');
       p.push('You owe Vesperine a year. She did not say when she would call it, only that she would. You are a porter; you have carried other people\'s burdens your whole life. This one is yours, and so is the iron clapper she pressed on you: "' + BRIDGE_QUOTE + '" A dragon wants it gone. Someone else wants it back. And you, it seems, are the one holding it.');
     } else {
-      p.push('You come out of the Deeps ' + (F(s, 'exitRoute') === 'draft' ? 'up a blind draft, by feel, with the skin gone from both palms' : 'alone, by a way you found yourself') + ', and the first thing you see is rain on the Guild yard, grey and ordinary and beautiful.');
-      p.push('The report is thin. ' + (b.mirelle.status === 'recovered-by-guild' ? 'Mirelle was found by the Guild\'s own searchers, alive, and will not look at you. ' : '') + (b.odran.rescuedByYou ? '' : 'Odran came out on his own, battered, and tells the story without your name in it. ') + 'Your pack is lighter than when you went in, your Vitality lower, your standing uncertain. The clerk pays you what the contract says and nothing more.');
-      p.push('But you got out. With almost nothing, in the dark, you got out — and you brought something nobody else could: an iron clapper that hums near dragon breath, and a dragon\'s words to go with it. "' + BRIDGE_QUOTE + '" You are not the hero of anybody\'s story yet. Tonight, that feels like room to grow.');
+      var lighter = s.leftBehind.length || Object.keys(s.consumed).length;
+      p.push('You come out of the Deeps ' + (F(s, 'exitRoute') === 'draft' ? 'up a blind draft, by feel, with the skin gone from both palms' : 'by a way you found yourself') + ', and the first thing you see is rain on the Guild yard, grey and ordinary and beautiful.');
+      p.push('The report is thin. ' + (b.mirelle.status === 'recovered-by-guild' ? 'Mirelle was found by the Guild\'s own searchers, alive, and will not look at you. ' : '') + (b.odran.rescuedByYou ? 'Sir Odran, whom you freed at the gate, tells the clerk so, and little else. ' : 'Odran came out on his own, battered, and tells the story without your name in it. ') + (lighter ? 'Your pack is lighter than when you went in. ' : '') + (s.hero.vit < s.hero.maxVit ? 'You are hurt. ' : '') + 'Your standing is uncertain. The clerk pays you what the contract says and nothing more.');
+      p.push('But you got out. With ' + (s.gear.length <= 1 ? 'almost nothing' : 'what little you had') + ', you got out, and you brought something nobody else could: an iron clapper that hums near dragon breath, and a dragon\'s words to go with it. "' + BRIDGE_QUOTE + '" You are not the hero of anybody\'s story yet. Tonight, that feels like room to grow.');
     }
     return p;
   }
@@ -2218,7 +2329,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     var r = [], b = s.bonds;
     if (b.tuck.bond) r.push(b.tuck.returned ? 'You gave a stranger the size of your thumb a loaf of bread. In the dark, Tuck came back' + (F(s, 'tuckReturnedAt') === 'ledge' ? ' and warmed Mirelle on her ledge.' : '.') : 'You fed a kettlekin in the Guild Hall.');
     else r.push('You kept both loaves. No small glow came looking for you in the dark.');
-    r.push('You chose ' + (s.light.oilType === 'fish' ? 'fish-oil: bright and cheap. ' + (F(s, 'scentWokeHounds') ? 'Its smell woke the hounds' : 'Its brightness showed you more') + (F(s, 'brightOffended') ? ' and offended the Lanternless' : '') + (F(s, 'bluffFailed') ? ', and Vesperine smelled your bluff.' : '.') : 'clearwick: dim and quiet. ' + (F(s, 'hounds') && F(s, 'hounds').indexOf('asleep') === 0 ? 'The hounds slept through you. ' : '') + (F(s, 'bluffed') ? 'Vesperine could not smell your lie.' : 'It ran short sooner, and the dark asked more of you.')));
+    r.push('You chose ' + (s.light.oilType === 'fish' ? 'fish-oil: bright and cheap. ' + (F(s, 'scentWokeHounds') ? 'Its smell woke the hounds' : 'Its brightness showed you more') + (F(s, 'brightOffended') ? ' and offended the Lanternless' : '') + (F(s, 'bluffFailed') ? ', and Vesperine smelled your bluff.' : '.') : 'clearwick: dim and quiet. ' + (F(s, 'hounds') && String(F(s, 'hounds')).indexOf('asleep') === 0 ? 'The hounds slept through you. ' : '') + (F(s, 'bluffed') ? 'Vesperine could not smell your lie.' : 'It ran short sooner, and the dark asked more of you.')));
     if (F(s, 'shieldAccepted')) r.push('You carried Odran\'s shield. It ' + (F(s, 'shieldSavedSkull') ? 'took a falling stone for you at the gate' : 'weighed on you') + (F(s, 'shieldScorched') ? ' and stood between you and dragon-fire' : '') + '; ' + (F(s, 'shieldReconciled') === 'returned' ? 'you gave it back.' : F(s, 'shieldReconciled') === 'kept' ? 'you kept it.' : 'it stayed in the Deeps.'));
     else r.push('You declined Odran\'s shield. ' + (b.odran.rescuedByYou ? 'You freed him anyway, and he noticed.' : 'He did not forget.'));
     var gb = F(s, 'galleryBy');
@@ -2229,53 +2340,139 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   }
 
   function gainsAndCosts(s) {
-    var g = [], c = [];
-    g.push('The Silent Tongue (' + (s.tongue.location === 'pack' ? 'in your pack' : 'in a Guild locker') + ')');
+    var g = [];
+    g.push('The Silent Tongue (' + (s.tongue.location === 'pack' ? 'in your pack' : 'in your Guild locker') + ')');
     if (s.ledger) g.push(s.ledger.pay + ' silver in pay (purse now ' + s.coins + ')');
     if (s.bonds.tuck.returned) g.push('Tuck the kettlekin, companion');
     s.craftNames.forEach(function (n) { g.push('The Name ' + n.name); });
     if (s.bonds.vesperine.seal) g.push('Vesperine\'s Seal');
     if (has(s, 'bluelamp')) g.push('Blue-Flame Lamp (a gift)');
-    if (has(s, 'stolenlamp')) g.push('Blue-Flame Lamp (stolen — hot)');
+    if (possessesItem(s, 'stolenlamp')) g.push('Blue-Flame Lamp (stolen, hot)');
     if (s.bonds.guild.license) g.push('Lantern Guild license');
     if (s.bonds.lanternless.friend) g.push('Friendship of the Lanternless');
     s.pocket.keepsakes.forEach(function (k) { g.push(k); });
-    if (s.bonds.guild.blacklisted) c.push('Struck from the Lantern Guild rolls');
-    s.debts.forEach(function (d) { c.push(d.text); });
-    s.leftBehind.forEach(function (it) { c.push(ITEMS[it.item].name + ' left at ' + it.where); });
-    if (s.hero.vit < s.hero.maxVit) c.push('Vitality ' + s.hero.vit + ' of ' + s.hero.maxVit + (s.hero.conditions.length ? ' (' + s.hero.conditions.join(', ') + ')' : ''));
-    if (s.hero.brinks) c.push('Brought to the brink ' + s.hero.brinks + ' time' + (s.hero.brinks > 1 ? 's' : ''));
-    if (s.bonds.odran.trust < 0) c.push('Sir Odran\'s cool regard (trust ' + s.bonds.odran.trust + ')');
-    if (s.bonds.mirelle.trust < 0) c.push('Mirelle\'s disappointment (trust ' + s.bonds.mirelle.trust + ')');
-    return { gains: g, costs: c };
+    s.stored.forEach(function (it) { g.push(ITEMS[it.item].name + ' (in your Guild locker)'); });
+    return { gains: g, costs: costLines(s) };
   }
 
   /* ================================================================ use items (Keyring actions) */
-  function itemActions(s) {
+  var NO_SATCHEL_SCENES = ['pack', 'pack_review', 'setdown', 'hall_intro', 'hall_background', 'hall_kettlekin', 'hall_oil', 'ledger', 'ending'];
+  function itemActions(s, withPreview) {
     var a = [];
-    if (s.status !== 'in_progress' || ['pack', 'pack_review', 'setdown', 'hall_intro', 'hall_background', 'hall_kettlekin', 'hall_oil'].indexOf(s.scene) >= 0) return a;
-    if (has(s, 'oil')) a.push({ id: 'oil', label: 'Refill your lantern (Spare Oil)', cost: 'Spare Oil −1 · Light +4', disabled: s.light.remaining >= s.light.max, reason: 'Your lantern is already full.' });
+    if (s.status !== 'in_progress' || NO_SATCHEL_SCENES.indexOf(s.scene) >= 0) return a;
+    if (has(s, 'oil')) a.push({ id: 'oil', label: 'Refill your lantern (Spare Oil)', disabled: s.light.remaining >= s.light.max, reason: 'Your lantern is already full.' });
     var kd = s.craftNames.filter(function (c) { return c.id === 'kindle'; })[0];
-    if (kd) a.push({ id: 'kindle', label: 'Speak the Name Kindle', cost: 'Kindle −1 · Light +3', disabled: kd.usesLeft < 1 || s.light.remaining >= s.light.max, reason: kd.usesLeft < 1 ? 'Kindle is spent for this chapter.' : 'Your lantern is already full.' });
-    if (breadCount(s) > 0) a.push({ id: 'eat', label: 'Eat a loaf', cost: 'Bread −1 · Vitality +2', disabled: s.hero.vit >= s.hero.maxVit, reason: 'You are not hurt.' });
-    if (has(s, 'moss')) a.push({ id: 'moss', label: 'Press healing moss to your own wounds', cost: 'Moss −1 · Vitality +4', disabled: s.hero.vit >= s.hero.maxVit, reason: 'You are not hurt.' });
+    if (kd) a.push({ id: 'kindle', label: 'Speak the Name Kindle', disabled: kd.usesLeft < 1 || s.light.remaining >= s.light.max, reason: kd.usesLeft < 1 ? 'Kindle is spent for this chapter.' : 'Your lantern is already full.' });
+    if (breadCount(s) > 0) a.push({ id: 'eat', label: 'Eat a loaf', disabled: s.hero.vit >= s.hero.maxVit, reason: 'You are not hurt.' });
+    if (has(s, 'moss')) a.push({ id: 'moss', label: 'Press healing moss to your own wounds', disabled: s.hero.vit >= s.hero.maxVit, reason: 'You are not hurt.' });
+    if (withPreview !== false) a.forEach(function (x) {
+      x.kind = 'equip';
+      if (!x.disabled) { var d = clone(s); applyItem(d, x.id, mkctx()); x.effects = effects(s, d, { preview: true }); }
+      else x.effects = [];
+    });
     return a;
   }
-  function useItem(state, id) {
-    var avail = itemActions(state).filter(function (a) { return a.id === id && !a.disabled; })[0];
-    if (!avail) return { state: state, error: 'That action is not available now.' };
-    var s = clone(state), ctx = mkctx();
+  function applyItem(s, id, ctx) {
     if (id === 'oil') { consume(s, 'oil', ctx, 'Spare Oil −1'); gainLight(s, 4, ctx); say(ctx, 'You top up the lantern. The flame stands up straight again.'); }
     if (id === 'kindle') { s.craftNames.forEach(function (c) { if (c.id === 'kindle') c.usesLeft -= 1; }); gainLight(s, 3, ctx, 'Kindle: Light'); say(ctx, '"Kindle," you ask, not loud. The wick answers.'); }
     if (id === 'eat') { useBread(s, ctx); heal(s, 2, ctx); say(ctx, 'Stale bread has never tasted better.'); }
     if (id === 'moss') { consume(s, 'moss', ctx, 'Moss −1'); heal(s, 4, ctx); say(ctx, 'The moss goes on cold and turns warm.'); }
-    s.last = { lines: ctx.lines, chips: ctx.chips, choice: avail.label, from: s.scene };
-    s.history.push({ scene: s.scene, choice: 'use:' + id });
+  }
+  function useItem(state, id) {
+    var avail = itemActions(state, false).filter(function (a) { return a.id === id && !a.disabled; })[0];
+    if (!avail) return { state: state, error: 'That action is not available now.' };
+    var s = clone(state), ctx = mkctx();
+    applyItem(s, id, ctx);
+    var chips = effects(state, s, {}).concat(ctx.chips.filter(function (c) { return c.tone === 'info'; }));
+    s.last = { lines: ctx.lines, chips: chips, choice: avail.label, from: s.scene };
+    s.history.push({ scene: s.scene, choice: 'use:' + id, label: avail.label });
     var inv = invariants(s); if (inv.length) throw new Error('Invariant broken: ' + inv.join('; '));
-    return { state: s, ctx: ctx };
+    return { state: s, ctx: { lines: ctx.lines, chips: chips } };
   }
 
-  /* ================================================================ diffs */
+  /* ================================================================ authoritative effects (F01/F03)
+   * effects(before, after) is the ONE place that turns a state change into
+   * visible chips. Choice previews are produced by dry-running the real option
+   * on a copy of the state and calling effects(); outcome chips after a real
+   * commit call the same function. The two cannot drift apart.
+   * Preview mode hides only story surprises (Tuck's return), never costs.
+   */
+  function effects(a, b, opts) {
+    opts = opts || {};
+    var out = [];
+    function add(text, tone) { out.push({ text: text, tone: tone }); }
+    function signed(n) { return (n > 0 ? '+' : '−') + Math.abs(n); }
+    var dl = b.light.remaining - a.light.remaining;
+    if (a.light.max !== b.light.max && a.light.max === 0) add('Light ' + b.light.remaining + ' of ' + b.light.max, 'gain');
+    else if (dl) add('Light ' + signed(dl) + (dl < 0 && b.light.remaining === 0 ? ' (your lamp goes out)' : dl < 0 && b.light.remaining <= 2 ? ' (' + b.light.remaining + ' left)' : ''), dl < 0 ? 'cost' : 'gain');
+    if (b.hero.maxVit !== a.hero.maxVit) add('Max Vitality ' + b.hero.maxVit, 'gain');
+    var dv = b.hero.vit - a.hero.vit;
+    if (dv && b.hero.maxVit === a.hero.maxVit) add('Vitality ' + signed(dv), dv < 0 ? 'cost' : 'gain');
+    var packedBread = (!!ga0(a, 'bread') !== !!ga0(b, 'bread')) && (b.consumed.bread || 0) === (a.consumed.bread || 0);
+    var db = breadCount(b) - breadCount(a); if (db && !packedBread) add('Bread ' + signed(db), db < 0 ? 'cost' : 'gain');
+    var dc = b.coins - a.coins; if (dc) add('Silver ' + signed(dc), dc < 0 ? 'cost' : 'gain');
+    ['odran', 'mirelle', 'brask'].forEach(function (k) {
+      var d = b.bonds[k].trust - a.bonds[k].trust;
+      if (d) add({ odran: 'Odran', mirelle: 'Mirelle', brask: 'Brask' }[k] + ' trust ' + signed(d), d < 0 ? 'cost' : 'gain');
+    });
+    var dg = b.bonds.lanternless.goodwill - a.bonds.lanternless.goodwill;
+    if (dg) add((a.bonds.lanternless.met ? 'Lanternless goodwill ' : 'Goodwill of whoever lives below ') + signed(dg), dg < 0 ? 'cost' : 'gain');
+    if (b.bonds.lanternless.friend && !a.bonds.lanternless.friend) add('The Lanternless call you friend', 'gain');
+    var dgs = b.bonds.guild.standing - a.bonds.guild.standing; if (dgs) add('Guild standing ' + signed(dgs), dgs < 0 ? 'cost' : 'gain');
+    if (b.bonds.guild.license && !a.bonds.guild.license) add('Lantern Guild license', 'gain');
+    if (b.bonds.guild.blacklisted && !a.bonds.guild.blacklisted) add('Struck from the Guild rolls', 'cost');
+    // gear
+    var ga = {}, gb = {};
+    a.gear.forEach(function (g) { ga[g.item] = g; }); b.gear.forEach(function (g) { gb[g.item] = g; });
+    Object.keys(gb).forEach(function (k) {
+      if (k === 'tongue') return;
+      if (!ga[k]) add('+' + ITEMS[k].name + unitText(gb[k]) + (b.leftBehind.length < a.leftBehind.length ? ' (picked up)' : ''), k === 'mirelle' ? 'info' : 'gain');
+      else if (k === 'bread') { /* loaf counts are reported once, as Bread ± */ }
+      else {
+        var fa = 'uses' in ga[k] ? 'uses' : 'qty', d2 = (gb[k][fa] || 0) - (ga[k][fa] || 0);
+        if (d2) add(ITEMS[k].name + ' ' + signed(d2) + (fa === 'uses' ? ' use' : ''), d2 < 0 ? 'cost' : 'gain');
+        if (gb[k].scorched && !ga[k].scorched) add(ITEMS[k].name + ' scorched', 'cost');
+      }
+    });
+    Object.keys(ga).forEach(function (k) {
+      if (gb[k] || k === 'tongue') return;
+      var left = b.leftBehind.filter(function (g) { return g.item === k; })[0] && !a.leftBehind.filter(function (g) { return g.item === k; })[0];
+      var ent = b.entrusted.some(function (g) { return g.item === k; }) && !a.entrusted.some(function (g) { return g.item === k; });
+      if (k === 'mirelle') add('Mirelle off your frame', 'info');
+      else if (left) { var w = b.leftBehind.filter(function (g) { return g.item === k; })[0].where; add(ITEMS[k].name + (w === 'Pebblechief\'s hoard' ? ' paid as a toll' : ' left at ' + w), 'cost'); }
+      else if (ent) add(ITEMS[k].name + ' handed to Odran (back at the Guild)', 'info');
+      else if (k === 'shield' && b.flags.shieldReconciled === 'returned') add('Shield returned to Odran', 'info');
+      else if (k === 'stolenlamp' && b.flags.gaveBackStolenLamp) add('Stolen lamp given back', 'info');
+      else if (b.consumed[k] > (a.consumed[k] || 0)) { if (k !== 'bread') add(ITEMS[k].name + (ITEMS[k].uses ? ' worn out' : ' used up'), 'cost'); }
+      else add('−' + ITEMS[k].name, 'cost');
+    });
+    b.stored.forEach(function (g) { if (!a.stored.some(function (x) { return x.item === g.item; })) add(ITEMS[g.item].name + ' → your Guild locker', 'info'); });
+    b.pocket.keepsakes.forEach(function (k) { if (a.pocket.keepsakes.indexOf(k) < 0) add('+' + k + ' (keepsake)', 'gain'); });
+    b.craftNames.forEach(function (c) {
+      var o = a.craftNames.filter(function (x) { return x.id === c.id; })[0];
+      if (!o) add('Name learned: ' + c.name, 'gain');
+      else if (o.usesLeft !== c.usesLeft) add(c.name + ' ' + signed(c.usesLeft - o.usesLeft) + ' use', c.usesLeft < o.usesLeft ? 'cost' : 'gain');
+    });
+    b.debts.forEach(function (d) { if (!a.debts.some(function (x) { return x.id === d.id; })) add('Debt: ' + (d.id === 'year-debt' ? 'a year of service to Vesperine' : 'a lamp she will count'), 'cost'); });
+    a.debts.forEach(function (d) { if (!b.debts.some(function (x) { return x.id === d.id; })) add('Debt lifted', 'gain'); });
+    if (b.bonds.vesperine.seal && !a.bonds.vesperine.seal) add('Vesperine\'s Seal', 'gain');
+    if (a.hero.senseCharge && !b.hero.senseCharge) add('Sense in Darkness used', 'cost');
+    if (b.hero.senseCharge && !a.hero.senseCharge) add('Sense in Darkness ready (1 use)', 'gain');
+    var ta = a.tongue, tb = b.tongue;
+    if (tb.holder === 'hero' && (ta.holder !== 'hero' || ta.location !== tb.location)) add('The Silent Tongue: ' + ({ pack: 'in your pack', hand: 'in your hand', 'guild-locker': 'in your Guild locker' }[tb.location] || tb.location), 'info');
+    b.hero.conditions.forEach(function (c) { if (a.hero.conditions.indexOf(c) < 0 && c !== 'In darkness') add('Condition: ' + c, c === 'Hands full' ? 'info' : 'cost'); });
+    if (!opts.preview && b.bonds.tuck.returned && !a.bonds.tuck.returned) add('Tuck the kettlekin has found you', 'gain');
+    return out;
+  }
+
+  function ga0(st, id) { for (var i = 0; i < st.gear.length; i++) if (st.gear[i].item === id) return st.gear[i]; return null; }
+  var UNITS = { moss: ['pad', 'pads'], salt: ['handful', 'handfuls'], oil: ['flask', 'flasks'], bread: ['loaf', 'loaves'] };
+  function unitText(g) {
+    if (UNITS[g.item] && g.qty) return ' (' + plural(g.qty, UNITS[g.item][0], UNITS[g.item][1]) + ')';
+    if (g.uses && ITEMS[g.item].uses > 1) return ' (' + plural(g.uses, 'use', 'uses') + ')';
+    return '';
+  }
+  /* ================================================================ diffs (pack review) */
   function snapshotForDiff(s) {
     return { coins: s.coins, gear: s.gear.map(function (g) { return g.item; }), bread: s.pocket.bread, vit: s.hero.vit, light: s.light.remaining, odran: s.bonds.odran.trust };
   }
@@ -2311,38 +2508,24 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   }
 
   /* ================================================================ engine API */
-  function view(s) {
-    var sc = S[s.scene];
-    var opts = sc.options(s).map(function (o) {
-      return { id: o.id, label: o.label, cost: o.cost || '', group: o.group || '', disabled: !!o.disabled, reason: o.disabled ? (o.reason || '') : '', pressed: o.pressed };
-    });
-    return {
-      scene: s.scene, beat: sc.beat, beatName: BEAT_NAMES[sc.beat] || '', title: sc.title, art: sc.art, kind: sc.kind || 'story',
-      paragraphs: sc.text(s), lore: sc.lore || [], options: opts,
-      meters: meters(s), actions: itemActions(s)
-    };
+  // Opening steps are counted honestly within their beat (F12); the 12-beat count never inflates.
+  var STEPS = { hall_intro: [1, 4, 'Guild Hall'], hall_background: [2, 4, 'Background'], hall_kettlekin: [3, 4, 'A small stranger'], hall_oil: [4, 4, 'Lamp oil'],
+    pack: [1, 2, 'Choose your gear'], pack_review: [2, 2, 'Final check'] };
+  var LOW_LIGHT = 2;
+  function lightState(s) {
+    if (!s.light.oilType) return 'none';
+    if (s.light.remaining === 0) return 'out';
+    if (s.light.remaining <= LOW_LIGHT) return 'low';
+    return 'ok';
   }
-  function meters(s) {
-    return {
-      vit: s.hero.vit, maxVit: s.hero.maxVit, light: s.light.remaining, maxLight: s.light.max, oil: s.light.oilType, lit: s.light.lit,
-      slots: slotsUsed(s), load: loadOf(s), coins: s.coins, bread: breadCount(s), tuck: tuckHere(s)
-    };
-  }
-  function choose(state, optId) {
-    if (state.status !== 'in_progress') return { state: state, error: 'This chapter is already complete.' };
-    var sc = S[state.scene];
-    if (!sc) return { state: state, error: 'Unknown scene.' };
-    var s = clone(state);
-    var opts = sc.options(s);
-    var o = null;
-    for (var i = 0; i < opts.length; i++) if (opts[i].id === optId) o = opts[i];
-    if (!o) return { state: state, error: 'That choice is not available here.' };
-    if (o.disabled) return { state: state, error: o.reason || 'That choice is not available yet.' };
-    var ctx = mkctx();
-    var from = s.scene;
+  /** Classify an option: 'equip' (pack management/satchel) or 'decide' (numbered journey action). */
+  function optKind(o) { return o.kind === 'equip' ? 'equip' : 'decide'; }
+
+  /** Run an option on a state copy WITHOUT invariant checks. Used for both dry-run previews and real commits. */
+  function apply(state, o, optId) {
+    var s = clone(state), ctx = mkctx(), from = s.scene;
     if (from === 'throat_pebbles' && optId.indexOf('take:') === 0) flag(s, 'pebblesPlayed');
     var next = o.run(s, ctx) || s.scene;
-    s.history.push({ scene: from, choice: optId });
     if (next !== s.scene || !F(s, 'entered:' + next)) {
       s.scene = next;
       flag(s, 'entered:' + next);
@@ -2350,11 +2533,83 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     }
     // Delayed callback: Tuck finds you when the dark becomes total.
     if (s.light.remaining === 0 && s.bonds.tuck.bond && !s.bonds.tuck.returned && S[s.scene].beat >= 3 && S[s.scene].beat <= 11 && s.status === 'in_progress') tuckReturns(s, ctx, 'dark');
-    s.last = { lines: ctx.lines, chips: ctx.chips, choice: o.label, from: from };
-    var inv = invariants(s);
-    if (inv.length) throw new Error('Invariant broken after ' + from + '/' + optId + ': ' + inv.join('; '));
-    return { state: s, ctx: ctx };
+    return { s: s, ctx: ctx, from: from };
   }
+
+  function view(s, vopts) {
+    vopts = vopts || {};
+    var sc = S[s.scene];
+    var raw = sc.options(s);
+    var seenIds = {};
+    raw.forEach(function (o) { if (seenIds[o.id]) throw new Error('duplicate option id ' + o.id + ' in ' + s.scene); seenIds[o.id] = 1; });
+    var n = 0;
+    var opts = raw.map(function (o) {
+      var k = optKind(o);
+      var out = { id: o.id, label: o.label, note: o.note || '', group: o.group || '', kind: k, disabled: !!o.disabled,
+        reason: o.disabled ? (o.reason || '') : '', pressed: o.pressed, conceal: !!o.conceal, effects: null };
+      if (k === 'decide') { n += 1; out.n = n <= 9 ? n : null; }
+      if (vopts.previews !== false && !o.disabled && !o.conceal) {
+        try { var r = apply(s, o, o.id); out.effects = effects(s, r.s, { preview: true }); }
+        catch (e) { out.effects = null; }
+      }
+      return out;
+    });
+    var st = STEPS[s.scene];
+    return {
+      scene: s.scene, beat: sc.beat, beatName: BEAT_NAMES[sc.beat] || '', step: st ? { n: st[0], of: st[1], name: st[2] } : null,
+      title: sc.title, art: sc.art, kind: sc.kind || 'story',
+      paragraphs: sc.text(s), lore: sc.lore || [], options: opts,
+      meters: meters(s), lightState: lightState(s), actions: itemActions(s, vopts.previews !== false)
+    };
+  }
+  function meters(s) {
+    return {
+      vit: s.hero.vit, maxVit: s.hero.maxVit, light: s.light.remaining, maxLight: s.light.max, oil: s.light.oilType, lit: s.light.lit,
+      slots: slotsUsed(s), load: loadOf(s), coins: s.coins, bread: breadCount(s), tuck: tuckHere(s), lightState: lightState(s)
+    };
+  }
+  function choose(state, optId) {
+    if (state.status !== 'in_progress') return { state: state, error: 'This chapter is already complete.' };
+    var sc = S[state.scene];
+    if (!sc) return { state: state, error: 'Unknown scene.' };
+    var opts = sc.options(state);
+    var o = null;
+    for (var i = 0; i < opts.length; i++) if (opts[i].id === optId) o = opts[i];
+    if (!o) return { state: state, error: 'That choice is not available here.' };
+    if (o.disabled) return { state: state, error: o.reason || 'That choice is not available yet.' };
+    var r = apply(state, o, optId), s = r.s, ctx = r.ctx;
+    s.history.push({ scene: r.from, choice: optId, label: o.label });
+    var chips = effects(state, s, {}).concat(ctx.chips.filter(function (c) { return c.tone === 'info'; }));
+    s.last = { lines: ctx.lines, chips: chips, choice: o.label, from: r.from };
+    var inv = invariants(s);
+    if (inv.length) throw new Error('Invariant broken after ' + r.from + '/' + optId + ': ' + inv.join('; '));
+    return { state: s, ctx: { lines: ctx.lines, chips: chips } };
+  }
+
+  /** Player-facing "What carries forward" summary (F05). Plain text, no internal ids. */
+  function carryForward(s) {
+    var b = s.bonds, out = { held: [], known: [], companions: [], debts: [], decisions: [] };
+    out.held.push('The Silent Tongue — ' + (s.tongue.location === 'pack' ? 'in your pack' : s.tongue.location === 'guild-locker' ? 'in your Guild locker' : 'not with you'));
+    s.gear.forEach(function (g) { if (g.item !== 'tongue') out.held.push(ITEMS[g.item].name + (g.qty ? ' ×' + g.qty : '') + (g.uses ? ' (' + plural(g.uses, 'use', 'uses') + ' left)' : '')); });
+    s.stored.forEach(function (g) { out.held.push(ITEMS[g.item].name + ' (Guild locker)'); });
+    s.pocket.keepsakes.forEach(function (k) { out.held.push(k); });
+    out.held.push(s.coins + ' silver · ' + plural(s.pocket.bread, 'loaf', 'loaves') + ' on your belt');
+    if (s.tongue.identityKnown) out.known.push('What the Silent Tongue is: an iron clapper that hums near dragon breath.');
+    out.known.push('Vesperine says thieves carried it south, toward Ninefold Crossing.');
+    if (s.knowledge.some(function (k) { return k.id === 'counting'; })) out.known.push('Vesperine counts her lamps every time she wakes.');
+    s.craftNames.forEach(function (c) { out.known.push('The Name ' + c.name + '.'); });
+    if (b.tuck.returned) out.companions.push('Tuck the kettlekin travels with you.');
+    out.companions.push('Sir Odran: ' + trustWord(b.odran.trust) + '.');
+    out.companions.push('Mirelle: ' + trustWord(b.mirelle.trust) + '.');
+    out.companions.push('Brask: ' + ({ exposed: 'exposed as a thief', partner: 'your partner in a theft', observed: 'gone south; you saw what he did' }[b.brask.status] || 'unknown') + '.');
+    if (b.lanternless.friend) out.companions.push('The Lanternless count you a friend.');
+    out.companions.push('Lantern Guild: ' + (b.guild.license ? 'licensed porter' : b.guild.blacklisted ? 'struck from the rolls' : 'standing ' + (b.guild.standing >= 0 ? '+' : '') + b.guild.standing) + '.');
+    if (b.vesperine.seal) out.companions.push('You bear Vesperine\'s Seal.');
+    s.debts.forEach(function (d) { out.debts.push(d.text); });
+    out.decisions = retrospective(s);
+    return out;
+  }
+  function trustWord(t) { return t >= 3 ? 'trusts you deeply' : t >= 1 ? 'trusts you' : t === 0 ? 'undecided about you' : t >= -2 ? 'wary of you' : 'does not trust you'; }
 
   var SCENE_IDS = Object.keys(S);
 
@@ -2364,17 +2619,24 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     SCENE_IDS: SCENE_IDS, SCENES: S,
     newState: newState, view: view, choose: choose, useItem: useItem, itemActions: itemActions,
     ending: ending, ledgerPreview: ledgerPreview, endingProse: endingProse, retrospective: retrospective, gainsAndCosts: gainsAndCosts,
-    invariants: invariants, slotsUsed: slotsUsed, loadOf: loadOf, breadCount: breadCount
+    invariants: invariants, slotsUsed: slotsUsed, loadOf: loadOf, breadCount: breadCount,
+    effects: effects, costLines: costLines, carryForward: carryForward, lightState: lightState, LOW_LIGHT: LOW_LIGHT, STEPS: STEPS,
+    hasScale: hasScale, possessesItem: possessesItem
   };
 });
-
 </script>
 <script>
 /*
- * DoorQuests · Dwortals #001 The Porter's Lantern — ui.js
- * Renders DQGame state into accessible DOM. All dynamic text is set with
+ * DoorQuests · Dwortals #001 The Porter's Lantern — ui.js (repair build)
+ * Renders DQGame state into accessible DOM. Every dynamic string goes through
  * textContent (never innerHTML), so imported saves cannot inject markup.
  * The only innerHTML used is for static, author-written SVG art.
+ *
+ * Visitor-facing information architecture:
+ *   Explore — optional      : unnumbered lore panels, never change state
+ *   Choose your next action : numbered (1–9) actions that advance or change state
+ *   Equipment / Pack        : unnumbered, clearly labelled pack and satchel actions,
+ *                             each showing its exact effect
  */
 (function () {
   'use strict';
@@ -2386,7 +2648,18 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     free: K.createStore({ mode: 'free', sceneIds: G.SCENE_IDS })
   };
   var PREFS_KEY = K.KEY_PREFIX + '.prefs.v1';
-  var mode = null, state = null, busy = false, krTab = 'hero', pendingConflict = null;
+  var mode = null, state = null, busy = false, krTab = 'hero', pendingConflict = null, lastLightState = null;
+
+  var WORDS = {
+    status: { hall: 'at the Guild Hall', with: 'with you', pinned: 'pinned at the gate', separated: 'separated from you', battered: 'with you, battered', home: 'home safe',
+      missing: 'missing', found: 'found', walking: 'walking with you', carried: 'carried on your frame', withHelpers: 'carried out by the Lanternless', supplied: 'waiting, with supplies you left',
+      left: 'left behind', 'recovered-later': 'home, found later by the Guild', 'recovered-by-guild': 'home, found by the Guild\'s searchers',
+      scouting: 'off scouting', thieving: 'stealing lamps', exposed: 'exposed as a thief', partner: 'your partner', observed: 'gone south; you saw what he did' },
+    attitude: { unknown: 'unknown', curious: 'curious', grateful: 'grateful', agreeable: 'agreeable', amused: 'amused', irritated: 'irritated', hostile: 'hostile', wary: 'wary', unaware: 'unaware of the missing lamp', owner: 'owed a year of your service' },
+    exit: { 'dragon-road': 'Vesperine\'s road', hounds: 'with the hounds', lanternless: 'the dark ways of the Lanternless', 'tuck-draft': 'the air draft, by Tuck\'s light', 'blue-lamp': 'blue lamp-light', 'rope-shaft': 'the old shaft, on a rope', 'recall-bell': 'the Recall Bell', lantern: 'the Hound Stair, by lantern-light', 'lantern-hounds': 'the Hound Stair, past the hounds', draft: 'a blind climb up the air draft' },
+    where: { pack: 'in your pack', hand: 'in your hand', 'guild-locker': 'in your Guild locker', 'vesperine-hoard': 'among Vesperine\'s treasures' }
+  };
+  function word(map, k) { return (WORDS[map] && WORDS[map][k]) || 'unknown'; }
 
   /* ------------------------------------------------------------ DOM helper */
   function h(tag, attrs) {
@@ -2409,6 +2682,9 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   }
   function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); return el; }
   function announce(msg) { var l = $('live'); l.textContent = ''; setTimeout(function () { l.textContent = msg; }, 30); }
+  function chipList(chips, label) {
+    return h('ul', { class: 'chips', 'aria-label': label || 'Effects' }, chips.map(function (c) { return h('li', { class: 'chip ' + c.tone, text: c.text }); }));
+  }
 
   /* ------------------------------------------------------------ prefs */
   var prefs = { size: 0, motion: false };
@@ -2416,7 +2692,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   function applyPrefs() {
     document.documentElement.setAttribute('data-size', String(prefs.size));
     document.documentElement.classList.toggle('reduce-motion', prefs.motion);
-    Array.prototype.forEach.call(document.querySelectorAll('[data-size]'), function (b) { if (b.tagName === 'BUTTON') b.setAttribute('aria-pressed', String(Number(b.getAttribute('data-size')) === prefs.size)); });
+    Array.prototype.forEach.call(document.querySelectorAll('button[data-size]'), function (b) { b.setAttribute('aria-pressed', String(Number(b.getAttribute('data-size')) === prefs.size)); });
     $('pref-motion').checked = prefs.motion;
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) { }
   }
@@ -2428,8 +2704,9 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     $('btn-keyring').hidden = name === 'start';
     $('set-game-actions').hidden = name === 'start';
     var strip = $('mode-strip');
-    if (name !== 'start' && mode === 'free') { strip.hidden = false; strip.textContent = 'Free Exploration — sandbox save. Nothing here reaches your Epic Journey.'; }
+    if (name !== 'start' && mode === 'free') { strip.hidden = false; strip.textContent = 'Free Exploration: a separate sandbox save. Nothing here changes your Epic Journey.'; }
     else strip.hidden = true;
+    if (name !== 'game') clear($('scene-art'));
     window.scrollTo(0, 0);
   }
 
@@ -2443,7 +2720,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 
   /* ------------------------------------------------------------ title screen */
   function renderStart() {
-    mode = null; state = null;
+    mode = null; state = null; lastLightState = null;
     show('start');
     ['epic', 'free'].forEach(function (m) {
       var st = $('st-' + m), act = clear($('act-' + m));
@@ -2451,13 +2728,15 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       var label = m === 'epic' ? 'Epic Journey' : 'Free Exploration';
       if (!stores[m].available) st.textContent = 'Browser storage is blocked here: you can play, but progress will not be kept after you close the tab.';
       else if (r.status === 'empty') st.textContent = 'No save yet.';
-      else if (r.status === 'corrupt') st.textContent = 'The save in this slot is damaged and could not be read (' + (r.errors || []).slice(0, 1).join('') + '). Start new, or import a backup.';
-      else if (r.status === 'recovered') st.textContent = 'The latest save was damaged; the previous checkpoint was recovered.';
+      else if (r.status === 'corrupt') st.textContent = 'The save in this slot is damaged and could not be read. Start new, or restore a backup from the menu.';
+      else if (r.status === 'recovered') st.textContent = 'The latest save was damaged; your previous checkpoint was recovered.';
       if (r.snapshot) {
         var s = r.snapshot;
         if (r.status !== 'recovered') st.textContent = s.status === 'complete'
-          ? 'Chapter complete — ' + s.ending.id + ' "' + s.ending.title + '". Committed to the Keyring.'
-          : 'In progress — ' + G.SCENES[s.scene].title + ' (beat ' + G.SCENES[s.scene].beat + ' of 12).';
+          ? (m === 'epic'
+            ? 'Chapter complete: "' + s.ending.title + '". Recorded on your Epic Journey Keyring.'
+            : 'Chapter complete: "' + s.ending.title + '". Saved in this Free Exploration sandbox only; your Epic Journey is unchanged.')
+          : 'In progress: ' + G.SCENES[s.scene].title + ' (beat ' + G.SCENES[s.scene].beat + ' of 12).';
         act.appendChild(h('button', { type: 'button', class: 'btn btn-primary', onclick: function () { resume(m, r.snapshot); } },
           s.status === 'complete' ? 'View your ending' : 'Resume'));
       }
@@ -2478,14 +2757,14 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (!existing) return go();
     var txt = m === 'epic'
       ? (existing.status === 'complete'
-        ? 'This replaces your committed Epic Journey chapter with a brand-new hero. The old save moves to a one-step fallback slot. Export a backup first if you want to keep it for #002.'
+        ? 'This replaces your finished Epic Journey chapter with a brand-new hero. The old save moves to a one-step fallback slot. Export a backup first (Menu → Backups) if you want to keep it.'
         : 'This abandons your Epic Journey run in progress and starts over. The old save moves to a one-step fallback slot.')
       : 'This clears your Free Exploration sandbox and starts over. Your Epic Journey is not affected.';
     confirmBox('Start a new ' + (m === 'epic' ? 'Epic Journey' : 'Free Exploration') + '?', txt, 'Start new', go);
   }
 
   function resume(m, snap) {
-    mode = m; state = snap;
+    mode = m; state = snap; lastLightState = null;
     if (state.status === 'complete') { show('ending'); renderEnding(); }
     else { show('game'); renderGame(true); }
   }
@@ -2497,7 +2776,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (res.conflict) {
       pendingConflict = { mine: next, theirs: res.stored };
       state = next;
-      banner(['This save was changed in another tab or window (revision ' + res.stored.revision + '). To avoid losing progress, autosave is paused here.'], [
+      banner(['This save was changed in another tab or window. To avoid losing progress, saving is paused here until you choose.'], [
         h('button', { type: 'button', class: 'btn', onclick: function () { pendingConflict = null; banner(null); resume(mode, res.stored); announce('Loaded the newer save from the other tab.'); } }, 'Load the other tab\'s save'),
         h('button', { type: 'button', class: 'btn btn-danger', onclick: function () { var r2 = stores[mode].save(pendingConflict.mine, { force: true }); pendingConflict = null; banner(null); if (r2.ok) { state = r2.snapshot; announce('This tab\'s progress was saved over the other.'); } else storageProblem(r2); } }, 'Keep this tab\'s progress')
       ]);
@@ -2508,7 +2787,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     return false;
   }
   function storageProblem(res) {
-    if (res && res.error) banner([res.error + ' '], [h('button', { type: 'button', class: 'btn', onclick: openBackups }, 'Export a backup')]);
+    if (res && res.error) banner([res.error + ' '], [h('button', { type: 'button', class: 'btn', onclick: openBackups }, 'Open backups')]);
   }
 
   window.addEventListener('storage', function (e) {
@@ -2523,16 +2802,18 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   function act(optId) {
     if (busy || pendingConflict) return;
     busy = true;
-    var res;
+    var prevScene = state.scene, res;
+    var focusedOpt = document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('data-opt');
     try { res = G.choose(state, optId); }
-    catch (e) { busy = false; banner(['Something went wrong in the story engine (' + String(e.message).slice(0, 140) + '). Your last good checkpoint is still saved.']); return; }
+    catch (e) { busy = false; banner(['Something went wrong in the story engine. Your last good checkpoint is still saved.']); return; }
     if (res.error) { busy = false; announce(res.error); return; }
     persist(res.state);
     if (state.status === 'complete') {
       if (mode) { var c = stores[mode].commitChapter(state); if (c.ok) state = c.snapshot; else if (!c.already) storageProblem(c); }
       show('ending'); renderEnding(); busy = false; return;
     }
-    renderGame(true, res.ctx);
+    var sameScene = state.scene === prevScene;
+    renderGame(!sameScene, res.ctx, sameScene ? (focusedOpt || optId) : null);
     busy = false;
   }
 
@@ -2542,18 +2823,25 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     var res = G.useItem(state, id);
     if (res.error) { busy = false; announce(res.error); return; }
     persist(res.state);
-    renderGame(false, res.ctx);
+    renderGame(false, res.ctx, 'use:' + id);
     if ($('dlg-keyring').open) renderKeyring();
     busy = false;
   }
 
+  function lightText(m) {
+    if (!m.oil) return 'no oil yet';
+    var base = m.light + ' of ' + m.maxLight + ' · ' + (m.oil === 'fish' ? 'fish-oil (bright, scented)' : 'clearwick (dim, silent)');
+    if (m.lightState === 'out') return base + ' · OUT OF LIGHT' + (m.tuck ? ' (Tuck glows)' : '');
+    if (m.lightState === 'low') return base + ' · LOW LIGHT';
+    return base + (m.lit ? '' : ' · shuttered');
+  }
   function renderHud(m) {
     var vit = $('m-vit'), lt = $('m-light'), pk = $('m-pack');
     vit.querySelector('i').style.width = (100 * m.vit / m.maxVit) + '%';
-    vit.querySelector('.m-text').textContent = m.vit + ' of ' + m.maxVit + (m.vit <= 3 ? ' — badly hurt' : '');
-    var lw = m.maxLight ? 100 * m.light / m.maxLight : 0;
-    lt.querySelector('i').style.width = lw + '%';
-    lt.querySelector('.m-text').textContent = m.oil ? (m.light + ' of ' + m.maxLight + ' · ' + (m.oil === 'fish' ? 'fish-oil (bright, scented)' : 'clearwick (dim, silent)') + (m.light === 0 ? (m.tuck ? ' · dark, Tuck glows' : ' · lantern out') : (m.lit ? '' : ' · shuttered'))) : 'no oil yet';
+    vit.querySelector('.m-text').textContent = m.vit + ' of ' + m.maxVit + (m.vit <= 3 ? ' · badly hurt' : '');
+    lt.querySelector('i').style.width = (m.maxLight ? 100 * m.light / m.maxLight : 0) + '%';
+    lt.querySelector('.m-text').textContent = lightText(m);
+    lt.classList.toggle('warn', m.lightState === 'low' || m.lightState === 'out');
     var slots = clear(pk.querySelector('.m-slots'));
     var filled = [];
     state.gear.forEach(function (g) { var it = G.ITEMS[g.item]; for (var i = 0; i < it.slots; i++) filled.push(it.kind); });
@@ -2561,25 +2849,56 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     pk.querySelector('.m-text').textContent = m.slots + ' of 6 slots · Load ' + m.load + ' · ' + m.coins + ' silver · ' + m.bread + ' bread';
   }
 
-  function renderGame(moveFocus, ctx) {
+  function lightAlert(v) {
+    var m = v.meters;
+    if (v.lightState === 'low') return h('div', { class: 'alert alert-low', role: 'status' },
+      h('strong', { text: 'Low light: ' + m.light + ' left. ' }),
+      'Each move between places burns 1 Light. ' + (v.actions.some(function (a) { return a.id === 'oil' || a.id === 'kindle'; }) ? 'You can refill or rekindle from Equipment / Pack below.' : 'When it runs out you can still move, but feeling your way in the dark may cost Vitality unless something lights or guides you.'));
+    if (v.lightState === 'out') return h('div', { class: 'alert alert-out', role: 'status' },
+      h('strong', { text: 'Out of light. ' }),
+      m.tuck ? 'Your lantern is dark, but Tuck\'s glow lights the way.' : 'Your lantern is dark. You can keep going: moving without a light or a guide costs 1 Vitality per move. Look for choices that guide you or need no light.');
+    return null;
+  }
+
+  function optionCard(o) {
+    var isEquip = o.kind === 'equip';
+    var b = h('button', {
+      type: 'button', class: 'choice' + (isEquip ? ' choice-equip' : '') + (o.n === 1 && !o.disabled ? ' choice-primary' : ''),
+      'data-n': o.n ? String(o.n) : null, 'data-opt': o.id, 'aria-keyshortcuts': o.n ? String(o.n) : null,
+      disabled: o.disabled, 'aria-pressed': o.pressed === undefined ? null : String(!!o.pressed),
+      onclick: function () { if (o.id.indexOf('use:') === 0) useAction(o.id.slice(4)); else act(o.id); }
+    },
+      o.n ? h('span', { class: 'c-num', 'aria-hidden': 'true', text: String(o.n) }) : h('span', { class: 'c-num c-num-equip', 'aria-hidden': 'true', text: isEquip ? '◆' : '•' }),
+      h('span', { class: 'c-label', text: o.label }),
+      o.effects && o.effects.length ? chipList(o.effects, 'Will cause') : null,
+      o.effects && !o.effects.length && !o.disabled ? h('span', { class: 'c-cost', text: 'No cost' }) : null,
+      o.conceal ? h('span', { class: 'c-risk', text: 'Outcome uncertain' }) : null,
+      o.note ? h('span', { class: 'c-cost', text: o.note }) : null,
+      o.disabled && o.reason ? h('span', { class: 'c-reason', text: 'Not yet: ' + o.reason }) : null);
+    return h('li', null, b);
+  }
+
+  function renderGame(moveFocus, ctx, keepFocusOpt) {
+    var scrollY = window.scrollY;
     var v = G.view(state);
     renderHud(v.meters);
     $('scene-art').innerHTML = art(v.art, v.meters);
-    $('scene-beat').textContent = v.beat ? 'Beat ' + v.beat + ' of 12 · ' + v.beatName : 'Your pack';
+    var beatTxt = v.beat ? 'Beat ' + v.beat + ' of 12 · ' + v.beatName + (v.step ? ' · Step ' + v.step.n + ' of ' + v.step.of + ': ' + v.step.name : '') : 'Your pack';
+    $('scene-beat').textContent = beatTxt;
     $('scene-title').textContent = v.title;
 
-    // Outcome of the last choice
     var out = clear($('outcome'));
     var last = state.last;
     if (last && (last.lines.length || last.chips.length)) {
       out.appendChild(h('p', { class: 'you-chose', text: 'You chose: ' + last.choice }));
       last.lines.forEach(function (l) { out.appendChild(h('p', { text: l })); });
-      if (last.chips.length) out.appendChild(h('ul', { class: 'chips', 'aria-label': 'Changes' }, last.chips.map(function (c) { return h('li', { class: 'chip ' + c.tone, text: c.text }); })));
+      if (last.chips.length) out.appendChild(chipList(last.chips, 'What changed'));
       out.hidden = false;
     } else out.hidden = true;
 
     var tx = clear($('scene-text'));
     v.paragraphs.forEach(function (p) { tx.appendChild(h('p', { text: p })); });
+    var al = lightAlert(v); if (al) tx.appendChild(al);
 
     var wd = clear($('scene-widget'));
     if (v.kind === 'pack' || v.kind === 'review' || v.kind === 'setdown') wd.appendChild(packWidget(v.meters));
@@ -2587,48 +2906,51 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (v.scene === 'throat_pebbles') wd.appendChild(pebbleWidget());
 
     var lore = clear($('scene-lore'));
-    v.lore.forEach(function (l) { lore.appendChild(h('details', null, h('summary', { text: l.label }), h('p', { text: l.text }))); });
+    if (v.lore.length) {
+      lore.appendChild(h('h3', { class: 'group-h', text: 'Explore — optional' }));
+      lore.appendChild(h('p', { class: 'group-sub', text: 'Free to read. Nothing here changes your journey.' }));
+      v.lore.forEach(function (l) { lore.appendChild(h('details', null, h('summary', { text: l.label }), h('p', { text: l.text }))); });
+    }
 
     var ch = clear($('choices'));
-    var groups = [], byName = {};
-    v.options.forEach(function (o) {
-      var g = o.group || '';
-      if (!byName[g]) { byName[g] = []; groups.push(g); }
-      byName[g].push(o);
-    });
-    var n = 0;
-    ch.appendChild(h('h3', { class: 'sr-only', text: 'Choices' }));
-    groups.forEach(function (g) {
-      var list = h('ul', { class: 'choice-list' });
-      byName[g].forEach(function (o) {
-        n++;
-        var b = h('button', {
-          type: 'button', class: 'choice' + (n === 1 && !o.disabled ? ' choice-primary' : ''), 'data-n': n <= 9 ? String(n) : '•', 'data-opt': o.id,
-          disabled: o.disabled, 'aria-pressed': o.pressed === undefined ? null : String(!!o.pressed),
-          onclick: function () { act(o.id); }
-        }, h('span', { class: 'c-label', text: o.label }),
-          o.cost ? h('span', { class: 'c-cost', text: o.cost }) : null,
-          o.disabled && o.reason ? h('span', { class: 'c-reason', text: 'Not yet: ' + o.reason }) : null);
-        list.appendChild(h('li', null, b));
-      });
-      ch.appendChild(g ? h('div', { class: 'choice-group', role: 'group', 'aria-label': g }, h('h3', { text: g }), list) : list);
-    });
+    var decide = v.options.filter(function (o) { return o.kind === 'decide'; });
+    var equip = v.options.filter(function (o) { return o.kind === 'equip'; });
+    v.actions.forEach(function (a) { equip.push({ id: 'use:' + a.id, label: a.label, kind: 'equip', disabled: a.disabled, reason: a.reason, effects: a.effects, note: '' }); });
 
-    if (v.actions.length) {
-      var bar = h('div', { class: 'actions-bar' }, h('h3', { text: 'From your satchel (any time)' }));
-      var row = h('div', { class: 'row' });
-      v.actions.forEach(function (a) {
-        row.appendChild(h('button', { type: 'button', class: 'btn-sm', disabled: a.disabled, title: a.disabled ? a.reason : a.cost, 'aria-label': a.label + '. ' + (a.disabled ? 'Unavailable: ' + a.reason : a.cost), onclick: function () { useAction(a.id); } }, a.label));
+    if (v.kind === 'pack' && equip.length) ch.appendChild(equipSection(equip, 'Equipment / Pack', 'Add or remove items. Nothing is final until you shoulder the pack.'));
+    if (decide.length) {
+      var sec = h('section', { class: 'choice-section', 'aria-labelledby': 'dec-h' }, h('h3', { class: 'group-h', id: 'dec-h', text: 'Choose your next action' }),
+        h('p', { class: 'group-sub', text: 'Press a number key or choose a button. Each shows what it will cost before you commit.' }));
+      var groups = [], byName = {};
+      decide.forEach(function (o) { var g = o.group || ''; if (!byName[g]) { byName[g] = []; groups.push(g); } byName[g].push(o); });
+      groups.forEach(function (g) {
+        var list = h('ul', { class: 'choice-list' }, byName[g].map(optionCard));
+        sec.appendChild(g ? h('div', { class: 'choice-group', role: 'group', 'aria-label': g }, h('h4', { text: g }), list) : list);
       });
-      bar.appendChild(row);
-      ch.appendChild(bar);
+      ch.appendChild(sec);
     }
+    if (v.kind !== 'pack' && equip.length) ch.appendChild(equipSection(equip, 'Equipment / Pack', v.kind === 'setdown' ? 'Set items down here, hand them off, or pick them back up.' : 'Use something you carry. Each shows its exact effect.'));
 
-    if (moveFocus) $('scene-title').focus({ preventScroll: false });
+    if (keepFocusOpt) {
+      var counterpart = keepFocusOpt.indexOf('add:') === 0 ? 'remove:' + keepFocusOpt.slice(4) : keepFocusOpt.indexOf('remove:') === 0 ? 'add:' + keepFocusOpt.slice(7) : keepFocusOpt;
+      var target = document.querySelector('[data-opt="' + cssEsc(keepFocusOpt) + '"]:not([disabled])') || document.querySelector('[data-opt="' + cssEsc(counterpart) + '"]:not([disabled])');
+      window.scrollTo(0, scrollY);
+      if (target) target.focus({ preventScroll: true });
+      else $('choices').querySelector('button:not([disabled])') && $('choices').querySelector('button:not([disabled])').focus({ preventScroll: true });
+    } else if (moveFocus) $('scene-title').focus({ preventScroll: false });
+
     if (ctx) {
-      var msg = (ctx.lines[0] || '') + ' ' + ctx.chips.map(function (c) { return c.text; }).join(', ') + '. Now: ' + v.title + '.';
+      var msg = (ctx.lines[0] || '') + ' ' + ctx.chips.map(function (c) { return c.text; }).join(', ') + '.' + (moveFocus ? ' Now: ' + v.title + '.' : '');
+      if (v.lightState !== lastLightState && (v.lightState === 'low' || v.lightState === 'out')) msg += v.lightState === 'low' ? ' Warning: low light, ' + v.meters.light + ' left.' : ' Warning: out of light.';
       announce(msg.trim());
     }
+    lastLightState = v.lightState;
+  }
+  function cssEsc(s) { return String(s).replace(/["\\]/g, '\\$&'); }
+  function equipSection(items, title, sub) {
+    return h('section', { class: 'choice-section equip-section', 'aria-label': title },
+      h('h3', { class: 'group-h', text: title }), h('p', { class: 'group-sub', text: sub }),
+      h('ul', { class: 'choice-list' }, items.map(optionCard)));
   }
 
   function packWidget(m) {
@@ -2643,8 +2965,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     });
     for (var i = used; i < 6; i++) ul.appendChild(h('li', { class: 'pack-slot', text: 'empty' }));
     wrap.appendChild(ul);
-    var pct = Math.min(100, m.load / 10 * 100);
-    var heavy = m.load >= G.FLOOR_LIMIT;
+    var pct = Math.min(100, m.load / 10 * 100), heavy = m.load >= G.FLOOR_LIMIT;
+    wrap.appendChild(h('p', { class: 'pack-summary', text: 'Slots: ' + m.slots + ' of 6 used, ' + (6 - m.slots) + ' free. Load: ' + m.load + '. Slots are room on your frame; Load is weight. Bundles such as Salt (2 handfuls) or Moss (2 pads) take 1 slot.' }));
     wrap.appendChild(h('div', { class: 'load-row' },
       h('span', { text: 'Load ' + m.load }),
       h('span', { class: 'load-bar', 'aria-hidden': 'true' }, h('i', { class: heavy ? 'heavy' : '', style: 'width:' + pct + '%' }), h('u', { style: 'left:' + (G.FLOOR_LIMIT * 10) + '%' })),
@@ -2655,8 +2977,9 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   function panWidget() {
     var pan = state.sub.pan || [];
     return h('div', { class: 'puzzle-widget' },
-      h('p', { text: 'Weights on the pan:' }),
-      pan.length ? h('ul', { class: 'pan-row' }, pan.map(function (w) { return h('li', { text: G.WEIGHTS[w].name + ' · ' + G.WEIGHTS[w].notches }); })) : h('p', { class: 'empty', text: 'None yet.' }));
+      h('p', { text: 'Weights on the pan: ' + (pan.length ? '' : 'none yet.') }),
+      pan.length ? h('ul', { class: 'pan-row' }, pan.map(function (w) { return h('li', { text: G.WEIGHTS[w].name + ' · ' + G.WEIGHTS[w].notches }); })) : null,
+      h('p', { class: 'small', text: 'Place or remove weights, then choose "Lower the pan" to test them.' }));
   }
   function pebbleWidget() {
     var p = state.sub.peb || { left: 0 };
@@ -2668,11 +2991,11 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   /* ------------------------------------------------------------ ending */
   function renderEnding() {
     var s = state, root = clear($('screen-ending'));
-    var e = s.ending;
-    root.appendChild(h('div', { class: 'scene-art', 'aria-hidden': 'true' }));
-    root.firstChild.innerHTML = art('ending', { light: 6, maxLight: 8 });
+    var e = s.ending, isEpic = mode === 'epic';
+    var artBox = h('div', { class: 'scene-art', 'aria-hidden': 'true' }); artBox.innerHTML = art('ending', { light: 6, maxLight: 8 });
+    root.appendChild(artBox);
     root.appendChild(h('div', { class: 'ending-head' },
-      h('p', { class: 'ending-id', text: 'Ending ' + e.id + ' of 5 · ' + (e.source === 'source-defined' ? 'source-defined title' : 'editorial proposal, provisional') }),
+      h('p', { class: 'ending-id', text: 'Ending ' + e.id.slice(1) + ' of 5' }),
       h('h2', { id: 'ending-title', tabindex: '-1', text: e.title })));
     root.appendChild(h('div', { class: 'ending-prose' }, G.endingProse(s).map(function (p) { return h('p', { text: p }); })));
 
@@ -2687,11 +3010,11 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     var L = s.ledger, g = s.bonds.guild;
     root.appendChild(h('section', { class: 'report', style: 'margin-top:12px', 'aria-labelledby': 'rep-h' },
       h('h3', { id: 'rep-h', text: 'Lantern Guild — Expedition Report, Kestrel Deeps' }),
-      h('p', { text: 'Porter: ' + G.BG[s.hero.background].name + '-born, contract no. ' + s.saveId.slice(-6).toUpperCase() + '. Exit by: ' + (L.exitRoute || 'unknown') + '.' }),
+      h('p', { text: 'Porter: ' + G.BG[s.hero.background].name + '-born. Came out by ' + word('exit', L.exitRoute) + '.' }),
       h('ul', null, L.lines.map(function (x) { return h('li', { text: x }); })),
       h('p', { text: 'Standing assessment:' }),
       h('ul', null, (L.items.length ? L.items : ['No remarks.']).map(function (x) { return h('li', { text: x }); })),
-      h('p', { text: 'Net standing ' + (g.standing >= 0 ? '+' : '') + g.standing + '. ' + (g.license ? 'LICENSE GRANTED: full porter of the Lantern Guild.' : g.blacklisted ? 'STRUCK FROM THE ROLLS.' : 'No change to licence.') }),
+      h('p', { text: 'Net standing ' + (g.standing >= 0 ? '+' : '') + g.standing + '. ' + (g.license ? 'LICENSE GRANTED: full porter of the Lantern Guild.' : g.blacklisted ? 'STRUCK FROM THE ROLLS.' : 'No change to license.') }),
       h('p', { text: 'Brask: ' + (s.bonds.brask.fate || 'unaccounted for') + '. Recovered item of note: one iron bell-clapper, held by the porter (' + (s.tongue.location === 'pack' ? 'carried' : 'Guild locker') + ').' })));
 
     root.appendChild(h('div', { class: 'bridge' },
@@ -2699,21 +3022,45 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       h('p', { text: '— Vesperine' }),
       h('p', { class: 'next-door', text: 'Door #002 · One Stormy Night at the Tipped Kettle · Ninefold Crossing — not yet open.' })));
 
-    root.appendChild(h('h3', { text: 'Your Hero\'s Keyring, as committed' }));
+    // What carries forward (F05): readable, dismissible, no raw data
+    var cfPanel = h('section', { class: 'card carry', id: 'carry-panel', hidden: true, 'aria-labelledby': 'cf-h', tabindex: '-1' });
+    var cfBtn = h('button', { type: 'button', class: 'btn', 'aria-controls': 'carry-panel', 'aria-expanded': 'false', onclick: function () { toggleCarry(true); } }, 'What carries forward');
+    function toggleCarry(open) {
+      cfPanel.hidden = !open; cfBtn.setAttribute('aria-expanded', String(open));
+      if (open) { fillCarry(); cfPanel.focus(); } else cfBtn.focus();
+    }
+    function fillCarry() {
+      var cf = G.carryForward(s);
+      clear(cfPanel);
+      cfPanel.appendChild(h('div', { class: 'dlg-head' }, h('h3', { id: 'cf-h', text: 'What carries forward' }),
+        h('button', { type: 'button', class: 'btn-close', 'aria-label': 'Close What carries forward', onclick: function () { toggleCarry(false); } }, '✕')));
+      cfPanel.appendChild(h('p', { class: 'small', text: isEpic ? 'This is what your Epic Journey hero takes toward the next door when it opens.' : 'This is what this Free Exploration hero would take forward. It stays in the sandbox and does not change your Epic Journey.' }));
+      [['What you hold', cf.held], ['What you know', cf.known], ['Who stands with you', cf.companions], ['What you owe', cf.debts.length ? cf.debts : ['Nothing. You owe no one.']]].forEach(function (sec) {
+        cfPanel.appendChild(h('h4', { text: sec[0] })); cfPanel.appendChild(h('ul', { class: 'kr-list' }, sec[1].map(function (x) { return h('li', { text: x }); })));
+      });
+      cfPanel.appendChild(h('button', { type: 'button', class: 'btn', onclick: function () { toggleCarry(false); } }, 'Close'));
+    }
+    cfPanel.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { ev.preventDefault(); toggleCarry(false); } });
+
+    root.appendChild(h('h3', { text: isEpic ? 'Your Hero\'s Keyring, recorded on your Epic Journey' : 'Your sandbox Keyring (Free Exploration only; your Epic Journey is unchanged)' }));
     var full = h('div', { class: 'card' });
     TABS.forEach(function (t) { full.appendChild(h('h4', { text: t.label })); full.appendChild(tabContent(t.id)); });
     root.appendChild(full);
 
-    var pre = h('pre', { class: 'json', hidden: true, id: 'next-reader' });
+    var exportMsg = h('p', { class: 'export-msg', role: 'status', id: 'export-msg' });
     root.appendChild(h('div', { class: 'row', style: 'margin-top:14px' },
-      h('button', { type: 'button', class: 'btn btn-primary', onclick: function () { var json = stores[mode].exportBackup(state); download(json, 'porters-lantern-' + mode + '-ch001.json'); openBackups(); $('bk-text').value = json; bkMsg('Committed Keyring exported. If no download appeared, copy the JSON in the box above.', 'ok'); } }, 'Export committed Keyring (.json)'),
-      h('button', { type: 'button', class: 'btn', 'aria-controls': 'next-reader', 'aria-expanded': 'false', onclick: function (ev) {
-        var r = K.readForNextChapter(state); pre.textContent = JSON.stringify(r, null, 2); pre.hidden = !pre.hidden; ev.currentTarget.setAttribute('aria-expanded', String(!pre.hidden));
-      } }, 'Preview what #002 will read'),
+      cfBtn,
+      h('button', { type: 'button', class: 'btn btn-primary', id: 'btn-export-end', onclick: function () {
+        var name = 'porters-lantern-' + mode + '-ch001.json';
+        var ok = download(stores[mode].exportBackup(state), name);
+        exportMsg.textContent = ok ? 'Exported: ' + name + ' should now be in your downloads. Nothing in your game changed.' : 'Your browser blocked the download. Use Menu → Backups → "Show backup text" to copy it instead.';
+        exportMsg.className = 'export-msg ' + (ok ? 'ok' : 'err');
+      } }, isEpic ? 'Export Keyring backup (.json)' : 'Export sandbox Keyring (.json)'),
       h('button', { type: 'button', class: 'btn', onclick: renderStart }, 'Back to title')));
-    root.appendChild(pre);
+    root.appendChild(exportMsg);
+    root.appendChild(cfPanel);
     $('ending-title').focus();
-    announce('Chapter complete. Ending ' + e.id + ': ' + e.title + '.');
+    announce('Chapter complete. Ending ' + e.id.slice(1) + ' of 5: ' + e.title + '.');
   }
 
   /* ------------------------------------------------------------ Keyring */
@@ -2723,6 +3070,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   ];
   function dl(pairs) { var d = h('dl'); pairs.forEach(function (p) { if (p) { d.appendChild(h('dt', { text: p[0] })); d.appendChild(h('dd', { text: String(p[1]) })); } }); return d; }
   function listOr(items, empty) { return items.length ? h('ul', { class: 'kr-list' }, items) : h('p', { class: 'empty', text: empty }); }
+  function qtyOf(s, id) { var g = s.gear.filter(function (x) { return x.item === id; })[0]; return g ? (g.qty || 0) : 0; }
   function tabContent(id) {
     var s = state, b = s.bonds, I = G.ITEMS, frag = h('div');
     if (id === 'hero') {
@@ -2730,7 +3078,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         ['Background', s.hero.background ? G.BG[s.hero.background].name + ' — ' + G.BG[s.hero.background].desc : 'Not chosen yet'],
         ['Vitality', s.hero.vit + ' of ' + s.hero.maxVit],
         ['Conditions', s.hero.conditions.length ? s.hero.conditions.join(', ') : 'None'],
-        ['Light', s.light.oilType ? s.light.remaining + ' of ' + s.light.max + ' (' + G.OIL[s.light.oilType].name + (s.light.scented ? ', scented' : ', scentless') + (s.light.lit ? ', lit' : ', not lit') + ')' : 'No oil yet'],
+        ['Light', s.light.oilType ? s.light.remaining + ' of ' + s.light.max + ' (' + G.OIL[s.light.oilType].name + (s.light.scented ? ', scented' : ', scentless') + (s.light.lit ? ', lit' : ', not lit') + ')' + (s.light.remaining === 0 ? ' · out of light' : s.light.remaining <= G.LOW_LIGHT ? ' · low light' : '') : 'No oil yet'],
         s.hero.background === 'forest' ? ['Sense in Darkness', s.hero.senseCharge ? '1 use left' : 'Used'] : null,
         ['Times at the brink', s.hero.brinks]
       ]));
@@ -2739,41 +3087,40 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       frag.appendChild(h('h4', { text: 'On your frame (carried)' }));
       frag.appendChild(listOr(s.gear.map(function (g) {
         var it = I[g.item];
-        return h('li', null, it.name + (g.qty ? ' ×' + g.qty : '') + (g.uses ? ' — ' + g.uses + ' use' + (g.uses > 1 ? 's' : '') + ' left' : '') + ' · ' + it.slots + ' slot' + (it.slots > 1 ? 's' : '') + ', Load ' + it.load,
+        return h('li', null, it.name + (g.qty ? ' ×' + g.qty : '') + (g.uses ? ', ' + g.uses + ' use' + (g.uses > 1 ? 's' : '') + ' left' : '') + ' · ' + it.slots + ' slot' + (it.slots > 1 ? 's' : '') + ', Load ' + it.load,
           it.kind === 'loan' ? h('span', { class: 'tag loan', text: 'loaned by Odran' + (g.scorched ? ', scorched' : '') }) : null,
           it.kind === 'hot' ? h('span', { class: 'tag hot', text: 'stolen' }) : null,
-          it.kind === 'story' ? h('span', { class: 'tag', text: 'story item, custody' }) : null);
+          it.kind === 'story' ? h('span', { class: 'tag', text: 'in your custody' }) : null);
       }), 'Nothing on your frame.'));
-      if (s.tongue.location === 'hand') frag.appendChild(h('p', { text: 'In your hand: The Silent Tongue (one-time story carry).' }));
-      if (s.entrusted.length) { frag.appendChild(h('h4', { text: 'Carried for you' })); frag.appendChild(listOr(s.entrusted.map(function (g) { return h('li', { text: I[g.item].name + ' — ' + g.where }); }), '')); }
-      if (s.stored.length || s.tongue.location === 'guild-locker') { frag.appendChild(h('h4', { text: 'Stored' })); frag.appendChild(listOr(s.stored.map(function (g) { return h('li', { text: I[g.item].name + ' — Guild locker' }); }).concat(s.tongue.location === 'guild-locker' ? [h('li', { text: 'The Silent Tongue — Guild locker (yours)' })] : []), '')); }
-      frag.appendChild(h('h4', { text: 'Left behind or lost' }));
-      frag.appendChild(listOr(s.leftBehind.map(function (g) { return h('li', { text: I[g.item].name + ' — at ' + g.where }); }), 'Nothing lost.'));
+      if (s.tongue.location === 'hand') frag.appendChild(h('p', { text: 'In your hand: The Silent Tongue (carried by hand until the Guild).' }));
+      if (s.entrusted.length) { frag.appendChild(h('h4', { text: 'Carried for you by Sir Odran' })); frag.appendChild(listOr(s.entrusted.map(function (g) { return h('li', { text: I[g.item].name + ' — he hands it back at the Guild (or puts it in your Guild locker if your frame is full)' }); }), '')); }
+      if (s.stored.length || s.tongue.location === 'guild-locker') { frag.appendChild(h('h4', { text: 'In your Guild locker (still yours)' })); frag.appendChild(listOr(s.stored.map(function (g) { return h('li', { text: I[g.item].name }); }).concat(s.tongue.location === 'guild-locker' ? [h('li', { text: 'The Silent Tongue' })] : []), '')); }
+      frag.appendChild(h('h4', { text: 'Left behind or paid away' }));
+      frag.appendChild(listOr(s.leftBehind.map(function (g) { return h('li', { text: I[g.item].name + (g.where === 'Pebblechief\'s hoard' ? ' — paid to Pebblechief' : ' — at ' + g.where) }); }), 'Nothing lost.'));
       var used = Object.keys(s.consumed).map(function (k) { return h('li', { text: (k === 'bread' ? 'Bread' : I[k].name) + ' — ' + s.consumed[k] + ' used' }); });
       frag.appendChild(h('h4', { text: 'Used up' })); frag.appendChild(listOr(used, 'Nothing used yet.'));
-      frag.appendChild(h('p', { class: 'small', text: 'Always on you, no slot: basic lantern, coin purse, belt loaves.' }));
+      frag.appendChild(h('p', { class: 'small', text: 'Always on you, no slot: basic lantern, coin purse, belt loaves, small keepsakes.' }));
     } else if (id === 'satchel') {
-      var bq = s.gear.filter(function (g) { return g.item === 'bread'; })[0];
       frag.appendChild(dl([
         ['Silver', s.coins],
-        ['Bread', s.pocket.bread + ' on your belt' + (bq ? ' + ' + bq.qty + ' in your pack' : '')],
-        ['Healing moss', (s.gear.filter(function (g) { return g.item === 'moss'; })[0] || { qty: 0 }).qty],
-        ['Salt', (s.gear.filter(function (g) { return g.item === 'salt'; })[0] || { qty: 0 }).qty + ' handful(s)'],
-        ['Spare oil', (s.gear.filter(function (g) { return g.item === 'oil'; })[0] || { qty: 0 }).qty + ' flask(s)'],
+        ['Bread', s.pocket.bread + ' on your belt' + (qtyOf(s, 'bread') ? ' + ' + qtyOf(s, 'bread') + ' in your pack' : '')],
+        ['Healing moss', qtyOf(s, 'moss') + ' pad(s) · 1 bundle uses 1 slot'],
+        ['Salt', qtyOf(s, 'salt') + ' handful(s) · 1 pouch uses 1 slot'],
+        ['Spare oil', qtyOf(s, 'oil') + ' flask(s)'],
         ['Keepsakes', s.pocket.keepsakes.length ? s.pocket.keepsakes.join(', ') : 'None']
       ]));
       var acts = G.itemActions(s);
       if (acts.length && $('dlg-keyring').open) {
         frag.appendChild(h('h4', { text: 'Use now' }));
         frag.appendChild(h('div', { class: 'row' }, acts.map(function (a) {
-          return h('button', { type: 'button', class: 'btn-sm', disabled: a.disabled, onclick: function () { useAction(a.id); } }, a.label + ' (' + (a.disabled ? a.reason : a.cost) + ')');
+          return h('button', { type: 'button', class: 'btn-sm', disabled: a.disabled, onclick: function () { useAction(a.id); } }, a.label + ' (' + (a.disabled ? a.reason : (a.effects || []).map(function (c) { return c.text; }).join(', ')) + ')');
         })));
       }
       frag.appendChild(h('p', { class: 'small', text: 'Using a consumable is permanent for this run.' }));
     } else if (id === 'craft') {
-      frag.appendChild(listOr(s.craftNames.map(function (c) { return h('li', { text: c.name + ' — ' + c.desc + ' Uses left this chapter: ' + c.usesLeft + '.' }); }), 'No Names learned yet.'));
-      if (s.hero.background === 'docks') frag.appendChild(h('p', { text: 'Docks knot-work: rope moves cost no extra time.' }));
-      if (s.hero.background === 'forest') frag.appendChild(h('p', { text: 'Sense in Darkness: ' + (s.hero.senseCharge ? 'ready (1).' : 'spent.') }));
+      frag.appendChild(listOr(s.craftNames.map(function (c) { return h('li', { text: c.name + ' — ' + c.desc.replace(/ Recovers between chapters \(provisional\)\./, '') + ' Uses left this chapter: ' + c.usesLeft + '.' }); }), 'No Names learned yet.'));
+      if (s.hero.background === 'docks') frag.appendChild(h('p', { text: 'Docks knot-work: tying Rope takes no extra time, so no extra lamp oil burns.' }));
+      if (s.hero.background === 'forest') frag.appendChild(h('p', { text: 'Sense in Darkness: ' + (s.hero.senseCharge ? 'ready (1 use).' : 'used.') }));
     } else if (id === 'journal') {
       var cats = { clue: 'Clues and witnessed facts', dragon: 'The dragon\'s words', deed: 'Deeds' };
       Object.keys(cats).forEach(function (c) {
@@ -2781,24 +3128,29 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         frag.appendChild(h('h4', { text: cats[c] }));
         frag.appendChild(listOr(items.map(function (k) { return h('li', { text: k.text }); }), 'Nothing yet.'));
       });
-      if (s.tongue.identityKnown) frag.appendChild(dl([['The Silent Tongue', 'Holder: ' + (s.tongue.holder === 'hero' ? 'you' : s.tongue.holder) + ' · where: ' + s.tongue.location + ' · how: ' + (s.tongue.sourceRoute || '—')]]));
+      if (s.tongue.identityKnown) frag.appendChild(dl([['The Silent Tongue', s.tongue.holder === 'hero' ? 'In your custody, ' + word('where', s.tongue.location) + '.' : 'Held by Vesperine.']]));
     } else if (id === 'bonds') {
       frag.appendChild(dl([
-        ['Tuck', b.tuck.returned ? 'Companion — a kettlekin who remembers your bread' : 'Not with you'],
-        ['Sir Odran', 'Trust ' + b.odran.trust + ' · ' + b.odran.status + (b.odran.rescuedByYou ? ' · you freed him' : '')],
-        ['Mirelle', 'Trust ' + b.mirelle.trust + ' · ' + b.mirelle.status],
-        ['Brask', 'Trust ' + b.brask.trust + ' · ' + b.brask.status + (b.brask.fate ? ' · ' + b.brask.fate : '')],
+        ['Tuck', b.tuck.returned ? 'Companion: a kettlekin who remembers your bread' : 'Not with you'],
+        ['Sir Odran', 'Trust ' + b.odran.trust + ' · ' + word('status', b.odran.status) + (b.odran.rescuedByYou ? ' · you freed him' : '')],
+        ['Mirelle', 'Trust ' + b.mirelle.trust + ' · ' + word('status', b.mirelle.status)],
+        ['Brask', 'Trust ' + b.brask.trust + ' · ' + (b.brask.fate || word('status', b.brask.status))],
         ['Lanternless', b.lanternless.met ? (b.lanternless.friend ? 'Friends' : 'Goodwill ' + b.lanternless.goodwill) : 'Not met'],
         ['Lantern Guild', 'Standing ' + b.guild.standing + (b.guild.license ? ' · licensed' : '') + (b.guild.blacklisted ? ' · struck from the rolls' : '')],
-        ['Vesperine', b.vesperine.attitude + (b.vesperine.seal ? ' · you bear her Seal' : '')]
+        ['Vesperine', word('attitude', b.vesperine.attitude) + (b.vesperine.seal ? ' · you bear her Seal' : '')]
       ]));
       frag.appendChild(h('h4', { text: 'Debts and promises' }));
       frag.appendChild(listOr(s.debts.map(function (d) { return h('li', { text: d.text }); }), 'You owe no one.'));
     } else if (id === 'chron') {
-      frag.appendChild(dl([['Mode', s.mode === 'epic' ? 'Epic Journey' : 'Free Exploration (sandbox)'], ['Save ID', s.saveId], ['Source', 'Claude A-003 · #001'], ['Revision', s.revision]]));
-      frag.appendChild(listOr(s.chronicle.map(function (c) { return h('li', { text: '#001 ' + c.title + ' — ' + c.endingId + ' "' + c.endingTitle + '" · reward ' + c.rewardId }); }), 'Chapter #001 in progress — not yet committed.'));
-      frag.appendChild(h('p', { text: 'Door #002 · One Stormy Night at the Tipped Kettle — future, unplayed.' }));
-      if (s.history.length) frag.appendChild(h('details', null, h('summary', { text: 'Every choice so far (' + s.history.length + ')' }), h('ol', { class: 'kr-list' }, s.history.map(function (x) { return h('li', { text: (G.SCENES[x.scene] ? G.SCENES[x.scene].title : x.scene) + ': ' + x.choice }); }))));
+      frag.appendChild(dl([['Journey', s.mode === 'epic' ? 'Epic Journey' : 'Free Exploration (sandbox; separate from your Epic Journey)'], ['Door', '#001 The Porter\'s Lantern']]));
+      frag.appendChild(listOr(s.chronicle.map(function (c) {
+        return h('li', { text: 'Door #001 — "' + c.endingTitle + '" — ' + (s.mode === 'epic' ? 'recorded on your Epic Journey.' : 'saved in this sandbox only.') });
+      }), 'Door #001 in progress.'));
+      frag.appendChild(h('p', { text: 'Door #002 · One Stormy Night at the Tipped Kettle: not yet open.' }));
+      var labelled = s.history.filter(function (x) { return x.label; });
+      if (labelled.length) frag.appendChild(h('details', null, h('summary', { text: 'Your choices so far (' + labelled.length + ')' }),
+        h('ol', { class: 'kr-list' }, labelled.map(function (x) { return h('li', { text: (G.SCENES[x.scene] ? G.SCENES[x.scene].title : 'Earlier') + ': ' + x.label }); }))));
+      if (labelled.length < s.history.length) frag.appendChild(h('p', { class: 'small', text: (s.history.length - labelled.length) + ' earlier choices were made before choice names were recorded.' }));
     }
     return frag;
   }
@@ -2820,7 +3172,9 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       krTab = TABS[i].id; renderKeyring(); $('tab-' + krTab).focus();
     }
   });
-  function openKeyring() { if (!state) return; renderKeyring(); $('dlg-keyring').showModal(); $('tab-' + krTab).focus(); }
+  var keyringOpener = null;
+  function openKeyring() { if (!state) return; keyringOpener = document.activeElement; renderKeyring(); $('dlg-keyring').showModal(); $('tab-' + krTab).focus(); }
+  $('dlg-keyring').addEventListener('close', function () { if (keyringOpener && keyringOpener.focus && document.contains(keyringOpener)) keyringOpener.focus(); });
 
   /* ------------------------------------------------------------ dialogs */
   Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (b) { b.addEventListener('click', function () { b.closest('dialog').close(); }); });
@@ -2841,57 +3195,64 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     $('dlg-settings').close();
     if (!mode) return;
     if (state && state.status === 'complete' && mode === 'epic') {
-      confirmBox('Chapter already committed', 'Your Epic Journey has committed #001. To play it again without touching that record, use Free Exploration — or start a new Epic hero from the title screen.', 'Go to title', renderStart);
+      confirmBox('Chapter already finished', 'Your Epic Journey has finished Door #001. To play it again without touching that record, use Free Exploration, or start a new Epic hero from the title screen.', 'Go to title', renderStart);
       return;
     }
     confirmBox('Restart this chapter?', 'You will return to the Guild Hall with a fresh hero. Your current run moves to a one-step fallback slot. ' + (mode === 'epic' ? 'Only your Epic Journey slot is affected.' : 'Only your Free Exploration sandbox is affected.'), 'Restart', function () {
-      stores[mode].clear(); state = G.newState(mode); var r = stores[mode].save(state); if (r.ok) state = r.snapshot; show('game'); renderGame(true); announce('Chapter restarted.');
+      stores[mode].clear(); state = G.newState(mode); var r = stores[mode].save(state); if (r.ok) state = r.snapshot; lastLightState = null; show('game'); renderGame(true); announce('Chapter restarted.');
     });
   });
 
+  /* ------------------------------------------------------------ backups (export and import are separate actions) */
   function openBackups() {
     $('dlg-settings').close();
     if (mode) Array.prototype.forEach.call(document.getElementsByName('bk-mode'), function (r) { r.checked = r.value === mode; });
-    $('bk-msg').textContent = ''; $('bk-msg').className = 'bk-msg'; $('bk-text').value = '';
+    bkMsg('', ''); $('bk-text').value = ''; $('bk-out').value = ''; $('bk-out-wrap').hidden = true;
     $('dlg-backup').showModal();
   }
   function bkMode() { var m = 'epic'; Array.prototype.forEach.call(document.getElementsByName('bk-mode'), function (r) { if (r.checked) m = r.value; }); return m; }
   function bkMsg(t, cls) { var el = $('bk-msg'); el.textContent = t; el.className = 'bk-msg ' + (cls || ''); }
+  function bkSnap(m) { return (mode === m && state) ? state : stores[m].load().snapshot; }
   $('btn-backups').addEventListener('click', openBackups);
   $('btn-backups-start').addEventListener('click', openBackups);
   $('bk-export').addEventListener('click', function () {
-    var m = bkMode(), snap = (mode === m && state) ? state : (stores[m].load().snapshot);
+    var m = bkMode(), snap = bkSnap(m);
     if (!snap) return bkMsg('There is no ' + (m === 'epic' ? 'Epic Journey' : 'Free Exploration') + ' save to export yet.', 'err');
-    var json = stores[m].exportBackup(snap);
-    download(json, 'porters-lantern-' + m + '-backup.json');
-    $('bk-text').value = json;
-    bkMsg('Backup ready (revision ' + snap.revision + '). If no download appeared, the full backup is in the box above: select it and copy it somewhere safe.', 'ok');
+    var ok = download(stores[m].exportBackup(snap), 'porters-lantern-' + m + '-backup.json');
+    bkMsg(ok ? 'Backup downloaded. Nothing in your game changed.' : 'Your browser blocked the download. Use "Show backup text" and copy it instead.', ok ? 'ok' : 'err');
+  });
+  $('bk-show').addEventListener('click', function () {
+    var m = bkMode(), snap = bkSnap(m);
+    if (!snap) return bkMsg('There is no ' + (m === 'epic' ? 'Epic Journey' : 'Free Exploration') + ' save yet.', 'err');
+    $('bk-out').value = stores[m].exportBackup(snap); $('bk-out-wrap').hidden = false; $('bk-out').focus(); $('bk-out').select();
+    bkMsg('Backup text shown. Select it all and copy it somewhere safe.', 'ok');
   });
   $('bk-file').addEventListener('change', function (e) {
     var f = e.target.files && e.target.files[0]; if (!f) return;
     if (f.size > 256 * 1024) return bkMsg('That file is too large to be a Keyring backup.', 'err');
     var rd = new FileReader();
-    rd.onload = function () { $('bk-text').value = String(rd.result || ''); bkMsg('File loaded. Press "Validate and import".', ''); };
+    rd.onload = function () { $('bk-text').value = String(rd.result || ''); bkMsg('File loaded. Choose "Check and restore" to continue.', ''); };
     rd.onerror = function () { bkMsg('Could not read that file.', 'err'); };
     rd.readAsText(f);
   });
   $('bk-import').addEventListener('click', function () {
     var m = bkMode(), txt = $('bk-text').value;
     var p = stores[m].parseBackup(txt);
-    if (!p.ok) return bkMsg('Not imported. ' + p.error + ' Your current save was not touched.', 'err');
+    if (!p.ok) return bkMsg('Not restored. ' + p.error + ' Your current save was not touched.', 'err');
     var cur = stores[m].load().snapshot;
-    confirmBox('Import this backup?', 'It will replace your current ' + (m === 'epic' ? 'Epic Journey' : 'Free Exploration') + ' save' + (cur ? ' (which moves to the one-step fallback slot)' : '') + '. Backup: ' + (p.snapshot.status === 'complete' ? 'completed chapter, ' + p.snapshot.ending.id : 'in progress at ' + G.SCENES[p.snapshot.scene].title) + '.', 'Import', function () {
+    confirmBox('Restore this backup?', 'It will replace your current ' + (m === 'epic' ? 'Epic Journey' : 'Free Exploration') + ' save' + (cur ? ' (which moves to the one-step fallback slot)' : '') + '. Backup: ' + (p.snapshot.status === 'complete' ? 'finished chapter, "' + p.snapshot.ending.title + '"' : 'in progress at ' + G.SCENES[p.snapshot.scene].title) + '.', 'Restore', function () {
       var r = stores[m].importBackup(txt);
-      if (!r.ok) { $('dlg-backup').showModal(); return bkMsg('Not imported. ' + (r.error || 'Storage refused the write.'), 'err'); }
-      $('dlg-backup').close(); banner(null); resume(m, r.snapshot); announce('Backup imported.');
+      if (!r.ok) { $('dlg-backup').showModal(); return bkMsg('Not restored. ' + (r.error || 'Storage refused the write.'), 'err'); }
+      $('dlg-backup').close(); banner(null); resume(m, r.snapshot); announce('Backup restored.');
     });
   });
   function download(text, name) {
     try {
-    var blob = new Blob([text], { type: 'application/json' });
-    var a = h('a', { href: URL.createObjectURL(blob), download: name });
-    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
-    } catch (e) { /* sandboxed viewers may block downloads; the JSON is also shown in the backup box */ }
+      var blob = new Blob([text], { type: 'application/json' });
+      var a = h('a', { href: URL.createObjectURL(blob), download: name });
+      document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      return true;
+    } catch (e) { return false; }
   }
 
   /* ------------------------------------------------------------ keyboard */
@@ -2901,7 +3262,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     if ((e.key === 'k' || e.key === 'K') && state && !$('btn-keyring').hidden) { e.preventDefault(); openKeyring(); return; }
     if (!$('screen-game').hidden && /^[1-9]$/.test(e.key)) {
-      var b = document.querySelector('.choice[data-n="' + e.key + '"]');
+      var b = document.querySelector('#choices .choice[data-n="' + e.key + '"]');
       if (b && !b.disabled) { e.preventDefault(); b.click(); }
     }
   });
@@ -2940,12 +3301,13 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   }
   var GOLD = '#d9b45a';
 
+
   /* ------------------------------------------------------------ boot */
   applyPrefs();
   renderStart();
-  window.__dq = { get state() { return state; }, get mode() { return mode; }, stores: stores };
+  // Read-only hook for automated tests: current state copy, mode and storage key names. No write path.
+  window.__dq = { get state() { return state ? JSON.parse(JSON.stringify(state)) : null; }, get mode() { return mode; }, keys: { epic: stores.epic.key, free: stores.free.key } };
 })();
-
 </script>
 </body>
 </html>
