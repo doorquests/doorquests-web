@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#070605">
 <meta name="description" content="DoorQuests · Dwortals · The Silent Tongue #001 — The Porter's Lantern. A branching fantasy adventure.">
 <title>The Porter's Lantern · Dwortals #001 · DoorQuests</title>
 <style>
@@ -11,20 +12,28 @@
    No external fonts, images or libraries. Mobile portrait first. */
 
 :root {
-  --night: #081227;
-  --deep: #0d1b38;
-  --panel: #13254a;
-  --panel-2: #1a3060;
-  --line: #2c4a86;
-  --ink: #ecf0f8;
-  --ink-soft: #b9c4dc;
-  --gold: #d9b45a;
-  --gold-hi: #f2d58c;
-  --ember: #f0a04b;
+  /* R3 "Lantern & Shadow": obsidian, charcoal and weathered gray, lit by amber lantern-light.
+     Blue is reserved for narratively meaningful things (the Blue-Flame Lamp). */
+  --night: #070605;
+  --deep: #0e0c0a;
+  --panel: #17140f;
+  --panel-2: #221d16;
+  --choice: #1d1913;
+  --choice-2: #15120e;
+  --line: #3d3428;
+  --line-soft: #2a241c;
+  --stone: #8c8578;
+  --ink: #efe6d2;
+  --ink-soft: #bdb29d;
+  --gold: #d8a94a;
+  --gold-hi: #f3cf7a;
+  --ember: #e8913a;
   --cost: #ffb3a6;
   --gain: #a8e6b8;
-  --info: #b8d4ff;
-  --focus: #ffe08a;
+  --info: #ddd2b8;
+  --focus: #ffd56a;
+  --blue-flame: #8fd3ff;
+  --lamp: .7;  /* 0–1, set from the lantern's Light by ui.js (environmental illumination) */
   --radius: 14px;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -38,11 +47,20 @@ html[data-size="2"] { --fs: 1.375rem; }
 html { background: var(--night); }
 body {
   margin: 0; min-height: 100vh; color: var(--ink); font-family: var(--sans); font-size: var(--fs); line-height: 1.55;
-  background:
-    radial-gradient(120% 60% at 50% -10%, #1d3a74 0%, transparent 60%),
-    radial-gradient(80% 50% at 100% 100%, #10224a 0%, transparent 70%),
-    var(--night);
+  background-color: var(--night);
+  background-image:
+    radial-gradient(110% 60% at 50% -12%, rgba(232, 145, 58, .16) 0%, transparent 62%),
+    radial-gradient(70% 45% at 0% 100%, rgba(120, 78, 30, .10) 0%, transparent 70%);
+  background-image:
+    radial-gradient(110% 60% at 50% -12%, rgb(232 145 58 / calc(.03 + .2 * var(--lamp))) 0%, transparent 62%),
+    radial-gradient(70% 45% at 0% 100%, rgb(120 78 30 / calc(.02 + .12 * var(--lamp))) 0%, transparent 70%);
+  background-attachment: fixed;
 }
+/* Environmental illumination follows the lantern (never story outcomes): set on <html> by ui.js */
+html[data-lamp="out"] body { background-image: radial-gradient(90% 40% at 50% -10%, rgba(60, 50, 38, .10) 0%, transparent 60%); }
+html[data-lamp="tuck"] body { background-image: radial-gradient(60% 34% at 12% 100%, rgba(255, 128, 48, .16) 0%, transparent 70%), radial-gradient(90% 40% at 50% -10%, rgba(60, 50, 38, .08) 0%, transparent 60%); }
+html[data-blue="1"] body { background-image: radial-gradient(55% 32% at 100% 100%, rgba(80, 160, 230, .10) 0%, transparent 70%), radial-gradient(110% 60% at 50% -12%, rgb(232 145 58 / calc(.03 + .2 * var(--lamp))) 0%, transparent 62%); }
+::selection { background: rgba(216, 169, 74, .4); color: var(--ink); }
 h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: .01em; line-height: 1.2; }
 h1 { font-size: 2.1em; margin: .2em 0 .1em; color: var(--gold-hi); text-align: center; }
 h2 { font-size: 1.45em; margin: .3em 0 .5em; color: var(--gold-hi); }
@@ -61,7 +79,7 @@ button { font: inherit; color: inherit; }
 /* ---------- top bar ---------- */
 .topbar {
   position: relative; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 8px 12px; background: rgba(8, 18, 39, .92); border-bottom: 1px solid var(--line); backdrop-filter: blur(6px);
+  padding: 8px 12px; background: rgba(7, 6, 5, .94); border-bottom: 1px solid var(--line); backdrop-filter: blur(6px);
 }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .brand-door { width: 22px; height: 30px; color: var(--gold); flex: none; }
@@ -76,29 +94,29 @@ button { font: inherit; color: inherit; }
 .btn-icon:hover { border-color: var(--gold); }
 @media (max-width: 380px) { .btn-icon span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
 
-.banner { margin: 8px 12px; padding: 10px 12px; border-radius: 10px; background: #4a2416; border: 1px solid #c56a3c; color: #ffe2d4; }
+.banner { margin: 8px 12px; padding: 10px 12px; border-radius: 10px; background: #3a1a10; border: 1px solid #c56a3c; color: #ffe2d4; }
 .banner .row { margin-top: 8px; }
-.mode-strip { margin: 0; padding: 6px 12px; background: #2a1f4a; border-bottom: 1px dashed #8f7ad6; color: #e3dcff; font-size: .85em; text-align: center; }
+.mode-strip { margin: 0; padding: 6px 12px; background: #1a1814; border-bottom: 1px dashed var(--stone); color: #d9d2c4; font-size: .85em; text-align: center; }
 
 /* ---------- HUD ---------- */
 .hud {
   position: sticky; top: 0; z-index: 15; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px;
-  padding: 8px 12px; background: rgba(13, 27, 56, .95); border-bottom: 1px solid var(--line); font-size: .85em;
+  padding: 8px 12px; background: rgba(14, 12, 10, .96); border-bottom: 1px solid var(--line); font-size: .85em;
 }
 .meter { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; }
 .m-label { color: var(--ink-soft); font-size: .85em; text-transform: uppercase; letter-spacing: .06em; }
-.m-bar { height: 8px; border-radius: 99px; background: #0a1430; border: 1px solid var(--line); overflow: hidden; }
+.m-bar { height: 8px; border-radius: 99px; background: #0b0a08; border: 1px solid var(--line); overflow: hidden; }
 .m-bar i { display: block; height: 100%; width: 0; border-radius: 99px; transition: width .4s ease; }
 #m-vit .m-bar i { background: linear-gradient(90deg, #c0495b, #f08080); }
-#m-light .m-bar i { background: linear-gradient(90deg, #c98b2c, var(--gold-hi)); }
+#m-light .m-bar i { background: linear-gradient(90deg, #a8641f, var(--ember), var(--gold-hi)); box-shadow: 0 0 8px rgba(243, 207, 122, calc(.15 + .35 * var(--lamp))); }
 .m-text { grid-column: 1 / -1; font-variant-numeric: tabular-nums; }
 .meter-pack { grid-column: 1 / -1; grid-template-columns: auto auto 1fr; }
 .meter-pack .m-text { grid-column: auto; }
 .m-slots { display: inline-flex; gap: 3px; }
-.m-slots b { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--line); background: #0a1430; }
+.m-slots b { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--line); background: #0b0a08; }
 .m-slots b.on { background: var(--gold); border-color: var(--gold-hi); }
-.m-slots b.person { background: #8fb7ff; }
-.m-slots b.story { background: #7a7a8c; border-color: #c9c9da; }
+.m-slots b.person { background: #d9c7a3; border-color: #f1e3c4; }
+.m-slots b.story { background: #5e584e; border-color: #b8ae9c; }
 @media (min-width: 720px) { .hud { grid-template-columns: 1fr 1fr 1.3fr; } .meter-pack { grid-column: auto; } }
 /* Short viewports (e.g. 200% zoom): stop the HUD from covering the story */
 @media (max-height: 560px) { .hud { position: static; } }
@@ -118,21 +136,21 @@ main { max-width: 760px; margin: 0 auto; padding: 12px 14px 64px; outline: none;
 .provisional { text-align: center; font-size: .82em; color: var(--ink-soft); border: 1px dashed var(--line); border-radius: 10px; padding: 6px 10px; }
 .mode-cards { display: grid; gap: 14px; margin: 18px 0; }
 @media (min-width: 680px) { .mode-cards { grid-template-columns: 1fr 1fr; } }
-.mode-card { background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.mode-card { background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: inset 0 1px 0 rgba(243, 207, 122, .06); }
 .mode-card h2 { margin-top: 0; }
-.mode-free { border-style: dashed; border-color: #6b5bb0; }
-.save-status { font-size: .9em; color: var(--info); min-height: 1.4em; }
+.mode-free { border-style: dashed; border-color: var(--stone); }
+.save-status { font-size: .9em; color: var(--gold-hi); min-height: 1.4em; }
 
 /* ---------- buttons ---------- */
 .row { display: flex; flex-wrap: wrap; gap: 8px; }
 .btn, .btn-sm {
-  min-height: 44px; padding: 10px 16px; border-radius: 12px; border: 1px solid var(--gold); background: #1e2f57; cursor: pointer;
+  min-height: 44px; padding: 10px 16px; border-radius: 12px; border: 1px solid var(--gold); background: #241e16; cursor: pointer;
   color: var(--ink); font-weight: 600;
 }
-.btn:hover, .btn-sm:hover { background: #283d6e; }
-.btn-primary { background: linear-gradient(180deg, #e6c56e, #c79a3c); color: #1a1406; border-color: var(--gold-hi); }
-.btn-primary:hover { background: linear-gradient(180deg, #f2d58c, #d4a84a); }
-.btn-danger { border-color: #d77a68; background: #4a1e1e; }
+.btn:hover, .btn-sm:hover { background: #30281c; }
+.btn-primary { background: linear-gradient(180deg, #e8be62, #c18a32); color: #1a1406; border-color: var(--gold-hi); }
+.btn-primary:hover { background: linear-gradient(180deg, #f3cf7a, #d39a3c); box-shadow: 0 0 14px rgba(232, 145, 58, .35); }
+.btn-danger { border-color: #d77a68; background: #3a1614; }
 .btn-sm:disabled, .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn-sm { min-height: 40px; padding: 6px 12px; font-weight: 500; }
 .btn-sm[aria-pressed="true"] { background: var(--gold); color: #1a1406; }
@@ -146,7 +164,7 @@ main { max-width: 760px; margin: 0 auto; padding: 12px 14px 64px; outline: none;
 #scene-title { margin-top: .1em; outline: none; }
 .scene-text p { font-family: var(--serif); font-size: 1.06em; }
 .outcome {
-  border-left: 3px solid var(--gold); background: rgba(217, 180, 90, .08); padding: 10px 12px; border-radius: 0 10px 10px 0; margin: 0 0 14px;
+  border-left: 3px solid var(--gold); background: rgba(216, 169, 74, .07); padding: 10px 12px; border-radius: 0 10px 10px 0; margin: 0 0 14px;
 }
 .outcome .you-chose { font-size: .82em; color: var(--ink-soft); margin-bottom: 4px; }
 .outcome p { font-family: var(--serif); margin-bottom: .5em; }
@@ -156,10 +174,10 @@ main { max-width: 760px; margin: 0 auto; padding: 12px 14px 64px; outline: none;
 .chip.cost::before { content: "▼ "; }
 .chip.gain { color: var(--gain); border-color: #3f7a55; }
 .chip.gain::before { content: "▲ "; }
-.chip.info { color: var(--info); border-color: #3d5d93; }
+.chip.info { color: var(--info); border-color: #5a4f3e; }
 .chip.info::before { content: "● "; }
 
-.lore details { border: 1px solid var(--line); border-radius: 10px; padding: 0 12px; margin: 0 0 8px; background: rgba(19, 37, 74, .5); }
+.lore details { border: 1px solid var(--line-soft); border-radius: 10px; padding: 0 12px; margin: 0 0 8px; background: rgba(34, 29, 22, .55); }
 .lore summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--gold-hi); }
 .lore details p { color: var(--ink-soft); }
 
@@ -168,7 +186,7 @@ main { max-width: 760px; margin: 0 auto; padding: 12px 14px 64px; outline: none;
 .choice {
   width: 100%; text-align: left; display: grid; grid-template-columns: 30px 1fr; column-gap: 10px; row-gap: 4px; align-items: start;
   padding: 12px 14px; position: relative; min-height: 52px;
-  border-radius: 12px; border: 1px solid var(--line); background: linear-gradient(180deg, #1b3263, #142a54); cursor: pointer;
+  border-radius: 12px; border: 1px solid var(--line); background: linear-gradient(180deg, var(--choice), var(--choice-2)); cursor: pointer;
   transition: border-color .15s, background .15s;
 }
 .choice > *:not(.c-num) { grid-column: 2; }
@@ -176,18 +194,18 @@ main { max-width: 760px; margin: 0 auto; padding: 12px 14px 64px; outline: none;
   grid-column: 1; grid-row: 1 / span 6; width: 26px; height: 26px; border-radius: 50%;
   border: 1px solid var(--gold); color: var(--gold); font-size: .8em; display: grid; place-items: center; font-weight: 700;
 }
-.c-num-equip { border-style: dashed; color: var(--info); border-color: #3d5d93; font-size: .7em; }
-.choice:hover:not(:disabled) { border-color: var(--gold); background: linear-gradient(180deg, #213b72, #19305e); }
+.c-num-equip { border-style: dashed; color: var(--stone); border-color: #5a4f3e; font-size: .7em; }
+.choice:hover:not(:disabled) { border-color: var(--gold); background: linear-gradient(180deg, #2a2219, #1b1611); box-shadow: 0 0 0 1px rgba(216, 169, 74, .15), 0 0 18px rgba(232, 145, 58, .10); }
 .choice .c-label { font-weight: 600; }
 .choice .c-cost { font-size: .84em; color: var(--ink-soft); }
 .choice .c-risk { font-size: .8em; color: #ffd27a; font-style: italic; }
 .choice .c-reason { font-size: .84em; color: var(--cost); }
 .choice .chips { margin: 0; }
-.choice:disabled { cursor: not-allowed; opacity: .62; background: #10203f; }
-.choice[aria-pressed="true"] { border-color: var(--gold-hi); background: linear-gradient(180deg, #3a3415, #2a2810); }
+.choice:disabled { cursor: not-allowed; opacity: .62; background: #100e0b; }
+.choice[aria-pressed="true"] { border-color: var(--gold-hi); background: linear-gradient(180deg, #3a2e14, #261f0e); }
 .choice[aria-pressed="true"] .c-label::after { content: "  ✓ on the pan"; color: var(--gold-hi); font-weight: 400; font-size: .85em; }
 .choice-primary { border-color: var(--gold); }
-.choice-equip { background: linear-gradient(180deg, #172a50, #11224a); border-style: dashed; }
+.choice-equip { background: linear-gradient(180deg, #181511, #110f0c); border-style: dashed; border-color: #4a4034; }
 .choice-section { margin: 0 0 14px; }
 .group-h { font-family: var(--sans); font-size: .8em; text-transform: uppercase; letter-spacing: .1em; color: var(--gold); margin: 14px 0 2px; }
 .group-sub { font-size: .82em; color: var(--ink-soft); margin: 0 0 8px; }
@@ -207,20 +225,20 @@ main { max-width: 760px; margin: 0 auto; padding: 12px 14px 64px; outline: none;
 .bk-sec h3 { margin: 4px 0; font-size: 1em; }
 
 /* pack widget */
-.pack-widget { background: rgba(10, 20, 48, .7); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin: 6px 0 12px; }
+.pack-widget { background: rgba(10, 9, 7, .75); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin: 6px 0 12px; }
 .pack-slots { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin: 0 0 10px; padding: 0; list-style: none; }
 .pack-slot { aspect-ratio: 1 / 1.15; border: 1px dashed var(--line); border-radius: 8px; display: grid; place-items: center; font-size: .66em; text-align: center; padding: 3px; color: var(--ink-soft); line-height: 1.15; min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
-.pack-slot.filled { border-style: solid; border-color: var(--gold); background: linear-gradient(180deg, #2a3a63, #1b2a4c); color: var(--ink); }
+.pack-slot.filled { border-style: solid; border-color: var(--gold); background: linear-gradient(180deg, #2c251a, #1c1812); color: var(--ink); box-shadow: inset 0 0 10px rgba(232, 145, 58, .08); }
 .pack-slot.wide { grid-column: span 2; aspect-ratio: auto; }
-.pack-slot.person { border-color: #8fb7ff; }
+.pack-slot.person { border-color: #d9c7a3; }
 .load-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: .9em; }
-.load-bar { flex: 1 1 160px; height: 10px; border-radius: 99px; background: #0a1430; border: 1px solid var(--line); position: relative; overflow: hidden; }
+.load-bar { flex: 1 1 160px; height: 10px; border-radius: 99px; background: #0b0a08; border: 1px solid var(--line); position: relative; overflow: hidden; }
 .load-bar i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #4f8f6a, #d9b45a); }
 .load-bar i.heavy { background: linear-gradient(90deg, #d9b45a, #d0604a); }
 .load-bar u { position: absolute; top: -2px; bottom: -2px; width: 2px; background: #ffb3a6; text-decoration: none; }
 .load-warn { color: var(--cost); }
 
-.puzzle-widget { background: rgba(10, 20, 48, .7); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin: 6px 0 12px; }
+.puzzle-widget { background: rgba(10, 9, 7, .75); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin: 6px 0 12px; }
 .pebbles { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 0; padding: 0; list-style: none; }
 .pebbles li { width: 18px; height: 14px; border-radius: 50% 50% 45% 45%; background: radial-gradient(circle at 35% 30%, #c9ccd6, #6f7584); }
 .pan-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
@@ -230,16 +248,19 @@ main { max-width: 760px; margin: 0 auto; padding: 12px 14px 64px; outline: none;
 .actions-bar h3 { font-family: var(--sans); font-size: .78em; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); margin: 0 0 6px; }
 
 /* ---------- dialogs ---------- */
-.dlg { width: min(560px, 94vw); max-height: 90vh; padding: 16px; border-radius: var(--radius); border: 1px solid var(--gold); background: var(--deep); color: var(--ink); }
+.dlg { width: min(560px, 94vw); max-height: 90vh; max-height: 90dvh; overflow-y: auto; overscroll-behavior: contain; padding: 16px; border-radius: var(--radius); border: 1px solid var(--gold); background: var(--deep); color: var(--ink); box-shadow: 0 0 0 1px rgba(0, 0, 0, .6), 0 18px 60px rgba(0, 0, 0, .7), 0 0 40px rgba(232, 145, 58, .08); }
 .dlg-wide { width: min(760px, 96vw); }
-.dlg::backdrop { background: rgba(3, 7, 18, .72); }
+.dlg::backdrop { background: rgba(0, 0, 0, .78); }
 .dlg-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.dlg > .dlg-head { position: sticky; top: -16px; z-index: 2; background: var(--deep); margin: -16px -16px 0; padding: 12px 16px; border-bottom: 1px solid var(--line); }
 .dlg-head h2 { margin: 0; }
 .btn-close { min-width: 44px; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; }
-.tabs { display: flex; gap: 4px; overflow-x: auto; margin: 10px 0; padding-bottom: 4px; }
-.tab { flex: none; min-height: 44px; padding: 8px 12px; border-radius: 10px 10px 0 0; border: 1px solid var(--line); border-bottom: 0; background: var(--panel); cursor: pointer; font-size: .9em; }
-.tab[aria-selected="true"] { background: var(--panel-2); color: var(--gold-hi); border-color: var(--gold); }
-.kr-panel { border-top: 1px solid var(--gold); padding-top: 10px; }
+/* Keyring navigation (R2, R1-F02): all seven destinations always visible; tabs wrap into a grid, never a clipped scroll strip. */
+.tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5em), 1fr)); gap: 6px; margin: 12px 0 10px; overflow: visible; }
+.tab { min-height: 44px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; font-size: .9em; line-height: 1.2; text-align: center; white-space: normal; overflow-wrap: anywhere; }
+.tab[aria-selected="true"] { background: var(--panel-2); color: var(--gold-hi); border-color: var(--gold); box-shadow: inset 0 -3px 0 var(--gold); }
+@media (max-width: 360px) { .tabs { grid-template-columns: 1fr 1fr; } }
+.kr-panel { border-top: 1px solid var(--gold); padding-top: 10px; overflow-wrap: anywhere; }
 .kr-panel dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0 0 10px; }
 .kr-panel dt { color: var(--ink-soft); }
 .kr-panel dd { margin: 0; }
@@ -247,7 +268,7 @@ main { max-width: 760px; margin: 0 auto; padding: 12px 14px 64px; outline: none;
 .kr-list li { margin-bottom: 4px; }
 .tag { display: inline-block; font-size: .72em; padding: 1px 7px; border-radius: 99px; border: 1px solid var(--line); color: var(--ink-soft); margin-left: 4px; vertical-align: middle; }
 .tag.hot { color: #ffb3a6; border-color: #a0503f; }
-.tag.loan { color: #b8d4ff; }
+.tag.loan { color: var(--stone); border-color: #5a4f3e; }
 .empty { color: var(--ink-soft); font-style: italic; }
 fieldset { border: 1px solid var(--line); border-radius: 10px; margin: 0 0 12px; padding: 8px 12px 12px; }
 legend { color: var(--gold-hi); padding: 0 6px; }
@@ -256,7 +277,7 @@ legend { color: var(--gold-hi); padding: 0 6px; }
 .set-body { display: grid; gap: 10px; margin-top: 10px; }
 .set-actions { display: grid; gap: 8px; }
 .lbl { font-size: .9em; color: var(--ink-soft); }
-textarea, input[type=file] { width: 100%; font: inherit; font-size: .85em; color: var(--ink); background: #0a1430; border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+textarea, input[type=file] { width: 100%; font: inherit; font-size: .85em; color: var(--ink); background: #0b0a08; border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
 .bk-msg { min-height: 1.4em; }
 .bk-msg.err { color: var(--cost); }
 .bk-msg.ok { color: var(--gain); }
@@ -274,10 +295,10 @@ textarea, input[type=file] { width: 100%; font: inherit; font-size: .85em; color
 .report { font-family: "Courier New", ui-monospace, monospace; font-size: .88em; background: #efe6cf; color: #2a2112; border-radius: 6px; padding: 14px 16px; border: 1px solid #b59e6a; box-shadow: inset 0 0 40px rgba(120, 90, 30, .2); }
 .report h3 { color: #5a3d0c; font-family: var(--serif); margin-top: 0; }
 .report ul { padding-left: 1.1em; margin: 0 0 8px; }
-.bridge { margin: 18px 0; padding: 16px; border-radius: var(--radius); border: 1px solid var(--gold); background: radial-gradient(120% 120% at 50% 0%, #22407a, #0d1b38); text-align: center; }
+.bridge { margin: 18px 0; padding: 16px; border-radius: var(--radius); border: 1px solid var(--gold); background: radial-gradient(120% 120% at 50% 0%, #3a2a14, #0e0c0a 70%); text-align: center; box-shadow: 0 0 30px rgba(232, 145, 58, .12); }
 .bridge blockquote { margin: 0 0 8px; font-family: var(--serif); font-size: 1.2em; color: var(--gold-hi); font-style: italic; }
 .bridge .next-door { font-size: .9em; color: var(--ink-soft); }
-pre.json { white-space: pre-wrap; word-break: break-word; font-size: .78em; background: #0a1430; border: 1px solid var(--line); border-radius: 8px; padding: 10px; max-height: 50vh; overflow: auto; }
+pre.json { white-space: pre-wrap; word-break: break-word; font-size: .78em; background: #0b0a08; border: 1px solid var(--line); border-radius: 8px; padding: 10px; max-height: 50vh; overflow: auto; }
 .noscript { padding: 20px; text-align: center; }
 
 /* ---------- motion preferences ---------- */
@@ -290,6 +311,17 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   .choice, .btn, .tab, .mode-card { border: 2px solid CanvasText; }
   .chip::before { forced-color-adjust: none; }
 }
+
+/* R2: discoveries shown separately from costs (R1-F03) */
+.discoveries { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+.disc-label { font-size: .8em; color: var(--ink-soft); }
+.chip.disc { color: #e6d3ff; border-color: #6b5bb0; }
+.chip.disc::before { content: "✦ "; }
+
+/* R3: blue only where the story is blue */
+.tag.blue-flame { color: var(--blue-flame); border-color: #3a7bd5; }
+.pack-slot.blue-flame { border-color: var(--blue-flame); box-shadow: inset 0 0 12px rgba(143, 211, 255, .18); }
+.scene-art { position: relative; }
 </style>
 </head>
 <body>
@@ -330,16 +362,16 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     <div class="start-art" aria-hidden="true">
       <svg viewBox="0 0 400 240" role="presentation">
         <defs>
-          <radialGradient id="sg" cx="50%" cy="55%" r="60%"><stop offset="0" stop-color="#f5c76a" stop-opacity=".55"/><stop offset=".45" stop-color="#e09a3a" stop-opacity=".12"/><stop offset="1" stop-color="#0b1730" stop-opacity="0"/></radialGradient>
-          <linearGradient id="sd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c3566"/><stop offset="1" stop-color="#0d1a36"/></linearGradient>
+          <radialGradient id="sg" cx="50%" cy="55%" r="60%"><stop offset="0" stop-color="#f5c76a" stop-opacity=".55"/><stop offset=".45" stop-color="#e09a3a" stop-opacity=".12"/><stop offset="1" stop-color="#070605" stop-opacity="0"/></radialGradient>
+          <linearGradient id="sd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a231a"/><stop offset="1" stop-color="#0b0907"/></linearGradient>
         </defs>
         <rect width="400" height="240" fill="url(#sg)"/>
         <g class="float">
-          <path d="M160 200V92a40 40 0 0 1 80 0v108z" fill="url(#sd)" stroke="#d9b45a" stroke-width="3"/>
-          <path d="M172 196V96a28 28 0 0 1 56 0v100" fill="none" stroke="#d9b45a" stroke-opacity=".35" stroke-width="1.5"/>
-          <circle cx="222" cy="150" r="4" fill="#d9b45a"/>
+          <path d="M160 200V92a40 40 0 0 1 80 0v108z" fill="url(#sd)" stroke="#d8a94a" stroke-width="3"/>
+          <path d="M172 196V96a28 28 0 0 1 56 0v100" fill="none" stroke="#d8a94a" stroke-opacity=".35" stroke-width="1.5"/>
+          <circle cx="222" cy="150" r="4" fill="#d8a94a"/>
           <path d="M200 120c-6 8-6 16 0 22 6-6 6-14 0-22z" fill="#f5c76a" class="flame"/>
-          <rect x="190" y="138" width="20" height="18" rx="3" fill="none" stroke="#d9b45a" stroke-width="2"/>
+          <rect x="190" y="138" width="20" height="18" rx="3" fill="none" stroke="#d8a94a" stroke-width="2"/>
         </g>
         <ellipse cx="200" cy="222" rx="70" ry="6" fill="#000" opacity=".35"/>
       </svg>
@@ -708,8 +740,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       save: function (snap, o) {
         o = o || {};
         var v = validate(snap, { sceneIds: sceneIds });
-        if (!v.ok) return { ok: false, error: 'Refused to save invalid state: ' + v.errors.join(' ') };
-        if (snap.mode !== mode) return { ok: false, error: 'Mode mismatch: a ' + snap.mode + ' state cannot be saved in the ' + mode + ' slot.' };
+        if (!v.ok) return { ok: false, code: 'invalid-state', error: 'Refused to save invalid state: ' + v.errors.join(' ') };
+        if (snap.mode !== mode) return { ok: false, code: 'wrong-mode', error: 'Mode mismatch: a ' + snap.mode + ' state cannot be saved in the ' + mode + ' slot.' };
         var cur = readKey(key);
         if (cur.status === 'ok' && !o.force) {
           var st = cur.snapshot;
@@ -717,7 +749,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
             return { ok: false, conflict: true, stored: st };
           }
           if (st.saveId === snap.saveId && st.status === 'complete' && snap.status !== 'complete') {
-            return { ok: false, error: 'This chapter is already committed; it cannot be reopened in place.' };
+            return { ok: false, code: 'committed', error: 'This chapter is already committed; it cannot be reopened in place.' };
           }
         }
         var out = clone(snap);
@@ -725,7 +757,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
           ? Math.max(cur.snapshot.revision, snap.revision) + 1 : snap.revision + 1;
         out.savedAt = new Date().toISOString();
         if (cur.status === 'ok') writeKey(prevKey, cur.snapshot);
-        if (!writeKey(key, out)) return { ok: false, error: 'Browser storage refused the write (it may be full or blocked). Your progress is still in this tab — export a backup.' };
+        if (!writeKey(key, out)) return { ok: false, code: 'storage', error: 'Browser storage refused the write (it may be full or blocked). Your progress is still in this tab — export a backup.' };
         return { ok: true, snapshot: out };
       },
 
@@ -761,19 +793,33 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       },
 
       /** Validate a backup without writing anything. */
+      /**
+       * Validate a backup without writing anything.
+       * Every failure carries a stable `code` for the visitor-facing message
+       * (see BACKUP_MESSAGES); `error` keeps the technical detail for developer
+       * tests only and is never shown to players.
+       */
       parseBackup: function (text) {
-        if (typeof text !== 'string' || !text.trim()) return { ok: false, error: 'The backup is empty.' };
-        if (text.length > MAX_IMPORT_BYTES) return { ok: false, error: 'The backup is too large to be a Keyring save (limit 256 KB).' };
+        function fail(code, detail) { return { ok: false, code: code, error: detail || code }; }
+        if (typeof text !== 'string' || !text.trim()) return fail('empty', 'The backup is empty.');
+        if (text.length > MAX_IMPORT_BYTES) return fail('too-large', 'Over ' + MAX_IMPORT_BYTES + ' characters.');
         var obj;
-        try { obj = JSON.parse(text); } catch (e) { return { ok: false, error: 'This is not valid JSON (' + String(e.message).slice(0, 120) + ').' }; }
-        var snap = isObj(obj) && obj.format === BACKUP_FORMAT ? obj.snapshot : obj;
-        try { snap = migrate(snap); } catch (e) { return { ok: false, error: e.message }; }
-        var v = validate(snap, { sceneIds: sceneIds });
-        if (!v.ok) return { ok: false, error: 'The backup failed validation: ' + v.errors.slice(0, 5).join(' ') + (v.errors.length > 5 ? ' (+' + (v.errors.length - 5) + ' more)' : '') };
-        if (snap.mode !== mode) {
-          return { ok: false, error: 'This backup is from ' + (snap.mode === 'epic' ? 'Epic Journey' : 'Free Exploration') +
-            '. Import it from that mode instead; the two slots are kept separate.' };
+        try { obj = JSON.parse(text); } catch (e) { return fail('not-json', 'JSON.parse: ' + String(e.message).slice(0, 120)); }
+        if (!isObj(obj)) return fail('not-backup', 'Top level is not an object.');
+        var wrapped = obj.format === BACKUP_FORMAT;
+        var snap = wrapped ? obj.snapshot : obj;
+        if (!isObj(snap)) return fail(wrapped ? 'damaged' : 'not-backup', 'No snapshot object.');
+        var looksOurs = wrapped || ('schemaVersion' in snap) || ('epicId' in snap) || ('saveId' in snap);
+        if (!looksOurs) return fail('not-backup', 'No backup fields.');
+        if (isInt(snap.schemaVersion) && snap.schemaVersion > SCHEMA_VERSION) return fail('newer-version', 'schemaVersion ' + snap.schemaVersion);
+        if (('epicId' in snap && snap.epicId !== EPIC_ID) || ('worldId' in snap && snap.worldId !== WORLD_ID) ||
+            (wrapped && ((obj.epicId && obj.epicId !== EPIC_ID) || (obj.worldId && obj.worldId !== WORLD_ID)))) {
+          return fail('wrong-campaign', 'epicId/worldId ' + JSON.stringify([snap.epicId, snap.worldId]).slice(0, 80));
         }
+        try { snap = migrate(snap); } catch (e) { return fail(snap.schemaVersion === undefined ? 'not-backup' : 'damaged', e.message); }
+        var v = validate(snap, { sceneIds: sceneIds });
+        if (!v.ok) return fail('damaged', v.errors.slice(0, 5).join(' '));
+        if (snap.mode !== mode) return { ok: false, code: 'wrong-mode', fromMode: snap.mode, error: 'Backup mode ' + snap.mode + ' ≠ slot ' + mode };
         return { ok: true, snapshot: snap };
       },
 
@@ -784,6 +830,29 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         return this.save(p.snapshot, { force: true });
       }
     };
+  }
+
+  /** Plain visitor-facing wording for backup and save failures (R2, GBDQ-DW001-R1-F01). No field names, ids or raw input. */
+  var KEEP = ' Your current save was not touched.';
+  var BACKUP_MESSAGES = {
+    'empty': 'Nothing to restore yet. Paste the backup text or choose a backup file first.',
+    'too-large': 'Not restored. That is far too large to be a Porter\'s Lantern backup.' + KEEP,
+    'not-json': 'Not restored. This isn\'t a valid Porter\'s Lantern backup. Check that you copied the whole backup text.' + KEEP,
+    'not-backup': 'Not restored. This isn\'t a valid Porter\'s Lantern backup.' + KEEP,
+    'damaged': 'Not restored. This backup looks damaged or incomplete, so it can\'t be used safely.' + KEEP,
+    'newer-version': 'Not restored. This backup was made by a newer version of the game. Please play on the latest version.' + KEEP,
+    'wrong-campaign': 'Not restored. This backup belongs to a different DoorQuests adventure.' + KEEP,
+    'storage': 'Not restored. Your browser would not let the game save it (storage may be full or blocked).' + KEEP,
+    'invalid-state': 'Not restored. This backup could not be saved safely.' + KEEP,
+    'committed': 'Not restored. That would reopen a finished chapter.' + KEEP
+  };
+  function backupMessage(res, currentMode) {
+    if (!res || res.ok) return '';
+    if (res.code === 'wrong-mode') {
+      var from = res.fromMode === 'epic' ? 'Epic Journey' : 'Free Exploration';
+      return 'Not restored. This backup is from ' + from + '. Restore it with "' + from + '" selected instead; the two saves are kept separate.' + KEEP;
+    }
+    return BACKUP_MESSAGES[res.code] || BACKUP_MESSAGES['not-backup'];
   }
 
   /* ---------------------------------------------------------------- next-chapter readers */
@@ -841,7 +910,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     SCHEMA_VERSION: SCHEMA_VERSION, WORLD_ID: WORLD_ID, EPIC_ID: EPIC_ID, KEY_PREFIX: KEY_PREFIX,
     REWARD_IDS: REWARD_IDS, ITEM_IDS: ITEM_IDS, ITEM_SLOTS: ITEM_SLOTS,
     keyFor: keyFor, newSaveId: newSaveId, validate: validate, migrate: migrate,
-    createStore: createStore, memoryStorage: memoryStorage,
+    createStore: createStore, memoryStorage: memoryStorage, backupMessage: backupMessage, BACKUP_MESSAGES: BACKUP_MESSAGES,
     readForNextChapter: readForNextChapter, toWorldKeyringEntry: toWorldKeyringEntry
   };
 });
@@ -885,8 +954,9 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   var FLOOR_LIMIT = 6;   // Gallery of Scales fails at Load >= 6 without chalk
   var BRIDGE_LIMIT = 4;  // Fraying Bridge bears Load <= 4 per crossing
   var OIL = {
-    fish:      { name: 'Fish-oil', price: 1, light: 8, scented: true, desc: 'Bright, cheap, smells of harbor.' },
-    clearwick: { name: 'Clearwick', price: 3, light: 5, scented: false, desc: 'Dim, silent, scentless, dearer.' }
+    // props is the ONE canonical description of each oil, used on the purchase card, HUD, Keyring and ending summaries.
+    fish:      { name: 'Fish-oil', price: 1, light: 8, scented: true, props: 'bright, scented', priceWord: 'cheap', desc: 'Bright, scented and cheap.' },
+    clearwick: { name: 'Clearwick', price: 3, light: 5, scented: false, props: 'dim, silent, scentless', priceWord: 'dearer', desc: 'Dim, silent, scentless and dearer.' }
   };
   var START_COINS = 5;
   var BG = {
@@ -902,7 +972,12 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   /* ================================================================ helpers */
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
   function mkctx() { return { lines: [], chips: [] }; }
-  function chip(ctx, text, tone) { ctx.chips.push({ text: text, tone: tone || 'info' }); }
+  /**
+   * kind: 'known'     — predictable, non-spoiler information, shown in previews too (e.g. "Guided: the walk itself uses no Light")
+   *       'discovery' — story discoveries, shown only after the choice (Journal entries, Odran's return, Tuck)
+   * Material costs/gains are never taken from ctx chips: effects() derives them from the state change.
+   */
+  function chip(ctx, text, tone, kind) { ctx.chips.push({ text: text, tone: tone || 'info', kind: kind || (tone === 'info' || !tone ? 'discovery' : 'material') }); }
   function say(ctx, text) { ctx.lines.push(text); }
   function slotsUsed(s) { return s.gear.reduce(function (a, g) { return a + ITEMS[g.item].slots; }, 0); }
   function slotsFree(s) { return MAX_SLOTS - slotsUsed(s); }
@@ -1010,11 +1085,17 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
    * Travel between beats. Costs 1 Light. In darkness: Tuck's glow or a guide
    * makes it safe; otherwise you feel your way and take 1 Vitality — never a lock.
    */
+  /** Plain words for what an ordinary move will cost right now (used in uncertain-outcome notes). */
+  function travelPhrase(s) {
+    if (s.light.remaining > 0) return 'Light −1 to travel on';
+    if (tuckHere(s)) return 'Tuck lights the way, no Light spent';
+    return 'Vitality −1 feeling your way in the dark';
+  }
   function travel(s, ctx, next, o) {
     o = o || {};
-    if (o.guided) { chip(ctx, 'Guided: no Light spent', 'info'); return next; }
+    if (o.guided) { chip(ctx, 'Guided: the walk itself uses no Light', 'info', 'known'); return next; }
     if (s.light.remaining > 0) { if (!s.light.lit) s.light.lit = true; spendLight(s, 1, ctx); return next; }
-    if (tuckHere(s)) { chip(ctx, 'Tuck\'s glow lights the way', 'info'); return next; }
+    if (tuckHere(s)) { chip(ctx, 'Tuck\'s glow lights the walk: no Light used for it', 'info', 'known'); return next; }
     hurt(s, 1, ctx, 'feeling your way in the dark');
     return next;
   }
@@ -1093,7 +1174,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
           s.hero.background = id;
           if (id === 'farm') { s.hero.maxVit = 13; s.hero.vit = 13; chip(ctx, 'Max Vitality 13', 'gain'); }
           if (id === 'forest') { s.hero.senseCharge = true; chip(ctx, 'Sense in Darkness ×1', 'gain'); }
-          if (id === 'docks') chip(ctx, 'Knot-work: no time cost', 'info');
+          if (id === 'docks') chip(ctx, 'Knot-work: no time cost', 'info', 'known');
           return 'hall_kettlekin';
         });
       }
@@ -1141,7 +1222,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     options: function (s) {
       function buy(id) {
         var o = OIL[id];
-        return O('oil:' + id, 'Buy ' + o.name + ' — ' + o.price + ' silver', { note: o.desc + ' Lasts about ' + o.light + ' moves between places.' },
+        return O('oil:' + id, 'Buy ' + o.name + ' — ' + o.price + ' silver', { note: o.name + ' (' + o.props + '). ' + (o.priceWord === 'cheap' ? 'Cheap.' : 'Dearer.') + ' Lasts about ' + o.light + ' moves between places.' },
           function (s2, ctx) {
             s2.coins -= o.price;
             s2.light = { oilType: id, remaining: o.light, max: o.light, scented: o.scented, lit: true };
@@ -1176,7 +1257,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         var it = ITEMS[id];
         if (has(s, id)) {
           opts.push(O('remove:' + id, 'Take the ' + it.name + ' out of your pack', { kind: 'equip', note: 'In your pack: ' + it.desc + ' · ' + it.slots + ' slot · Load ' + it.load },
-            function (s2, ctx) { removeGear(s2, id, null, null); if (it.cost) { s2.coins += it.cost; chip(ctx, 'Silver +' + it.cost, 'gain'); } chip(ctx, it.name + ' back on the shelf', 'info'); return 'pack'; }));
+            function (s2, ctx) { removeGear(s2, id, null, null); if (it.cost) { s2.coins += it.cost; chip(ctx, 'Silver +' + it.cost, 'gain'); } chip(ctx, it.name + ' back on the shelf', 'info', 'known'); return 'pack'; }));
         } else {
           var noRoom = slotsFree(s) < it.slots, noCoin = it.cost && s.coins < it.cost;
           opts.push(O('add:' + id, 'Pack the ' + it.name, {
@@ -1263,7 +1344,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       }));
       if (has(s, 'rope')) o.push(O('free:rope', 'Rig a rope lever over the rubble', { group: 'Free Odran', note: isDocks(s) ? 'Docks knot-work: no extra time' : 'Fiddly knots take time, and time burns oil' }, function (s2, ctx) {
         consume(s2, 'rope', ctx, 'Rope −1 use');
-        if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no time lost', 'info');
+        if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no extra Light', 'info', 'known');
         return freeOdran(s2, ctx, isDocks(s2) ? 'Your hands tie the hitch before your head has finished deciding to. The beam swings up like a gate.' : 'It takes three tries to get the knot right, but the beam swings up and Odran crawls free.');
       }));
       o.push(O('free:hands', 'Heave the beam with your bare hands', { group: 'Free Odran', note: 'Hard on your back' }, function (s2, ctx) {
@@ -1333,7 +1414,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         return O('w:' + w, (on ? 'Take the ' : 'Place the ') + WEIGHTS[w].name + (on ? ' off the pan' : ' on the pan'), { group: 'Weights', pressed: on, note: WEIGHTS[w].notches + ' notch' + (WEIGHTS[w].notches > 1 ? 'es' : '') },
           function (s2) { var p = s2.sub.pan; var i = p.indexOf(w); if (i >= 0) p.splice(i, 1); else p.push(w); return 'portcullis_puzzle'; });
       });
-      o.push(O('lower', 'Lower the pan', { group: 'Act', conceal: true, disabled: pan.length === 0, reason: 'Put at least one weight on the pan.', note: 'Tests your weights. Right total: the gate opens. Wrong total: the chain whips back (Vitality −1), and you can try again.' }, function (s2, ctx) {
+      o.push(O('lower', 'Lower the pan', { group: 'Act', conceal: true, disabled: pan.length === 0, reason: 'Put at least one weight on the pan.', note: 'Tests your weights. Right total: the gate opens and you go on (' + travelPhrase(s) + '). Wrong total: the chain whips back (Vitality −1) and you can try again.' }, function (s2, ctx) {
         var total = s2.sub.pan.reduce(function (a, w) { return a + WEIGHTS[w].notches; }, 0);
         if (total === 10) {
           say(ctx, 'The pan sinks with a satisfied clunk. Somewhere inside the wall, a chain pays out, and the teeth rise all the way up and lock.');
@@ -1378,7 +1459,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         flag(s2, 'galleryFell');
         if (has(s2, 'rope')) {
           consume(s2, 'rope', ctx, 'Rope −1 use');
-          if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no time lost', 'info');
+          if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no extra Light', 'info', 'known');
           hurt(s2, 1, ctx, 'rope-burn');
           say(ctx, 'Halfway across the plate drops out from under you. ' + (isDocks(s2) ? 'Your hands have already hitched the rope to a plate-ring.' : 'You get a loop of rope around a plate-ring in time.') + ' You are lowered, burned and swinging, into the dark below.');
           flag(s2, 'galleryBy', 'rope-fall');
@@ -1651,7 +1732,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         s.bonds.odran.batteredBy = wasPinned ? 'dug-out' : 'climbed-down';
         say(ctx, wasPinned ? 'A figure limps out of a side tunnel, grey with dust from crown to boots: Sir Odran. With no one to lift the beam, he spent hours working his trapped arm free and digging through the rubble alone. He is bruised, bleeding and battered, but he did exactly what he promised. "Porter," he says, with great dignity, and sits down hard.'
           : 'Sir Odran climbs down out of a crevice, scraped raw. When the Gallery floor gave way under you, he went looking for another way down and found several, all of them sharp. "Most of them hurt," he says. He is battered, but here.');
-        chip(ctx, 'Odran rejoins you, battered', 'info');
+        chip(ctx, 'Odran rejoins you, battered', 'info', 'discovery');
       }
     },
     text: function (s) {
@@ -1683,7 +1764,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       var p = s.sub.peb, o = [];
       [1, 2, 3].forEach(function (n) {
         if (n > p.left) return;
-        o.push(O('take:' + n, 'Take ' + n + ' pebble' + (n > 1 ? 's' : ''), { group: 'Your turn', conceal: true, note: 'Leaves ' + (p.left - n) + ' · then Pebblechief takes his turn' }, function (s2, ctx) {
+        o.push(O('take:' + n, 'Take ' + n + ' pebble' + (n > 1 ? 's' : ''), { group: 'Your turn', conceal: true, note: 'Leaves ' + (p.left - n) + ', then Pebblechief takes his turn. Win: his folk guide you across. Lose: you pay a small toll (a silver, a loaf, an item or a story), then they guide you anyway. No Light is spent either way.' }, function (s2, ctx) {
           var q = s2.sub.peb; q.left -= n; q.log.push('You take ' + n + ' (' + q.left + ' left).');
           if (q.left === 0) { q.result = 'lost'; say(ctx, 'You pick up the last pebble and realise what you have done. Pebblechief beams.'); return 'throat_toll'; }
           var t = (q.left - 1) % 4; if (t === 0) t = 1; t = Math.min(t, q.left);
@@ -1754,7 +1835,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         }));
       if (has(s, 'rope')) o.push(O('ropeline', 'Ferry your gear across on a rope line', { note: (isDocks(s) ? 'Docks knot-work: no extra time' : 'Rigging takes time, and time burns oil') + ' · you cross nearly empty-handed', disabled: L - packLoadMovable(s) > BRIDGE_LIMIT, reason: 'Even without your gear, what you carry is over the limit.' },
         function (s2, ctx) {
-          consume(s2, 'rope', ctx, 'Rope −1 use'); if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no time lost', 'info');
+          consume(s2, 'rope', ctx, 'Rope −1 use'); if (!isDocks(s2)) spendLight(s2, 1, ctx); else chip(ctx, 'Docks knot-work: no extra Light', 'info', 'known');
           say(ctx, 'You rig a running line and haul your gear over in a bundle while you cross nearly empty-handed.');
           flag(s2, 'throatBy', 'bridge-rope'); return travel(s2, ctx, 'hall_lights');
         }));
@@ -1894,7 +1975,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         s2.tongue.sourceRoute = s2.tongue.sourceRoute || 'bargain';
         return s2.bonds.vesperine.seal ? 'vesperine_gift' : 'tongue_custody';
       }));
-      o.push(O('bluff', 'Bluff: claim the Guild sent you to fetch it', { conceal: true, note: 'Risky. If she sees through you: dragon breath (a heavy blow to your Vitality). If not: you walk out owing nothing.' + (s.light.scented ? ' She can smell a great deal.' : '') }, function (s2, ctx) {
+      o.push(O('bluff', 'Bluff: claim the Guild sent you to fetch it', { conceal: true, note: 'Risky. If she sees through you: dragon breath, Vitality −' + (has(s, 'shield') ? '3 (Odran\'s shield takes half)' : '6') + ', though you still leave with the Tongue. If she believes you: you leave owing nothing.' + (s.light.scented ? ' She can smell a great deal.' : '') }, function (s2, ctx) {
         if (s2.light.scented) {
           say(ctx, '"The Guild," she repeats, "sent a porter who smells of cheap fish to fetch a dragon\'s secret." Her breath rolls out — not at you, quite. Beside you.');
           var brink = breath(s2, ctx);
@@ -2329,7 +2410,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     var r = [], b = s.bonds;
     if (b.tuck.bond) r.push(b.tuck.returned ? 'You gave a stranger the size of your thumb a loaf of bread. In the dark, Tuck came back' + (F(s, 'tuckReturnedAt') === 'ledge' ? ' and warmed Mirelle on her ledge.' : '.') : 'You fed a kettlekin in the Guild Hall.');
     else r.push('You kept both loaves. No small glow came looking for you in the dark.');
-    r.push('You chose ' + (s.light.oilType === 'fish' ? 'fish-oil: bright and cheap. ' + (F(s, 'scentWokeHounds') ? 'Its smell woke the hounds' : 'Its brightness showed you more') + (F(s, 'brightOffended') ? ' and offended the Lanternless' : '') + (F(s, 'bluffFailed') ? ', and Vesperine smelled your bluff.' : '.') : 'clearwick: dim and quiet. ' + (F(s, 'hounds') && String(F(s, 'hounds')).indexOf('asleep') === 0 ? 'The hounds slept through you. ' : '') + (F(s, 'bluffed') ? 'Vesperine could not smell your lie.' : 'It ran short sooner, and the dark asked more of you.')));
+    r.push('You chose ' + (s.light.oilType === 'fish' ? 'Fish-oil (' + OIL.fish.props + '). ' + (F(s, 'scentWokeHounds') ? 'Its smell woke the hounds' : 'Its brightness showed you more') + (F(s, 'brightOffended') ? ' and offended the Lanternless' : '') + (F(s, 'bluffFailed') ? ', and Vesperine smelled your bluff.' : '.') : 'Clearwick (' + OIL.clearwick.props + '). ' + (F(s, 'hounds') && String(F(s, 'hounds')).indexOf('asleep') === 0 ? 'The hounds slept through you. ' : '') + (F(s, 'bluffed') ? 'Vesperine could not smell your lie.' : 'It ran short sooner, and the dark asked more of you.')));
     if (F(s, 'shieldAccepted')) r.push('You carried Odran\'s shield. It ' + (F(s, 'shieldSavedSkull') ? 'took a falling stone for you at the gate' : 'weighed on you') + (F(s, 'shieldScorched') ? ' and stood between you and dragon-fire' : '') + '; ' + (F(s, 'shieldReconciled') === 'returned' ? 'you gave it back.' : F(s, 'shieldReconciled') === 'kept' ? 'you kept it.' : 'it stayed in the Deeps.'));
     else r.push('You declined Odran\'s shield. ' + (b.odran.rescuedByYou ? 'You freed him anyway, and he noticed.' : 'He did not forget.'));
     var gb = F(s, 'galleryBy');
@@ -2367,7 +2448,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (has(s, 'moss')) a.push({ id: 'moss', label: 'Press healing moss to your own wounds', disabled: s.hero.vit >= s.hero.maxVit, reason: 'You are not hurt.' });
     if (withPreview !== false) a.forEach(function (x) {
       x.kind = 'equip';
-      if (!x.disabled) { var d = clone(s); applyItem(d, x.id, mkctx()); x.effects = effects(s, d, { preview: true }); }
+      if (!x.disabled) { var d = clone(s), dc = mkctx(); applyItem(d, x.id, dc); x.effects = previewChips(s, { s: d, ctx: dc }); }
       else x.effects = [];
     });
     return a;
@@ -2383,7 +2464,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (!avail) return { state: state, error: 'That action is not available now.' };
     var s = clone(state), ctx = mkctx();
     applyItem(s, id, ctx);
-    var chips = effects(state, s, {}).concat(ctx.chips.filter(function (c) { return c.tone === 'info'; }));
+    var chips = outcomeChips(state, s, ctx);
     s.last = { lines: ctx.lines, chips: chips, choice: avail.label, from: s.scene };
     s.history.push({ scene: s.scene, choice: 'use:' + id, label: avail.label });
     var inv = invariants(s); if (inv.length) throw new Error('Invariant broken: ' + inv.join('; '));
@@ -2400,7 +2481,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   function effects(a, b, opts) {
     opts = opts || {};
     var out = [];
-    function add(text, tone) { out.push({ text: text, tone: tone }); }
+    function add(text, tone, kind) { out.push({ text: text, tone: tone, kind: kind || 'material' }); }
     function signed(n) { return (n > 0 ? '+' : '−') + Math.abs(n); }
     var dl = b.light.remaining - a.light.remaining;
     if (a.light.max !== b.light.max && a.light.max === 0) add('Light ' + b.light.remaining + ' of ' + b.light.max, 'gain');
@@ -2441,8 +2522,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       if (k === 'mirelle') add('Mirelle off your frame', 'info');
       else if (left) { var w = b.leftBehind.filter(function (g) { return g.item === k; })[0].where; add(ITEMS[k].name + (w === 'Pebblechief\'s hoard' ? ' paid as a toll' : ' left at ' + w), 'cost'); }
       else if (ent) add(ITEMS[k].name + ' handed to Odran (back at the Guild)', 'info');
-      else if (k === 'shield' && b.flags.shieldReconciled === 'returned') add('Shield returned to Odran', 'info');
-      else if (k === 'stolenlamp' && b.flags.gaveBackStolenLamp) add('Stolen lamp given back', 'info');
+      else if (k === 'shield' && b.flags.shieldReconciled === 'returned') add(ITEMS[k].name + ' returned to him', 'info');
+      else if (k === 'stolenlamp' && b.flags.gaveBackStolenLamp) add(ITEMS[k].name + ' given back to Vesperine', 'info');
       else if (b.consumed[k] > (a.consumed[k] || 0)) { if (k !== 'bread') add(ITEMS[k].name + (ITEMS[k].uses ? ' worn out' : ' used up'), 'cost'); }
       else add('−' + ITEMS[k].name, 'cost');
     });
@@ -2461,7 +2542,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     var ta = a.tongue, tb = b.tongue;
     if (tb.holder === 'hero' && (ta.holder !== 'hero' || ta.location !== tb.location)) add('The Silent Tongue: ' + ({ pack: 'in your pack', hand: 'in your hand', 'guild-locker': 'in your Guild locker' }[tb.location] || tb.location), 'info');
     b.hero.conditions.forEach(function (c) { if (a.hero.conditions.indexOf(c) < 0 && c !== 'In darkness') add('Condition: ' + c, c === 'Hands full' ? 'info' : 'cost'); });
-    if (!opts.preview && b.bonds.tuck.returned && !a.bonds.tuck.returned) add('Tuck the kettlekin has found you', 'gain');
+    if (!opts.preview && b.bonds.tuck.returned && !a.bonds.tuck.returned) add('Tuck the kettlekin has found you', 'gain', 'discovery');
     return out;
   }
 
@@ -2471,6 +2552,14 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (UNITS[g.item] && g.qty) return ' (' + plural(g.qty, UNITS[g.item][0], UNITS[g.item][1]) + ')';
     if (g.uses && ITEMS[g.item].uses > 1) return ' (' + plural(g.uses, 'use', 'uses') + ')';
     return '';
+  }
+  /** Preview = every material effect + predictable non-spoiler notes. Story discoveries are never previewed. */
+  function previewChips(before, run) {
+    return effects(before, run.s, { preview: true }).concat(run.ctx.chips.filter(function (c) { return c.kind === 'known'; }));
+  }
+  /** Outcome = every material effect + every informational note (known and discovery), each tagged with its kind. */
+  function outcomeChips(before, after, ctx) {
+    return effects(before, after, {}).concat(ctx.chips.filter(function (c) { return c.kind === 'known' || c.kind === 'discovery'; }));
   }
   /* ================================================================ diffs (pack review) */
   function snapshotForDiff(s) {
@@ -2549,7 +2638,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         reason: o.disabled ? (o.reason || '') : '', pressed: o.pressed, conceal: !!o.conceal, effects: null };
       if (k === 'decide') { n += 1; out.n = n <= 9 ? n : null; }
       if (vopts.previews !== false && !o.disabled && !o.conceal) {
-        try { var r = apply(s, o, o.id); out.effects = effects(s, r.s, { preview: true }); }
+        try { var r = apply(s, o, o.id); out.effects = previewChips(s, r); }
         catch (e) { out.effects = null; }
       }
       return out;
@@ -2578,12 +2667,68 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (!o) return { state: state, error: 'That choice is not available here.' };
     if (o.disabled) return { state: state, error: o.reason || 'That choice is not available yet.' };
     var r = apply(state, o, optId), s = r.s, ctx = r.ctx;
-    s.history.push({ scene: r.from, choice: optId, label: o.label });
-    var chips = effects(state, s, {}).concat(ctx.chips.filter(function (c) { return c.tone === 'info'; }));
+    var hEntry = { scene: r.from, choice: optId, label: o.label };
+    if (r.from === 'pack_review' && optId === 'descend') {
+      // One truthful loadout record when the pack is shouldered (R1-F04). Packing toggles before this stay in the technical log only.
+      hEntry.loadout = s.gear.map(function (g) { return ITEMS[g.item].name + unitText(g); });
+      hEntry.load = loadOf(s);
+    }
+    s.history.push(hEntry);
+    var chips = outcomeChips(state, s, ctx);
     s.last = { lines: ctx.lines, chips: chips, choice: o.label, from: r.from };
     var inv = invariants(s);
     if (inv.length) throw new Error('Invariant broken after ' + r.from + '/' + optId + ': ' + inv.join('; '));
     return { state: s, ctx: { lines: ctx.lines, chips: chips } };
+  }
+
+  /** The ONE lamp description used by HUD and Keyring (R1-F05): oil properties from OIL[].props + separate dynamic state. */
+  function lampState(s) {
+    if (!s.light.oilType) return 'none';
+    if (s.light.remaining === 0) return tuckHere(s) ? 'out of light (Tuck glows)' : 'out of light';
+    var st = s.light.lit ? 'lit' : 'shuttered';
+    return s.light.remaining <= LOW_LIGHT ? 'low light, ' + st : st;
+  }
+  function lampText(s, compact) {
+    if (!s.light.oilType) return 'No oil yet';
+    var o = OIL[s.light.oilType];
+    return s.light.remaining + ' of ' + s.light.max + ' · ' + o.name + (compact ? '' : ' (' + o.props + ')') + ' · ' + lampState(s);
+  }
+
+  /**
+   * Visitor Chronicle classification (R1-F04). Derived from scene + choice id only,
+   * so it works identically for new saves and for R0/R1 saves (nothing is rewritten).
+   *   story  — consequential decisions and material events (counted)
+   *   use    — lasting use of an item from the satchel (shown, counted)
+   *   prep   — reversible packing toggles before departure (technical log only)
+   *   nav    — opening/closing a sub-screen, reviewing, puzzle manipulation (technical log only)
+   */
+  function historyKind(h) {
+    var sc = h.scene, c = String(h.choice || '');
+    if (c.indexOf('use:') === 0) return 'use';
+    if (sc === 'pack' && (c.indexOf('add:') === 0 || c.indexOf('remove:') === 0)) return 'prep';
+    if (sc === 'pack' && c === 'confirm') return 'nav';
+    if (sc === 'pack_review' && c === 'repack') return 'nav';
+    if (sc === 'portcullis' && c === 'puzzle') return 'nav';
+    if (sc === 'portcullis_puzzle' && (c.indexOf('w:') === 0 || c === 'back')) return 'nav';
+    if (c === 'setdown' || (sc === 'setdown' && c === 'done')) return 'nav';
+    if (sc === 'throat' && (c === 'pebbles' || c === 'bridge')) return 'nav';
+    if (sc === 'throat_bridge' && c === 'pebbles') return 'nav';
+    if (sc === 'throat_pebbles' && (c.indexOf('take:') === 0 || c === 'decline')) return 'nav';
+    if (sc === 'vesperine_gift' && c === 'continue') return 'nav';
+    return 'story';
+  }
+  function chronicleView(s) {
+    var shown = [], technical = 0, unnamed = 0;
+    s.history.forEach(function (h) {
+      var k = historyKind(h);
+      if (k === 'prep' || k === 'nav') { technical++; return; }
+      if (!h.label) { unnamed++; return; }
+      var title = S[h.scene] ? S[h.scene].title : 'Earlier';
+      var text = h.label;
+      if (h.loadout) text = 'Shouldered the pack: ' + (h.loadout.length ? h.loadout.join(', ') : 'nothing in it') + ' — Load ' + h.load;
+      shown.push({ title: title, text: text, kind: k });
+    });
+    return { entries: shown, technical: technical, unnamed: unnamed };
   }
 
   /** Player-facing "What carries forward" summary (F05). Plain text, no internal ids. */
@@ -2621,7 +2766,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     ending: ending, ledgerPreview: ledgerPreview, endingProse: endingProse, retrospective: retrospective, gainsAndCosts: gainsAndCosts,
     invariants: invariants, slotsUsed: slotsUsed, loadOf: loadOf, breadCount: breadCount,
     effects: effects, costLines: costLines, carryForward: carryForward, lightState: lightState, LOW_LIGHT: LOW_LIGHT, STEPS: STEPS,
-    hasScale: hasScale, possessesItem: possessesItem
+    hasScale: hasScale, possessesItem: possessesItem,
+    lampText: lampText, lampState: lampState, historyKind: historyKind, chronicleView: chronicleView, lightBurned: lightBurned
   };
 });
 </script>
@@ -2720,7 +2866,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 
   /* ------------------------------------------------------------ title screen */
   function renderStart() {
-    mode = null; state = null; lastLightState = null;
+    mode = null; state = null; lastLightState = null; resetAmbience(.75);
     show('start');
     ['epic', 'free'].forEach(function (m) {
       var st = $('st-' + m), act = clear($('act-' + m));
@@ -2787,7 +2933,10 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     return false;
   }
   function storageProblem(res) {
-    if (res && res.error) banner([res.error + ' '], [h('button', { type: 'button', class: 'btn', onclick: openBackups }, 'Open backups')]);
+    if (!res || res.ok) return;
+    var msg = res.code === 'storage' ? 'Your browser would not let the game save (storage may be full or blocked). Your progress is still in this tab; export a backup to keep it.'
+      : 'The game could not save this step. Your last good checkpoint is still saved.';
+    banner([msg + ' '], [h('button', { type: 'button', class: 'btn', onclick: openBackups }, 'Open backups')]);
   }
 
   window.addEventListener('storage', function (e) {
@@ -2829,11 +2978,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   }
 
   function lightText(m) {
-    if (!m.oil) return 'no oil yet';
-    var base = m.light + ' of ' + m.maxLight + ' · ' + (m.oil === 'fish' ? 'fish-oil (bright, scented)' : 'clearwick (dim, silent)');
-    if (m.lightState === 'out') return base + ' · OUT OF LIGHT' + (m.tuck ? ' (Tuck glows)' : '');
-    if (m.lightState === 'low') return base + ' · LOW LIGHT';
-    return base + (m.lit ? '' : ' · shuttered');
+    var t = G.lampText(state);
+    return m.lightState === 'out' ? t.replace('out of light', 'OUT OF LIGHT') : m.lightState === 'low' ? t.replace('low light', 'LOW LIGHT') : t;
   }
   function renderHud(m) {
     var vit = $('m-vit'), lt = $('m-light'), pk = $('m-pack');
@@ -2882,7 +3028,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     var scrollY = window.scrollY;
     var v = G.view(state);
     renderHud(v.meters);
-    $('scene-art').innerHTML = art(v.art, v.meters);
+    var amb = ambience(v.meters);
+    $('scene-art').innerHTML = art(v.art, amb);
     var beatTxt = v.beat ? 'Beat ' + v.beat + ' of 12 · ' + v.beatName + (v.step ? ' · Step ' + v.step.n + ' of ' + v.step.of + ': ' + v.step.name : '') : 'Your pack';
     $('scene-beat').textContent = beatTxt;
     $('scene-title').textContent = v.title;
@@ -2892,7 +3039,9 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (last && (last.lines.length || last.chips.length)) {
       out.appendChild(h('p', { class: 'you-chose', text: 'You chose: ' + last.choice }));
       last.lines.forEach(function (l) { out.appendChild(h('p', { text: l })); });
-      if (last.chips.length) out.appendChild(chipList(last.chips, 'What changed'));
+      var mat = last.chips.filter(function (c) { return c.kind !== 'discovery'; }), disc = last.chips.filter(function (c) { return c.kind === 'discovery'; });
+      if (mat.length) out.appendChild(chipList(mat, 'What changed'));
+      if (disc.length) out.appendChild(h('div', { class: 'discoveries' }, h('span', { class: 'disc-label', text: 'Discovered: ' }), chipList(disc.map(function (c) { return { text: c.text, tone: 'disc' }; }), 'Discovered')));
       out.hidden = false;
     } else out.hidden = true;
 
@@ -2920,7 +3069,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     if (v.kind === 'pack' && equip.length) ch.appendChild(equipSection(equip, 'Equipment / Pack', 'Add or remove items. Nothing is final until you shoulder the pack.'));
     if (decide.length) {
       var sec = h('section', { class: 'choice-section', 'aria-labelledby': 'dec-h' }, h('h3', { class: 'group-h', id: 'dec-h', text: 'Choose your next action' }),
-        h('p', { class: 'group-sub', text: 'Press a number key or choose a button. Each shows what it will cost before you commit.' }));
+        h('p', { class: 'group-sub', text: 'Press a number key or choose a button. Costs and known effects are shown before you act. Story discoveries and unexpected events may appear afterward.' }));
       var groups = [], byName = {};
       decide.forEach(function (o) { var g = o.group || ''; if (!byName[g]) { byName[g] = []; groups.push(g); } byName[g].push(o); });
       groups.forEach(function (g) {
@@ -2946,6 +3095,19 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     }
     lastLightState = v.lightState;
   }
+  /** R3: environmental light follows the lantern, Tuck and the Blue-Flame Lamp only (visible state, never hidden outcomes). */
+  function ambience(m) {
+    var r = document.documentElement;
+    var blue = !!(state && state.gear.some(function (g) { return g.item === 'bluelamp' || g.item === 'stolenlamp'; }));
+    var ratio = m.maxLight ? m.light / m.maxLight : .7;
+    r.style.setProperty('--lamp', (m.oil && m.light === 0 ? 0 : Math.max(.15, ratio)).toFixed(2));
+    r.setAttribute('data-lamp', !m.oil ? 'unlit' : m.light === 0 ? (m.tuck ? 'tuck' : 'out') : m.lightState === 'low' ? 'low' : 'lit');
+    if (blue) r.setAttribute('data-blue', '1'); else r.removeAttribute('data-blue');
+    var o = {}; for (var k in m) o[k] = m[k]; o.blue = blue; return o;
+  }
+  function resetAmbience(level) {
+    var r = document.documentElement; r.style.setProperty('--lamp', String(level)); r.removeAttribute('data-lamp'); r.removeAttribute('data-blue');
+  }
   function cssEsc(s) { return String(s).replace(/["\\]/g, '\\$&'); }
   function equipSection(items, title, sub) {
     return h('section', { class: 'choice-section equip-section', 'aria-label': title },
@@ -2960,7 +3122,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     state.gear.forEach(function (g) {
       var it = G.ITEMS[g.item];
       var label = it.name + (g.qty ? ' ×' + g.qty : g.uses && it.uses > 1 ? ' (' + g.uses + ' uses)' : '');
-      ul.appendChild(h('li', { class: 'pack-slot filled' + (it.slots > 1 ? ' wide' : '') + (it.kind === 'person' ? ' person' : ''), text: label }));
+      ul.appendChild(h('li', { class: 'pack-slot filled' + (it.slots > 1 ? ' wide' : '') + (it.kind === 'person' ? ' person' : '') + (g.item === 'bluelamp' || g.item === 'stolenlamp' ? ' blue-flame' : ''), text: label }));
       used += it.slots;
     });
     for (var i = used; i < 6; i++) ul.appendChild(h('li', { class: 'pack-slot', text: 'empty' }));
@@ -2991,6 +3153,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   /* ------------------------------------------------------------ ending */
   function renderEnding() {
     var s = state, root = clear($('screen-ending'));
+    resetAmbience(.85);
     var e = s.ending, isEpic = mode === 'epic';
     var artBox = h('div', { class: 'scene-art', 'aria-hidden': 'true' }); artBox.innerHTML = art('ending', { light: 6, maxLight: 8 });
     root.appendChild(artBox);
@@ -3053,7 +3216,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       h('button', { type: 'button', class: 'btn btn-primary', id: 'btn-export-end', onclick: function () {
         var name = 'porters-lantern-' + mode + '-ch001.json';
         var ok = download(stores[mode].exportBackup(state), name);
-        exportMsg.textContent = ok ? 'Exported: ' + name + ' should now be in your downloads. Nothing in your game changed.' : 'Your browser blocked the download. Use Menu → Backups → "Show backup text" to copy it instead.';
+        exportMsg.textContent = ok ? 'Exported. Your browser should save it as ' + name + ' (it may rename the file if a copy already exists). Nothing in your game changed.' : 'Your browser blocked the download. Use Menu → Backups → "Show backup text" to copy it instead.';
         exportMsg.className = 'export-msg ' + (ok ? 'ok' : 'err');
       } }, isEpic ? 'Export Keyring backup (.json)' : 'Export sandbox Keyring (.json)'),
       h('button', { type: 'button', class: 'btn', onclick: renderStart }, 'Back to title')));
@@ -3078,7 +3241,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         ['Background', s.hero.background ? G.BG[s.hero.background].name + ' — ' + G.BG[s.hero.background].desc : 'Not chosen yet'],
         ['Vitality', s.hero.vit + ' of ' + s.hero.maxVit],
         ['Conditions', s.hero.conditions.length ? s.hero.conditions.join(', ') : 'None'],
-        ['Light', s.light.oilType ? s.light.remaining + ' of ' + s.light.max + ' (' + G.OIL[s.light.oilType].name + (s.light.scented ? ', scented' : ', scentless') + (s.light.lit ? ', lit' : ', not lit') + ')' + (s.light.remaining === 0 ? ' · out of light' : s.light.remaining <= G.LOW_LIGHT ? ' · low light' : '') : 'No oil yet'],
+        ['Light', G.lampText(s)],
+        s.light.oilType ? ['Lamp oil burned', G.lightBurned(s) + ' measure' + (G.lightBurned(s) === 1 ? '' : 's')] : null,
         s.hero.background === 'forest' ? ['Sense in Darkness', s.hero.senseCharge ? '1 use left' : 'Used'] : null,
         ['Times at the brink', s.hero.brinks]
       ]));
@@ -3090,6 +3254,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         return h('li', null, it.name + (g.qty ? ' ×' + g.qty : '') + (g.uses ? ', ' + g.uses + ' use' + (g.uses > 1 ? 's' : '') + ' left' : '') + ' · ' + it.slots + ' slot' + (it.slots > 1 ? 's' : '') + ', Load ' + it.load,
           it.kind === 'loan' ? h('span', { class: 'tag loan', text: 'loaned by Odran' + (g.scorched ? ', scorched' : '') }) : null,
           it.kind === 'hot' ? h('span', { class: 'tag hot', text: 'stolen' }) : null,
+          (g.item === 'bluelamp' || g.item === 'stolenlamp') ? h('span', { class: 'tag blue-flame', text: 'burns blue' }) : null,
           it.kind === 'story' ? h('span', { class: 'tag', text: 'in your custody' }) : null);
       }), 'Nothing on your frame.'));
       if (s.tongue.location === 'hand') frag.appendChild(h('p', { text: 'In your hand: The Silent Tongue (carried by hand until the Guild).' }));
@@ -3098,7 +3263,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
       frag.appendChild(h('h4', { text: 'Left behind or paid away' }));
       frag.appendChild(listOr(s.leftBehind.map(function (g) { return h('li', { text: I[g.item].name + (g.where === 'Pebblechief\'s hoard' ? ' — paid to Pebblechief' : ' — at ' + g.where) }); }), 'Nothing lost.'));
       var used = Object.keys(s.consumed).map(function (k) { return h('li', { text: (k === 'bread' ? 'Bread' : I[k].name) + ' — ' + s.consumed[k] + ' used' }); });
-      frag.appendChild(h('h4', { text: 'Used up' })); frag.appendChild(listOr(used, 'Nothing used yet.'));
+      frag.appendChild(h('h4', { text: 'Pack items used up' })); frag.appendChild(listOr(used, s.status === 'complete' ? 'No pack items were used up.' : 'No pack items used up yet.'));
+      if (s.light.oilType) frag.appendChild(h('p', { class: 'small', text: 'Lamp oil is tracked separately: ' + G.lightBurned(s) + ' measure' + (G.lightBurned(s) === 1 ? '' : 's') + ' burned ' + (s.status === 'complete' ? 'in this chapter.' : 'so far.') }));
       frag.appendChild(h('p', { class: 'small', text: 'Always on you, no slot: basic lantern, coin purse, belt loaves, small keepsakes.' }));
     } else if (id === 'satchel') {
       frag.appendChild(dl([
@@ -3147,10 +3313,13 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
         return h('li', { text: 'Door #001 — "' + c.endingTitle + '" — ' + (s.mode === 'epic' ? 'recorded on your Epic Journey.' : 'saved in this sandbox only.') });
       }), 'Door #001 in progress.'));
       frag.appendChild(h('p', { text: 'Door #002 · One Stormy Night at the Tipped Kettle: not yet open.' }));
-      var labelled = s.history.filter(function (x) { return x.label; });
-      if (labelled.length) frag.appendChild(h('details', null, h('summary', { text: 'Your choices so far (' + labelled.length + ')' }),
-        h('ol', { class: 'kr-list' }, labelled.map(function (x) { return h('li', { text: (G.SCENES[x.scene] ? G.SCENES[x.scene].title : 'Earlier') + ': ' + x.label }); }))));
-      if (labelled.length < s.history.length) frag.appendChild(h('p', { class: 'small', text: (s.history.length - labelled.length) + ' earlier choices were made before choice names were recorded.' }));
+      var cv = G.chronicleView(s);
+      if (cv.entries.length) frag.appendChild(h('details', null, h('summary', { text: 'Your story choices so far (' + cv.entries.length + ')' }),
+        h('ol', { class: 'kr-list' }, cv.entries.map(function (x) { return h('li', { text: x.title + ': ' + x.text }); }))));
+      var notes = [];
+      if (cv.unnamed) notes.push(cv.unnamed + ' earlier ' + (cv.unnamed === 1 ? 'choice was' : 'choices were') + ' recorded before choice names were kept, so ' + (cv.unnamed === 1 ? 'it is' : 'they are') + ' not listed by name.');
+      if (cv.technical) notes.push('Packing changes before departure, reviews and puzzle steps are kept in your save but not listed as story choices (' + cv.technical + ').');
+      notes.forEach(function (n) { frag.appendChild(h('p', { class: 'small', text: n })); });
     }
     return frag;
   }
@@ -3179,12 +3348,14 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   /* ------------------------------------------------------------ dialogs */
   Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (b) { b.addEventListener('click', function () { b.closest('dialog').close(); }); });
   var confirmCb = null;
-  function confirmBox(title, text, yesLabel, cb) {
+  var cancelCb = null;
+  function confirmBox(title, text, yesLabel, cb, noLabel, onCancel) {
     $('cf-title').textContent = title; $('cf-text').textContent = text; $('cf-yes').textContent = yesLabel || 'Yes';
-    confirmCb = cb; $('dlg-confirm').showModal(); $('cf-no').focus();
+    $('cf-no').textContent = noLabel || 'Keep playing';
+    confirmCb = cb; cancelCb = onCancel || null; $('dlg-confirm').showModal(); $('cf-no').focus();
   }
-  $('cf-no').addEventListener('click', function () { $('dlg-confirm').close(); confirmCb = null; });
-  $('cf-yes').addEventListener('click', function () { $('dlg-confirm').close(); var c = confirmCb; confirmCb = null; if (c) c(); });
+  $('cf-no').addEventListener('click', function () { $('dlg-confirm').close(); confirmCb = null; var c = cancelCb; cancelCb = null; if (c) c(); });
+  $('cf-yes').addEventListener('click', function () { $('dlg-confirm').close(); cancelCb = null; var c = confirmCb; confirmCb = null; if (c) c(); });
 
   $('btn-keyring').addEventListener('click', openKeyring);
   $('btn-settings').addEventListener('click', function () { applyPrefs(); $('dlg-settings').showModal(); });
@@ -3219,7 +3390,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
     var m = bkMode(), snap = bkSnap(m);
     if (!snap) return bkMsg('There is no ' + (m === 'epic' ? 'Epic Journey' : 'Free Exploration') + ' save to export yet.', 'err');
     var ok = download(stores[m].exportBackup(snap), 'porters-lantern-' + m + '-backup.json');
-    bkMsg(ok ? 'Backup downloaded. Nothing in your game changed.' : 'Your browser blocked the download. Use "Show backup text" and copy it instead.', ok ? 'ok' : 'err');
+    bkMsg(ok ? 'Backup exported (your browser may rename the file if a copy already exists). Nothing in your game changed.' : 'Your browser blocked the download. Use "Show backup text" and copy it instead.', ok ? 'ok' : 'err');
   });
   $('bk-show').addEventListener('click', function () {
     var m = bkMode(), snap = bkSnap(m);
@@ -3229,7 +3400,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   });
   $('bk-file').addEventListener('change', function (e) {
     var f = e.target.files && e.target.files[0]; if (!f) return;
-    if (f.size > 256 * 1024) return bkMsg('That file is too large to be a Keyring backup.', 'err');
+    if (f.size > 256 * 1024) return bkMsg(K.backupMessage({ ok: false, code: 'too-large' }), 'err');
     var rd = new FileReader();
     rd.onload = function () { $('bk-text').value = String(rd.result || ''); bkMsg('File loaded. Choose "Check and restore" to continue.', ''); };
     rd.onerror = function () { bkMsg('Could not read that file.', 'err'); };
@@ -3238,13 +3409,13 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   $('bk-import').addEventListener('click', function () {
     var m = bkMode(), txt = $('bk-text').value;
     var p = stores[m].parseBackup(txt);
-    if (!p.ok) return bkMsg('Not restored. ' + p.error + ' Your current save was not touched.', 'err');
+    if (!p.ok) return bkMsg(K.backupMessage(p), p.code === 'empty' ? '' : 'err');
     var cur = stores[m].load().snapshot;
     confirmBox('Restore this backup?', 'It will replace your current ' + (m === 'epic' ? 'Epic Journey' : 'Free Exploration') + ' save' + (cur ? ' (which moves to the one-step fallback slot)' : '') + '. Backup: ' + (p.snapshot.status === 'complete' ? 'finished chapter, "' + p.snapshot.ending.title + '"' : 'in progress at ' + G.SCENES[p.snapshot.scene].title) + '.', 'Restore', function () {
       var r = stores[m].importBackup(txt);
-      if (!r.ok) { $('dlg-backup').showModal(); return bkMsg('Not restored. ' + (r.error || 'Storage refused the write.'), 'err'); }
+      if (!r.ok) { $('dlg-backup').showModal(); return bkMsg(K.backupMessage(r.code ? r : { ok: false, code: 'storage' }), 'err'); }
       $('dlg-backup').close(); banner(null); resume(m, r.snapshot); announce('Backup restored.');
-    });
+    }, 'Cancel', function () { $('dlg-backup').showModal(); bkMsg('Restore cancelled. Nothing changed.', ''); });
   });
   function download(text, name) {
     try {
@@ -3271,35 +3442,44 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
   function art(key, m) {
     var light = m && m.maxLight ? m.light / m.maxLight : 0.6;
     var glowR = Math.round(40 + 120 * light);
-    var defs = '<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16295a"/><stop offset="1" stop-color="#070f22"/></linearGradient>' +
+    var defs = '<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1913"/><stop offset="1" stop-color="#050403"/></linearGradient>' +
       '<radialGradient id="glow"><stop offset="0" stop-color="#f5c76a" stop-opacity=".55"/><stop offset=".5" stop-color="#e09a3a" stop-opacity=".15"/><stop offset="1" stop-color="#f5c76a" stop-opacity="0"/></radialGradient>' +
-      '<radialGradient id="blue"><stop offset="0" stop-color="#8fd3ff" stop-opacity=".8"/><stop offset="1" stop-color="#3a7bd5" stop-opacity="0"/></radialGradient></defs>';
+      '<radialGradient id="blue"><stop offset="0" stop-color="#8fd3ff" stop-opacity=".8"/><stop offset="1" stop-color="#3a7bd5" stop-opacity="0"/></radialGradient>' +
+      '<radialGradient id="ember"><stop offset="0" stop-color="#ff9a3c" stop-opacity=".7"/><stop offset=".5" stop-color="#c8501c" stop-opacity=".18"/><stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/></radialGradient></defs>';
     var g = GOLD, body = '';
     switch (key) {
       case 'hall': body = '<g fill="none" stroke="' + g + '" stroke-opacity=".5" stroke-width="2"><path d="M60 120V50a20 20 0 0 1 40 0v70M180 120V40a20 20 0 0 1 40 0v80M300 120V50a20 20 0 0 1 40 0v70"/></g><rect x="40" y="128" width="320" height="8" fill="#3a2a14"/><rect x="250" y="96" width="60" height="32" fill="#2a1a0c"/><path d="M265 126c5-14 10-18 15-26 5 8 10 12 15 26z" fill="#f0a04b"/><circle cx="280" cy="112" r="34" fill="url(#glow)"/>'; break;
       case 'kettlekin': body = '<rect x="120" y="70" width="160" height="80" rx="6" fill="#2a1a0c"/><path d="M150 148c15-40 35-50 50-70 15 20 35 30 50 70z" fill="#e0782c"/><circle cx="200" cy="110" r="60" fill="url(#glow)"/><g transform="translate(232 54)"><circle r="12" fill="#3a2414"/><circle cx="-4" cy="-2" r="2.4" fill="#ffb347"/><circle cx="4" cy="-2" r="2.4" fill="#ffb347"/><path d="M-10-8l-4-8 8 5M10-8l4-8-8 5" fill="#3a2414"/></g><ellipse cx="160" cy="56" rx="20" ry="11" fill="#c89a5a"/>'; break;
-      case 'oil': body = '<g><path d="M150 140v-50l10-20h20l10 20v50z" fill="#c9a24a" opacity=".85"/><path d="M220 140v-56l8-16h16l8 16v56z" fill="#cfe3ff" opacity=".35" stroke="#cfe3ff"/></g><circle cx="170" cy="105" r="50" fill="url(#glow)"/>'; break;
-      case 'pack': body = '<rect x="150" y="30" width="100" height="120" rx="10" fill="none" stroke="' + g + '" stroke-width="3"/>' + [0, 1, 2, 3, 4, 5].map(function (i) { return '<rect x="' + (160 + (i % 2) * 42) + '" y="' + (40 + Math.floor(i / 2) * 36) + '" width="36" height="30" rx="4" fill="#1e3263" stroke="' + g + '" stroke-opacity=".5"/>'; }).join(''); break;
-      case 'collapse': body = '<path d="M0 160 40 120 90 140 130 100 180 130 230 90 280 130 330 110 400 150V160z" fill="#2a2f45"/><rect x="120" y="96" width="170" height="14" fill="#5a3a1a" transform="rotate(-12 200 100)"/><g fill="#8a8fa8" opacity=".6"><circle cx="80" cy="60" r="3"/><circle cx="210" cy="40" r="2"/><circle cx="300" cy="70" r="3"/></g>'; break;
-      case 'portcullis': body = '<g stroke="#8a8fa8" stroke-width="5">' + [140, 170, 200, 230, 260].map(function (x) { return '<line x1="' + x + '" y1="20" x2="' + x + '" y2="150"/>'; }).join('') + '<line x1="130" y1="60" x2="270" y2="60"/><line x1="130" y1="110" x2="270" y2="110"/></g><line x1="320" y1="20" x2="320" y2="90" stroke="' + g + '" stroke-width="2"/><path d="M296 90h48l-6 12h-36z" fill="' + g + '"/>'; break;
+      case 'oil': body = '<g><path d="M150 140v-50l10-20h20l10 20v50z" fill="#c9a24a" opacity=".85"/><path d="M220 140v-56l8-16h16l8 16v56z" fill="#e8e2d2" opacity=".35" stroke="#e8e2d2"/></g><circle cx="170" cy="105" r="50" fill="url(#glow)"/>'; break;
+      case 'pack': body = '<rect x="150" y="30" width="100" height="120" rx="10" fill="none" stroke="' + g + '" stroke-width="3"/>' + [0, 1, 2, 3, 4, 5].map(function (i) { return '<rect x="' + (160 + (i % 2) * 42) + '" y="' + (40 + Math.floor(i / 2) * 36) + '" width="36" height="30" rx="4" fill="#2a241b" stroke="' + g + '" stroke-opacity=".5"/>'; }).join(''); break;
+      case 'collapse': body = '<path d="M0 160 40 120 90 140 130 100 180 130 230 90 280 130 330 110 400 150V160z" fill="#2b2721"/><rect x="120" y="96" width="170" height="14" fill="#5a3a1a" transform="rotate(-12 200 100)"/><g fill="#8a8274" opacity=".6"><circle cx="80" cy="60" r="3"/><circle cx="210" cy="40" r="2"/><circle cx="300" cy="70" r="3"/></g>'; break;
+      case 'portcullis': body = '<g stroke="#8a8274" stroke-width="5">' + [140, 170, 200, 230, 260].map(function (x) { return '<line x1="' + x + '" y1="20" x2="' + x + '" y2="150"/>'; }).join('') + '<line x1="130" y1="60" x2="270" y2="60"/><line x1="130" y1="110" x2="270" y2="110"/></g><line x1="320" y1="20" x2="320" y2="90" stroke="' + g + '" stroke-width="2"/><path d="M296 90h48l-6 12h-36z" fill="' + g + '"/>'; break;
       case 'gallery': body = Array.from({ length: 5 }).map(function (_, r) { return Array.from({ length: 8 }).map(function (_, c) { return '<ellipse cx="' + (40 + c * 46 + (r % 2) * 23) + '" cy="' + (80 + r * 18) + '" rx="20" ry="8" fill="#9a7a3a" opacity="' + (0.3 + r * 0.12) + '" stroke="#d9b45a" stroke-opacity=".4"/>'; }).join(''); }).join(''); break;
-      case 'junction': body = '<path d="M60 160 140 40h40L120 160z" fill="#1d2a4a"/><path d="M240 160 280 100h60L360 160z" fill="#0a0f1e"/><text x="130" y="30" fill="#b9c4dc" font-size="12" font-family="serif">up</text><text x="290" y="92" fill="#b9c4dc" font-size="12" font-family="serif">down</text>'; break;
-      case 'hounds': body = '<g fill="#5a5f70"><path d="M60 130c10-30 40-34 70-30l20-14 6 12c10 4 12 18 0 26l-20 6H70z"/><path d="M220 136c10-30 40-34 70-30l20-14 6 12c10 4 12 18 0 26l-20 6H230z"/></g><g fill="#ffcf6a"><circle cx="150" cy="98" r="2"/><circle cx="310" cy="104" r="2"/></g>'; break;
-      case 'hushhold': body = '<rect width="400" height="160" fill="#03060e"/><g fill="#dfe6f5" opacity=".8"><circle cx="110" cy="70" r="2.5"/><circle cx="118" cy="70" r="2.5"/><circle cx="270" cy="60" r="2.5"/><circle cx="278" cy="60" r="2.5"/><circle cx="330" cy="90" r="2"/><circle cx="337" cy="90" r="2"/></g>'; break;
-      case 'ledge': body = '<rect x="0" y="120" width="400" height="40" fill="#050b18"/><path d="M0 120c40-4 80 4 120 0s80 4 120 0 80 4 160 0" stroke="#3a6aa8" stroke-opacity=".5" fill="none"/><path d="M180 120h160l-20-30H200z" fill="#2a3150"/><ellipse cx="260" cy="88" rx="30" ry="8" fill="#6a4a8a"/>'; break;
-      case 'throat': case 'bridge': body = '<path d="M0 60h120v100H0zM280 60h120v100H280z" fill="#1d2a4a"/><path d="M120 62q80 40 160 0" stroke="#c9a24a" stroke-width="2" fill="none"/><path d="M120 74q80 40 160 0" stroke="#c9a24a" stroke-width="2" fill="none" stroke-dasharray="10 8"/><g fill="#9aa0b0">' + [30, 44, 58, 72].map(function (x) { return '<circle cx="' + x + '" cy="54" r="3"/>'; }).join('') + '</g>'; break;
-      case 'lights': body = Array.from({ length: 22 }).map(function (_, i) { var x = 20 + (i * 53) % 370, y = 30 + (i * 37) % 110; return '<rect x="' + x + '" y="' + y + '" width="10" height="14" rx="2" fill="none" stroke="#8a8fa8" stroke-opacity=".7"/>'; }).join('') + '<circle cx="200" cy="100" r="40" fill="url(#blue)"/><rect x="194" y="92" width="12" height="16" rx="2" fill="#8fd3ff"/>'; break;
+      case 'junction': body = '<path d="M60 160 140 40h40L120 160z" fill="#26221c"/><path d="M240 160 280 100h60L360 160z" fill="#090806"/><text x="130" y="30" fill="#bdb29d" font-size="12" font-family="serif">up</text><text x="290" y="92" fill="#bdb29d" font-size="12" font-family="serif">down</text>'; break;
+      case 'hounds': body = '<g fill="#5e5850"><path d="M60 130c10-30 40-34 70-30l20-14 6 12c10 4 12 18 0 26l-20 6H70z"/><path d="M220 136c10-30 40-34 70-30l20-14 6 12c10 4 12 18 0 26l-20 6H230z"/></g><g fill="#ffcf6a"><circle cx="150" cy="98" r="2"/><circle cx="310" cy="104" r="2"/></g>'; break;
+      case 'hushhold': body = '<rect width="400" height="160" fill="#030202"/><g fill="#ece4d0" opacity=".8"><circle cx="110" cy="70" r="2.5"/><circle cx="118" cy="70" r="2.5"/><circle cx="270" cy="60" r="2.5"/><circle cx="278" cy="60" r="2.5"/><circle cx="330" cy="90" r="2"/><circle cx="337" cy="90" r="2"/></g>'; break;
+      case 'ledge': body = '<rect x="0" y="120" width="400" height="40" fill="#060505"/><path d="M0 120c40-4 80 4 120 0s80 4 120 0 80 4 160 0" stroke="#8a8274" stroke-opacity=".5" fill="none"/><path d="M180 120h160l-20-30H200z" fill="#2e2a23"/><ellipse cx="260" cy="88" rx="30" ry="8" fill="#6a4a8a"/>'; break;
+      case 'throat': case 'bridge': body = '<path d="M0 60h120v100H0zM280 60h120v100H280z" fill="#26221c"/><path d="M120 62q80 40 160 0" stroke="#c9a24a" stroke-width="2" fill="none"/><path d="M120 74q80 40 160 0" stroke="#c9a24a" stroke-width="2" fill="none" stroke-dasharray="10 8"/><g fill="#9a9384">' + [30, 44, 58, 72].map(function (x) { return '<circle cx="' + x + '" cy="54" r="3"/>'; }).join('') + '</g>'; break;
+      case 'lights': body = Array.from({ length: 22 }).map(function (_, i) { var x = 20 + (i * 53) % 370, y = 30 + (i * 37) % 110; return '<rect x="' + x + '" y="' + y + '" width="10" height="14" rx="2" fill="none" stroke="#8a8274" stroke-opacity=".7"/>'; }).join('') + '<circle cx="200" cy="100" r="40" fill="url(#blue)"/><rect x="194" y="92" width="12" height="16" rx="2" fill="#8fd3ff"/>'; break;
       case 'dragon': body = '<path d="M-20 160C60 60 200 40 420 90V160z" fill="#3a1a14"/><path d="M-20 160C80 80 220 70 420 110" stroke="#c0592c" stroke-opacity=".5" fill="none" stroke-width="3"/><ellipse cx="290" cy="80" rx="26" ry="12" fill="#f0a04b"/><ellipse cx="290" cy="80" rx="4" ry="11" fill="#1a0a06"/><circle cx="290" cy="80" r="60" fill="url(#glow)"/>'; break;
-      case 'tongue': body = '<circle cx="200" cy="80" r="70" fill="url(#glow)" opacity=".5"/><path d="M196 30h8v80l10 14a14 14 0 0 1-28 0l10-14z" fill="#2a2e3a" stroke="#8a8fa8"/><path d="M160 70q-10 10 0 20M150 62q-18 18 0 36M240 70q10 10 0 20M250 62q18 18 0 36" stroke="#b8d4ff" stroke-opacity=".5" fill="none"/>'; break;
-      case 'wayout': body = '<path d="M170 0h60l20 160H150z" fill="#0a1226"/><rect x="180" y="0" width="40" height="30" fill="#8fa6c8" opacity=".6"/><path d="M200 30 180 160" stroke="#c9a24a" stroke-dasharray="4 6"/>'; break;
+      case 'tongue': body = '<circle cx="200" cy="80" r="70" fill="url(#glow)" opacity=".5"/><path d="M196 30h8v80l10 14a14 14 0 0 1-28 0l10-14z" fill="#24221f" stroke="#8a8274"/><path d="M160 70q-10 10 0 20M150 62q-18 18 0 36M240 70q10 10 0 20M250 62q18 18 0 36" stroke="#e9d9a8" stroke-opacity=".5" fill="none"/>'; break;
+      case 'wayout': body = '<path d="M170 0h60l20 160H150z" fill="#0a0907"/><rect x="180" y="0" width="40" height="30" fill="#a69c88" opacity=".6"/><path d="M200 30 180 160" stroke="#c9a24a" stroke-dasharray="4 6"/>'; break;
       case 'ledger': body = '<rect x="110" y="40" width="180" height="100" rx="4" fill="#efe6cf"/><line x1="200" y1="40" x2="200" y2="140" stroke="#b59e6a"/>' + [56, 70, 84, 98, 112].map(function (y) { return '<line x1="122" y1="' + y + '" x2="188" y2="' + y + '" stroke="#8a7a5a"/><line x1="212" y1="' + y + '" x2="278" y2="' + y + '" stroke="#8a7a5a"/>'; }).join(''); break;
-      case 'ending': body = '<path d="M170 150V60a30 30 0 0 1 60 0v90z" fill="#1c3566" stroke="' + g + '" stroke-width="3"/><path d="M180 150V64a20 20 0 0 1 40 0v86" fill="#f5c76a" opacity=".25"/><circle cx="200" cy="100" r="80" fill="url(#glow)"/>'; break;
+      case 'ending': body = '<path d="M170 150V60a30 30 0 0 1 60 0v90z" fill="#1a1510" stroke="' + g + '" stroke-width="3"/><path d="M180 150V64a20 20 0 0 1 40 0v86" fill="#f5c76a" opacity=".25"/><circle cx="200" cy="100" r="80" fill="url(#glow)"/>'; break;
       default: body = '';
     }
-    var lantern = (key === 'hushhold' || key === 'ending' || key === 'ledger') ? '' : '<circle cx="40" cy="140" r="' + glowR + '" fill="url(#glow)"/>';
+    // R3 environmental illumination, driven only by visible state (Light, Tuck present, Blue-Flame Lamp carried).
+    var out = m && m.oil && m.light === 0;
+    var noLantern = key === 'hushhold' || key === 'ending' || key === 'ledger' || key === 'pack';
+    var veil = (!m || !m.oil || noLantern) ? 0 : out ? (m.tuck ? .5 : .62) : Math.max(0, .34 * (1 - light));
+    var lantern = noLantern || out ? '' : '<circle cx="40" cy="140" r="' + glowR + '" fill="url(#glow)"/>';
+    var extra = veil ? '<rect width="400" height="160" fill="#000" opacity="' + veil.toFixed(2) + '"/>' : '';
+    if (m && m.tuck && out && !noLantern) extra += '<circle cx="54" cy="132" r="58" fill="url(#ember)"/><circle cx="54" cy="132" r="3" fill="#ffcf6a"/>';
+    if (m && m.blue && !noLantern) extra += '<circle cx="372" cy="140" r="46" fill="url(#blue)" opacity=".55"/>';
+    lantern = extra + lantern;
     return '<svg viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" focusable="false"><rect width="400" height="160" fill="url(#bg)"/>' + defs + body + lantern + '</svg>';
   }
-  var GOLD = '#d9b45a';
+  var GOLD = '#d8a94a';
 
 
   /* ------------------------------------------------------------ boot */
