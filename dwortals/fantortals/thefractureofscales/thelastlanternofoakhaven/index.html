@@ -1,0 +1,2202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080808">
+<meta name="description" content="The Last Lantern of Oakhaven: Fantortals, The Fracture of Scales, Door #001. A browser RPG chapter. Original concept by Gemini; implementation by Claude. DoorQuests, created by The Axiom Continuum.">
+<meta name="doorquests-build" content="1.0.0-r2">
+<title>The Last Lantern of Oakhaven · The Fracture of Scales #001 · DoorQuests</title>
+<style>
+:root{
+  --obsidian:#080808;--shadow:#151412;--charcoal:#24211d;--raised:#2f2b25;--border:#3d372e;
+  --amber:#d8a94a;--amber-bright:#f0c770;--parchment:#efe6d2;--parchment-muted:#c1bdb5;--ink:#120f0a;
+  --danger:#e07a5f;--heal:#8fc79a;--info:#9cc5e8;--risk:#e9a25a;--blocked:#77716a;
+  --serif:Georgia,"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html{font-size:100%;-webkit-text-size-adjust:100%}
+html.ts-large{font-size:115%}
+html.ts-largest{font-size:132%}
+body{margin:0;background:var(--obsidian);color:var(--parchment);font-family:var(--sans);line-height:1.55;overflow-x:hidden}
+a{color:var(--amber-bright)}
+a:hover{color:var(--parchment)}
+:focus-visible{outline:3px solid var(--amber-bright);outline-offset:2px}
+.skip{position:absolute;left:-999px;top:0;background:var(--amber);color:var(--ink);padding:.5rem 1rem;z-index:50}
+.skip:focus{left:.5rem;top:.5rem}
+.wrap{max-width:860px;margin:0 auto;padding:0 .85rem}
+header.top{border-bottom:1px solid var(--border);background:linear-gradient(180deg,#110f0c,var(--obsidian))}
+header.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;padding-top:.6rem;padding-bottom:.6rem}
+.series{flex:1 1 100%;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--parchment-muted);margin:0}
+.series a{color:var(--parchment-muted);text-decoration:none}
+.series a:hover,.series a:focus-visible{color:var(--amber-bright);text-decoration:underline}
+h1.title{flex:1 1 auto;font-family:var(--serif);font-weight:normal;color:var(--amber-bright);font-size:1.35rem;margin:0;line-height:1.2}
+.hbtns{display:flex;gap:.4rem}
+button,.btn{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--border);background:var(--charcoal);color:var(--parchment);padding:.55rem .9rem;min-height:44px;min-width:44px}
+button:hover:not([disabled]){background:var(--raised);border-color:var(--amber)}
+button[disabled]{cursor:not-allowed;color:var(--blocked);border-style:dashed}
+.btn-primary{background:var(--amber);color:var(--ink);border-color:var(--amber);font-weight:600}
+.btn-primary:hover:not([disabled]){background:var(--amber-bright);color:var(--ink)}
+.btn-danger{border-color:var(--danger);color:var(--danger)}
+#statusbar{position:sticky;top:0;z-index:5;background:rgba(21,20,18,.97);border-bottom:1px solid var(--border)}
+#statusbar .wrap{display:grid;grid-template-columns:auto 1fr;gap:.25rem .9rem;padding-top:.45rem;padding-bottom:.45rem;font-size:.85rem;align-items:center}
+.stat-label{color:var(--parchment-muted);white-space:nowrap}
+.meter{display:flex;gap:3px;flex-wrap:wrap;align-items:center;min-width:0}
+.pip{flex:1 1 0;height:12px;max-width:26px;border-radius:3px;background:var(--charcoal);border:1px solid var(--border);position:relative}
+.pip.on-vit{background:var(--heal)}
+.pip.on-panic{background:var(--danger)}
+.pip.th::after{content:"";position:absolute;left:-3px;top:-4px;bottom:-4px;border-left:2px solid var(--amber-bright)}
+.meter-text{margin-left:.4rem;white-space:nowrap}
+.chip{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:.05rem .55rem;font-size:.78rem;color:var(--parchment-muted)}
+.chip.info{border-color:var(--info);color:var(--info)}
+.chip.warn{border-color:var(--risk);color:var(--risk)}
+main{padding:1rem 0 2rem}
+.card{background:var(--shadow);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin:0 0 1rem}
+.art{display:block;width:100%;height:auto;border-radius:var(--radius);border:1px solid var(--border);background:#0d0c0a;margin-bottom:.9rem}
+h2.scene{font-family:var(--serif);font-weight:normal;color:var(--amber-bright);font-size:1.55rem;margin:.2rem 0 .6rem;line-height:1.2}
+h3{font-family:var(--serif);font-weight:normal;color:var(--amber);font-size:1.15rem;margin:1rem 0 .5rem}
+p{margin:.55rem 0}
+.muted{color:var(--parchment-muted)}
+.happened{border-left:3px solid var(--amber);background:var(--charcoal);padding:.5rem .8rem;border-radius:0 8px 8px 0;margin:.8rem 0}
+.happened p{margin:.25rem 0}
+.choices{list-style:none;padding:0;margin:1rem 0 0;display:grid;gap:.55rem}
+.choice{width:100%;text-align:left;display:block;padding:.7rem .9rem}
+.choice .lbl{display:block;font-weight:600}
+.choice .cost{display:block;font-size:.84rem;color:var(--parchment-muted);margin-top:.15rem}
+.cost .p{color:var(--danger)} .cost .v{color:var(--danger)} .cost .s{color:var(--risk)} .cost .f{color:var(--heal)} .cost .r{color:var(--parchment-muted)}
+.notice{border:1px solid var(--info);border-radius:8px;padding:.6rem .8rem;color:var(--parchment);background:#111821}
+.notice.warn{border-color:var(--risk);background:#1e160d}
+.notice.danger{border-color:var(--danger);background:#1f110d}
+.notice b{color:var(--amber-bright)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:.2rem .8rem}
+.kv dt{color:var(--parchment-muted)} .kv dd{margin:0}
+/* puzzles */
+.prisms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;margin:.6rem 0}
+.prism{display:flex;align-items:center;gap:.5rem;background:var(--charcoal);border:1px solid var(--border);border-radius:8px;padding:.4rem .5rem;font-size:.9rem}
+.sockets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+.socket label{display:block;font-size:.85rem;color:var(--parchment-muted)}
+select{font:inherit;width:100%;min-height:44px;background:var(--charcoal);color:var(--parchment);border:1px solid var(--border);border-radius:8px;padding:.4rem}
+.puzzle-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem}
+.weights{list-style:none;padding:0;margin:.6rem 0;display:grid;gap:.4rem}
+.weights li{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;background:var(--charcoal);border:1px solid var(--border);border-radius:8px;padding:.35rem .5rem}
+.weights .wname{flex:1 1 9rem}
+.weights button{padding:.35rem .6rem;font-size:.85rem}
+.where{font-size:.8rem}
+.balance{font-weight:600}
+.grid-wrap{max-width:420px;margin:.5rem auto}
+.mgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;background:var(--border);border:1px solid var(--border);border-radius:8px;padding:3px}
+.cell{position:relative;aspect-ratio:1/1;background:#0f0e0c;border-radius:4px;min-width:0;padding:0;border:0;min-height:0;display:block;overflow:hidden}
+button.cell{border:1px solid var(--border);background:var(--charcoal)}
+button.cell:hover:not([disabled]){background:var(--raised)}
+.cell svg{position:absolute;inset:0;width:100%;height:100%}
+.cell .tag{position:absolute;left:3px;top:1px;font-size:.62rem;color:var(--parchment-muted);line-height:1}
+.legend{font-size:.82rem;color:var(--parchment-muted)}
+.beamtext{font-size:.88rem;background:var(--charcoal);border-radius:8px;padding:.5rem .7rem}
+.drake-meter{display:flex;gap:4px;margin:.3rem 0}
+.drake-meter span{flex:1;height:10px;border-radius:3px;background:var(--charcoal);border:1px solid var(--border)}
+.drake-meter span.on{background:var(--risk)}
+/* dialogs */
+dialog{background:var(--shadow);color:var(--parchment);border:1px solid var(--amber);border-radius:12px;padding:0;width:min(760px,calc(100vw - 1rem));max-height:calc(100vh - 1.5rem)}
+dialog::backdrop{background:rgba(0,0,0,.78)}
+.dlg-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.6rem .8rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--shadow);z-index:1}
+.dlg-head h2{font-family:var(--serif);font-weight:normal;color:var(--amber-bright);margin:0;font-size:1.25rem}
+.dlg-body{padding:.8rem}
+.tabs{display:flex;flex-wrap:wrap;gap:.3rem;padding:.5rem .8rem;border-bottom:1px solid var(--border)}
+.tabs [role=tab]{padding:.4rem .6rem;font-size:.85rem;min-height:40px}
+.tabs [role=tab][aria-selected=true]{background:var(--amber);color:var(--ink);border-color:var(--amber)}
+.list{list-style:none;padding:0;margin:.3rem 0}
+.list li{border-bottom:1px solid var(--border);padding:.45rem 0}
+.prov{display:block;font-size:.8rem;color:var(--info)}
+.prov::before{content:"\2139\FE0E  "}
+textarea{width:100%;min-height:7rem;background:var(--charcoal);color:var(--parchment);border:1px solid var(--border);border-radius:8px;font:.8rem ui-monospace,Menlo,Consolas,monospace;padding:.5rem}
+footer.bottom{border-top:1px solid var(--border);color:var(--parchment-muted);font-size:.82rem;padding:1rem 0 2rem}
+.rain line{stroke:#9cc5e8;stroke-opacity:.35;stroke-width:1}
+@media (prefers-reduced-motion:no-preference){
+  html:not(.rm) .rain{animation:fall 1.1s linear infinite}
+  html:not(.rm) .flicker{animation:flick 2.6s ease-in-out infinite}
+  html:not(.rm) .card.enter{animation:fadein .35s ease-out}
+}
+@keyframes fall{from{transform:translateY(-30px)}to{transform:translateY(0)}}
+@keyframes flick{0%,100%{opacity:1}50%{opacity:.78}}
+@keyframes fadein{from{opacity:.0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (min-width:640px){
+  h1.title{font-size:1.6rem}
+  .prisms{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .sockets{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:420px){html.ts-largest #statusbar,html.ts-large #statusbar{position:static}}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the story</a>
+<header class="top">
+  <div class="wrap">
+    <p class="series"><a href="/dwortals/fantortals/">DoorQuests · Dwortals · Fantortals</a> · The Fracture of Scales · Door #001 of 31</p>
+    <h1 class="title">The Last Lantern of Oakhaven</h1>
+    <div class="hbtns">
+      <button type="button" id="btn-keyring" aria-haspopup="dialog" hidden>Keyring</button>
+      <button type="button" id="btn-menu" aria-haspopup="dialog">Menu</button>
+    </div>
+  </div>
+</header>
+<div id="statusbar" hidden aria-label="Warden status"><div class="wrap" id="status-inner"></div></div>
+<main id="main" tabindex="-1">
+  <div class="wrap" id="view">
+    <noscript><div class="card"><p>The Last Lantern of Oakhaven needs JavaScript to play. Nothing is sent anywhere; it runs entirely in your browser.</p></div></noscript>
+  </div>
+</main>
+<div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<footer class="bottom">
+  <div class="wrap">
+    <p>DoorQuests — Created by The Axiom Continuum. <em>The Last Lantern of Oakhaven</em>: original concept by Gemini (A-031); implementation by Claude. Build <span id="build-id">1.0.0-r2</span>. Runs entirely in your browser: no account, no network, no analytics.</p>
+    <p><a href="/dwortals/fantortals/">Return to Fantortals</a></p>
+  </div>
+</footer>
+<dialog id="dlg" aria-labelledby="dlg-title"><div class="dlg-head"><h2 id="dlg-title"></h2><button type="button" id="dlg-close" aria-label="Close">✕</button></div><div id="dlg-tabs"></div><div class="dlg-body" id="dlg-body"></div></dialog>
+<dialog id="confirm" aria-labelledby="confirm-title"><div class="dlg-head"><h2 id="confirm-title"></h2></div><div class="dlg-body"><div id="confirm-body"></div><div class="puzzle-actions" id="confirm-actions"></div></div></dialog>
+<script>
+/* The Last Lantern of Oakhaven — deterministic chapter engine.
+   Original concept: Gemini (A-031). Implementation: Claude. DoorQuests — Created by The Axiom Continuum.
+   Pure functions only: no DOM, no storage, no clock, no randomness. */
+(function (root) {
+  'use strict';
+
+  var CAMPAIGN = 'the-fracture-of-scales';
+  var NAMESPACE = 'doorquests:dwortals:fantortals:the-fracture-of-scales';
+  var CHAPTER = '001';
+  var SCHEMA = 2;
+  var BUILD = '1.0.0-r2';
+
+  // ---- Developer-chosen numeric rules (documented in the report) ----
+  var RULES = {
+    vitMax: 10, brothHeal: 4, capacity: 8,
+    panicStart: 1, panicMax: 12,
+    thresholds: [
+      { id: 'uneasy', at: 4, label: 'Uneasy' },
+      { id: 'fleeing', at: 9, label: 'Fleeing' },
+      { id: 'peak', at: 12, label: 'Peak panic' }
+    ],
+    collapseRecoverVit: 2, collapsePanic: 2, maxLog: 1500
+  };
+
+  var ITEMS = {
+    warden_lantern: { name: "Warden's Lantern", size: 1, desc: 'Iron-caged oil lantern issued at your oath. Your working light.' },
+    short_sword: { name: 'Notched short-sword', size: 1, desc: 'A practice blade with a nick near the hilt. Weight 7 on a scale.' },
+    crowbar: { name: 'Crowbar', size: 1, desc: 'Plain iron crowbar. Weight 5 on a scale.' },
+    hearth_broth: { name: 'Hearth-Broth', size: 1, desc: 'Stoppered flask of warm broth. Restores 4 Vitality when drunk. Weight 1 on a scale.' },
+    ward_lantern: { name: 'Temple Ward-Lantern', size: 1, desc: 'A clear-glass temple lantern whose light cuts through smoke. On loan from Acolyte Wren. Weight 3 on a scale.' },
+    seal_plate: { name: 'Stolen seal-plate', size: 1, desc: "A silver Oakhaven seal-plate stamped with Bramwell mint's crossed-hammer mark. Physical evidence. Weight 4 on a scale." },
+    sun_prism_shard: { name: 'Sun-Prism Shard', size: 1, desc: 'A warm sliver of Warden prism-glass from the vault beneath the Barrow-Gate.' },
+    silver_shim: { name: 'Bramwell-stamped silver shim', size: 0, desc: 'A thin silver wedge pried from the mirror grid. It carries a Bramwell mint mark. Physical evidence; fits in your oath-pouch.' }
+  };
+  var WORN = { boiled_leather: { name: 'Boiled leather', desc: 'Worn armor. Takes 1 off every blow and fall (minimum 1).' } };
+
+  // DD-Cluortal: four prisms, four sockets. Facet counts are physical, engraved clues.
+  var PRISMS = {
+    K: { name: 'Kindling', facets: 3 }, H: { name: 'Hearth', facets: 4 },
+    B: { name: 'Beacon', facets: 5 }, L: { name: 'Lantern', facets: 6 }
+  };
+  var PRISM_ANSWER = 'BKHL';
+  var SARC_CLUES = [
+    { id: 'sarc1', warden: 'Warden Odile Marrow', motif: 'a lantern held high at the row\'s edge', text: 'The Lantern prism stands at one end of the row.' },
+    { id: 'sarc2', warden: 'Warden Teodric Vale', motif: 'a spark falling into a hearth', text: 'Kindling is set immediately before Hearth, its left-hand neighbour.' },
+    { id: 'sarc3', warden: 'Warden Ansel Brook', motif: 'a beacon tower facing away from a hearth', text: 'Beacon and Hearth never sit side by side.' },
+    { id: 'sarc4', warden: 'Warden Hollis Crane', motif: 'a six-sided crown placed at the end of a procession', text: 'The prism with the most facets is never set first.' }
+  ];
+  var DOOR_CLUE = 'Read the sockets as the sun climbs: the first socket is on the left.';
+
+
+  var FACTS = {
+    well_drillholes: 'Fresh drill holes ring the split stones of the public well. The well did not crack on its own.',
+    thieves_road: 'The hooded thieves\' cart turned onto the Bramwell road.',
+    plates_stolen: 'The thieves carried silver seal-plates out of the bell tower\'s seal-house: six by Mira\'s count.',
+    well_filings: 'The drill holes are packed with bright, mint-grade silver filings, the same alloy as the seal-plates.',
+    gate_sound: 'Something small is scrabbling and crying below the Barrow-Gate. It sounds frightened, not hungry.',
+    magnet_crowbar: 'Your crowbar now carries a lodestone wrap. It clings to iron.',
+    thief_words: 'The thief you pinned gasped: "The mint at Bramwell pays by the plate."',
+    plate_stamp: 'The recovered seal-plate bears Oakhaven\'s lantern seal, overstruck with Bramwell mint\'s crossed hammers.',
+    catwalk_rot: 'The catwalk planks are black and soft. An iron rail runs along the wall; a chain hangs near the middle. It will not hold you for long.',
+    clue_sarc1: SARC_CLUES[0].text, clue_sarc2: SARC_CLUES[1].text, clue_sarc3: SARC_CLUES[2].text, clue_sarc4: SARC_CLUES[3].text,
+    sarc_door: DOOR_CLUE,
+    sarc_hint: 'Worn dust lines show the Beacon prism belongs in the first socket.',
+    prism_order: 'Warden prism order, left to right: Beacon (5 facets), Kindling (3), Hearth (4), Lantern (6).',
+    drake_blind: 'The juvenile Cinder-Drake is smoke-blind: milky eyes, head swinging toward every sound, flinching from harsh light. It is coughing in trapped smoke and terrified.',
+    scale_rule: 'The tithe stone weighs 13. Level the beam with weights on either pan. Whatever rests on the pans when the beam locks stays as tithe.',
+    shim_seen: 'A thin silver wedge has been jammed into mirror M2 so that it cannot turn.',
+    shim_stamp: 'The silver shim is stamped with Bramwell mint\'s crossed hammers.',
+    drake_signs: 'The drake flinches from lantern glare, tracks footsteps by sound, and coughs worst where smoke pools at a blocked vent.'
+  };
+
+  // DD-Chaortal: tithe scale.
+  var TITHE = 13;
+  var VAULT_WEIGHTS = { w3: 3, w4: 4, w6: 6, w9: 9 };
+  var ITEM_WEIGHTS = { short_sword: 7, crowbar: 5, hearth_broth: 1, seal_plate: 4, ward_lantern: 3 };
+
+  // DD-Gamortal: 5x5 prism-mirror grid. Rows 0-4 top to bottom, columns 0-4 left to right.
+  // '#' pillar, 'T' crystal socket (beam passes through), 'H' seal heart (absorbs beam), mirrors listed below.
+  var GRID = {
+    rows: 5, cols: 5,
+    cells: ['.....', '...T.', '...#.', '..TH.', '.T...'],
+    mirrors: [
+      { id: 'M1', r: 1, c: 0 }, { id: 'M2', r: 1, c: 4 }, { id: 'M3', r: 2, c: 0 },
+      { id: 'M4', r: 2, c: 1 }, { id: 'M5', r: 3, c: 1 }, { id: 'M6', r: 4, c: 4 }
+    ],
+    initial: '//////',
+    jammed: 'M2',
+    emitter: { r: 4, c: 0, dir: 'E' }
+  };
+  var DIRS = { E: [0, 1], W: [0, -1], N: [-1, 0], S: [1, 0] };
+  var REFLECT = { '/': { E: 'N', N: 'E', W: 'S', S: 'W' }, '\\': { E: 'S', S: 'E', W: 'N', N: 'W' } };
+  var DIRNAME = { E: 'east', W: 'west', N: 'north', S: 'south' };
+
+  function traceBeam(st) {
+    var r = GRID.emitter.r, c = GRID.emitter.c, d = GRID.emitter.dir;
+    var seen = {}, path = [], lit = {}, end = null, steps = 0;
+    while (true) {
+      if (r < 0 || r >= GRID.rows || c < 0 || c >= GRID.cols) { end = { type: 'exit', r: r, c: c, dir: d }; break; }
+      var key = r + ',' + c + ',' + d;
+      if (seen[key] || steps > 200) { end = { type: 'cycle', r: r, c: c }; break; }
+      seen[key] = true; steps++;
+      var ch = GRID.cells[r].charAt(c);
+      if (ch === '#') { end = { type: 'blocked', r: r, c: c }; break; }
+      var inDir = d, mi = mirrorAt(r, c);
+      if (mi >= 0) d = REFLECT[st.charAt(mi)][d];
+      path.push({ r: r, c: c, inDir: inDir, outDir: d });
+      if (ch === 'T') lit[r + ',' + c] = true;
+      if (ch === 'H') { end = { type: 'heart', r: r, c: c }; break; }
+      r += DIRS[d][0]; c += DIRS[d][1];
+    }
+    var sockets = socketList(), litCount = 0;
+    sockets.forEach(function (s) { if (lit[s.r + ',' + s.c]) litCount++; });
+    return { path: path, end: end, lit: lit, litCount: litCount, heart: end.type === 'heart', solved: litCount === sockets.length && end.type === 'heart' };
+  }
+  function mirrorAt(r, c) { for (var i = 0; i < GRID.mirrors.length; i++) if (GRID.mirrors[i].r === r && GRID.mirrors[i].c === c) return i; return -1; }
+  function socketList() { var out = []; GRID.cells.forEach(function (row, r) { for (var c = 0; c < row.length; c++) if (row.charAt(c) === 'T') out.push({ r: r, c: c }); }); return out; }
+  function cellName(r, c) { return 'ABCDE'.charAt(c) + (r + 1); }
+  function describeBeam(st) {
+    var t = traceBeam(st), parts = ['Beam enters ' + cellName(GRID.emitter.r, GRID.emitter.c) + ' heading east'];
+    t.path.forEach(function (p) {
+      var mi = mirrorAt(p.r, p.c), ch = GRID.cells[p.r].charAt(p.c);
+      if (mi >= 0) parts.push(GRID.mirrors[mi].id + ' at ' + cellName(p.r, p.c) + ' (' + st.charAt(mi) + ') turns it ' + DIRNAME[p.outDir]);
+      else if (ch === 'T') parts.push('lights the socket at ' + cellName(p.r, p.c));
+    });
+    if (t.end.type === 'heart') parts.push('strikes the seal heart at ' + cellName(t.end.r, t.end.c));
+    else if (t.end.type === 'blocked') parts.push('stops against the pillar at ' + cellName(t.end.r, t.end.c));
+    else if (t.end.type === 'exit') parts.push('leaves the grid heading ' + DIRNAME[t.end.dir]);
+    else parts.push('loops back on itself');
+    return parts.join('; ') + '. Sockets lit: ' + t.litCount + ' of 3.';
+  }
+
+  // ---- helpers ----
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function Illegal(msg) { var e = new Error(msg); e.illegal = true; return e; }
+  function has(s, id) { return s.pack.indexOf(id) >= 0; }
+  function removeItem(s, id) { var i = s.pack.indexOf(id); if (i >= 0) s.pack.splice(i, 1); }
+  function packUsed(s) { var n = 0; s.pack.forEach(function (id) { n += ITEMS[id].size; }); return n + s.broth * ITEMS.hearth_broth.size; }
+  function addItem(s, id) {
+    if (has(s, id)) throw Illegal('duplicate unique item ' + id);
+    if (packUsed(s) + ITEMS[id].size > RULES.capacity) throw Illegal('pack full');
+    s.pack.push(id);
+  }
+  function chron(s, text) { s.chron.push({ i: s.i, text: text }); }
+  function learn(s, id, src) { if (!s.know[id]) { s.know[id] = { at: s.i, src: src }; } }
+  function armor(base) { return Math.max(1, base - 1); }
+
+  function addPanic(s, n, why) {
+    if (n <= 0) return;
+    var before = s.panic, raw = s.panic + n;
+    s.panic = Math.min(RULES.panicMax, raw);
+    if (raw > RULES.panicMax) s.panicOverflow += raw - RULES.panicMax;
+    if (s.panic > s.panicPeak) s.panicPeak = s.panic;
+    s.panicLog.push({ i: s.i, from: before, to: s.panic, why: why });
+    RULES.thresholds.forEach(function (t) {
+      if (before < t.at && s.panic >= t.at && s.thresholds.indexOf(t.id) < 0) {
+        s.thresholds.push(t.id);
+        if (t.id === 'uneasy') {
+          s.town.events.push({ i: s.i, id: 'uneasy', text: 'Neighbours crowd the lanes with lamps and bundles, shouting for news.' });
+          chron(s, 'Town Panic reached 4 (Uneasy): crowds filled the lanes.');
+        } else if (t.id === 'fleeing') {
+          var hurt = s.town.help.indexOf('temple_evacuation') >= 0 ? 1 : 2;
+          s.town.injured += hurt;
+          s.town.events.push({ i: s.i, id: 'fleeing', injured: hurt, text: 'A crush at the North Gate as families flee: ' + hurt + (hurt === 1 ? ' neighbour' : ' neighbours') + ' injured' + (hurt === 1 ? ' (the temple evacuation had already moved the sick uphill).' : '.') });
+          chron(s, 'Town Panic reached 9 (Fleeing): ' + hurt + ' injured in the North Gate crush.');
+        } else if (t.id === 'peak') {
+          s.town.injured += 2;
+          s.town.damage.push('Night Market stalls burned when a dropped lamp caught the awnings');
+          s.town.events.push({ i: s.i, id: 'peak', injured: 2, text: 'Peak panic: a lamp falls in the Night Market and the awnings burn. 2 more neighbours injured. Mira Vance orders everyone to Temple Hill.' });
+          chron(s, 'Town Panic reached 12 (Peak): Night Market fire, 2 injured; Mira ordered the town to Temple Hill.');
+        }
+      }
+    });
+  }
+
+  function hurt(s, n, why) {
+    if (n <= 0 || s.ended) return;
+    s.vit = Math.max(0, s.vit - n);
+    s.vitLog.push({ i: s.i, delta: -n, why: why });
+    if (s.vit === 0) collapse(s, why);
+  }
+  function heal(s, n, why) {
+    var before = s.vit; s.vit = Math.min(s.vitMax, s.vit + n);
+    if (s.vit > before) s.vitLog.push({ i: s.i, delta: s.vit - before, why: why });
+  }
+  function collapse(s, why) {
+    s.collapses++;
+    if (s.collapses === 1) {
+      s.injuries.push({ id: 'collapse', i: s.i, text: 'Blacked out from ' + why + '; concussed and bruised.' });
+      if (s.drake.met && !s.drake.fate) { s.drake.fate = 'fled_on_its_own'; chron(s, s.drake.injured ? 'The wounded drake fled into the deep vents while you lay senseless.' : 'The frightened drake fled into the deep vents while you lay senseless.'); }
+      s.vit = RULES.collapseRecoverVit;
+      s.vitLog.push({ i: s.i, delta: RULES.collapseRecoverVit, why: 'came to in the cold water (one-time recovery)' });
+      addPanic(s, RULES.collapsePanic, 'time lost while you lay senseless');
+      chron(s, 'You collapsed (' + why + ') and came to with 2 Vitality. Time was lost above.');
+    } else {
+      s.injuries.push({ id: 'collapse2', i: s.i, text: 'Collapsed a second time from ' + why + '; carried out unconscious.' });
+      if (s.drake.met && !s.drake.fate) s.drake.fate = 'fled_on_its_own';
+      s.scene = 'carried';
+      chron(s, 'You collapsed again (' + why + '). Temple acolytes and Mira\'s watch carried you out of the Barrow-Gate.');
+    }
+  }
+
+  function newState(mode) {
+    if (mode !== 'epic' && mode !== 'free') throw new Error('bad mode');
+    return {
+      v: SCHEMA, mode: mode, scene: 'toll', i: 0, complete: false, ended: false, outcome: null,
+      vit: RULES.vitMax, vitMax: RULES.vitMax, collapses: 0, vitLog: [],
+      panic: RULES.panicStart, panicPeak: RULES.panicStart, panicOverflow: 0, thresholds: [], panicLog: [],
+      worn: ['boiled_leather'],
+      pack: ['warden_lantern', 'short_sword', 'crowbar'],
+      broth: mode === 'free' ? 2 : 1, brothLog: [],
+      crowbarMod: 'plain',
+      detours: { forge: null, temple: null, thieves: null }, visited: [],
+      know: {}, evidence: {}, shard: null, prism: null,
+      catwalk: { tested: false, fall: null, damage: 0 }, rested: false, lastArrange: false, loan: null, obligations: [],
+      sarc: { slots: [null, null, null, null], attempts: [], hint: false, result: null, inspected: [] },
+      drake: { met: false, fear: 4, trust: 0, hp: 6, aggression: false, pillar: false, used: [], fate: null, injured: false, bond: false, calm: false },
+      scale: { left: [], right: [], four: 'pit', fourBy: null, result: null, sacrificed: [], inspected: false },
+      grid: { st: GRID.initial, shim: 'jammed', result: null, lit: 0, heart: false, committedSt: null },
+      town: { injured: 0, events: [], damage: [], help: [], platesStolen: 6, platesRecovered: 0 },
+      injuries: [], promises: [{ id: 'warden_oath', i: 0, status: 'sworn', text: 'Sworn tonight: keep the Barrow-Gate sealed and Oakhaven\'s people safe.' }],
+      bonds: [], chron: [], rewards: [], seal: null, dispatch: null
+    };
+  }
+
+  // ---- Cost previews (R2) ----
+  // Every action except sarc:commit has a fully determined outcome from visible state, so its preview is the
+  // exact difference produced by applying it to a copy. sarc:commit previews both branches (right / wrong)
+  // without revealing which applies.
+  var NOTES = {
+    'detour:forge': 'Travel time.', 'detour:temple': 'Travel time.', 'detour:thieves': 'Travel time.',
+    'forge:bellows': 'You work the bellows yourself while the smith binds the lodestone wrap.',
+    'forge:broth': 'Your broth goes to the apprentice, who works the bellows.',
+    'temple:wade': 'Cold flood water; armor does not help.', 'temple:pry': 'Prying the rusted grate takes time.',
+    'thieves:tackle': 'A scuffle (boiled leather reduces 3 to 2).', 'thieves:call': 'Your shout draws a crowd that slows you.',
+    'fall:magnet': 'Controlled descent on the iron rail.', 'fall:pry': 'The crowbar catches masonry.', 'fall:chain': 'You snatch at a slick chain.',
+    'cistern:rest': 'Once only.', 'sarc:hint': 'Worn dust lines will fix the first socket.',
+    'sarc:force': 'Imperfect repair: the door opens but the cluortal seal is marked forced.',
+    'scale:lash': 'Imperfect repair: the beam is held level by your belt.', 'scale:wedge': 'Imperfect repair: the crowbar stays jammed in the beam.',
+    'scale:commit': 'Anything on the pans stays as tithe.'
+  };
+  function diffState(s, n) {
+    var spent = [];
+    s.pack.forEach(function (id) { if (n.pack.indexOf(id) < 0) spent.push(id); });
+    for (var b = 0; b < s.broth - n.broth; b++) spent.push('hearth_broth');
+    var broken = n.promises.filter(function (p) { var o = s.promises.filter(function (q) { return q.id === p.id; })[0]; return o && o.status !== p.status && /^broken/.test(p.status); }).map(function (p) { return p.id; });
+    return {
+      panic: n.panic - s.panic, panicTo: n.panic, overflow: n.panicOverflow - s.panicOverflow,
+      thresholds: n.thresholds.filter(function (t) { return s.thresholds.indexOf(t) < 0; }),
+      vit: n.vit - s.vit, vitTo: n.vit, collapse: n.collapses - s.collapses, carriedOut: n.scene === 'carried' && s.scene !== 'carried',
+      spent: spent, brokenPromises: broken, newObligations: n.obligations.length - s.obligations.length
+    };
+  }
+  function preview(s, a) {
+    if (!isLegal(s, a)) return null;
+    if (a === 'sarc:commit') {
+      var sr = clone(s); sr.sarc.slots = PRISM_ANSWER.split('');
+      var sw = clone(s); sw.sarc.slots = ['K', 'H', 'B', 'L'];
+      return { kind: 'branch', ifRight: diffState(s, apply(sr, a)), ifWrong: diffState(s, apply(sw, a)), note: 'If the order is wrong the prisms flare and the sockets empty.' };
+    }
+    var d = diffState(s, apply(s, a)); d.kind = 'exact'; d.note = NOTES[a] || '';
+    if (a === 'scale:commit' && d.spent.indexOf('ward_lantern') >= 0) d.loanWarning = 'The Ward-Lantern is borrowed from Acolyte Wren. Leaving it as tithe breaks your promise to return it, records restitution owed to the temple, and you lose its light for the rest of the journey.';
+    return d;
+  }
+  // Compatibility summary (worst case for branch previews).
+  function costOf(s, a) {
+    var p = preview(s, a); if (!p) return null;
+    var d = p.kind === 'branch' ? p.ifWrong : p;
+    return { panic: p.kind === 'branch' ? p.ifRight.panic : d.panic, panicIfWrong: p.kind === 'branch' ? p.ifWrong.panic : null, vit: Math.max(0, -d.vit), heal: Math.max(0, d.vit), spend: d.spent, note: p.note, preview: p };
+  }
+  function armorless(n) { return n; }
+  function fallDmg(s, base) { var d = armor(base); if (has(s, 'ward_lantern')) d = Math.max(1, d - 1); return d; }
+  function drakeHit(s) { var d = armor(3); if (s.drake.pillar) d = Math.max(1, d - 1); if (s.drake.used.indexOf('ward') >= 0) d = Math.max(1, d - 1); return d; }
+
+  // ---- Legal actions ----
+  function legal(s) {
+    var A = [];
+    function add(id, label, extra) { var o = { id: id, label: label }; if (extra) for (var k in extra) o[k] = extra[k]; A.push(o); }
+    if (s.complete || s.i >= RULES.maxLog) return A;
+    var sc = s.scene;
+    if (sc === 'toll') add('toll:run', 'Run for the market square');
+    if (sc === 'square') {
+      if (!s.know.well_filings) add('inspect:well', 'Crouch at the split well (free)', { free: true });
+      if (!s.know.gate_sound) add('inspect:gate', 'Listen at the Barrow-Gate (free)', { free: true });
+      if (!s.detours.forge && s.visited.indexOf('forge') < 0) add('detour:forge', 'Race to Brannoc Hale\'s forge for a modified crowbar');
+      if (!s.detours.temple && s.visited.indexOf('temple') < 0) add('detour:temple', 'Help the temple acolytes recover their ward-lantern');
+      if (!s.detours.thieves && s.visited.indexOf('thieves') < 0) add('detour:thieves', 'Cut off the hooded thieves in Tanner\'s Alley');
+      add('descend', 'Descend through the Barrow-Gate now');
+    }
+    if (sc === 'forge') {
+      add('forge:bellows', 'Work the bellows yourself');
+      if (s.broth > 0) add('forge:broth', 'Give your Hearth-Broth to the apprentice so he works the bellows');
+      add('forge:leave', 'Leave without the modification');
+    }
+    if (sc === 'temple') { add('temple:wade', 'Wade into the flooded undercroft'); add('temple:pry', 'Pry open the drain grate with your crowbar'); add('temple:leave', 'Leave the acolytes to it'); }
+    if (sc === 'thieves') { add('thieves:tackle', 'Tackle the last thief'); add('thieves:call', 'Call out in the Warden\'s name'); add('thieves:leave', 'Let them go'); }
+    if (sc === 'catwalk') {
+      if (!s.catwalk.tested) add('inspect:catwalk', 'Test the planks ahead (free)', { free: true });
+      if (has(s, 'crowbar') && s.crowbarMod === 'magnetized') add('fall:magnet', 'Brace: hook the iron rail with the magnetized crowbar');
+      if (has(s, 'crowbar')) add('fall:pry', 'Brace: jam the crowbar into the masonry seams');
+      add('fall:chain', 'Brace: keep both hands free for the hanging chain');
+    }
+    if (sc === 'cistern') {
+      if (!s.rested && s.vit < s.vitMax) add('cistern:rest', 'Catch your breath on the ledge');
+      add('cistern:on', 'Wade on toward the Warden vault');
+    }
+    if (sc === 'vault') {
+      if (!s.sarc.result) {
+        SARC_CLUES.forEach(function (cl, n) { if (s.sarc.inspected.indexOf(cl.id) < 0) add('inspect:' + cl.id, 'Read the sarcophagus of ' + cl.warden + ' (free)', { free: true }); });
+        if (s.sarc.inspected.indexOf('door') < 0) add('inspect:door', 'Read the seal door (free)', { free: true });
+        if (!s.lastArrange) add('sarc:arrange', 'Arrange prisms in the sockets', { puzzle: true, param: true });
+        if (s.sarc.slots.every(function (x) { return x; }) && new Set(s.sarc.slots).size === 4) add('sarc:commit', 'Commit this order');
+        if (s.sarc.attempts.length > 0 && !s.sarc.hint) add('sarc:hint', 'Trace the dust lines for help');
+        if (s.sarc.attempts.length > 0 && has(s, 'crowbar')) add('sarc:force', 'Force the seal door (imperfect repair)');
+        if (s.sarc.attempts.length > 0 && !has(s, 'crowbar')) add('sarc:force', 'Force the seal door with your shoulder (imperfect repair)');
+      } else add('vault:on', 'Follow the warm draught into the ember gallery');
+    }
+    if (sc === 'gallery') {
+      var d = s.drake;
+      if (!d.fate) {
+        if (d.calm) {
+          add('drake:release', 'Open the upper vent and let it climb free');
+          add('drake:bond', 'Kneel and hold out your hand', { disabled: d.trust < 2 || d.aggression, reason: d.aggression ? 'It remembers the blade.' : 'It does not trust you enough yet.' });
+        } else {
+          var U = function (k) { return d.used.indexOf(k) >= 0; };
+          if (!U('observe')) add('drake:observe', 'Watch how it moves before acting (free)', { free: true });
+          if (!U('speak')) add('drake:speak', d.aggression ? 'Lower the blade and speak low' : 'Speak low, so it can place your voice');
+          if (U('observe') && !U('shade') && has(s, 'warden_lantern')) add('drake:shade', 'Shade your Warden\'s Lantern (it flinches from the glare)');
+          if (U('observe') && !U('still')) add('drake:still', 'Crouch and stay still (it tracks every footstep)');
+          if (!U('ward') && has(s, 'ward_lantern')) add('drake:ward', 'Raise the Temple Ward-Lantern');
+          if (!d.aggression) {
+            if (!U('vent')) add('drake:vent', has(s, 'crowbar') ? 'Pry open the choked smoke vent' : 'Claw open the choked smoke vent by hand');
+            if (!U('broth') && s.broth > 0) add('drake:broth', 'Offer your warm Hearth-Broth');
+          }
+          if (!d.pillar) add('drake:pillar', 'Put the stone pillar between you');
+          add('drake:intimidate', 'Bang the sword on stone and make yourself large');
+          if (has(s, 'short_sword')) add('drake:strike', 'Strike with the notched short-sword');
+          if (d.fear <= 3) add('drake:slip', 'Slip past along the far wall');
+        }
+      } else add('gallery:on', 'Go on to the tithe chamber');
+    }
+    if (sc === 'tithe') {
+      if (!s.scale.result) {
+        if (!s.scale.inspected) add('inspect:scale', 'Read the scale\'s inscription (free)', { free: true });
+        if (s.scale.four === 'pit') {
+          if (has(s, 'crowbar') && s.crowbarMod === 'magnetized') add('scale:fish:magnet', 'Fish the 4-weight from the pit with the magnetized crowbar');
+          add('scale:fish:hand', 'Reach into the pit for the 4-weight');
+        }
+        if (!s.lastArrange) add('scale:arrange', 'Arrange weights on the pans', { puzzle: true, param: true });
+        add('scale:commit', 'Commit the tithe', { disabled: !scaleBalanced(s), reason: 'The pans are not level.' });
+        add('scale:lash', 'Lash the beam level with your belt (imperfect repair)');
+        if (has(s, 'crowbar')) add('scale:wedge', 'Wedge the beam with your crowbar (imperfect repair)');
+      } else add('tithe:on', 'Climb to the mirror gallery');
+    }
+    if (sc === 'mirrors') {
+      if (!s.grid.result) {
+        if (s.grid.shim === 'jammed') add('grid:shim', has(s, 'crowbar') ? 'Pry the silver shim out of M2 with the crowbar' : has(s, 'short_sword') ? 'Lever the silver shim out of M2 with the sword tip' : 'Work the silver shim out of M2 with your fingers');
+        if (!s.lastArrange) add('grid:arrange', 'Set mirror orientations', { puzzle: true, param: true });
+        add('grid:commit', 'Lock the mirrors and send light to the seal');
+      } else add('mirrors:on', 'Step up to the seal heart');
+    }
+    if (sc === 'heart') add('finale:seal', 'Speak the Warden\'s words and close the seal');
+    if (sc === 'dawn') add('dawn:accept', 'Take Mira Vance\'s orders');
+    if (sc === 'carried') add('carried:accept', 'Hear Mira Vance\'s emergency orders');
+    var brothOnPan = sc === 'tithe' && (s.scale.left.indexOf('hearth_broth') >= 0 || s.scale.right.indexOf('hearth_broth') >= 0);
+    if (s.broth > (brothOnPan ? 1 : 0) && s.vit < s.vitMax && sc !== 'toll' && sc !== 'dawn' && sc !== 'carried' && sc !== 'ending') add('use:broth', 'Drink your Hearth-Broth');
+    return A;
+  }
+  function weightsAvailable(s) {
+    var w = ['w3', 'w6', 'w9']; if (s.scale.four === 'vault') w.splice(1, 0, 'w4');
+    Object.keys(ITEM_WEIGHTS).forEach(function (id) {
+      if (id === 'hearth_broth') { if (s.broth > 0) w.push(id); } else if (has(s, id)) w.push(id);
+    });
+    return w;
+  }
+  function weightOf(id) { return VAULT_WEIGHTS[id] || ITEM_WEIGHTS[id] || 0; }
+  function weightName(id) { return VAULT_WEIGHTS[id] ? 'the ' + VAULT_WEIGHTS[id] + '-notch stone' : ITEMS[id].name + ' (' + ITEM_WEIGHTS[id] + ')'; }
+  function scaleTotals(s) {
+    var L = TITHE, R = 0;
+    s.scale.left.forEach(function (w) { L += weightOf(w); });
+    s.scale.right.forEach(function (w) { R += weightOf(w); });
+    return { left: L, right: R };
+  }
+  function scaleBalanced(s) { var t = scaleTotals(s); return t.left === t.right; }
+
+  // ---- Arrange actions: one absolute configuration per action (reversible manipulation) ----
+  var CODE = { w3: '3', w4: '4', w6: '6', w9: '9', hearth_broth: 'b', crowbar: 'c', seal_plate: 'p', short_sword: 's', ward_lantern: 'w' };
+  var CODE_ORDER = '3469bcpsw';
+  var FROM_CODE = {}; Object.keys(CODE).forEach(function (k) { FROM_CODE[CODE[k]] = k; });
+  function sortIds(ids) { return ids.slice().sort(function (a, b) { return CODE_ORDER.indexOf(CODE[a]) - CODE_ORDER.indexOf(CODE[b]); }); }
+  function encodeScale(left, right) { return sortIds(left).map(function (x) { return CODE[x]; }).join('') + '.' + sortIds(right).map(function (x) { return CODE[x]; }).join(''); }
+  function encodeSarc(slots) { return slots.map(function (k) { return k || '_'; }).join(''); }
+  function encodeGrid(st) { return st.replace(/\//g, 'f').replace(/\\/g, 'b'); }
+  function decodeGrid(code) { return code.replace(/f/g, '/').replace(/b/g, '\\'); }
+  function arrangeValid(s, kind, arg) {
+    if (kind === 'sarc') {
+      if (!/^[BKHL_]{4}$/.test(arg)) return false;
+      var letters = arg.replace(/_/g, ''); return new Set(letters.split('')).size === letters.length;
+    }
+    if (kind === 'scale') {
+      var m = /^([3469bcpsw]*)\.([3469bcpsw]*)$/.exec(arg); if (!m) return false;
+      var all = (m[1] + m[2]).split(''); if (new Set(all).size !== all.length) return false;
+      var avail = weightsAvailable(s);
+      for (var i = 0; i < all.length; i++) if (avail.indexOf(FROM_CODE[all[i]]) < 0) return false;
+      var canon = function (str) { return str.split('').sort(function (a, b) { return CODE_ORDER.indexOf(a) - CODE_ORDER.indexOf(b); }).join(''); };
+      return canon(m[1]) === m[1] && canon(m[2]) === m[2];
+    }
+    if (kind === 'grid') {
+      if (!/^[fb]{6}$/.test(arg)) return false;
+      var ji = GRID.mirrors.findIndex(function (mm) { return mm.id === GRID.jammed; });
+      if (s.grid.shim === 'jammed' && decodeGrid(arg).charAt(ji) !== s.grid.st.charAt(ji)) return false;
+      return true;
+    }
+    return false;
+  }
+  function isLegal(s, a) {
+    var am = /^(sarc|scale|grid):arrange:(.*)$/.exec(a);
+    if (am) { return legal(s).some(function (x) { return x.id === am[1] + ':arrange'; }) && arrangeValid(s, am[1], am[2]); }
+    var L = legal(s);
+    for (var i = 0; i < L.length; i++) if (L[i].id === a) return !L[i].disabled;
+    return false;
+  }
+
+  // ---- Transition ----
+  function apply(s0, a) {
+    if (typeof a !== 'string') throw Illegal('action must be a string');
+    if (!isLegal(s0, a)) throw Illegal('illegal action ' + a + ' in scene ' + s0.scene);
+    if (s0.i >= RULES.maxLog) throw Illegal('log too long');
+    var s = clone(s0);
+    s.i++;
+    var parts = a.split(':');
+    s.lastArrange = parts[1] === 'arrange';
+    switch (parts[0]) {
+      case 'toll':
+        s.scene = 'square';
+        learn(s, 'well_drillholes', 'Shown to you by Quartermaster Mira Vance at the split well');
+        learn(s, 'thieves_road', 'Seen with your own eyes from the market square');
+        learn(s, 'plates_stolen', 'Seen with your own eyes from the market square');
+        chron(s, 'The seventh toll died. The well split. Mira Vance showed you fresh drill holes in the well stones; hooded thieves fled with silver seal-plates toward the Bramwell road.');
+        break;
+      case 'inspect': doInspect(s, parts[1]); break;
+      case 'detour':
+        s.visited.push(parts[1]); s.scene = parts[1];
+        addPanic(s, 1, 'travel to the ' + parts[1]);
+        break;
+      case 'forge':
+        if (parts[1] === 'bellows') { addPanic(s, 2, 'working the forge bellows'); }
+        if (parts[1] === 'broth') { s.broth--; s.brothLog.push({ i: s.i, how: 'given to the forge apprentice' }); addPanic(s, 1, 'the apprentice works the bellows'); }
+        if (parts[1] !== 'leave') {
+          s.detours.forge = parts[1]; s.crowbarMod = 'magnetized';
+          learn(s, 'magnet_crowbar', 'Brannoc Hale bound a lodestone wrap to your crowbar');
+          chron(s, 'At the forge, Brannoc Hale bound a lodestone wrap to your crowbar. It now clings to iron. ' + (parts[1] === 'broth' ? 'Your Hearth-Broth went to his apprentice.' : 'You worked the bellows yourself.'));
+        } else { s.detours.forge = 'left'; chron(s, 'You left the forge without the modification.'); }
+        s.scene = 'square'; break;
+      case 'temple':
+        if (parts[1] !== 'leave') {
+          if (parts[1] === 'wade') hurt(s, 1, 'the freezing undercroft flood');
+          else addPanic(s, 2, 'prying the temple grate');
+          s.detours.temple = parts[1];
+          addItem(s, 'ward_lantern');
+          s.town.help.push('temple_evacuation');
+          s.promises.push({ id: 'return_ward_lantern', i: s.i, status: 'open', statusAt: s.i, reason: 'The Ward-Lantern is on loan and still in your keeping.', text: 'Promised Acolyte Wren the Ward-Lantern will come back to the temple.' });
+          s.loan = { item: 'ward_lantern', lender: 'Acolyte Wren, Temple of the Hearth-Flame', at: s.i, how: parts[1] === 'wade' ? 'Recovered by you from the flooded undercroft and lent to you by Acolyte Wren' : 'Recovered by you through the pried drain grate and lent to you by Acolyte Wren', held: true, fate: 'carried_on_loan', fateAt: s.i };
+          chron(s, 'You recovered the Temple Ward-Lantern ' + (parts[1] === 'wade' ? 'from the freezing flood' : 'by prying the drain grate') + '. Freed of the search, the acolytes led the infirmary\'s sick up to Temple Hill.');
+        } else { s.detours.temple = 'left'; chron(s, 'You left the acolytes searching.'); }
+        s.scene = 'square'; break;
+      case 'thieves':
+        if (parts[1] !== 'leave') {
+          if (parts[1] === 'tackle') { hurt(s, armor(3), 'a scuffle with a hooded thief'); learn(s, 'thief_words', 'Heard from the thief you pinned in Tanner\'s Alley'); }
+          else addPanic(s, 2, 'the crowd your shout drew');
+          s.detours.thieves = parts[1];
+          addItem(s, 'seal_plate');
+          s.evidence.seal_plate = { held: true, fate: 'carried', at: s.i, how: parts[1] === 'tackle' ? 'Wrenched from a fleeing thief\'s satchel in Tanner\'s Alley' : 'Dropped by a fleeing thief in Tanner\'s Alley when you called out in the Warden\'s name' };
+          learn(s, 'plate_stamp', 'Read from the recovered seal-plate itself');
+          s.town.platesRecovered = 1;
+          chron(s, 'In Tanner\'s Alley you recovered one silver seal-plate (' + (parts[1] === 'tackle' ? 'taken from a thief' : 'dropped as they fled') + '). It bears Bramwell mint\'s crossed-hammer stamp. Five plates went with the thieves.');
+        } else { s.detours.thieves = 'left'; chron(s, 'You let the thieves go.'); }
+        s.scene = 'square'; break;
+      case 'descend':
+        s.scene = 'catwalk';
+        chron(s, 'You went down through the Barrow-Gate. Rainwater was pouring down the stair.');
+        break;
+      case 'fall':
+        var dmg = ({ magnet: fallDmg(s0, 2), pry: fallDmg(s0, 3), chain: fallDmg(s0, 4) })[parts[1]];
+        addPanic(s, 1, 'climbing out of the cistern after the fall');
+        s.catwalk.fall = parts[1]; s.catwalk.damage = dmg;
+        if (dmg >= 3) s.injuries.push({ id: 'fall_' + parts[1], i: s.i, text: 'Wrenched shoulder and bruised ribs from the catwalk fall.' });
+        else if (dmg === 2) s.injuries.push({ id: 'fall_' + parts[1], i: s.i, text: 'Scraped hands and a bruised hip from the catwalk fall.' });
+        chron(s, 'The waterlogged catwalk gave way. ' + ({ magnet: 'Your magnetized crowbar caught the iron rail and you slid down under control', pry: 'Your crowbar bit into the masonry and slowed you', chain: 'You caught the slick chain, lost it, and dropped' })[parts[1]] + ' (Vitality -' + dmg + (has(s, 'ward_lantern') ? '; the ward-lantern showed you the ledge' : '') + ').');
+        s.scene = 'cistern';
+        hurt(s, dmg, 'the catwalk fall');
+        break;
+      case 'cistern':
+        if (parts[1] === 'rest') { s.rested = true; addPanic(s, 1, 'resting on the cistern ledge'); heal(s, 1, 'rest on the cistern ledge'); chron(s, 'You caught your breath on the ledge (+1 Vitality).'); }
+        else { s.scene = 'vault'; chron(s, 'You reached the Warden vault: four sarcophagi and a sealed door with four empty sockets.'); }
+        break;
+      case 'sarc': doSarc(s, parts); break;
+      case 'vault': s.scene = 'gallery'; s.drake.met = true; learn(s, 'drake_blind', 'Seen with your own eyes in the ember gallery'); chron(s, 'In the ember gallery you found a juvenile Cinder-Drake, small, smoke-blind and terrified.'); break;
+      case 'drake': doDrake(s, parts[1]); break;
+      case 'gallery': s.scene = 'tithe'; chron(s, 'You entered the tithe chamber. A great iron scale stood tilted toward its tithe stone.'); break;
+      case 'scale': doScale(s, parts); break;
+      case 'tithe':
+        s.scene = 'mirrors';
+        learn(s, 'shim_seen', 'Seen with your own eyes in the mirror gallery');
+        chron(s, 'In the mirror gallery you set the Sun-Prism Shard in the emitter cradle. A thin silver wedge glinted, jammed into mirror M2 to stop it turning.');
+        break;
+      case 'grid': doGrid(s, parts); break;
+      case 'mirrors': s.scene = 'heart'; break;
+      case 'finale': finalize(s); break;
+      case 'dawn': case 'carried':
+        if (parts[0] === 'carried') finalizeCarried(s);
+        s.complete = true; s.ended = true; s.scene = 'ending';
+        chron(s, 'Mira Vance gave her orders. ' + s.dispatch.summary);
+        break;
+      case 'use':
+        s.broth--; s.brothLog.push({ i: s.i, how: 'drunk' });
+        heal(s, RULES.brothHeal, 'Hearth-Broth');
+        chron(s, 'You drank your Hearth-Broth.');
+        break;
+      default: throw Illegal('unknown action');
+    }
+    if (s.scene === 'carried' && !s.ended) { /* awaiting carried:accept */ }
+    return s;
+  }
+
+  function doInspect(s, what) {
+    if (what === 'well') learn(s, 'well_filings', 'Your own close inspection of the split well');
+    else if (what === 'gate') learn(s, 'gate_sound', 'Heard with your own ears at the Barrow-Gate');
+    else if (what === 'catwalk') { s.catwalk.tested = true; learn(s, 'catwalk_rot', 'Your own test of the catwalk planks'); }
+    else if (what === 'door') { s.sarc.inspected.push('door'); learn(s, 'sarc_door', 'Read on the vault seal door'); }
+    else if (/^sarc[1-4]$/.test(what)) { s.sarc.inspected.push(what); learn(s, 'clue_' + what, 'Read on the sarcophagus of ' + SARC_CLUES[+what.charAt(4) - 1].warden); }
+    else if (what === 'scale') { s.scale.inspected = true; learn(s, 'scale_rule', 'Read on the tithe scale'); }
+  }
+
+  function grantShard(s, cond, how) {
+    addItem(s, 'sun_prism_shard');
+    s.shard = { held: true, cond: cond, fate: 'carried', at: s.i, how: how, origin: 'Hearth prism of the Warden vault beneath Oakhaven\'s Barrow-Gate' };
+    s.prism = { pattern: PRISM_ANSWER, at: s.i, how: cond === 'whole' ? 'Deduced and committed by you' : 'Read from the light-pattern that flared as you forced the door', origin: 'Warden vault beneath Oakhaven\'s Barrow-Gate' };
+    learn(s, 'prism_order', s.prism.how);
+  }
+  function doSarc(s, p) {
+    var S = s.sarc;
+    if (p[1] === 'arrange') {
+      S.slots = p[2].split('').map(function (c) { return c === '_' ? null : c; });
+    } else if (p[1] === 'commit') {
+      var order = S.slots.join('');
+      S.attempts.push(order);
+      addPanic(s, 1, 'setting the sun-prisms');
+      if (order === PRISM_ANSWER) {
+        S.result = S.hint ? 'ordered_assisted' : (S.attempts.length > 1 ? 'ordered_after_retry' : 'ordered');
+        grantShard(s, 'whole', 'Released by the vault door when the prisms were set in true order');
+        chron(s, 'You set the prisms ' + orderNames(order) + '. The door blazed open and a whole shard slid free of the Hearth prism.');
+      } else {
+        chron(s, 'Wrong order (' + orderNames(order) + '): the sockets spat the prisms out in a flash of heat (Vitality -1).');
+        S.slots = S.hint ? [PRISM_ANSWER.charAt(0), null, null, null] : [null, null, null, null];
+        hurt(s, 1, 'a flare from a wrong prism order');
+      }
+    } else if (p[1] === 'hint') {
+      S.hint = true; addPanic(s, 1, 'tracing the dust lines');
+      var cur = S.slots.indexOf('B'); if (cur >= 0) S.slots[cur] = null;
+      if (S.slots[0]) S.slots[0] = null; S.slots[0] = 'B';
+      learn(s, 'sarc_hint', 'Traced from worn dust lines in the vault floor');
+      chron(s, 'Worn dust lines showed the Beacon prism belongs in the first socket.');
+    } else if (p[1] === 'force') {
+      addPanic(s, 1, 'forcing the seal door');
+      S.result = 'forced';
+      grantShard(s, 'chipped', 'Chipped from the Hearth prism as you forced the vault door');
+      chron(s, 'You forced the seal door. Light flared through the prisms in their true order as it gave way, and a chipped shard fell from the Hearth prism. The cluortal seal is marked forced.');
+    }
+  }
+  function orderNames(o) { return o.split('').map(function (k) { return PRISMS[k].name; }).join(', '); }
+
+  function doDrake(s, act) {
+    var d = s.drake;
+    function lunge(why) { if (d.fear >= 4) hurt(s, drakeHit(s), 'the drake lashing out blindly (' + why + ')'); }
+    switch (act) {
+      case 'observe':
+        d.used.push('observe'); learn(s, 'drake_signs', 'Watched by you in the ember gallery');
+        chron(s, 'You watched before acting. It flinches from your lantern glare, swings its head toward every footstep, and coughs hardest where smoke pools by a blocked vent.'); break;
+      case 'speak': d.used.push('speak'); d.fear = Math.max(0, d.fear - 1); chron(s, 'You spoke low. The drake\'s head swung toward your voice and its snapping slowed.'); break;
+      case 'shade': d.used.push('shade'); d.fear = Math.max(0, d.fear - 1); chron(s, 'You shaded your lantern; the drake stopped flinching.'); break;
+      case 'still': d.used.push('still'); d.fear = Math.max(0, d.fear - 1); chron(s, 'You crouched and kept still. With no footsteps to track, the drake\'s head sank.'); break;
+      case 'ward': d.used.push('ward'); d.fear = Math.max(0, d.fear - 2); if (!d.aggression) d.trust++; chron(s, 'The ward-lantern\'s clear light parted the smoke. For the first time the drake could see you' + (d.aggression ? ', and the blade you struck it with.' : '.')); break;
+      case 'vent':
+        d.used.push('vent'); d.fear = Math.max(0, d.fear - 1); d.trust++; addPanic(s, 1, 'clearing the drake\'s smoke vent');
+        if (!has(s, 'crowbar')) hurt(s, 1, 'hot stone in the smoke vent');
+        chron(s, 'You opened the choked vent. Clean air poured in and the drake gulped it.'); break;
+      case 'broth':
+        d.used.push('broth'); s.broth--; s.brothLog.push({ i: s.i, how: 'offered to the Cinder-Drake' }); d.fear = Math.max(0, d.fear - 2); d.trust++;
+        chron(s, 'You poured out your Hearth-Broth. The drake lapped it up, shivering less.'); break;
+      case 'pillar': d.pillar = true; chron(s, 'You put the stone pillar between you and the drake.'); break;
+      case 'intimidate':
+        lunge('startled by the noise'); if (s.scene !== 'gallery' || d.fate) break;
+        d.fear = Math.min(6, d.fear + 2);
+        if (d.fear >= 6) { d.fate = 'driven_off'; addPanic(s, 1, 'driving off the drake'); chron(s, d.injured ? 'The drake bolted down a deep vent, still bleeding from your earlier blow.' : 'The drake bolted down a deep vent, unhurt but terrified.'); }
+        else chron(s, 'The drake hissed and backed away, still blocking the passage.');
+        break;
+      case 'strike':
+        lunge('you closed the distance'); if (s.scene !== 'gallery' || d.fate) break;
+        d.aggression = true; d.hp -= 2; d.injured = true; d.trust = 0;
+        d.fear = Math.min(6, d.fear + 1);
+        if (d.hp <= 2 || d.fear >= 6) { d.fate = 'driven_off'; addPanic(s, 1, 'driving off the drake'); chron(s, 'Your blade cut its wing-membrane. The drake fled wounded down a deep vent.'); }
+        else chron(s, 'Your blade cut the drake\'s shoulder. It screamed and backed into the smoke, still blocking the way.');
+        break;
+      case 'slip': d.fate = 'left_in_barrow'; addPanic(s, 1, 'creeping past the drake'); chron(s, 'You slipped past along the far wall. The drake stayed behind, trapped in the smoke.'); break;
+      case 'release': d.fate = 'spared'; addPanic(s, 1, 'opening the upper vent'); chron(s, 'You opened the upper vent. The drake climbed toward the night air and was gone.'); break;
+      case 'bond':
+        d.fate = 'spared'; d.bond = true; addPanic(s, 1, 'earning the drake\'s trust');
+        s.bonds.push({ id: 'drake_friend', i: s.i, text: 'The juvenile Cinder-Drake pressed its warm snout to your palm before climbing to the night air. It knows your scent.' });
+        chron(s, 'The drake pressed its warm snout into your palm, then climbed free. A Drake-Friend bond formed.'); break;
+    }
+    if (!d.fate && !d.calm && d.fear <= 1 && s.scene === 'gallery') { d.calm = true; chron(s, 'The drake settled, breathing easily.'); }
+  }
+
+  function doScale(s, p) {
+    var S = s.scale;
+    if (p[1] === 'fish') {
+      S.four = 'vault'; S.fourBy = p[2];
+      if (p[2] === 'hand') hurt(s, 1, 'sharp stone in the scale pit');
+      chron(s, 'You recovered the 4-notch stone from the pit ' + (p[2] === 'magnet' ? 'with the magnetized crowbar.' : 'by hand (Vitality -1).'));
+      if (s.scene !== 'tithe') return;
+    } else if (p[1] === 'arrange') {
+      var sides = p[2].split('.');
+      S.left = sides[0].split('').filter(Boolean).map(function (c) { return FROM_CODE[c]; });
+      S.right = sides[1].split('').filter(Boolean).map(function (c) { return FROM_CODE[c]; });
+    }
+    else if (p[1] === 'commit') {
+      addPanic(s, 1, 'paying the tithe');
+      var t = scaleTotals(s);
+      S.result = 'balanced'; S.committed = { left: S.left.slice(), right: S.right.slice(), leftTotal: t.left, rightTotal: t.right };
+      S.left.concat(S.right).forEach(function (w) {
+        if (!ITEM_WEIGHTS[w]) return;
+        S.sacrificed.push(w);
+        if (w === 'hearth_broth') { s.broth--; s.brothLog.push({ i: s.i, how: 'left as tithe on the Warden scale' }); }
+        else removeItem(s, w);
+        if (w === 'seal_plate') { s.evidence.seal_plate.held = false; s.evidence.seal_plate.fate = 'surrendered as tithe on the Warden scale'; }
+        if (w === 'crowbar') s.crowbarFate = 'surrendered as tithe on the Warden scale';
+        if (w === 'ward_lantern' && s.loan) {
+          s.loan.held = false; s.loan.fate = 'surrendered_as_tithe'; s.loan.fateAt = s.i;
+          s.promises.forEach(function (pr) { if (pr.id === 'return_ward_lantern') { pr.status = 'broken_restitution_due'; pr.statusAt = s.i; pr.reason = 'You surrendered the borrowed Ward-Lantern as tithe on the Warden scale. It cannot be returned.'; } });
+          s.obligations.push({ id: 'restitution_ward_lantern', owedTo: s.loan.lender, status: 'outstanding', at: s.i, reason: 'Make good the Temple Ward-Lantern you surrendered as tithe. Nothing has been replaced or forgiven yet.' });
+          chron(s, 'The borrowed Ward-Lantern stays with the scale. Your promise to return it to Acolyte Wren is broken, and you owe the temple restitution.');
+        }
+      });
+      chron(s, 'The tithe balanced at ' + t.left + ' against ' + t.right + '. The beam locked level.' + (S.sacrificed.length ? ' Kept as tithe: ' + S.sacrificed.map(function (w) { return ITEMS[w].name; }).join(', ') + '.' : ''));
+    } else if (p[1] === 'lash') {
+      addPanic(s, 1, 'lashing the beam'); S.result = 'lashed'; S.committed = { left: S.left.slice(), right: S.right.slice() }; S.left = []; S.right = [];
+      chron(s, 'You lashed the beam level with your belt. It will hold for now, but the chaortal seal is imperfect.');
+    } else if (p[1] === 'wedge') {
+      addPanic(s, 1, 'wedging the beam'); S.result = 'wedged'; S.committed = { left: S.left.slice(), right: S.right.slice() }; S.left = []; S.right = [];
+      removeItem(s, 'crowbar'); s.crowbarFate = 'left wedged in the tithe beam';
+      chron(s, 'You wedged the beam level with your crowbar and left it there. The chaortal seal is imperfect.');
+    }
+  }
+
+  function doGrid(s, p) {
+    var G = s.grid;
+    if (p[1] === 'arrange') {
+      G.st = decodeGrid(p[2]);
+    } else if (p[1] === 'shim') {
+      G.shim = 'removed';
+      if (!has(s, 'crowbar') && !has(s, 'short_sword')) hurt(s, 1, 'a silver edge cutting your fingers');
+      if (s.scene !== 'mirrors') return;
+      if (packUsed(s) + ITEMS.silver_shim.size <= RULES.capacity) addItem(s, 'silver_shim');
+      s.evidence.silver_shim = { held: true, fate: 'carried', at: s.i, how: 'Pried by you from mirror M2 in the Warden mirror gallery' };
+      learn(s, 'shim_stamp', 'Read from the shim itself');
+      chron(s, 'You removed the silver shim from M2. It is stamped with Bramwell mint\'s crossed hammers. Someone jammed this mirror on purpose.');
+    } else if (p[1] === 'commit') {
+      addPanic(s, 1, 'locking the mirrors');
+      var t = traceBeam(G.st);
+      G.result = t.solved ? 'aligned' : 'partial'; G.lit = t.litCount; G.heart = t.heart; G.committedSt = G.st;
+      chron(s, t.solved ? 'Light ran through all three sockets into the seal heart. The gamortal grid is aligned.' : 'You locked the mirrors with ' + t.litCount + ' of 3 sockets lit' + (t.heart ? '' : ' and no light reaching the seal heart') + '. The gamortal grid is only partly aligned.');
+    }
+  }
+
+  function interferenceProofs(s) {
+    var P = [{ id: 'well_drillholes', kind: 'witnessed', text: 'Fresh drill holes in the split well stones, shown to you by Mira Vance' }];
+    if (s.know.well_filings) P.push({ id: 'well_filings', kind: 'observed', text: 'Bright mint-grade silver filings packed into the drill holes (your own inspection)' });
+    if (s.know.shim_seen) P.push({ id: 'shim_seen', kind: 'observed', text: 'A silver wedge deliberately jammed into mirror M2 (seen by you)' });
+    if (s.evidence.silver_shim && s.evidence.silver_shim.held) P.push({ id: 'silver_shim', kind: 'physical', text: 'The Bramwell-stamped silver shim itself, in your oath-pouch' });
+    return P;
+  }
+  function bramwellLeads(s) {
+    var L = [{ id: 'thieves_road', kind: 'witnessed', text: 'The thieves\' cart took the Bramwell road (seen from the market square)' }];
+    if (s.know.plate_stamp) L.push({ id: 'plate_stamp', kind: s.evidence.seal_plate.held ? 'physical' : 'remembered', text: s.evidence.seal_plate.held ? 'The recovered seal-plate, stamped with Bramwell mint\'s crossed hammers (carried)' : 'The recovered seal-plate bore Bramwell\'s crossed-hammer stamp (plate surrendered as tithe; stamp recorded in your sworn account)' });
+    if (s.know.thief_words) L.push({ id: 'thief_words', kind: 'heard', text: 'The pinned thief gasped that "the mint at Bramwell pays by the plate"' });
+    if (s.know.shim_stamp) L.push({ id: 'shim_stamp', kind: s.evidence.silver_shim && s.evidence.silver_shim.held ? 'physical' : 'remembered', text: 'The mirror shim carries the same Bramwell mint mark' });
+    return L;
+  }
+
+  function confidenceOf(clean, peak) {
+    if (clean) return peak <= 8 ? 'restored' : peak < 12 ? 'steadied' : 'wary';
+    return peak < 12 ? 'shaken' : 'broken';
+  }
+
+  function finalize(s) {
+    var weak = [];
+    if (s.sarc.result === 'forced') weak.push('cluortal door forced, prisms not seated by hand');
+    if (s.scale.result !== 'balanced') weak.push(s.scale.result === 'lashed' ? 'tithe beam held by a belt lashing' : 'tithe beam held by a wedged crowbar');
+    if (s.grid.result !== 'aligned') weak.push('mirror grid only ' + s.grid.lit + ' of 3 sockets lit' + (s.grid.heart ? '' : ', light not reaching the heart'));
+    var clean = weak.length === 0;
+    if (!clean) {
+      s.town.injured += 1;
+      s.town.damage.push('Cold seal-smoke vented into the Well Street cellars');
+      s.town.events.push({ i: s.i, id: 'seal_backlash', injured: 1, text: 'The imperfect seal vented cold smoke into Well Street. 1 neighbour injured.' });
+    }
+    s.seal = { condition: clean ? 'clean' : 'partial', weakPoints: weak };
+    s.outcome = clean ? (s.panicPeak < 12 ? 'clean_reseal' : 'clean_reseal_wary') : 'partial_reseal';
+    s.town.confidence = confidenceOf(clean, s.panicPeak);
+    s.scene = 'dawn';
+    var pin = clean || s.panicPeak < 12;
+    s.rewards = rewardList(s, pin);
+    if (pin) s.pin = { at: s.i, why: clean ? 'Awarded by Mira Vance for a clean reseal' : 'Awarded by Mira Vance for holding the seal and the town together' };
+    s.dispatch = buildDispatch(s, clean ? 'assignment' : 'emergency_assignment');
+    chron(s, clean ? 'The seal closed clean. Dawn light came through the Barrow-Gate.' : 'The seal closed imperfectly: ' + weak.join('; ') + '. Cold smoke vented into Well Street.');
+  }
+  function finalizeCarried(s) {
+    s.seal = { condition: 'unrepaired', weakPoints: ['Barrow-Gate held only by the watch\'s temporary chains'] };
+    s.outcome = 'carried_out';
+    s.town.confidence = 'broken';
+    s.rewards = rewardList(s, false);
+    s.dispatch = buildDispatch(s, 'emergency_handoff');
+  }
+  function rewardList(s, pin) {
+    var R = [];
+    if (pin) R.push('silver_lantern_pin');
+    if (s.shard && s.shard.held) R.push('sun_prism_shard');
+    if (s.evidence.seal_plate && s.evidence.seal_plate.held) R.push('bramwell_seal_plate_evidence');
+    if (has(s, 'crowbar') && s.crowbarMod === 'magnetized') R.push('magnetized_crowbar');
+    if (s.drake.bond) R.push('drake_friend_bond');
+    return R;
+  }
+  function buildDispatch(s, type) {
+    var lines = [];
+    var proofs = interferenceProofs(s), leads = bramwellLeads(s);
+    if (type === 'emergency_handoff') {
+      lines.push('EMERGENCY HANDOFF, Iron-Lantern Wardens of Oakhaven. From Quartermaster Mira Vance.');
+      lines.push('Warden collapsed below the Barrow-Gate and was carried out by temple acolytes and the watch. The gate is held by temporary chains; the seal is unrepaired.');
+      lines.push('The Warden must recover before any further duty (Vitality 0 at handoff).');
+    } else {
+      lines.push((type === 'emergency_assignment' ? 'EMERGENCY DISPATCH' : 'DISPATCH') + ', Iron-Lantern Wardens of Oakhaven. From Quartermaster Mira Vance.');
+      lines.push('Seal condition: ' + (s.seal.condition === 'clean' ? 'clean reseal' : 'partial reseal (' + s.seal.weakPoints.join('; ') + '). A watch is posted on the Barrow-Gate') + '.');
+    }
+    lines.push('Town: peak panic ' + s.panicPeak + ' of 12; ' + s.town.injured + ' neighbour' + (s.town.injured === 1 ? '' : 's') + ' injured' + (s.town.damage.length ? '; damage: ' + s.town.damage.join('; ') : '') + '.');
+    lines.push('Proof of deliberate interference: ' + proofs.map(function (p) { return p.text; }).join('; ') + '.');
+    lines.push('Leads to Bramwell: ' + leads.map(function (p) { return p.text; }).join('; ') + '.');
+    if (s.obligations.length) lines.push('Outstanding obligation: restitution owed to ' + s.obligations[0].owedTo + ' for the Temple Ward-Lantern surrendered as tithe.');
+    lines.push('Orders: ' + (type === 'emergency_handoff' ? 'once recovered, the Warden is to trace the stolen silver to Bramwell\'s flooded mint.' : 'trace the stolen silver seal-plates through Bramwell\'s flooded mint.'));
+    return { from: 'Quartermaster Mira Vance', type: type, lines: lines, summary: type === 'emergency_handoff' ? 'Emergency handoff recorded; Bramwell investigation assigned after recovery.' : 'Assigned to trace the stolen silver through Bramwell\'s flooded mint.' };
+  }
+
+  // ---- Handoff for chapter #002 (pure function of final state) ----
+  function handoff(s, meta) {
+    if (!s.complete) return null;
+    var knowledge = Object.keys(s.know).sort().map(function (k) { return { id: k, provenance: s.know[k].src, atAction: s.know[k].at }; });
+    var ev = [];
+    ['seal_plate', 'silver_shim'].forEach(function (id) { if (s.evidence[id]) ev.push({ id: id, held: s.evidence[id].held, fate: s.evidence[id].fate, provenance: s.evidence[id].how, atAction: s.evidence[id].at }); });
+    return {
+      ids: { campaign: CAMPAIGN, chapter: CHAPTER, schema: SCHEMA, build: BUILD, runId: meta.runId, mode: s.mode },
+      outcome: s.outcome,
+      vitality: { current: s.vit, max: s.vitMax, collapses: s.collapses, recoveryRequired: s.vit === 0 },
+      worn: s.worn.slice(), pack: s.pack.slice(), consumables: { hearth_broth: s.broth },
+      crowbar: { held: s.pack.indexOf('crowbar') >= 0, modification: s.crowbarMod, fate: s.pack.indexOf('crowbar') >= 0 ? 'carried' : (s.crowbarFate || 'carried') },
+      evidence: ev,
+      knowledge: knowledge,
+      prism: { pattern: s.prism ? s.prism.pattern : null, patternNames: s.prism ? orderNames(s.prism.pattern) : null, learnedBy: s.prism ? s.prism.how : null, origin: s.prism ? s.prism.origin : null,
+        shard: s.shard ? { held: s.shard.held, condition: s.shard.cond, fate: s.shard.fate, origin: s.shard.origin, provenance: s.shard.how } : null },
+      drake: { fate: s.drake.met ? (s.drake.fate || 'unresolved') : 'not_met', injured: s.drake.injured, aggression: s.drake.aggression, trust: s.drake.trust, bond: s.drake.bond },
+      bonds: s.bonds.map(function (b) { return b.id; }),
+      promises: s.promises.map(function (p) { return { id: p.id, text: p.text, status: p.status, reason: p.reason || null, statusAtAction: p.statusAt === undefined ? p.i : p.statusAt }; }),
+      loans: s.loan ? [{ item: s.loan.item, lender: s.loan.lender, provenance: s.loan.how, atAction: s.loan.at, held: s.loan.held, fate: s.loan.fate, fateAtAction: s.loan.fateAt, ownership: 'borrowed' }] : [],
+      obligations: s.obligations.map(function (o) { return { id: o.id, owedTo: o.owedTo, status: o.status, reason: o.reason, atAction: o.at }; }),
+      injuries: s.injuries.map(function (x) { return { id: x.id, text: x.text }; }),
+      town: { panicFinal: s.panic, panicPeak: s.panicPeak, panicOverflow: s.panicOverflow, thresholdsCrossed: s.thresholds.slice(), injuredNeighbours: s.town.injured, damage: s.town.damage.slice(), civilianHelp: s.town.help.slice(), confidence: s.town.confidence, platesStolen: s.town.platesStolen, platesRecovered: s.town.platesRecovered },
+      chambers: {
+        cluortal: (s.sarc.result || s.sarc.attempts.length) ? { result: s.sarc.result || 'unresolved', committedOrders: s.sarc.attempts.slice(), hintUsed: s.sarc.hint } : { result: 'not_reached' },
+        chaortal: s.scale.result ? { result: s.scale.result, committed: s.scale.committed || null, sacrificed: s.scale.sacrificed.slice(), fourStone: s.scale.fourBy } : { result: 'not_reached' },
+        gamortal: s.grid.result ? { result: s.grid.result, socketsLit: s.grid.lit, heartReached: s.grid.heart, committedState: s.grid.committedSt, shim: s.grid.shim } : { result: 'not_reached' }
+      },
+      seal: s.seal,
+      interference: { proven: true, proofs: interferenceProofs(s) },
+      bramwellLead: { leads: bramwellLeads(s) },
+      dispatch: s.dispatch,
+      rewards: s.rewards.slice(),
+      recovery: s.vit === 0 ? { required: true, entry: 'temple_hill_recovery', note: 'The Warden was carried out unconscious. Chapter #002 must open with an explicit recovery event before any action that needs Vitality above 0.' } : { required: false },
+      chronicle: s.chron.map(function (c) { return { atAction: c.i, text: c.text }; }),
+      history: { chronicle: 'Frozen copy recomputed by replaying the action log with engine build ' + BUILD + ' (schema ' + SCHEMA + '). Reversible puzzle arrangements are excluded.', patternPersistsIndependentlyOfShard: true },
+      completedChapters: s.mode === 'epic' ? ['001'] : [],
+      actionCount: s.i,
+      nextChapter: { id: '002', title: 'Seven Keys of the Sunken Mint', available: false }
+    };
+  }
+
+  function replay(mode, log) {
+    if (!Array.isArray(log)) throw Illegal('log must be an array');
+    var s = newState(mode);
+    for (var i = 0; i < log.length; i++) {
+      try { s = apply(s, log[i]); } catch (e) { var err = Illegal('replay failed at action ' + i + ' (' + String(log[i]).slice(0, 40) + '): ' + e.message); err.at = i; throw err; }
+    }
+    return s;
+  }
+
+  // canonical JSON + FNV-1a digest (integrity check only; not authentication)
+  function canon(o) {
+    if (o === null || typeof o !== 'object') return JSON.stringify(o);
+    if (Array.isArray(o)) return '[' + o.map(canon).join(',') + ']';
+    return '{' + Object.keys(o).sort().map(function (k) { return JSON.stringify(k) + ':' + canon(o[k]); }).join(',') + '}';
+  }
+  function digest(o) {
+    var str = canon(o), h1 = 0x811c9dc5, h2 = 0x01000193 ^ 0x5bd1e995;
+    for (var i = 0; i < str.length; i++) {
+      var ch = str.charCodeAt(i);
+      h1 ^= ch; h1 = Math.imul(h1, 0x01000193) >>> 0;
+      h2 ^= ch; h2 = Math.imul(h2, 0x5bd1e995) >>> 0; h2 ^= h2 >>> 15;
+    }
+    return ('00000000' + h1.toString(16)).slice(-8) + ('00000000' + (h2 >>> 0).toString(16)).slice(-8);
+  }
+
+  var API = {
+    CAMPAIGN: CAMPAIGN, NAMESPACE: NAMESPACE, CHAPTER: CHAPTER, SCHEMA: SCHEMA, BUILD: BUILD,
+    RULES: RULES, FACTS: FACTS, ITEMS: ITEMS, WORN: WORN, PRISMS: PRISMS, PRISM_ANSWER: PRISM_ANSWER, SARC_CLUES: SARC_CLUES, DOOR_CLUE: DOOR_CLUE,
+    TITHE: TITHE, VAULT_WEIGHTS: VAULT_WEIGHTS, ITEM_WEIGHTS: ITEM_WEIGHTS, GRID: GRID,
+    newState: newState, legal: legal, isLegal: isLegal, apply: apply, replay: replay, costOf: costOf, preview: preview, encodeScale: encodeScale, encodeSarc: encodeSarc, encodeGrid: encodeGrid, decodeGrid: decodeGrid, CODE: CODE,
+    traceBeam: traceBeam, describeBeam: describeBeam, cellName: cellName, mirrorAt: mirrorAt,
+    scaleTotals: scaleTotals, scaleBalanced: scaleBalanced, weightOf: weightOf, weightName: weightName, weightsAvailable: weightsAvailable,
+    packUsed: packUsed, handoff: handoff, interferenceProofs: interferenceProofs, bramwellLeads: bramwellLeads,
+    canon: canon, digest: digest, orderNames: orderNames, confidenceOf: confidenceOf
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.OakEngine = API;
+})(this);
+
+</script>
+<script>
+/* The Last Lantern of Oakhaven — persistence (localStorage-shaped storage injected; testable in Node). */
+(function (root) {
+  'use strict';
+  function create(storage, E) {
+    var NS = E.NAMESPACE, CH = E.CHAPTER;
+    var KEYS = {
+      run: { epic: NS + ':' + CH + ':run:epic', free: NS + ':' + CH + ':run:free' },
+      runBackup: { epic: NS + ':' + CH + ':run:epic:backup', free: NS + ':' + CH + ':run:free:backup' },
+      checkpoint: NS + ':checkpoint',
+      checkpointBackup: NS + ':checkpoint:backup',
+      settings: NS + ':settings',
+      probe: NS + ':probe',
+      legacyPrefix: NS + ':legacy-r1:'
+    };
+    var COMPATIBLE_BUILDS = ['1.0.0-r2'];
+    var LEGACY = { schema: 1, build: '1.0.0-r1' };
+    var RUN_FIELDS = ['format', 'campaign', 'chapter', 'schema', 'build', 'mode', 'runId', 'rev', 'log', 'digest', 'savedAt'];
+    var CP_FIELDS = ['format', 'campaign', 'chapter', 'schema', 'build', 'completedChapters', 'runId', 'rev', 'log', 'digest', 'handoff', 'savedAt'];
+    var ACTION_RE = /^[a-zA-Z0-9:_.]{1,40}$/, RUNID_RE = /^[a-z0-9]{8,32}$/, ISO_RE = /^\d{4}-\d\d-\d\dT[\d:.]+Z$/;
+    var MAX_BYTES = 200000;
+
+    function get(k) { try { return { ok: true, v: storage.getItem(k) }; } catch (e) { return { ok: false, err: e }; } }
+    function set(k, v) {
+      try { storage.setItem(k, v); return { ok: true }; }
+      catch (e) { return { ok: false, err: e, quota: /quota/i.test(String(e && (e.name + e.message))) }; }
+    }
+    function available() {
+      var w = set(KEYS.probe, '1'); if (!w.ok) return false;
+      try { storage.removeItem(KEYS.probe); } catch (e) { return false; }
+      return true;
+    }
+    function exactKeys(o, fields) {
+      if (!o || typeof o !== 'object' || Array.isArray(o)) return 'not an object';
+      if (Object.getPrototypeOf(o) !== Object.prototype) return 'not a plain object';
+      var ks = Object.keys(o);
+      for (var i = 0; i < ks.length; i++) if (fields.indexOf(ks[i]) < 0) return 'unknown field "' + String(ks[i]).slice(0, 30) + '"';
+      for (i = 0; i < fields.length; i++) if (!(fields[i] in o)) return 'missing field "' + fields[i] + '"';
+      return null;
+    }
+    function parse(raw) {
+      if (typeof raw !== 'string') return { error: 'no text' };
+      if (raw.length > MAX_BYTES) return { error: 'record too large' };
+      try { return { obj: JSON.parse(raw) }; } catch (e) { return { error: 'not valid JSON' }; }
+    }
+    function isLegacy(o) { return !!o && typeof o === 'object' && o.campaign === E.CAMPAIGN && o.chapter === CH && o.schema === LEGACY.schema && o.build === LEGACY.build && (o.format === 'doorquests.oakhaven.run' || o.format === 'doorquests.fracture-of-scales.checkpoint'); }
+    function checkCommon(o, format) {
+      if (isLegacy(o)) return 'this is an R1 record (build 1.0.0-r1, schema 1). R2 does not replay R1 actions; the record is preserved as legacy and can be exported, but it is not certified';
+      if (o.format !== format) return 'wrong record type';
+      if (o.campaign !== E.CAMPAIGN) return 'belongs to a different campaign';
+      if (o.chapter !== CH) return 'belongs to a different chapter';
+      if (o.schema !== E.SCHEMA) return 'unsupported schema version ' + String(o.schema).slice(0, 10);
+      if (COMPATIBLE_BUILDS.indexOf(o.build) < 0) return 'made by an unsupported build (' + String(o.build).slice(0, 20) + ')';
+      if (typeof o.runId !== 'string' || !RUNID_RE.test(o.runId)) return 'bad run id';
+      if (!Array.isArray(o.log)) return 'bad action log';
+      if (o.log.length > E.RULES.maxLog) return 'action log too long';
+      for (var i = 0; i < o.log.length; i++) if (typeof o.log[i] !== 'string' || !ACTION_RE.test(o.log[i])) return 'bad action at ' + i;
+      if (typeof o.rev !== 'number' || !isFinite(o.rev) || Math.floor(o.rev) !== o.rev || o.rev < 1 || o.rev > 1e9) return 'bad save revision';
+      if (typeof o.digest !== 'string' || !/^[0-9a-f]{16}$/.test(o.digest)) return 'bad digest';
+      if (typeof o.savedAt !== 'string' || !ISO_RE.test(o.savedAt)) return 'bad timestamp';
+      return null;
+    }
+    function validateRun(o, mode) {
+      var e = exactKeys(o, RUN_FIELDS) || checkCommon(o, 'doorquests.oakhaven.run');
+      if (e) return { ok: false, error: e };
+      if (o.mode !== 'epic' && o.mode !== 'free') return { ok: false, error: 'bad mode' };
+      if (mode && o.mode !== mode) return { ok: false, error: 'this is a ' + (o.mode === 'epic' ? 'Epic Journey' : 'Free Exploration') + ' record, not ' + (mode === 'epic' ? 'Epic Journey' : 'Free Exploration') };
+      var st;
+      try { st = E.replay(o.mode, o.log); } catch (err) { return { ok: false, error: 'the action log does not replay: ' + err.message }; }
+      if (E.digest(st) !== o.digest) return { ok: false, error: 'state digest does not match the replayed log' };
+      return { ok: true, state: st };
+    }
+    function validateCheckpoint(o) {
+      var e = exactKeys(o, CP_FIELDS) || checkCommon(o, 'doorquests.fracture-of-scales.checkpoint');
+      if (e) return { ok: false, error: e };
+      if (!Array.isArray(o.completedChapters) || o.completedChapters.length !== 1 || o.completedChapters[0] !== '001') return { ok: false, error: 'bad completed chapter list' };
+      var st;
+      try { st = E.replay('epic', o.log); } catch (err) { return { ok: false, error: 'the action log does not replay: ' + err.message }; }
+      if (!st.complete) return { ok: false, error: 'the replayed run is not complete' };
+      if (E.digest(st) !== o.digest) return { ok: false, error: 'state digest does not match' };
+      if (E.canon(E.handoff(st, { runId: o.runId })) !== E.canon(o.handoff)) return { ok: false, error: 'handoff does not match the replayed run' };
+      return { ok: true, state: st };
+    }
+    // rev is a save counter (incremented on every write), not the log length: trailing puzzle arrangements are coalesced.
+    function runRecord(mode, runId, log, st, now, rev) {
+      return { format: 'doorquests.oakhaven.run', campaign: E.CAMPAIGN, chapter: CH, schema: E.SCHEMA, build: E.BUILD, mode: mode, runId: runId, rev: rev || 1, log: log.slice(), digest: E.digest(st), savedAt: now };
+    }
+    function cpRecord(runId, log, st, now) {
+      return { format: 'doorquests.fracture-of-scales.checkpoint', campaign: E.CAMPAIGN, chapter: CH, schema: E.SCHEMA, build: E.BUILD, completedChapters: ['001'], runId: runId, rev: 1, log: log.slice(), digest: E.digest(st), handoff: E.handoff(st, { runId: runId }), savedAt: now };
+    }
+    // Copy R1 legacy bytes to a dedicated legacy key before anything could overwrite them. Never overwrites a different legacy copy.
+    function preserveLegacy(raw, suffix) {
+      var p = parse(raw); if (p.error || !isLegacy(p.obj)) return { ok: true, preserved: false };
+      for (var n = 0; n < 20; n++) {
+        var k = KEYS.legacyPrefix + suffix + (n ? ':' + n : ''), g = get(k);
+        if (!g.ok) return { ok: false };
+        if (g.v === raw) return { ok: true, preserved: true, key: k };
+        if (g.v === null) { var w = set(k, raw); return { ok: w.ok, preserved: w.ok, key: k }; }
+      }
+      return { ok: false };
+    }
+    function readRun(mode) {
+      var g = get(KEYS.run[mode]);
+      if (!g.ok) return { status: 'blocked', error: 'Storage is blocked in this browser.' };
+      if (g.v === null) return { status: 'empty' };
+      var p = parse(g.v); if (p.error) return { status: 'invalid', error: p.error, raw: g.v };
+      if (isLegacy(p.obj)) return { status: 'legacy', raw: g.v, rec: p.obj };
+      var v = validateRun(p.obj, mode);
+      if (!v.ok) return { status: 'invalid', error: v.error, raw: g.v };
+      return { status: 'ok', rec: p.obj, state: v.state, raw: g.v };
+    }
+    function readCheckpoint() {
+      var g = get(KEYS.checkpoint);
+      if (!g.ok) return { status: 'blocked' };
+      if (g.v === null) return { status: 'empty' };
+      var p = parse(g.v); if (p.error) return { status: 'invalid', error: p.error, raw: g.v };
+      if (isLegacy(p.obj)) return { status: 'legacy', raw: g.v, rec: p.obj };
+      var v = validateCheckpoint(p.obj);
+      if (!v.ok) return { status: 'invalid', error: v.error, raw: g.v };
+      return { status: 'ok', rec: p.obj, state: v.state, raw: g.v };
+    }
+    // Cheap identity peek (no replay) used for stale-tab detection.
+    function peekRun(mode) {
+      var g = get(KEYS.run[mode]); if (!g.ok) return { status: 'blocked' };
+      if (g.v === null) return { status: 'empty' };
+      var p = parse(g.v); if (p.error || !p.obj || typeof p.obj !== 'object') return { status: 'invalid' };
+      return { status: 'present', runId: p.obj.runId, rev: p.obj.rev, digest: p.obj.digest, raw: g.v };
+    }
+    function sameHistory(storedLog, myLog) {
+      if (!Array.isArray(storedLog) || storedLog.length > myLog.length) return false;
+      for (var i = 0; i < storedLog.length; i++) if (storedLog[i] !== myLog[i]) return false;
+      return true;
+    }
+    /* session: { mode, runId, rev, digest } = what this tab last wrote or loaded (rev null for a brand-new run). */
+    function saveRun(session, log, st, now) {
+      var mode = session.mode, key = KEYS.run[mode];
+      var g = get(key);
+      if (!g.ok) return { status: 'blocked' };
+      if (g.v !== null) {
+        var p = parse(g.v), o = p.obj;
+        if (p.error || !o || typeof o !== 'object') return { status: 'conflict', reason: 'stored record unreadable' };
+        if (session.rev === null) return { status: 'conflict', reason: 'another run is already saved for this mode', other: { runId: o.runId, rev: o.rev } };
+        if (o.runId !== session.runId) return { status: 'conflict', reason: 'another run replaced this one', other: { runId: o.runId, rev: o.rev } };
+        if (o.rev !== session.rev || o.digest !== session.digest) return { status: 'conflict', reason: 'this run advanced in another tab', other: { runId: o.runId, rev: o.rev } };
+      } else if (session.rev !== null) {
+        return { status: 'conflict', reason: 'the saved run was removed in another tab' };
+      }
+      var rec = runRecord(mode, session.runId, log, st, now, (session.rev || 0) + 1), raw = JSON.stringify(rec);
+      var w = set(key, raw);
+      if (!w.ok) return { status: w.quota ? 'quota' : 'blocked' };
+      var back = get(key);
+      if (!back.ok || back.v !== raw) return { status: 'conflict', reason: 'another tab wrote at the same moment' };
+      session.rev = rec.rev; session.digest = rec.digest;
+      return { status: 'ok', rev: rec.rev };
+    }
+    // Explicit override after the player confirms: back up whatever is there, then write.
+    function overwriteRun(session, log, st, now) {
+      var key = KEYS.run[session.mode], g = get(key);
+      if (!g.ok) return { status: 'blocked' };
+      var prevRev = 0;
+      if (g.v !== null) {
+        var lg = preserveLegacy(g.v, 'run:' + session.mode); if (!lg.ok) return { status: 'blocked' };
+        var b = set(KEYS.runBackup[session.mode], g.v); if (!b.ok) return { status: b.quota ? 'quota' : 'blocked' };
+        var po = parse(g.v).obj; if (po && typeof po.rev === 'number' && po.rev < 1e9) prevRev = Math.max(0, Math.floor(po.rev));
+      }
+      var rec = runRecord(session.mode, session.runId, log, st, now, Math.max(prevRev, session.rev || 0) + 1), raw = JSON.stringify(rec);
+      var w = set(key, raw); if (!w.ok) return { status: w.quota ? 'quota' : 'blocked' };
+      session.rev = rec.rev; session.digest = rec.digest; return { status: 'ok', rev: rec.rev };
+    }
+    /* Completion. opts.saveStatus must be 'ok' (the last run save for this exact log succeeded).
+       opts.confirmToken: the raw checkpoint text the player was shown when confirming replacement. */
+    function commitCheckpoint(session, log, st, now, opts) {
+      opts = opts || {};
+      if (session.mode !== 'epic') return { status: 'sandbox', note: 'Free Exploration never writes campaign progress.' };
+      if (!st.complete) return { status: 'not_complete' };
+      if (opts.saveStatus !== 'ok') return { status: 'run_unsaved' };
+      var pr = peekRun('epic');
+      if (pr.status !== 'present' || pr.runId !== session.runId || pr.rev !== session.rev || pr.digest !== E.digest(st) || pr.digest !== session.digest) return { status: 'run_conflict' };
+      var cur = get(KEYS.checkpoint); if (!cur.ok) return { status: 'blocked' };
+      var rec = cpRecord(session.runId, log, st, now);
+      if (cur.v !== null) {
+        var p = parse(cur.v), o = p.obj;
+        if (!p.error && o && o.runId === session.runId && o.digest === rec.digest && validateCheckpoint(o).ok) return { status: 'already' };
+        if (opts.confirmToken === undefined) return { status: 'needs_confirm', token: cur.v, existing: summarize(cur.v) };
+        if (opts.confirmToken !== cur.v) return { status: 'changed_since_confirm', token: cur.v, existing: summarize(cur.v) };
+        var lgc = preserveLegacy(cur.v, 'checkpoint'); if (!lgc.ok) return { status: 'blocked' };
+        var b = set(KEYS.checkpointBackup, cur.v); if (!b.ok) return { status: b.quota ? 'quota' : 'blocked' };
+      } else if (opts.confirmToken !== undefined && opts.confirmToken !== null) {
+        return { status: 'changed_since_confirm', token: null, existing: null };
+      }
+      var raw = JSON.stringify(rec), w = set(KEYS.checkpoint, raw);
+      if (!w.ok) return { status: w.quota ? 'quota' : 'blocked' };
+      var back = get(KEYS.checkpoint);
+      if (!back.ok || back.v !== raw) return { status: 'conflict' };
+      return { status: 'written', record: rec };
+    }
+    function summarize(raw) {
+      var p = parse(raw); if (p.error) return { valid: false, error: p.error };
+      if (isLegacy(p.obj)) return { valid: false, legacy: true, error: 'an R1 (1.0.0-r1) completion record, preserved as legacy and not certified by R2' };
+      var v = validateCheckpoint(p.obj);
+      if (!v.ok) return { valid: false, error: v.error };
+      return { valid: true, runId: p.obj.runId, outcome: p.obj.handoff.outcome, savedAt: p.obj.savedAt };
+    }
+    function restoreCheckpointBackup() {
+      var g = get(KEYS.checkpointBackup); if (!g.ok || g.v === null) return { status: 'none' };
+      var s = summarize(g.v); if (!s.valid) return { status: 'invalid', error: s.error };
+      var cur = get(KEYS.checkpoint);
+      if (cur.ok && cur.v !== null) { var lg = preserveLegacy(cur.v, 'checkpoint'); if (!lg.ok) return { status: 'blocked' }; }
+      var w = set(KEYS.checkpoint, g.v); if (!w.ok) return { status: 'blocked' };
+      if (cur.ok && cur.v !== null) set(KEYS.checkpointBackup, cur.v);
+      return { status: 'restored' };
+    }
+    // Import: validate fully before touching storage.
+    function importRun(text, mode) {
+      var p = parse(text); if (p.error) return { status: 'rejected', error: p.error };
+      var v = validateRun(p.obj, mode);
+      if (!v.ok) return { status: 'rejected', error: v.error };
+      return { status: 'valid', rec: p.obj, state: v.state };
+    }
+    function writeImported(rec) {
+      var key = KEYS.run[rec.mode], g = get(key);
+      if (!g.ok) return { status: 'blocked' };
+      if (g.v !== null) { var lg = preserveLegacy(g.v, 'run:' + rec.mode); if (!lg.ok) return { status: 'blocked' }; var b = set(KEYS.runBackup[rec.mode], g.v); if (!b.ok) return { status: 'blocked' }; }
+      var w = set(key, JSON.stringify(rec)); if (!w.ok) return { status: w.quota ? 'quota' : 'blocked' };
+      return { status: 'ok' };
+    }
+    function removeRun(mode) {
+      var g = get(KEYS.run[mode]); if (!g.ok) return { status: 'blocked' };
+      if (g.v !== null) { preserveLegacy(g.v, 'run:' + mode); set(KEYS.runBackup[mode], g.v); }
+      try { storage.removeItem(KEYS.run[mode]); } catch (e) { return { status: 'blocked' }; }
+      return { status: 'ok' };
+    }
+    function readSettings() {
+      var g = get(KEYS.settings); var d = { textSize: 'standard', reduceMotion: false };
+      if (!g.ok || !g.v) return d;
+      var p = parse(g.v); if (p.error || !p.obj || typeof p.obj !== 'object') return d;
+      if (['standard', 'large', 'largest'].indexOf(p.obj.textSize) >= 0) d.textSize = p.obj.textSize;
+      if (typeof p.obj.reduceMotion === 'boolean') d.reduceMotion = p.obj.reduceMotion;
+      return d;
+    }
+    function writeSettings(s) { return set(KEYS.settings, JSON.stringify({ textSize: s.textSize, reduceMotion: !!s.reduceMotion })); }
+    return {
+      KEYS: KEYS, available: available, validateRun: validateRun, validateCheckpoint: validateCheckpoint,
+      runRecord: runRecord, cpRecord: cpRecord, readRun: readRun, readCheckpoint: readCheckpoint, peekRun: peekRun,
+      saveRun: saveRun, overwriteRun: overwriteRun, commitCheckpoint: commitCheckpoint, summarize: summarize,
+      restoreCheckpointBackup: restoreCheckpointBackup, importRun: importRun, writeImported: writeImported, removeRun: removeRun,
+      readSettings: readSettings, writeSettings: writeSettings, parse: parse, isLegacy: isLegacy, preserveLegacy: preserveLegacy
+    };
+  }
+  var API = { create: create };
+  if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.OakStore = API;
+})(this);
+
+</script>
+<script>
+/* The Last Lantern of Oakhaven — interface. Reads engine state; all changes go through E.apply. */
+(function () {
+  'use strict';
+  var E = window.OakEngine, S;
+  var storageObj = null;
+  try { storageObj = window.localStorage; } catch (e) { storageObj = null; }
+  var nullStorage = { getItem: function () { throw new Error('blocked'); }, setItem: function () { throw new Error('blocked'); }, removeItem: function () { throw new Error('blocked'); } };
+  S = window.OakStore.create(storageObj || nullStorage, E);
+
+  var $ = function (id) { return document.getElementById(id); };
+  var view = $('view'), live = $('live');
+  var app = { screen: 'title', mode: null, session: null, log: [], st: null, lastSave: null, saveMsg: '', stale: false, unsaved: false, cp: null, lastChronLen: 0, happened: [], storageOk: true };
+  var settings = S.readSettings();
+  app.storageOk = S.available();
+
+  // ---------- small DOM helpers ----------
+  function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (k === 'text') n.textContent = attrs[k];
+      else if (k === 'html') n.innerHTML = attrs[k]; // only used with trusted, static markup built here
+      else if (k === 'on') { for (var ev in attrs.on) n.addEventListener(ev, attrs.on[ev]); }
+      else if (attrs[k] === true) n.setAttribute(k, '');
+      else if (attrs[k] !== false && attrs[k] !== null && attrs[k] !== undefined) n.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function p(text, cls) { return el('p', { text: text, 'class': cls || null }); }
+  function announce(t) { live.textContent = ''; setTimeout(function () { live.textContent = t; }, 30); }
+  function applySettings() {
+    var h = document.documentElement;
+    h.classList.toggle('ts-large', settings.textSize === 'large');
+    h.classList.toggle('ts-largest', settings.textSize === 'largest');
+    h.classList.toggle('rm', !!settings.reduceMotion);
+  }
+  applySettings();
+  function newRunId() {
+    var a = new Uint8Array(8);
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(a); else for (var i = 0; i < 8; i++) a[i] = Math.floor(Math.random() * 256);
+    return Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  }
+  function nowIso() { return new Date().toISOString(); }
+
+  // ---------- art (original inline SVG) ----------
+  var ART = {};
+  function svg(label, body, h) {
+    return '<svg class="art" viewBox="0 0 640 ' + (h || 260) + '" role="img" aria-label="' + esc(label) + '" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f0c770" stop-opacity=".85"/><stop offset="1" stop-color="#d8a94a" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c0d10"/><stop offset="1" stop-color="#151412"/></linearGradient>' +
+      '<linearGradient id="stone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f2b25"/><stop offset="1" stop-color="#151412"/></linearGradient></defs>' +
+      body + '</svg>';
+  }
+  function rain(n) {
+    var s = '<g class="rain">';
+    for (var i = 0; i < n; i++) { var x = (i * 53) % 640, y = (i * 37) % 260; s += '<line x1="' + x + '" y1="' + (y - 30) + '" x2="' + (x - 6) + '" y2="' + y + '"/>'; }
+    return s + '</g>';
+  }
+  function cobbles(y) {
+    var s = '';
+    for (var r = 0; r < 4; r++) for (var i = 0; i < 14; i++) s += '<ellipse cx="' + (i * 48 + (r % 2) * 24) + '" cy="' + (y + r * 14) + '" rx="21" ry="5.5" fill="#24211d" stroke="#3d372e" stroke-width="1"/>';
+    return s;
+  }
+  function lantern(x, y, s) {
+    s = s || 1;
+    return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')"><circle r="34" fill="url(#glow)" class="flicker"/><rect x="-7" y="-12" width="14" height="22" rx="2" fill="#f0c770" stroke="#120f0a" stroke-width="2"/><path d="M-9 -12h18M-9 10h18M0 -12v-7" stroke="#2f2b25" stroke-width="3"/></g>';
+  }
+  ART.toll = function () {
+    return svg('Rainy night in Oakhaven market square: the bell tower looms, the public well has split open, and a single Warden lantern glows on the wet cobbles.',
+      '<rect width="640" height="260" fill="url(#night)"/>' +
+      '<path d="M470 30h50v160h-50z" fill="#151412" stroke="#3d372e"/><path d="M462 30l33-26 33 26z" fill="#24211d"/><path d="M485 60a10 12 0 0 1 20 0v14h-20z" fill="#3d372e"/><path d="M494 74v8" stroke="#77716a" stroke-width="3"/>' +
+      '<path d="M0 170h640v90H0z" fill="#151412"/>' + cobbles(178) +
+      '<g transform="translate(250 150)"><ellipse cx="0" cy="40" rx="70" ry="16" fill="#0b0b0a"/><path d="M-62 36v-26h124v26" fill="url(#stone)" stroke="#3d372e"/><path d="M-8 10l6 14-8 10 10 16" stroke="#e07a5f" stroke-width="3" fill="none"/><path d="M-60 12l120 0" stroke="#3d372e"/></g>' +
+      lantern(120, 160, 1.1) + rain(46));
+  };
+  ART.square = function () {
+    return svg('The split well, ringed with drill holes, under rain. Hooded thieves flee with a handcart toward a road sign marked Bramwell; the iron-bound Barrow-Gate stands at the square\'s edge.',
+      '<rect width="640" height="260" fill="url(#night)"/><path d="M0 165h640v95H0z" fill="#151412"/>' + cobbles(172) +
+      '<g transform="translate(90 70)"><path d="M0 100V20a40 40 0 0 1 80 0v80z" fill="#0b0b0a" stroke="#d8a94a" stroke-width="3"/><path d="M10 100V26M28 100V18M46 100V18M64 100V26" stroke="#3d372e" stroke-width="5"/></g>' +
+      '<g transform="translate(320 140)"><path d="M-55 36v-24h110v24" fill="url(#stone)" stroke="#3d372e"/><g fill="#9cc5e8">' + [-40, -24, -8, 8, 24, 40].map(function (x) { return '<circle cx="' + x + '" cy="22" r="2.2"/>'; }).join('') + '</g><path d="M-4 12l5 12-6 12" stroke="#e07a5f" stroke-width="3" fill="none"/></g>' +
+      '<g fill="#24211d" stroke="#3d372e"><path d="M480 150l10-30 12 0 8 30z"/><path d="M520 152l9-28 12 0 8 28z"/><rect x="440" y="140" width="34" height="16" rx="3"/><circle cx="446" cy="160" r="5"/><circle cx="468" cy="160" r="5"/></g>' +
+      '<g transform="translate(580 100)"><path d="M0 0v60" stroke="#3d372e" stroke-width="4"/><path d="M-30 6h44l8 8-8 8h-44z" fill="#24211d" stroke="#d8a94a"/><text x="-26" y="19" font-size="10" fill="#efe6d2" font-family="Georgia,serif">BRAMWELL</text></g>' +
+      lantern(320, 110, .8) + rain(40));
+  };
+  ART.forge = function () {
+    return svg('Brannoc Hale\'s forge: an anvil, a glowing hearth throwing embers, and a crowbar wrapped in a dark lodestone band.',
+      '<rect width="640" height="260" fill="#0d0b09"/><circle cx="420" cy="140" r="110" fill="url(#glow)" class="flicker"/>' +
+      '<path d="M360 200h120v-60h-120z" fill="#24211d" stroke="#3d372e"/><path d="M380 140h80l-10-30h-60z" fill="#e9a25a" opacity=".8"/>' +
+      '<g fill="#f0c770">' + [0, 1, 2, 3, 4, 5, 6].map(function (i) { return '<circle cx="' + (390 + i * 11) + '" cy="' + (100 - (i * 17) % 50) + '" r="' + (1.5 + i % 2) + '"/>'; }).join('') + '</g>' +
+      '<path d="M140 200h110l-14-26h-82zM170 174h50v-16h-50z" fill="#2f2b25" stroke="#3d372e"/>' +
+      '<g transform="rotate(-18 200 150)"><rect x="120" y="146" width="170" height="9" rx="3" fill="#77716a"/><rect x="185" y="142" width="34" height="17" rx="3" fill="#151412" stroke="#9cc5e8"/><path d="M284 146q14 0 10 -14" stroke="#77716a" stroke-width="8" fill="none"/></g>' +
+      '<path d="M0 200h640v60H0z" fill="#151412"/>');
+  };
+  ART.temple = function () {
+    return svg('The Temple of the Hearth-Flame: a pointed arch, frightened acolytes, and water flooding the undercroft steps where a clear-glass ward-lantern lies.',
+      '<rect width="640" height="260" fill="url(#night)"/><path d="M200 230V90q120-110 240 0v140" fill="#151412" stroke="#d8a94a" stroke-width="3"/>' +
+      '<path d="M240 230V110q80-70 160 0v120" fill="#0b0b0a"/>' + lantern(250, 120, .7) + lantern(390, 120, .7) +
+      '<path d="M240 190h160v40H240z" fill="#16314a" opacity=".75"/><g stroke="#9cc5e8" stroke-opacity=".5"><path d="M250 200q20 -6 40 0t40 0 40 0"/><path d="M260 214q20 -6 40 0t40 0 40 0"/></g>' +
+      '<g transform="translate(330 205)"><rect x="-8" y="-12" width="16" height="20" rx="2" fill="none" stroke="#9cc5e8" stroke-width="2"/><circle r="5" fill="#efe6d2" opacity=".7"/></g>' +
+      '<g fill="#24211d" stroke="#3d372e"><path d="M120 230l10-46h16l10 46z"/><circle cx="138" cy="176" r="9"/><path d="M500 230l10-46h16l10 46z"/><circle cx="518" cy="176" r="9"/></g>' + rain(30));
+  };
+  ART.thieves = function () {
+    return svg('Tanner\'s Alley in the rain: three hooded thieves haul a handcart; the last clutches a satchel from which a silver seal-plate glints.',
+      '<rect width="640" height="260" fill="url(#night)"/><path d="M0 0h150v260H0zM490 0h150v260H490z" fill="#151412" stroke="#3d372e"/>' +
+      '<path d="M150 210h340v50H150z" fill="#24211d"/>' +
+      '<g fill="#0b0b0a" stroke="#3d372e" stroke-width="2"><path d="M330 210l12-62h20l12 62z"/><circle cx="352" cy="138" r="13"/><path d="M380 210l12-60h20l12 60z"/><circle cx="402" cy="138" r="13"/><path d="M240 210l12-60h20l12 60z"/><circle cx="262" cy="140" r="13"/></g>' +
+      '<rect x="420" y="170" width="60" height="26" rx="3" fill="#2f2b25" stroke="#3d372e"/><circle cx="430" cy="200" r="9" fill="#151412" stroke="#77716a"/><circle cx="470" cy="200" r="9" fill="#151412" stroke="#77716a"/>' +
+      '<path d="M222 170h26v24h-26z" fill="#2f2b25" stroke="#3d372e"/><circle cx="235" cy="168" r="9" fill="#c1bdb5" stroke="#efe6d2"/><path d="M231 168h8M235 164v8" stroke="#151412"/>' + rain(36));
+  };
+  ART.catwalk = function () {
+    return svg('Beneath the Barrow-Gate: a rotten plank catwalk spans a roaring cistern. An iron rail runs along the wall and a chain hangs from the vault.',
+      '<rect width="640" height="260" fill="#0a0a09"/><path d="M0 0h640v40H0z" fill="#151412"/><path d="M0 200h640v60H0z" fill="#10263a"/>' +
+      '<g stroke="#9cc5e8" stroke-opacity=".45" fill="none"><path d="M0 214q40 -8 80 0t80 0 80 0 80 0 80 0 80 0 80 0 80 0"/><path d="M0 232q40 -8 80 0t80 0 80 0 80 0 80 0 80 0 80 0 80 0"/></g>' +
+      '<path d="M0 96h640" stroke="#77716a" stroke-width="5"/>' +
+      '<g fill="#3d372e" stroke="#151412">' + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(function (i) { var sag = i > 4 && i < 8 ? 12 : 0; return '<rect x="' + (i * 54) + '" y="' + (140 + sag) + '" width="48" height="10" transform="rotate(' + (sag ? (i - 6) * 6 : 0) + ' ' + (i * 54 + 24) + ' 145)"/>'; }).join('') + '</g>' +
+      '<path d="M330 40v80" stroke="#77716a" stroke-width="3" stroke-dasharray="6 3"/>' + lantern(150, 120, .7) +
+      '<g fill="#9cc5e8" opacity=".6">' + [300, 360, 410].map(function (x) { return '<rect x="' + x + '" y="40" width="2" height="90"/>'; }).join('') + '</g>');
+  };
+  ART.cistern = function (st) {
+    var f = st.catwalk.fall;
+    return svg('A narrow stone ledge above the cistern water, where you landed after the catwalk gave way. Broken planks float below.',
+      '<rect width="640" height="260" fill="#0a0a09"/><path d="M0 180h640v80H0z" fill="#10263a"/><path d="M0 160h300l20 20H0z" fill="#2f2b25" stroke="#3d372e"/>' +
+      '<g fill="#3d372e" transform="rotate(8 420 200)"><rect x="380" y="196" width="60" height="8"/><rect x="460" y="206" width="44" height="8"/></g>' +
+      (f === 'magnet' ? '<path d="M0 90h640" stroke="#77716a" stroke-width="5"/><g transform="rotate(70 200 120)"><rect x="140" y="116" width="120" height="8" rx="3" fill="#77716a"/></g>' : '') +
+      (f === 'chain' ? '<path d="M330 0v120" stroke="#77716a" stroke-width="3" stroke-dasharray="6 3"/>' : '') +
+      lantern(120, 140, .8));
+  };
+  ART.vault = function () {
+    var s = '';
+    for (var i = 0; i < 4; i++) s += '<g transform="translate(' + (40 + i * 150) + ' 150)"><path d="M0 70V20q60-30 120 0v50z" fill="url(#stone)" stroke="#3d372e"/><circle cx="60" cy="30" r="10" fill="none" stroke="#d8a94a"/><text x="60" y="58" text-anchor="middle" font-size="11" fill="#c1bdb5" font-family="Georgia,serif">' + ['ODILE', 'TEODRIC', 'ANSEL', 'HOLLIS'][i] + '</text></g>';
+    return svg('The Warden vault: four carved sarcophagi of long-dead Wardens before a sealed door with four empty prism sockets.',
+      '<rect width="640" height="260" fill="#0b0a09"/><path d="M220 20h200v120H220z" fill="#151412" stroke="#d8a94a" stroke-width="2"/>' +
+      [0, 1, 2, 3].map(function (i) { return '<circle cx="' + (255 + i * 43) + '" cy="80" r="12" fill="#0b0b0a" stroke="#77716a"/>'; }).join('') + s);
+  };
+  ART.gallery = function (st) {
+    var d = st.drake, gone = !!d.fate && d.fate !== 'left_in_barrow';
+    var smoke = '<g fill="#77716a" opacity=".35"><circle cx="420" cy="120" r="60"/><circle cx="480" cy="90" r="50"/><circle cx="360" cy="90" r="40"/></g>';
+    var drake = gone ? '' : '<g transform="translate(420 170)"><path d="M-60 20q30-40 70-30t40 10q20 0 30-12l6 10q-12 18-34 18l-30 14q-50 10-82 0z" fill="#5a2a1c" stroke="#e07a5f" stroke-width="2"/><path d="M-20 -6q10-40 40-30l-10 26z" fill="#3a1d14" stroke="#e07a5f"/><circle cx="34" cy="-2" r="4" fill="#c1bdb5"/><path d="M-60 20q-20 10-40 0" stroke="#e07a5f" stroke-width="4" fill="none"/></g>';
+    return svg(gone ? 'The ember gallery, now empty: the smoke is clearing through an open vent.' : 'In the ember gallery a small, curled Cinder-Drake with milky, smoke-blind eyes cowers in trapped smoke.',
+      '<rect width="640" height="260" fill="#0d0907"/><path d="M0 210h640v50H0z" fill="#24211d"/><path d="M560 0h40v120h-40z" fill="#151412" stroke="#3d372e"/>' + (d.used.indexOf('vent') >= 0 || d.fate === 'spared' ? '<path d="M560 0h40v120h-40z" fill="#9cc5e8" opacity=".15"/>' : '') +
+      (d.used.indexOf('vent') >= 0 ? '' : smoke) + drake + '<path d="M200 210v-110h30v110z" fill="url(#stone)" stroke="#3d372e"/>' + lantern(120, 160, .8));
+  };
+  ART.tithe = function () {
+    return svg('The tithe chamber: a great iron balance scale beside a narrow flooded pit.', '<rect width="640" height="200" fill="#0b0a09"/><path d="M300 40h40v140h-40z" fill="url(#stone)" stroke="#3d372e"/><path d="M140 70l360 30" stroke="#77716a" stroke-width="8"/><ellipse cx="560" cy="185" rx="40" ry="10" fill="#10263a" stroke="#3d372e"/>', 200);
+  };
+  ART.mirrors = function () {
+    return svg('The mirror gallery: angled silver mirrors on pivots and three crystal sockets in the floor, with a prism cradle glowing on the west wall.', '<rect width="640" height="160" fill="#0b0a09"/>' + [0, 1, 2, 3, 4, 5].map(function (i) { return '<g transform="translate(' + (90 + i * 92) + ' 80) rotate(' + (i % 2 ? 45 : -45) + ')"><rect x="-22" y="-3" width="44" height="6" fill="#c1bdb5"/></g>'; }).join('') + '<circle cx="30" cy="80" r="26" fill="url(#glow)"/>', 160);
+  };
+  ART.heart = function (st) {
+    return svg('The seal heart: a ring of fractured silver around a warm core of prism light.', '<rect width="640" height="220" fill="#0b0a09"/><circle cx="320" cy="110" r="90" fill="url(#glow)" class="flicker"/><circle cx="320" cy="110" r="62" fill="none" stroke="#c1bdb5" stroke-width="6" stroke-dasharray="40 8"/><path d="M300 60l10 30-14 20 16 26" stroke="#efe6d2" stroke-width="2" fill="none"/>', 220);
+  };
+  ART.dawn = function (st) {
+    var clean = st.seal && st.seal.condition === 'clean';
+    return svg(clean ? 'Dawn over Oakhaven: rain easing, light on the wet cobbles, the well stones settled.' : 'Grey dawn over Oakhaven: thin cold smoke drifts from a cellar grate on Well Street while neighbours tend the injured.',
+      '<defs><linearGradient id="dawng" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2218"/><stop offset="1" stop-color="#151412"/></linearGradient></defs><rect width="640" height="240" fill="url(#dawng)"/><circle cx="520" cy="200" r="120" fill="url(#glow)" opacity="' + (clean ? '.8' : '.35') + '"/>' +
+      '<path d="M0 170h640v70H0z" fill="#151412"/>' + cobbles(178) + (clean ? '' : '<g fill="#77716a" opacity=".4"><circle cx="160" cy="150" r="30"/><circle cx="190" cy="130" r="22"/></g>') +
+      '<path d="M470 30h50v140h-50z" fill="#151412" stroke="#3d372e"/>' + lantern(300, 150, .9), 240);
+  };
+  ART.carried = function () {
+    return svg('Torchlight at the Barrow-Gate: watch members chain the iron gate while acolytes carry a stretcher up the stair.',
+      '<rect width="640" height="240" fill="url(#night)"/><path d="M220 240V90a100 100 0 0 1 200 0v150" fill="#0b0b0a" stroke="#d8a94a" stroke-width="3"/><path d="M230 120h180M230 150h180M230 180h180" stroke="#77716a" stroke-width="5" stroke-dasharray="10 5"/>' +
+      '<rect x="260" y="200" width="120" height="14" rx="4" fill="#2f2b25" stroke="#3d372e"/>' + lantern(180, 160, .8) + lantern(460, 160, .8) + rain(30), 240);
+  };
+  ART.ending = function (st) { return st.outcome === 'carried_out' ? ART.carried(st) : ART.dawn(st); };
+
+  // ---------- scene text ----------
+  var TITLES = { toll: 'The Seventh Toll', square: 'Market Square', forge: 'Brannoc Hale\'s Forge', temple: 'Temple of the Hearth-Flame', thieves: 'Tanner\'s Alley', catwalk: 'The Waterlogged Catwalk', cistern: 'The Cistern Ledge', vault: 'The Warden Vault · DD-Cluortal', gallery: 'The Ember Gallery', tithe: 'The Tithe Scale · DD-Chaortal', mirrors: 'The Mirror Gallery · DD-Gamortal', heart: 'The Seal Heart', dawn: 'Dawn', carried: 'Carried Out', ending: 'Chronicle of the Night' };
+  function sceneText(st) {
+    var T = [], d = st.drake;
+    switch (st.scene) {
+      case 'toll':
+        T.push('Rain hammers the slate roofs of Oakhaven. You have worn the Iron-Lantern Warden\'s oath for less than an hour, and the iron cage of your new lantern is still cold in your hand.');
+        T.push('From the bell tower the market bell begins the seventh toll of the night watch, and stops halfway, choked, as if a hand had closed on its tongue.');
+        T.push('Then the public well splits. Stone cracks like a snapped beam, the rim heaves apart, and air rises from the dark below, smelling of old smoke. Somewhere beyond the square people begin to scream.');
+        T.push('You carry what the Wardens issued you tonight: your Warden\'s Lantern, a notched short-sword, a crowbar, and one flask of Hearth-Broth, with boiled leather buckled on over your coat.');
+        if (st.mode === 'free') T.push('Free Exploration: tonight you are a night-watch Warden standing a temporary shift, not your campaign Warden. The watch-house issued you a separate kit: lantern, short-sword, crowbar, boiled leather and two flasks of broth. It is returned when the shift ends. Nothing you learn, spend or earn here carries into your Epic Journey, its completion record or its rewards.');
+        break;
+      case 'square':
+        if (st.visited.length === 0) {
+          T.push('Quartermaster Mira Vance is already at the well, coat streaming, lantern held low over the broken stones. "Look," she says, and tilts the light. A ring of fresh drill holes runs through the split stones. "Wells don\'t crack along a dotted line, Warden. Someone wanted this one broken."');
+          T.push('Across the square, hooded figures burst from the bell tower\'s seal-house with sacks that clink like coin. Silver seal-plates. Their handcart rattles away and turns onto the Bramwell road.');
+          T.push('Under the Barrow-Gate, the iron-bound arch on the north side of the square, something small is clawing at stone.');
+          T.push('"The seal below the Gate is failing," Mira says. "You\'re the Warden on watch. Go where you judge best. Every errand costs time while the town is afraid, and I\'ll be holding the square for as long as I can."');
+        } else {
+          T.push('You are back in the rain-swept square. Mira Vance is keeping the crowd away from the split well, and her voice carries over the rain.');
+        }
+        T.push('The forge could modify your crowbar. The temple acolytes need their ward-lantern. The thieves are getting away with the silver. Or you can go straight down.');
+        break;
+      case 'forge':
+        T.push('Brannoc Hale\'s forge throws orange light into the rain. The smith already has the fire roaring. "A Warden? Good. That gate\'s all iron underneath. Give me your bar."');
+        T.push('He holds up a dark lodestone band. "Bind this hot and your crowbar will grab iron like a hungry dog. But someone has to work these bellows hard for a long while. My apprentice is shaking and hasn\'t eaten since noon."');
+        break;
+      case 'temple':
+        T.push('Inside the Temple of the Hearth-Flame, Acolyte Wren meets you with wet sleeves. "Our ward-lantern fell into the undercroft when the ground shook. Its light cuts through smoke. We can\'t move the sick through the dark streets without it."');
+        T.push('The undercroft steps vanish into black flood water, chest-deep and cold. A rusted drain grate in the floor might let it out, slowly.');
+        break;
+      case 'thieves':
+        T.push('You cut through the tannery yards and come out ahead of them in Tanner\'s Alley. Three hooded figures heave the handcart over the cobbles. The last one stumbles under a satchel heavy with silver.');
+        T.push('If you tackle that thief you will get hurt. If you shout in the Warden\'s name, the whole street will come out to look.');
+        break;
+      case 'catwalk':
+        T.push('The Barrow-Gate stair ends at an old cistern. A plank catwalk crosses the roaring water, black with rot and sagging in the middle. Rain pours down the stair behind you.');
+        T.push('An iron rail is bolted along the wall at shoulder height. A chain hangs from the vault near the middle. You know before your second step that the planks will not hold you, and there is no other way across.');
+        T.push('Decide how you will brace. The fall is coming whatever you choose.');
+        break;
+      case 'cistern':
+        T.push(({ magnet: 'The magnetized crowbar slammed onto the iron rail and held. You slid down the wall in a shower of rust and landed on the ledge almost gently.', pry: 'The crowbar bit into a masonry seam, screeched, held long enough, and you dropped onto the ledge in a hard crouch.', chain: 'The chain was slick with rain. You held it for a heartbeat, lost it, and crashed onto the ledge in a spray of water and broken planks.' })[st.catwalk.fall] || '');
+        T.push('The cistern roars beside you. Ahead, a passage of carved stone leads toward warm, still air.');
+        break;
+      case 'vault':
+        if (!st.sarc.result) {
+          T.push('Four sarcophagi of long-dead Wardens line the vault. Each lid is carved with a motif and a single line. Four prisms rest on a stone shelf, cut with different numbers of facets. The sealed door has four empty sockets in a row.');
+          T.push('Reading costs nothing. Arranging the prisms costs nothing until you commit. A wrong order sends the prisms back in a flash of heat that will burn you.');
+        } else {
+          T.push(st.sarc.result === 'forced' ? 'The door hangs open on bent hinges. Prism light flickers unevenly along its frame.' : 'The door stands open, its four sockets glowing steadily.');
+          T.push('A warm draught and the smell of smoke come from the passage beyond. Something is coughing in there.');
+        }
+        break;
+      case 'gallery':
+        if (!d.fate) {
+          T.push('The ember gallery is thick with trapped smoke. Curled against the far wall is a juvenile Cinder-Drake, no bigger than a hound. Its eyes are milky with smoke-blindness. Its head jerks toward every drip and footstep, it flinches from your lantern, and it coughs, a small and frightened sound.');
+          T.push(drakeSignal(d));
+          T.push('It blocks the only passage onward. You can try to calm it, defend yourself, or slip past. Nothing here requires you to kill it.');
+        } else {
+          T.push(({ spared: d.bond ? 'The drake is gone up the vent, but your palm is still warm where it pressed its snout.' : 'The drake is gone up the vent toward the open night.', driven_off: d.injured ? 'Dark drops mark where the wounded drake fled down a deep vent.' : 'The drake fled down a deep vent, unhurt but terrified.', left_in_barrow: 'Behind you the drake still coughs in the smoke, trapped where you left it.' + (d.injured ? ' It is still wounded from your blade.' : ''), fled_on_its_own: d.injured ? 'The wounded drake fled while you lay senseless.' : 'The drake fled while you lay senseless.' })[d.fate]);
+        }
+        break;
+      case 'tithe':
+        T.push('A great iron scale fills the tithe chamber. On the left pan, the tithe pan, sits a tithe stone. The right pan, the Warden pan, is empty. Beside it lie stone weights cut with notches. A narrow flooded pit at the base swallowed one of them.');
+        T.push('The seal will take the tithe only when the beam is perfectly level. Moving weights costs nothing. Committing locks the beam, and whatever is on the pans stays here.');
+        break;
+      case 'mirrors':
+        T.push('The mirror gallery is a five-by-five floor of pivots, pillars and crystal sockets. You set the Sun-Prism Shard in the cradle on the west wall and a beam of warm light springs east across the bottom row.');
+        T.push('Six mirrors can turn. Light must pass through all three crystal sockets and end in the seal heart.');
+        if (st.grid.shim === 'jammed') T.push('A thin silver wedge has been driven into mirror M2\'s pivot so it cannot turn.');
+        break;
+      case 'heart':
+        T.push('The seal heart is a ring of fractured silver around a core of prism light. All three chambers feed into it. Their work is done, well or badly. All that remains is the Warden\'s words.');
+        break;
+      case 'dawn': case 'ending':
+        if (st.outcome === 'carried_out') {
+          T.push('You wake on a stretcher in grey light, rain on your face. Acolytes carry you up the Barrow-Gate stair while Mira Vance\'s watch winds chains through the iron arch behind you.');
+        } else if (st.seal.condition === 'clean') {
+          T.push('The words leave your mouth and the silver ring closes with a sound like a bell finishing its toll. Above, the seventh toll that died at midnight rings out at last.');
+          T.push('You climb into dawn. The rain is easing. Neighbours stand in doorways, and some of them nod to you.');
+        } else {
+          T.push('The ring closes, but not cleanly. It grinds, catches, and holds with a shudder. Cold smoke breathes from a grate somewhere up in Well Street.');
+          T.push('You climb into a grey dawn. People are carrying the injured to the temple, and the watch is roping off Well Street.');
+        }
+        if (st.drake.bond && st.outcome !== 'carried_out') T.push('On the bell-tower roof a small shape shakes rain from its wings and turns its milky eyes toward you.');
+        break;
+      case 'carried':
+        T.push('Darkness. Then voices: Acolyte Wren, and Mira Vance giving orders. Hands lift you. The world tilts up the stair.');
+        break;
+    }
+    return T;
+  }
+  function drakeSignal(d) {
+    var f = d.fear;
+    var w = f >= 6 ? 'Panicked: it is thrashing and snapping at the air.' : f >= 4 ? 'Terrified: wings half-raised, it snaps blindly at any loud sound. Loud or sudden actions will make it lash out.' : f >= 2 ? 'Wary: still trembling, but its head follows your voice.' : 'Settling: its breathing slows and its wings fold.';
+    return 'The drake looks ' + w + (d.aggression ? ' It remembers your blade.' : '') + (d.trust ? ' It has begun to trust you (' + d.trust + ').' : '');
+  }
+
+  // ---------- costs ----------
+  function costLine(a) {
+    if (a.free) return el('span', { 'class': 'cost' }, [el('span', { 'class': 'f', text: 'Free · no Panic, no Vitality' })]);
+    var pv = a.disabled ? null : E.preview(app.st, a.id), parts = [];
+    function describe(d, prefix) {
+      var out = [];
+      if (d.panic) out.push(el('span', { 'class': 'p', text: (prefix || '') + '▲ Panic +' + d.panic + ' (to ' + d.panicTo + ' of 12' + thresholdNote(d.thresholds) + (d.overflow ? '; ' + d.overflow + ' over the cap, recorded' : '') + ')' }));
+      if (d.vit < 0) out.push(el('span', { 'class': 'v', text: (prefix || '') + '♥ Vitality ' + d.vit + (d.collapse ? '' : ' (to ' + d.vitTo + ')') }));
+      if (d.vit > 0) out.push(el('span', { 'class': 'f', text: (prefix || '') + '♥ Vitality +' + d.vit }));
+      if (d.carriedOut) out.push(el('span', { 'class': 'v', text: (prefix || '') + '⚠ You would collapse again and be carried out: the chapter ends here' }));
+      else if (d.collapse) out.push(el('span', { 'class': 'v', text: (prefix || '') + '⚠ You would collapse (you come to with 2 Vitality; included above)' }));
+      if (d.spent.length) out.push(el('span', { 'class': 's', text: (prefix || '') + '✦ Spends: ' + d.spent.map(function (x) { return E.ITEMS[x].name; }).join(', ') }));
+      if (d.brokenPromises.length) out.push(el('span', { 'class': 'v', text: (prefix || '') + '✖ Breaks your promise to Acolyte Wren; restitution owed' }));
+      return out;
+    }
+    if (a.disabled) parts.push(el('span', { 'class': 'r', text: '⊘ ' + a.reason }));
+    else if (pv && pv.kind === 'branch') {
+      parts = parts.concat(describe(pv.ifRight));
+      var w = describe({ panic: 0, panicTo: pv.ifWrong.panicTo, thresholds: [], overflow: 0, vit: pv.ifWrong.vit, vitTo: pv.ifWrong.vitTo, collapse: pv.ifWrong.collapse, carriedOut: pv.ifWrong.carriedOut, spent: [], brokenPromises: [] }, 'If wrong: ');
+      if (pv.ifWrong.panic > pv.ifRight.panic) w.push(el('span', { 'class': 'p', text: 'If wrong: ▲ Panic +' + (pv.ifWrong.panic - pv.ifRight.panic) + ' more' + thresholdNote(pv.ifWrong.thresholds.filter(function (t) { return pv.ifRight.thresholds.indexOf(t) < 0; })) }));
+      parts = parts.concat(w);
+    } else if (pv) parts = parts.concat(describe(pv));
+    if (pv && pv.note) parts.push(el('span', { text: pv.note }));
+    if (!parts.length) parts.push(el('span', { 'class': 'f', text: 'No Panic or Vitality cost' }));
+    var span = el('span', { 'class': 'cost' });
+    parts.forEach(function (n, i) { if (i) span.appendChild(document.createTextNode(' · ')); span.appendChild(n); });
+    return span;
+  }
+  function thresholdNote(ids) {
+    var names = { uneasy: 'crosses 4, Uneasy: crowds gather', fleeing: 'crosses 9, Fleeing: neighbours hurt in the crush', peak: 'crosses 12, Peak: fire and evacuation' };
+    return ids && ids.length ? '; ' + ids.map(function (t) { return names[t]; }).join('; ') : '';
+  }
+
+  // ---------- status bar ----------
+  function renderStatus() {
+    var sb = $('statusbar'), inner = $('status-inner');
+    if (app.screen !== 'game') { sb.hidden = true; $('btn-keyring').hidden = true; return; }
+    sb.hidden = false; $('btn-keyring').hidden = false;
+    var st = app.st; inner.textContent = '';
+    var vm = el('div', { 'class': 'meter', role: 'img', 'aria-label': 'Vitality ' + st.vit + ' of ' + st.vitMax });
+    for (var i = 0; i < st.vitMax; i++) vm.appendChild(el('span', { 'class': 'pip' + (i < st.vit ? ' on-vit' : '') }));
+    vm.appendChild(el('span', { 'class': 'meter-text', text: '♥ ' + st.vit + '/' + st.vitMax }));
+    var label = 'Calm'; E.RULES.thresholds.forEach(function (t) { if (st.panic >= t.at) label = t.label; });
+    var pm = el('div', { 'class': 'meter', role: 'img', 'aria-label': 'Town Panic ' + st.panic + ' of 12, ' + label + '. Thresholds at 4, 9 and 12.' });
+    for (i = 0; i < 12; i++) pm.appendChild(el('span', { 'class': 'pip' + (i < st.panic ? ' on-panic' : '') + ([3, 8, 11].indexOf(i) >= 0 ? ' th' : '') }));
+    pm.appendChild(el('span', { 'class': 'meter-text', text: '▲ ' + st.panic + '/12 ' + label }));
+    inner.appendChild(el('span', { 'class': 'stat-label', text: 'Vitality' })); inner.appendChild(vm);
+    inner.appendChild(el('span', { 'class': 'stat-label', text: 'Town Panic' })); inner.appendChild(pm);
+    inner.appendChild(el('span', { 'class': 'stat-label', text: app.mode === 'epic' ? 'Epic Journey' : 'Free Exploration' }));
+    var info = el('span', {}, [el('span', { 'class': 'chip', text: 'Broth ×' + st.broth }), ' ', el('span', { 'class': 'chip', text: 'Pack ' + E.packUsed(st) + '/' + E.RULES.capacity }), ' ', saveChip()]);
+    inner.appendChild(info);
+  }
+  function saveChip() {
+    if (app.stale) return el('span', { 'class': 'chip warn', text: 'Out of date: see notice' });
+    if (app.unsaved) return el('span', { 'class': 'chip warn', text: 'Not saved' });
+    if (!app.storageOk) return el('span', { 'class': 'chip warn', text: 'Storage blocked' });
+    return el('span', { 'class': 'chip info', text: 'Saved' });
+  }
+
+  // ---------- title ----------
+  function renderTitle() {
+    app.screen = 'title'; renderStatus(); view.textContent = '';
+    var c = el('section', { 'class': 'card', 'aria-labelledby': 'tt' });
+    c.innerHTML = ART.toll();
+    c.appendChild(el('h2', { 'class': 'scene', id: 'tt', tabindex: '-1', text: 'Fantortals · The Fracture of Scales · #001' }));
+    c.appendChild(p('On a rain-soaked night in Oakhaven, the market bell dies halfway through its seventh toll and the stones of the public well split. You have only just sworn the Iron-Lantern Warden\'s oath.'));
+    c.appendChild(p('Door #001 of 31 · No account needed · Original concept by Gemini · Implementation by Claude', 'muted'));
+    if (!app.storageOk) c.appendChild(el('div', { 'class': 'notice warn', html: '<b>Storage is blocked.</b> You can still play, but progress cannot be saved in this browser. You can export a backup from the Keyring at any time.' }));
+    var epic = S.readRun('epic'), free = S.readRun('free'), cp = S.readCheckpoint();
+    c.appendChild(el('h3', { text: 'Epic Journey' }));
+    c.appendChild(p('Your campaign Warden. Progress is saved after every committed action. Completing the chapter records a checkpoint for The Fracture of Scales.'));
+    if (cp.status === 'ok') c.appendChild(el('div', { 'class': 'notice', html: '<b>Chapter #001 completed:</b> ' + esc(outcomeName(cp.rec.handoff.outcome)) + '. This record is kept unless you choose to replace it with a later completion.' }));
+    function legacyNotice(what, rd, fname) {
+      var n = el('div', { 'class': 'notice warn' }, [el('b', { text: 'Earlier build record found: ' }), what + ' from build 1.0.0-r1 (R1). R2 changed the drake dialogue and how puzzle moves are recorded, so it does not replay R1 actions or certify R1 records. Your R1 bytes are kept unchanged, and are copied to a separate legacy key before anything could replace them. You can download them, or start a new R2 run.']);
+      n.appendChild(el('div', { 'class': 'puzzle-actions' }, [el('button', { type: 'button', text: 'Download R1 record (.json)', on: { click: function () { downloadRaw(fname, rd.raw); } } })]));
+      c.appendChild(n);
+    }
+    if (cp.status === 'legacy') legacyNotice('A completed-chapter record', cp, 'oakhaven-001-legacy-r1-checkpoint.json');
+    if (epic.status === 'legacy') legacyNotice('An Epic Journey run', epic, 'oakhaven-001-legacy-r1-epic-run.json');
+    if (free.status === 'legacy') legacyNotice('A Free Exploration run', free, 'oakhaven-001-legacy-r1-free-run.json');
+    if (cp.status === 'invalid') c.appendChild(el('div', { 'class': 'notice danger', text: 'A stored completion record could not be validated (' + cp.error + '). It has not been changed. Open the Keyring\'s Saves tab to export or restore a backup.' }));
+    var row = el('div', { 'class': 'puzzle-actions' });
+    if (epic.status === 'ok' && !epic.state.complete) row.appendChild(el('button', { type: 'button', 'class': 'btn-primary', text: 'Resume Epic Journey (' + epic.rec.rev + ' actions)', on: { click: function () { resume('epic', epic); } } }));
+    if (epic.status === 'ok' && epic.state.complete) row.appendChild(el('button', { type: 'button', text: 'Review finished Epic run', on: { click: function () { resume('epic', epic); } } }));
+    row.appendChild(el('button', { type: 'button', 'class': epic.status === 'ok' && !epic.state.complete ? '' : 'btn-primary', text: 'New Epic Journey', on: { click: function () { startNew('epic', epic.status); } } }));
+    c.appendChild(row);
+    if (epic.status === 'invalid') c.appendChild(el('div', { 'class': 'notice danger', text: 'The saved Epic run could not be validated (' + epic.error + '). It has not been changed. Starting a new run will ask before replacing it and keep a backup.' }));
+    c.appendChild(el('h3', { text: 'Free Exploration' }));
+    c.appendChild(p('Stand a single night-watch shift as a temporary Warden. You get the same night, the same choices and the same puzzles, but a separate watch-house kit: lantern, short-sword, crowbar, boiled leather and two flasks of broth. It is a place to explore freely. Free Exploration never reads or writes your Epic Journey, its completion record or its rewards, and finishing it records nothing for the campaign.'));
+    row = el('div', { 'class': 'puzzle-actions' });
+    if (free.status === 'ok' && !free.state.complete) row.appendChild(el('button', { type: 'button', text: 'Resume Free Exploration (' + free.rec.rev + ' actions)', on: { click: function () { resume('free', free); } } }));
+    row.appendChild(el('button', { type: 'button', text: 'New Free Exploration', on: { click: function () { startNew('free', free.status); } } }));
+    c.appendChild(row);
+    c.appendChild(el('h3', { text: 'How to play' }));
+    c.appendChild(helpContent());
+    view.appendChild(c);
+    $('tt').focus();
+  }
+  function helpContent() {
+    var d = el('div');
+    [
+      'Choose actions from the list under each scene. Each choice shows its cost before you commit: ▲ Town Panic, ♥ Vitality, ✦ items spent. Reading, inspecting, opening the Keyring and changing settings are always free.',
+      'Town Panic runs from 0 to 12 and rises only when you take time-costing actions. It never moves in real time. At 4 the town is Uneasy. At 9 families flee and neighbours are hurt in the crush. At 12 (Peak) a fire breaks out and Mira sends everyone to Temple Hill. The game goes on at every level, but the town remembers.',
+      'Vitality runs from 0 to 10. Boiled leather takes 1 off every blow and fall. If you reach 0 you collapse rather than die. The first time, you come to with 2 Vitality. The second time, you are carried out and the chapter ends with an emergency handoff.',
+      'Puzzles: arranging prisms, moving weights and turning mirrors cost nothing. Committing does. Each puzzle also has an imperfect-repair option, so you can never get stuck.',
+      'The Hero\'s Keyring keeps what you carry, what you have learned and where you learned it, your bonds and promises, your wounds, the state of the town and the seal, a chronicle, and your saves.'
+    ].forEach(function (t) { d.appendChild(p(t)); });
+    return d;
+  }
+  function outcomeName(o) { return { clean_reseal: 'Clean reseal, with public confidence', clean_reseal_wary: 'Clean reseal, town wary after peak panic', partial_reseal: 'Partial reseal, emergency dispatch', carried_out: 'Carried out, emergency handoff' }[o] || o; }
+
+  function startNew(mode, existingStatus) {
+    var go = function () {
+      app.mode = mode; app.session = { mode: mode, runId: newRunId(), rev: null, digest: null }; app.log = []; app.st = E.newState(mode); app.baseSt = app.st; app.gridUndo = [];
+      app.stale = false; app.unsaved = false; app.cp = null; app.happened = []; app.lastChronLen = 0;
+      var other = S.peekRun(mode);
+      if (other.status === 'present' || other.status === 'invalid') {
+        var r = S.overwriteRun(app.session, app.log, app.st, nowIso());
+        app.lastSave = r.status; app.unsaved = r.status !== 'ok';
+      } else { var r2 = S.saveRun(app.session, app.log, app.st, nowIso()); app.lastSave = r2.status; app.unsaved = r2.status !== 'ok'; }
+      app.screen = 'game'; render(true);
+    };
+    if (existingStatus === 'ok' || existingStatus === 'invalid' || existingStatus === 'legacy') {
+      confirmDlg('Start a new ' + (mode === 'epic' ? 'Epic Journey' : 'Free Exploration') + '?', (existingStatus === 'legacy' ? 'The saved run is an R1 record. Its exact bytes are copied to a legacy key and a backup before the new R2 run takes its place. ' : 'This replaces the run saved for this mode. ') + 'A backup of it is kept and can be restored from the Keyring\'s Saves tab. ' + (mode === 'epic' ? 'Your completed-chapter record, if any, is not touched.' : 'Your Epic Journey is not touched.'), [['Keep the saved run', null], ['Start new', 'yes']]).then(function (v) { if (v === 'yes') go(); });
+    } else go();
+  }
+  function resume(mode, rd) {
+    app.mode = mode; app.session = { mode: mode, runId: rd.rec.runId, rev: rd.rec.rev, digest: rd.rec.digest }; app.log = rd.rec.log.slice(); app.st = rd.state; app.gridUndo = [];
+    app.baseSt = isArrange(app.log[app.log.length - 1]) ? E.replay(mode, app.log.slice(0, -1)) : app.st;
+    app.stale = false; app.unsaved = false; app.cp = null; app.happened = []; app.lastChronLen = app.st.chron.length; app.lastSave = 'ok';
+    app.screen = 'game'; render(true);
+    if (app.st.complete && mode === 'epic') tryCommit();
+  }
+
+  // ---------- actions ----------
+  // Committed actions append to the log. Puzzle arrangements are coalesced: a new arrangement replaces a trailing
+  // arrangement (the engine forbids two in a row), and an arrangement equal to the pre-arrangement state is dropped.
+  function isArrange(id) { return typeof id === 'string' && /^(sarc|scale|grid):arrange:/.test(id); }
+  function preflight() {
+    if (app.stale) { showConflict({ reason: 'this tab is out of date' }); return false; }
+    if (app.storageOk && !app.unsaved) {
+      var pk = S.peekRun(app.mode);
+      if (pk.status === 'present' && (pk.runId !== app.session.runId || pk.rev !== app.session.rev || pk.digest !== app.session.digest)) { app.stale = true; renderStatus(); showConflict({ reason: 'this run changed in another tab' }); return false; }
+      if (pk.status === 'empty' && app.session.rev !== null) { app.stale = true; renderStatus(); showConflict({ reason: 'the saved run was removed in another tab' }); return false; }
+    }
+    return true;
+  }
+  function persist(newLog, newSt, newBase, happened, keepFocusId) {
+    app.st = newSt; app.log = newLog; app.baseSt = newBase; app.happened = happened;
+    if (app.storageOk) {
+      var r = S.saveRun(app.session, app.log, app.st, nowIso());
+      app.lastSave = r.status;
+      if (r.status === 'ok') app.unsaved = false;
+      else { app.unsaved = true; if (r.status === 'conflict') { app.stale = true; showConflict(r); } else if (r.status === 'quota') announce('Storage is full. This action was not saved. Export a backup from the Keyring.'); }
+    } else { app.unsaved = true; app.lastSave = 'blocked'; }
+    var big = !keepFocusId;
+    render(big, keepFocusId);
+    if (app.happened.length && big) announce(app.happened.join(' '));
+    if (app.st.complete && app.mode === 'epic') tryCommit();
+  }
+  function act(id, keepFocusId) {
+    if (!preflight()) return;
+    var next;
+    try { next = E.apply(app.st, id); } catch (e) { announce('That action is not available right now.'); return; }
+    var happened = next.chron.slice(app.st.chron.length).map(function (c) { return c.text; });
+    if (/^(grid:commit|tithe:on|mirrors:on)$/.test(id)) app.gridUndo = [];
+    persist(app.log.concat([id]), next, next, happened, keepFocusId);
+  }
+  var ENC = { sarc: function (st) { return E.encodeSarc(st.sarc.slots); }, scale: function (st) { return E.encodeScale(st.scale.left, st.scale.right); }, grid: function (st) { return E.encodeGrid(st.grid.st); } };
+  function arrange(kind, arg, keepFocusId, describe) {
+    if (!preflight()) return;
+    var trailing = isArrange(app.log[app.log.length - 1]);
+    var baseLog = trailing ? app.log.slice(0, -1) : app.log, base = trailing ? app.baseSt : app.st;
+    var newLog, newSt;
+    if (ENC[kind](base) === arg) { newLog = baseLog.slice(); newSt = base; }
+    else {
+      try { newSt = E.apply(base, kind + ':arrange:' + arg); } catch (e) { announce('That arrangement is not possible.'); return; }
+      newLog = baseLog.concat([kind + ':arrange:' + arg]);
+    }
+    persist(newLog, newSt, base, app.happened, keepFocusId);
+    if (describe) announce(describe(newSt));
+  }
+
+  function tryCommit(token) {
+    var opts = { saveStatus: app.unsaved ? 'failed' : app.lastSave };
+    if (token !== undefined) opts.confirmToken = token;
+    var r = S.commitCheckpoint(app.session, app.log, app.st, nowIso(), opts);
+    app.cp = r;
+    if (r.status === 'needs_confirm' || r.status === 'changed_since_confirm') {
+      var ex = r.existing;
+      var desc = ex && ex.valid ? 'You already have a completed record for this chapter (' + outcomeName(ex.outcome) + ', saved ' + ex.savedAt.slice(0, 10) + ').' : ex ? 'A stored completion record exists but could not be validated (' + ex.error + ').' : 'The stored completion record changed.';
+      if (r.status === 'changed_since_confirm') desc = 'The completion record changed while you were deciding (another tab?). ' + desc;
+      confirmDlg('Replace your completed record?', desc + ' Replacing it records this run (' + outcomeName(app.st.outcome) + ') as your campaign checkpoint. The old record is kept as a backup.', [['Keep the existing record', null], ['Replace it', 'yes']]).then(function (v) {
+        if (v === 'yes') tryCommit(r.token); else { app.cp = { status: 'kept_existing' }; render(false); }
+      });
+    }
+    render(false);
+  }
+
+  // ---------- main render ----------
+  function render(moveFocus, keepFocusId) {
+    renderStatus();
+    if (app.screen !== 'game') return;
+    var st = app.st;
+    view.textContent = '';
+    if (app.stale) view.appendChild(el('div', { 'class': 'notice warn card', html: '<b>This tab is out of date.</b> Your run was changed in another tab or window. Choose what to keep before playing on.' }, [el('div', { 'class': 'puzzle-actions' }, [el('button', { type: 'button', text: 'Resolve…', on: { click: function () { showConflict({ reason: 'this run changed elsewhere' }); } } })])]));
+    var card = el('section', { 'class': 'card' + (moveFocus ? ' enter' : ''), 'aria-labelledby': 'scene-h' });
+    var artFn = ART[st.scene] || ART.toll;
+    card.innerHTML = artFn(st);
+    card.appendChild(el('h2', { 'class': 'scene', id: 'scene-h', tabindex: '-1', text: TITLES[st.scene] || '' }));
+    if (app.happened.length && st.scene !== 'ending') {
+      var h = el('div', { 'class': 'happened', role: 'status' });
+      app.happened.forEach(function (t) { h.appendChild(p(t)); });
+      card.appendChild(h);
+    }
+    sceneText(st).forEach(function (t) { card.appendChild(p(t)); });
+    var L = E.legal(st);
+    if (st.scene === 'vault' && !st.sarc.result) card.appendChild(renderVault(L));
+    if (st.scene === 'gallery' && !st.drake.fate) card.appendChild(renderDrake());
+    if (st.scene === 'tithe' && !st.scale.result) card.appendChild(renderScale(L));
+    if (st.scene === 'mirrors' && !st.grid.result) card.appendChild(renderGrid(L));
+    if (st.scene === 'heart') card.appendChild(renderHeartSummary());
+    if (st.scene === 'dawn' || st.scene === 'carried' || st.scene === 'ending') card.appendChild(renderOutcome());
+    var choices = L.filter(function (a) { return !a.puzzle && !/^(sarc:commit|scale:commit|grid:commit)$/.test(a.id); });
+    if (choices.length) {
+      card.appendChild(el('h3', { text: st.scene === 'dawn' ? 'Continue' : 'What do you do?' }));
+      var ul = el('ul', { 'class': 'choices' });
+      choices.forEach(function (a) {
+        var b = el('button', { type: 'button', 'class': 'choice', 'data-act': a.id, disabled: !!a.disabled, on: { click: function () { act(a.id); } } }, [el('span', { 'class': 'lbl', text: a.label }), costLine(a)]);
+        ul.appendChild(el('li', {}, [b]));
+      });
+      card.appendChild(ul);
+    }
+    if (st.scene === 'ending') card.appendChild(renderEndingControls());
+    view.appendChild(card);
+    if (keepFocusId) { var f = view.querySelector('[data-act="' + keepFocusId + '"]') || view.querySelector('[data-ctl="' + keepFocusId + '"]') || view.querySelector('[data-focus="' + keepFocusId + '"]'); if (f) f.focus(); else $('scene-h').focus(); }
+    else if (moveFocus) { $('scene-h').focus(); window.scrollTo(0, 0); }
+  }
+
+  function prismShape(k, size) {
+    var n = E.PRISMS[k].facets, pts = [];
+    for (var i = 0; i < n; i++) { var a = -Math.PI / 2 + i * 2 * Math.PI / n; pts.push((12 + 10 * Math.cos(a)).toFixed(1) + ',' + (12 + 10 * Math.sin(a)).toFixed(1)); }
+    return '<svg width="' + (size || 26) + '" height="' + (size || 26) + '" viewBox="0 0 24 24" aria-hidden="true"><polygon points="' + pts.join(' ') + '" fill="#d8a94a" fill-opacity=".25" stroke="#f0c770" stroke-width="1.6"/></svg>';
+  }
+  function renderVault(L) {
+    var st = app.st, box = el('div');
+    box.appendChild(el('h3', { text: 'Prisms on the shelf' }));
+    var pr = el('div', { 'class': 'prisms' });
+    Object.keys(E.PRISMS).forEach(function (k) { var d = el('div', { 'class': 'prism' }); d.innerHTML = prismShape(k); d.appendChild(el('span', { text: E.PRISMS[k].name + ' · ' + E.PRISMS[k].facets + ' facets' })); pr.appendChild(d); });
+    box.appendChild(pr);
+    var known = E.SARC_CLUES.filter(function (c) { return st.know['clue_' + c.id]; });
+    box.appendChild(el('h3', { text: 'What you have read (' + known.length + ' of 4 sarcophagi' + (st.know.sarc_door ? ', and the door' : '') + ')' }));
+    var ul = el('ul', { 'class': 'list' });
+    if (st.know.sarc_door) ul.appendChild(el('li', {}, [el('b', { text: 'Seal door: ' }), E.DOOR_CLUE]));
+    known.forEach(function (c) { ul.appendChild(el('li', {}, [el('b', { text: c.warden + ': ' }), 'carved with ' + c.motif + '. "' + c.text + '"'])); });
+    if (st.know.sarc_hint) ul.appendChild(el('li', {}, [el('b', { text: 'Dust lines: ' }), E.FACTS.sarc_hint]));
+    if (!known.length && !st.know.sarc_door) ul.appendChild(el('li', { 'class': 'muted', text: 'Nothing yet. Read the sarcophagi below; reading is free.' }));
+    box.appendChild(ul);
+    box.appendChild(el('h3', { text: 'Door sockets (left to right)' }));
+    var so = el('div', { 'class': 'sockets' });
+    var canArr = true;
+    for (var pIdx = 0; pIdx < 4; pIdx++) (function (pos) {
+      var id = 'sock' + pos;
+      var sel = el('select', { id: id, 'data-focus': id, disabled: !canArr, on: { change: function (ev) {
+        var k = ev.target.value; if (!k) return;
+        var slots = app.st.sarc.slots.slice(), other = slots.indexOf(k);
+        if (other >= 0) slots[other] = slots[pos];
+        slots[pos] = k;
+        arrange('sarc', E.encodeSarc(slots), id);
+      } } });
+      sel.appendChild(el('option', { value: '', text: '(empty)', disabled: true, selected: !st.sarc.slots[pos] }));
+      Object.keys(E.PRISMS).forEach(function (k) { sel.appendChild(el('option', { value: k, text: E.PRISMS[k].name + ' (' + E.PRISMS[k].facets + ')', selected: st.sarc.slots[pos] === k })); });
+      so.appendChild(el('div', { 'class': 'socket' }, [el('label', { 'for': id, text: 'Socket ' + (pos + 1) }), sel]));
+    })(pIdx);
+    box.appendChild(so);
+    box.appendChild(p('Current arrangement: ' + st.sarc.slots.map(function (k, i) { return (i + 1) + ' ' + (k ? E.PRISMS[k].name : 'empty'); }).join(', ') + '. Choosing a prism already in another socket swaps the two.', 'muted'));
+    if (st.sarc.attempts.length) box.appendChild(el('div', { 'class': 'notice warn', text: 'Committed orders that failed: ' + st.sarc.attempts.map(E.orderNames).join(' | ') + '.' }));
+    var acts = el('div', { 'class': 'puzzle-actions' });
+    var commit = L.filter(function (a) { return a.id === 'sarc:commit'; })[0];
+    acts.appendChild(el('button', { type: 'button', 'class': 'btn-primary', 'data-act': 'sarc:commit', disabled: !commit, on: { click: function () { act('sarc:commit'); } } }, ['Commit this order', el('span', { 'class': 'sr-only', text: '. Panic +1. If wrong, Vitality −1.' })]));
+    if (st.sarc.slots.some(function (x, i) { return x && !(st.sarc.hint && i === 0 && x === 'B'); })) acts.appendChild(el('button', { type: 'button', 'data-ctl': 'sarc:clear', text: 'Clear sockets (free)', on: { click: function () { arrange('sarc', st.sarc.hint ? 'B___' : '____', 'sock0'); } } }));
+    box.appendChild(acts);
+    if (commit) box.appendChild(el('p', {}, [el('b', { text: 'Commit cost: ' }), costLine(commit)]));
+    box.appendChild(p('A wrong order empties the sockets. After a failed attempt you may ask for help or force the door (imperfect repair).', 'muted'));
+    return box;
+  }
+  function renderDrake() {
+    var d = app.st.drake, box = el('div');
+    box.appendChild(el('h3', { text: 'The drake' }));
+    var m = el('div', { 'class': 'drake-meter', role: 'img', 'aria-label': 'Drake fear ' + d.fear + ' of 6' });
+    for (var i = 0; i < 6; i++) m.appendChild(el('span', { 'class': i < d.fear ? 'on' : '' }));
+    box.appendChild(m);
+    box.appendChild(el('dl', { 'class': 'kv' }, [el('dt', { text: 'Fear' }), el('dd', { text: d.fear + ' of 6' + (d.fear >= 4 ? ' (lashes out at loud or sudden actions)' : '') }), el('dt', { text: 'Trust' }), el('dd', { text: String(d.trust) + (d.calm ? '' : ' (a bond needs trust 2, a calm drake and no blade)') }), el('dt', { text: 'Your position' }), el('dd', { text: d.pillar ? 'Behind the stone pillar (−1 damage)' : 'In the open' })]));
+    return box;
+  }
+  function renderScale(L) {
+    var st = app.st, t = E.scaleTotals(st), diff = t.right - t.left, box = el('div');
+    var ang = Math.max(-12, Math.min(12, diff * 1.5));
+    var wrap = el('div');
+    wrap.innerHTML = '<svg class="art" viewBox="0 0 640 220" role="img" aria-label="Scale: tithe pan ' + t.left + ', Warden pan ' + t.right + '"><rect width="640" height="220" fill="#0b0a09"/><path d="M300 200h40l-10-140h-20z" fill="#2f2b25" stroke="#3d372e"/>' +
+      '<g transform="rotate(' + ang + ' 320 60)"><rect x="110" y="56" width="420" height="8" rx="3" fill="#77716a"/><path d="M140 64l-30 70h60zM500 64l-30 70h60z" fill="none" stroke="#3d372e" stroke-width="2"/><rect x="100" y="134" width="80" height="8" fill="#d8a94a"/><rect x="460" y="134" width="80" height="8" fill="#d8a94a"/>' +
+      '<text x="140" y="165" text-anchor="middle" fill="#efe6d2" font-size="18" font-family="Georgia,serif">' + t.left + '</text><text x="500" y="165" text-anchor="middle" fill="#efe6d2" font-size="18" font-family="Georgia,serif">' + t.right + '</text></g>' +
+      '<text x="140" y="210" text-anchor="middle" fill="#c1bdb5" font-size="13">tithe pan</text><text x="500" y="210" text-anchor="middle" fill="#c1bdb5" font-size="13">Warden pan</text></svg>';
+    box.appendChild(wrap);
+    var msg = diff === 0 ? '⚖ Level: tithe pan ' + t.left + ' = Warden pan ' + t.right + '. The beam is balanced.' : (diff < 0 ? '↙ Tithe pan heavier: ' + t.left + ' against ' + t.right + '. The Warden pan needs ' + (-diff) + ' more.' : '↘ Warden pan heavier: ' + t.right + ' against ' + t.left + '. The Warden pan has ' + diff + ' too much.');
+    box.appendChild(el('p', { 'class': 'balance', role: 'status', text: msg }));
+    box.appendChild(p('Tithe pan: tithe stone 13' + st.scale.left.map(function (w) { return ' + ' + label(w); }).join('') + '. Warden pan: ' + (st.scale.right.length ? st.scale.right.map(label).join(' + ') : 'empty') + '.', 'muted'));
+    if (st.scale.four === 'pit') box.appendChild(p('The 4-notch stone lies at the bottom of the flooded pit.', 'muted'));
+    var ul = el('ul', { 'class': 'weights' });
+    E.weightsAvailable(st).forEach(function (w) {
+      var where = st.scale.left.indexOf(w) >= 0 ? 'on the tithe pan' : st.scale.right.indexOf(w) >= 0 ? 'on the Warden pan' : 'off the scale';
+      var li = el('li', {}, [el('span', { 'class': 'wname' }, [label(w) + ' ', el('span', { 'class': 'where muted', text: '(' + where + (w === 'ward_lantern' && st.loan ? '; BORROWED from Acolyte Wren: committed means it stays as tithe' : E.ITEM_WEIGHTS[w] ? '; your own item: committed means it stays as tithe' : '') + ')' })])]);
+      if (where === 'off the scale') {
+        li.appendChild(el('button', { type: 'button', 'data-ctl': 'scale:put:' + w + ':L', text: 'To tithe pan', 'aria-label': 'Put ' + label(w) + ' on the tithe pan', on: { click: function () { pan(w, 'L'); } } }));
+        li.appendChild(el('button', { type: 'button', 'data-ctl': 'scale:put:' + w + ':R', text: 'To Warden pan', 'aria-label': 'Put ' + label(w) + ' on the Warden pan', on: { click: function () { pan(w, 'R'); } } }));
+      } else li.appendChild(el('button', { type: 'button', 'data-ctl': 'scale:take:' + w, text: 'Remove', 'aria-label': 'Remove ' + label(w), on: { click: function () { pan(w, null); } } }));
+      ul.appendChild(li);
+    });
+    box.appendChild(ul);
+    var spend = st.scale.left.concat(st.scale.right).filter(function (x) { return E.ITEM_WEIGHTS[x]; });
+    if (spend.indexOf('ward_lantern') >= 0 && st.loan) box.appendChild(el('div', { 'class': 'notice danger', role: 'note', html: '<b>Borrowed property on the pan.</b> The Temple Ward-Lantern belongs to the temple; Acolyte Wren lent it to you. If you commit with it on the scale it stays here as tithe: your promise to return it is <b>broken</b>, you will <b>owe the temple restitution</b>, and you lose its light for the rest of the journey.' }));
+    var acts = el('div', { 'class': 'puzzle-actions' });
+    var ca = L.filter(function (a) { return a.id === 'scale:commit'; })[0];
+    acts.appendChild(el('button', { type: 'button', 'class': 'btn-primary', 'data-act': 'scale:commit', disabled: !ca || !!ca.disabled, on: { click: function () { act('scale:commit'); } } }, ['Commit the tithe']));
+    if (st.scale.left.length || st.scale.right.length) acts.appendChild(el('button', { type: 'button', 'data-ctl': 'scale:reset', text: 'Clear pans (free)', on: { click: function () { arrange('scale', '.', 'scale:commit', scaleSay); } } }));
+    box.appendChild(acts);
+    box.appendChild(p('Commit: ▲ Panic +1' + (spend.length ? '; ✦ stays as tithe: ' + spend.map(function (x) { return E.ITEMS[x].name; }).join(', ') : '') + '. Only possible when the beam is level.', 'muted'));
+    return box;
+    function pan(w, side) {
+      var Lp = app.st.scale.left.filter(function (x) { return x !== w; }), Rp = app.st.scale.right.filter(function (x) { return x !== w; });
+      if (side === 'L') Lp.push(w); if (side === 'R') Rp.push(w);
+      arrange('scale', E.encodeScale(Lp, Rp), side ? 'scale:take:' + w : 'scale:put:' + w + ':R', scaleSay);
+    }
+    function label(w) { return E.VAULT_WEIGHTS[w] ? E.VAULT_WEIGHTS[w] + '-notch stone (' + E.VAULT_WEIGHTS[w] + ')' : E.ITEMS[w].name + ' (' + E.ITEM_WEIGHTS[w] + ')'; }
+  }
+  function scaleSay(st) { var t = E.scaleTotals(st); return 'Tithe pan ' + t.left + ', Warden pan ' + t.right + (t.left === t.right ? ': level.' : '.'); }
+  function rotate(id) {
+    var mi = E.GRID.mirrors.findIndex(function (m) { return m.id === id; }), cur = app.st.grid.st;
+    var next = cur.substring(0, mi) + (cur.charAt(mi) === '/' ? '\\' : '/') + cur.substring(mi + 1);
+    app.gridUndo = (app.gridUndo || []).concat([cur]).slice(-200);
+    arrange('grid', E.encodeGrid(next), 'grid:rot:' + id, function (st) { return E.describeBeam(st.grid.st); });
+  }
+  function renderGrid(L) {
+    var st = app.st, G = E.GRID, tr = E.traceBeam(st.grid.st), box = el('div');
+    var segs = {};
+    tr.path.forEach(function (s) { var k = s.r + ',' + s.c; (segs[k] = segs[k] || []).push(s); });
+    var edge = { E: [50, 0], W: [-50, 0], N: [0, -50], S: [0, 50] };
+    var opp = { E: 'W', W: 'E', N: 'S', S: 'N' };
+    var wrap = el('div', { 'class': 'grid-wrap' });
+    var gridEl = el('div', { 'class': 'mgrid', role: 'group', 'aria-label': 'Mirror grid, 5 by 5. Columns A to E left to right, rows 1 to 5 top to bottom. The shard emitter is west of A5, shining east.' });
+    for (var r = 0; r < G.rows; r++) for (var c = 0; c < G.cols; c++) {
+      var ch = G.cells[r].charAt(c), mi = E.mirrorAt(r, c), name = E.cellName(r, c);
+      var inner = '';
+      (segs[r + ',' + c] || []).forEach(function (s) {
+        var a = edge[opp[s.inDir]], b = edge[s.outDir];
+        inner += '<path d="M' + (50 + a[0]) + ' ' + (50 + a[1]) + ' L50 50' + (ch === 'H' ? '' : ' L' + (50 + b[0]) + ' ' + (50 + b[1])) + '" stroke="#f0c770" stroke-width="7" stroke-linecap="round" fill="none" stroke-dasharray="' + (ch === 'T' ? '' : '') + '"/>';
+      });
+      var lbl = name;
+      if (mi >= 0) {
+        var o = st.grid.st.charAt(mi), jam = G.mirrors[mi].id === G.jammed && st.grid.shim === 'jammed';
+        inner += o === '/' ? '<path d="M20 80L80 20" stroke="#efe6d2" stroke-width="8" stroke-linecap="round"/>' : '<path d="M20 20L80 80" stroke="#efe6d2" stroke-width="8" stroke-linecap="round"/>';
+        if (jam) inner += '<path d="M44 56l12-12" stroke="#9cc5e8" stroke-width="5"/><text x="50" y="96" text-anchor="middle" font-size="16" fill="#9cc5e8">jammed</text>';
+        var btnLabel = G.mirrors[mi].id + ' at ' + name + ', mirror ' + (o === '/' ? 'slash, rising to the right' : 'backslash, falling to the right') + (jam ? ', jammed by a silver shim' : ', press to rotate');
+        var b = el('button', { type: 'button', 'class': 'cell', 'data-ctl': 'grid:rot:' + G.mirrors[mi].id, 'aria-label': btnLabel, disabled: jam, on: { click: (function (id) { return function () { rotate(id); }; })(G.mirrors[mi].id) } });
+        b.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true">' + inner + '</svg><span class="tag">' + G.mirrors[mi].id + '</span>';
+        gridEl.appendChild(b); continue;
+      }
+      if (ch === '#') { inner += '<rect x="22" y="22" width="56" height="56" rx="6" fill="#3d372e" stroke="#77716a" stroke-width="3"/>'; lbl += ', stone pillar'; }
+      if (ch === 'T') { var on = !!tr.lit[r + ',' + c]; inner += '<polygon points="50,20 76,50 50,80 24,50" fill="' + (on ? '#f0c770' : 'none') + '" stroke="' + (on ? '#120f0a' : '#9cc5e8') + '" stroke-width="4"/>' + (on ? '<text x="50" y="57" text-anchor="middle" font-size="18" fill="#120f0a">✓</text>' : ''); lbl += ', crystal socket, ' + (on ? 'lit' : 'dark'); }
+      if (ch === 'H') { inner += '<circle cx="50" cy="50" r="26" fill="' + (tr.heart ? '#f0c770' : 'none') + '" stroke="#efe6d2" stroke-width="5" stroke-dasharray="12 5"/>'; lbl += ', seal heart, ' + (tr.heart ? 'receiving light' : 'dark'); }
+      if (r === G.emitter.r && c === G.emitter.c) lbl += ', beam enters from the west';
+      var d = el('div', { 'class': 'cell', role: 'img', 'aria-label': lbl });
+      d.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true">' + inner + '</svg>' + (ch === 'T' || ch === 'H' ? '<span class="tag">' + (ch === 'H' ? 'Heart' : name) + '</span>' : '');
+      gridEl.appendChild(d);
+    }
+    wrap.appendChild(gridEl);
+    box.appendChild(wrap);
+    box.appendChild(p('Legend: ◇ crystal socket (✓ when lit) · dashed ring: seal heart · grey block: pillar · white bar: mirror (press to turn a quarter-turn between / and \\). The beam is drawn as a thick amber line and also described in words below.', 'legend'));
+    box.appendChild(el('p', { 'class': 'beamtext', role: 'status', text: E.describeBeam(st.grid.st) }));
+    var acts = el('div', { 'class': 'puzzle-actions' });
+    if ((app.gridUndo || []).length) acts.appendChild(el('button', { type: 'button', 'data-ctl': 'grid:undo', text: 'Undo rotation (free)', on: { click: function () { var prev = app.gridUndo.pop(); arrange('grid', E.encodeGrid(prev), 'grid:undo', function (st) { return E.describeBeam(st.grid.st); }); } } }));
+    if (st.grid.st !== G.initial) acts.appendChild(el('button', { type: 'button', 'data-ctl': 'grid:reset', text: 'Reset mirrors (free)', on: { click: function () { app.gridUndo = (app.gridUndo || []).concat([app.st.grid.st]); arrange('grid', E.encodeGrid(G.initial), 'grid:commit', function (st) { return E.describeBeam(st.grid.st); }); } } }));
+    acts.appendChild(el('button', { type: 'button', 'class': 'btn-primary', 'data-act': 'grid:commit', text: 'Lock the mirrors', on: { click: function () { act('grid:commit'); } } }));
+    box.appendChild(acts);
+    box.appendChild(p('Lock: ▲ Panic +1. Locking with fewer than three sockets lit, or with no light reaching the heart, is allowed. It counts as a partial repair.', 'muted'));
+    return box;
+  }
+  function chamberLines(st) {
+    var out = [];
+    out.push(['Warden vault (cluortal)', st.sarc.result ? ({ ordered: 'Prisms set in true order on the first commit', ordered_after_retry: 'Prisms set in true order after ' + (st.sarc.attempts.length - 1) + ' failed attempt(s)', ordered_assisted: 'Prisms set in true order with help from the dust lines', forced: 'Door forced (imperfect)' })[st.sarc.result] : 'Not reached']);
+    out.push(['Tithe scale (chaortal)', st.scale.result ? ({ balanced: 'Balanced at ' + (st.scale.committed ? st.scale.committed.leftTotal : '') + (st.scale.sacrificed.length ? '; kept as tithe: ' + st.scale.sacrificed.map(function (w) { return E.ITEMS[w].name; }).join(', ') : ''), lashed: 'Beam lashed with your belt (imperfect)', wedged: 'Beam wedged with your crowbar (imperfect)' })[st.scale.result] : 'Not reached']);
+    out.push(['Mirror grid (gamortal)', st.grid.result ? (st.grid.result === 'aligned' ? 'Aligned: 3 of 3 sockets lit, heart reached' : 'Partial: ' + st.grid.lit + ' of 3 sockets lit' + (st.grid.heart ? ', heart reached' : ', heart dark')) : 'Not reached']);
+    return out;
+  }
+  function renderHeartSummary() {
+    var dl = el('dl', { 'class': 'kv' });
+    chamberLines(app.st).forEach(function (l) { dl.appendChild(el('dt', { text: l[0] })); dl.appendChild(el('dd', { text: l[1] })); });
+    return el('div', {}, [el('h3', { text: 'The chambers' }), dl, p('The seal will close cleanly only if all three chambers were completed without imperfect repairs.', 'muted')]);
+  }
+  function renderOutcome() {
+    var st = app.st, box = el('div');
+    if (!st.dispatch && st.scene === 'carried') return box;
+    var dl = el('dl', { 'class': 'kv' });
+    function row(k, v) { dl.appendChild(el('dt', { text: k })); dl.appendChild(el('dd', { text: v })); }
+    row('Outcome', outcomeName(st.outcome));
+    row('Seal', st.seal.condition + (st.seal.weakPoints.length ? ' (' + st.seal.weakPoints.join('; ') + ')' : ''));
+    chamberLines(st).forEach(function (l) { row(l[0], l[1]); });
+    row('Town', 'Peak panic ' + st.panicPeak + ' of 12; ' + st.town.injured + ' neighbour(s) injured; confidence: ' + st.town.confidence + (st.town.damage.length ? '; ' + st.town.damage.join('; ') : ''));
+    row('Civilian help', st.town.help.length ? 'Temple evacuation of the sick to Temple Hill' : 'None beyond the seal itself');
+    row('Warden', 'Vitality ' + st.vit + ' of ' + st.vitMax + (st.injuries.length ? '; injuries: ' + st.injuries.map(function (i) { return i.text; }).join(' ') : '; uninjured'));
+    row('Drake', drakeFate(st));
+    row('Remembered prism pattern', st.prism ? E.orderNames(st.prism.pattern) + ' (' + st.prism.how + ')' : 'Not learned');
+    row('Carrying', st.pack.map(function (i) { return E.ITEMS[i].name + (i === 'crowbar' && st.crowbarMod === 'magnetized' ? ' (magnetized)' : '') + (i === 'sun_prism_shard' ? ' (' + st.shard.cond + ')' : ''); }).join(', ') + (st.broth ? ', Hearth-Broth ×' + st.broth : '') + '; worn: boiled leather' + (st.pin ? ', Silver Lantern Pin' : ''));
+    row('Promises', st.promises.map(function (x) { return x.text + ' [' + promiseStatus(x.status) + ']'; }).join(' '));
+    if (st.loan) row('Borrowed', 'Temple Ward-Lantern from ' + st.loan.lender + ': ' + (st.loan.held ? 'still in your keeping, to be returned' : 'surrendered as tithe on the Warden scale'));
+    if (st.obligations.length) row('Owed', st.obligations.map(function (o) { return 'Restitution to ' + o.owedTo + ' (' + o.status + '): ' + o.reason; }).join(' '));
+    box.appendChild(el('h3', { text: 'What the night cost' }));
+    box.appendChild(dl);
+    box.appendChild(el('h3', { text: 'Evidence and how you came by it' }));
+    var ul = el('ul', { 'class': 'list' });
+    E.interferenceProofs(st).concat(E.bramwellLeads(st)).forEach(function (pp) { ul.appendChild(el('li', {}, [pp.text, el('span', { 'class': 'prov', text: pp.kind })])); });
+    if (st.evidence.seal_plate) ul.appendChild(el('li', {}, ['Seal-plate: ' + st.evidence.seal_plate.how + '. Now: ' + st.evidence.seal_plate.fate + '.', el('span', { 'class': 'prov', text: 'physical evidence' })]));
+    box.appendChild(ul);
+    box.appendChild(el('h3', { text: 'Rewards' }));
+    box.appendChild(p(st.rewards.length ? st.rewards.map(rewardName).join(', ') + '.' : 'None this time.'));
+    if (st.pin) box.appendChild(p('The Silver Lantern Pin: ' + st.pin.why + '. Mira fastens it to your collar herself.', 'muted'));
+    box.appendChild(el('h3', { text: 'Mira Vance\'s ' + (st.dispatch.type === 'emergency_handoff' ? 'emergency handoff' : st.dispatch.type === 'emergency_assignment' ? 'emergency dispatch' : 'dispatch') }));
+    var q = el('div', { 'class': 'notice' }); st.dispatch.lines.forEach(function (l) { q.appendChild(p(l)); });
+    box.appendChild(q);
+    box.appendChild(p('Next: #002 Seven Keys of the Sunken Mint (Bramwell) is not yet available.', 'muted'));
+    return box;
+  }
+  function drakeFate(st) {
+    var d = st.drake;
+    if (!d.met) return 'Never met';
+    var wound = d.injured ? ', wounded by your blade' : '';
+    return ({ spared: d.bond ? 'Spared, Drake-Friend bond formed' : 'Spared and released through the upper vent (no bond)' + wound, driven_off: d.injured ? 'Driven off, wounded by your blade' : 'Driven off, unhurt', left_in_barrow: 'Left frightened in the Barrow' + wound, fled_on_its_own: 'Fled while you lay senseless' + wound })[d.fate] || 'Unresolved';
+  }
+  function promiseStatus(st) { return { sworn: 'sworn', open: 'open: lantern still to be returned', broken_restitution_due: 'broken: restitution due' }[st] || st; }
+  function rewardName(r) { return { silver_lantern_pin: 'Silver Lantern Pin', sun_prism_shard: 'Sun-Prism Shard', bramwell_seal_plate_evidence: 'Bramwell seal-plate evidence', magnetized_crowbar: 'Magnetized crowbar', temple_ward_lantern: 'Temple Ward-Lantern (on loan)', drake_friend_bond: 'Drake-Friend bond' }[r] || r; }
+  function renderEndingControls() {
+    var box = el('div');
+    var cp = app.cp, msg;
+    if (app.mode === 'free') msg = 'Free Exploration complete. Nothing was written to your Epic Journey.';
+    else if (!cp) msg = 'Recording completion…';
+    else msg = ({ written: 'Completion recorded as your campaign checkpoint for The Fracture of Scales.', already: 'Completion already recorded. Nothing was duplicated.', kept_existing: 'You kept your earlier completed record. This run is still saved as your Epic run.', run_unsaved: 'Completion NOT recorded: this run\'s last action was not saved. Export a backup or resolve the save problem, then reopen the run.', run_conflict: 'Completion NOT recorded: the saved run no longer matches this tab.', blocked: 'Completion NOT recorded: storage is blocked. Export the run as a backup.', quota: 'Completion NOT recorded: storage is full. Export the run as a backup.', conflict: 'Completion NOT recorded: another tab wrote at the same moment. Reload the page.', needs_confirm: 'Waiting for your decision about replacing the earlier record.', changed_since_confirm: 'Waiting for your decision about replacing the earlier record.' })[cp.status] || ('Completion status: ' + cp.status);
+    box.appendChild(el('div', { 'class': 'notice' + (cp && /NOT/.test(msg) ? ' danger' : ''), role: 'status', text: msg }));
+    var acts = el('div', { 'class': 'puzzle-actions' });
+    acts.appendChild(el('button', { type: 'button', text: 'Export this run (.json)', on: { click: function () { download('oakhaven-001-' + app.mode + '-run.json', S.runRecord(app.mode, app.session.runId, app.log, app.st, nowIso(), app.session.rev || 1)); } } }));
+    acts.appendChild(el('button', { type: 'button', text: 'Play again', on: { click: function () { startNew(app.mode, 'ok'); } } }));
+    acts.appendChild(el('button', { type: 'button', text: 'Title screen', on: { click: renderTitle } }));
+    acts.appendChild(el('a', { 'class': 'btn', href: '/dwortals/fantortals/', text: 'Return to Fantortals' }));
+    box.appendChild(acts);
+    return box;
+  }
+
+  // ---------- dialogs ----------
+  var dlg = $('dlg'), lastFocus = null;
+  function openDlg(title) {
+    lastFocus = document.activeElement;
+    $('dlg-title').textContent = title; $('dlg-tabs').textContent = ''; $('dlg-body').textContent = '';
+    if (!dlg.open) { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); }
+    $('dlg-close').focus();
+  }
+  function closeDlg() { if (dlg.open) { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); } if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+  $('dlg-close').addEventListener('click', closeDlg);
+  dlg.addEventListener('close', function () { if (lastFocus && lastFocus.focus && document.activeElement === document.body) lastFocus.focus(); });
+  var cdlg = $('confirm');
+  function confirmDlg(title, body, buttons) {
+    return new Promise(function (resolve) {
+      var prev = document.activeElement;
+      $('confirm-title').textContent = title; $('confirm-body').textContent = ''; $('confirm-body').appendChild(p(body));
+      var acts = $('confirm-actions'); acts.textContent = '';
+      function done(v) { if (cdlg.open) cdlg.close(); if (prev && prev.focus) prev.focus(); resolve(v); }
+      buttons.forEach(function (b, i) { acts.appendChild(el('button', { type: 'button', 'class': b[1] === 'yes' ? 'btn-danger' : '', text: b[0], on: { click: function () { done(b[1]); } } })); });
+      cdlg.onclose = null;
+      cdlg.addEventListener('cancel', function onc(ev) { ev.preventDefault(); cdlg.removeEventListener('cancel', onc); done(null); });
+      if (cdlg.showModal) cdlg.showModal(); else cdlg.setAttribute('open', '');
+      acts.firstChild.focus();
+    });
+  }
+  function showConflict(r) {
+    var mine = 'This tab: ' + app.log.length + ' actions.';
+    var pk = S.peekRun(app.mode);
+    var theirs = pk.status === 'present' ? ' Stored run: ' + (pk.runId === app.session.runId ? 'same run' : 'a different run') + ', ' + pk.rev + ' actions.' : pk.status === 'empty' ? ' No run is stored now.' : ' The stored record is unreadable.';
+    confirmDlg('Your run changed elsewhere', 'Problem: ' + (r.reason || 'save conflict') + '. ' + mine + theirs + ' Load the stored version (this tab\'s unsaved progress is dropped), or keep this tab\'s version (the stored one is backed up first).', [['Load the stored version', 'load'], ['Keep this tab\'s version', 'keep'], ['Decide later', null]]).then(function (v) {
+      if (v === 'load') {
+        var rd = S.readRun(app.mode);
+        if (rd.status === 'ok') { resume(app.mode, rd); announce('Loaded the stored run.'); }
+        else { app.stale = false; renderTitle(); }
+      } else if (v === 'keep') {
+        var w = S.overwriteRun(app.session, app.log, app.st, nowIso());
+        app.lastSave = w.status;
+        if (w.status === 'ok') { app.stale = false; app.unsaved = false; announce('Kept this tab\'s run. The other version was backed up.'); }
+        render(false);
+        if (app.st.complete && app.mode === 'epic') tryCommit();
+      }
+    });
+  }
+  window.addEventListener('storage', function (ev) {
+    if (app.screen !== 'game' || !app.session) return;
+    if (ev.key === null || ev.key === S.KEYS.run[app.mode]) {
+      var pk = S.peekRun(app.mode);
+      if (pk.status !== 'present' || pk.runId !== app.session.runId || pk.rev !== app.session.rev || pk.digest !== app.session.digest) { app.stale = true; render(false); }
+    }
+  });
+  function recheck() { if (app.screen === 'game' && app.session && app.storageOk && !app.unsaved) { var pk = S.peekRun(app.mode); if (pk.status !== 'present' || pk.runId !== app.session.runId || pk.rev !== app.session.rev || pk.digest !== app.session.digest) { if (!app.stale) { app.stale = true; render(false); } } } }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) recheck(); });
+  window.addEventListener('focus', recheck);
+
+  // ---------- Keyring ----------
+  var TABS = [['pack', 'Pack'], ['knowledge', 'Knowledge'], ['bonds', 'Bonds & Promises'], ['wounds', 'Wounds'], ['town', 'Town & Seal'], ['chronicle', 'Chronicle'], ['saves', 'Saves']];
+  var curTab = 'pack';
+  function openKeyring(tab) {
+    openDlg('Hero\'s Keyring');
+    var bar = el('div', { 'class': 'tabs', role: 'tablist', 'aria-label': 'Keyring sections' });
+    TABS.forEach(function (t) {
+      bar.appendChild(el('button', { type: 'button', role: 'tab', id: 'tab-' + t[0], 'aria-controls': 'dlg-body', 'aria-selected': String(t[0] === (tab || curTab)), tabindex: t[0] === (tab || curTab) ? '0' : '-1', text: t[1], on: { click: function () { showTab(t[0], true); }, keydown: tabKeys } }));
+    });
+    $('dlg-tabs').appendChild(bar);
+    $('dlg-body').setAttribute('role', 'tabpanel');
+    showTab(tab || curTab, false);
+  }
+  function tabKeys(ev) {
+    var i = TABS.map(function (t) { return 'tab-' + t[0]; }).indexOf(ev.target.id);
+    if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') { ev.preventDefault(); var n = (i + (ev.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length; showTab(TABS[n][0], true); }
+  }
+  function showTab(id, focus) {
+    curTab = id;
+    TABS.forEach(function (t) { var b = $('tab-' + t[0]); if (b) { b.setAttribute('aria-selected', String(t[0] === id)); b.tabIndex = t[0] === id ? 0 : -1; } });
+    var body = $('dlg-body'); body.textContent = ''; body.setAttribute('aria-labelledby', 'tab-' + id);
+    var st = app.st;
+    if (id === 'pack') {
+      body.appendChild(p('Pack: ' + E.packUsed(st) + ' of ' + E.RULES.capacity + ' slots used.'));
+      var ul = el('ul', { 'class': 'list' });
+      ul.appendChild(el('li', {}, [el('b', { text: 'Worn: Boiled leather. ' }), E.WORN.boiled_leather.desc]));
+      if (st.pin) ul.appendChild(el('li', {}, [el('b', { text: 'Worn: Silver Lantern Pin. ' }), st.pin.why + '.']));
+      st.pack.forEach(function (i) {
+        var nm = E.ITEMS[i].name, ds = E.ITEMS[i].desc;
+        if (i === 'crowbar' && st.crowbarMod === 'magnetized') { nm = 'Magnetized crowbar'; ds = 'Your crowbar, now bound with a lodestone wrap at Brannoc Hale\'s forge. It clings to iron. Weight 5 on a scale.'; }
+        if (i === 'sun_prism_shard') ds += ' Condition: ' + st.shard.cond + '. ' + st.shard.how + '.';
+        if (i === 'seal_plate') ds += ' ' + st.evidence.seal_plate.how + '.';
+        if (i === 'ward_lantern' && st.loan) { nm += ' (borrowed)'; ds = 'A clear-glass temple lantern whose light cuts through smoke. Borrowed from ' + st.loan.lender + '; you promised to return it. Weight 3 on a scale.'; }
+        ul.appendChild(el('li', {}, [el('b', { text: nm + ' (' + E.ITEMS[i].size + ' slot' + (E.ITEMS[i].size === 1 ? '' : 's') + '). ' }), ds]));
+      });
+      if (st.broth) ul.appendChild(el('li', {}, [el('b', { text: 'Hearth-Broth ×' + st.broth + '. ' }), E.ITEMS.hearth_broth.desc]));
+      body.appendChild(ul);
+      var gone = [];
+      st.brothLog.forEach(function (b) { gone.push('Hearth-Broth: ' + b.how + '.'); });
+      if (st.scale.sacrificed.length) gone.push('Kept as tithe on the Warden scale: ' + st.scale.sacrificed.filter(function (w) { return w !== 'hearth_broth'; }).map(function (w) { return E.ITEMS[w].name; }).join(', ') + '.');
+      if (st.crowbarFate && st.pack.indexOf('crowbar') < 0) gone.push('Crowbar: ' + st.crowbarFate + '.');
+      if (gone.length) { body.appendChild(el('h3', { text: 'Spent or left behind' })); var g = el('ul', { 'class': 'list' }); gone.forEach(function (t) { if (!/: \.$/.test(t)) g.appendChild(el('li', { text: t })); }); body.appendChild(g); }
+    } else if (id === 'knowledge') {
+      var ks = Object.keys(st.know);
+      if (st.prism) body.appendChild(el('div', { 'class': 'notice' }, [el('b', { text: 'Remembered prism pattern: ' }), E.orderNames(st.prism.pattern) + '. Origin: ' + st.prism.origin + '. ' + st.prism.how + '. You keep this memory whether or not you hold the shard.']));
+      if (!ks.length) body.appendChild(p('Nothing learned yet.', 'muted'));
+      var ul2 = el('ul', { 'class': 'list' });
+      ks.sort(function (a, b) { return st.know[a].at - st.know[b].at; }).forEach(function (k) { ul2.appendChild(el('li', {}, [E.FACTS[k] || k, el('span', { 'class': 'prov', text: st.know[k].src })])); });
+      body.appendChild(ul2);
+      body.appendChild(el('h3', { text: 'Physical evidence' }));
+      var ev = el('ul', { 'class': 'list' }), anyEv = false;
+      ['seal_plate', 'silver_shim'].forEach(function (k) { var e = st.evidence[k]; if (e) { anyEv = true; ev.appendChild(el('li', {}, [E.ITEMS[k].name + ': ' + (e.held ? 'carried' : e.fate), el('span', { 'class': 'prov', text: e.how })])); } });
+      if (!anyEv) ev.appendChild(el('li', { 'class': 'muted', text: 'No physical evidence in hand.' }));
+      body.appendChild(ev);
+    } else if (id === 'bonds') {
+      body.appendChild(el('h3', { text: 'Bonds' }));
+      body.appendChild(st.bonds.length ? el('ul', { 'class': 'list' }, st.bonds.map(function (b) { return el('li', { text: b.text }); })) : p('No bonds yet.', 'muted'));
+      body.appendChild(el('h3', { text: 'Promises' }));
+      body.appendChild(el('ul', { 'class': 'list' }, st.promises.map(function (b) { return el('li', {}, [b.text, el('span', { 'class': 'prov', text: 'Status: ' + promiseStatus(b.status) + (b.reason ? '. ' + b.reason : '') })]); })));
+      if (st.loan) { body.appendChild(el('h3', { text: 'Borrowed' })); body.appendChild(el('ul', { 'class': 'list' }, [el('li', {}, ['Temple Ward-Lantern: ' + (st.loan.held ? 'carried on loan' : 'surrendered as tithe; it cannot be returned'), el('span', { 'class': 'prov', text: st.loan.how })])])); }
+      if (st.obligations.length) { body.appendChild(el('h3', { text: 'Obligations' })); body.appendChild(el('ul', { 'class': 'list' }, st.obligations.map(function (o) { return el('li', {}, ['Restitution owed to ' + o.owedTo + ': ' + o.reason, el('span', { 'class': 'prov', text: 'Status: ' + o.status })]); }))); }
+      if (st.drake.met) body.appendChild(p('The drake: ' + drakeFate(st) + (st.drake.fate ? '' : ' (encounter in progress)') + '.', 'muted'));
+    } else if (id === 'wounds') {
+      body.appendChild(p('Vitality ' + st.vit + ' of ' + st.vitMax + '. Collapses: ' + st.collapses + ' (a second collapse ends the chapter with an emergency handoff).'));
+      body.appendChild(st.injuries.length ? el('ul', { 'class': 'list' }, st.injuries.map(function (x) { return el('li', { text: x.text }); })) : p('No injuries.', 'muted'));
+      if (st.vitLog.length) { body.appendChild(el('h3', { text: 'Vitality changes' })); body.appendChild(el('ul', { 'class': 'list' }, st.vitLog.map(function (v) { return el('li', { text: (v.delta > 0 ? '+' : '') + v.delta + ': ' + v.why }); }))); }
+    } else if (id === 'town') {
+      body.appendChild(p('Town Panic ' + st.panic + ' of 12 (peak ' + st.panicPeak + '). Thresholds: 4 Uneasy (crowds), 9 Fleeing (neighbours injured in the crush; fewer if the temple evacuated the sick), 12 Peak (fire, more injuries, evacuation to Temple Hill). Panic measures fear; injuries and damage are recorded separately below.'));
+      body.appendChild(el('h3', { text: 'What actually happened in town' }));
+      var tl = el('ul', { 'class': 'list' });
+      tl.appendChild(el('li', { text: 'Silver seal-plates stolen: ' + st.town.platesStolen + '; recovered by you: ' + st.town.platesRecovered + '.' }));
+      st.town.events.forEach(function (e) { tl.appendChild(el('li', { text: e.text })); });
+      if (st.town.help.length) tl.appendChild(el('li', { text: 'Civilian help: temple acolytes moved the infirmary\'s sick to Temple Hill.' }));
+      tl.appendChild(el('li', { text: 'Neighbours injured so far: ' + st.town.injured + '.' }));
+      body.appendChild(tl);
+      body.appendChild(el('h3', { text: 'Panic history' }));
+      body.appendChild(st.panicLog.length ? el('ul', { 'class': 'list' }, st.panicLog.map(function (x) { return el('li', { text: x.from + ' → ' + x.to + ': ' + x.why }); })) : p('No change yet.', 'muted'));
+      body.appendChild(el('h3', { text: 'Seal chambers' }));
+      var dl = el('dl', { 'class': 'kv' }); chamberLines(st).forEach(function (l) { dl.appendChild(el('dt', { text: l[0] })); dl.appendChild(el('dd', { text: l[1] })); }); body.appendChild(dl);
+      if (st.seal) body.appendChild(p('Seal condition: ' + st.seal.condition + (st.seal.weakPoints.length ? ': ' + st.seal.weakPoints.join('; ') : '') + '.'));
+      body.appendChild(el('h3', { text: 'Proof of deliberate interference' }));
+      body.appendChild(el('ul', { 'class': 'list' }, E.interferenceProofs(st).map(function (x) { return el('li', {}, [x.text, el('span', { 'class': 'prov', text: x.kind })]); })));
+    } else if (id === 'chronicle') {
+      body.appendChild(st.chron.length ? el('ol', { 'class': 'list' }, st.chron.map(function (c) { return el('li', { text: c.text }); })) : p('The night has only begun.', 'muted'));
+    } else if (id === 'saves') renderSaves(body);
+    if (focus) $('tab-' + id).focus();
+  }
+  function downloadRaw(name, text) {
+    var blob = new Blob([text], { type: 'application/json' });
+    var a = el('a', { href: URL.createObjectURL(blob), download: name }); document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function download(name, obj) {
+    var blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    var a = el('a', { href: URL.createObjectURL(blob), download: name }); document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function renderSaves(body) {
+    var st = app.st;
+    body.appendChild(el('dl', { 'class': 'kv' }, [
+      el('dt', { text: 'Mode' }), el('dd', { text: app.mode === 'epic' ? 'Epic Journey' : 'Free Exploration (isolated; never writes campaign progress)' }),
+      el('dt', { text: 'Run' }), el('dd', { text: app.session.runId + ' · ' + app.log.length + ' committed actions' }),
+      el('dt', { text: 'Last save' }), el('dd', { text: app.unsaved ? 'NOT saved (' + app.lastSave + ')' : 'Saved' }),
+      el('dt', { text: 'Storage' }), el('dd', { text: app.storageOk ? 'Available in this browser only. No cloud sync.' : 'Blocked. Use export.' })
+    ]));
+    var acts = el('div', { 'class': 'puzzle-actions' });
+    acts.appendChild(el('button', { type: 'button', text: 'Download run backup (.json)', on: { click: function () { download('oakhaven-001-' + app.mode + '-run.json', S.runRecord(app.mode, app.session.runId, app.log, st, nowIso(), app.session.rev || 1)); } } }));
+    if (app.mode === 'epic') {
+      var cp = S.readCheckpoint();
+      if (cp.status === 'ok') acts.appendChild(el('button', { type: 'button', text: 'Download completion record (.json)', on: { click: function () { download('oakhaven-001-checkpoint.json', cp.rec); } } }));
+    }
+    body.appendChild(acts);
+    body.appendChild(el('h3', { text: 'Restore a run backup' }));
+    body.appendChild(p('Paste backup text or choose a file. It is checked completely by replaying every action before anything is changed. Records from the other mode, another campaign or chapter, an unsupported version, or with altered contents are refused.', 'muted'));
+    var ta = el('textarea', { id: 'imp-text', 'aria-label': 'Backup text' });
+    var file = el('input', { type: 'file', accept: 'application/json,.json', id: 'imp-file', 'aria-label': 'Backup file' });
+    var out = el('p', { role: 'status' });
+    file.addEventListener('change', function () { var f = file.files[0]; if (!f) return; if (f.size > 200000) { out.textContent = 'That file is too large to be a backup.'; return; } var r = new FileReader(); r.onload = function () { ta.value = String(r.result); }; r.readAsText(f); });
+    body.appendChild(ta); body.appendChild(file);
+    body.appendChild(el('div', { 'class': 'puzzle-actions' }, [el('button', { type: 'button', text: 'Check and restore', on: { click: function () {
+      var r = S.importRun(ta.value, app.mode);
+      if (r.status !== 'valid') { out.textContent = 'Refused: ' + r.error + '. Nothing was changed.'; return; }
+      confirmDlg('Restore this backup?', 'It is a valid ' + (app.mode === 'epic' ? 'Epic Journey' : 'Free Exploration') + ' run with ' + r.rec.rev + ' actions (scene: ' + (TITLES[r.state.scene] || r.state.scene) + '). Your current saved run will be backed up and replaced.', [['Cancel', null], ['Restore', 'yes']]).then(function (v) {
+        if (v !== 'yes') return;
+        var w = S.writeImported(r.rec);
+        if (w.status !== 'ok') { out.textContent = 'Could not write the backup (' + w.status + '). Nothing else changed.'; return; }
+        closeDlg(); resume(app.mode, { rec: r.rec, state: r.state }); announce('Backup restored.');
+      });
+    } } })]));
+    body.appendChild(out);
+    if (app.mode === 'epic') {
+      body.appendChild(el('h3', { text: 'Completion record' }));
+      var cpr = S.readCheckpoint();
+      body.appendChild(p(cpr.status === 'ok' ? 'Recorded: ' + outcomeName(cpr.rec.handoff.outcome) + ' (run ' + cpr.rec.runId + ').' : cpr.status === 'invalid' ? 'Stored record failed validation: ' + cpr.error + '. It has not been changed.' : 'No completion recorded yet.'));
+      body.appendChild(el('div', { 'class': 'puzzle-actions' }, [el('button', { type: 'button', text: 'Restore previous completion from backup', on: { click: function () {
+        confirmDlg('Restore the previous completion record?', 'The current completion record and the backup swap places. Nothing else changes.', [['Cancel', null], ['Restore', 'yes']]).then(function (v) { if (v === 'yes') { var r = S.restoreCheckpointBackup(); announce(r.status === 'restored' ? 'Previous completion restored.' : 'No valid backup to restore.'); showTab('saves', false); } });
+      } } })]));
+    }
+  }
+
+  // ---------- Menu ----------
+  function openMenu() {
+    openDlg('Menu');
+    var b = $('dlg-body');
+    b.appendChild(el('h3', { text: 'Text size' }));
+    var ts = el('div', { 'class': 'puzzle-actions', role: 'group', 'aria-label': 'Text size' });
+    [['standard', 'Standard'], ['large', 'Large'], ['largest', 'Largest']].forEach(function (o) { ts.appendChild(el('button', { type: 'button', 'aria-pressed': String(settings.textSize === o[0]), text: o[1], on: { click: function () { settings.textSize = o[0]; S.writeSettings(settings); applySettings(); openMenu(); } } })); });
+    b.appendChild(ts);
+    b.appendChild(el('h3', { text: 'Motion' }));
+    b.appendChild(el('div', { 'class': 'puzzle-actions' }, [el('button', { type: 'button', 'aria-pressed': String(!!settings.reduceMotion), text: 'Reduce motion: ' + (settings.reduceMotion ? 'on' : 'off'), on: { click: function () { settings.reduceMotion = !settings.reduceMotion; S.writeSettings(settings); applySettings(); openMenu(); } } })]));
+    b.appendChild(p('Your device\'s reduced-motion setting is also respected. This game has no sound.', 'muted'));
+    b.appendChild(el('h3', { text: 'Help' }));
+    b.appendChild(helpContent());
+    var acts = el('div', { 'class': 'puzzle-actions' });
+    acts.appendChild(el('button', { type: 'button', text: 'Title screen', on: { click: function () { closeDlg(); renderTitle(); } } }));
+    if (app.screen === 'game') acts.appendChild(el('button', { type: 'button', 'class': 'btn-danger', text: 'Restart this chapter…', on: { click: function () { closeDlg(); startNew(app.mode, 'ok'); } } }));
+    acts.appendChild(el('a', { 'class': 'btn', href: '/dwortals/fantortals/', text: 'Return to Fantortals' }));
+    b.appendChild(acts);
+    b.appendChild(p('DoorQuests — Created by The Axiom Continuum. Original concept: Gemini (A-031). Implementation: Claude. Build ' + E.BUILD + '.', 'muted'));
+  }
+  $('btn-menu').addEventListener('click', openMenu);
+  $('btn-keyring').addEventListener('click', function () { openKeyring(); });
+
+  // ---------- read-only QA hook ----------
+  Object.defineProperty(window, '__OAK_QA__', { value: Object.freeze({
+    build: E.BUILD,
+    state: function () { return app.st ? JSON.parse(JSON.stringify(app.st)) : null; },
+    log: function () { return app.log.slice(); },
+    legal: function () { return app.st ? E.legal(app.st).map(function (a) { return a.id; }) : []; },
+    handoff: function () { return app.st && app.st.complete ? JSON.parse(JSON.stringify(E.handoff(app.st, { runId: app.session.runId }))) : null; },
+    status: function () { return { screen: app.screen, mode: app.mode, stale: app.stale, unsaved: app.unsaved, lastSave: app.lastSave, cp: app.cp ? app.cp.status : null }; }
+  }), writable: false, configurable: false });
+
+  renderTitle();
+})();
+
+</script>
+</body>
+</html>
