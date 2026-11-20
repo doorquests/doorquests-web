@@ -1,0 +1,1825 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-IyQqYDwErc9XRh4EEBylBq0iktoMgFe/qjnBixcIIh4='; style-src 'sha256-zvX/OL9RJN8qZNLkM02PWYH4YR90av4qXSDR4VOjoso='; img-src 'none'; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>The Firefly Who Was Left Over · DoorQuests Thirdortals (prototype)</title>
+<meta name="description" content="DoorQuests Gradortals · Thirdortals · Multiplication and Division #001. Prototype for Founder playtest. Created by The Axiom Continuum.">
+<style>:root{
+  --bg:#17142f; --bg2:#231d45; --ink:#2a1d10; --paper:#fbf3df; --paper2:#f3e6c4;
+  --brass:#c8963a; --brassDark:#7a5218; --glow:#ffd84a; --text:#f5efe2; --muted:#d8cfe8;
+  --focus:#7fe3ff; --ok:#1f6b3a; --warn:#8a2b12; --line:#c9b98f;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;font-size:1.0625rem;line-height:1.5;overflow-x:hidden}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.skip{position:absolute;left:8px;top:-60px;background:var(--paper);color:var(--ink);padding:10px 14px;border-radius:8px;z-index:10;font-weight:bold}
+.skip:focus{top:8px}
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
+button{font:inherit;min-height:44px;min-width:44px;padding:8px 14px;border-radius:10px;border:2px solid var(--brassDark);background:var(--paper2);color:var(--ink);cursor:pointer;line-height:1.25}
+button:hover{background:#fff4d2}
+button.big{font-size:1.15rem;font-weight:bold;padding:12px 20px;background:var(--glow);border-color:#8a5f1c}
+button.small{font-size:.95rem;min-height:44px}
+input[type=text]{font:inherit;min-height:44px;padding:6px 10px;border:2px solid var(--brassDark);border-radius:8px;background:#fff;color:var(--ink);max-width:100%}
+select{font:inherit;min-height:44px;padding:6px 8px;border:2px solid var(--brassDark);border-radius:8px;background:#fff;color:var(--ink);max-width:100%}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.top{padding:12px 16px 8px;background:var(--bg2);border-bottom:3px solid var(--brass)}
+.brandrow{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between;align-items:baseline}
+.brand{margin:0;font-size:.85rem;color:var(--muted)}
+.proto{margin:0;font-size:.8rem;font-weight:bold;background:#5a2a12;color:#ffe2c4;padding:2px 8px;border-radius:999px}
+h1{margin:6px 0 8px;font-size:1.55rem;line-height:1.2;color:#ffe8a6}
+h2{line-height:1.25}
+.streets{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.streetBtn{background:#352c63;color:var(--text);border-color:#6d5fb0;text-align:left}
+.streetBtn .sub{display:block;font-size:.8rem;color:var(--muted)}
+.streetBtn[aria-current=page]{background:var(--glow);color:var(--ink);border-color:#8a5f1c}
+.streetBtn[aria-current=page] .sub{color:#4a3510}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.tools button{background:#2c2557;color:var(--text);border-color:#6d5fb0;font-size:.95rem}
+main{display:block;max-width:1180px;margin:0 auto;padding:12px 16px 24px}
+main:focus{outline:none}
+.notices p{margin:0 0 8px;padding:10px 12px;border-radius:10px;background:#5a2a12;color:#fff1e2;border-left:6px solid #ffb27a}
+.door{display:grid;gap:16px;align-items:center;background:var(--paper);color:var(--ink);border-radius:var(--radius);padding:16px}
+.doorArt{width:100%;max-width:420px;height:auto;margin:0 auto;display:block;border-radius:12px}
+.doorText h2{margin-top:0}
+.street{display:block}
+.taskPanel{display:flex;gap:12px;align-items:flex-start;background:var(--paper);color:var(--ink);border-radius:var(--radius);padding:12px}
+.oda{width:84px;flex:0 0 84px;height:auto}
+.bubble{flex:1;min-width:0}
+.bubble h2{margin:0 0 4px;font-size:1.25rem}
+.speaker{margin:0;font-size:.85rem;font-weight:bold;color:#7a5218;text-transform:uppercase;letter-spacing:.04em}
+.question{font-weight:bold;font-size:1.1rem;color:#3d2a7a}
+.hint{background:#fff;border:2px dashed var(--line);border-radius:10px;padding:8px 10px}
+.scene{margin-top:12px;background:#1b2140;border-radius:var(--radius);padding:0 8px 10px;overflow:hidden}
+.sky{display:block;width:calc(100% + 16px);margin:0 -8px 6px;height:48px}
+.scene{position:relative}
+.skyName{position:absolute;top:10px;left:0;right:0;margin:0;text-align:center;color:#ffe8a6;font-weight:bold;font-size:1.05rem;pointer-events:none}
+.lamps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lampBtn{width:100%;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px 8px;background:#262d55;color:var(--text);border:3px solid #49508a;border-radius:12px;text-align:center}
+.lampBtn:hover{background:#2f3768}
+.lampBtn svg{width:100%;max-width:96px;height:auto}
+.lampBtn .lname{font-weight:bold;font-size:1rem}
+.lampBtn .lstate{font-size:.85rem;color:var(--muted)}
+.lampBtn .lcount{font-size:.95rem;font-weight:bold;color:#ffe8a6}
+.lampBtn.chosen{border-color:var(--glow);border-style:solid}
+.lampBtn.unchosen{border-style:dashed}
+.lampBtn.target{border-color:#7fe3ff;border-style:double;border-width:5px}
+.lampBtn .mark{display:inline-block;font-size:.8rem;font-weight:bold;padding:0 6px;border-radius:6px;background:var(--glow);color:var(--ink)}
+.lampBtn .mark.none{background:transparent;color:var(--muted);border:1px dashed var(--muted)}
+.lampBtn .mark.tgt{background:#7fe3ff}
+.jarRow{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:center;margin-top:10px}
+.jarBox{text-align:center}
+.jar{width:180px;max-width:60vw;height:auto}
+.jarLabel{margin:2px 0 0;font-size:1.05rem}
+.arrivals{max-width:220px;text-align:center}
+.arrivals svg{width:100%;height:auto}
+.arrivals p{margin:4px 0 0;font-size:.95rem}
+.fly{fill:#ffe36b;stroke:#8a5f1c;stroke-width:.6}
+.halo{fill:url(#glowGrad)}
+.flyNew{fill:#b6ff8a;stroke:#2f6b1f;stroke-width:.8}
+.fly.wait{fill:#ffb85c}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.act{flex:1 1 120px;font-size:1.15rem;font-weight:bold;min-height:56px}
+.act.deal{background:#ffe08a}
+.act.fill{background:#c9ecff}
+.act.check{background:#d9f5cf}
+.act.gather{background:#f6d6ff}
+.act.arrive{background:#b6ff8a}
+.verbs{font-size:.95rem;color:var(--muted);margin:8px 0}
+.say{min-height:3em;margin:8px 0;padding:10px 12px;border-radius:10px;background:var(--paper);color:var(--ink);border-left:6px solid var(--brass);font-size:1.05rem}
+.say.no{border-left-color:#c2410c;background:#fff0e6}
+.eqs,.history,.waiters,.tablebox,.map,.manage{margin-top:12px;background:var(--paper);color:var(--ink);border-radius:var(--radius);padding:12px 14px}
+.eqs h3,.history h3,.waiters h3{margin:0 0 6px}
+.eqMain{font-size:1.35rem;font-weight:bold;margin:4px 0;color:#3d2a7a;word-break:break-word}
+.tablebox summary{font-weight:bold;cursor:pointer;min-height:44px;display:flex;align-items:center}
+table{border-collapse:collapse;width:100%;margin-top:6px;table-layout:fixed}
+caption{text-align:left;font-size:.9rem;color:#5b4a2a;padding-bottom:4px}
+th,td{border:1px solid var(--line);padding:6px 6px;text-align:left;overflow-wrap:anywhere}
+.tablebox{min-width:0;overflow-x:auto}
+th{background:var(--paper2)}
+tr.jarRowT td{font-weight:bold}
+tr.totalRow td{font-weight:bold;background:#fff7e0}
+.history ul{margin:0;padding-left:1.2em}
+.history li{margin:4px 0}
+.waiter{min-width:0;border:2px solid var(--line);border-radius:12px;padding:8px 10px;margin:8px 0;display:grid;gap:6px}
+.waiter legend{font-weight:bold;padding:0 4px}
+.waiter .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.waiter label{font-weight:bold}
+.state{font-weight:bold}
+.state.okText{color:var(--ok)}
+.reason{min-width:0;border:2px solid var(--line);border-radius:12px;margin:10px 0;padding:8px 10px}
+.reason legend{font-weight:bold}
+.reasonLine{line-height:2.4}
+.inline input{width:4.2em;text-align:center}
+.reflect{display:grid;gap:6px;margin:10px 0;min-width:0}
+.reflect input{width:100%}
+.waiter select{width:100%;max-width:100%}
+.waiter .row>*{min-width:0}
+.map{border:3px solid var(--brass)}
+.map h2{margin-top:0}
+.mapStatus{font-weight:bold;font-size:1.1rem}
+.mapStatus.draft{color:#8a2b12}
+.mapStatus.cert{color:var(--ok)}
+.mapArt{width:100%;max-width:640px;height:auto;display:block;margin:6px 0}
+.mapBody h3{margin:12px 0 4px;font-size:1.05rem}
+.mapBody p,.mapBody li{margin:2px 0}
+.mapBody .ny{color:#8a2b12;font-style:italic}
+.mapButtons,.resetRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pastMaps{margin-top:10px}
+.pastMaps pre{white-space:pre-wrap;word-break:break-word;background:#fff;padding:8px;border-radius:8px;font-size:.9rem}
+.warn{color:#8a2b12;font-weight:bold}
+.confirm{margin-top:10px;padding:10px;border:3px solid #c2410c;border-radius:12px;background:#fff0e6}
+.confirm button{margin:4px 6px 0 0}
+.foot{text-align:center;padding:16px;color:var(--muted);font-size:.95rem}
+.foot p{margin:2px 0}
+.foot .small{font-size:.85rem}
+@media (min-width:760px){
+  .door{grid-template-columns:1fr 1fr}
+  .oda{width:110px;flex-basis:110px}
+}
+@media (min-width:980px){
+  .lamps{grid-template-columns:repeat(6,minmax(0,1fr))}
+  h1{font-size:2rem}
+}
+@keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.halo{animation:pulse 2.4s ease-in-out infinite}
+.drift{animation:drift 3s ease-in-out infinite}
+.doorGlow{animation:pulse 3s ease-in-out infinite}
+html.still .halo,html.still .drift,html.still .doorGlow{animation:none}
+@media (prefers-reduced-motion:reduce){.halo,.drift,.doorGlow{animation:none}}
+@media print{
+  body{background:#fff;color:#000}
+  .top,.street,.door,.manage,.foot,.skip,.notices,.mapButtons,.tools{display:none!important}
+  .map{display:block!important;border:none;padding:0}
+  .pastMaps{display:none!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the lamps</a>
+<svg class="defs" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <radialGradient id="glowGrad"><stop offset="0" stop-color="#fff6b0" stop-opacity="0.95"/><stop offset="0.45" stop-color="#ffd84a" stop-opacity="0.55"/><stop offset="1" stop-color="#ffb000" stop-opacity="0"/></radialGradient>
+    <radialGradient id="lampLit"><stop offset="0" stop-color="#fff3c4" stop-opacity="0.9"/><stop offset="1" stop-color="#ffcf5a" stop-opacity="0.15"/></radialGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3d27a"/><stop offset="0.5" stop-color="#c8963a"/><stop offset="1" stop-color="#8a5f1c"/></linearGradient>
+    <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1b4a"/><stop offset="0.6" stop-color="#5a3a6e"/><stop offset="1" stop-color="#d98b5f"/></linearGradient>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="brandrow">
+    <p class="brand">DoorQuests · Gradortals · Thirdortals · Multiplication and Division #001</p>
+    <p class="proto">Prototype · not published</p>
+  </div>
+  <h1>The Firefly Who Was Left Over</h1>
+  <nav aria-label="Choose a street">
+    <ul class="streets" id="streetNav">
+      <li><button type="button" class="streetBtn" data-street="tallow">Tallow Row <span class="sub">24 fireflies</span></button></li>
+      <li><button type="button" class="streetBtn" data-street="lantern">Lantern Bend <span class="sub">replay · 30</span></button></li>
+      <li><button type="button" class="streetBtn" data-street="willow">Willowlight Walk <span class="sub">replay · 36</span></button></li>
+    </ul>
+  </nav>
+  <div class="tools">
+    <button type="button" id="stillBtn" aria-pressed="false">Still pictures: off</button>
+    <button type="button" id="speakBtn" hidden>Read Oda’s words aloud</button>
+    <button type="button" id="stopBtn" hidden>Stop reading</button>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <div id="notices" class="notices" aria-live="polite"></div>
+
+  <section id="door" class="door" aria-labelledby="doorTitle" hidden>
+    <svg class="doorArt" viewBox="0 0 320 300" role="img" aria-labelledby="doorArtTitle">
+      <title id="doorArtTitle">A tall brass door with an arched top, glowing at dusk</title>
+      <rect width="320" height="300" fill="url(#dusk)"/>
+      <g class="stars" fill="#fff" opacity="0.8"><circle cx="30" cy="30" r="1.4"/><circle cx="80" cy="18" r="1"/><circle cx="270" cy="40" r="1.5"/><circle cx="230" cy="16" r="1"/><circle cx="296" cy="90" r="1.1"/><circle cx="18" cy="96" r="1"/></g>
+      <rect x="0" y="250" width="320" height="50" fill="#2b2335"/>
+      <path d="M100 250 V110 a60 60 0 0 1 120 0 V250 Z" fill="#3a2a1a"/>
+      <path d="M108 250 V112 a52 52 0 0 1 104 0 V250 Z" fill="url(#brass)" stroke="#6b4614" stroke-width="3"/>
+      <path d="M160 64 V250" stroke="#6b4614" stroke-width="2"/>
+      <g fill="#7a5218"><circle cx="122" cy="130" r="3"/><circle cx="198" cy="130" r="3"/><circle cx="122" cy="190" r="3"/><circle cx="198" cy="190" r="3"/><circle cx="122" cy="236" r="3"/><circle cx="198" cy="236" r="3"/></g>
+      <circle cx="176" cy="178" r="7" fill="#fbe7a6" stroke="#6b4614" stroke-width="2"/>
+      <circle class="doorGlow" cx="160" cy="250" r="60" fill="url(#glowGrad)" opacity="0.5"/>
+      <g class="drift"><circle cx="70" cy="200" r="3" fill="#ffe36b"/><circle cx="250" cy="170" r="3" fill="#ffe36b"/><circle cx="235" cy="215" r="2.6" fill="#ffe36b"/></g>
+    </svg>
+    <div class="doorText">
+      <h2 id="doorTitle" tabindex="-1">A door at dusk</h2>
+      <p id="doorBlurb"></p>
+      <p>You will be the lamplighter’s helper. Nothing is timed, and no answer is ever thrown away.</p>
+      <button type="button" id="beginBtn" class="big">Open the brass door</button>
+    </div>
+  </section>
+
+  <section id="street" class="street" aria-labelledby="taskTitle" hidden>
+    <div class="taskPanel">
+      <svg class="oda" viewBox="0 0 120 140" role="img" aria-labelledby="odaTitle">
+        <title id="odaTitle">Oda the badger lamplighter, holding a lamplighter’s pole</title>
+        <rect x="88" y="10" width="5" height="128" rx="2" fill="#7a5218"/>
+        <path d="M84 10 h13 l-3 10 h-7 z" fill="url(#brass)"/>
+        <path d="M30 138 q-6 -46 30 -52 q36 6 30 52 z" fill="#3c5a7a"/>
+        <path d="M44 96 l16 22 l16 -22" fill="none" stroke="#e8c36a" stroke-width="3"/>
+        <ellipse cx="60" cy="60" rx="30" ry="28" fill="#8d8f96"/>
+        <path d="M60 32 q-10 26 -6 52 h12 q4 -26 -6 -52z" fill="#f4f1ea"/>
+        <path d="M38 44 q8 14 4 30 l-10 -6 q-4 -14 6 -24z" fill="#2b2b30"/>
+        <path d="M82 44 q-8 14 -4 30 l10 -6 q4 -14 -6 -24z" fill="#2b2b30"/>
+        <circle cx="46" cy="58" r="3.4" fill="#fff"/><circle cx="74" cy="58" r="3.4" fill="#fff"/>
+        <circle cx="46" cy="58" r="1.7" fill="#1a1a1a"/><circle cx="74" cy="58" r="1.7" fill="#1a1a1a"/>
+        <ellipse cx="60" cy="80" rx="5" ry="3.6" fill="#2b2b30"/>
+        <path d="M54 86 q6 5 12 0" fill="none" stroke="#2b2b30" stroke-width="2"/>
+        <circle cx="34" cy="38" r="7" fill="#8d8f96"/><circle cx="86" cy="38" r="7" fill="#8d8f96"/>
+        <path d="M36 32 q24 -14 48 0 l-4 -8 q-20 -10 -40 0z" fill="#5a3a20"/>
+      </svg>
+      <div class="bubble">
+        <p class="speaker" id="speaker">Oda says</p>
+        <h2 id="taskTitle" tabindex="-1">Task</h2>
+        <p id="taskText"></p>
+        <p id="taskQuestion" class="question"></p>
+        <button type="button" id="hintBtn" class="small" aria-expanded="false" aria-controls="hintText">Show a hint</button>
+        <p id="hintText" class="hint" hidden></p>
+      </div>
+    </div>
+
+    <div class="scene" id="scene">
+      <svg class="sky" viewBox="0 0 400 60" aria-hidden="true" focusable="false" preserveAspectRatio="none">
+        <rect width="400" height="60" fill="url(#dusk)"/>
+        <g fill="#fff" opacity="0.7"><circle cx="40" cy="12" r="1"/><circle cx="120" cy="22" r="1.2"/><circle cx="210" cy="9" r="1"/><circle cx="300" cy="18" r="1.3"/><circle cx="370" cy="8" r="1"/></g>
+      </svg>
+      <p class="skyName" id="skyLabel">Tallow Row</p>
+      <ol class="lamps" id="lamps" aria-label="Six street lamps"></ol>
+      <div class="jarRow">
+        <div class="jarBox">
+          <svg class="jar" id="jarSvg" viewBox="0 0 200 210" role="img" aria-labelledby="jarSvgTitle">
+            <title id="jarSvgTitle">The Waiting Jar</title>
+            <rect x="60" y="6" width="80" height="16" rx="4" fill="url(#brass)"/>
+            <path d="M52 24 h96 q14 0 14 14 v150 q0 16 -16 16 h-92 q-16 0 -16 -16 v-150 q0 -14 14 -14z" fill="#d9eef0" fill-opacity="0.22" stroke="#cfe6ea" stroke-width="3"/>
+            <g id="jarFlies"></g>
+          </svg>
+          <p class="jarLabel"><strong>Waiting Jar:</strong> <span id="jarCount">0</span> <span id="jarWord">fireflies</span></p>
+        </div>
+        <div class="arrivals" id="arrivals" hidden>
+          <svg viewBox="0 0 160 90" role="img" aria-labelledby="arrTitle"><title id="arrTitle">New volunteer fireflies hovering by the path</title>
+            <rect width="160" height="90" rx="12" fill="#22324a"/><path d="M0 70 q40 -12 80 0 t80 0 v20 h-160z" fill="#35583e"/>
+            <g id="arrFlies"></g></svg>
+          <p id="arrText"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions" id="actions" role="group" aria-label="Lamplighter buttons">
+      <button type="button" id="dealBtn" class="act deal">Deal</button>
+      <button type="button" id="fillBtn" class="act fill">Fill</button>
+      <button type="button" id="checkBtn" class="act check">Check</button>
+      <button type="button" id="gatherBtn" class="act gather">Gather</button>
+      <button type="button" id="arriveBtn" class="act arrive">Welcome the new fireflies</button>
+    </div>
+    <p class="verbs" id="verbHelp"><strong>Deal</strong> gives every chosen lamp one firefly. <strong>Fill</strong> pours a set number into one empty lamp. <strong>Gather</strong> flies everyone home and counts them.</p>
+
+    <div id="say" class="say" aria-live="polite" aria-atomic="true"></div>
+
+    <section class="eqs" aria-labelledby="eqTitle">
+      <h3 id="eqTitle">What the lamps show right now</h3>
+      <p id="eqMain" class="eqMain"></p>
+      <p id="eqSpoken"></p>
+    </section>
+
+    <section id="waiters" class="waiters" aria-labelledby="waitersTitle" hidden>
+      <h3 id="waitersTitle" tabindex="-1">The waiters</h3>
+      <p id="waitersIntro"></p>
+      <div id="waiterList"></div>
+      <fieldset class="reason">
+        <legend>Why can’t you Deal another round?</legend>
+        <p class="reasonLine">I could not Deal another round because
+          <label class="inline"><span class="vh">number of fireflies waiting</span><input id="reasonWaiting" type="text" inputmode="numeric" maxlength="3" size="3" autocomplete="off"></label>
+          fireflies wait and
+          <label class="inline"><span class="vh">number of lit lamps</span><input id="reasonLamps" type="text" inputmode="numeric" maxlength="3" size="3" autocomplete="off"></label>
+          lamps would need one each.</p>
+        <button type="button" id="reasonBtn">Check my sentence</button>
+        <p id="reasonState" class="state"></p>
+      </fieldset>
+      <div class="reflect">
+        <label for="reflectInput">My own note for the map (optional, up to 120 letters, never checked or graded)</label>
+        <input id="reflectInput" type="text" maxlength="120" autocomplete="off">
+        <button type="button" id="reflectBtn" class="small">Save my note</button>
+      </div>
+      <button type="button" id="certifyBtn" class="big">Earn the Night Map</button>
+    </section>
+
+    <details class="tablebox" open>
+      <summary>Live count table</summary>
+      <table id="liveTable">
+        <caption>Every firefly is in exactly one place</caption>
+        <thead><tr><th scope="col">Place</th><th scope="col">Chosen?</th><th scope="col">Fireflies</th></tr></thead>
+        <tbody id="liveBody"></tbody>
+      </table>
+    </details>
+
+    <section class="history" aria-labelledby="histTitle">
+      <h3 id="histTitle">Results so far</h3>
+      <ul id="histList"></ul>
+    </section>
+  </section>
+
+  <section id="map" class="map" aria-labelledby="mapTitle" hidden>
+    <h2 id="mapTitle" tabindex="-1">Night Map</h2>
+    <p id="mapStatus" class="mapStatus"></p>
+    <p id="mapOverLimit" class="warn" hidden></p>
+    <svg class="mapArt" id="mapArt" viewBox="0 0 360 170" role="img" aria-labelledby="mapArtTitle">
+      <title id="mapArtTitle">Night map picture</title>
+      <rect width="360" height="170" rx="14" fill="#141a3a"/>
+      <g fill="#fff" opacity="0.55" aria-hidden="true"><circle cx="20" cy="18" r="1"/><circle cx="64" cy="34" r="1.2"/><circle cx="120" cy="14" r="1"/><circle cx="190" cy="28" r="1.1"/><circle cx="250" cy="12" r="1"/><circle cx="330" cy="30" r="1.3"/><circle cx="300" cy="56" r="0.9"/></g>
+      <g id="mapLamps"></g>
+    </svg>
+    <div id="mapBody" class="mapBody"></div>
+    <div class="mapButtons">
+      <button type="button" id="printBtn">Print the map</button>
+      <button type="button" id="downloadBtn">Download the map (text file)</button>
+      <button type="button" id="backBtn">Back to the lamps</button>
+    </div>
+    <details id="pastMaps" class="pastMaps" hidden>
+      <summary>Earlier maps (history)</summary>
+      <div id="pastList"></div>
+    </details>
+  </section>
+
+  <section class="manage" aria-labelledby="manageTitle">
+    <h2 id="manageTitle">Start again and privacy</h2>
+    <p>Your progress is saved only in this browser on this device, under one DoorQuests key. Nothing is sent anywhere. On a shared device, other people using this browser could see it.</p>
+    <p id="storageLine" class="state"></p>
+    <div class="resetRow">
+      <button type="button" id="resetStreetBtn">Start this street again…</button>
+      <button type="button" id="resetAllBtn">Start all three streets again…</button>
+    </div>
+    <div id="confirmBox" class="confirm" hidden>
+      <p id="confirmText"></p>
+      <button type="button" id="confirmYes">Yes, start again</button>
+      <button type="button" id="confirmNo">No, keep my progress</button>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Created by The Axiom Continuum.</p>
+  <p>DoorQuests · Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+  <p class="small">Prototype for Founder playtest. Not classroom-tested and not certified. Works offline; no tracking.</p>
+</footer>
+<script>/* The Firefly Who Was Left Over — deterministic engine (no DOM access). */
+var FireflyEngine = (function () {
+  'use strict';
+
+  var MODEL_ID = 'dq-thirdortals-md-001-firefly-engine-1';
+  var SCHEMA = 'dq-thirdortals-multiplication-division-001-save';
+  var VERSION = 1;
+  var STORAGE_KEY = 'doorquests:gradortals:thirdortals:multiplication-division:001:v1';
+  var LAMP_COUNT = 6;
+  var NAME_MAX = 16;
+  var REFLECT_MAX = 120;
+  var ACTION_CAP = 600;
+  var STREET_CHAR_BUDGET = 100000;
+  var WRAPPER_BUDGET = 2000;
+  var STREET_ORDER = ['tallow', 'lantern', 'willow'];
+  var AGGREGATE_CAP = STREET_ORDER.length * STREET_CHAR_BUDGET + WRAPPER_BUDGET;
+  var PHASES = ['door', 'share', 'share_checked', 'fill', 'fill_checked', 'arrive', 'plan', 'waiters', 'complete'];
+
+  function freeze(o) {
+    if (o && typeof o === 'object' && !Object.isFrozen(o)) {
+      Object.freeze(o);
+      Object.getOwnPropertyNames(o).forEach(function (k) { freeze(o[k]); });
+    }
+    return o;
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  var STREETS = freeze({
+    tallow: {
+      id: 'tallow', name: 'Tallow Row', prefix: 't', start: 24, shareLamps: 4, fillSize: 8,
+      arrive: 7, arriveKind: 'marsh', arriveFrom: 'the marsh', minLamps: 4, minEach: 5,
+      helper: 'Oda', canon: true,
+      names: ['Ember', 'Pip', 'Wick', 'Glimmer', 'Tansy', 'Flick', 'Dusk', 'Spark'],
+      jobs: ['Guide late walkers home', 'Watch the bakery corner', 'Welcome neighbours at the gate', 'Help Oda check the map'],
+      text: {
+        door: 'A brass door glows at the end of the path. Behind it, Tallow Row is getting dark.',
+        welcome: 'Welcome to Tallow Row! I am Oda, the lamplighter. Twenty-four firefly volunteers are ready to light our six street lamps. A firefly is never split, lost or sent away.',
+        share: 'Tonight four lamps need light. Use Deal: each Deal gives every chosen lamp one firefly. Keep dealing until no full round is left.',
+        shareQ: 'How many fireflies will be in each lamp?',
+        fill: 'Here is a different note: "Eight fireflies per lamp." Tap an empty lamp, then use Fill to pour in exactly 8.',
+        fillQ: 'How many lamps can we fill?',
+        arrive: 'Listen! Seven fireflies from the marsh want to help too.',
+        plan: 'Now light at least 4 lamps, with at least 5 fireflies in each lamp. Choose your lamps, Deal full rounds, and see who waits.',
+        planQ: 'How many lamps will you light, and who waits?',
+        waiters: 'Waiting is a real job here. Give every waiter a name and a job.',
+        done: 'Tallow Row is glowing. Thank you, lamplighter’s helper!'
+      }
+    },
+    lantern: {
+      id: 'lantern', name: 'Lantern Bend', prefix: 'l', start: 30, shareLamps: 5, fillSize: 10,
+      arrive: 8, arriveKind: 'riverbank', arriveFrom: 'the riverbank reeds', minLamps: 4, minEach: 5,
+      helper: 'Rook', canon: false,
+      names: ['Ripple', 'Reed', 'Brook', 'Glint', 'Pebble', 'Skip', 'Drift', 'Gleam'],
+      jobs: ['Light the ferry steps', 'Watch the river for boats', 'Greet travellers at the bridge', 'Help Rook count the moorings'],
+      text: {
+        door: 'A brass door hums beside the river. Behind it, Lantern Bend curls around the water.',
+        welcome: 'Ahoy! I am Rook, the ferry otter. Oda sent thirty fireflies to light the six lamps along our bend.',
+        share: 'The ferry needs five lamps lit. Use Deal: every chosen lamp gets one firefly each round.',
+        shareQ: 'How many fireflies will be in each lamp?',
+        fill: 'The harbour note says: "Ten fireflies per lamp." Tap an empty lamp, then use Fill to pour in exactly 10.',
+        fillQ: 'How many lamps can we fill?',
+        arrive: 'Splash! Eight fireflies from the riverbank reeds have come to help.',
+        plan: 'Light at least 4 lamps, with at least 5 fireflies in each lamp. Choose your lamps and Deal full rounds.',
+        planQ: 'How many lamps will you light, and who waits?',
+        waiters: 'The river needs waiters too. Give every waiter a name and a job.',
+        done: 'Lantern Bend shines on the water. The ferry is safe tonight!'
+      }
+    },
+    willow: {
+      id: 'willow', name: 'Willowlight Walk', prefix: 'w', start: 36, shareLamps: 6, fillSize: 9,
+      arrive: 7, arriveKind: 'orchard', arriveFrom: 'the old orchard', minLamps: 4, minEach: 5,
+      helper: 'Mim', canon: false,
+      names: ['Willa', 'Bud', 'Fern', 'Twig', 'Moss', 'Petal', 'Hazel', 'Glow'],
+      jobs: ['Guide moths away from the path', 'Watch the garden gate', 'Welcome walkers under the willows', 'Help Mim read the path signs'],
+      text: {
+        door: 'A brass door is tucked between willow branches. Behind it, Willowlight Walk winds through the garden.',
+        welcome: 'Hello! I am Mim, the garden hedgehog. Thirty-six fireflies are here to light our six willow lamps.',
+        share: 'All six lamps need light first. Use Deal: every chosen lamp gets one firefly each round.',
+        shareQ: 'How many fireflies will be in each lamp?',
+        fill: 'The garden note says: "Nine fireflies per lamp." Tap an empty lamp, then use Fill to pour in exactly 9.',
+        fillQ: 'How many lamps can we fill?',
+        arrive: 'Look up! Seven fireflies from the old orchard drift down to help.',
+        plan: 'Light at least 4 lamps, with at least 5 fireflies in each lamp. Choose your lamps and Deal full rounds.',
+        planQ: 'How many lamps will you light, and who waits?',
+        waiters: 'The garden needs waiters too. Give every waiter a name and a job.',
+        done: 'Willowlight Walk glows softly. The path is ready for walkers!'
+      }
+    }
+  });
+
+  function idFor(st, n) { return st.prefix + '-' + (n < 10 ? '0' + n : String(n)); }
+  function numOf(id) { return parseInt(id.slice(2), 10); }
+  function range(a, b) { var out = []; for (var i = a; i <= b; i++) out.push(i); return out; }
+
+  function knownIds(st, arrived) {
+    var last = st.start + (arrived ? st.arrive : 0);
+    return range(1, last).map(function (n) { return idFor(st, n); });
+  }
+
+  function initialState(streetId) {
+    var st = STREETS[streetId];
+    if (!st) throw new Error('Unknown street');
+    return freeze({
+      v: 1, street: streetId, phase: 'door', step: 0, stock: st.start, arrived: false,
+      lamps: [[], [], [], [], [], []], jar: knownIds(st, false), selected: [], rounds: 0, fillOrder: [],
+      share: null, fill: null, arrival: null, gathers: [], plan: null, tried: [],
+      assignments: {}, reason: null, reflection: '', certified: null, pastMaps: []
+    });
+  }
+
+  /* ---------- helpers on state ---------- */
+  function counts(s) { return s.lamps.map(function (l) { return l.length; }); }
+  function occupied(s) { return s.lamps.some(function (l) { return l.length > 0; }); }
+
+  /* ---------- invariant ---------- */
+  function checkInvariant(s) {
+    var errors = [];
+    try {
+      if (!s || typeof s !== 'object') return { ok: false, errors: ['not an object'] };
+      var st = STREETS[s.street];
+      if (!st) return { ok: false, errors: ['unknown street'] };
+      if (PHASES.indexOf(s.phase) < 0) errors.push('unknown phase');
+      if (!Array.isArray(s.lamps) || s.lamps.length !== LAMP_COUNT) return { ok: false, errors: ['lamps must be six arrays'] };
+      if (!Array.isArray(s.jar)) return { ok: false, errors: ['jar must be array'] };
+      var arrivedOk = typeof s.arrived === 'boolean';
+      if (!arrivedOk) errors.push('arrived flag');
+      var universe = knownIds(st, s.arrived === true);
+      var seen = {};
+      var all = [];
+      s.lamps.forEach(function (l) { if (!Array.isArray(l)) errors.push('lamp not array'); else all = all.concat(l); });
+      all = all.concat(s.jar);
+      all.forEach(function (id) {
+        if (typeof id !== 'string') { errors.push('non-string id'); return; }
+        if (seen[id]) errors.push('duplicate id ' + id);
+        seen[id] = true;
+      });
+      universe.forEach(function (id) { if (!seen[id]) errors.push('missing id ' + id); });
+      all.forEach(function (id) { if (universe.indexOf(id) < 0) errors.push('foreign id ' + id); });
+      var total = all.length;
+      if (s.stock !== universe.length || total !== s.stock) errors.push('stock mismatch');
+      if (!Array.isArray(s.selected)) errors.push('selected not array');
+      else {
+        var su = {};
+        s.selected.forEach(function (n, i) {
+          if (!Number.isInteger(n) || n < 1 || n > LAMP_COUNT) errors.push('bad selected lamp');
+          if (su[n]) errors.push('duplicate selected');
+          su[n] = true;
+          if (i > 0 && s.selected[i - 1] >= n) errors.push('selected not sorted');
+        });
+      }
+      if (!Number.isSafeInteger(s.rounds) || s.rounds < 0) errors.push('rounds');
+      if (s.assignments && typeof s.assignments === 'object') {
+        Object.keys(s.assignments).forEach(function (id) {
+          if (s.jar.indexOf(id) < 0) errors.push('assignment for non-waiting id ' + id);
+        });
+      } else errors.push('assignments');
+      if ((s.phase === 'waiters' || s.phase === 'complete') && !s.plan) errors.push('plan missing');
+      if (s.phase === 'complete' && !s.certified) errors.push('certification missing');
+      if (s.phase !== 'complete' && s.certified) errors.push('stale certification');
+      var arrivedPhase = ['plan', 'waiters', 'complete'].indexOf(s.phase) >= 0;
+      if (arrivedPhase !== (s.arrived === true)) errors.push('arrival/phase mismatch');
+    } catch (e) {
+      errors.push('malformed: ' + e.message);
+    }
+    return { ok: errors.length === 0, errors: errors };
+  }
+
+  /* ---------- action shape ---------- */
+  var SHAPES = {
+    BEGIN: [], SELECT: ['lamp'], DEAL: [], FILL: ['lamp'], CHECK: [], GATHER: [], ARRIVE: [],
+    NAME: ['id', 'name'], JOB: ['id', 'job'], REASON: ['lamps', 'waiting'], REFLECT: ['text'], CERTIFY: []
+  };
+  function isPlainObject(a) {
+    if (Object.prototype.toString.call(a) !== '[object Object]') return false;
+    var p = Object.getPrototypeOf(a);
+    return p === null || Object.getPrototypeOf(p) === null;
+  }
+  function checkShape(a) {
+    if (!isPlainObject(a)) return 'E_SHAPE';
+    var keys = Object.keys(a).sort();
+    if (typeof a.t !== 'string' || !Object.prototype.hasOwnProperty.call(SHAPES, a.t)) return 'E_UNKNOWN_ACTION';
+    var want = ['t'].concat(SHAPES[a.t]).sort();
+    if (keys.length !== want.length || keys.some(function (k, i) { return k !== want[i]; })) return 'E_SHAPE';
+    var bad = false;
+    Object.getOwnPropertyNames(a).forEach(function (k) {
+      var d = Object.getOwnPropertyDescriptor(a, k);
+      if (!d || !('value' in d)) bad = true;
+    });
+    if (bad) return 'E_SHAPE';
+    if ('lamp' in a && !(Number.isInteger(a.lamp) && a.lamp >= 1 && a.lamp <= LAMP_COUNT)) return 'E_LAMP';
+    if ('id' in a && !(typeof a.id === 'string' && /^[tlw]-\d{2}$/.test(a.id))) return 'E_NOT_WAITER';
+    if ('job' in a && !(Number.isInteger(a.job) && a.job >= 0)) return 'E_JOB';
+    if ('waiting' in a && !(Number.isSafeInteger(a.waiting) && a.waiting >= 0 && a.waiting <= 999)) return 'E_REASON';
+    if ('lamps' in a && !(Number.isSafeInteger(a.lamps) && a.lamps >= 0 && a.lamps <= 999)) return 'E_REASON';
+    if ('name' in a && typeof a.name !== 'string') return 'E_NAME';
+    if ('text' in a && typeof a.text !== 'string') return 'E_TEXT';
+    return null;
+  }
+
+  var CONTROL_RE = new RegExp('[\\u0000-\\u001f\\u007f-\\u009f\\u200b-\\u200f\\u2028-\\u202e\\u2060-\\u206f\\ufeff]');
+  function validName(name) {
+    if (typeof name !== 'string') return false;
+    var cps = Array.from(name);
+    if (cps.length < 1 || cps.length > NAME_MAX) return false;
+    if (CONTROL_RE.test(name)) return false;
+    if (name !== name.trim() || name.trim().length === 0) return false;
+    if (/\s{2,}/.test(name)) return false;
+    return true;
+  }
+  function validReflection(text) {
+    if (typeof text !== 'string') return false;
+    if (Array.from(text).length > REFLECT_MAX) return false;
+    if (CONTROL_RE.test(text)) return false;
+    if (text !== text.trim()) return false;
+    return true;
+  }
+
+  /* ---------- plan evaluation (from real inventory only) ---------- */
+  function evaluatePlan(s) {
+    var st = STREETS[s.street];
+    var sel = s.selected;
+    var c = counts(s);
+    var g = sel.length;
+    if (g === 0 || s.rounds === 0) return { ok: false, code: 'E_NOT_STARTED' };
+    for (var i = 1; i <= LAMP_COUNT; i++) {
+      if (sel.indexOf(i) < 0 && c[i - 1] !== 0) return { ok: false, code: 'E_UNEQUAL' };
+    }
+    var q = c[sel[0] - 1];
+    if (sel.some(function (n) { return c[n - 1] !== q; })) return { ok: false, code: 'E_UNEQUAL' };
+    var r = s.jar.length;
+    if (r >= g) return { ok: false, code: 'E_ROUND_FITS', detail: { waiting: r, lamps: g } };
+    if (g < st.minLamps) return { ok: false, code: 'E_FEW_LAMPS', detail: { lamps: g, min: st.minLamps } };
+    if (q < st.minEach) return { ok: false, code: 'E_FEW_EACH', detail: { each: q, min: st.minEach } };
+    if (g * q + r !== s.stock) return { ok: false, code: 'E_INVARIANT' };
+    return { ok: true, plan: { lamps: sel.slice(), counts: c, g: g, q: q, r: r, n: s.stock, waiters: s.jar.slice(), rounds: s.rounds } };
+  }
+
+  function gatherRecord(s, kind) {
+    var c = counts(s);
+    var steps = [];
+    var total = 0;
+    c.forEach(function (k, i) { if (k > 0) { total += k; steps.push({ from: 'lamp', lamp: i + 1, add: k, total: total }); } });
+    var waiting = s.jar.length;
+    if (waiting > 0) { total += waiting; steps.push({ from: 'jar', lamp: 0, add: waiting, total: total }); }
+    var nz = c.filter(function (k) { return k > 0; });
+    return {
+      kind: kind, phase: s.phase, counts: c, waitingBefore: waiting, steps: steps, total: total,
+      equal: nz.every(function (k) { return k === nz[0]; }), n: s.stock
+    };
+  }
+
+  /* ---------- map ---------- */
+  function lampWord(n) { return n === 1 ? 'lamp' : 'lamps'; }
+  function fireflyWord(n) { return n === 1 ? 'firefly' : 'fireflies'; }
+  function listLamps(ls) {
+    if (ls.length === 1) return 'Lamp ' + ls[0];
+    return 'Lamps ' + ls.slice(0, -1).join(', ') + ' and ' + ls[ls.length - 1];
+  }
+
+  function buildMap(s) {
+    var st = STREETS[s.street];
+    var plan = s.plan;
+    var complete = s.phase === 'complete';
+    var m = {
+      street: st.name, streetId: st.id, canon: st.canon,
+      status: complete ? 'certified' : 'draft',
+      mapNo: s.pastMaps.length + 1,
+      step: s.step,
+      stock: { before: st.start, arrived: s.arrival ? s.arrival.added : null, after: s.arrival ? s.arrival.after : null, from: st.arriveFrom },
+      share: s.share ? {
+        lamps: s.share.lamps.slice(), g: s.share.g, q: s.share.q, n: s.share.n, r: s.share.r,
+        division: s.share.n + ' ÷ ' + s.share.g + ' = ' + s.share.q,
+        check: s.share.g + ' × ' + s.share.q + ' = ' + (s.share.g * s.share.q),
+        roles: s.share.g + ' is the number of lamps (the groups). ' + s.share.q + ' is how many fireflies went in each lamp.',
+        question: 'How many in each lamp?'
+      } : null,
+      fill: s.fill ? {
+        order: s.fill.order.slice(), g: s.fill.g, q: s.fill.q, n: s.fill.n, r: s.fill.r,
+        division: s.fill.n + ' ÷ ' + s.fill.q + ' = ' + s.fill.g + (s.fill.r ? ' remainder ' + s.fill.r : ''),
+        check: s.fill.g + ' × ' + s.fill.q + ' = ' + (s.fill.g * s.fill.q) + (s.fill.r ? ' and ' + s.fill.r + ' waiting' : ''),
+        roles: s.fill.q + ' is how many fireflies go in each lamp. ' + s.fill.g + ' is how many lamps we could fill.',
+        question: 'How many lamps can we fill?'
+      } : null,
+      gathers: s.gathers.filter(function (g) { return g.kind !== 'partial'; }).map(function (g) {
+        return { kind: g.kind, sums: g.steps.map(function (x) { return x.total; }), waitingBefore: g.waitingBefore, total: g.total, equal: g.equal };
+      }),
+      lamps: null, plan: null, waiters: [], reason: null,
+      reflection: s.reflection || '',
+      tried: s.tried.map(function (t) { return { g: t.plan.g, q: t.plan.q, r: t.plan.r, n: t.plan.n, lamps: t.plan.lamps.slice(), status: t.status }; }),
+      credit: 'Created by The Axiom Continuum. DoorQuests prototype for Founder playtest. Not published.'
+    };
+    if (plan) {
+      m.lamps = range(1, LAMP_COUNT).map(function (n) { return { lamp: n, chosen: plan.lamps.indexOf(n) >= 0, count: plan.counts[n - 1] }; });
+      m.plan = {
+        g: plan.g, q: plan.q, r: plan.r, n: plan.n, lamps: plan.lamps.slice(),
+        equation: plan.g + ' × ' + plan.q + ' + ' + plan.r + ' = ' + plan.n,
+        sharing: plan.n + ' ÷ ' + plan.g + ' = ' + plan.q + (plan.r ? ' remainder ' + plan.r : ''),
+        spoken: plan.n + ' shared among ' + plan.g + ' lamps makes ' + plan.q + ' in each, with ' + plan.r + ' waiting.',
+        remainder: plan.r === 0
+          ? 'Nobody waits: ' + plan.g + ' lamps with ' + plan.q + ' in each use all ' + plan.n + '.'
+          : plan.r + ' is less than ' + plan.g + '. Another round would need ' + plan.g + ' fireflies, one for each lit lamp, so the ' + plan.r + ' ' + (plan.r === 1 ? 'waiter stays' : 'waiters stay') + ' in the Waiting Jar.'
+      };
+      m.waiters = plan.waiters.map(function (id) {
+        var a = s.assignments[id] || {};
+        return { id: id, label: 'Firefly ' + numOf(id), name: typeof a.name === 'string' ? a.name : null, job: Number.isInteger(a.job) ? st.jobs[a.job] : null };
+      });
+    }
+    if (s.reason) {
+      m.reason = 'I could not Deal another round because ' + s.reason.waiting + ' ' + fireflyWord(s.reason.waiting) + ' ' + (s.reason.waiting === 1 ? 'waits' : 'wait') + ' and ' + s.reason.lamps + ' ' + lampWord(s.reason.lamps) + ' would need one each.';
+    }
+    return m;
+  }
+
+  function mapToText(m) {
+    var L = [];
+    var NY = 'not yet';
+    L.push('NIGHT MAP — ' + m.street);
+    L.push('Status: ' + (m.status === 'certified' ? 'Earned (map ' + m.mapNo + ')' : m.status === 'historical' ? 'Earlier map (no longer the current plan)' : 'Draft — not finished yet'));
+    L.push('');
+    L.push('LAMPS');
+    if (m.lamps) {
+      m.lamps.forEach(function (l) { L.push('  Lamp ' + l.lamp + ': ' + l.count + ' ' + fireflyWord(l.count) + (l.chosen ? ' (lit)' : ' (not chosen)')); });
+      L.push('  Waiting Jar: ' + m.plan.r);
+    } else L.push('  Final lamps: ' + NY);
+    L.push('');
+    L.push('FIREFLIES');
+    L.push('  At the start: ' + m.stock.before);
+    L.push('  Arrived from ' + m.stock.from + ': ' + (m.stock.arrived === null ? NY : m.stock.arrived));
+    L.push('  After the arrival: ' + (m.stock.after === null ? NY : m.stock.before + ' + ' + m.stock.arrived + ' = ' + m.stock.after));
+    L.push('');
+    L.push('SHARING (Deal) — How many in each lamp?');
+    if (m.share) {
+      L.push('  ' + m.share.n + ' shared among ' + m.share.g + ' lamps (' + listLamps(m.share.lamps) + ') made ' + m.share.q + ' in each.');
+      L.push('  ' + m.share.division + '.  Check: ' + m.share.check + '.');
+      L.push('  ' + m.share.roles);
+    } else L.push('  ' + NY);
+    L.push('');
+    L.push('GROUPING (Fill) — How many lamps can we fill?');
+    if (m.fill) {
+      L.push('  Groups of ' + m.fill.q + ' filled ' + m.fill.g + ' lamps (filled in this order: ' + m.fill.order.join(', ') + ').');
+      L.push('  ' + m.fill.division + '.  Check: ' + m.fill.check + '.');
+      L.push('  ' + m.fill.roles);
+    } else L.push('  ' + NY);
+    L.push('');
+    L.push('GATHER CHECKS (skip-counting everyone home)');
+    if (m.gathers.length) m.gathers.forEach(function (g) {
+      L.push('  ' + g.sums.join(', ') + (g.waitingBefore ? ' (the last step adds the ' + g.waitingBefore + ' already waiting)' : '') + ' → ' + g.total + ' home');
+    });
+    else L.push('  ' + NY);
+    L.push('');
+    L.push('FINAL PLAN');
+    if (m.plan) {
+      L.push('  ' + m.plan.g + ' lamps lit (' + listLamps(m.plan.lamps) + '), ' + m.plan.q + ' in each, ' + m.plan.r + ' waiting.');
+      L.push('  ' + m.plan.equation);
+      L.push('  ' + m.plan.sharing);
+      L.push('  ' + m.plan.spoken);
+      L.push('  ' + m.plan.remainder);
+    } else L.push('  ' + NY);
+    L.push('');
+    L.push('WHY NO MORE ROUNDS');
+    L.push('  ' + (m.reason || NY));
+    L.push('');
+    L.push('WAITERS AND THEIR JOBS');
+    if (m.plan) {
+      if (m.waiters.length === 0) L.push('  Nobody waits in this plan.');
+      m.waiters.forEach(function (w) { L.push('  ' + w.label + ': ' + (w.name || 'no name yet') + ' — ' + (w.job || 'no job yet')); });
+    } else L.push('  ' + NY);
+    if (m.tried.length) {
+      L.push('');
+      L.push('EARLIER PLANS TRIED (history)');
+      m.tried.forEach(function (t) { L.push('  ' + t.g + ' × ' + t.q + ' + ' + t.r + ' = ' + t.n + ' (' + t.status + ')'); });
+    }
+    if (m.reflection) {
+      L.push('');
+      L.push('MY NOTE (my own words, not checked)');
+      L.push('  ' + m.reflection);
+    }
+    L.push('');
+    L.push(m.credit);
+    L.push('Choose Your Path. Find the Truth. Unlock the Impossible.');
+    return L.join('\n');
+  }
+
+  /* ---------- reducer ---------- */
+  function fail(code, detail) { return { code: code, detail: detail || null }; }
+  function demote(s, why) {
+    if (s.phase === 'complete' && s.certified) {
+      var old = clone(s.certified); old.status = 'historical'; old.replacedBy = why;
+      s.pastMaps.push(old);
+      s.certified = null;
+      s.phase = 'waiters';
+    }
+  }
+
+  var H = {
+    BEGIN: function (s, a, st) {
+      if (s.phase !== 'door') return fail('E_PHASE');
+      s.phase = 'share';
+      s.selected = range(1, st.shareLamps);
+    },
+    SELECT: function (s, a) {
+      if (s.phase !== 'share' && s.phase !== 'plan') return fail('E_PHASE');
+      if (occupied(s)) return fail('E_SELECT_LOCKED');
+      var i = s.selected.indexOf(a.lamp);
+      if (i >= 0) s.selected.splice(i, 1); else s.selected.push(a.lamp);
+      s.selected.sort(function (x, y) { return x - y; });
+    },
+    DEAL: function (s, a, st) {
+      if (s.phase !== 'share' && s.phase !== 'plan') return fail('E_PHASE');
+      var sel = s.selected;
+      if (sel.length === 0) return fail('E_NO_SELECTION');
+      if (s.phase === 'share' && sel.length !== st.shareLamps) return fail('E_SELECT_COUNT', { want: st.shareLamps, have: sel.length });
+      if (s.jar.length < sel.length) return fail('E_STOCK', { waiting: s.jar.length, need: sel.length, verb: 'deal' });
+      sel.forEach(function (n) { s.lamps[n - 1].push(s.jar.shift()); });
+      s.rounds += 1;
+    },
+    FILL: function (s, a, st) {
+      if (s.phase !== 'fill') return fail('E_PHASE');
+      if (s.lamps[a.lamp - 1].length > 0) return fail('E_TARGET_OCCUPIED', { lamp: a.lamp });
+      if (s.jar.length < st.fillSize) return fail('E_STOCK', { waiting: s.jar.length, need: st.fillSize, verb: 'fill' });
+      var moved = s.jar.splice(0, st.fillSize);
+      s.lamps[a.lamp - 1] = moved;
+      s.fillOrder.push(a.lamp);
+    },
+    CHECK: function (s, a, st) {
+      var c = counts(s);
+      if (s.phase === 'share') {
+        if (s.rounds === 0) return fail('E_NOT_STARTED', { verb: 'deal' });
+        var g = s.selected.length;
+        if (g !== st.shareLamps) return fail('E_SELECT_COUNT', { want: st.shareLamps, have: g });
+        var q = c[s.selected[0] - 1];
+        for (var i = 1; i <= LAMP_COUNT; i++) {
+          var want = s.selected.indexOf(i) >= 0 ? q : 0;
+          if (c[i - 1] !== want) return fail('E_UNEQUAL');
+        }
+        if (s.jar.length >= g) return fail('E_ROUND_FITS', { waiting: s.jar.length, lamps: g, verb: 'deal' });
+        s.share = { lamps: s.selected.slice(), counts: c, g: g, q: q, r: s.jar.length, n: s.stock, rounds: s.rounds };
+        s.phase = 'share_checked';
+        return;
+      }
+      if (s.phase === 'fill') {
+        var f = s.fillOrder.length;
+        if (f === 0) return fail('E_NOT_STARTED', { verb: 'fill' });
+        for (var j = 1; j <= LAMP_COUNT; j++) {
+          var w = s.fillOrder.indexOf(j) >= 0 ? st.fillSize : 0;
+          if (c[j - 1] !== w) return fail('E_UNEQUAL');
+        }
+        if (s.jar.length >= st.fillSize) {
+          if (c.some(function (k) { return k === 0; })) return fail('E_ROUND_FITS', { waiting: s.jar.length, size: st.fillSize, verb: 'fill' });
+          return fail('E_CAPACITY');
+        }
+        s.fill = { order: s.fillOrder.slice(), counts: c, g: f, q: st.fillSize, r: s.jar.length, n: s.stock };
+        s.phase = 'fill_checked';
+        return;
+      }
+      if (s.phase === 'plan') {
+        var ev = evaluatePlan(s);
+        if (!ev.ok) return fail(ev.code, ev.detail);
+        s.plan = ev.plan;
+        s.assignments = {};
+        s.reason = null;
+        s.phase = 'waiters';
+        return;
+      }
+      return fail('E_PHASE');
+    },
+    GATHER: function (s) {
+      var allowed = ['share', 'share_checked', 'fill', 'fill_checked', 'plan', 'waiters', 'complete'];
+      if (allowed.indexOf(s.phase) < 0) return fail('E_PHASE');
+      if (!occupied(s)) return fail('E_NOTHING_TO_GATHER');
+      var kind = { share_checked: 'share-check', fill_checked: 'fill-check', complete: 'plan-check', waiters: 'plan-check' }[s.phase] || 'partial';
+      var rec = gatherRecord(s, kind);
+      s.gathers.push(rec);
+      s.lamps.forEach(function (l, i) { while (l.length) s.jar.push(l.shift()); });
+      s.rounds = 0;
+      s.fillOrder = [];
+      if (s.phase === 'share_checked') { s.phase = 'fill'; s.selected = []; }
+      else if (s.phase === 'fill_checked') { s.phase = 'arrive'; }
+      else if (s.phase === 'waiters' || s.phase === 'complete') {
+        var hadMap = s.phase === 'complete';
+        if (hadMap) { var old = clone(s.certified); old.status = 'historical'; old.replacedBy = 'gathered'; s.pastMaps.push(old); }
+        // TMD-001: the optional note belongs to the plan it was written for. It stays with that plan's
+        // history (and inside any earned map) and is cleared from the current, new plan.
+        s.tried.push({ plan: s.plan, status: hadMap ? 'map earned, then gathered' : 'gathered before the map', assignments: s.assignments, reflection: s.reflection || '' });
+        s.plan = null; s.assignments = {}; s.reason = null; s.certified = null; s.reflection = '';
+        s.phase = 'plan';
+      }
+    },
+    ARRIVE: function (s, a, st) {
+      if (s.phase !== 'arrive') return fail('E_PHASE');
+      if (s.arrived) return fail('E_ARRIVED');
+      var before = s.stock;
+      var ids = range(st.start + 1, st.start + st.arrive).map(function (n) { return idFor(st, n); });
+      ids.forEach(function (id) { s.jar.push(id); });
+      s.arrived = true;
+      s.stock = before + st.arrive;
+      s.arrival = { before: before, added: st.arrive, after: s.stock, ids: ids, from: st.arriveFrom };
+      s.phase = 'plan';
+      s.selected = [];
+    },
+    NAME: function (s, a) {
+      if (s.phase !== 'waiters' && s.phase !== 'complete') return fail('E_PHASE');
+      if (s.plan.waiters.indexOf(a.id) < 0 || s.jar.indexOf(a.id) < 0) return fail('E_NOT_WAITER');
+      if (!validName(a.name)) return fail('E_NAME');
+      demote(s, 'renamed');
+      var cur = s.assignments[a.id] || { name: null, job: null };
+      s.assignments[a.id] = { name: a.name, job: cur.job };
+    },
+    JOB: function (s, a, st) {
+      if (s.phase !== 'waiters' && s.phase !== 'complete') return fail('E_PHASE');
+      if (s.plan.waiters.indexOf(a.id) < 0 || s.jar.indexOf(a.id) < 0) return fail('E_NOT_WAITER');
+      if (a.job >= st.jobs.length) return fail('E_JOB');
+      demote(s, 'job changed');
+      var cur = s.assignments[a.id] || { name: null, job: null };
+      s.assignments[a.id] = { name: cur.name, job: a.job };
+    },
+    REASON: function (s, a) {
+      if (s.phase !== 'waiters' && s.phase !== 'complete') return fail('E_PHASE');
+      if (a.waiting !== s.plan.r || a.lamps !== s.plan.g) return fail('E_REASON', { waitingOk: a.waiting === s.plan.r, lampsOk: a.lamps === s.plan.g });
+      demote(s, 'reason changed');
+      s.reason = { waiting: a.waiting, lamps: a.lamps };
+    },
+    REFLECT: function (s, a) {
+      if (s.phase !== 'waiters' && s.phase !== 'complete') return fail('E_PHASE');
+      if (!validReflection(a.text)) return fail('E_TEXT');
+      s.reflection = a.text;
+      if (s.certified) s.certified.reflection = a.text;
+    },
+    CERTIFY: function (s) {
+      if (s.phase !== 'waiters') return fail('E_PHASE');
+      var ev = evaluatePlan(s);
+      if (!ev.ok || JSON.stringify(ev.plan.waiters) !== JSON.stringify(s.plan.waiters)) return fail('E_INVARIANT');
+      if (!s.reason) return fail('E_REASON_MISSING');
+      var missing = s.plan.waiters.filter(function (id) {
+        var x = s.assignments[id];
+        return !x || typeof x.name !== 'string' || !Number.isInteger(x.job);
+      });
+      if (missing.length) return fail('E_UNASSIGNED', { ids: missing });
+      s.phase = 'complete';
+      var m = buildMap(s);
+      m.status = 'certified';
+      s.certified = m;
+    }
+  };
+
+  function reduce(state, action) {
+    var inv = checkInvariant(state);
+    if (!inv.ok) return { ok: false, state: state, code: 'E_BAD_STATE', detail: { errors: inv.errors } };
+    var sc = checkShape(action);
+    if (sc) return { ok: false, state: state, code: sc, detail: null };
+    var s = clone(state);
+    var st = STREETS[s.street];
+    var r = H[action.t](s, action, st);
+    if (r) return { ok: false, state: state, code: r.code, detail: r.detail };
+    s.step += 1;
+    var after = checkInvariant(s);
+    if (!after.ok) return { ok: false, state: state, code: 'E_INVARIANT', detail: { errors: after.errors } };
+    return { ok: true, state: freeze(s), code: 'OK', detail: null };
+  }
+
+  function replay(streetId, actions) {
+    var s = initialState(streetId);
+    if (!Array.isArray(actions)) return { state: s, accepted: 0, rejectedAt: 0, code: 'E_SHAPE' };
+    for (var i = 0; i < actions.length; i++) {
+      var r = reduce(s, actions[i]);
+      if (!r.ok) return { state: s, accepted: i, rejectedAt: i, code: r.code };
+      s = r.state;
+    }
+    return { state: s, accepted: actions.length, rejectedAt: null, code: 'OK' };
+  }
+
+  function currentMap(s) {
+    if (s.phase === 'complete' && s.certified) return clone(s.certified);
+    return buildMap(s);
+  }
+
+  function enumeratePlans(streetId) {
+    var st = STREETS[streetId];
+    var n = st.start + st.arrive;
+    var out = [];
+    for (var g = st.minLamps; g <= LAMP_COUNT; g++) {
+      var q = Math.floor(n / g), r = n - g * q;
+      if (q >= st.minEach) out.push({ g: g, q: q, r: r, n: n });
+    }
+    return out;
+  }
+
+  /* ---------- persistence (pure) ---------- */
+  function buildSave(logs, previous, current) {
+    var streets = {};
+    var overLimit = {};
+    var saved = {};
+    STREET_ORDER.forEach(function (id) {
+      var acts = Array.isArray(logs[id]) ? logs[id] : [];
+      var json = JSON.stringify(acts);
+      if (acts.length <= ACTION_CAP && json.length <= STREET_CHAR_BUDGET) {
+        saved[id] = acts.slice(); overLimit[id] = false;
+      } else {
+        saved[id] = (previous && Array.isArray(previous[id])) ? previous[id].slice() : [];
+        overLimit[id] = true;
+      }
+      streets[id] = { actions: saved[id] };
+    });
+    var text = JSON.stringify({ schema: SCHEMA, version: VERSION, model: MODEL_ID, current: STREET_ORDER.indexOf(current) >= 0 ? current : 'tallow', streets: streets });
+    return { text: text, overLimit: overLimit, saved: saved, withinCap: text.length <= AGGREGATE_CAP };
+  }
+
+  function exactKeys(o, keys) {
+    if (!isPlainObject(o)) return false;
+    var k = Object.keys(o).sort();
+    var w = keys.slice().sort();
+    return k.length === w.length && k.every(function (x, i) { return x === w[i]; });
+  }
+
+  function parseSave(text) {
+    if (text === null || text === undefined) return { ok: false, code: 'SAVE_NONE' };
+    if (typeof text !== 'string') return { ok: false, code: 'SAVE_CORRUPT' };
+    if (text.length > AGGREGATE_CAP) return { ok: false, code: 'SAVE_TOO_LARGE' };
+    var o;
+    try { o = JSON.parse(text); } catch (e) { return { ok: false, code: 'SAVE_CORRUPT' }; }
+    if (!exactKeys(o, ['schema', 'version', 'model', 'current', 'streets'])) return { ok: false, code: 'SAVE_SHAPE' };
+    if (o.schema !== SCHEMA) return { ok: false, code: 'SAVE_SCHEMA' };
+    if (o.version !== VERSION) return { ok: false, code: 'SAVE_VERSION' };
+    if (o.model !== MODEL_ID) return { ok: false, code: 'SAVE_MODEL' };
+    if (STREET_ORDER.indexOf(o.current) < 0) return { ok: false, code: 'SAVE_SHAPE' };
+    if (!isPlainObject(o.streets) || Object.keys(o.streets).some(function (k) { return STREET_ORDER.indexOf(k) < 0; })) return { ok: false, code: 'SAVE_SHAPE' };
+    var out = { ok: true, current: o.current, streets: {}, notices: [] };
+    STREET_ORDER.forEach(function (id) {
+      var entry = o.streets[id];
+      var res = { actions: [], state: initialState(id), restored: 0, notice: null };
+      if (entry === undefined) { out.streets[id] = res; return; }
+      if (!exactKeys(entry, ['actions']) || !Array.isArray(entry.actions)) { res.notice = 'unreadable'; out.notices.push({ street: id, code: 'STREET_SHAPE' }); out.streets[id] = res; return; }
+      if (entry.actions.length > ACTION_CAP || JSON.stringify(entry.actions).length > STREET_CHAR_BUDGET) { res.notice = 'too large'; out.notices.push({ street: id, code: 'STREET_TOO_LARGE' }); out.streets[id] = res; return; }
+      var rp = replay(id, entry.actions);
+      res.actions = entry.actions.slice(0, rp.accepted);
+      res.state = rp.state;
+      res.restored = rp.accepted;
+      if (rp.rejectedAt !== null) { res.notice = 'partly restored'; out.notices.push({ street: id, code: 'STREET_PARTIAL', at: rp.rejectedAt, reason: rp.code, restored: rp.accepted }); }
+      out.streets[id] = res;
+    });
+    return out;
+  }
+
+  return freeze({
+    MODEL_ID: MODEL_ID, SCHEMA: SCHEMA, VERSION: VERSION, STORAGE_KEY: STORAGE_KEY, LAMP_COUNT: LAMP_COUNT,
+    NAME_MAX: NAME_MAX, REFLECT_MAX: REFLECT_MAX, ACTION_CAP: ACTION_CAP, STREET_CHAR_BUDGET: STREET_CHAR_BUDGET,
+    AGGREGATE_CAP: AGGREGATE_CAP, STREET_ORDER: STREET_ORDER, PHASES: PHASES, STREETS: STREETS,
+    initialState: initialState, reduce: reduce, replay: replay, checkInvariant: checkInvariant,
+    evaluatePlan: function (s) { return clone(evaluatePlan(s)); }, enumeratePlans: enumeratePlans,
+    buildMap: function (s) { return buildMap(s); }, currentMap: currentMap, mapToText: mapToText,
+    buildSave: buildSave, parseSave: parseSave, validName: validName, validReflection: validReflection,
+    idNumber: numOf, counts: function (s) { return counts(s); }
+  });
+})();
+
+/* The Firefly Who Was Left Over — browser UI. Renders only from engine state. */
+(function () {
+  'use strict';
+  if (typeof document === 'undefined' || typeof window === 'undefined') return;
+  var E = FireflyEngine;
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var IDS = E.STREET_ORDER;
+  function $(id) { return document.getElementById(id); }
+  function ff(n) { return n === 1 ? 'firefly' : 'fireflies'; }
+  function lw(n) { return n === 1 ? 'lamp' : 'lamps'; }
+  function waitV(n) { return n === 1 ? 'waits' : 'wait'; }
+  function listLamps(ls) {
+    if (!ls.length) return 'no lamps';
+    if (ls.length === 1) return 'Lamp ' + ls[0];
+    return 'Lamps ' + ls.slice(0, -1).join(', ') + ' and ' + ls[ls.length - 1];
+  }
+  function svg(tag, attrs, parent) {
+    var el = document.createElementNS(SVGNS, tag);
+    Object.keys(attrs).forEach(function (k) { el.setAttribute(k, String(attrs[k])); });
+    if (parent) parent.appendChild(el);
+    return el;
+  }
+  function el(tag, cls, text, parent) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined && text !== null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+  var app = {
+    current: 'tallow', logs: {}, saved: {}, states: {}, overLimit: {}, storage: 'unknown', notices: [],
+    fillTarget: null, hintOpen: false, confirm: null, confirmReturn: null, waiterKey: null, lastSay: ''
+  };
+  IDS.forEach(function (id) { app.logs[id] = []; app.saved[id] = []; app.states[id] = E.initialState(id); app.overLimit[id] = false; });
+
+  /* ---------- storage ---------- */
+  function store() { try { return window.localStorage || null; } catch (e) { return null; } }
+  var SAVE_MSG = {
+    SAVE_CORRUPT: 'An earlier save on this device could not be read, so play starts fresh. Your next step will replace it.',
+    SAVE_SHAPE: 'An earlier save on this device was not in the expected form, so play starts fresh. Your next step will replace it.',
+    SAVE_SCHEMA: 'An earlier save belongs to a different version, so play starts fresh. Your next step will replace it.',
+    SAVE_VERSION: 'An earlier save belongs to a different version, so play starts fresh. Your next step will replace it.',
+    SAVE_MODEL: 'An earlier save belongs to a different version, so play starts fresh. Your next step will replace it.',
+    SAVE_TOO_LARGE: 'An earlier save on this device was too large to trust, so play starts fresh. Your next step will replace it.'
+  };
+  function load() {
+    var ls = store();
+    if (!ls) { app.storage = 'unavailable'; return; }
+    var raw;
+    try { raw = ls.getItem(E.STORAGE_KEY); } catch (e) { app.storage = 'unavailable'; return; }
+    app.storage = 'ok';
+    if (raw === null) return;
+    var p = E.parseSave(raw);
+    if (!p.ok) { app.notices.push(SAVE_MSG[p.code] || SAVE_MSG.SAVE_CORRUPT); return; }
+    app.current = p.current;
+    IDS.forEach(function (id) {
+      app.logs[id] = p.streets[id].actions.slice();
+      app.saved[id] = p.streets[id].actions.slice();
+      app.states[id] = p.streets[id].state;
+    });
+    p.notices.forEach(function (n) {
+      var name = E.STREETS[n.street].name;
+      if (n.code === 'STREET_PARTIAL') app.notices.push('Some saved steps for ' + name + ' could not be checked, so it was restored up to step ' + n.restored + '.');
+      else app.notices.push('The saved progress for ' + name + ' could not be read, so that street starts fresh.');
+    });
+  }
+  function save() {
+    if (app.storage === 'unavailable') return;
+    var b = E.buildSave(app.logs, app.saved, app.current);
+    app.overLimit = b.overLimit;
+    var ls = store();
+    if (!ls || !b.withinCap) { app.storage = 'failed'; return; }
+    try { ls.setItem(E.STORAGE_KEY, b.text); app.saved = b.saved; app.storage = 'ok'; }
+    catch (e) { app.storage = 'failed'; }
+  }
+
+  /* ---------- announcements ---------- */
+  function say(text, isNo) {
+    var box = $('say');
+    var t = text === app.lastSay ? text + ' ' : text;
+    app.lastSay = t;
+    box.textContent = t;
+    box.classList.toggle('no', !!isNo);
+  }
+
+  function st() { return E.STREETS[app.current]; }
+  function S() { return app.states[app.current]; }
+
+  function notSavedReason() {
+    if (app.storage === 'unavailable') return 'saving is not available in this browser.';
+    if (app.overLimit[app.current]) return 'this street\u2019s save is full.';
+    return 'saving stopped working.';
+  }
+  function streetPersisted(id) { return app.storage === 'ok' && !app.overLimit[id]; }
+  function acceptText(prev, s, a, persisted) {
+    var street = E.STREETS[s.street];
+    var c = E.counts(s);
+    switch (a.t) {
+      case 'BEGIN': return 'The door opens onto ' + street.name + '. ' + s.stock + ' fireflies wait in the Waiting Jar. ' + listLamps(s.selected) + ' are chosen. You can tap lamps to change which ' + street.shareLamps + ' are chosen.';
+      case 'SELECT': return 'Lamp ' + a.lamp + (s.selected.indexOf(a.lamp) >= 0 ? ' chosen. ' : ' not chosen. ') + 'Chosen now: ' + (s.selected.length ? listLamps(s.selected) : 'none') + ' (' + s.selected.length + ').';
+      case 'DEAL': {
+        var k = c[s.selected[0] - 1];
+        return 'Deal round ' + s.rounds + ': ' + listLamps(s.selected) + ' each get one firefly. Each chosen lamp now has ' + k + '. Waiting Jar: ' + s.jar.length + '.';
+      }
+      case 'FILL': return 'Fill: ' + street.fillSize + ' fireflies fly into Lamp ' + a.lamp + '. Lamps filled: ' + s.fillOrder.length + '. Waiting Jar: ' + s.jar.length + '.';
+      case 'CHECK':
+        if (s.phase === 'share_checked') return 'Checked! ' + s.share.n + ' shared among ' + s.share.g + ' lamps makes ' + s.share.q + ' in each. ' + s.share.n + ' ÷ ' + s.share.g + ' = ' + s.share.q + ', and ' + s.share.g + ' × ' + s.share.q + ' = ' + s.share.n + '. Now Gather everyone home.';
+        if (s.phase === 'fill_checked') return 'Checked! Groups of ' + s.fill.q + ' filled ' + s.fill.g + ' lamps. ' + s.fill.n + ' ÷ ' + s.fill.q + ' = ' + s.fill.g + ' lamps, and ' + s.fill.g + ' × ' + s.fill.q + ' = ' + s.fill.n + '. Now Gather everyone home.';
+        return 'Your plan works: ' + s.plan.g + ' lamps with ' + s.plan.q + ' in each, and ' + s.plan.r + ' waiting. ' + s.plan.g + ' × ' + s.plan.q + ' + ' + s.plan.r + ' = ' + s.plan.n + '. ' + (s.plan.r ? 'Now give every waiter a name and a job.' : 'Nobody waits this time.');
+      case 'GATHER': {
+        var g = s.gathers[s.gathers.length - 1];
+        var lampSums = g.steps.filter(function (x) { return x.from === 'lamp'; }).map(function (x) { return x.total; });
+        var txt = 'Gather: ' + lampSums.join(', ');
+        if (g.waitingBefore) txt += ', plus ' + g.waitingBefore + ' already waiting makes ' + g.total;
+        txt += '. All ' + g.total + ' fireflies are home in the Waiting Jar, and every lamp is empty.';
+        if (!g.equal) txt += ' (Those lamps did not all have the same number.)';
+        if (prev.phase === 'waiters') txt += ' That plan is put away in your history. Choose lamps for a new plan.';
+        if (prev.phase === 'complete') txt += ' Your Night Map is kept as an earlier map. Choose lamps for a new plan.';
+        return txt;
+      }
+      case 'ARRIVE': return s.arrival.added + ' fireflies from ' + s.arrival.from + ' arrive! ' + s.arrival.before + ' + ' + s.arrival.added + ' = ' + s.arrival.after + '. All ' + s.arrival.after + ' wait in the jar.';
+      case 'NAME': return 'Firefly ' + E.idNumber(a.id) + ' is named ' + a.name + '.' + (prev.phase === 'complete' ? ' The map needs earning again.' : '');
+      case 'JOB': return (s.assignments[a.id].name || 'Firefly ' + E.idNumber(a.id)) + '’s job: ' + street.jobs[a.job] + '.' + (prev.phase === 'complete' ? ' The map needs earning again.' : '');
+      case 'REASON': return 'Yes: ' + a.waiting + ' ' + waitV(a.waiting) + ', and ' + a.lamps + ' lamps would each need one, so another round does not fit.';
+      case 'REFLECT': {
+        // TMD-002: only claim "saved on this device" when this street's history was actually written.
+        if (persisted) return a.text ? 'Your note is saved on this device. It is your own words and is not checked.' : 'Your note is cleared, and this device is updated.';
+        return (a.text ? 'Your note is on this map while the page stays open, but it is not saved on this device: ' : 'Your note is cleared from this map while the page stays open, but this device is not updated: ') + notSavedReason() + ' It is your own words and is not checked.';
+      }
+      case 'CERTIFY': return 'You earned the Night Map for ' + street.name + '!';
+    }
+    return 'Done.';
+  }
+
+  function rejectText(code, d, s, a) {
+    var street = E.STREETS[s.street];
+    d = d || {};
+    switch (code) {
+      case 'E_STOCK':
+        if (d.verb === 'fill') return 'Fill moved nothing. Only ' + d.waiting + ' ' + ff(d.waiting) + ' ' + waitV(d.waiting) + ', and a lamp needs ' + d.need + '. Press Check.';
+        return 'Deal moved nothing. Only ' + d.waiting + ' ' + ff(d.waiting) + ' ' + waitV(d.waiting) + ', and a full round needs ' + d.need + ', one for each chosen lamp. Press Check.';
+      case 'E_SELECT_COUNT': return 'The note asks for exactly ' + d.want + ' lamps. You have ' + d.have + ' chosen. Tap lamps to choose ' + d.want + '.';
+      case 'E_NO_SELECTION': return 'No lamps are chosen yet. Tap a lamp to choose it.';
+      case 'E_SELECT_LOCKED': return 'Fireflies are in the lamps. Gather them home before changing which lamps are chosen.';
+      case 'E_TARGET_OCCUPIED': return 'Lamp ' + d.lamp + ' already has fireflies. Tap an empty lamp to fill.';
+      case 'E_ROUND_FITS':
+        if (d.verb === 'fill') return 'Not finished yet: ' + d.waiting + ' ' + waitV(d.waiting) + ', enough to fill another lamp with ' + d.size + '. Fill again.';
+        return 'Not finished yet: ' + d.waiting + ' ' + waitV(d.waiting) + ', and ' + d.lamps + ' chosen lamps need only ' + d.lamps + ' for another round. Deal again.';
+      case 'E_FEW_LAMPS': return 'Each lamp got the same, but the street needs at least ' + d.min + ' lit lamps. Gather, choose more lamps, and Deal again.';
+      case 'E_FEW_EACH': return 'Each lit lamp needs at least ' + d.min + ' fireflies. Right now each has ' + d.each + '.';
+      case 'E_UNEQUAL': return 'The lamps do not all have the same number, so this is not equal sharing yet.';
+      case 'E_NOT_STARTED': return d.verb === 'fill' ? 'Nothing to check yet. Fill a lamp first.' : 'Nothing to check yet. Deal first.';
+      case 'E_NOTHING_TO_GATHER': return 'Every firefly is already home in the Waiting Jar.';
+      case 'E_CAPACITY': return 'There are no empty lamps left, but that is a lamp shortage, not a remainder.';
+      case 'E_NOT_WAITER': return 'That firefly is not waiting in this plan.';
+      case 'E_NAME': return 'A name can be 1 to ' + E.NAME_MAX + ' letters, with no extra spaces. Make up a firefly name, not a real person’s name.';
+      case 'E_JOB': return 'Please choose one of the jobs in the list.';
+      case 'E_REASON': return 'Not quite. Count the fireflies in the Waiting Jar, then count the lit lamps, and try again.';
+      case 'E_REASON_MISSING': return 'First finish the sentence about why another round does not fit.';
+      case 'E_UNASSIGNED': return 'Every waiter needs a name and a job. Still to do: ' + d.ids.map(function (id) { return 'Firefly ' + E.idNumber(id); }).join(', ') + '.';
+      case 'E_TEXT': return 'Your note can be up to ' + E.REFLECT_MAX + ' letters on one line.';
+      case 'E_PHASE': return phaseNudge(s);
+    }
+    return 'That did not change anything.';
+  }
+  function phaseNudge(s) {
+    switch (s.phase) {
+      case 'share_checked': case 'fill_checked': return 'Next, press Gather to bring everyone home and count them.';
+      case 'arrive': return 'Next, welcome the new fireflies.';
+      case 'waiters': return 'This plan is checked. To change lamps, Gather first.';
+      case 'complete': return 'This map is earned. To try another plan, Gather first.';
+    }
+    return 'That button does not fit this step.';
+  }
+
+  /* ---------- dispatch ---------- */
+  function dispatch(action) {
+    var id = app.current;
+    var prev = app.states[id];
+    var r = E.reduce(prev, action);
+    if (!r.ok) { render(); say(rejectText(r.code, r.detail, prev, action), true); return false; }
+    app.states[id] = r.state;
+    app.logs[id].push(action);
+    save();
+    var persisted = streetPersisted(id);
+    if (prev.phase !== r.state.phase) app.hintOpen = false;
+    render();
+    say(acceptText(prev, r.state, action, persisted), false);
+    if (prev.phase !== r.state.phase) focusForPhase(r.state.phase);
+    return true;
+  }
+  function focusForPhase(phase) {
+    var target = phase === 'door' ? 'doorTitle' : phase === 'waiters' ? 'waitersTitle' : phase === 'complete' ? 'mapTitle' : 'taskTitle';
+    var t = $(target);
+    if (t) t.focus({ preventScroll: false });
+  }
+
+  /* ---------- static construction ---------- */
+  var lampEls = [];
+  function buildLamps() {
+    var ol = $('lamps');
+    for (var n = 1; n <= 6; n++) {
+      var li = el('li', null, null, ol);
+      var b = el('button', 'lampBtn', null, li);
+      b.type = 'button';
+      b.id = 'lamp' + n;
+      b.setAttribute('data-lamp', String(n));
+      var s = svg('svg', { viewBox: '0 0 80 120', 'aria-hidden': 'true', focusable: 'false' }, b);
+      svg('rect', { x: 36, y: 58, width: 8, height: 58, rx: 2, fill: '#4a4f6e' }, s);
+      svg('rect', { x: 26, y: 112, width: 28, height: 7, rx: 2, fill: '#3a3f5c' }, s);
+      svg('path', { d: 'M18 14 L40 2 L62 14 Z', fill: 'url(#brass)' }, s);
+      var globe = svg('rect', { x: 12, y: 14, width: 56, height: 44, rx: 9, fill: '#1d2238', stroke: '#c8963a', 'stroke-width': 3 }, s);
+      var flag = svg('path', { d: 'M44 66 L66 72 L44 80 Z', fill: '#ffd84a', stroke: '#7a5218', 'stroke-width': 1.5 }, s);
+      svg('circle', { cx: 40, cy: 96, r: 10, fill: '#fbf3df', stroke: '#7a5218', 'stroke-width': 2 }, s);
+      var num = svg('text', { x: 40, y: 101, 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 'bold', fill: '#2a1d10' }, s);
+      num.textContent = String(n);
+      var flies = svg('g', {}, s);
+      var name = el('span', 'lname', 'Lamp ' + n, b);
+      var mark = el('span', 'mark', '', b);
+      var count = el('span', 'lcount', '', b);
+      (function (lamp) { b.addEventListener('click', function () { onLamp(lamp); }); })(n);
+      lampEls.push({ btn: b, globe: globe, flag: flag, flies: flies, mark: mark, count: count });
+    }
+  }
+
+  function layout(n, x, y, w, h, rmax) {
+    if (n <= 0) return { pts: [], r: rmax };
+    var cols = Math.max(1, Math.ceil(Math.sqrt(n * w / h)));
+    var rows = Math.ceil(n / cols);
+    while (rows * (w / cols) > h * 1.05 && cols < n) { cols++; rows = Math.ceil(n / cols); }
+    var cell = Math.min(w / cols, h / rows);
+    var r = Math.min(rmax, cell * 0.33);
+    var pts = [];
+    var ox = x + (w - cols * cell) / 2 + cell / 2;
+    var oy = y + (h - rows * cell) / 2 + cell / 2;
+    for (var i = 0; i < n; i++) pts.push({ x: ox + (i % cols) * cell, y: oy + Math.floor(i / cols) * cell });
+    return { pts: pts, r: r };
+  }
+  function drawFlies(g, ids, x, y, w, h, rmax, street, waiterSet) {
+    clear(g);
+    var L = layout(ids.length, x, y, w, h, rmax);
+    ids.forEach(function (id, i) {
+      var p = L.pts[i];
+      svg('circle', { cx: p.x.toFixed(2), cy: p.y.toFixed(2), r: (L.r * 2).toFixed(2), class: 'halo' }, g);
+      var isNew = E.idNumber(id) > street.start;
+      var cls = 'fly' + (isNew ? ' flyNew' : '') + (waiterSet && waiterSet[id] ? ' wait' : '');
+      svg('circle', { cx: p.x.toFixed(2), cy: p.y.toFixed(2), r: L.r.toFixed(2), class: cls, 'data-id': id }, g);
+    });
+  }
+
+  /* ---------- event handlers ---------- */
+  function onLamp(n) {
+    var s = S();
+    if (s.phase === 'share' || s.phase === 'plan') { dispatch({ t: 'SELECT', lamp: n }); return; }
+    if (s.phase === 'fill') {
+      if (s.lamps[n - 1].length > 0) { say('Lamp ' + n + ' already has ' + s.lamps[n - 1].length + ' fireflies. Tap an empty lamp to fill.', true); return; }
+      app.fillTarget = n;
+      render();
+      say('Lamp ' + n + ' will be filled next. Press Fill.', false);
+      return;
+    }
+    var k = s.lamps[n - 1].length;
+    say('Lamp ' + n + ' has ' + k + ' ' + ff(k) + '.', false);
+  }
+  function fillTarget(s) {
+    if (s.phase !== 'fill') return null;
+    if (app.fillTarget && s.lamps[app.fillTarget - 1].length === 0) return app.fillTarget;
+    for (var i = 0; i < 6; i++) if (s.lamps[i].length === 0) return i + 1;
+    return null;
+  }
+
+  /* ---------- render ---------- */
+  function render() {
+    var s = S();
+    var street = st();
+    document.querySelectorAll('.streetBtn').forEach(function (b) {
+      if (b.getAttribute('data-street') === app.current) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    renderNotices();
+    var atDoor = s.phase === 'door';
+    $('door').hidden = !atDoor;
+    $('street').hidden = atDoor;
+    $('map').hidden = atDoor;
+    $('doorTitle').textContent = 'A door at dusk — ' + street.name;
+    $('doorBlurb').textContent = street.text.door;
+    $('storageLine').textContent = storageLine();
+    if (atDoor) return;
+    renderTask(s, street);
+    renderLamps(s, street);
+    renderJar(s, street);
+    renderActions(s, street);
+    renderEquations(s, street);
+    renderTable(s, street);
+    renderWaiters(s, street);
+    renderHistory(s, street);
+    renderMap(s, street);
+  }
+
+  function storageLine() {
+    if (app.storage === 'unavailable') return 'Saving is not available in this browser, so progress lasts only while this page is open.';
+    if (app.storage === 'failed') return 'Saving stopped working (the browser may be full or blocked). You can keep playing, but new steps are not being saved.';
+    return 'Saving: on, in this browser only.';
+  }
+  function renderNotices() {
+    var box = $('notices');
+    clear(box);
+    app.notices.forEach(function (t) { el('p', null, t, box); });
+    if (app.storage === 'unavailable' || app.storage === 'failed') el('p', null, storageLine(), box);
+    if (app.overLimit[app.current]) el('p', null, overLimitText(), box);
+  }
+  function overLimitText() {
+    return 'This street’s save is full: new steps on ' + st().name + ' are not being saved. Your last saved progress is kept, and the other streets still save. Starting this street again will free the space.';
+  }
+
+  var TITLES = {
+    share: function (t) { return 'Deal: share among ' + t.shareLamps + ' lamps'; },
+    share_checked: function () { return 'Prove it with Gather'; },
+    fill: function (t) { return 'Fill: ' + t.fillSize + ' in each lamp'; },
+    fill_checked: function () { return 'Prove it with Gather'; },
+    arrive: function () { return 'Visitors at the gate'; },
+    plan: function () { return 'Light the street your way'; },
+    waiters: function () { return 'Who waits?'; },
+    complete: function () { return 'Night Map earned'; }
+  };
+  function taskText(s, t) {
+    switch (s.phase) {
+      case 'share': return t.text.welcome + ' ' + t.text.share;
+      case 'share_checked': return 'You found it: ' + s.share.n + ' shared among ' + s.share.g + ' lamps makes ' + s.share.q + ' in each. Now press Gather. Everyone flies home, and we skip-count to prove nobody was lost.';
+      case 'fill': return t.text.fill;
+      case 'fill_checked': return 'Groups of ' + s.fill.q + ' filled ' + s.fill.g + ' lamps. Press Gather to bring everyone home and count them.';
+      case 'arrive': return t.text.arrive + ' They are at the gate and not counted yet. Press Welcome to bring them to the Waiting Jar.';
+      case 'plan': return t.text.plan;
+      case 'waiters': return t.text.waiters + ' The waiters stay in the Waiting Jar and still count.';
+      case 'complete': return t.text.done + ' You can Gather and try a different number of lamps. This map will stay in your history.';
+    }
+    return '';
+  }
+  function taskQ(s, t) {
+    switch (s.phase) {
+      case 'share': return t.text.shareQ;
+      case 'share_checked': return 'Will all ' + s.stock + ' come home?';
+      case 'fill': return t.text.fillQ;
+      case 'fill_checked': return 'Will all ' + s.stock + ' come home?';
+      case 'arrive': return 'How many fireflies will there be?';
+      case 'plan': return t.text.planQ;
+      case 'waiters': return 'Why can’t the waiters go into the lamps?';
+      case 'complete': return 'Would a different number of lamps leave a different number waiting?';
+    }
+    return '';
+  }
+  function hintText(s, t) {
+    switch (s.phase) {
+      case 'share': return 'Deal gives one firefly to every chosen lamp each time. Watch the Waiting Jar: when fewer fireflies are left than chosen lamps, a full round no longer fits. Then press Check.';
+      case 'share_checked': case 'fill_checked': return 'Gather adds the lamps one at a time. Each number is the running total. The last number should match how many fireflies we have.';
+      case 'fill': return 'Each Fill puts exactly ' + t.fillSize + ' into one empty lamp. Keep filling until fewer than ' + t.fillSize + ' are left, then press Check.';
+      case 'arrive': return 'Press Welcome. The new fireflies join the Waiting Jar.';
+      case 'plan': return 'Tap lamps to choose ' + t.minLamps + ', 5 or 6 of them. Deal until a full round no longer fits, which happens when fewer fireflies wait than lamps you chose. A different number of lamps can leave a different number waiting.';
+      case 'waiters': return 'Count the fireflies in the Waiting Jar and the lit lamps. Another round would need one more firefly for every lit lamp.';
+      case 'complete': return 'Try Gather, choose a different number of lamps and Deal again. Does the number of waiters change?';
+    }
+    return '';
+  }
+  function renderTask(s, t) {
+    $('speaker').textContent = t.helper + ' says';
+    $('skyLabel').textContent = t.name;
+    $('taskTitle').textContent = TITLES[s.phase](t);
+    $('taskText').textContent = taskText(s, t);
+    $('taskQuestion').textContent = taskQ(s, t);
+    var h = $('hintText');
+    h.textContent = hintText(s, t);
+    h.hidden = !app.hintOpen;
+    $('hintBtn').setAttribute('aria-expanded', app.hintOpen ? 'true' : 'false');
+    $('hintBtn').textContent = app.hintOpen ? 'Hide the hint' : 'Show a hint';
+  }
+  function renderLamps(s, t) {
+    var selPhase = s.phase === 'share' || s.phase === 'plan';
+    var planLamps = s.plan ? s.plan.lamps : null;
+    var target = fillTarget(s);
+    lampEls.forEach(function (L, i) {
+      var n = i + 1;
+      var k = s.lamps[i].length;
+      var chosen;
+      if (selPhase) chosen = s.selected.indexOf(n) >= 0;
+      else if (s.phase === 'waiters' || s.phase === 'complete') chosen = planLamps.indexOf(n) >= 0;
+      else if (s.phase === 'share_checked') chosen = s.share.lamps.indexOf(n) >= 0;
+      else chosen = false;
+      var isTarget = s.phase === 'fill' && target === n;
+      L.btn.classList.toggle('chosen', chosen);
+      L.btn.classList.toggle('unchosen', !chosen && !isTarget && s.phase !== 'fill' && s.phase !== 'fill_checked' && s.phase !== 'arrive');
+      L.btn.classList.toggle('target', isTarget);
+      L.flag.setAttribute('visibility', chosen ? 'visible' : 'hidden');
+      L.globe.setAttribute('fill', k > 0 ? 'url(#lampLit)' : '#1d2238');
+      var markText, markCls = 'mark';
+      if (s.phase === 'fill' || s.phase === 'fill_checked') {
+        if (k > 0) markText = 'Filled';
+        else if (isTarget) { markText = 'Fill next'; markCls = 'mark tgt'; }
+        else { markText = 'Empty'; markCls = 'mark none'; }
+      } else if (s.phase === 'arrive') { markText = k > 0 ? 'Lit' : 'Empty'; if (!k) markCls = 'mark none'; }
+      else if (chosen) markText = 'Chosen';
+      else { markText = 'Not chosen'; markCls = 'mark none'; }
+      L.mark.textContent = markText;
+      L.mark.className = markCls;
+      L.count.textContent = k + ' ' + ff(k);
+      if (selPhase) L.btn.setAttribute('aria-pressed', chosen ? 'true' : 'false');
+      else if (s.phase === 'fill') L.btn.setAttribute('aria-pressed', isTarget ? 'true' : 'false');
+      else L.btn.removeAttribute('aria-pressed');
+      drawFlies(L.flies, s.lamps[i], 14, 16, 52, 40, 4.2, t, null);
+    });
+  }
+  function renderJar(s, t) {
+    var waiterSet = null;
+    if (s.plan) { waiterSet = {}; s.plan.waiters.forEach(function (id) { waiterSet[id] = true; }); }
+    drawFlies($('jarFlies'), s.jar, 46, 34, 108, 160, 5.5, t, waiterSet);
+    $('jarCount').textContent = String(s.jar.length);
+    $('jarWord').textContent = ff(s.jar.length);
+    $('jarSvgTitle').textContent = 'The Waiting Jar holds ' + s.jar.length + ' ' + ff(s.jar.length) + '.';
+    var arr = $('arrivals');
+    arr.hidden = s.phase !== 'arrive';
+    if (s.phase === 'arrive') {
+      var g = $('arrFlies');
+      clear(g);
+      for (var i = 0; i < t.arrive; i++) {
+        var x = 18 + (i % 8) * 17, y = 26 + Math.floor(i / 8) * 18;
+        svg('circle', { cx: x, cy: y, r: 9, class: 'halo' }, g);
+        svg('circle', { cx: x, cy: y, r: 4.5, class: 'fly flyNew' }, g);
+      }
+      $('arrText').textContent = t.arrive + ' fireflies from ' + t.arriveFrom + ' are at the gate (not counted yet).';
+    }
+  }
+  function show(id, on) { $(id).hidden = !on; }
+  function renderActions(s, t) {
+    var p = s.phase;
+    show('dealBtn', p === 'share' || p === 'plan');
+    show('fillBtn', p === 'fill');
+    show('checkBtn', p === 'share' || p === 'fill' || p === 'plan');
+    show('gatherBtn', ['share', 'share_checked', 'fill', 'fill_checked', 'plan', 'waiters', 'complete'].indexOf(p) >= 0);
+    show('arriveBtn', p === 'arrive');
+    $('dealBtn').textContent = 'Deal one round';
+    var tg = fillTarget(s);
+    $('fillBtn').textContent = tg ? 'Fill Lamp ' + tg + ' with ' + t.fillSize : 'Fill (no empty lamp)';
+    $('checkBtn').textContent = p === 'plan' ? 'Check my plan' : p === 'fill' ? 'Check: no more lamps?' : 'Check: shared fairly?';
+    $('gatherBtn').textContent = (p === 'waiters' || p === 'complete') ? 'Gather (put this plan away)' : 'Gather everyone home';
+    $('arriveBtn').textContent = 'Welcome the ' + t.arrive + ' new fireflies';
+  }
+  function renderEquations(s, t) {
+    var main = '', spoken = '';
+    var c = E.counts(s);
+    if (s.phase === 'share' || s.phase === 'plan') {
+      var g = s.selected.length;
+      if (s.rounds === 0) {
+        main = 'Chosen lamps: ' + g + '. Waiting Jar: ' + s.jar.length + '.';
+        spoken = g ? 'No fireflies dealt yet. Each Deal will move ' + g + ', one to each chosen lamp.' : 'Tap lamps to choose them.';
+      } else {
+        var k = c[s.selected[0] - 1];
+        main = g + ' × ' + k + ' + ' + s.jar.length + ' = ' + s.stock;
+        spoken = g + ' ' + lw(g) + ' with ' + k + ' in each make ' + (g * k) + ', and ' + s.jar.length + ' ' + waitV(s.jar.length) + ': ' + (g * k) + ' + ' + s.jar.length + ' = ' + s.stock + '. ' +
+          (s.jar.length >= g ? 'Another full round fits: ' + s.jar.length + ' waiting is enough for ' + g + ' lamps.' : 'No full round fits: ' + s.jar.length + ' waiting is fewer than ' + g + ' lamps.');
+      }
+    } else if (s.phase === 'share_checked') {
+      main = s.share.n + ' ÷ ' + s.share.g + ' = ' + s.share.q + '   and   ' + s.share.g + ' × ' + s.share.q + ' = ' + s.share.n;
+      spoken = s.share.n + ' shared among ' + s.share.g + ' lamps makes ' + s.share.q + ' in each. The question was: how many in each lamp?';
+    } else if (s.phase === 'fill') {
+      var f = s.fillOrder.length;
+      main = f + ' × ' + t.fillSize + ' + ' + s.jar.length + ' = ' + s.stock;
+      spoken = f + ' ' + lw(f) + ' with ' + t.fillSize + ' in each make ' + (f * t.fillSize) + ', and ' + s.jar.length + ' ' + waitV(s.jar.length) + '. ' +
+        (s.jar.length >= t.fillSize ? 'Another lamp can be filled: ' + s.jar.length + ' waiting is at least ' + t.fillSize + '.' : 'No more lamps can be filled: ' + s.jar.length + ' is fewer than ' + t.fillSize + '.');
+    } else if (s.phase === 'fill_checked') {
+      main = s.fill.n + ' ÷ ' + s.fill.q + ' = ' + s.fill.g + '   and   ' + s.fill.g + ' × ' + s.fill.q + ' = ' + s.fill.n;
+      spoken = 'Groups of ' + s.fill.q + ' filled ' + s.fill.g + ' lamps. The question was: how many lamps can we fill? The answer is ' + s.fill.g + ' lamps, not ' + s.fill.g + ' in each lamp.';
+    } else if (s.phase === 'arrive') {
+      main = s.stock + ' + ' + t.arrive + ' = ' + (s.stock + t.arrive);
+      spoken = 'There are ' + s.stock + ' fireflies now. After the ' + t.arrive + ' at the gate arrive, there will be ' + (s.stock + t.arrive) + '.';
+    } else if (s.plan) {
+      main = s.plan.g + ' × ' + s.plan.q + ' + ' + s.plan.r + ' = ' + s.plan.n + '   and   ' + s.plan.n + ' ÷ ' + s.plan.g + ' = ' + s.plan.q + (s.plan.r ? ' remainder ' + s.plan.r : '');
+      spoken = s.plan.n + ' shared among ' + s.plan.g + ' lamps makes ' + s.plan.q + ' in each, with ' + s.plan.r + ' waiting. ' + (s.plan.r ? s.plan.r + ' is fewer than ' + s.plan.g + ', so another round cannot fit.' : '');
+    }
+    $('eqMain').textContent = main;
+    $('eqSpoken').textContent = spoken;
+  }
+  var tableRows = null;
+  function renderTable(s, t) {
+    var body = $('liveBody');
+    if (!tableRows) {
+      tableRows = [];
+      for (var n = 1; n <= 8; n++) {
+        var tr = el('tr', n === 7 ? 'jarRowT' : n === 8 ? 'totalRow' : null, null, body);
+        var a = el(n <= 6 ? 'th' : 'td', null, n <= 6 ? 'Lamp ' + n : n === 7 ? 'Waiting Jar' : 'Total', tr);
+        if (n <= 6) a.setAttribute('scope', 'row');
+        tableRows.push({ tr: tr, b: el('td', null, '', tr), c: el('td', null, '', tr) });
+      }
+      var gate = el('tr', null, null, body);
+      gate.id = 'gateRow';
+      el('td', null, 'At the gate (not arrived yet)', gate);
+      el('td', null, '—', gate);
+      tableRows.push({ tr: gate, b: null, c: el('td', null, '', gate) });
+    }
+    var target = fillTarget(s);
+    for (var i = 0; i < 6; i++) {
+      var k = s.lamps[i].length, n2 = i + 1, label;
+      if (s.phase === 'fill' || s.phase === 'fill_checked') label = k > 0 ? 'filled' : (target === n2 ? 'next to fill' : 'empty');
+      else if (s.phase === 'share' || s.phase === 'plan') label = s.selected.indexOf(n2) >= 0 ? 'yes' : 'no';
+      else if (s.phase === 'share_checked') label = s.share.lamps.indexOf(n2) >= 0 ? 'yes' : 'no';
+      else if (s.plan) label = s.plan.lamps.indexOf(n2) >= 0 ? 'yes' : 'no';
+      else label = '—';
+      tableRows[i].b.textContent = label;
+      tableRows[i].c.textContent = String(k);
+    }
+    tableRows[6].b.textContent = '—';
+    tableRows[6].c.textContent = String(s.jar.length);
+    tableRows[7].b.textContent = '';
+    tableRows[7].c.textContent = String(s.stock);
+    tableRows[8].tr.hidden = s.phase !== 'arrive';
+    tableRows[8].c.textContent = String(t.arrive);
+  }
+
+  function renderWaiters(s, t) {
+    var on = s.phase === 'waiters' || s.phase === 'complete';
+    $('waiters').hidden = !on;
+    if (!on) { app.waiterKey = null; return; }
+    var key = app.current + '|' + s.plan.waiters.join(',') + '|' + s.tried.length + '|' + s.pastMaps.length;
+    var list = $('waiterList');
+    var r = s.plan.r;
+    $('waitersIntro').textContent = r === 0
+      ? 'Nobody waits in this plan: ' + s.plan.g + ' × ' + s.plan.q + ' = ' + s.plan.n + '. Finish the sentence below to earn the map.'
+      : r + ' ' + ff(r) + ' ' + waitV(r) + ' in the Waiting Jar. They are still here and still counted: ' + s.plan.g + ' × ' + s.plan.q + ' + ' + r + ' = ' + s.plan.n + '. Give each one a name and a job. Every job matters the same.';
+    if (key !== app.waiterKey) {
+      app.waiterKey = key;
+      clear(list);
+      s.plan.waiters.forEach(function (id) { buildWaiterRow(list, id, t); });
+      $('reasonWaiting').value = s.reason ? String(s.reason.waiting) : '';
+      $('reasonLamps').value = s.reason ? String(s.reason.lamps) : '';
+      $('reflectInput').value = s.reflection || '';
+    }
+    s.plan.waiters.forEach(function (id) { updateWaiterRow(id, s, t); });
+    $('reasonState').textContent = s.reason ? '✓ Your sentence matches the lamps.' : 'Not checked yet.';
+    $('reasonState').className = 'state' + (s.reason ? ' okText' : '');
+    $('certifyBtn').hidden = s.phase === 'complete';
+  }
+  function buildWaiterRow(list, id, t) {
+    var num = E.idNumber(id);
+    var fs = el('fieldset', 'waiter', null, list);
+    fs.id = 'waiter-' + id;
+    el('legend', null, 'Firefly ' + num + ' · waiting', fs);
+    var r1 = el('div', 'row', null, fs);
+    var lab = el('label', null, 'Name', r1);
+    var sel = el('select', null, null, r1);
+    sel.id = 'name-' + id;
+    lab.htmlFor = sel.id;
+    var o0 = el('option', null, 'Choose a name', sel); o0.value = '';
+    t.names.forEach(function (n) { var o = el('option', null, n, sel); o.value = n; });
+    var oo = el('option', null, 'Make up my own…', sel); oo.value = '__own';
+    var r2 = el('div', 'row own', null, fs);
+    r2.id = 'own-' + id;
+    var ol = el('label', null, 'My firefly name (not a real person’s name, up to ' + E.NAME_MAX + ' letters)', r2);
+    var inp = el('input', null, null, r2);
+    inp.type = 'text'; inp.id = 'owninput-' + id; inp.maxLength = E.NAME_MAX; inp.autocomplete = 'off';
+    ol.htmlFor = inp.id;
+    var ub = el('button', 'small', 'Use this name', r2);
+    ub.type = 'button';
+    r2.hidden = true;
+    var r3 = el('div', 'row', null, fs);
+    var jl = el('label', null, 'Job', r3);
+    var js = el('select', null, null, r3);
+    js.id = 'job-' + id;
+    jl.htmlFor = js.id;
+    var j0 = el('option', null, 'Choose a job', js); j0.value = '';
+    t.jobs.forEach(function (j, i) { var o = el('option', null, j, js); o.value = String(i); });
+    var stt = el('p', 'state', '', fs);
+    stt.id = 'wstate-' + id;
+    sel.addEventListener('change', function () {
+      if (sel.value === '__own') { r2.hidden = false; inp.focus(); return; }
+      r2.hidden = true;
+      if (sel.value) dispatch({ t: 'NAME', id: id, name: sel.value });
+    });
+    ub.addEventListener('click', function () {
+      var v = inp.value.trim().replace(/\s+/g, ' ');
+      if (!E.validName(v)) { say(rejectText('E_NAME', null, S(), null), true); return; }
+      dispatch({ t: 'NAME', id: id, name: v });
+    });
+    inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); ub.click(); } });
+    js.addEventListener('change', function () {
+      if (js.value !== '') dispatch({ t: 'JOB', id: id, job: parseInt(js.value, 10) });
+    });
+  }
+  function updateWaiterRow(id, s, t) {
+    var a = s.assignments[id] || {};
+    var sel = $('name-' + id), js = $('job-' + id), own = $('own-' + id), inp = $('owninput-' + id);
+    if (!sel) return;
+    if (typeof a.name === 'string') {
+      if (t.names.indexOf(a.name) >= 0) { sel.value = a.name; }
+      else { sel.value = '__own'; own.hidden = false; if (document.activeElement !== inp) inp.value = a.name; }
+    } else if (sel.value !== '__own') sel.value = '';
+    js.value = Number.isInteger(a.job) ? String(a.job) : '';
+    var need = [];
+    if (typeof a.name !== 'string') need.push('a name');
+    if (!Number.isInteger(a.job)) need.push('a job');
+    var txt = need.length ? 'Still needs ' + need.join(' and ') + '.' : '✓ ' + a.name + ' — ' + t.jobs[a.job];
+    $('wstate-' + id).textContent = txt;
+    $('wstate-' + id).className = 'state' + (need.length ? '' : ' okText');
+  }
+
+  function renderHistory(s, t) {
+    var ul = $('histList');
+    clear(ul);
+    var items = [];
+    var gi = 0;
+    function gatherLine(g) {
+      var sums = g.steps.map(function (x) { return x.total; });
+      var label = g.kind === 'partial' ? 'Gather part-way' : 'Gather check';
+      return label + ': ' + sums.join(', ') + (g.waitingBefore ? ' (the last step adds ' + g.waitingBefore + ' already waiting)' : '') + ' → all ' + g.total + ' home.' + (g.equal ? '' : ' The lamps were not equal.');
+    }
+    if (s.share) items.push('Sharing: ' + s.share.n + ' shared among ' + s.share.g + ' lamps (' + listLamps(s.share.lamps) + ') made ' + s.share.q + ' in each. ' + s.share.n + ' ÷ ' + s.share.g + ' = ' + s.share.q + '. Check: ' + s.share.g + ' × ' + s.share.q + ' = ' + s.share.n + '.');
+    if (s.fill) items.push('Grouping: groups of ' + s.fill.q + ' filled ' + s.fill.g + ' lamps. ' + s.fill.n + ' ÷ ' + s.fill.q + ' = ' + s.fill.g + ' lamps. Check: ' + s.fill.g + ' × ' + s.fill.q + ' = ' + s.fill.n + '.');
+    if (s.arrival) items.push('Arrival: ' + s.arrival.before + ' + ' + s.arrival.added + ' = ' + s.arrival.after + ' fireflies.');
+    s.gathers.forEach(function (g) { items.push(gatherLine(g)); gi++; });
+    s.tried.forEach(function (x) { items.push('Plan tried: ' + x.plan.g + ' × ' + x.plan.q + ' + ' + x.plan.r + ' = ' + x.plan.n + ' (' + x.status + ').'); });
+    if (s.pastMaps.length) items.push('Earlier Night Maps kept: ' + s.pastMaps.length + '.');
+    if (!items.length) items.push('Nothing yet. Your results will appear here.');
+    items.forEach(function (x) { el('li', null, x, ul); });
+  }
+
+  function renderMap(s, t) {
+    var m = E.currentMap(s);
+    var stEl = $('mapStatus');
+    stEl.textContent = m.status === 'certified' ? 'Earned! This map was made from your own lamps and steps.' : 'Draft: this map fills in as you work. Anything marked “not yet” has not happened.';
+    stEl.className = 'mapStatus ' + (m.status === 'certified' ? 'cert' : 'draft');
+    $('mapTitle').textContent = 'Night Map — ' + m.street + (m.status === 'certified' ? '' : ' (draft)');
+    var ol = $('mapOverLimit');
+    ol.hidden = !app.overLimit[app.current];
+    ol.textContent = overLimitText();
+    var g = $('mapLamps');
+    clear(g);
+    var desc = [];
+    for (var i = 0; i < 6; i++) {
+      var x = 30 + i * 50;
+      var info = m.lamps ? m.lamps[i] : null;
+      var k = info ? info.count : null;
+      svg('rect', { x: x - 2, y: 70, width: 4, height: 60, fill: '#6b7090' }, g);
+      if (k) svg('circle', { cx: x, cy: 58, r: 22, fill: 'url(#glowGrad)' }, g);
+      svg('rect', { x: x - 14, y: 44, width: 28, height: 26, rx: 6, fill: k ? '#ffe9a0' : '#262d55', stroke: '#c8963a', 'stroke-width': 2 }, g);
+      var tx = svg('text', { x: x, y: 62, 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 'bold', fill: k ? '#2a1d10' : '#d8cfe8' }, g);
+      tx.textContent = k === null ? '?' : String(k);
+      var lt = svg('text', { x: x, y: 148, 'text-anchor': 'middle', 'font-size': 11, fill: '#d8cfe8' }, g);
+      lt.textContent = 'Lamp ' + (i + 1);
+      desc.push('Lamp ' + (i + 1) + ': ' + (k === null ? 'not yet' : k));
+    }
+    svg('rect', { x: 316, y: 92, width: 34, height: 44, rx: 8, fill: '#9fc6cc', 'fill-opacity': 0.35, stroke: '#cfe6ea', 'stroke-width': 2 }, g);
+    var jt = svg('text', { x: 333, y: 120, 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 'bold', fill: '#ffe8a6' }, g);
+    jt.textContent = m.plan ? String(m.plan.r) : '?';
+    var jl = svg('text', { x: 333, y: 150, 'text-anchor': 'middle', 'font-size': 10, fill: '#d8cfe8' }, g);
+    jl.textContent = 'Jar';
+    desc.push('Waiting Jar: ' + (m.plan ? m.plan.r : 'not yet'));
+    $('mapArtTitle').textContent = 'Night map picture. ' + desc.join('; ') + '.';
+    renderMapText($('mapBody'), E.mapToText(m));
+    var past = $('pastMaps');
+    past.hidden = s.pastMaps.length === 0;
+    var pl = $('pastList');
+    clear(pl);
+    s.pastMaps.forEach(function (pm, idx) {
+      el('h3', null, 'Earlier map ' + (idx + 1), pl);
+      el('pre', null, E.mapToText(pm), pl);
+    });
+  }
+  function renderMapText(box, text) {
+    clear(box);
+    text.split('\n').slice(2).forEach(function (line) {
+      if (!line) return;
+      var first = line.split(' ')[0];
+      if (line.charAt(0) !== ' ' && /^[A-Z]{2,}$/.test(first)) el('h3', null, line, box);
+      else el('p', /not yet|no name yet|no job yet/.test(line) ? 'ny' : null, line.trim(), box);
+    });
+  }
+
+  /* ---------- wiring ---------- */
+  function wire() {
+    document.querySelectorAll('.streetBtn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        app.current = b.getAttribute('data-street');
+        app.fillTarget = null; app.hintOpen = false; app.waiterKey = null; app.confirm = null;
+        $('confirmBox').hidden = true;
+        save();
+        render();
+        say('You are on ' + st().name + '.', false);
+        focusForPhase(S().phase === 'door' ? 'door' : 'share');
+      });
+    });
+    $('beginBtn').addEventListener('click', function () { dispatch({ t: 'BEGIN' }); });
+    $('dealBtn').addEventListener('click', function () { dispatch({ t: 'DEAL' }); });
+    $('checkBtn').addEventListener('click', function () { dispatch({ t: 'CHECK' }); });
+    $('gatherBtn').addEventListener('click', function () { dispatch({ t: 'GATHER' }); });
+    $('arriveBtn').addEventListener('click', function () { dispatch({ t: 'ARRIVE' }); });
+    $('fillBtn').addEventListener('click', function () {
+      var tg = fillTarget(S());
+      if (!tg) { say('There is no empty lamp to fill. Press Check.', true); return; }
+      if (dispatch({ t: 'FILL', lamp: tg })) app.fillTarget = null;
+      render();
+    });
+    $('hintBtn').addEventListener('click', function () { app.hintOpen = !app.hintOpen; render(); });
+    $('reasonBtn').addEventListener('click', function () {
+      var w = $('reasonWaiting').value.trim(), l = $('reasonLamps').value.trim();
+      if (!/^\d{1,3}$/.test(w) || !/^\d{1,3}$/.test(l)) { say('Type a whole number in each box.', true); return; }
+      dispatch({ t: 'REASON', waiting: parseInt(w, 10), lamps: parseInt(l, 10) });
+    });
+    $('reflectBtn').addEventListener('click', function () {
+      var v = $('reflectInput').value.replace(/\s+/g, ' ').trim();
+      if (!E.validReflection(v)) { say(rejectText('E_TEXT', null, S(), null), true); return; }
+      dispatch({ t: 'REFLECT', text: v });
+    });
+    $('certifyBtn').addEventListener('click', function () { dispatch({ t: 'CERTIFY' }); });
+    $('printBtn').addEventListener('click', function () { window.print(); });
+    $('downloadBtn').addEventListener('click', function () {
+      var s = S();
+      var m = E.currentMap(s);
+      var blob = new Blob([E.mapToText(m) + '\n'], { type: 'text/plain;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'night-map-' + s.street + '-' + (m.status === 'certified' ? 'earned-' + m.mapNo : 'draft') + '.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      say('The map text file is downloading.', false);
+    });
+    $('backBtn').addEventListener('click', function () { $('taskTitle').focus(); });
+    $('stillBtn').addEventListener('click', function () {
+      var on = !document.documentElement.classList.contains('still');
+      document.documentElement.classList.toggle('still', on);
+      $('stillBtn').setAttribute('aria-pressed', on ? 'true' : 'false');
+      $('stillBtn').textContent = 'Still pictures: ' + (on ? 'on' : 'off');
+    });
+    var canSpeak = ('speechSynthesis' in window) && ('SpeechSynthesisUtterance' in window);
+    $('speakBtn').hidden = !canSpeak;
+    if (canSpeak) {
+      $('speakBtn').addEventListener('click', function () {
+        var s = S();
+        var parts = s.phase === 'door'
+          ? [$('doorTitle').textContent, $('doorBlurb').textContent]
+          : [$('speaker').textContent, $('taskTitle').textContent, $('taskText').textContent, $('taskQuestion').textContent];
+        try {
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(new window.SpeechSynthesisUtterance(parts.join('. ')));
+          $('stopBtn').hidden = false;
+        } catch (e) { say('Reading aloud is not available here.', true); }
+      });
+      $('stopBtn').addEventListener('click', function () { try { window.speechSynthesis.cancel(); } catch (e) {} $('stopBtn').hidden = true; });
+    }
+    $('resetStreetBtn').addEventListener('click', function () { askConfirm('street', $('resetStreetBtn')); });
+    $('resetAllBtn').addEventListener('click', function () { askConfirm('all', $('resetAllBtn')); });
+    $('confirmNo').addEventListener('click', function () { closeConfirm(); say('Nothing was changed.', false); });
+    $('confirmYes').addEventListener('click', function () {
+      var kind = app.confirm;
+      if (kind === 'street') resetStreet(app.current);
+      if (kind === 'all') IDS.forEach(resetStreet);
+      app.notices = [];
+      closeConfirm();
+      save();
+      render();
+      say(kind === 'all' ? 'All three streets start again at their brass doors.' : st().name + ' starts again at the brass door. The other streets are unchanged.', false);
+    });
+  }
+  function resetStreet(id) {
+    app.logs[id] = [];
+    app.states[id] = E.initialState(id);
+    if (id === app.current) { app.fillTarget = null; app.waiterKey = null; }
+  }
+  function askConfirm(kind, from) {
+    app.confirm = kind;
+    app.confirmReturn = from;
+    $('confirmText').textContent = kind === 'all'
+      ? 'Start all three streets again? Every street’s results and Night Maps will be cleared from this device.'
+      : 'Start ' + st().name + ' again from its brass door? Its results and Night Maps will be cleared. The other streets stay as they are.';
+    $('confirmBox').hidden = false;
+    $('confirmNo').focus();
+  }
+  function closeConfirm() {
+    app.confirm = null;
+    $('confirmBox').hidden = true;
+    if (app.confirmReturn) app.confirmReturn.focus();
+  }
+
+  window.DQ_QA = E;
+  window.DQ_QA_LIVE = Object.freeze({
+    snapshot: function () {
+      return JSON.parse(JSON.stringify({ current: app.current, states: app.states, logs: app.logs, overLimit: app.overLimit, storage: app.storage, notices: app.notices }));
+    }
+  });
+
+  buildLamps();
+  wire();
+  load();
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ISzuxNgj+PK/36w886pxepbciPZCfMkI+I5iFZEwfZw='; style-src 'sha256-Cwufg9uSRN6rvITdc7JiSCJLRIW5v3DnVKmKvy0rSXk='; img-src 'none'; font-src 'none'; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>The Pond That Goes Away · DoorQuests Thirdortals (prototype)</title>
+<style>
+:root{--ink:#2b2418;--paper:#fbf6ea;--panel:#fffdf7;--moss:#4f6b3a;--moss-d:#34492a;--mud:#7a5a3a;--water:#4a90b8;--water-d:#2f6f94;--sky:#cfe6f2;--focus:#b3410e;--seen:#1f6b3a;--none:#8a4b00;--notobs:#5a5a6a;--warn:#8a2b10;--line:#d9ccb0}
+*{box-sizing:border-box}
+html{font-size:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Trebuchet MS",Verdana,system-ui,sans-serif;line-height:1.5}
+.skip{position:absolute;left:-9999px;top:0;background:#fff;padding:.6rem 1rem;z-index:10}
+.skip:focus{left:.5rem;top:.5rem}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+header.site{background:var(--moss-d);color:#fff;padding:.75rem 1rem}
+header.site h1{margin:0;font-size:1.4rem}
+header.site p{margin:.2rem 0 0;font-size:.9rem}
+.proto{display:inline-block;background:#f3d27a;color:#3a2a00;border-radius:4px;padding:0 .4rem;font-size:.8rem;font-weight:bold}
+main{max-width:1180px;margin:0 auto;padding:.75rem}
+main:focus{outline:none}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:1rem;margin:1rem 0;overflow-wrap:anywhere}
+h2{font-size:1.35rem;margin:.2rem 0 .6rem;color:var(--moss-d)}
+h3{font-size:1.1rem;margin:1rem 0 .4rem}
+h4{font-size:1rem;margin:.8rem 0 .3rem}
+.small{font-size:.92rem}
+.btn{min-height:44px;min-width:44px;padding:.5rem .9rem;border-radius:10px;border:2px solid var(--moss);background:#fff;color:var(--moss-d);font:inherit;font-weight:bold;cursor:pointer}
+.btn.small{min-height:40px;padding:.35rem .7rem;font-size:.95rem}
+.btn.primary{background:var(--moss);color:#fff}
+.btn.danger{border-color:var(--warn);color:var(--warn)}
+.btn.link{border:none;background:none;text-decoration:underline;padding:.2rem .4rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.on,.btn[aria-pressed="true"]{background:var(--moss-d);color:#fff}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.btn-row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.4rem 0}
+.topbar{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center}
+.year-pick{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;min-width:0;flex:1 1 14rem}
+.year-pick select,.wheel-controls select,.place-form select{width:100%;min-width:0;text-overflow:ellipsis}
+.wheel-controls{min-width:0;flex:1 1 12rem}
+select,textarea{font:inherit;min-height:44px;padding:.3rem .5rem;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);max-width:100%}
+textarea{width:100%;display:block;margin:.3rem 0}
+label{font-weight:bold}
+.save-status{margin:0;font-size:.92rem;background:#eef3e6;border-radius:8px;padding:.2rem .6rem}
+.notice{background:#fff2d6;border:2px solid #e0b25b;border-radius:10px;padding:.6rem .8rem;margin:.8rem 0}
+.phase-tip{background:#eef3e6;border-left:6px solid var(--moss);padding:.5rem .8rem;border-radius:6px}
+.intro-grid{display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end}
+.door-art{width:min(100%,300px);height:auto}
+.mossop.big{width:110px;height:auto}
+.gauge-body{fill:#f5e9c8;stroke:var(--mud);stroke-width:2}
+.tick{stroke:var(--ink);stroke-width:1.5}
+.tick-label{font-size:9px;fill:var(--ink);font-family:Verdana,sans-serif}
+.waterline{stroke:var(--water-d);stroke-width:3}
+.eye{fill:var(--ink)}
+.smile{fill:none;stroke:var(--ink);stroke-width:2}
+.boot{fill:var(--mud)}
+.ground{fill:#b9a27a}
+.basin-dry{fill:#9c8058}
+.basin{fill:#8a6d47}
+.leaf{fill:#a8562a}
+.leaf.damp{fill:#6d4a22}
+.post{fill:var(--mud)}
+.sign{fill:#f3e2b5;stroke:var(--mud);stroke-width:2}
+.sign-text{font-size:9px;fill:var(--ink);font-family:Verdana,sans-serif}
+.door{fill:#8b5e34;stroke:#4a3018;stroke-width:3}
+.mud{fill:#5c4026;opacity:.75}
+.knob{fill:#d9b44a}
+.status-examples{list-style:none;padding:0}
+.status-examples li{margin:.3rem 0}
+.status{display:inline-block;border-radius:6px;padding:0 .45rem;font-weight:bold;font-size:.88rem;border:2px solid currentColor;background:#fff}
+.status.seen{color:var(--seen)}
+.status.none{color:var(--none)}
+.status.notobs{color:var(--notobs);border-style:dashed}
+.status.context{color:#4a3a7a}
+.wheel-row{display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+.wheel{width:120px;height:120px}
+.wedge{stroke:#fff;stroke-width:1}
+.wedge.m0{fill:#c9d8e6}.wedge.m1{fill:#b5d3a6}.wedge.m2{fill:#94bf7a}.wedge.m3{fill:#e2cf7a}
+.wedge.current{fill:var(--focus)}
+.hub{fill:#fff;stroke:var(--line)}
+.hub-text{font-size:13px;font-weight:bold;fill:var(--ink)}
+.week-title{font-size:1.15rem;font-weight:bold;margin:.3rem 0}
+.scene-wrap{margin:.6rem 0}
+.scene{width:100%;max-width:560px;height:auto;display:block;border-radius:10px;border:2px solid var(--line)}
+.sky{fill:var(--sky)}
+.sky-mar .sky{fill:#dfe9ef}.sky-jun .sky{fill:#cfe9f7}
+.trunk{fill:#6b4a2b}
+.crown{fill:#6f9a4d}
+.crown-bare{fill:#c7c1b4}
+.slope{fill:#a48d63}
+.site-label{font-size:11px;fill:var(--ink);font-family:Verdana,sans-serif;font-weight:bold}
+.water{fill:var(--water);opacity:.85;transition:y .4s ease}
+.snow{fill:#f7fbff;stroke:#c9d6e0}
+.caption{font-size:.9rem;font-style:italic;margin:.3rem 0}
+.days .btn.day{min-width:52px}
+.facts dt{font-weight:bold;margin-top:.4rem}
+.facts dd{margin:0 0 .3rem 0}
+.mossop-says{background:#f5ecd6;border-radius:10px;padding:.5rem .8rem}
+.site-notes{border-top:1px dashed var(--line);margin-top:.4rem}
+.notes{list-style:none;padding:0;margin:.3rem 0}
+.note{border:2px solid var(--line);border-radius:10px;padding:.5rem;margin:.4rem 0;background:#fff}
+.note.late{border-color:#b98a2e}
+.note-head{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-bottom:.3rem}
+.src-id{font-family:"Courier New",monospace;font-weight:bold;background:#efe6cf;border-radius:4px;padding:0 .3rem}
+.badge{font-size:.8rem;background:#e3eed8;border-radius:4px;padding:0 .35rem}
+.badge.dev{background:#ece3f6}
+.verbatim{margin:.4rem 0;padding:.5rem .8rem;border-left:5px solid var(--water-d);background:#f2f7fa;font-size:1.05rem;font-family:"Courier New",monospace}
+.blank{color:var(--notobs);font-style:italic}
+.status-lines{padding-left:1.1rem}
+.status-lines li{margin:.25rem 0}
+.sound{border-top:1px dashed var(--line);margin-top:.6rem}
+.table-scroll{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+caption{text-align:left;font-weight:bold;padding:.5rem}
+th,td{border:1px solid var(--line);padding:.35rem .45rem;vertical-align:top;text-align:left}
+thead th{background:#efe6cf}
+tr.current{background:#fdf0dc}
+table.ribbon{min-width:860px}
+.cell-note{margin-bottom:.2rem}
+.palette{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.5rem;margin:.5rem 0}
+.card-btn{display:flex;flex-direction:column;align-items:flex-start;gap:.2rem;text-align:left;min-height:44px;padding:.5rem;border:2px solid var(--line);border-radius:10px;background:#fff;font:inherit;color:var(--ink);cursor:pointer}
+.card-btn.on{border-color:var(--moss-d);background:#e6f0dc;box-shadow:inset 0 0 0 2px var(--moss-d)}
+.card-name{font-weight:bold}
+.card-help{font-size:.85rem}
+.stage-icon{width:40px;height:28px;flex:none}
+.egg-jelly{fill:#d7e7c8;stroke:#7d9a64}
+.egg-dot{fill:#2b2418}
+.animal{fill:#5a4a2a}
+.leg{stroke:#5a4a2a;stroke-width:2;fill:none}
+fieldset{border:2px solid var(--line);border-radius:10px;margin:.6rem 0;padding:.5rem .8rem;min-width:0}
+legend{font-weight:bold;padding:0 .3rem}
+.place-form label{display:block;margin-top:.4rem}
+.check{display:flex;gap:.5rem;align-items:flex-start;margin:.35rem 0}
+.check input{width:24px;height:24px;margin-top:.15rem;flex:none}
+.check label{font-weight:normal}
+.check.inline{display:inline-flex;margin-right:1rem}
+.feedback{border-radius:8px;padding:.4rem .6rem;background:#eef3e6}
+.feedback.warn{background:#fbe9e2}
+.feedback:focus{outline:3px solid var(--focus)}
+.placed-list{list-style:none;padding:0}
+.placed{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;border:2px solid var(--line);border-radius:10px;padding:.4rem;margin:.3rem 0;background:#fff}
+.placed.possible{border-style:dashed}
+.tasks{list-style:none;padding:0}
+.question{font-size:1.1rem}
+.locked{background:#f2efe6;border:2px solid #b8ab8a;border-radius:10px;padding:.5rem .8rem;margin:.6rem 0}
+.pocket{background:#fff4dd;border:2px dashed #b98a2e;border-radius:10px;padding:.6rem .8rem}
+.late-box{background:#fffaf0;border:2px solid #b98a2e;border-radius:10px;padding:.6rem .8rem;margin:.6rem 0}
+.rec-status{font-weight:bold}
+.record{border:2px solid var(--line);border-radius:10px;padding:.6rem .8rem;margin:.6rem 0;background:#fff}
+.rec-sec ul{margin:.2rem 0;padding-left:1.1rem}
+.checklist li.met{color:var(--seen)}
+.history details{margin:.4rem 0}
+summary{cursor:pointer;font-weight:bold;min-height:44px;display:flex;align-items:center}
+.reset .confirm{background:#fbe9e2;border-radius:10px;padding:.5rem}
+footer{max-width:1180px;margin:0 auto;padding:1rem;font-size:.85rem}
+@media (max-width:480px){main{padding:.4rem}.panel{padding:.7rem}h2{font-size:1.2rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  body{background:#fff}
+  header.site,footer,.skip,#live{display:none}
+  #app>*{display:none}
+  #app>section.panel:has(.print-area){display:block;border:none}
+  #app>section.panel:has(.print-area)>*{display:none}
+  #app>section.panel:has(.print-area)>.print-area{display:block;border:none}
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the investigation</a>
+<header class="site">
+<h1>The Pond That Goes Away</h1>
+<p>DoorQuests · Gradortals · Thirdortals · Lifecycles &amp; Ecosystems #001 · <span class="proto">Prototype — not published, not classroom-validated</span></p>
+</header>
+<main id="main" tabindex="-1">
+<div id="app"><p>Loading the investigation…</p></div>
+<noscript><p>This investigation needs JavaScript turned on.</p></noscript>
+</main>
+<div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<footer>
+<p>Created by The Axiom Continuum. DoorQuests: Choose Your Path. Find the Truth. Unlock the Impossible.</p>
+<p>Alder Hollow, its dates, notes and water model are fictional. Wood frog life stages follow general elementary biology; timing varies in nature. Never collect, move, feed or disturb wild animals.</p>
+</footer>
+<script>
+/* ===== AUTHORED DATASET (immutable) =====
+   Layer 1: fictional model water schedule (model.*)
+   Layer 2: field observations (sources) — authored separately, never derived from the model
+   Layer 3: learner hypotheses live only in learner state, never here.
+   author: "founder" = Founder-approved canonical string; "developer" = developer-authored default (needs Founder review). */
+var TLE_DATA = (function () {
+  "use strict";
+  var STAGES = [
+    { id: "egg", label: "Egg mass", water: "aquatic",
+      help: "A jelly clump holding many eggs. We count egg masses, not single eggs." },
+    { id: "tadpole", label: "Tadpole (legs not specified)", water: "aquatic",
+      help: "Any tadpole. It lives and breathes in water. This card does not say whether it has legs yet." },
+    { id: "hindleg", label: "Tadpole with hind legs", water: "aquatic",
+      help: "Still a water animal. Back legs alone do not make it ready for dry land." },
+    { id: "froglet", label: "Froglet / young frog", water: "land-or-edge",
+      help: "Four legs, maybe a tiny tail stub. Can leave the water, but still needs damp shelter." },
+    { id: "adult", label: "Adult frog", water: "land-or-edge",
+      help: "Grown frog. Lives mostly on damp land. In spring, adults return to the water to breed, and females lay eggs there." }
+  ];
+
+  var YEARS = [
+    /* ---------- YEAR 1: canonical ---------- */
+    {
+      id: "alder", label: "Alder Hollow — usual spring", short: "Usual spring", canonical: true,
+      question: "What became of last spring’s tadpoles?",
+      sites: [
+        { id: "hollow", label: "Alder Hollow basin", kind: "pond" },
+        { id: "uphill", label: "Uphill leaf litter (80 paces)", kind: "land" }
+      ],
+      model: { start: 0, weekEnd: [0, 20, 45, 61, 58, 53, 48, 42, 36, 30, 24, 17, 12, 7, 3, 0], extra: [["Jun 17", 1]] },
+      sources: [
+        { id: "AH-EGG", date: "Mar 28", weekId: 4, siteId: "hollow", kind: "wildlife+water", author: "founder",
+          verbatim: "Mar 28: 9 egg masses, water 61 cm.",
+          findings: [{ stage: "egg", result: "seen", count: 9, unit: "egg masses" }],
+          measured: { depth: 61, dry: false }, visibility: "start", filingOrder: 1,
+          scope: "Hollow; egg masses observed, measured depth 61 cm; number of individual eggs unknown." },
+        { id: "AH-TAD", date: "May 3", weekId: 10, siteId: "hollow", kind: "wildlife", author: "founder",
+          verbatim: "May 3: tadpoles, some with hind legs.",
+          findings: [{ stage: "tadpole", result: "seen", count: null, unit: null },
+                     { stage: "hindleg", result: "seen", count: null, unit: null }],
+          measured: null, visibility: "start", filingOrder: 2,
+          scope: "Hollow; tadpoles and developing tadpoles observed; no count supplied." },
+        { id: "AH-DRY", date: "Jun 20", weekId: 16, siteId: "hollow", kind: "water", author: "founder",
+          verbatim: "Jun 20: hollow dry.",
+          findings: [], measured: { depth: null, dry: true }, visibility: "start", filingOrder: 3,
+          scope: "Hollow water condition only; no wildlife survey recorded." },
+        { id: "AH-LATE", date: "Jun 16", weekId: 16, siteId: "uphill", kind: "wildlife", author: "founder",
+          verbatim: "Jun 16, 80 paces uphill: 14 thumbnail frogs under damp leaves.",
+          findings: [{ stage: "froglet", result: "seen", count: 14, unit: "small frogs" }],
+          measured: null, visibility: "late", filingOrder: 4,
+          filed: "Filed late: found in the field-station pocket after the June 20 note.",
+          scope: "Uphill site; 14 small frogs seen; exact origin, group membership and total changed into froglets unknown." },
+        { id: "AH-ID", date: "Jun 16", weekId: 16, siteId: "uphill", kind: "context", author: "developer",
+          verbatim: "Jun 16, 80 paces uphill, photo check: dark eye masks like young wood frogs; some had tiny tail stubs.",
+          findings: [{ stage: "froglet", result: "seen", count: null, unit: null }],
+          measured: null, visibility: "late", filingOrder: 5,
+          filed: "Filed late with the uphill note (developer-authored identification context).",
+          scope: "Identification context for the same uphill visit. Does not show which pond or egg masses the frogs came from." }
+      ],
+      tasks: [
+        { id: "c-egg", weekId: 4, siteId: "hollow", stage: "egg", ask: "Egg masses at the hollow on Mar 28", answer: "seen", sources: ["AH-EGG"], late: false,
+          why: "Someone visited on Mar 28, looked, and recorded 9 egg masses. That is Seen." },
+        { id: "c-egg-tad", weekId: 4, siteId: "hollow", stage: "tadpole", ask: "Tadpoles at the hollow on Mar 28", answer: "notobs", sources: ["AH-EGG"], late: false,
+          why: "The Mar 28 note reports egg masses only. It gives no result for tadpoles, so tadpoles are Not observed — not None seen." },
+        { id: "c-tad", weekId: 10, siteId: "hollow", stage: "tadpole", ask: "Tadpoles at the hollow on May 3", answer: "seen", sources: ["AH-TAD"], late: false,
+          why: "The May 3 note records tadpoles, some with hind legs. Seen." },
+        { id: "c-gap", weekId: 13, siteId: "hollow", stage: "any", ask: "Any frog stage at the hollow, May 24–30", answer: "notobs", sources: [], late: false,
+          why: "Nobody visited in late May. With no visit, we cannot say None seen. It is Not observed." },
+        { id: "c-dry", weekId: 16, siteId: "hollow", stage: "tadpole", ask: "Tadpoles at the hollow on Jun 20", answer: "notobs", sources: ["AH-DRY"], late: false,
+          why: "The Jun 20 note checked the water: dry. It does not say anyone searched for tadpoles, so tadpoles are Not observed." },
+        { id: "c-late", weekId: 16, siteId: "uphill", stage: "froglet", ask: "Small frogs uphill on Jun 16", answer: "seen", sources: ["AH-LATE"], late: true,
+          why: "The late-filed note records 14 small frogs under damp leaves uphill on Jun 16. Seen — at that place, on that date." }
+      ],
+      claimOptions: [
+        { id: "a-all", kind: "sweeping", text: "The drying killed every tadpole.", required: ["AH-DRY"], optional: ["AH-TAD", "AH-EGG"], reaffirmable: false,
+          label: "Hypothesis — needs more evidence. A dry hollow on Jun 20 does not show what happened to every tadpole." },
+        { id: "a-some", kind: "cautious", text: "Some may have developed and left; we do not yet know how many.", required: ["AH-TAD"], optional: ["AH-DRY", "AH-EGG"], reaffirmable: true,
+          label: "Cautious claim — fits the notes so far." },
+        { id: "a-unknown", kind: "cautious", text: "The hollow was dry on June 20; we do not know what happened to the tadpoles.", required: ["AH-DRY"], optional: ["AH-TAD"], reaffirmable: true,
+          label: "Cautious claim — fits the notes so far." }
+      ],
+      firstUnknowns: [
+        { id: "u-many", text: "We do not know how many tadpoles changed into froglets.", valid: true },
+        { id: "u-may", text: "Nobody checked the hollow in late May, so we do not know what happened then.", valid: true },
+        { id: "u-none", text: "Nothing is unknown — the notes tell the whole story.", valid: false,
+          why: "Many weeks have no visits, and no note counts the tadpoles. Something is still unknown." }
+      ],
+      revisionOptions: [
+        { id: "ar-left", status: "supported",
+          text: "The hollow was found dry on June 20. Small frogs were seen uphill on June 16, four days before that. Some tadpoles may have changed into froglets and left; we cannot tell how many from this pond did.",
+          required: ["AH-LATE", "AH-DRY"], optional: ["AH-TAD", "AH-EGG", "AH-ID"] },
+        { id: "ar-wood", status: "supported",
+          text: "The hollow was found dry on June 20. On June 16, four days before that, small frogs were seen uphill that looked like young wood frogs. Some tadpoles may have changed into froglets and left; we cannot tell how many from this pond did.",
+          required: ["AH-LATE", "AH-ID", "AH-DRY"], optional: ["AH-TAD", "AH-EGG"] },
+        { id: "ar-all", status: "unsupported", text: "All the tadpoles survived and left.",
+          why: "Fourteen small frogs uphill do not tell us about every tadpole. No note tracks all of them." },
+        { id: "ar-14", status: "unsupported", text: "Exactly fourteen tadpoles from this hollow turned into frogs.",
+          why: "The note counts 14 small frogs at one uphill spot. Nobody followed any animal from the hollow, so we cannot say how many changed here." },
+        { id: "ar-eggs", status: "unsupported", text: "The fourteen frogs came from the nine egg masses.",
+          why: "No note connects these frogs to these egg masses. Nine egg masses are clumps of many eggs, and the frogs were not tracked." },
+        { id: "ar-none", status: "unsupported", text: "None survived — the hollow dried.",
+          why: "Small frogs were seen uphill four days before the hollow was found dry, so a blanket claim that none survived is not justified." }
+      ],
+      reasons: [
+        { id: "w-late", text: "A late-filed note shows small frogs uphill on Jun 16, four days before the hollow was found dry.", validFor: ["ar-left", "ar-wood", "reaffirm"], needs: [] },
+        { id: "w-id", text: "The photo check says the small frogs looked like young wood frogs, some with tiny tail stubs.", validFor: ["ar-wood", "ar-left", "reaffirm"], needs: ["AH-ID"] },
+        { id: "w-fits", text: "The new note is consistent with my first claim and adds a dated sighting; it does not prove more than my claim says.", validFor: ["reaffirm"], needs: [] },
+        { id: "w-proof", text: "The new note proves our tadpoles survived.", validFor: [], needs: [],
+          why: "The note shows small frogs uphill. It does not prove where they came from." }
+      ],
+      unknowns: [
+        { id: "k-many", text: "How many tadpoles from this hollow changed into froglets.", valid: true },
+        { id: "k-origin", text: "Whether the 14 small frogs came from this hollow’s egg masses.", valid: true },
+        { id: "k-may", text: "What happened in the hollow in late May, when nobody visited.", valid: true },
+        { id: "k-none", text: "Nothing — we know exactly what happened.", valid: false,
+          why: "The notes leave real gaps: no counts of tadpoles, no tracking, no late-May visit." }
+      ],
+      requirements: {
+        inspect: ["AH-EGG", "AH-TAD", "AH-DRY", "AH-LATE"], gapWeeks: [13],
+        placements: [
+          { stage: "egg", weekId: 4, siteId: "hollow", source: "AH-EGG" },
+          { stage: "tadpole", weekId: 10, siteId: "hollow", source: "AH-TAD" },
+          { stage: "hindleg", weekId: 10, siteId: "hollow", source: "AH-TAD" },
+          { stage: "froglet", weekId: 16, siteId: "uphill", source: "AH-LATE" }
+        ],
+        tasks: ["c-egg", "c-egg-tad", "c-tad", "c-gap", "c-dry", "c-late"]
+      }
+    },
+
+    /* ---------- YEAR 2: long water (developer-authored) ---------- */
+    {
+      id: "longwater", label: "The Long-Water Year", short: "Long water", canonical: false,
+      question: "The hollow held water all spring. What happened to this year’s tadpoles?",
+      sites: [
+        { id: "hollow", label: "Alder Hollow pond", kind: "pond" },
+        { id: "edge", label: "Grassy pond edge", kind: "land" }
+      ],
+      model: { start: 0, weekEnd: [0, 25, 50, 66, 68, 66, 64, 60, 57, 55, 52, 50, 46, 43, 40, 37], extra: [] },
+      sources: [
+        { id: "LW-EGG", date: "Mar 26", weekId: 4, siteId: "hollow", kind: "wildlife+water", author: "developer",
+          verbatim: "Mar 26: 12 egg masses, water 64 cm.",
+          findings: [{ stage: "egg", result: "seen", count: 12, unit: "egg masses" }],
+          measured: { depth: 64, dry: false }, visibility: "start", filingOrder: 1,
+          scope: "Pond; egg masses observed; individual eggs not counted." },
+        { id: "LW-TAD", date: "Apr 30", weekId: 9, siteId: "hollow", kind: "wildlife", author: "developer",
+          verbatim: "Apr 30: tadpoles, no legs seen yet.",
+          findings: [{ stage: "tadpole", result: "seen", count: null, unit: null },
+                     { stage: "hindleg", result: "none", count: 0, unit: "tadpoles with legs (in the tadpoles looked at)" }],
+          measured: null, visibility: "start", filingOrder: 2,
+          scope: "Pond; tadpoles seen; looked for legs, none seen on the tadpoles checked." },
+        { id: "LW-LEGS", date: "Jun 4", weekId: 14, siteId: "hollow", kind: "wildlife+water", author: "developer",
+          verbatim: "Jun 4: tadpoles with hind legs, water 41 cm.",
+          findings: [{ stage: "hindleg", result: "seen", count: null, unit: null }],
+          measured: { depth: 41, dry: false }, visibility: "start", filingOrder: 3,
+          scope: "Pond; tadpoles with hind legs seen; no count." },
+        { id: "LW-EDGE", date: "Jun 18", weekId: 16, siteId: "edge", kind: "wildlife", author: "developer",
+          verbatim: "Jun 18, pond edge: 6 froglets with tail stubs in wet grass.",
+          findings: [{ stage: "froglet", result: "seen", count: 6, unit: "froglets" }],
+          measured: null, visibility: "start", filingOrder: 4,
+          scope: "Grassy edge only; 6 froglets seen there that day; the pond middle was not described." },
+        { id: "LW-LATE", date: "Jun 18", weekId: 16, siteId: "hollow", kind: "wildlife", author: "developer",
+          verbatim: "Jun 18, middle of pond, net sweep: many tadpoles still swimming, some with hind legs and some with no legs yet.",
+          findings: [{ stage: "tadpole", result: "seen", count: null, unit: null },
+                     { stage: "hindleg", result: "seen", count: null, unit: null }],
+          measured: null, visibility: "late", filingOrder: 5,
+          filed: "Filed late: the net-sweep page was found tucked in the back of the notebook.",
+          scope: "Pond middle, same day as the edge note; “many” is not a count." }
+      ],
+      tasks: [
+        { id: "c-egg", weekId: 4, siteId: "hollow", stage: "egg", ask: "Egg masses in the pond on Mar 26", answer: "seen", sources: ["LW-EGG"], late: false,
+          why: "12 egg masses were recorded on Mar 26. Seen." },
+        { id: "c-tad", weekId: 9, siteId: "hollow", stage: "tadpole", ask: "Tadpoles in the pond on Apr 30", answer: "seen", sources: ["LW-TAD"], late: false,
+          why: "Tadpoles were recorded on Apr 30. Seen." },
+        { id: "c-legs-none", weekId: 9, siteId: "hollow", stage: "hindleg", ask: "Tadpoles with hind legs on Apr 30", answer: "none", sources: ["LW-TAD"], late: false,
+          why: "The visitor looked at the tadpoles for legs and saw none. That is None seen — for the tadpoles checked that day. The same visit was Seen for tadpoles." },
+        { id: "c-gap", weekId: 13, siteId: "hollow", stage: "any", ask: "Any frog stage at the pond, May 24–30", answer: "notobs", sources: [], late: false,
+          why: "No visit happened in late May. Not observed, even though the model shows water." },
+        { id: "c-edge", weekId: 16, siteId: "edge", stage: "froglet", ask: "Froglets at the pond edge on Jun 18", answer: "seen", sources: ["LW-EDGE"], late: false,
+          why: "6 froglets were recorded at the edge on Jun 18. Seen — at the edge." },
+        { id: "c-late", weekId: 16, siteId: "hollow", stage: "tadpole", ask: "Tadpoles in the pond middle on Jun 18", answer: "seen", sources: ["LW-LATE"], late: true,
+          why: "The late net-sweep note records many tadpoles still swimming on Jun 18. Seen." }
+      ],
+      claimOptions: [
+        { id: "l-all", kind: "sweeping", text: "Because the water lasted, every tadpole became a frog.", required: ["LW-EDGE"], optional: ["LW-LEGS", "LW-EGG", "LW-TAD"], reaffirmable: false,
+          label: "Hypothesis — needs more evidence. Water helps, but six froglets at the edge do not show what happened to every tadpole." },
+        { id: "l-some", kind: "cautious", text: "Some tadpoles became froglets by June 18; we do not know about the rest.", required: ["LW-EDGE"], optional: ["LW-LEGS", "LW-EGG", "LW-TAD"], reaffirmable: true,
+          label: "Cautious claim — fits the notes so far." },
+        { id: "l-wet", kind: "cautious", text: "The water lasted, so tadpoles could keep developing; we do not know how many did.", required: ["LW-LEGS"], optional: ["LW-EDGE", "LW-TAD", "LW-EGG"], reaffirmable: true,
+          label: "Cautious claim — fits the notes so far." }
+      ],
+      firstUnknowns: [
+        { id: "u-many", text: "We do not know how many tadpoles became froglets.", valid: true },
+        { id: "u-may", text: "We do not know what happened in late May, when nobody visited.", valid: true },
+        { id: "u-safe", text: "Nothing is unknown — water means every tadpole is safe.", valid: false,
+          why: "Water is needed by tadpoles, but it does not guarantee that every one survives." }
+      ],
+      revisionOptions: [
+        { id: "lr-mixed", status: "supported",
+          text: "The pond stayed wet. By June 18, some froglets were at the edge while other tadpoles were still developing in the water. Water helped, but it does not prove every tadpole became a frog.",
+          required: ["LW-LATE", "LW-EDGE"], optional: ["LW-LEGS", "LW-TAD", "LW-EGG"] },
+        { id: "lr-all", status: "contradicted", text: "Every tadpole had become a frog by June 18.",
+          why: "The late net-sweep note shows tadpoles still swimming on Jun 18, some with no legs yet. This claim is contradicted." },
+        { id: "lr-six", status: "unsupported", text: "Exactly six tadpoles survived.",
+          why: "Six froglets were seen at the edge. Others may be elsewhere or still developing. Six is a sighting, not a total." },
+        { id: "lr-sum", status: "unsupported", text: "Six froglets plus the tadpoles in the net make the whole group, so we know the total.",
+          why: "“Many” is not a count, and different sightings cannot be added up into a total without tracking." }
+      ],
+      reasons: [
+        { id: "w-late", text: "The late net-sweep note shows tadpoles still developing in the middle of the pond on the same day froglets were at the edge.", validFor: ["lr-mixed", "reaffirm"], needs: [] },
+        { id: "w-fits", text: "The new note is consistent with my first claim; it adds a sighting but does not prove more than my claim says.", validFor: ["reaffirm"], needs: [] },
+        { id: "w-guarantee", text: "Water guarantees that every tadpole survives.", validFor: [], needs: [],
+          why: "Water is needed, but it is not a guarantee of survival." }
+      ],
+      unknowns: [
+        { id: "k-many", text: "How many tadpoles will become froglets.", valid: true },
+        { id: "k-all6", text: "Whether the six froglets at the edge were all the froglets.", valid: true },
+        { id: "k-may", text: "What happened in late May, when nobody visited.", valid: true },
+        { id: "k-none", text: "Nothing is unknown.", valid: false, why: "The notes leave real gaps." }
+      ],
+      requirements: {
+        inspect: ["LW-EGG", "LW-TAD", "LW-LEGS", "LW-EDGE", "LW-LATE"], gapWeeks: [13],
+        placements: [
+          { stage: "egg", weekId: 4, siteId: "hollow", source: "LW-EGG" },
+          { stage: "tadpole", weekId: 9, siteId: "hollow", source: "LW-TAD" },
+          { stage: "hindleg", weekId: 14, siteId: "hollow", source: "LW-LEGS" },
+          { stage: "froglet", weekId: 16, siteId: "edge", source: "LW-EDGE" }
+        ],
+        tasks: ["c-egg", "c-tad", "c-legs-none", "c-gap", "c-edge", "c-late"]
+      }
+    },
+
+    /* ---------- YEAR 3: late thaw (developer-authored) ---------- */
+    {
+      id: "latethaw", label: "The Late-Thaw Year", short: "Late thaw", canonical: false,
+      question: "Snow stayed late this year. What stage were this year’s tadpoles at by June 20?",
+      sites: [
+        { id: "hollow", label: "Alder Hollow basin", kind: "pond" },
+        { id: "uphill", label: "Uphill leaf litter (80 paces)", kind: "land" }
+      ],
+      model: { start: 0, weekEnd: [0, 0, 0, 0, 15, 40, 58, 60, 55, 50, 45, 40, 34, 28, 22, 16], extra: [] },
+      sources: [
+        { id: "LT-SNOW", date: "Mar 28", weekId: 4, siteId: "hollow", kind: "wildlife+water", author: "developer",
+          verbatim: "Mar 28: snow in the hollow, no open water. Looked for egg masses, none seen.",
+          findings: [{ stage: "egg", result: "none", count: 0, unit: "egg masses (searched in the hollow)" }],
+          measured: { depth: null, dry: true, text: "no open water (snow)" }, visibility: "start", filingOrder: 1,
+          scope: "Hollow; searched for egg masses; none seen that day." },
+        { id: "LT-EGG", date: "Apr 18", weekId: 7, siteId: "hollow", kind: "wildlife+water", author: "developer",
+          verbatim: "Apr 18: 7 egg masses, water 59 cm.",
+          findings: [{ stage: "egg", result: "seen", count: 7, unit: "egg masses" }],
+          measured: { depth: 59, dry: false }, visibility: "start", filingOrder: 2,
+          scope: "Hollow; egg masses observed." },
+        { id: "LT-TAD", date: "May 23", weekId: 12, siteId: "hollow", kind: "wildlife", author: "developer",
+          verbatim: "May 23: tadpoles, no legs seen.",
+          findings: [{ stage: "tadpole", result: "seen", count: null, unit: null },
+                     { stage: "hindleg", result: "none", count: 0, unit: "tadpoles with legs (in the tadpoles looked at)" }],
+          measured: null, visibility: "start", filingOrder: 3,
+          scope: "Hollow; tadpoles seen; legs looked for, none seen." },
+        { id: "LT-JUN", date: "Jun 13", weekId: 15, siteId: "hollow", kind: "wildlife+water", author: "developer",
+          verbatim: "Jun 13: tadpoles, some with hind legs, water 22 cm.",
+          findings: [{ stage: "tadpole", result: "seen", count: null, unit: null },
+                     { stage: "hindleg", result: "seen", count: null, unit: null }],
+          measured: { depth: 22, dry: false }, visibility: "start", filingOrder: 4,
+          scope: "Hollow; tadpoles and tadpoles with hind legs seen." },
+        { id: "LT-LATE", date: "Jun 20", weekId: 16, siteId: "hollow", kind: "wildlife+water", author: "developer",
+          verbatim: "Jun 20: tadpoles still swimming, water 16 cm.",
+          findings: [{ stage: "tadpole", result: "seen", count: null, unit: null }],
+          measured: { depth: 16, dry: false }, visibility: "late", filingOrder: 5,
+          filed: "Filed late: the June 20 page was left in a coat pocket.",
+          scope: "Hollow; tadpoles seen; legs not described." },
+        { id: "LT-UP", date: "Jun 20", weekId: 16, siteId: "uphill", kind: "wildlife", author: "developer",
+          verbatim: "Jun 20, uphill leaves: looked for small frogs, none seen.",
+          findings: [{ stage: "froglet", result: "none", count: 0, unit: "small frogs (searched uphill)" }],
+          measured: null, visibility: "late", filingOrder: 6,
+          filed: "Filed late with the June 20 hollow page.",
+          scope: "Uphill leaves searched once; none seen there that day." }
+      ],
+      tasks: [
+        { id: "c-snow", weekId: 4, siteId: "hollow", stage: "egg", ask: "Egg masses at the hollow on Mar 28", answer: "none", sources: ["LT-SNOW"], late: false,
+          why: "Someone looked for egg masses on Mar 28 and found none. None seen — on that day, at that place." },
+        { id: "c-egg", weekId: 7, siteId: "hollow", stage: "egg", ask: "Egg masses at the hollow on Apr 18", answer: "seen", sources: ["LT-EGG"], late: false,
+          why: "7 egg masses were recorded on Apr 18. Seen." },
+        { id: "c-legs-none", weekId: 12, siteId: "hollow", stage: "hindleg", ask: "Tadpoles with hind legs on May 23", answer: "none", sources: ["LT-TAD"], late: false,
+          why: "Legs were looked for on May 23 and none were seen. None seen, for the tadpoles checked." },
+        { id: "c-gap", weekId: 13, siteId: "hollow", stage: "any", ask: "Any frog stage at the hollow, May 24–30", answer: "notobs", sources: [], late: false,
+          why: "No visit in late May. Not observed." },
+        { id: "c-late", weekId: 16, siteId: "hollow", stage: "tadpole", ask: "Tadpoles at the hollow on Jun 20", answer: "seen", sources: ["LT-LATE"], late: true,
+          why: "The late Jun 20 page records tadpoles still swimming. Seen." },
+        { id: "c-up", weekId: 16, siteId: "uphill", stage: "froglet", ask: "Small frogs uphill on Jun 20", answer: "none", sources: ["LT-UP"], late: true,
+          why: "Someone searched the uphill leaves on Jun 20 and saw no small frogs. None seen — that is not the same as none existing." }
+      ],
+      claimOptions: [
+        { id: "t-cal", kind: "sweeping", text: "They must be froglets by June 20, because frogs usually change by then.", required: ["LT-EGG"], optional: ["LT-TAD", "LT-JUN", "LT-SNOW"], reaffirmable: false,
+          label: "Hypothesis — needs more evidence. A calendar date is not an observation of this year’s animals." },
+        { id: "t-later", kind: "cautious", text: "No egg masses were seen on March 28, and the first were recorded on April 18, so development may be later too; we need June observations.", required: ["LT-SNOW", "LT-EGG"], optional: ["LT-TAD", "LT-JUN"], reaffirmable: true,
+          label: "Cautious claim — fits the notes so far." },
+        { id: "t-legs", kind: "cautious", text: "On June 13 some tadpoles had hind legs; we do not know what stage they reached by June 20.", required: ["LT-JUN"], optional: ["LT-EGG", "LT-TAD", "LT-SNOW"], reaffirmable: true,
+          label: "Cautious claim — fits the notes so far." }
+      ],
+      firstUnknowns: [
+        { id: "u-stage", text: "We do not know what stage the tadpoles reached by June 20.", valid: true },
+        { id: "u-may", text: "We do not know what happened in late May, when nobody visited.", valid: true },
+        { id: "u-cal", text: "Nothing is unknown — the calendar tells us the stage.", valid: false,
+          why: "Timing changes with conditions. A calendar date cannot replace an observation." }
+      ],
+      revisionOptions: [
+        { id: "tr-still", status: "supported",
+          text: "Egg masses were first recorded on April 18 this year. On June 20, tadpoles were still swimming in the hollow, and no small frogs were seen in the uphill leaves searched that day. A calendar date cannot tell us the stage; we need observations.",
+          required: ["LT-LATE", "LT-UP", "LT-EGG"], optional: ["LT-JUN", "LT-SNOW", "LT-TAD"] },
+        { id: "tr-froglets", status: "contradicted", text: "They were all froglets by June 20.",
+          why: "The late Jun 20 page records tadpoles still swimming. This claim is contradicted." },
+        { id: "tr-never", status: "unsupported", text: "No small frogs uphill means none of them will ever become frogs.",
+          why: "One uphill search found none that day. That cannot tell us the future of tadpoles still in the water." },
+        { id: "tr-same", status: "unsupported", text: "Frogs change on the same dates every year.",
+          why: "This year, egg masses were first recorded on April 18, while the usual-year notes recorded them on March 28. Timing varies." }
+      ],
+      reasons: [
+        { id: "w-late", text: "The June 20 notes show tadpoles still in the water and an uphill search with no small frogs seen.", validFor: ["tr-still", "reaffirm"], needs: [] },
+        { id: "w-fits", text: "The new notes are consistent with my first claim; they add dated observations but do not prove more than my claim says.", validFor: ["reaffirm"], needs: [] },
+        { id: "w-cal", text: "The calendar says they should be froglets.", validFor: [], needs: [],
+          why: "The calendar is not evidence about this year’s animals." }
+      ],
+      unknowns: [
+        { id: "k-when", text: "When this year’s tadpoles will become froglets.", valid: true },
+        { id: "k-where", text: "Whether small frogs were somewhere uphill that was not searched.", valid: true },
+        { id: "k-many", text: "How many tadpoles there are.", valid: true },
+        { id: "k-none", text: "Nothing is unknown.", valid: false, why: "The notes leave real gaps." }
+      ],
+      requirements: {
+        inspect: ["LT-SNOW", "LT-EGG", "LT-TAD", "LT-JUN", "LT-LATE", "LT-UP"], gapWeeks: [13],
+        placements: [
+          { stage: "egg", weekId: 7, siteId: "hollow", source: "LT-EGG" },
+          { stage: "tadpole", weekId: 12, siteId: "hollow", source: "LT-TAD" },
+          { stage: "hindleg", weekId: 15, siteId: "hollow", source: "LT-JUN" },
+          { stage: "tadpole", weekId: 16, siteId: "hollow", source: "LT-LATE" }
+        ],
+        tasks: ["c-snow", "c-egg", "c-legs-none", "c-gap", "c-late", "c-up"]
+      }
+    },
+
+    /* ---------- YEAR 4: early drying (developer-authored) ---------- */
+    {
+      id: "earlydry", label: "The Early-Drying Year", short: "Early drying", canonical: false,
+      question: "The hollow dried early this year. What happened to this year’s tadpoles?",
+      sites: [
+        { id: "hollow", label: "Alder Hollow basin", kind: "pond" },
+        { id: "seep", label: "Fern seep (40 paces uphill)", kind: "land" },
+        { id: "log", label: "Mossy log (80 paces uphill)", kind: "land" }
+      ],
+      model: { start: 0, weekEnd: [0, 25, 44, 50, 44, 37, 30, 22, 15, 10, 5, 0, 0, 0, 0, 0], extra: [["May 19", 2], ["May 21", 0]] },
+      sources: [
+        { id: "ED-EGG", date: "Mar 25", weekId: 4, siteId: "hollow", kind: "wildlife+water", author: "developer",
+          verbatim: "Mar 25: 6 egg masses, water 48 cm.",
+          findings: [{ stage: "egg", result: "seen", count: 6, unit: "egg masses" }],
+          measured: { depth: 48, dry: false }, visibility: "start", filingOrder: 1,
+          scope: "Hollow; egg masses observed." },
+        { id: "ED-TAD", date: "Apr 22", weekId: 8, siteId: "hollow", kind: "wildlife+water", author: "developer",
+          verbatim: "Apr 22: tadpoles, no legs seen, water 27 cm.",
+          findings: [{ stage: "tadpole", result: "seen", count: null, unit: null },
+                     { stage: "hindleg", result: "none", count: 0, unit: "tadpoles with legs (in the tadpoles looked at)" }],
+          measured: { depth: 27, dry: false }, visibility: "start", filingOrder: 2,
+          scope: "Hollow; tadpoles seen; legs looked for, none seen." },
+        { id: "ED-PUD", date: "May 17", weekId: 12, siteId: "hollow", kind: "wildlife+water", author: "developer",
+          verbatim: "May 17: tadpoles crowded in a 4 cm puddle, some with hind legs.",
+          findings: [{ stage: "tadpole", result: "seen", count: null, unit: null },
+                     { stage: "hindleg", result: "seen", count: null, unit: null }],
+          measured: { depth: 4, dry: false }, visibility: "start", filingOrder: 3,
+          scope: "Hollow puddle; tadpoles and tadpoles with hind legs seen; no count." },
+        { id: "ED-DRY", date: "May 21", weekId: 12, siteId: "hollow", kind: "water", author: "developer",
+          verbatim: "May 21: hollow dry.",
+          findings: [], measured: { depth: null, dry: true }, visibility: "start", filingOrder: 4,
+          scope: "Hollow water condition only; no wildlife survey recorded." },
+        { id: "ED-SEEP", date: "Jun 6", weekId: 14, siteId: "seep", kind: "wildlife", author: "developer",
+          verbatim: "Jun 6, fern seep 40 paces uphill: looked under leaves for small frogs, none seen.",
+          findings: [{ stage: "froglet", result: "none", count: 0, unit: "small frogs (searched at the seep)" }],
+          measured: null, visibility: "start", filingOrder: 5,
+          scope: "Fern seep searched once; no small frogs seen there that day." },
+        { id: "ED-LOG", date: "Jun 18", weekId: 16, siteId: "log", kind: "wildlife", author: "developer",
+          verbatim: "Jun 18, mossy log 80 paces uphill: lifted leaves around one log, looked for small frogs, none seen. The rest of the slope was not searched.",
+          findings: [{ stage: "froglet", result: "none", count: 0, unit: "small frogs (searched around one log)" }],
+          measured: null, visibility: "late", filingOrder: 6,
+          filed: "Filed late: this search page was stuck to the back of a map.",
+          scope: "One log searched; the rest of the slope was not searched." }
+      ],
+      tasks: [
+        { id: "c-egg", weekId: 4, siteId: "hollow", stage: "egg", ask: "Egg masses at the hollow on Mar 25", answer: "seen", sources: ["ED-EGG"], late: false,
+          why: "6 egg masses were recorded on Mar 25. Seen." },
+        { id: "c-legs-none", weekId: 8, siteId: "hollow", stage: "hindleg", ask: "Tadpoles with hind legs on Apr 22", answer: "none", sources: ["ED-TAD"], late: false,
+          why: "Legs were looked for on Apr 22; none seen on the tadpoles checked." },
+        { id: "c-dry", weekId: 12, siteId: "hollow", stage: "tadpole", ask: "Tadpoles at the hollow on May 21", answer: "notobs", sources: ["ED-DRY"], late: false,
+          why: "The May 21 note only checked the water: dry. Nobody reported searching for tadpoles that day, so Not observed. (On May 17, in the same week, tadpoles were Seen in a puddle — both notes are true.)" },
+        { id: "c-gap", weekId: 13, siteId: "hollow", stage: "any", ask: "Any frog stage at the hollow, May 24–30", answer: "notobs", sources: [], late: false,
+          why: "No visit in late May. Not observed." },
+        { id: "c-seep", weekId: 14, siteId: "seep", stage: "froglet", ask: "Small frogs at the fern seep on Jun 6", answer: "none", sources: ["ED-SEEP"], late: false,
+          why: "Someone searched the fern seep on Jun 6 and saw no small frogs. None seen — at the seep, that day." },
+        { id: "c-log", weekId: 16, siteId: "log", stage: "froglet", ask: "Small frogs at the mossy log on Jun 18", answer: "none", sources: ["ED-LOG"], late: true,
+          why: "One log was searched on Jun 18 with no small frogs seen. The rest of the slope was never searched." }
+      ],
+      claimOptions: [
+        { id: "e-all", kind: "sweeping", text: "The drying killed every tadpole.", required: ["ED-DRY"], optional: ["ED-PUD", "ED-SEEP", "ED-TAD", "ED-EGG"], reaffirmable: false,
+          label: "Hypothesis — needs more evidence. A dry hollow and one empty search do not prove every tadpole died." },
+        { id: "e-noseen", kind: "cautious", text: "No froglets were seen at the fern seep; we do not know whether any survived.", required: ["ED-SEEP"], optional: ["ED-DRY", "ED-PUD", "ED-TAD"], reaffirmable: true,
+          label: "Cautious claim — fits the notes so far." },
+        { id: "e-dry", kind: "cautious", text: "The hollow was found dry on May 21; we do not know what happened to the tadpoles.", required: ["ED-DRY"], optional: ["ED-PUD", "ED-SEEP", "ED-TAD", "ED-EGG"], reaffirmable: true,
+          label: "Cautious claim — fits the notes so far." }
+      ],
+      firstUnknowns: [
+        { id: "u-survive", text: "We do not know whether any tadpoles became froglets before the hollow dried.", valid: true },
+        { id: "u-may", text: "We do not know what happened May 24–30, when nobody visited.", valid: true },
+        { id: "u-none", text: "Nothing is unknown — a dry hollow means none survived.", valid: false,
+          why: "A dry hollow tells us about water, not about every animal." }
+      ],
+      revisionOptions: [
+        { id: "er-noseen", status: "supported",
+          text: "The hollow was found dry on May 21. No froglets seen at the fern seep or the mossy log. That does not prove none survived; we do not know.",
+          required: ["ED-LOG", "ED-SEEP", "ED-DRY"], optional: ["ED-PUD", "ED-TAD", "ED-EGG"] },
+        { id: "er-proven", status: "unsupported", text: "Now it is proven: none survived.",
+          why: "Two small searches found no froglets, and most of the slope was never searched. No froglets seen is not proof that none survived." },
+        { id: "er-zero", status: "unsupported", text: "Two searches found zero, so the population is zero.",
+          why: "Zero seen in two spots is not zero animals everywhere." },
+        { id: "er-happy", status: "unsupported", text: "Some froglets must have survived somewhere.",
+          why: "No note shows any froglet this year. We may hope so, but the evidence does not show it." }
+      ],
+      reasons: [
+        { id: "w-late", text: "The late note adds a second search with no froglets seen, and says the rest of the slope was never searched.", validFor: ["er-noseen", "reaffirm"], needs: [] },
+        { id: "w-fits", text: "The new note is another search with no froglets seen. It is consistent with my first claim, but it does not tell us whether any survived.", validFor: ["reaffirm"], needs: [] },
+        { id: "w-proof", text: "Two empty searches prove none are left.", validFor: [], needs: [],
+          why: "Empty searches in two spots are not proof about the whole slope." }
+      ],
+      unknowns: [
+        { id: "k-survive", text: "Whether any tadpoles changed into froglets before the hollow dried.", valid: true },
+        { id: "k-where", text: "Whether froglets were in places nobody searched.", valid: true },
+        { id: "k-may", text: "What happened May 24–30, when nobody visited.", valid: true },
+        { id: "k-none", text: "Nothing is unknown.", valid: false, why: "The notes leave real gaps." }
+      ],
+      requirements: {
+        inspect: ["ED-EGG", "ED-TAD", "ED-PUD", "ED-DRY", "ED-SEEP", "ED-LOG"], gapWeeks: [13],
+        placements: [
+          { stage: "egg", weekId: 4, siteId: "hollow", source: "ED-EGG" },
+          { stage: "tadpole", weekId: 8, siteId: "hollow", source: "ED-TAD" },
+          { stage: "hindleg", weekId: 12, siteId: "hollow", source: "ED-PUD" }
+        ],
+        tasks: ["c-egg", "c-legs-none", "c-dry", "c-gap", "c-seep", "c-log"]
+      }
+    }
+  ];
+
+  function deepFreeze(o) {
+    Object.freeze(o);
+    Object.keys(o).forEach(function (k) { var v = o[k]; if (v && typeof v === "object" && !Object.isFrozen(v)) deepFreeze(v); });
+    return o;
+  }
+  return deepFreeze({ STAGES: STAGES, YEARS: YEARS, MODEL_ID: "tle001-m2", LEGACY_MODEL_IDS: ["tle001-m1"] });
+})();
+
+/* ===== PURE ENGINE (no DOM) ===== */
+var TLE_ENGINE = (function (D) {
+  "use strict";
+  var MONTHS = [["Mar", 31], ["Apr", 30], ["May", 31], ["Jun", 30]];
+  var LAST_DAY = 111; /* Jun 20 in the fictional non-leap calendar (Mar 1 = day 0) */
+  var WEEKS = 16;
+
+  /* ---------- dates ---------- */
+  function parseDate(s) {
+    if (typeof s !== "string") return null;
+    var m = /^(Mar|Apr|May|Jun) ([1-9]|[12][0-9]|3[01])$/.exec(s);
+    if (!m) return null;
+    var off = 0;
+    for (var i = 0; i < MONTHS.length; i++) {
+      if (MONTHS[i][0] === m[1]) {
+        var d = Number(m[2]);
+        if (d > MONTHS[i][1]) return null;
+        var day = off + d - 1;
+        return day <= LAST_DAY ? day : null;
+      }
+      off += MONTHS[i][1];
+    }
+    return null;
+  }
+  function formatDay(day) {
+    var off = 0;
+    for (var i = 0; i < MONTHS.length; i++) {
+      if (day < off + MONTHS[i][1]) return MONTHS[i][0] + " " + (day - off + 1);
+      off += MONTHS[i][1];
+    }
+    return null;
+  }
+  function weekOfDay(day) { return Math.floor(day / 7) + 1; }
+  function weekRange(w) {
+    var s = (w - 1) * 7, e = s + 6, a = formatDay(s), b = formatDay(e);
+    var label = a.slice(0, 3) === b.slice(0, 3) ? a + "–" + b.slice(4) : a + "–" + b;
+    return { startDay: s, endDay: e, start: a, end: b, label: label };
+  }
+  function isWeek(w) { return typeof w === "number" && Number.isInteger(w) && w >= 1 && w <= WEEKS; }
+
+  /* ---------- index ---------- */
+  var YEAR = new Map(), SRC = new Map(), POINTS = new Map(), STAGE = new Map();
+  D.STAGES.forEach(function (s) { STAGE.set(s.id, s); });
+  D.YEARS.forEach(function (y) {
+    var ix = { y: y, src: new Map(), site: new Map(), task: new Map(), claim: new Map(), fu: new Map(), rev: new Map(), reason: new Map(), unk: new Map() };
+    y.sources.forEach(function (s) { ix.src.set(s.id, s); SRC.set(s.id, s); });
+    y.sites.forEach(function (s) { ix.site.set(s.id, s); });
+    y.tasks.forEach(function (s) { ix.task.set(s.id, s); });
+    y.claimOptions.forEach(function (s) { ix.claim.set(s.id, s); });
+    y.firstUnknowns.forEach(function (s) { ix.fu.set(s.id, s); });
+    y.revisionOptions.forEach(function (s) { ix.rev.set(s.id, s); });
+    y.reasons.forEach(function (s) { ix.reason.set(s.id, s); });
+    y.unknowns.forEach(function (s) { ix.unk.set(s.id, s); });
+    YEAR.set(y.id, ix);
+    POINTS.set(y.id, buildPoints(y));
+  });
+
+  function buildPoints(y) {
+    var pts = [[0, y.model.start]];
+    for (var w = 1; w <= WEEKS; w++) pts.push([7 * w - 1, y.model.weekEnd[w - 1]]);
+    (y.model.extra || []).forEach(function (e) { var d = parseDate(e[0]); if (d !== null) pts.push([d, e[1]]); });
+    pts.sort(function (a, b) { return a[0] - b[0]; });
+    var out = [];
+    pts.forEach(function (p) { if (out.length && out[out.length - 1][0] === p[0]) out[out.length - 1] = p; else out.push(p); });
+    return out;
+  }
+  /* Modeled surface water (cm) at the pond site on a day. Illustrative model, not a measurement. */
+  function modelDepthAt(yearId, day) {
+    var pts = POINTS.get(yearId);
+    if (!pts || typeof day !== "number" || !isFinite(day)) return 0;
+    if (day <= pts[0][0]) return Math.max(0, pts[0][1]);
+    for (var i = 1; i < pts.length; i++) {
+      if (day <= pts[i][0]) {
+        var a = pts[i - 1], b = pts[i];
+        var v = a[1] + (b[1] - a[1]) * (day - a[0]) / (b[0] - a[0]);
+        return isFinite(v) ? Math.max(0, Math.round(v * 10) / 10) : 0;
+      }
+    }
+    return Math.max(0, pts[pts.length - 1][1]);
+  }
+  function fmtDepth(v) {
+    if (!(v > 0)) return "0 cm (no standing water)";
+    if (v < 0.5) return "under 1 cm";
+    return Math.round(v) + " cm";
+  }
+  function weekModel(yearId, w) {
+    var r = weekRange(w), days = [], wet = 0;
+    for (var d = r.startDay; d <= r.endDay; d++) { var v = modelDepthAt(yearId, d); days.push({ day: d, date: formatDay(d), depth: v }); if (v > 0) wet++; }
+    return { weekId: w, range: r, start: days[0].depth, end: days[6].depth, anchor: r.end, days: days,
+      wetDays: wet, mixed: wet > 0 && wet < 7, allWet: wet === 7, allDry: wet === 0 };
+  }
+
+  /* ---------- helpers ---------- */
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function hasOwn(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function isPlain(o) { if (!o || typeof o !== "object" || Array.isArray(o)) return false; var p = Object.getPrototypeOf(o); return p === Object.prototype || p === null; }
+  function stageLabel(id) { var s = STAGE.get(id); return s ? s.label : id; }
+  function isVisible(state, src) { return src.visibility === "start" || (src.visibility === "late" && state.discovered === true); }
+  function visibleSources(state) { return YEAR.get(state.yearId).y.sources.filter(function (s) { return isVisible(state, s); }); }
+  function lateSources(yearId) { return YEAR.get(yearId).y.sources.filter(function (s) { return s.visibility === "late"; }); }
+  function phaseOf(s) {
+    if (!s.begun) return "intro";
+    if (!s.firstClaim) return "investigate";
+    if (!s.discovered) return "claimed";
+    if (!s.revisions.length) return "discovered";
+    return "revised";
+  }
+
+  function initialState(yearId) {
+    if (!YEAR.has(yearId)) throw new Error("unknown year");
+    return { yearId: yearId, begun: false, step: 0, inspected: [], inspectedWeeks: [], placements: [], nextPid: 1,
+      classifications: [], firstClaim: null, discovered: false, discoveredStep: null, revisions: [],
+      reflection: null, earned: [] };
+  }
+
+  /* ---------- payload validation ---------- */
+  var ID_RE = /^[A-Za-z][A-Za-z0-9-]{0,31}$/, PID_RE = /^p[1-9][0-9]{0,4}$/;
+  var CTRL_RE = /[\u0000-\u0009\u000B-\u001F\u007F]/;
+  var T = {
+    id: function (v) { return typeof v === "string" && ID_RE.test(v); },
+    week: isWeek,
+    weekOrNull: function (v) { return v === null || isWeek(v); },
+    dateOrNull: function (v) { return v === null || parseDate(v) !== null; },
+    kind: function (v) { return v === "observed" || v === "possible"; },
+    ids: function (v) {
+      if (!Array.isArray(v) || v.length > 8) return false;
+      var seen = new Set();
+      for (var i = 0; i < v.length; i++) { if (!T.id(v[i]) || seen.has(v[i])) return false; seen.add(v[i]); }
+      return true;
+    },
+    pid: function (v) { return typeof v === "string" && PID_RE.test(v); },
+    status: function (v) { return v === "seen" || v === "none" || v === "notobs"; },
+    text: function (v) { return typeof v === "string" && v.length <= 280 && !CTRL_RE.test(v); }
+  };
+  var SCHEMAS = {
+    BEGIN: {},
+    INSPECT_SOURCE: { sourceId: "id" },
+    INSPECT_WEEK: { weekId: "week" },
+    PLACE_CARD: { stage: "id", weekId: "week", endWeekId: "weekOrNull", siteId: "id", date: "dateOrNull", kind: "kind", citations: "ids" },
+    MOVE_CARD: { placementId: "pid", weekId: "week", endWeekId: "weekOrNull", siteId: "id", date: "dateOrNull" },
+    REMOVE_CARD: { placementId: "pid" },
+    CLASSIFY_OBSERVATION: { taskId: "id", status: "status" },
+    CONFIRM_FIRST_CLAIM: { claimId: "id", citations: "ids", unknownId: "id" },
+    DISCOVER_LATE_NOTE: {},
+    CONFIRM_REVISION: { revisionId: "id", citations: "ids", reasonId: "id", unknownIds: "ids" },
+    REFLECT: { text: "text" },
+    EARN_RECORD: {}
+  };
+  function validateShape(a) {
+    if (!isPlain(a)) return "Action must be an object.";
+    var k = Object.keys(a);
+    if (k.length !== 2 || !hasOwn(a, "t") || !hasOwn(a, "p")) return "Action must have exactly t and p.";
+    if (typeof a.t !== "string" || !hasOwn(SCHEMAS, a.t)) return "Unknown action type.";
+    if (!isPlain(a.p)) return "Payload must be an object.";
+    var sc = SCHEMAS[a.t], need = Object.keys(sc), have = Object.keys(a.p);
+    if (have.length !== need.length) return "Payload has missing or extra fields.";
+    for (var i = 0; i < need.length; i++) {
+      if (!hasOwn(a.p, need[i])) return "Payload missing " + need[i] + ".";
+      if (!T[sc[need[i]]](a.p[need[i]])) return "Payload field " + need[i] + " is malformed.";
+    }
+    return null;
+  }
+
+  function R(state, ok, code, message, extra) { var r = { ok: ok, state: state, code: code, message: message }; if (extra) Object.keys(extra).forEach(function (k) { r[k] = extra[k]; }); return r; }
+  var NOT_IN_NOTEBOOK = "That item is not in your notebook.";
+
+  function checkCitations(state, ix, ids) {
+    for (var i = 0; i < ids.length; i++) {
+      var s = ix.src.get(ids[i]);
+      if (!s || !isVisible(state, s)) return { err: "E_UNKNOWN_SOURCE", msg: NOT_IN_NOTEBOOK };
+      if (state.inspected.indexOf(s.id) < 0) return { err: "E_NOT_INSPECTED", msg: "Open note " + s.id + " before you cite it." };
+    }
+    return null;
+  }
+
+  /* habitat compatibility (model only; never a statement about survival) */
+  function habitatAt(yearId, stageId, site, day) {
+    var st = STAGE.get(stageId), depth = site.kind === "pond" ? modelDepthAt(yearId, day) : 0, date = formatDay(day);
+    if (st.water === "aquatic") {
+      if (site.kind !== "pond") return { ok: false, msg: "A " + st.label.toLowerCase() + " is a water stage. " + site.label + " is damp land with no standing water. (This says nothing about whether any animal lived or died.)" };
+      if (depth > 0) return { ok: true, msg: "Fits the model: about " + fmtDepth(depth) + " of water at " + site.label + " on " + date + ". Water is needed, but it does not prove an animal was there." };
+      return { ok: false, msg: "The model shows no standing water at " + site.label + " on " + date + ". A " + st.label.toLowerCase() + " needs water, so it cannot be placed here. That does not mean any animal died — only that this place and date cannot hold a water stage." };
+    }
+    if (site.kind === "land") return { ok: true, msg: "Fits: a " + st.label.toLowerCase() + " can live on damp land like " + site.label + ". It still needs moist shelter." };
+    if (depth > 0) return { ok: true, msg: "Fits: a " + st.label.toLowerCase() + " can be at the water’s edge (" + fmtDepth(depth) + " in the model on " + date + ")." };
+    return { ok: true, msg: "Fits as a land placement: no standing water in the model on " + date + ", but a " + st.label.toLowerCase() + " can shelter on damp ground." };
+  }
+
+  /* Validates a card (shared by PLACE_CARD, MOVE_CARD and the CHECK_STAGE query). Returns {ok, code, msg, card} */
+  function validateCard(state, p, ignorePid) {
+    var ix = YEAR.get(state.yearId), st = STAGE.get(p.stage), site = ix.site.get(p.siteId);
+    if (!st) return { ok: false, code: "E_UNKNOWN_ID", msg: "Unknown stage card." };
+    if (!site) return { ok: false, code: "E_UNKNOWN_ID", msg: "Unknown place for this year." };
+    if (p.endWeekId !== null) {
+      if (p.kind !== "possible") return { ok: false, code: "E_PAYLOAD", msg: "Only a Possible (hypothesis) card can span several weeks." };
+      if (p.endWeekId <= p.weekId) return { ok: false, code: "E_PAYLOAD", msg: "The end week must be later than the start week." };
+      if (p.date !== null) return { ok: false, code: "E_PAYLOAD", msg: "A card that spans weeks cannot also have a single date." };
+    }
+    var day = p.date === null ? null : parseDate(p.date);
+    if (day !== null && weekOfDay(day) !== p.weekId) return { ok: false, code: "E_DATE_WEEK", msg: p.date + " is not in Week " + p.weekId + " (" + weekRange(p.weekId).label + ")." };
+    var feedback;
+    if (p.kind === "observed") {
+      if (!p.citations.length) return { ok: false, code: "E_NEED_CITATION", msg: "An Observed card needs a field note that saw this stage here. Cite a note, or choose Possible." };
+      var c = checkCitations(state, ix, p.citations);
+      if (c) return { ok: false, code: c.err, msg: c.msg };
+      for (var i = 0; i < p.citations.length; i++) {
+        var s = ix.src.get(p.citations[i]);
+        if (s.siteId !== p.siteId) return { ok: false, code: "E_WRONG_SITE", msg: s.id + " was recorded at " + ix.site.get(s.siteId).label + ", not " + site.label + "." };
+        if (s.weekId !== p.weekId) return { ok: false, code: "E_WRONG_WEEK", msg: s.id + " is dated " + s.date + " (Week " + s.weekId + "), not Week " + p.weekId + "." };
+        if (day !== null && parseDate(s.date) !== day) return { ok: false, code: "E_WRONG_DATE", msg: s.id + " is dated " + s.date + ", not " + p.date + "." };
+        if (!s.findings.length) return { ok: false, code: "E_WATER_ONLY", msg: s.id + " is a water check. It is not evidence about any animal." };
+        var f = s.findings.filter(function (x) { return x.stage === p.stage; })[0];
+        if (!f) return { ok: false, code: "E_WRONG_STAGE", msg: s.id + " does not report a " + st.label.toLowerCase() + ". A note about one stage says nothing about another." };
+        if (f.result !== "seen") return { ok: false, code: "E_NONE_SEEN", msg: s.id + " says None seen for this stage. That cannot support an Observed card." };
+        var hb = habitatAt(state.yearId, p.stage, site, parseDate(s.date));
+        if (!hb.ok) return { ok: false, code: "E_HABITAT", msg: hb.msg };
+      }
+      feedback = "Observed, with evidence: " + p.citations.join(", ") + ". This card shows the stage was recorded — not how many animals there were.";
+    } else {
+      if (p.citations.length) return { ok: false, code: "E_POSSIBLE_CITES", msg: "A Possible card is a hypothesis. It does not cite an observation. Choose Observed to cite a note." };
+      var endW = p.endWeekId === null ? p.weekId : p.endWeekId;
+      if (day !== null) {
+        var h1 = habitatAt(state.yearId, p.stage, site, day);
+        if (!h1.ok) return { ok: false, code: "E_HABITAT", msg: h1.msg };
+        feedback = "Possible (hypothesis): " + h1.msg;
+      } else {
+        for (var w = p.weekId; w <= endW; w++) {
+          if (st.water !== "aquatic" || site.kind !== "pond") { var hx = habitatAt(state.yearId, p.stage, site, weekRange(w).startDay); if (!hx.ok) return { ok: false, code: "E_HABITAT", msg: hx.msg }; continue; }
+          var wm = weekModel(state.yearId, w);
+          if (wm.mixed) return { ok: false, code: "E_NEED_DATE", msg: "Week " + w + " has wet days and dry days in the model. Choose a specific date for this card." };
+          if (wm.allDry) return { ok: false, code: "E_HABITAT", msg: habitatAt(state.yearId, p.stage, site, wm.range.startDay).msg };
+        }
+        feedback = "Possible (hypothesis) for Week " + p.weekId + (endW !== p.weekId ? "–" + endW : "") + ": the model habitat fits, but nobody observed this. It is not evidence.";
+      }
+    }
+    var dup = state.placements.some(function (q) { return q.id !== ignorePid && q.stage === p.stage && q.weekId === p.weekId && q.endWeekId === p.endWeekId && q.siteId === p.siteId && q.date === p.date && q.kind === p.kind; });
+    if (dup) return { ok: false, code: "E_DUPLICATE", msg: "That same card is already placed." };
+    return { ok: true, code: "OK", msg: feedback };
+  }
+
+  function taskVisible(state, t) { return !t.late || state.discovered; }
+  function classificationHint(t, chosen) {
+    if (chosen === t.answer) return t.why;
+    if (chosen === "none" && t.answer === "notobs") return "None seen needs a visit where someone looked for this stage at this place and time. Was that the case here?";
+    if (chosen === "seen" && t.answer === "notobs") return "Seen needs a note that recorded this stage here. Check what the note actually reports.";
+    if (chosen === "notobs" && t.answer === "none") return "Someone did look here for this stage. What did they report?";
+    if (chosen === "notobs" && t.answer === "seen") return "There is a note that recorded this. Look again.";
+    if (chosen === "seen" && t.answer === "none") return "The note says someone looked. Did they see this stage?";
+    return "Look again at what the note says was searched, where and when.";
+  }
+
+  function certKey(s) {
+    var pl = s.placements.slice().sort(function (a, b) { return a.id < b.id ? -1 : 1; });
+    var cl = s.classifications.slice().sort(function (a, b) { return a.taskId < b.taskId ? -1 : 1; }).map(function (c) { return [c.taskId, c.status]; });
+    var rv = s.revisions.length ? s.revisions[s.revisions.length - 1] : null;
+    return JSON.stringify({ p: pl.map(function (x) { return [x.stage, x.weekId, x.endWeekId, x.siteId, x.date, x.kind, x.citations]; }), c: cl, r: rv && [rv.revisionId, rv.citations, rv.reasonId, rv.unknownIds] });
+  }
+
+  function requirements(s) {
+    var ix = YEAR.get(s.yearId), rq = ix.y.requirements, out = [];
+    out.push({ id: "begin", label: "Started the investigation", met: s.begun });
+    rq.inspect.forEach(function (id) {
+      var src = ix.src.get(id), vis = isVisible(s, src);
+      out.push({ id: "inspect:" + id, label: vis ? "Opened note " + id + " (" + src.date + ")" : "Opened the new evidence", met: s.inspected.indexOf(id) >= 0 });
+    });
+    rq.gapWeeks.forEach(function (w) { out.push({ id: "gap:" + w, label: "Inspected the empty notebook page for Week " + w + " (" + weekRange(w).label + ")", met: s.inspectedWeeks.indexOf(w) >= 0 }); });
+    rq.placements.forEach(function (r) {
+      var vis = isVisible(s, ix.src.get(r.source));
+      var met = s.placements.some(function (q) { return q.kind === "observed" && q.stage === r.stage && q.weekId === r.weekId && q.siteId === r.siteId && q.citations.indexOf(r.source) >= 0; });
+      out.push({ id: "place:" + r.stage + ":" + r.weekId + ":" + r.siteId, label: vis ? "Observed " + stageLabel(r.stage).toLowerCase() + " card in Week " + r.weekId + " at " + ix.site.get(r.siteId).label + ", citing " + r.source : "A card for the new evidence", met: met });
+    });
+    rq.tasks.forEach(function (tid) {
+      var t = ix.task.get(tid), c = s.classifications.filter(function (x) { return x.taskId === tid; })[0];
+      out.push({ id: "task:" + tid, label: taskVisible(s, t) ? "Classified: " + t.ask : "Classify the new evidence", met: !!c && c.status === t.answer });
+    });
+    out.push({ id: "first", label: "Confirmed a first claim with linked notes", met: !!s.firstClaim });
+    out.push({ id: "discover", label: s.firstClaim ? "Opened the late-filed note" : "Check for new evidence after your first claim", met: s.discovered });
+    var rv = s.revisions.length ? s.revisions[s.revisions.length - 1] : null;
+    out.push({ id: "revise", label: "Confirmed a revised (or reaffirmed) claim citing the new evidence", met: !!rv });
+    out.push({ id: "unknown", label: "Stated what is still unknown", met: !!rv && rv.unknownIds.length > 0 });
+    return out;
+  }
+  function allMet(s) { return requirements(s).every(function (r) { return r.met; }); }
+
+  /* ---------- reducer ---------- */
+  function reduce(state, action) {
+    var err = validateShape(action);
+    if (err) return R(state, false, "E_PAYLOAD", err);
+    var t = action.t, p = action.p, ix = YEAR.get(state.yearId), s;
+    if (t === "BEGIN") {
+      if (state.begun) return R(state, false, "E_PHASE", "The investigation has already started.");
+      s = clone(state); s.begun = true; s.step++;
+      return R(s, true, "OK", "Investigation started. Turn the Season Wheel to explore the weeks.");
+    }
+    if (!state.begun) return R(state, false, "E_PHASE", "Start the investigation first.");
+
+    switch (t) {
+      case "INSPECT_SOURCE": {
+        var src = ix.src.get(p.sourceId);
+        if (!src || !isVisible(state, src)) return R(state, false, "E_UNKNOWN_SOURCE", NOT_IN_NOTEBOOK);
+        if (state.inspected.indexOf(src.id) >= 0) return R(state, false, "E_REPEAT", "You already opened " + src.id + ".");
+        s = clone(state); s.inspected.push(src.id); s.step++;
+        return R(s, true, "OK", "Opened " + src.id + ": “" + src.verbatim + "”");
+      }
+      case "INSPECT_WEEK": {
+        if (state.inspectedWeeks.indexOf(p.weekId) >= 0) return R(state, false, "E_REPEAT", "You already inspected Week " + p.weekId + ".");
+        s = clone(state); s.inspectedWeeks.push(p.weekId); s.step++;
+        var n = visibleSources(state).filter(function (x) { return x.weekId === p.weekId; }).length;
+        return R(s, true, "OK", "Inspected the notebook page for Week " + p.weekId + ": " + (n ? n + " note" + (n > 1 ? "s" : "") + "." : "no visit was recorded. Every stage is Not observed this week."));
+      }
+      case "PLACE_CARD": {
+        var v = validateCard(state, p, null);
+        if (!v.ok) return R(state, false, v.code, v.msg);
+        s = clone(state);
+        var card = { id: "p" + s.nextPid, stage: p.stage, weekId: p.weekId, endWeekId: p.endWeekId, siteId: p.siteId, date: p.date, kind: p.kind, citations: p.citations.slice(), step: s.step + 1 };
+        s.nextPid++; s.placements.push(card); s.step++;
+        return R(s, true, "OK", "Placed " + stageLabel(p.stage) + " in Week " + p.weekId + ". " + v.msg, { placementId: card.id });
+      }
+      case "MOVE_CARD": {
+        var old = state.placements.filter(function (q) { return q.id === p.placementId; })[0];
+        if (!old) return R(state, false, "E_STALE", "That card is no longer on the ribbon.");
+        var np = { stage: old.stage, weekId: p.weekId, endWeekId: p.endWeekId, siteId: p.siteId, date: p.date, kind: old.kind, citations: old.citations };
+        var mv = validateCard(state, np, old.id);
+        if (!mv.ok) return R(state, false, mv.code, "Card not moved. " + mv.msg);
+        s = clone(state);
+        s.placements = s.placements.map(function (q) { if (q.id !== old.id) return q; var c2 = clone(q); c2.weekId = p.weekId; c2.endWeekId = p.endWeekId; c2.siteId = p.siteId; c2.date = p.date; return c2; });
+        s.step++;
+        return R(s, true, "OK", "Moved " + stageLabel(old.stage) + " to Week " + p.weekId + ". " + mv.msg);
+      }
+      case "REMOVE_CARD": {
+        if (!state.placements.some(function (q) { return q.id === p.placementId; })) return R(state, false, "E_STALE", "That card is no longer on the ribbon.");
+        s = clone(state); s.placements = s.placements.filter(function (q) { return q.id !== p.placementId; }); s.step++;
+        return R(s, true, "OK", "Card removed.");
+      }
+      case "CLASSIFY_OBSERVATION": {
+        var tk = ix.task.get(p.taskId);
+        if (!tk || !taskVisible(state, tk)) return R(state, false, "E_UNKNOWN_ID", NOT_IN_NOTEBOOK);
+        s = clone(state);
+        s.classifications = s.classifications.filter(function (c) { return c.taskId !== tk.id; });
+        s.classifications.push({ taskId: tk.id, status: p.status, step: s.step + 1 });
+        s.step++;
+        var right = p.status === tk.answer;
+        return R(s, true, "OK", (right ? "Correct. " : "Not yet. ") + classificationHint(tk, p.status), { correct: right });
+      }
+      case "CONFIRM_FIRST_CLAIM": {
+        if (state.firstClaim) return R(state, false, "E_LOCKED", "Your first claim is already recorded and locked. It stays in history.");
+        var cl = ix.claim.get(p.claimId);
+        if (!cl) return R(state, false, "E_UNKNOWN_ID", "Unknown claim.");
+        var fu = ix.fu.get(p.unknownId);
+        if (!fu) return R(state, false, "E_UNKNOWN_ID", "Choose what is still unknown.");
+        if (!fu.valid) return R(state, false, "E_BAD_UNKNOWN", fu.why);
+        var cc = checkCitations(state, ix, p.citations);
+        if (cc) return R(state, false, cc.err, cc.msg);
+        var miss = cl.required.filter(function (id) { return p.citations.indexOf(id) < 0; });
+        if (miss.length) return R(state, false, "E_MISSING_CITATION", "Link the note this claim rests on: " + miss.join(", ") + ".");
+        var extra = p.citations.filter(function (id) { return cl.required.indexOf(id) < 0 && cl.optional.indexOf(id) < 0; });
+        if (extra.length) return R(state, false, "E_IRRELEVANT_CITATION", extra.join(", ") + " does not bear on this claim. Remove it.");
+        s = clone(state);
+        s.firstClaim = { claimId: cl.id, text: cl.text, kind: cl.kind, statusLabel: cl.label, citations: p.citations.slice(), unknownId: fu.id, unknownText: fu.text, step: s.step + 1, context: "Before any late-filed note was found" };
+        s.step++;
+        return R(s, true, "OK", "First claim recorded and locked: “" + cl.text + "” " + cl.label);
+      }
+      case "DISCOVER_LATE_NOTE": {
+        if (!state.firstClaim) return R(state, false, "E_PHASE", "Record your first claim before anything new arrives.");
+        if (state.discovered) return R(state, false, "E_REPEAT", "You already opened the pocket.");
+        s = clone(state); s.discovered = true; s.discoveredStep = s.step + 1; s.step++;
+        var ls = lateSources(state.yearId);
+        return R(s, true, "OK", "You opened the field-station pocket. New note" + (ls.length > 1 ? "s" : "") + ": " + ls.map(function (x) { return x.id + " (observed " + x.date + ")"; }).join("; ") + ". Filed late, but dated earlier than when you found " + (ls.length > 1 ? "them" : "it") + ".");
+      }
+      case "CONFIRM_REVISION": {
+        if (!state.discovered) return R(state, false, "E_PHASE", "There is no new evidence to revise with yet.");
+        var reaff = p.revisionId === "reaffirm", ro = reaff ? null : ix.rev.get(p.revisionId);
+        if (!reaff && !ro) return R(state, false, "E_UNKNOWN_ID", "Unknown revised claim.");
+        var req, allowed, text;
+        if (reaff) {
+          var fc = ix.claim.get(state.firstClaim.claimId);
+          if (!fc.reaffirmable) return R(state, false, "E_UNSUPPORTED", "Your first claim was a sweeping hypothesis. The notes do not support keeping it as it is. Choose a revised claim — your first claim stays in history.");
+          req = fc.required.concat(lateSources(state.yearId).filter(function (x) { return x.kind !== "context"; }).map(function (x) { return x.id; }));
+          allowed = ix.y.sources.map(function (x) { return x.id; });
+          text = fc.text;
+        } else {
+          if (ro.status !== "supported") return R(state, false, ro.status === "contradicted" ? "E_CONTRADICTED" : "E_UNSUPPORTED", (ro.status === "contradicted" ? "Contradicted by the notes: " : "Not supported by the notes: ") + ro.why);
+          req = ro.required; allowed = ro.required.concat(ro.optional); text = ro.text;
+        }
+        var c3 = checkCitations(state, ix, p.citations);
+        if (c3) return R(state, false, c3.err, c3.msg);
+        var m3 = req.filter(function (id) { return p.citations.indexOf(id) < 0; });
+        if (m3.length) return R(state, false, "E_MISSING_CITATION", "This claim needs these notes linked: " + m3.join(", ") + ".");
+        var x3 = p.citations.filter(function (id) { return allowed.indexOf(id) < 0; });
+        if (x3.length) return R(state, false, "E_IRRELEVANT_CITATION", x3.join(", ") + " does not bear on this claim. Remove it.");
+        var rs = ix.reason.get(p.reasonId);
+        if (!rs) return R(state, false, "E_UNKNOWN_ID", "Choose a reason.");
+        if (rs.validFor.indexOf(p.revisionId) < 0) return R(state, false, "E_BAD_REASON", rs.why || "That reason does not explain this claim.");
+        var nm = rs.needs.filter(function (id) { return p.citations.indexOf(id) < 0; });
+        if (nm.length) return R(state, false, "E_MISSING_CITATION", "That reason relies on " + nm.join(", ") + ". Link it.");
+        if (!p.unknownIds.length) return R(state, false, "E_NEED_UNKNOWN", "Say at least one thing that is still unknown.");
+        for (var u = 0; u < p.unknownIds.length; u++) {
+          var uk = ix.unk.get(p.unknownIds[u]);
+          if (!uk) return R(state, false, "E_UNKNOWN_ID", "Unknown statement.");
+          if (!uk.valid) return R(state, false, "E_BAD_UNKNOWN", uk.why);
+        }
+        s = clone(state);
+        s.revisions.push({ revisionId: p.revisionId, text: text, reaffirm: reaff, citations: p.citations.slice(), reasonId: rs.id, reasonText: rs.text,
+          unknownIds: p.unknownIds.slice(), unknownTexts: p.unknownIds.map(function (id) { return ix.unk.get(id).text; }), step: s.step + 1 });
+        s.step++;
+        return R(s, true, "OK", (reaff ? "Claim reaffirmed with new evidence: " : "Revised claim recorded: ") + "“" + text + "” Your first claim stays in history.");
+      }
+      case "REFLECT": {
+        s = clone(state);
+        s.reflection = p.text.length ? { text: p.text, step: s.step + 1 } : null; s.step++;
+        return R(s, true, "OK", p.text.length ? "Reflection note updated (not graded)." : "Reflection note cleared.");
+      }
+      case "EARN_RECORD": {
+        var rqs = requirements(state), missing = rqs.filter(function (r) { return !r.met; });
+        if (missing.length) return R(state, false, "E_REQUIREMENTS", "Not yet. Still needed: " + missing.map(function (r) { return r.label; }).join("; ") + ".", { missing: missing.map(function (r) { return r.id; }) });
+        var key = certKey(state), last = state.earned[state.earned.length - 1];
+        if (last && last.certKey === key) return R(state, false, "E_REPEAT", "This record is already earned and up to date.");
+        s = clone(state); s.step++;
+        var ver = s.earned.length + 1;
+        var rec = buildRecord(s, { snapshotVersion: ver });
+        s.earned.push({ version: ver, step: s.step, certKey: key, reflectionStep: s.reflection ? s.reflection.step : null, record: rec });
+        return R(s, true, "OK", "Hollow Year Record earned (version " + ver + ").");
+      }
+    }
+    return R(state, false, "E_PAYLOAD", "Unhandled action.");
+  }
+
+  function replay(yearId, history) {
+    var st = initialState(yearId);
+    if (!Array.isArray(history)) return { state: st, accepted: 0, rejectedAt: 0, error: "History is not a list." };
+    for (var i = 0; i < history.length; i++) {
+      var r = reduce(st, history[i]);
+      if (!r.ok) return { state: st, accepted: i, rejectedAt: i, error: r.code + ": " + r.message };
+      st = r.state;
+    }
+    return { state: st, accepted: history.length, rejectedAt: -1, error: null };
+  }
+
+  /* ---------- weekly summary (derived from visible sources only) ---------- */
+  function weekSummary(state, w) {
+    var ix = YEAR.get(state.yearId), wm = weekModel(state.yearId, w);
+    var notes = visibleSources(state).filter(function (s) { return s.weekId === w; }).sort(function (a, b) { return parseDate(a.date) - parseDate(b.date) || a.filingOrder - b.filingOrder; });
+    var lines = [];
+    if (!notes.length) lines.push({ status: "notobs", text: "No visit recorded. All stages: Not observed." });
+    notes.forEach(function (s) {
+      var where = ix.site.get(s.siteId).label + ", " + s.date;
+      if (!s.findings.length) { lines.push({ status: "notobs", text: where + ": water check only (" + measuredText(s) + "). Wildlife: Not observed.", src: s.id }); return; }
+      if (s.kind === "context") { lines.push({ status: "context", text: where + ": identification context for the same visit.", src: s.id }); return; }
+      s.findings.forEach(function (f) {
+        if (f.result === "seen") lines.push({ status: "seen", text: "Seen: " + stageLabel(f.stage) + (f.count !== null ? " (" + f.count + " " + f.unit + ")" : " (no count)") + " — " + where, src: s.id });
+        else lines.push({ status: "none", text: "None seen: " + stageLabel(f.stage) + " — searched at " + where, src: s.id });
+      });
+      lines.push({ status: "notobs", text: "Not observed: other stages — " + where, src: s.id });
+    });
+    return { weekId: w, range: wm.range, model: wm, notes: notes, lines: lines, visited: notes.length > 0 };
+  }
+  function measuredText(s) {
+    if (!s.measured) return "no water measurement";
+    if (s.measured.dry) return s.measured.text || "dry: no standing water seen";
+    return s.measured.depth + " cm measured";
+  }
+
+  /* ---------- record model (single source for draft/earned/export/print) ---------- */
+  function buildRecord(state, opts) {
+    opts = opts || {};
+    var ix = YEAR.get(state.yearId), y = ix.y, ph = phaseOf(state), sections = [];
+    var last = state.earned[state.earned.length - 1];
+    var status;
+    if (opts.snapshotVersion) status = "earned";
+    else if (!state.begun) status = "locked";
+    else if (!last) status = "draft";
+    else status = (last.certKey === certKey(state) && allMet(state)) ? "earned" : "stale";
+    var vis = visibleSources(state);
+    var head = ["Year: " + y.label + (y.canonical ? " (Founder-approved canonical year)" : " (developer-authored replay year — needs Founder review)"),
+      "Question: " + y.question,
+      "Status: " + ({ locked: "Not started", draft: "Draft — not yet earned", earned: "Earned" + (opts.snapshotVersion ? " (historical snapshot, version " + opts.snapshotVersion + ")" : " (current, version " + (last ? last.version : "") + ")"), stale: "Draft — changed after earning version " + (last ? last.version : "") + "; earn again to update. The earlier earned version is kept in history." })[status],
+      "Calendar: fictional non-leap spring, Week 1 = Mar 1–7, Week 16 = Jun 14–20. Model water is illustrative, not measured."];
+    sections.push({ title: "Hollow Year Record", items: head });
+
+    var inspected = state.inspected.map(function (id) { var s = ix.src.get(id); return "I opened " + id + " (" + s.date + ", " + ix.site.get(s.siteId).label + ")."; })
+      .concat(state.inspectedWeeks.slice().sort(function (a, b) { return a - b; }).map(function (w) { return "I inspected the notebook page for Week " + w + " (" + weekRange(w).label + ")" + (vis.some(function (s) { return s.weekId === w; }) ? "." : ": no visit recorded."); }));
+    sections.push({ title: "What I opened", items: inspected.length ? inspected : ["Not yet."] });
+
+    var water = vis.filter(function (s) { return s.measured; }).map(function (s) {
+      return s.date + " (Week " + s.weekId + "), " + ix.site.get(s.siteId).label + ": observed — " + measuredText(s) + " [" + s.id + "]; model — " + fmtDepth(modelDepthAt(y.id, parseDate(s.date))) + ".";
+    });
+    sections.push({ title: "Observed water vs. model water", items: water.length ? water : ["No water notes yet."] });
+
+    var pl = state.placements.slice().sort(function (a, b) { return a.weekId - b.weekId || (a.id < b.id ? -1 : 1); }).map(function (q) {
+      var wk = "Week " + q.weekId + (q.endWeekId ? "–" + q.endWeekId : "") + (q.date ? " (" + q.date + ")" : "");
+      return (q.kind === "observed" ? "Observed: " : "Possible (hypothesis, not observed): ") + stageLabel(q.stage) + " — " + wk + ", " + ix.site.get(q.siteId).label +
+        (q.citations.length ? " — cited " + q.citations.map(function (id) { return id + " “" + ix.src.get(id).verbatim + "”"; }).join("; ") : "");
+    });
+    sections.push({ title: "Stage cards on the Water Ribbon", items: pl.length ? pl : ["Not yet."] });
+
+    var SL = { seen: "Seen", none: "None seen", notobs: "Not observed" };
+    var cls = y.tasks.filter(function (t) { return taskVisible(state, t); }).map(function (t) {
+      var c = state.classifications.filter(function (x) { return x.taskId === t.id; })[0];
+      if (!c) return t.ask + ": not yet classified.";
+      return t.ask + ": " + SL[c.status] + (c.status === t.answer ? " ✔ checked" : " — needs another look") + (t.sources.length ? " [" + t.sources.join(", ") + "]" : " [no visit]");
+    });
+    sections.push({ title: "Seen / None seen / Not observed", items: cls });
+
+    var fc = state.firstClaim;
+    sections.push({ title: "First claim (locked history)", items: fc ? ["“" + fc.text + "”", "Status at the time: " + fc.statusLabel, "Linked notes: " + fc.citations.join(", "), "Still unknown (then): " + fc.unknownText, "Recorded at step " + fc.step + " — " + fc.context + "."] : ["Not yet."] });
+
+    var disc = state.discovered ? lateSources(y.id).map(function (s) {
+      return s.id + ": “" + s.verbatim + "” — observed " + s.date + " (Week " + s.weekId + ") at " + ix.site.get(s.siteId).label + ". " + (s.filed || "Filed late.") + " Found at step " + state.discoveredStep + ". " + (state.inspected.indexOf(s.id) >= 0 ? "I opened it." : "Not opened yet.") + (s.author === "developer" ? " (developer-authored)" : "");
+    }) : ["Not yet."];
+    sections.push({ title: "New evidence", items: disc });
+
+    var rv = state.revisions[state.revisions.length - 1];
+    sections.push({ title: "Revised claim (current)", items: rv ? [(rv.reaffirm ? "Reaffirmed: " : "Revised: ") + "“" + rv.text + "”", "Linked notes: " + rv.citations.join(", "), "Reason: " + rv.reasonText, "Recorded at step " + rv.step + "."] : ["Not yet."] });
+    if (state.revisions.length > 1) sections.push({ title: "Earlier revisions (history)", items: state.revisions.slice(0, -1).map(function (r) { return "Step " + r.step + ": “" + r.text + "”"; }) });
+    sections.push({ title: "What we still do not know", items: rv ? rv.unknownTexts.slice() : (fc ? [fc.unknownText + " (from first claim)"] : ["Not yet."]) });
+
+    var refl = state.reflection;
+    var reflItems = refl ? ["“" + refl.text + "” (optional note, not graded)"] : ["No reflection note."];
+    if (refl && last && !opts.snapshotVersion && last.reflectionStep !== refl.step) reflItems.push("This note was edited after the record was earned. That does not change the science check.");
+    sections.push({ title: "My reflection (optional)", items: reflItems });
+
+    if (!opts.snapshotVersion) sections.push({ title: "Checklist", items: requirements(state).map(function (r) { return (r.met ? "[done] " : "[not yet] ") + r.label; }) });
+    return { yearId: y.id, status: status, phase: ph, version: opts.snapshotVersion || (last ? last.version : 0), sections: sections };
+  }
+  function recordToText(rec) {
+    var out = ["DoorQuests · Thirdortals · The Pond That Goes Away", "Prototype — Claude developer build; not classroom-validated.", ""];
+    rec.sections.forEach(function (s) { out.push("== " + s.title + " =="); s.items.forEach(function (i) { out.push("- " + i); }); out.push(""); });
+    return out.join("\n");
+  }
+
+  /* ---------- content audit ---------- */
+  function audit() {
+    var errors = [], checks = 0, ids = new Set();
+    function e(m) { errors.push(m); }
+    function c(cond, m) { checks++; if (!cond) e(m); }
+    var yids = new Set();
+    D.YEARS.forEach(function (y) {
+      c(!yids.has(y.id), "duplicate year " + y.id); yids.add(y.id);
+      c(y.model.weekEnd.length === WEEKS, y.id + " model needs 16 weeks");
+      y.model.weekEnd.concat([y.model.start]).forEach(function (v) { c(typeof v === "number" && isFinite(v) && v >= 0, y.id + " model depth invalid " + v); });
+      (y.model.extra || []).forEach(function (x) { c(parseDate(x[0]) !== null && isFinite(x[1]) && x[1] >= 0, y.id + " bad extra point"); });
+      var siteIds = new Set(y.sites.map(function (s) { return s.id; }));
+      y.sources.forEach(function (s) {
+        c(!ids.has(s.id), "duplicate source " + s.id); ids.add(s.id);
+        var d = parseDate(s.date);
+        c(d !== null, s.id + " bad date");
+        c(d !== null && weekOfDay(d) === s.weekId, s.id + " week mismatch");
+        c(siteIds.has(s.siteId), s.id + " unknown site");
+        c(s.visibility === "start" || s.visibility === "late", s.id + " bad visibility");
+        var site = y.sites.filter(function (x) { return x.id === s.siteId; })[0];
+        s.findings.forEach(function (f) {
+          c(STAGE.has(f.stage), s.id + " unknown stage");
+          c(f.result === "seen" || f.result === "none", s.id + " bad result");
+          if (f.result === "seen") c(f.count === null || (Number.isInteger(f.count) && f.count > 0), s.id + " seen count must be null or positive");
+          if (f.result === "none") c(f.count === 0 && typeof f.unit === "string", s.id + " none-seen must be explicit scoped zero");
+          c(f.count === null || typeof f.unit === "string", s.id + " count without unit");
+          if (f.result === "seen" && STAGE.get(f.stage).water === "aquatic") c(site && site.kind === "pond" && modelDepthAt(y.id, d) > 0, s.id + " aquatic stage observed where model has no water");
+        });
+        if (s.measured) {
+          if (s.measured.dry) c(modelDepthAt(y.id, d) === 0, s.id + " observed dry but model wet");
+          else c(typeof s.measured.depth === "number" && s.measured.depth > 0 && modelDepthAt(y.id, d) > 0, s.id + " measured water but model dry");
+        }
+      });
+      var taskIds = new Set();
+      y.tasks.forEach(function (t) {
+        c(!taskIds.has(t.id), y.id + " duplicate task " + t.id); taskIds.add(t.id);
+        var derived = "notobs";
+        t.sources.forEach(function (sid) {
+          var s = y.sources.filter(function (x) { return x.id === sid; })[0];
+          c(!!s, t.id + " missing source " + sid);
+          if (!s) return;
+          c(s.weekId === t.weekId && s.siteId === t.siteId, t.id + " source scope mismatch");
+          c(t.late || s.visibility === "start", t.id + " uses hidden source but is not late");
+          s.findings.forEach(function (f) { if (f.stage === t.stage) derived = f.result; });
+        });
+        if (!t.sources.length) c(!y.sources.some(function (s) { return s.weekId === t.weekId; }), t.id + " claims no visit but week has a source");
+        c(derived === t.answer, t.id + " authored answer " + t.answer + " but derived " + derived);
+      });
+      var visIds = y.sources.filter(function (s) { return s.visibility === "start"; }).map(function (s) { return s.id; });
+      var allIds = y.sources.map(function (s) { return s.id; });
+      y.claimOptions.forEach(function (o) { o.required.concat(o.optional).forEach(function (id) { c(visIds.indexOf(id) >= 0, o.id + " first claim depends on hidden or foreign source " + id); }); });
+      var lateIds = y.sources.filter(function (s) { return s.visibility === "late"; }).map(function (s) { return s.id; });
+      c(lateIds.length > 0, y.id + " has no delayed source");
+      y.revisionOptions.forEach(function (o) {
+        c(["supported", "unsupported", "contradicted"].indexOf(o.status) >= 0, o.id + " bad status");
+        if (o.status === "supported") { c(o.required.some(function (id) { return lateIds.indexOf(id) >= 0; }), o.id + " revision must cite delayed evidence"); o.required.concat(o.optional).forEach(function (id) { c(allIds.indexOf(id) >= 0, o.id + " foreign source " + id); }); }
+        else c(typeof o.why === "string", o.id + " needs explanation");
+      });
+      var revIds = y.revisionOptions.map(function (o) { return o.id; }).concat(["reaffirm"]);
+      y.reasons.forEach(function (r) { r.validFor.forEach(function (v) { c(revIds.indexOf(v) >= 0, r.id + " bad validFor"); }); r.needs.forEach(function (n) { c(allIds.indexOf(n) >= 0, r.id + " bad needs"); }); });
+      var rq = y.requirements;
+      rq.inspect.forEach(function (id) { c(allIds.indexOf(id) >= 0, y.id + " requirement source missing " + id); });
+      rq.tasks.forEach(function (id) { c(taskIds.has(id), y.id + " requirement task missing " + id); });
+      rq.gapWeeks.forEach(function (w) { c(!y.sources.some(function (s) { return s.weekId === w; }), y.id + " gap week " + w + " has a visit"); });
+      rq.placements.forEach(function (r) {
+        var s = y.sources.filter(function (x) { return x.id === r.source; })[0];
+        c(!!s && s.weekId === r.weekId && s.siteId === r.siteId && s.findings.some(function (f) { return f.stage === r.stage && f.result === "seen"; }), y.id + " unreachable placement requirement " + r.stage + "/" + r.source);
+        c(rq.inspect.indexOf(r.source) >= 0, y.id + " placement source not in inspect list " + r.source);
+      });
+      c(y.revisionOptions.some(function (o) { return o.status === "supported"; }), y.id + " no supported revision");
+      c(y.claimOptions.some(function (o) { return o.kind === "cautious"; }) && y.claimOptions.some(function (o) { return o.kind === "sweeping"; }), y.id + " needs cautious and sweeping claims");
+    });
+    var alder = D.YEARS.filter(function (y) { return y.id === "alder"; })[0];
+    c(!alder.sources.some(function (s) { return s.weekId === 13; }), "canonical W13 must be unvisited");
+    return { ok: errors.length === 0, errors: errors, checks: checks };
+  }
+
+  /* ---------- persistence (exact key only) ---------- */
+  var STORAGE_KEY = "doorquests:gradortals:thirdortals:lifecycles-ecosystems:001:v1";
+  var SCHEMA = 1, PER_YEAR_CAP = 24000, MAX_ACTIONS = 300, WRAPPER_RESERVE = 1000;
+  var TOTAL_CAP = D.YEARS.length * PER_YEAR_CAP + WRAPPER_RESERVE;
+  function historySize(h) { return JSON.stringify(h).length; }
+  function historyFits(h) { return Array.isArray(h) && h.length <= MAX_ACTIONS && historySize(h) <= PER_YEAR_CAP; }
+  function serializeSave(active, histories) {
+    var years = {};
+    D.YEARS.forEach(function (y) { if (histories[y.id] && histories[y.id].length) years[y.id] = { h: histories[y.id] }; });
+    return JSON.stringify({ schema: SCHEMA, model: D.MODEL_ID, active: active, years: years });
+  }
+  function parseSave(raw) {
+    var out = { histories: {}, states: {}, active: "alder", notices: [], loaded: false };
+    if (raw === null || raw === undefined) return out;
+    if (typeof raw !== "string") { out.notices.push("Saved data was not readable and was not loaded."); return out; }
+    if (raw.length > TOTAL_CAP) { out.notices.push("Saved data was larger than allowed and was not loaded."); return out; }
+    var obj;
+    try { obj = JSON.parse(raw); } catch (x) { out.notices.push("Saved data was damaged and could not be loaded. Starting fresh."); return out; }
+    if (!isPlain(obj)) { out.notices.push("Saved data had the wrong shape and was not loaded."); return out; }
+    var legacy = obj.schema === SCHEMA && D.LEGACY_MODEL_IDS.indexOf(obj.model) >= 0;
+    if (obj.schema !== SCHEMA || (obj.model !== D.MODEL_ID && !legacy)) { out.notices.push("Saved data came from a different version and was not loaded. Starting fresh; it will be replaced when you save."); return out; }
+    /* Compatibility policy: tle001-m1 saves use the same action vocabulary and IDs; they are replayed under the current rules and wording,
+       so every earned record is re-derived and re-checked. Steps the current rules reject are dropped (validated prefix) with a notice. */
+    if (legacy) { out.legacy = obj.model; out.notices.push("Saved progress from an earlier prototype build was rebuilt from its saved steps using the updated wording. Earned records were re-checked under the current rules."); }
+    var extra = Object.keys(obj).filter(function (k) { return ["schema", "model", "active", "years"].indexOf(k) < 0; });
+    if (extra.length) out.notices.push("Ignored unexpected saved fields. Progress is rebuilt only from saved steps.");
+    if (typeof obj.active === "string" && YEAR.has(obj.active)) out.active = obj.active;
+    if (!isPlain(obj.years)) { out.notices.push("Saved years were missing."); return out; }
+    Object.keys(obj.years).forEach(function (k) {
+      if (!YEAR.has(k)) { out.notices.push("Ignored saved data for an unknown year."); return; }
+      var yv = obj.years[k];
+      if (!isPlain(yv) || !Array.isArray(yv.h)) { out.notices.push(YEAR.get(k).y.label + ": saved data damaged; this year starts fresh."); return; }
+      if (Object.keys(yv).length !== 1) out.notices.push(YEAR.get(k).y.label + ": ignored unexpected saved fields.");
+      if (!historyFits(yv.h)) { out.notices.push(YEAR.get(k).y.label + ": saved history is over the size limit and was not loaded. Other years are unaffected."); return; }
+      var rp = replay(k, yv.h);
+      if (rp.rejectedAt >= 0) out.notices.push(YEAR.get(k).y.label + ": recovered the first " + rp.accepted + " of " + yv.h.length + " saved steps. A damaged step was dropped.");
+      out.histories[k] = yv.h.slice(0, rp.accepted);
+      out.states[k] = rp.state;
+    });
+    out.loaded = true;
+    return out;
+  }
+  /* adapter: {getItem(k), setItem(k,v), removeItem(k)} — any may throw */
+  function createStore(adapter) {
+    var saved = {}, over = {}, available = true;
+    function load() {
+      var raw;
+      try { raw = adapter.getItem(STORAGE_KEY); } catch (x) { available = false; return { histories: {}, states: {}, active: "alder", notices: ["This browser is not letting the page use storage. Progress will last only while this tab is open."], loaded: false, unavailable: true }; }
+      var r = parseSave(raw);
+      Object.keys(r.histories).forEach(function (k) { saved[k] = r.histories[k].slice(); });
+      return r;
+    }
+    function write(active) {
+      var str = serializeSave(active, saved);
+      if (str.length > TOTAL_CAP) return false;
+      try { adapter.setItem(STORAGE_KEY, str); available = true; return true; } catch (x) { return false; }
+    }
+    function commit(active, yearId, history) {
+      if (historyFits(history)) { saved[yearId] = history.slice(); over[yearId] = false; } else over[yearId] = true;
+      var ok = write(active);
+      var msg;
+      if (!ok) msg = "Not saved: this browser’s storage is unavailable or full. Progress stays only while this tab is open.";
+      else if (over[yearId]) msg = "Saved, but this year has too many steps: your last saved version of this year is kept, and newer steps last only until you close the tab.";
+      else msg = "Saved on this device.";
+      return { durable: ok && !over[yearId], wrote: ok, over: !!over[yearId], message: msg, savedLength: (saved[yearId] || []).length };
+    }
+    function resetYear(active, yearId) { delete saved[yearId]; over[yearId] = false; var ok = write(active); return { durable: ok, message: ok ? "This year was erased on this device." : "This year was reset in this tab, but storage could not be updated." }; }
+    function resetAll() { saved = {}; over = {}; try { adapter.removeItem(STORAGE_KEY); return { durable: true, message: "All years were erased on this device." }; } catch (x) { return { durable: false, message: "All years were reset in this tab, but storage could not be updated." }; } }
+    return { load: load, commit: commit, resetYear: resetYear, resetAll: resetAll, savedHistory: function (y) { return clone(saved[y] || []); }, isOver: function (y) { return !!over[y]; } };
+  }
+
+  return Object.freeze({
+    parseDate: parseDate, formatDay: formatDay, weekOfDay: weekOfDay, weekRange: weekRange, modelDepthAt: modelDepthAt, weekModel: weekModel, fmtDepth: fmtDepth,
+    initialState: initialState, reduce: reduce, replay: replay, validateShape: validateShape, validateCard: validateCard, habitatAt: habitatAt,
+    phaseOf: phaseOf, isVisible: isVisible, visibleSources: visibleSources, weekSummary: weekSummary, measuredText: measuredText, requirements: requirements, certKey: certKey,
+    buildRecord: buildRecord, recordToText: recordToText, audit: audit, stageLabel: stageLabel,
+    STORAGE_KEY: STORAGE_KEY, PER_YEAR_CAP: PER_YEAR_CAP, MAX_ACTIONS: MAX_ACTIONS, TOTAL_CAP: TOTAL_CAP, historySize: historySize, historyFits: historyFits,
+    serializeSave: serializeSave, parseSave: parseSave, createStore: createStore, clone: clone,
+    year: function (id) { var x = YEAR.get(id); return x ? x.y : null; }, site: function (yid, sid) { var x = YEAR.get(yid); return x ? x.site.get(sid) || null : null; },
+    source: function (yid, sid) { var x = YEAR.get(yid); return x ? x.src.get(sid) || null : null; }
+  });
+})(TLE_DATA);
+
+/* ===== UI (DOM rendering only; all authoritative state comes from TLE_ENGINE) ===== */
+(function (E, D) {
+  "use strict";
+  if (typeof document === "undefined") return;
+
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var STATUS_LABEL = { seen: "Seen", none: "None seen", notobs: "Not observed", context: "Context" };
+  var YEAR_IDS = D.YEARS.map(function (y) { return y.id; });
+
+  /* ---------- storage adapter (exact key only) ---------- */
+  var adapter = {
+    getItem: function (k) { return window.localStorage.getItem(k); },
+    setItem: function (k, v) { window.localStorage.setItem(k, v); },
+    removeItem: function (k) { window.localStorage.removeItem(k); }
+  };
+  var store = E.createStore(adapter);
+  var loaded = store.load();
+
+  var APP_STATE = { states: {}, histories: {}, ui: null, notices: loaded.notices.slice(), saveMsg: loaded.unavailable ? "Not saved: storage unavailable. Progress lasts only while this tab is open." : (loaded.loaded ? "Loaded your saved progress from this device." : "Nothing saved yet.") };
+  YEAR_IDS.forEach(function (id) {
+    APP_STATE.histories[id] = loaded.histories[id] ? loaded.histories[id].slice() : [];
+    APP_STATE.states[id] = loaded.states[id] || E.initialState(id);
+  });
+  function freshUi(yearId) {
+    return { yearId: yearId, week: 1, day: 6, stage: null,
+      form: { weekId: 1, siteId: "hollow", date: "", kind: "observed", endWeekId: "", cites: [] },
+      claim: { claimId: null, cites: [], unknownId: null },
+      rev: { revisionId: null, cites: [], reasonId: null, unknownIds: [] },
+      task: {}, openNote: null, fb: { place: "", placeOk: null, claim: "", rev: "", record: "", reflect: "", tasks: {} },
+      showIntro: false, confirm: null, reflectDraft: null, focusAfter: null, sound: false };
+  }
+  APP_STATE.ui = freshUi(loaded.active);
+  var APP = APP_STATE;
+  /* Read-only QA interface: defensive copies only; no dispatch, no completion shortcut. */
+  window.TLE_QA = Object.freeze({
+    engine: E,
+    data: function () { return E.clone(D); },
+    getState: function (y) { var k = y || APP.ui.yearId; return APP.states[k] ? E.clone(APP.states[k]) : null; },
+    getHistory: function (y) { var k = y || APP.ui.yearId; return APP.histories[k] ? E.clone(APP.histories[k]) : null; },
+    getSaved: function (y) { return store.savedHistory(y || APP.ui.yearId); },
+    replayCurrent: function (y) { var k = y || APP.ui.yearId; return E.clone(E.replay(k, APP.histories[k]).state); },
+    checkStage: function (state, payload) { return E.validateCard(state, payload, null); }
+  });
+
+  function S() { return APP.states[APP.ui.yearId]; }
+  function Y() { return E.year(APP.ui.yearId); }
+
+  /* ---------- dom helpers (textContent only; never innerHTML) ---------- */
+  function h(tag, attrs, kids) {
+    var el = document.createElement(tag);
+    setAttrs(el, attrs);
+    append(el, kids);
+    return el;
+  }
+  function s(tag, attrs, kids) {
+    var el = document.createElementNS(SVGNS, tag);
+    setAttrs(el, attrs);
+    append(el, kids);
+    return el;
+  }
+  function setAttrs(el, attrs) {
+    if (!attrs) return;
+    Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === "text") el.textContent = String(v);
+      else if (k === "checked" || k === "selected" || k === "disabled") { el[k] = true; if (k === "disabled") el.setAttribute("disabled", ""); }
+      else if (k === "value") { el.value = v; el.setAttribute("value", v); }
+      else el.setAttribute(k, v === true ? "" : String(v));
+    });
+  }
+  function append(el, kids) {
+    if (kids === null || kids === undefined) return;
+    if (!Array.isArray(kids)) kids = [kids];
+    kids.forEach(function (k) {
+      if (k === null || k === undefined || k === false) return;
+      if (Array.isArray(k)) append(el, k);
+      else if (typeof k === "string" || typeof k === "number") el.appendChild(document.createTextNode(String(k)));
+      else el.appendChild(k);
+    });
+  }
+
+  /* ---------- live region ---------- */
+  var liveTimer = null;
+  function announce(msg) {
+    var live = document.getElementById("live");
+    if (!live) return;
+    live.textContent = "";
+    if (liveTimer) clearTimeout(liveTimer);
+    liveTimer = setTimeout(function () { live.textContent = msg; }, 40);
+  }
+
+  /* ---------- dispatch ---------- */
+  function dispatch(action) {
+    var y = APP.ui.yearId, r = E.reduce(APP.states[y], action);
+    if (r.ok) {
+      APP.states[y] = r.state;
+      APP.histories[y] = APP.histories[y].concat([action]);
+      var c = store.commit(y, y, APP.histories[y]);
+      APP.saveMsg = c.message;
+    }
+    return r;
+  }
+
+  /* ---------- art ---------- */
+  var MOSSOP = { sTop: 44, foot: 26 };
+  function mossopGeom(big) { var H = big ? 240 : 160; return { H: H, scaleH: H - MOSSOP.sTop - MOSSOP.foot }; }
+  function mossopSvg(depth, big) {
+    var gm = mossopGeom(big), H = gm.H, scaleH = gm.scaleH, top = MOSSOP.sTop, max = 70;
+    var g = s("svg", { viewBox: "0 0 90 " + H, class: big ? "mossop big" : "mossop", role: "img", "aria-label": "Mossop the walking depth gauge" + (depth !== null ? ", water line at " + E.fmtDepth(depth) : "") });
+    g.appendChild(s("rect", { x: 26, y: 4, width: 38, height: top + scaleH + 4, rx: 9, class: "gauge-body" }));
+    g.appendChild(s("circle", { cx: 38, cy: 16, r: 4, class: "eye" }));
+    g.appendChild(s("circle", { cx: 52, cy: 16, r: 4, class: "eye" }));
+    g.appendChild(s("path", { d: "M37 25 q8 6 16 0", class: "smile" }));
+    for (var cm = 0; cm <= max; cm += 10) {
+      var yy = top + scaleH - (cm / max) * scaleH;
+      g.appendChild(s("line", { x1: 26, x2: cm % 20 === 0 ? 42 : 36, y1: yy, y2: yy, class: "tick" }));
+      if (cm % 20 === 0) g.appendChild(s("text", { x: 45, y: yy + 3.5, class: "tick-label", text: cm }));
+    }
+    g.appendChild(s("text", { x: 76, y: top + 4, class: "tick-label", "text-anchor": "middle", text: "cm" }));
+    if (depth !== null && depth > 0) { var wy = top + scaleH - (Math.min(depth, max) / max) * scaleH; g.appendChild(s("line", { x1: 16, x2: 74, y1: wy, y2: wy, class: "waterline" })); }
+    g.appendChild(s("rect", { x: 24, y: top + scaleH + 8, width: 16, height: 12, rx: 3, class: "boot" }));
+    g.appendChild(s("rect", { x: 50, y: top + scaleH + 8, width: 16, height: 12, rx: 3, class: "boot" }));
+    return g;
+  }
+  function doorSvg() {
+    var g = s("svg", { viewBox: "0 0 240 220", class: "door-art", role: "img", "aria-label": "A mud-caked wooden door. Beyond it, a dry bowl of dead leaves and a sign: Pond back in March." });
+    g.appendChild(s("rect", { x: 0, y: 150, width: 240, height: 70, class: "ground" }));
+    g.appendChild(s("ellipse", { cx: 170, cy: 185, rx: 62, ry: 18, class: "basin-dry" }));
+    [[150, 182], [168, 190], [186, 180], [200, 188], [140, 190]].forEach(function (p) { g.appendChild(s("ellipse", { cx: p[0], cy: p[1], rx: 6, ry: 3, class: "leaf" })); });
+    g.appendChild(s("rect", { x: 196, y: 120, width: 4, height: 50, class: "post" }));
+    g.appendChild(s("rect", { x: 168, y: 104, width: 64, height: 24, rx: 3, class: "sign" }));
+    g.appendChild(s("text", { x: 200, y: 115, "text-anchor": "middle", class: "sign-text", text: "Pond back" }));
+    g.appendChild(s("text", { x: 200, y: 124, "text-anchor": "middle", class: "sign-text", text: "in March" }));
+    g.appendChild(s("rect", { x: 30, y: 30, width: 90, height: 160, rx: 6, class: "door" }));
+    [[45, 60, 14], [90, 120, 18], [60, 160, 16], [100, 50, 10], [50, 110, 9]].forEach(function (m) { g.appendChild(s("circle", { cx: m[0], cy: m[1], r: m[2], class: "mud" })); });
+    g.appendChild(s("circle", { cx: 108, cy: 112, r: 5, class: "knob" }));
+    return g;
+  }
+  function stageIcon(id) {
+    var g = s("svg", { viewBox: "0 0 40 28", class: "stage-icon", "aria-hidden": "true", focusable: "false" });
+    if (id === "egg") [[12, 12], [20, 10], [28, 13], [16, 18], [24, 19]].forEach(function (p) { g.appendChild(s("circle", { cx: p[0], cy: p[1], r: 4.5, class: "egg-jelly" })); g.appendChild(s("circle", { cx: p[0], cy: p[1], r: 1.6, class: "egg-dot" })); });
+    else if (id === "tadpole" || id === "hindleg") {
+      g.appendChild(s("ellipse", { cx: 14, cy: 14, rx: 7, ry: 5.5, class: "animal" }));
+      g.appendChild(s("path", { d: "M20 14 Q28 8 36 14 Q28 18 20 14", class: "animal" }));
+      if (id === "hindleg") { g.appendChild(s("path", { d: "M18 18 l3 6 M16 18 l-1 6", class: "leg" })); }
+    } else {
+      g.appendChild(s("ellipse", { cx: 20, cy: 16, rx: 9, ry: 6, class: "animal" }));
+      g.appendChild(s("circle", { cx: 15, cy: 10, r: 2.4, class: "animal" })); g.appendChild(s("circle", { cx: 25, cy: 10, r: 2.4, class: "animal" }));
+      g.appendChild(s("path", { d: "M12 20 l-6 5 M28 20 l6 5 M14 14 l-6 -2 M26 14 l6 -2", class: "leg" }));
+      if (id === "froglet") g.appendChild(s("path", { d: "M20 22 l0 4", class: "leg" }));
+      if (id === "adult") { g.setAttribute("viewBox", "0 0 40 28"); }
+    }
+    return g;
+  }
+  function sceneSvg(yearId, day) {
+    var y = E.year(yearId), depth = E.modelDepthAt(yearId, day), month = E.formatDay(day).slice(0, 3);
+    var snow = depth === 0 && day <= 27;
+    var desc = "Illustration for " + E.formatDay(day) + ": " + (depth > 0 ? "the hollow holds about " + E.fmtDepth(depth) + " of water in the model." : snow ? "snow and ice in the hollow; no open water in the model." : "the hollow has no standing water in the model; dry and damp leaves on the ground.") +
+      " Side sites: " + y.sites.filter(function (x) { return x.kind === "land"; }).map(function (x) { return x.label; }).join(", ") + " (damp leaf shelter, no standing water).";
+    var g = s("svg", { viewBox: "0 0 360 210", class: "scene sky-" + month.toLowerCase(), role: "img", "aria-label": desc });
+    g.appendChild(s("rect", { x: 0, y: 0, width: 360, height: 210, class: "sky" }));
+    [[20, 60], [60, 40], [300, 45], [340, 70]].forEach(function (t) { g.appendChild(s("rect", { x: t[0] - 3, y: t[1] + 40, width: 6, height: 50, class: "trunk" })); g.appendChild(s("circle", { cx: t[0], cy: t[1] + 30, r: 22, class: snow ? "crown-bare" : "crown" })); });
+    g.appendChild(s("path", { d: "M0 130 Q90 112 180 128 T360 122 V210 H0 Z", class: "ground" }));
+    g.appendChild(s("path", { d: "M240 128 Q300 96 360 104 V140 H240 Z", class: "slope" }));
+    g.appendChild(s("text", { x: 304, y: 134, "text-anchor": "middle", class: "site-label", text: "uphill (damp leaves)" }));
+    [[270, 118], [292, 112], [318, 110], [338, 112]].forEach(function (p) { g.appendChild(s("ellipse", { cx: p[0], cy: p[1], rx: 7, ry: 3, class: "leaf damp" })); });
+    /* basin: bottom y=188, rim y=140. Depth scale: 70 cm = 48 drawing units (illustrative scale, not pixels-as-cm). */
+    g.appendChild(s("path", { d: "M50 140 Q140 236 230 140 Z", class: "basin" }));
+    if (depth > 0) {
+      var wl = 188 - Math.min(depth, 70) / 70 * 48;
+      var defs = s("defs"), cp = s("clipPath", { id: "basin-clip" });
+      cp.appendChild(s("path", { d: "M50 140 Q140 236 230 140 Z" })); defs.appendChild(cp); g.appendChild(defs);
+      g.appendChild(s("rect", { x: 40, y: wl, width: 200, height: 60, class: "water", "clip-path": "url(#basin-clip)" }));
+    } else if (snow) {
+      g.appendChild(s("path", { d: "M60 144 Q140 228 220 144 Z", class: "snow" }));
+    } else {
+      [[100, 172], [128, 184], [156, 182], [180, 170], [118, 162]].forEach(function (p) { g.appendChild(s("ellipse", { cx: p[0], cy: p[1], rx: 7, ry: 3, class: "leaf" })); });
+    }
+    g.appendChild(s("text", { x: 140, y: 205, "text-anchor": "middle", class: "site-label", text: "the hollow" }));
+    /* Mossop stands on the basin floor; its 0 cm tick sits at y=188 and its 70 cm tick at the rim, so the gauge matches the drawn water. */
+    var gm = mossopGeom(false), k = 48 / gm.scaleH, m = mossopSvg(depth, false);
+    m.setAttribute("width", String(90 * k)); m.setAttribute("height", String(gm.H * k));
+    m.setAttribute("x", String(140 - 45 * k)); m.setAttribute("y", String(188 - (MOSSOP.sTop + gm.scaleH) * k));
+    g.appendChild(m);
+    return g;
+  }
+  function wheelSvg(week) {
+    var g = s("svg", { viewBox: "0 0 120 120", class: "wheel", "aria-hidden": "true", focusable: "false" });
+    for (var w = 1; w <= 16; w++) {
+      var a0 = (w - 1) / 16 * 2 * Math.PI - Math.PI / 2, a1 = w / 16 * 2 * Math.PI - Math.PI / 2;
+      var p = "M60 60 L" + (60 + 54 * Math.cos(a0)).toFixed(2) + " " + (60 + 54 * Math.sin(a0)).toFixed(2) + " A54 54 0 0 1 " + (60 + 54 * Math.cos(a1)).toFixed(2) + " " + (60 + 54 * Math.sin(a1)).toFixed(2) + " Z";
+      g.appendChild(s("path", { d: p, class: "wedge m" + Math.min(3, Math.floor((w - 1) / 4.4)) + (w === week ? " current" : "") }));
+    }
+    g.appendChild(s("circle", { cx: 60, cy: 60, r: 18, class: "hub" }));
+    g.appendChild(s("text", { x: 60, y: 64, "text-anchor": "middle", class: "hub-text", text: "W" + week }));
+    return g;
+  }
+
+  /* ---------- sections ---------- */
+  function sourceCard(src, opts) {
+    var st = S(), y = Y(), site = E.site(y.id, src.siteId), open = APP.ui.openNote === src.id, ins = st.inspected.indexOf(src.id) >= 0;
+    var kids = [h("div", { class: "note-head" }, [
+      h("span", { class: "src-id", text: src.id }), " ",
+      h("span", { text: src.date + " · " + site.label }),
+      ins ? h("span", { class: "badge", text: "opened" }) : null,
+      src.author === "developer" ? h("span", { class: "badge dev", text: "developer-authored" }) : null
+    ])];
+    kids.push(h("button", { type: "button", class: "btn small", id: (opts && opts.prefix || "open-src-") + src.id, "data-act": "open-note", "data-id": src.id, "aria-expanded": open ? "true" : "false" }, open ? "Close note" : (ins ? "Show note again" : "Open note")));
+    if (open) {
+      kids.push(h("blockquote", { class: "verbatim", text: src.verbatim }));
+      kids.push(h("p", { class: "small", text: "What this note covers: " + src.scope }));
+      if (src.filed) kids.push(h("p", { class: "small", text: src.filed + " Observed on " + src.date + " (Week " + src.weekId + "); filed late." }));
+    }
+    return h("li", { class: "note" + (src.visibility === "late" ? " late" : "") }, kids);
+  }
+
+  function introSection(st) {
+    var y = Y();
+    return h("section", { class: "panel intro", "aria-labelledby": "intro-heading" }, [
+      h("h2", { id: "intro-heading", tabindex: "-1", text: "Behind the mud-caked door" }),
+      h("div", { class: "intro-grid" }, [doorSvg(), mossopSvg(null, true)]),
+      h("p", { text: "It is August in Alder Hollow. The pond is gone: just a bowl of dead leaves and a sign that says “Pond back in March.”" }),
+      h("p", null, [h("strong", { text: "Mossop" }), " is a walking depth gauge. Mossop’s body has a centimeter (cm) scale for measuring water. Mossop asks: ", h("em", { text: y.question })]),
+      h("p", { text: "You will turn the Season Wheel through 16 spring weeks, read dated field notes, place frog life-stage cards on the Water Ribbon, and make a claim you can back up." }),
+      h("h3", { text: "Three ways to record what was found" }),
+      h("p", { class: "small", text: "Practice example from Mossop’s garden (not part of the hollow):" }),
+      h("ul", { class: "status-examples" }, [
+        h("li", null, [h("span", { class: "status seen", text: "Seen" }), " Mossop looked on the fence on Saturday and saw a ladybug."]),
+        h("li", null, [h("span", { class: "status none", text: "None seen" }), " Mossop looked under the flowerpot on Saturday for snails and found none."]),
+        h("li", null, [h("span", { class: "status notobs", text: "Not observed" }), " Nobody looked in the shed. We do not know what was there."])
+      ]),
+      h("p", { class: "small", text: "The model water in this game is a made-up, illustrative schedule. Only field notes tell us what someone actually saw or measured." }),
+      st.begun ? h("button", { type: "button", class: "btn primary", id: "btn-close-intro", "data-act": "close-intro" }, "Back to the investigation")
+               : h("button", { type: "button", class: "btn primary", id: "btn-begin", "data-act": "begin" }, "Start investigation")
+    ]);
+  }
+
+  function wheelSection(st) {
+    var y = Y(), ui = APP.ui, w = ui.week, sum = E.weekSummary(st, w), wm = sum.model, day = wm.days[ui.day];
+    var opts = [];
+    for (var i = 1; i <= 16; i++) opts.push(h("option", { value: String(i), selected: i === w, text: "Week " + i + " · " + E.weekRange(i).label }));
+    var notesBySite = y.sites.map(function (site) {
+      var ns = sum.notes.filter(function (n) { return n.siteId === site.id; });
+      return h("div", { class: "site-notes" }, [h("h4", { text: site.label + (site.kind === "pond" ? " (water site)" : " (damp land)") }),
+        ns.length ? h("ul", { class: "notes" }, ns.map(function (n) { return sourceCard(n); })) : h("p", { class: "small blank", text: "Notebook blank for this place this week." })]);
+    });
+    var measured = sum.notes.filter(function (n) { return n.measured; }).map(function (n) { return n.date + ": " + E.measuredText(n) + " [" + n.id + "]"; });
+    var mossopLine = sum.visited ? "Someone visited this week. Open each note to read exactly what they wrote." : "Nobody visited this week. The model shows what the water might have been like, but the field notebook is blank.";
+    var dayBtns = wm.days.map(function (d, i) { return h("button", { type: "button", class: "btn day" + (i === ui.day ? " on" : ""), id: "day-" + i, "data-act": "day", "data-i": String(i), "aria-pressed": i === ui.day ? "true" : "false" }, d.date.slice(4)); });
+    return h("section", { class: "panel", "aria-labelledby": "wheel-heading" }, [
+      h("h2", { id: "wheel-heading", tabindex: "-1", text: "Season Wheel" }),
+      h("div", { class: "wheel-row" }, [
+        wheelSvg(w),
+        h("div", { class: "wheel-controls" }, [
+          h("div", { class: "btn-row" }, [
+            h("button", { type: "button", class: "btn", id: "btn-earlier", "data-act": "earlier", disabled: w === 1, "aria-label": "Earlier week" }, "◀ Earlier"),
+            h("button", { type: "button", class: "btn", id: "btn-later", "data-act": "later", disabled: w === 16, "aria-label": "Later week" }, "Later ▶")
+          ]),
+          h("label", { for: "week-select", text: "Jump to week" }),
+          h("select", { id: "week-select", "data-act": "week-select" }, opts),
+          h("p", { class: "week-title", text: "Week " + w + " of 16: " + wm.range.label })
+        ])
+      ]),
+      h("div", { class: "scene-wrap" }, [sceneSvg(y.id, day.day),
+        h("p", { class: "caption", text: "Model picture for " + day.date + ": " + E.fmtDepth(day.depth) + ". Illustration of the model, not a photo or a measurement." })]),
+      h("div", { class: "btn-row days", role: "group", "aria-label": "Show a day within Week " + w }, dayBtns),
+      h("dl", { class: "facts" }, [
+        h("dt", { text: "Model water (illustrative)" }), h("dd", { text: "Start of week (" + wm.range.start + "): " + E.fmtDepth(wm.start) + " → end of week (" + wm.range.end + "): " + E.fmtDepth(wm.end) + (wm.mixed ? ". This week has wet days and dry days." : ".") }),
+        h("dt", { text: "Measured water (field notes)" }), h("dd", { text: measured.length ? measured.join("; ") : "None recorded this week." })
+      ]),
+      h("p", { class: "mossop-says" }, [h("strong", { text: "Mossop: " }), mossopLine]),
+      notesBySite,
+      h("h3", { text: "Status this week" }),
+      h("ul", { class: "status-lines" }, sum.lines.map(function (l) { return h("li", null, [h("span", { class: "status " + l.status, text: STATUS_LABEL[l.status] }), " ", l.text]); })),
+      st.inspectedWeeks.indexOf(w) >= 0 ? h("p", { class: "small", text: "You inspected this week’s notebook page." }) :
+        h("button", { type: "button", class: "btn", id: "btn-inspect-week", "data-act": "inspect-week" }, "Inspect this week’s notebook page"),
+      soundBlock()
+    ]);
+  }
+
+  var audioCtx = null, audioNodes = [];
+  function soundBlock() {
+    var can = typeof window.AudioContext === "function" || typeof window.webkitAudioContext === "function";
+    return h("div", { class: "sound" }, [
+      h("p", { class: "small", text: "Optional sound. Caption: an illustrative, computer-made imitation of the short, duck-like clucks wood frogs make in spring. It is not a recording and not an observation for any week." }),
+      can ? h("div", { class: "btn-row" }, [
+        h("button", { type: "button", class: "btn small", id: "btn-sound", "data-act": "sound" }, "Play illustrative call"),
+        h("button", { type: "button", class: "btn small", id: "btn-sound-stop", "data-act": "sound-stop" }, "Stop sound")
+      ]) : h("p", { class: "small", text: "Sound is not available in this browser. The caption above tells you everything." })
+    ]);
+  }
+  function playCall() {
+    stopCall();
+    var C = window.AudioContext || window.webkitAudioContext;
+    try { audioCtx = audioCtx || new C(); } catch (x) { return false; }
+    var t = audioCtx.currentTime + 0.05;
+    for (var i = 0; i < 4; i++) {
+      var o = audioCtx.createOscillator(), gn = audioCtx.createGain();
+      o.type = "sawtooth"; o.frequency.setValueAtTime(420, t + i * 0.28); o.frequency.exponentialRampToValueAtTime(260, t + i * 0.28 + 0.12);
+      gn.gain.setValueAtTime(0.0001, t + i * 0.28); gn.gain.exponentialRampToValueAtTime(0.12, t + i * 0.28 + 0.02); gn.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.28 + 0.14);
+      o.connect(gn); gn.connect(audioCtx.destination); o.start(t + i * 0.28); o.stop(t + i * 0.28 + 0.16); audioNodes.push(o);
+    }
+    return true;
+  }
+  function stopCall() { audioNodes.forEach(function (o) { try { o.stop(); } catch (x) { /* already stopped */ } }); audioNodes = []; }
+
+  function ribbonSection(st) {
+    var y = Y(), rows = [];
+    for (var w = 1; w <= 16; w++) {
+      var sum = E.weekSummary(st, w), cards = st.placements.filter(function (p) { return p.weekId === w || (p.endWeekId && p.weekId <= w && p.endWeekId >= w); });
+      var meas = sum.notes.filter(function (n) { return n.measured; }).map(function (n) { return n.date + ": " + E.measuredText(n); });
+      rows.push(h("tr", { class: w === APP.ui.week ? "current" : null }, [
+        h("th", { scope: "row" }, [h("button", { type: "button", class: "btn small link", id: "row-go-" + w, "data-act": "go-week", "data-w": String(w), "aria-label": "Show Week " + w + " on the Season Wheel" }, "W" + w)]),
+        h("td", { text: sum.range.label }),
+        h("td", { text: E.fmtDepth(sum.model.end) + (sum.model.mixed ? " (from " + E.fmtDepth(sum.model.start) + ")" : "") }),
+        h("td", { text: meas.length ? meas.join("; ") : "—" }),
+        h("td", null, sum.notes.length ? sum.notes.map(function (n) { return h("div", { class: "cell-note" }, [h("span", { class: "src-id", text: n.id }), " " + (st.inspected.indexOf(n.id) >= 0 ? "“" + n.verbatim + "”" : "(not opened yet — open it on the Season Wheel)")]); }) : "No visit"),
+        h("td", null, sum.lines.map(function (l) { return h("div", null, [h("span", { class: "status " + l.status, text: STATUS_LABEL[l.status] })]); })),
+        h("td", null, cards.length ? cards.map(function (p) { return h("div", { text: (p.kind === "observed" ? "Observed: " : "Possible: ") + E.stageLabel(p.stage) + (p.endWeekId ? " (W" + p.weekId + "–" + p.endWeekId + ")" : "") + " @ " + E.site(y.id, p.siteId).label + (p.date ? ", " + p.date : "") }); }) : "—")
+      ]));
+    }
+    return h("section", { class: "panel", "aria-labelledby": "ribbon-heading" }, [
+      h("h2", { id: "ribbon-heading", text: "Water Ribbon" }),
+      h("p", { class: "small", text: "Each row is one week. Model water is the illustrative schedule; measured water comes only from field notes. Statuses come only from notes you can see." }),
+      h("div", { class: "table-scroll", role: "region", "aria-label": "Water Ribbon table, scrolls sideways on small screens", tabindex: "0" }, [
+        h("table", { class: "ribbon" }, [
+          h("caption", { text: "Water Ribbon — " + y.label + ", Weeks 1–16 (Mar 1–Jun 20)" }),
+          h("thead", null, h("tr", null, ["Week", "Dates", "Model water (end of week)", "Measured water", "Field notes", "Status", "Your cards"].map(function (c) { return h("th", { scope: "col", text: c }); }))),
+          h("tbody", null, rows)
+        ])
+      ])
+    ]);
+  }
+
+  function cardsSection(st) {
+    var y = Y(), ui = APP.ui, f = ui.form;
+    var palette = D.STAGES.map(function (sg) {
+      return h("button", { type: "button", class: "card-btn" + (ui.stage === sg.id ? " on" : ""), id: "card-" + sg.id, "data-act": "select-card", "data-id": sg.id, "aria-pressed": ui.stage === sg.id ? "true" : "false" }, [stageIcon(sg.id), h("span", { class: "card-name", text: sg.label }), h("span", { class: "card-help", text: sg.help })]);
+    });
+    var weekOpts = []; for (var i = 1; i <= 16; i++) weekOpts.push(h("option", { value: String(i), selected: f.weekId === i, text: "Week " + i + " · " + E.weekRange(i).label }));
+    var r = E.weekRange(f.weekId), dayOpts = [h("option", { value: "", selected: f.date === "", text: "No single date (whole week)" })];
+    for (var d = r.startDay; d <= r.endDay; d++) { var ds = E.formatDay(d); dayOpts.push(h("option", { value: ds, selected: f.date === ds, text: ds })); }
+    var endOpts = [h("option", { value: "", selected: f.endWeekId === "", text: "Just this week" })];
+    for (var e = f.weekId + 1; e <= 16; e++) endOpts.push(h("option", { value: String(e), selected: String(f.endWeekId) === String(e), text: "Through Week " + e }));
+    var vis = E.visibleSources(st).filter(function (x) { return st.inspected.indexOf(x.id) >= 0; });
+    var cites = vis.length ? vis.map(function (x) {
+      return h("div", { class: "check" }, [h("input", { type: "checkbox", id: "pcite-" + x.id, "data-act": "pcite", "data-id": x.id, checked: f.cites.indexOf(x.id) >= 0 }), h("label", { for: "pcite-" + x.id, text: x.id + " — “" + x.verbatim + "”" })]);
+    }) : h("p", { class: "small", text: "Open notes on the Season Wheel to be able to cite them." });
+    var placed = st.placements.slice().sort(function (a, b) { return a.weekId - b.weekId; }).map(function (p) {
+      return h("li", { class: "placed " + p.kind }, [
+        stageIcon(p.stage),
+        h("span", { text: (p.kind === "observed" ? "Observed: " : "Possible (hypothesis): ") + E.stageLabel(p.stage) + " — Week " + p.weekId + (p.endWeekId ? "–" + p.endWeekId : "") + (p.date ? " (" + p.date + ")" : "") + ", " + E.site(y.id, p.siteId).label + (p.citations.length ? " — cites " + p.citations.join(", ") : "") }),
+        h("span", { class: "btn-row" }, [
+          h("button", { type: "button", class: "btn small", id: "mv-" + p.id, "data-act": "move-card", "data-id": p.id }, "Move to the week and place chosen above"),
+          h("button", { type: "button", class: "btn small", id: "rm-" + p.id, "data-act": "remove-card", "data-id": p.id }, "Remove")
+        ])
+      ]);
+    });
+    return h("section", { class: "panel", "aria-labelledby": "cards-heading" }, [
+      h("h2", { id: "cards-heading", text: "Stage cards" }),
+      h("p", { class: "small", text: "Frogs change gradually, and timing changes with conditions. Choose a card, then choose where it goes. Observed cards need a note that saw that stage there. Possible cards are your hypotheses." }),
+      h("div", { class: "palette", role: "group", "aria-label": "Stage cards" }, palette),
+      h("fieldset", { class: "place-form" }, [
+        h("legend", { text: ui.stage ? "Place: " + E.stageLabel(ui.stage) : "Choose a card first" }),
+        h("label", { for: "place-week", text: "Week" }), h("select", { id: "place-week", "data-act": "pf-week" }, weekOpts),
+        h("label", { for: "place-site", text: "Place" }), h("select", { id: "place-site", "data-act": "pf-site" }, y.sites.map(function (x) { return h("option", { value: x.id, selected: f.siteId === x.id, text: x.label }); })),
+        h("label", { for: "place-date", text: "Date (needed when a week has wet and dry days)" }), h("select", { id: "place-date", "data-act": "pf-date" }, dayOpts),
+        h("div", { class: "radios", role: "radiogroup", "aria-label": "Kind of card" }, [
+          h("div", { class: "check" }, [h("input", { type: "radio", name: "pf-kind", id: "kind-observed", value: "observed", "data-act": "pf-kind", checked: f.kind === "observed" }), h("label", { for: "kind-observed", text: "Observed — cite a note that saw it" })]),
+          h("div", { class: "check" }, [h("input", { type: "radio", name: "pf-kind", id: "kind-possible", value: "possible", "data-act": "pf-kind", checked: f.kind === "possible" }), h("label", { for: "kind-possible", text: "Possible — my hypothesis, not observed" })])
+        ]),
+        f.kind === "possible" ? [h("label", { for: "place-end", text: "Span (hypothesis only)" }), h("select", { id: "place-end", "data-act": "pf-end" }, endOpts)] : null,
+        f.kind === "observed" ? h("fieldset", { class: "cites" }, [h("legend", { text: "Evidence to cite" }), cites]) : null,
+        h("div", { class: "btn-row" }, [
+          h("button", { type: "button", class: "btn", id: "btn-check-card", "data-act": "check-card", disabled: !ui.stage }, "Check card"),
+          h("button", { type: "button", class: "btn primary", id: "btn-place-card", "data-act": "place-card", disabled: !ui.stage }, "Place card")
+        ]),
+        ui.fb.place ? h("p", { class: "feedback " + (ui.fb.placeOk ? "ok" : "warn"), id: "place-feedback", tabindex: "-1", text: ui.fb.place }) : null
+      ]),
+      h("h3", { text: "Cards on your ribbon" }),
+      placed.length ? h("ul", { class: "placed-list" }, placed) : h("p", { class: "small", text: "No cards yet." })
+    ]);
+  }
+
+  function tasksSection(st) {
+    var y = Y(), ui = APP.ui;
+    var items = y.tasks.filter(function (t) { return !t.late || st.discovered; }).map(function (t) {
+      var cur = st.classifications.filter(function (c) { return c.taskId === t.id; })[0], pick = ui.task[t.id] || (cur && cur.status) || "";
+      return h("li", { class: "task" }, [h("fieldset", null, [
+        h("legend", { text: t.ask + " (Week " + t.weekId + ")" }),
+        ["seen", "none", "notobs"].map(function (k) { return h("div", { class: "check inline" }, [h("input", { type: "radio", name: "task-" + t.id, id: "task-" + t.id + "-" + k, value: k, "data-act": "task-pick", "data-id": t.id, checked: pick === k }), h("label", { for: "task-" + t.id + "-" + k, text: STATUS_LABEL[k] })]); }),
+        h("button", { type: "button", class: "btn small", id: "task-rec-" + t.id, "data-act": "task-record", "data-id": t.id }, "Record"),
+        cur ? h("p", { class: "small", text: "Recorded: " + STATUS_LABEL[cur.status] + (cur.status === t.answer ? " ✔" : " — needs another look") }) : null,
+        ui.fb.tasks[t.id] ? h("p", { class: "feedback", text: ui.fb.tasks[t.id] }) : null
+      ])]);
+    });
+    return h("section", { class: "panel", "aria-labelledby": "tasks-heading" }, [
+      h("h2", { id: "tasks-heading", text: "Seen, None seen, or Not observed?" }),
+      h("p", { class: "small", text: "Seen: someone recorded it. None seen: someone looked for it there and then, and did not find it. Not observed: nobody looked, or nobody recorded a result. A water check is not a wildlife search." }),
+      h("ul", { class: "tasks" }, items)
+    ]);
+  }
+
+  function claimSection(st) {
+    var y = Y(), ui = APP.ui, kids = [h("h2", { id: "claim-heading", text: "Your claim" }), h("p", { class: "question" }, [h("strong", { text: "Mossop asks: " }), y.question])];
+    var vis = E.visibleSources(st).filter(function (x) { return st.inspected.indexOf(x.id) >= 0; });
+    function citeBoxes(prefix, list, act) {
+      return vis.length ? vis.map(function (x) { return h("div", { class: "check" }, [h("input", { type: "checkbox", id: prefix + x.id, "data-act": act, "data-id": x.id, checked: list.indexOf(x.id) >= 0 }), h("label", { for: prefix + x.id, text: x.id + " — “" + x.verbatim + "”" })]); }) : h("p", { class: "small", text: "Open notes first so you can link them." });
+    }
+    if (!st.firstClaim) {
+      kids.push(h("fieldset", null, [h("legend", { text: "1. Choose your first claim" }), y.claimOptions.map(function (o) {
+        return h("div", { class: "check" }, [h("input", { type: "radio", name: "claim", id: "claim-" + o.id, value: o.id, "data-act": "claim-pick", checked: ui.claim.claimId === o.id }), h("label", { for: "claim-" + o.id, text: o.text })]);
+      })]));
+      kids.push(h("fieldset", null, [h("legend", { text: "2. Link the notes it rests on" }), citeBoxes("ccite-", ui.claim.cites, "claim-cite")]));
+      kids.push(h("fieldset", null, [h("legend", { text: "3. What is still unknown?" }), y.firstUnknowns.map(function (o) {
+        return h("div", { class: "check" }, [h("input", { type: "radio", name: "fu", id: "fu-" + o.id, value: o.id, "data-act": "fu-pick", checked: ui.claim.unknownId === o.id }), h("label", { for: "fu-" + o.id, text: o.text })]);
+      })]));
+      kids.push(h("p", { class: "small", text: "When you confirm, this first claim is locked into your record as history. You can still revise later." }));
+      kids.push(h("button", { type: "button", class: "btn primary", id: "btn-confirm-claim", "data-act": "confirm-claim" }, "Confirm first claim"));
+      if (ui.fb.claim) kids.push(h("p", { class: "feedback warn", id: "claim-feedback", tabindex: "-1", text: ui.fb.claim }));
+    } else {
+      var fc = st.firstClaim;
+      kids.push(h("div", { class: "locked" }, [h("h3", { id: "first-claim-locked", tabindex: "-1", text: "First claim (locked)" }), h("p", { text: "“" + fc.text + "”" }), h("p", { class: "small", text: fc.statusLabel }), h("p", { class: "small", text: "Linked: " + fc.citations.join(", ") + ". Unknown then: " + fc.unknownText })]));
+      if (!st.discovered) {
+        kids.push(h("div", { class: "pocket" }, [h("h3", { id: "pocket-heading", tabindex: "-1", text: "Something arrived in the field-station pocket" }), h("p", { text: "A note was filed late. It is folded shut." }),
+          h("button", { type: "button", class: "btn primary", id: "btn-pocket", "data-act": "discover" }, "Open the pocket")]));
+      } else {
+        var late = y.sources.filter(function (x) { return x.visibility === "late"; });
+        kids.push(h("div", { class: "late-box" }, [h("h3", { id: "late-heading", tabindex: "-1", text: "Late-filed evidence" }),
+          h("p", { class: "small", text: "These notes were found after the others, but their observation dates are what count. Place them by date on the ribbon." }),
+          h("ul", { class: "notes" }, late.map(function (x) { return sourceCard(x, { prefix: "late-open-" }); })),
+          h("button", { type: "button", class: "btn small", id: "btn-goto-late", "data-act": "go-week", "data-w": String(late[0].weekId) }, "Go to Week " + late[0].weekId + " on the Season Wheel")]));
+        var revOpts = [{ id: "reaffirm", text: "Keep my first claim, now with the new evidence: “" + fc.text + "”" }].concat(y.revisionOptions);
+        kids.push(h("fieldset", null, [h("legend", { text: "4. Revise or reaffirm your claim" }), revOpts.map(function (o) {
+          return h("div", { class: "check" }, [h("input", { type: "radio", name: "rev", id: "rev-" + o.id, value: o.id, "data-act": "rev-pick", checked: ui.rev.revisionId === o.id }), h("label", { for: "rev-" + o.id, text: o.text })]);
+        })]));
+        kids.push(h("fieldset", null, [h("legend", { text: "5. Link the notes" }), citeBoxes("rcite-", ui.rev.cites, "rev-cite")]));
+        kids.push(h("fieldset", null, [h("legend", { text: "6. Why?" }), y.reasons.map(function (o) {
+          return h("div", { class: "check" }, [h("input", { type: "radio", name: "reason", id: "reason-" + o.id, value: o.id, "data-act": "reason-pick", checked: ui.rev.reasonId === o.id }), h("label", { for: "reason-" + o.id, text: o.text })]);
+        })]));
+        kids.push(h("fieldset", null, [h("legend", { text: "7. What do we still not know? (choose one or more)" }), y.unknowns.map(function (o) {
+          return h("div", { class: "check" }, [h("input", { type: "checkbox", id: "unk-" + o.id, "data-act": "unk-pick", "data-id": o.id, checked: ui.rev.unknownIds.indexOf(o.id) >= 0 }), h("label", { for: "unk-" + o.id, text: o.text })]);
+        })]));
+        kids.push(h("button", { type: "button", class: "btn primary", id: "btn-confirm-rev", "data-act": "confirm-rev" }, st.revisions.length ? "Confirm a new revision" : "Confirm revised claim"));
+        if (ui.fb.rev) kids.push(h("p", { class: "feedback warn", id: "rev-feedback", tabindex: "-1", text: ui.fb.rev }));
+        if (st.revisions.length) { var rv = st.revisions[st.revisions.length - 1]; kids.push(h("div", { class: "locked" }, [h("h3", { id: "rev-current", tabindex: "-1", text: rv.reaffirm ? "Reaffirmed claim (current)" : "Revised claim (current)" }), h("p", { text: "“" + rv.text + "”" }), h("p", { class: "small", text: "Reason: " + rv.reasonText }), h("p", { class: "small", text: "Still unknown: " + rv.unknownTexts.join(" ") })])); }
+      }
+    }
+    return h("section", { class: "panel", "aria-labelledby": "claim-heading" }, kids);
+  }
+
+  function recordBlocks(rec, idp) {
+    return rec.sections.map(function (sec, i) { return h("div", { class: "rec-sec" }, [h(i === 0 ? "h3" : "h4", { id: idp ? idp + i : null, text: sec.title }), h("ul", null, sec.items.map(function (it) { return h("li", { text: it }); }))]); });
+  }
+  function recordSection(st) {
+    var ui = APP.ui, rec = E.buildRecord(st), reqs = E.requirements(st);
+    var draft = ui.reflectDraft !== null ? ui.reflectDraft : (st.reflection ? st.reflection.text : "");
+    return h("section", { class: "panel", "aria-labelledby": "record-heading" }, [
+      h("h2", { id: "record-heading", tabindex: "-1", text: "Hollow Year Record" }),
+      h("p", { class: "rec-status status-" + rec.status, text: { locked: "Not started.", draft: "Draft — not earned yet.", earned: "Earned.", stale: "Changed after earning: this current record is a draft again. Your earlier earned version is kept below." }[rec.status] }),
+      h("button", { type: "button", class: "btn primary", id: "btn-earn", "data-act": "earn" }, rec.status === "stale" ? "Earn the record again" : "Earn the Hollow Year Record"),
+      ui.fb.record ? h("p", { class: "feedback", id: "record-feedback", tabindex: "-1", text: ui.fb.record }) : null,
+      h("article", { class: "record print-area", "aria-label": "Current record" }, recordBlocks(rec, "rec-h-")),
+      h("div", { class: "btn-row" }, [
+        h("button", { type: "button", class: "btn", id: "btn-download", "data-act": "download" }, "Download record as text"),
+        h("button", { type: "button", class: "btn", id: "btn-print", "data-act": "print" }, "Print record")
+      ]),
+      st.earned.length ? h("div", { class: "history" }, [h("h3", { text: "Earned records (history)" }), st.earned.slice().reverse().map(function (e) {
+        return h("details", null, [h("summary", { text: "Earned version " + e.version + " (step " + e.step + ")" }), h("div", { class: "record" }, recordBlocks(e.record))]);
+      })]) : null,
+      h("div", { class: "reflect" }, [
+        h("label", { for: "reflect-text", text: "Optional reflection (not graded, up to 280 characters). Please do not write your name or anything personal." }),
+        h("textarea", { id: "reflect-text", maxlength: "280", rows: "3", "data-act": "reflect-input" }, draft),
+        h("button", { type: "button", class: "btn small", id: "btn-reflect", "data-act": "reflect" }, "Save reflection note"),
+        ui.fb.reflect ? h("p", { class: "feedback", text: ui.fb.reflect }) : null
+      ]),
+      h("details", { class: "checklist" }, [h("summary", { text: "What the record needs (" + reqs.filter(function (r) { return r.met; }).length + " of " + reqs.length + " done)" }), h("ul", null, reqs.map(function (r) { return h("li", { class: r.met ? "met" : "unmet", text: (r.met ? "Done: " : "Not yet: ") + r.label }); }))])
+    ]);
+  }
+
+  function compareSection() {
+    var head = [h("th", { scope: "col", text: "Year" })]; for (var w = 1; w <= 16; w++) head.push(h("th", { scope: "col", text: "W" + w }));
+    return h("details", { class: "panel compare" }, [h("summary", { text: "Compare model water schedules across years" }),
+      h("div", { class: "table-scroll", role: "region", "aria-label": "Model schedules table, scrolls sideways", tabindex: "0" }, [h("table", null, [
+        h("caption", { text: "Model schedules only: illustrative end-of-week water in cm. These are not observed outcomes and say nothing about how many animals survived." }),
+        h("thead", null, h("tr", null, head)),
+        h("tbody", null, D.YEARS.map(function (y) { var c = [h("th", { scope: "row", text: y.short })]; for (var w2 = 1; w2 <= 16; w2++) c.push(h("td", { text: String(Math.round(E.weekModel(y.id, w2).end)) })); return h("tr", null, c); }))
+      ])])]);
+  }
+
+  function resetSection() {
+    var c = APP.ui.confirm;
+    return h("section", { class: "panel reset", "aria-labelledby": "reset-heading" }, [
+      h("h2", { id: "reset-heading", tabindex: "-1", text: "Restart" }),
+      c === "year" ? h("div", { class: "confirm" }, [h("p", { text: "Erase all progress in " + Y().label + "? Other years stay." }), h("div", { class: "btn-row" }, [h("button", { type: "button", class: "btn danger", id: "btn-reset-year-yes", "data-act": "reset-year-yes" }, "Yes, restart this year"), h("button", { type: "button", class: "btn", id: "btn-reset-cancel", "data-act": "reset-cancel" }, "Cancel")])]) :
+      c === "all" ? h("div", { class: "confirm" }, [h("p", { text: "Erase progress in all four years on this device?" }), h("div", { class: "btn-row" }, [h("button", { type: "button", class: "btn danger", id: "btn-reset-all-yes", "data-act": "reset-all-yes" }, "Yes, erase all years"), h("button", { type: "button", class: "btn", id: "btn-reset-cancel", "data-act": "reset-cancel" }, "Cancel")])]) :
+      h("div", { class: "btn-row" }, [h("button", { type: "button", class: "btn", id: "btn-reset-year", "data-act": "reset-year" }, "Restart this year…"), h("button", { type: "button", class: "btn", id: "btn-reset-all", "data-act": "reset-all" }, "Erase all years…")])
+    ]);
+  }
+
+  var PHASE_TIP = {
+    intro: "Press Start investigation when you are ready.",
+    investigate: "Turn the wheel, open notes, place cards, classify, then make your first claim.",
+    claimed: "Your first claim is locked. Something new has arrived.",
+    discovered: "Read the late-filed note, place it by its date, and revise or reaffirm your claim.",
+    revised: "Check the record list and earn your Hollow Year Record."
+  };
+
+  function render() {
+    var app = document.getElementById("app"), active = document.activeElement, fid = active && active.id ? active.id : null;
+    var st = S(), y = Y(), ui = APP.ui, ph = E.phaseOf(st);
+    var top = h("div", { class: "topbar" }, [
+      h("div", { class: "year-pick" }, [h("label", { for: "year-select", text: "Year" }), h("select", { id: "year-select", "data-act": "year-select" }, D.YEARS.map(function (yy) { return h("option", { value: yy.id, selected: yy.id === y.id, text: yy.label }); }))]),
+      h("p", { class: "save-status", id: "save-status", text: APP.saveMsg }),
+      st.begun && !ui.showIntro ? h("button", { type: "button", class: "btn small", id: "btn-intro", "data-act": "show-intro" }, "Revisit introduction") : null
+    ]);
+    var kids = [top];
+    if (APP.notices.length) kids.push(h("div", { class: "notice", role: "note" }, [h("h2", { text: "Notice about saved progress" }), h("ul", null, APP.notices.map(function (n) { return h("li", { text: n }); })), h("button", { type: "button", class: "btn small", id: "btn-dismiss-notice", "data-act": "dismiss-notice" }, "Dismiss")]));
+    if (store.isOver(y.id)) kids.push(h("p", { class: "notice", text: "This year has more steps than can be saved. Your last saved version is kept; newer steps last only while this tab is open." }));
+    kids.push(h("p", { class: "phase-tip" }, [h("strong", { text: y.label + ": " }), PHASE_TIP[ph]]));
+    if (!st.begun || ui.showIntro) kids.push(introSection(st));
+    if (st.begun) kids.push(wheelSection(st), ribbonSection(st), cardsSection(st), tasksSection(st), claimSection(st), recordSection(st), compareSection());
+    kids.push(resetSection());
+    var frag = document.createDocumentFragment(); append(frag, kids);
+    app.replaceChildren(frag);
+    var target = ui.focusAfter ? document.getElementById(ui.focusAfter) : (fid ? document.getElementById(fid) : null);
+    if (target) target.focus({ preventScroll: !ui.focusAfter });
+    ui.focusAfter = null;
+  }
+
+  /* ---------- events ---------- */
+  function toggle(list, id) { var i = list.indexOf(id); if (i >= 0) list.splice(i, 1); else list.push(id); }
+  function act(name, el) {
+    var ui = APP.ui, st = S(), r;
+    switch (name) {
+      case "begin": r = dispatch({ t: "BEGIN", p: {} }); ui.focusAfter = "wheel-heading"; announce(r.message); break;
+      case "show-intro": ui.showIntro = true; ui.focusAfter = "intro-heading"; break;
+      case "close-intro": ui.showIntro = false; ui.focusAfter = "wheel-heading"; break;
+      case "earlier": if (ui.week > 1) setWeek(ui.week - 1); if (ui.week === 1) ui.focusAfter = "btn-later"; break;
+      case "later": if (ui.week < 16) setWeek(ui.week + 1); if (ui.week === 16) ui.focusAfter = "btn-earlier"; break;
+      case "go-week": setWeek(Number(el.getAttribute("data-w"))); ui.focusAfter = "wheel-heading"; break;
+      case "day": ui.day = Number(el.getAttribute("data-i")); var dd = E.weekModel(ui.yearId, ui.week).days[ui.day]; announce(dd.date + ": model water " + E.fmtDepth(dd.depth) + "."); break;
+      case "open-note": {
+        var id = el.getAttribute("data-id");
+        if (ui.openNote === id) { ui.openNote = null; break; }
+        ui.openNote = id;
+        if (st.inspected.indexOf(id) < 0) { r = dispatch({ t: "INSPECT_SOURCE", p: { sourceId: id } }); announce(r.message); }
+        else announce("Note " + id + ": " + E.source(ui.yearId, id).verbatim);
+        break;
+      }
+      case "inspect-week": r = dispatch({ t: "INSPECT_WEEK", p: { weekId: ui.week } }); announce(r.message); ui.focusAfter = "wheel-heading"; break;
+      case "sound": announce(playCall() ? "Playing an illustrative, computer-made frog call." : "Sound could not start."); break;
+      case "sound-stop": stopCall(); announce("Sound stopped."); break;
+      case "select-card": ui.stage = el.getAttribute("data-id"); announce("Selected card: " + E.stageLabel(ui.stage) + ". Now choose week, place and kind."); break;
+      case "check-card": case "place-card": {
+        if (!ui.stage) break;
+        var f = ui.form, payload = { stage: ui.stage, weekId: f.weekId, endWeekId: f.kind === "possible" && f.endWeekId !== "" ? Number(f.endWeekId) : null, siteId: f.siteId, date: f.date === "" ? null : f.date, kind: f.kind, citations: f.kind === "observed" ? f.cites.slice() : [] };
+        if (name === "check-card") {
+          var shape = E.validateShape({ t: "PLACE_CARD", p: payload });
+          var v = shape ? { ok: false, msg: shape } : E.validateCard(st, payload, null);
+          ui.fb.place = (v.ok ? "Check: this card would be accepted. " : "Check: not accepted. ") + v.msg; ui.fb.placeOk = v.ok;
+        } else { r = dispatch({ t: "PLACE_CARD", p: payload }); ui.fb.place = r.message; ui.fb.placeOk = r.ok; if (r.ok) f.cites = []; }
+        announce(ui.fb.place); break;
+      }
+      case "move-card": {
+        var f2 = ui.form;
+        r = dispatch({ t: "MOVE_CARD", p: { placementId: el.getAttribute("data-id"), weekId: f2.weekId, endWeekId: f2.kind === "possible" && f2.endWeekId !== "" ? Number(f2.endWeekId) : null, siteId: f2.siteId, date: f2.date === "" ? null : f2.date } });
+        ui.fb.place = r.message; ui.fb.placeOk = r.ok; announce(r.message); if (!r.ok) ui.focusAfter = "place-feedback"; break;
+      }
+      case "remove-card": r = dispatch({ t: "REMOVE_CARD", p: { placementId: el.getAttribute("data-id") } }); ui.fb.place = r.message; ui.fb.placeOk = r.ok; announce(r.message); ui.focusAfter = "cards-heading"; break;
+      case "task-record": {
+        var tid = el.getAttribute("data-id"), pick = ui.task[tid];
+        if (!pick) { ui.fb.tasks[tid] = "Choose Seen, None seen or Not observed first."; announce(ui.fb.tasks[tid]); break; }
+        r = dispatch({ t: "CLASSIFY_OBSERVATION", p: { taskId: tid, status: pick } }); ui.fb.tasks[tid] = r.message; announce(r.message); break;
+      }
+      case "confirm-claim": {
+        if (!ui.claim.claimId) r = { ok: false, message: "Choose a claim first." };
+        else if (!ui.claim.unknownId) r = { ok: false, message: "Choose what is still unknown." };
+        else r = dispatch({ t: "CONFIRM_FIRST_CLAIM", p: { claimId: ui.claim.claimId, citations: ui.claim.cites.slice(), unknownId: ui.claim.unknownId } });
+        ui.fb.claim = r.ok ? "" : r.message; announce(r.message); ui.focusAfter = r.ok ? "pocket-heading" : "claim-feedback"; break;
+      }
+      case "discover": r = dispatch({ t: "DISCOVER_LATE_NOTE", p: {} }); announce(r.message); ui.focusAfter = "late-heading"; break;
+      case "confirm-rev": {
+        if (!ui.rev.revisionId) { ui.fb.rev = "Choose a revised claim, or choose to keep your first claim."; announce(ui.fb.rev); ui.focusAfter = "rev-feedback"; break; }
+        if (!ui.rev.reasonId) { ui.fb.rev = "Choose a reason."; announce(ui.fb.rev); ui.focusAfter = "rev-feedback"; break; }
+        r = dispatch({ t: "CONFIRM_REVISION", p: { revisionId: ui.rev.revisionId, citations: ui.rev.cites.slice(), reasonId: ui.rev.reasonId, unknownIds: ui.rev.unknownIds.slice() } });
+        ui.fb.rev = r.ok ? "" : r.message; announce(r.message); ui.focusAfter = r.ok ? "rev-current" : "rev-feedback"; break;
+      }
+      case "earn": r = dispatch({ t: "EARN_RECORD", p: {} }); ui.fb.record = r.message; announce(r.message); ui.focusAfter = "record-feedback"; break;
+      case "reflect": {
+        var txt = ui.reflectDraft !== null ? ui.reflectDraft : (st.reflection ? st.reflection.text : "");
+        r = dispatch({ t: "REFLECT", p: { text: txt } });
+        ui.fb.reflect = r.ok ? r.message + " " + APP.saveMsg : "Not saved: " + (r.code === "E_PAYLOAD" ? "use plain text up to 280 characters." : r.message);
+        if (r.ok) ui.reflectDraft = null; announce(ui.fb.reflect); break;
+      }
+      case "download": {
+        var text = E.recordToText(E.buildRecord(st)), blob = new Blob([text], { type: "text/plain;charset=utf-8" }), url = URL.createObjectURL(blob);
+        var a = document.createElement("a"); a.href = url; a.download = "hollow-year-record-" + ui.yearId + ".txt"; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        announce("Record text file prepared for download."); break;
+      }
+      case "print": window.print(); break;
+      case "reset-year": ui.confirm = "year"; ui.focusAfter = "btn-reset-cancel"; break;
+      case "reset-all": ui.confirm = "all"; ui.focusAfter = "btn-reset-cancel"; break;
+      case "reset-cancel": ui.confirm = null; ui.focusAfter = "reset-heading"; announce("Cancelled. Nothing was erased."); break;
+      case "reset-year-yes": {
+        var res = store.resetYear(ui.yearId, ui.yearId);
+        APP.states[ui.yearId] = E.initialState(ui.yearId); APP.histories[ui.yearId] = [];
+        APP.ui = freshUi(ui.yearId); APP.saveMsg = res.message; APP.ui.focusAfter = "intro-heading"; announce(res.message); break;
+      }
+      case "reset-all-yes": {
+        var ra = store.resetAll();
+        YEAR_IDS.forEach(function (id) { APP.states[id] = E.initialState(id); APP.histories[id] = []; });
+        APP.ui = freshUi(ui.yearId); APP.saveMsg = ra.message; APP.ui.focusAfter = "intro-heading"; announce(ra.message); break;
+      }
+      case "dismiss-notice": APP.notices = []; ui.focusAfter = "year-select"; break;
+      default: return;
+    }
+    render();
+  }
+  function setWeek(w) {
+    var ui = APP.ui; ui.week = w; ui.day = 6; ui.form.weekId = w; ui.form.date = ""; ui.form.endWeekId = ""; ui.openNote = null;
+    var sum = E.weekSummary(S(), w);
+    announce("Week " + w + ", " + sum.range.label + ". Model water " + E.fmtDepth(sum.model.start) + " to " + E.fmtDepth(sum.model.end) + ". " + (sum.visited ? sum.notes.length + " field note" + (sum.notes.length > 1 ? "s" : "") + "." : "No visit recorded: Not observed."));
+  }
+  function change(name, el) {
+    var ui = APP.ui, f = ui.form, rerender = true;
+    switch (name) {
+      case "year-select": stopCall(); APP.ui = freshUi(el.value); APP.ui.focusAfter = "year-select"; store.commit(el.value, el.value, APP.histories[el.value]); announce("Switched to " + E.year(el.value).label + "."); break;
+      case "week-select": setWeek(Number(el.value)); ui.focusAfter = "week-select"; break;
+      case "pf-week": f.weekId = Number(el.value); f.date = ""; f.endWeekId = ""; break;
+      case "pf-site": f.siteId = el.value; break;
+      case "pf-date": f.date = el.value; break;
+      case "pf-end": f.endWeekId = el.value; break;
+      case "pf-kind": f.kind = el.value; break;
+      case "pcite": toggle(f.cites, el.getAttribute("data-id")); rerender = false; break;
+      case "task-pick": ui.task[el.getAttribute("data-id")] = el.value; rerender = false; break;
+      case "claim-pick": ui.claim.claimId = el.value; rerender = false; break;
+      case "claim-cite": toggle(ui.claim.cites, el.getAttribute("data-id")); rerender = false; break;
+      case "fu-pick": ui.claim.unknownId = el.value; rerender = false; break;
+      case "rev-pick": ui.rev.revisionId = el.value; rerender = false; break;
+      case "rev-cite": toggle(ui.rev.cites, el.getAttribute("data-id")); rerender = false; break;
+      case "reason-pick": ui.rev.reasonId = el.value; rerender = false; break;
+      case "unk-pick": toggle(ui.rev.unknownIds, el.getAttribute("data-id")); rerender = false; break;
+      default: return;
+    }
+    if (rerender) render();
+  }
+  document.addEventListener("click", function (ev) {
+    var el = ev.target.closest("button[data-act]");
+    if (!el || el.disabled) return;
+    act(el.getAttribute("data-act"), el);
+  });
+  document.addEventListener("change", function (ev) {
+    var el = ev.target.closest("[data-act]");
+    if (!el || el.tagName === "BUTTON") return;
+    change(el.getAttribute("data-act"), el);
+  });
+  document.addEventListener("input", function (ev) {
+    if (ev.target.id === "reflect-text") APP.ui.reflectDraft = ev.target.value;
+  });
+  window.addEventListener("pagehide", stopCall);
+  render();
+})(TLE_ENGINE, TLE_DATA);
+
+</script>
+</body>
+</html>
