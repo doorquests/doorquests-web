@@ -33,6 +33,10 @@ a{color:#0d3f8f}
 .skip{position:absolute;left:-999px;top:0;background:#fff;padding:.6em 1em;z-index:10;border-radius:0 0 10px 0}
 .skip:focus{left:0}
 :focus-visible{outline:4px solid #132a4f;outline-offset:3px;box-shadow:0 0 0 8px #ffd23f;border-radius:8px}
+:focus-visible{scroll-margin:24px}
+.feedback,.hint,.flash{scroll-margin:24px 0 24px}
+.flash{margin:0 0 1rem;padding:.65rem 1rem;border-radius:14px;background:#ecf8ef;border:2px solid #5aa36f;font-weight:600}
+.vol-row output{min-width:3.2em;text-align:right;font-weight:700}
 main:focus{outline:none}
 [hidden]{display:none!important}
 
@@ -86,6 +90,7 @@ body.mode-little .btn{min-height:58px;font-size:1.15rem}
 /* Scene layout */
 .scene{display:grid;gap:1rem;grid-template-columns:minmax(0,1fr)}
 @media(min-width:860px){.scene{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:start}.scene .wide{grid-column:1/-1}}
+@media(min-width:860px) and (min-height:560px){.scene>.art{position:sticky;top:12px}}  /* GBDQ-K001-010: picture stays in view beside long doors */
 .art{border-radius:var(--radius);overflow:hidden;background:#dff0ff;border:3px solid #fff;box-shadow:0 6px 20px rgba(30,70,120,.15)}
 .art svg{display:block;width:100%;height:auto}
 .world-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.4rem 1rem}
@@ -247,7 +252,7 @@ body.calm *{animation:none!important;transition:none!important}
 
 dialog{border:0;border-radius:20px;padding:0;max-width:min(560px,94vw);width:100%;box-shadow:0 20px 60px rgba(0,30,80,.35);color:var(--navy)}
 dialog::backdrop{background:rgba(20,40,80,.45)}
-.dlg{padding:1.2rem 1.3rem;background:#f6fbff;max-height:88vh;overflow:auto}
+.dlg{padding:1.2rem 1.3rem;background:#f6fbff;max-height:88vh;overflow:auto;scroll-padding:24px}
 .dlg fieldset{border:2px solid #cfe0f2;border-radius:14px;margin:.7rem 0;padding:.6rem .8rem}
 .dlg legend{font-weight:700;padding:0 .3rem}
 .dlg .row{display:flex;align-items:center;gap:.6rem;min-height:44px}
@@ -302,13 +307,14 @@ dialog::backdrop{background:rgba(20,40,80,.45)}
     <h2 id="set-title">Settings</h2>
     <fieldset class="modes">
       <legend>How are we playing?</legend>
-      <p class="small">Change any time. Your pages and progress stay safe. Nothing about you is saved.</p>
+      <p class="small">Change any time. A new choice takes effect when you press Done. Every page and finished story door stays safe; if you are in the middle of a story door, that door starts fresh. Nothing about you is saved.</p>
       <div id="set-modes"></div>
     </fieldset>
     <fieldset>
       <legend>Sound and reading</legend>
       <label class="row"><input type="checkbox" id="set-sound"> Gentle sounds (off until you turn them on)</label>
-      <label class="row" for="set-vol">Volume <input type="range" id="set-vol" min="0" max="100" step="10"></label>
+      <div class="row vol-row"><label for="set-vol" id="set-vol-label">Volume</label> <input type="range" id="set-vol" min="0" max="100" step="10" aria-labelledby="set-vol-label"> <output id="set-vol-out" for="set-vol" aria-hidden="true">50%</output></div>
+      <p class="small">One volume for both reading aloud and gentle sounds. Reading aloud can be used even when gentle sounds are off. At 0% everything is silent.</p>
       <p class="small" id="set-voice-note"></p>
     </fieldset>
     <fieldset>
@@ -429,7 +435,7 @@ const ART = (() => {
     const sleeping = phase === 'paw';
     let extra = '';
     if (phase === 'paw') extra = `<ellipse cx="128" cy="214" rx="20" ry="11" fill="#e3a94e"/>${mouse(140, 205, .9)}<text x="200" y="110" font-family="Georgia,serif" font-size="18" fill="#5a6a8a">z z z</text>`;
-    if (phase === 'tangle') extra = `<g stroke="#3f6b2e" stroke-width="5" fill="none" stroke-linecap="round"><path d="M110 110 Q150 90 175 130 Q200 170 160 190"/><path d="M200 120 Q170 150 135 140 Q110 132 120 175"/><path d="M118 190 Q160 200 205 175"/></g><g fill="#2f5a22">${[[130, 100], [170, 110], [196, 150], [124, 160], [180, 188], [150, 138]].map(([a, b]) => `<path d="M${a} ${b} l6 -3 l-2 6z"/>`).join('')}</g><g fill="#7a2a5a">${[[142, 96], [188, 130], [126, 180]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r="4"/>`).join('')}</g>${mouse(250, 214, .9)}`;
+    if (phase === 'tangle' || phase === 'gnaw') extra = `<g stroke="#3f6b2e" stroke-width="5" fill="none" stroke-linecap="round"><path d="M110 110 Q150 90 175 130 Q200 170 160 190"/><path d="M200 120 Q170 150 135 140 Q110 132 120 175"/><path d="M118 190 Q160 200 205 175"/></g><g fill="#2f5a22">${[[130, 100], [170, 110], [196, 150], [124, 160], [180, 188], [150, 138]].map(([a, b]) => `<path d="M${a} ${b} l6 -3 l-2 6z"/>`).join('')}</g><g fill="#7a2a5a">${[[142, 96], [188, 130], [126, 180]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r="4"/>`).join('')}</g>${phase === 'gnaw' ? mouse(176, 150, .75) : mouse(250, 214, .9)}`;
     if (phase === 'free' || phase === 'page') {
       const t = ch.thanks;
       if (t === 'ride') extra = `${twinkle([[60, 40, 2.5], [100, 24], [250, 30, 2.6], [300, 60], [370, 24]], '#fffbe0')}${mouse(160, 104, .8)}`;
@@ -448,12 +454,12 @@ const ART = (() => {
   };
 
   /* ---------------- II. Fairortals — Moonplank Bridge ---------------- */
-  const hare = (x, y, s = 1, lanternUp) => `<g transform="translate(${x} ${y}) scale(${s})">
+  const hare = (x, y, s = 1, lanternUp, noLantern) => `<g transform="translate(${x} ${y}) scale(${s})">
     <ellipse cx="-8" cy="-46" rx="5" ry="18" fill="#d8c3a5"/><ellipse cx="8" cy="-48" rx="5" ry="18" fill="#d8c3a5"/>
     <ellipse cx="0" cy="8" rx="16" ry="20" fill="#d8c3a5"/><circle cx="0" cy="-20" r="14" fill="#e2d0b4"/>
     <path d="M-15 -24 Q0 -42 15 -24Z" fill="#b8c2cc" stroke="#7d8894" stroke-width="1.5"/>
     <circle cx="-5" cy="-20" r="2" fill="#2a1a0a"/><circle cx="5" cy="-20" r="2" fill="#2a1a0a"/><circle cx="0" cy="-15" r="2" fill="#d98a9a"/>
-    ${lanternUp ? '<line x1="14" y1="0" x2="26" y2="-34" stroke="#7d6a4a" stroke-width="3"/><g transform="translate(26 -40)"><circle r="16" fill="#fff2a8" opacity=".55"/><rect x="-6" y="-8" width="12" height="15" rx="3" fill="#ffd95a" stroke="#9a6b0c"/></g>' : '<g transform="translate(18 10)"><circle r="12" fill="#fff2a8" opacity=".5"/><rect x="-5" y="-7" width="10" height="13" rx="3" fill="#ffd95a" stroke="#9a6b0c"/></g>'}
+    ${noLantern ? '' : lanternUp ? '<line x1="14" y1="0" x2="26" y2="-34" stroke="#7d6a4a" stroke-width="3"/><g transform="translate(26 -40)"><circle r="16" fill="#fff2a8" opacity=".55"/><rect x="-6" y="-8" width="12" height="15" rx="3" fill="#ffd95a" stroke="#9a6b0c"/></g>' : '<g transform="translate(18 10)"><circle r="12" fill="#fff2a8" opacity=".5"/><rect x="-5" y="-7" width="10" height="13" rx="3" fill="#ffd95a" stroke="#9a6b0c"/></g>'}
   </g>`;
   const giant = (x, y, happy) => `<g transform="translate(${x} ${y})">
     <ellipse cx="0" cy="40" rx="56" ry="50" fill="#7d9a6a"/><circle cx="0" cy="-22" r="34" fill="#d3ad85"/>
@@ -463,9 +469,11 @@ const ART = (() => {
   </g>`;
   const fairy = (ch = {}, phase = 'page') => {
     const happy = phase === 'page' || phase === 'glad';
-    const appr = phase === 'page' ? pick({ kind: `<g><rect x="220" y="60" width="74" height="28" rx="12" fill="#fff"/><text x="232" y="79" font-family="Georgia,serif" font-size="14" fill="#2a1a4a">Hello!</text></g>`, ask: `<g><rect x="222" y="58" width="96" height="28" rx="12" fill="#fff"/><text x="230" y="77" font-family="Georgia,serif" font-size="13" fill="#2a1a4a">Are you okay?</text></g>`, lantern: `<path d="M190 160 L300 60" stroke="#fff2a8" stroke-width="10" opacity=".6"/>`, none: '' }, ch.approach, 'none') : '';
-    const wrenX = phase === 'start' ? 70 : phase === 'bridge' ? 190 : 230;
-    const wrenY = phase === 'start' ? 190 : phase === 'bridge' ? 176 : 196;
+    const appr = phase === 'page' ? pick({ kind: `<g><rect x="220" y="60" width="74" height="28" rx="12" fill="#fff"/><text x="232" y="79" font-family="Georgia,serif" font-size="14" fill="#2a1a4a">Hello!</text></g>`, ask: `<g><rect x="222" y="58" width="96" height="28" rx="12" fill="#fff"/><text x="230" y="77" font-family="Georgia,serif" font-size="13" fill="#2a1a4a">Are you okay?</text></g>`, lantern: `<path d="M236 170 L300 150" stroke="#fff2a8" stroke-width="12" opacity=".7"/>`, none: '' }, ch.approach, 'none') : '';
+    const onBridge = /^bridge/.test(phase);
+    const prog = onBridge ? Math.max(0, Math.min(100, parseInt(phase.split('-')[1] || '50', 10) || 0)) : 0;
+    const wrenX = phase === 'start' ? 70 : onBridge ? Math.round(56 + 2.1 * prog) : 230;
+    const wrenY = phase === 'start' ? 190 : onBridge ? 176 : 196;
     const sx = wrenX - 28, sy = wrenY - 24;
     const brave = pick({ hand: spark(wrenX - 20, wrenY + 4, .8),
       count: `<text x="${wrenX - 40}" y="${wrenY - 62}" font-family="Georgia,serif" font-size="16" fill="#4a2a7a">1 · 2 · 3</text>${spark(sx, sy, .8)}`,
@@ -479,7 +487,7 @@ const ART = (() => {
       <rect x="0" y="214" width="400" height="46" fill="#7fb3e6"/><path d="M0 224 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" stroke="#bfe0ff" stroke-width="2" fill="none"/>
       <g>${[0, 1, 2, 3, 4, 5, 6, 7].map(i => `<rect x="${40 + i * 30}" y="198" width="26" height="12" rx="2" fill="#c9a274" stroke="#7a5a33"/>`).join('')}</g>
       <line x1="38" y1="186" x2="282" y2="186" stroke="#7a5a33" stroke-width="3"/><line x1="40" y1="186" x2="40" y2="210" stroke="#7a5a33" stroke-width="3"/><line x1="280" y1="186" x2="280" y2="210" stroke="#7a5a33" stroke-width="3"/>
-      ${hare(wrenX, wrenY, .95, phase === 'page' && ch.approach === 'lantern')}${brave}${appr}`);
+      ${hare(wrenX, wrenY, .95, false, happy)}${brave}${appr}`);
   };
 
   /* ---------------- III. Folklortals — Hearthstone Village ---------------- */
@@ -566,14 +574,14 @@ const ART = (() => {
   const LAND = { green: '#8ccb78', blue: '#7fa8e8', pink: '#f2a6c8', orange: '#f2b062', gray: '#bdbdbd' };
   const WATER = { teal: '#5ac0c0', purple: '#9a7ad8', silver: '#b8c6d6', gold: '#e8c050', gray: '#a8a8a8' };
   const dragon = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 0 L30 -10 L22 8Z" fill="#ffffff" stroke="#8a8a9a"/><path d="M22 8 L52 0 L44 18Z" fill="#f4f4fa" stroke="#8a8a9a"/><path d="M-26 -18 L0 0 L-10 10Z" fill="#ffffff" stroke="#8a8a9a"/><path d="M-26 -18 L-34 -6 L-16 -6Z" fill="#f4f4fa" stroke="#8a8a9a"/><circle cx="-24" cy="-12" r="1.8" fill="#333"/><path d="M8 -6 L20 -34 L26 -6Z" fill="#fff" stroke="#8a8a9a"/><path d="M-30 -18 l-6 -6 M-24 -20 l-2 -8" stroke="#8a8a9a"/></g>`;
-  const vessel = (b, m, l, x, y, s = 1) => {
-    const base = pick({ boat: `<path d="M-40 0 L40 0 L28 20 L-28 20Z" fill="#a8722e" stroke="#6b4226" stroke-width="2"/><line x1="-30" y1="8" x2="30" y2="8" stroke="#6b4226"/>`,
+  const vessel = (b, m, l, x, y, s = 1, strict = false) => {
+    const base = strict && !b ? `<path d="M-40 0 L40 0 L28 20 L-28 20Z" fill="none" stroke="#9a7aa0" stroke-width="2" stroke-dasharray="6 5"/><text x="0" y="16" text-anchor="middle" font-family="Georgia,serif" font-size="16" fill="#7a5a80">?</text>` : pick({ boat: `<path d="M-40 0 L40 0 L28 20 L-28 20Z" fill="#a8722e" stroke="#6b4226" stroke-width="2"/><line x1="-30" y1="8" x2="30" y2="8" stroke="#6b4226"/>`,
       teacup: `<path d="M-34 -4 L34 -4 Q30 26 0 26 Q-30 26 -34 -4Z" fill="#ffffff" stroke="#5a7ae0" stroke-width="2.5"/><path d="M-30 4 L30 4" stroke="#5a7ae0" stroke-width="4"/><path d="M34 2 Q50 4 44 16 Q40 20 30 16" stroke="#5a7ae0" stroke-width="3" fill="none"/>`,
       balloon: `<circle cx="0" cy="-40" r="34" fill="#f26a6a" stroke="#a83a3a" stroke-width="2"/><path d="M-20 -14 L-14 4 M20 -14 L14 4" stroke="#6b4226" stroke-width="2"/><rect x="-16" y="4" width="32" height="18" rx="3" fill="#c9a274" stroke="#6b4226" stroke-width="2"/>`, }, b, 'boat');
-    const mover = pick({ sails: b === 'balloon' ? `<path d="M16 6 L40 -6 L40 18Z" fill="#fff" stroke="#8a8a9a"/>` : `<line x1="0" y1="0" x2="0" y2="-56" stroke="#6b4226" stroke-width="3"/><path d="M2 -54 L34 -14 L2 -12Z" fill="#ffffff" stroke="#8a8a9a"/>`,
+    const mover = strict && !m ? '' : pick({ sails: b === 'balloon' ? `<path d="M16 6 L40 -6 L40 18Z" fill="#fff" stroke="#8a8a9a"/>` : `<line x1="0" y1="0" x2="0" y2="-56" stroke="#6b4226" stroke-width="3"/><path d="M2 -54 L34 -14 L2 -12Z" fill="#ffffff" stroke="#8a8a9a"/>`,
       paddles: `<g stroke="#6b4226" stroke-width="3" stroke-linecap="round"><line x1="-24" y1="10" x2="-44" y2="30"/><line x1="24" y1="10" x2="44" y2="30"/></g><ellipse cx="-46" cy="32" rx="6" ry="4" fill="#a8722e"/><ellipse cx="46" cy="32" rx="6" ry="4" fill="#a8722e"/>`,
       wings: `<ellipse cx="-44" cy="-10" rx="18" ry="12" fill="#b9e3ff" stroke="#5a8acb" transform="rotate(-25 -44 -10)"/><ellipse cx="44" cy="-10" rx="18" ry="12" fill="#b9e3ff" stroke="#5a8acb" transform="rotate(25 44 -10)"/><ellipse cx="-38" cy="8" rx="11" ry="8" fill="#f6c6ee" stroke="#b83a98"/><ellipse cx="38" cy="8" rx="11" ry="8" fill="#f6c6ee" stroke="#b83a98"/>` }, m, 'sails');
-    const light = pick({ lantern: `<g transform="translate(-24 -16)"><circle r="12" fill="#fff2a8" opacity=".7"/><rect x="-5" y="-7" width="10" height="13" rx="3" fill="#ffd95a" stroke="#9a6b0c"/></g>`,
+    const light = strict && !l ? '' : pick({ lantern: `<g transform="translate(-24 -16)"><circle r="12" fill="#fff2a8" opacity=".7"/><rect x="-5" y="-7" width="10" height="13" rx="3" fill="#ffd95a" stroke="#9a6b0c"/></g>`,
       glowfish: `<g transform="translate(-22 -18)"><circle r="13" fill="#ffe0c0" opacity=".7"/><ellipse rx="9" ry="6" fill="#ff9a4a"/><path d="M8 0 L16 -6 L16 6Z" fill="#ff9a4a"/><circle cx="-4" cy="-1" r="1.5" fill="#222"/></g>`,
       star: `<g transform="translate(-22 -20)"><circle r="13" fill="#fff8c4" opacity=".8"/><path d="M0 -10 L3 -3 L10 -3 L4 2 L6 9 L0 5 L-6 9 L-4 2 L-10 -3 L-3 -3Z" fill="#f5c821" stroke="#9a6b0c"/></g>` }, l, 'lantern');
     return `<g transform="translate(${x} ${y}) scale(${s})">${m === 'wings' || m === 'paddles' ? mover + base : base + mover}${light}</g>`;
@@ -627,8 +635,9 @@ const ART = (() => {
     return wrap(`<rect width="400" height="260" fill="#dfeaf7"/>
       ${wolfView ? `${cloud(80, 50, 1.1, '#7a8698', .95)}${cloud(150, 40, .9, '#8a96a8', .9)}<path d="M120 70 L110 92 L122 92 L112 116" stroke="#f2c14e" stroke-width="3" fill="none"/>` : `${cloud(90, 50, .8)}<circle cx="340" cy="46" r="20" fill="#ffd866"/>`}
       <path d="M0 170 Q120 130 240 160 T400 150 L400 260 L0 260Z" fill="#a7cf8a"/>
-      ${phase === 'page' && ch.plan === 'build' ? '' : `<g transform="translate(70 168)"><rect x="-24" y="0" width="48" height="38" fill="#f2d36a"/><path d="M-30 2 L0 -24 L30 2Z" fill="#e8c050"/><g stroke="#c9a030">${[-18, -10, -2, 6, 14].map(a => `<line x1="${a}" y1="4" x2="${a}" y2="36"/>`).join('')}</g></g>
-      <g transform="translate(200 160)"><rect x="-26" y="0" width="52" height="44" fill="#b58a5a"/><path d="M-32 2 L0 -26 L32 2Z" fill="#8a5a33"/><g stroke="#7a5233">${[-20, -10, 0, 10, 20].map(a => `<line x1="${a}" y1="2" x2="${a}" y2="44"/>`).join('')}</g></g>
+      ${phase === 'meet' || phase === 'page' ? `<g stroke="#c9a030" stroke-width="3">${[[46, 206, 70, 200], [58, 212, 88, 210], [72, 204, 96, 208]].map(([a, b, c2, d]) => `<line x1="${a}" y1="${b}" x2="${c2}" y2="${d}"/>`).join('')}</g><g stroke="#7a5233" stroke-width="4">${[[178, 200, 206, 196], [188, 206, 222, 204], [200, 198, 226, 202]].map(([a, b, c2, d]) => `<line x1="${a}" y1="${b}" x2="${c2}" y2="${d}"/>`).join('')}</g>` : ''}
+      ${phase === 'page' && ch.plan === 'build' ? '' : `${phase === 'meet' || phase === 'page' ? '' : `<g transform="translate(70 168)"><rect x="-24" y="0" width="48" height="38" fill="#f2d36a"/><path d="M-30 2 L0 -24 L30 2Z" fill="#e8c050"/><g stroke="#c9a030">${[-18, -10, -2, 6, 14].map(a => `<line x1="${a}" y1="4" x2="${a}" y2="36"/>`).join('')}</g></g>
+      <g transform="translate(200 160)"><rect x="-26" y="0" width="52" height="44" fill="#b58a5a"/><path d="M-32 2 L0 -26 L32 2Z" fill="#8a5a33"/><g stroke="#7a5233">${[-20, -10, 0, 10, 20].map(a => `<line x1="${a}" y1="2" x2="${a}" y2="44"/>`).join('')}</g></g>`}
       <g transform="translate(330 152)"><rect x="-30" y="0" width="60" height="52" fill="#c0523a"/>${[1, 2, 3].map(r => `<line x1="-30" y1="${r * 13}" x2="30" y2="${r * 13}" stroke="#8a3a2a"/>`).join('')}<path d="M-36 2 L0 -28 L36 2Z" fill="#7a2a1a"/><rect x="14" y="-30" width="10" height="18" fill="#8a3a2a"/></g>`}
       ${pig(150, 222)}${pig(176, 228, .9)}${pig(286, 226)}
       ${wolf(phase === 'pig' ? 250 : 250, 196, wolfView)}${plan}${spark(40, 220)}`);
@@ -651,7 +660,7 @@ const ART = (() => {
         ${[-60, -20, 20, 60].map(a => `<line x1="${a}" y1="86" x2="${a}" y2="176" stroke="#c9a030" stroke-width="3"/>`).join('')}
         <ellipse cy="182" rx="86" ry="12" fill="${going ? '#5a8acb' : '#9aa6c0'}"/>
         ${[-60, 60].map((a, i) => `<g transform="translate(${a} ${140 + i * 8})"><ellipse rx="16" ry="8" fill="#fff"/><circle cx="-14" cy="-8" r="6" fill="#fff"/></g>`).join('')}
-        <circle cx="0" cy="54" r="7" fill="${phase === 'start' ? '#ffffff' : '#f2c14e'}" stroke="#9a6b0c" stroke-width="2"/>${phase === 'start' ? '<path d="M0 49 L1.5 53 L5.5 53 L2.3 55.5 L3.5 59.5 L0 57 L-3.5 59.5 L-2.3 55.5 L-5.5 53 L-1.5 53Z" fill="#9a9a9a"/>' : ''}
+        <circle cx="0" cy="54" r="7" fill="${phase === 'start' ? '#ffffff' : '#fff2c0'}" stroke="#9a6b0c" stroke-width="2"/><path d="M0 49 L1.5 53 L5.5 53 L2.3 55.5 L3.5 59.5 L0 57 L-3.5 59.5 L-2.3 55.5 L-5.5 53 L-1.5 53Z" fill="${phase === 'start' ? '#9a9a9a' : '#e8b23a'}" stroke="${phase === 'start' ? 'none' : '#8a5a10'}" stroke-width=".6"/>
       </g>
       ${train(70, 222)}${phase === 'page' ? '' : `${ragdoll(300, 214)}${soldier(330, 214)}`}${rider}${game}${spark(120, 160)}`);
   };
@@ -684,7 +693,7 @@ const ART = (() => {
   };
 
   const WORLD_ART = { fable, fairy, folk, rhyme, critter, wonder, imagine, heart: heartw, twist, play };
-  return { library, keeper: (s) => wrap(keeper(60, 50, s || 1), '0 0 120 150'), WORLD_ART, cover, blank, doorGlyph, shape, tile, vessel: (b, m, l) => wrap(`<rect width="200" height="140" fill="#fdeefa"/>${vessel(b, m, l, 100, 90, .95)}`, '0 0 200 140'), SKY, LAND, WATER, WCOL, frame };
+  return { library, keeper: (s) => wrap(keeper(60, 50, s || 1), '0 0 120 150'), WORLD_ART, cover, blank, doorGlyph, shape, tile, vessel: (b, m, l) => wrap(`<rect width="200" height="140" fill="#fdeefa"/>${vessel(b, m, l, 100, 90, .95, true)}`, '0 0 200 140'), SKY, LAND, WATER, WCOL, frame };
 })();
 
 /* =====================================================================
@@ -821,7 +830,7 @@ function loadState(choiceSpec) {   // uses DOOR_OF / DOOR_REQ from worlds.js
   S = r.s;
   if (!r.ok) loadNotice = 'We couldn’t read the saved storybook on this device, so a fresh one is ready. Nothing else was changed.';
   else {
-    if (r.recovered.length) loadNotice = `Part of the saved storybook didn’t quite add up, so ${r.recovered.length === 1 ? 'one world' : r.recovered.length + ' worlds'} will pick up from an earlier story door. Every page that was complete is still safe.`;
+    if (r.recovered.length) loadNotice = `Part of the saved storybook didn’t quite add up, so ${r.recovered.length === 1 ? 'one world' : r.recovered.length + ' worlds'} will pick up from an earlier story door. Every correctly saved page is still safe.`;
     if (r.rejected.length || r.recovered.length) { console.info('Saved storybook tidied:', { rejected: r.rejected, recovered: r.recovered }); save(); }
   }
 }
@@ -844,11 +853,12 @@ function showNotice() {
 
 /* ---------- Gentle, locally generated sound (off by default) ---------- */
 const Sound = (() => {
-  let ctx = null;
+  let ctx = null, master = null;   // CG-K001-008: master gain mutes pending/active tones at once
+  const level = () => (S.sound && S.vol > 0 ? S.vol : 0);
   function ensure() {
     if (!S.sound) return null;
     try {
-      if (!ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ctx = new AC(); }
+      if (!ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ctx = new AC(); master = ctx.createGain(); master.gain.value = level(); master.connect(ctx.destination); }
       if (ctx.state === 'suspended') ctx.resume();
       return ctx;
     } catch (e) { return null; }
@@ -858,11 +868,11 @@ const Sound = (() => {
     const c = ensure(); if (!c) return;
     const o = c.createOscillator(), g = c.createGain();
     o.type = type; o.frequency.value = freq;
-    const t = c.currentTime + start, peak = gain * S.vol;
+    const t = c.currentTime + start, peak = gain;
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(peak, t + 0.03);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
+    o.connect(g); g.connect(master || c.destination); o.start(t); o.stop(t + dur + 0.05);
   }
   const play = {
     tap: () => tone(660, 0, 0.18, 'sine', 0.08),
@@ -874,7 +884,11 @@ const Sound = (() => {
     bell: (i = 0) => tone([523, 587, 659, 784, 880][i % 5], 0, 0.7, 'triangle', 0.14),
     finale: () => { [392, 523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, i * 0.18, 1.1, 'triangle', 0.12)); }
   };
-  return { fx(name, arg) { if (S.sound && play[name]) play[name](arg); }, unlock() { ensure(); } };
+  function setLevel() {
+    if (!ctx || !master) return;
+    try { const now = ctx.currentTime; master.gain.cancelScheduledValues(now); master.gain.value = level(); } catch (e) { }
+  }
+  return { fx(name, arg) { if (S.sound && play[name]) { if (master) setLevel(); play[name](arg); } }, unlock() { ensure(); setLevel(); }, setLevel };
 })();
 
 /* ---------- Optional narration (device voices only, user-started) ----------
@@ -924,15 +938,34 @@ const Voice = (() => {
   };
 })();
 
+/* Keep a just-updated message on screen: scroll only if it is not already
+   fully visible, by the smallest amount, without motion when motion is reduced. */
+function showNear(el) {
+  requestAnimationFrame(() => {
+    if (!el || !el.isConnected) return;
+    const r = el.getBoundingClientRect(), top = 72, vh = window.innerHeight || 800;
+    if (r.top >= top && r.bottom <= vh - 8) return;
+    const reduce = S.calm || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    try { el.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) { el.scrollIntoView(false); }
+  });
+}
+
 /* Move focus back into the story if the focused control was removed or disabled
    (CG-K001-005). */
+/* Move focus without jumping the page (so a just-shown message stays in view);
+   scroll only if the newly focused control would be off-screen. */
+function focusSoft(el) {
+  try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+  const r = el.getBoundingClientRect();
+  if (r.bottom < 0 || r.top > (window.innerHeight || 800)) el.scrollIntoView({ block: 'nearest' });
+}
 function keepFocus(container) {
   setTimeout(() => {
     const a = document.activeElement;
     if (!a || a === document.body || !a.isConnected || a.disabled) {
       const root = container && container.isConnected ? container : document.getElementById('main');
       const t = root && (root.querySelector('[data-act="continue"]:not([disabled])') || root.querySelector('button:not([disabled])'));
-      if (t) t.focus();
+      if (t) focusSoft(t);
     }
   }, 45);
 }
@@ -1010,7 +1043,7 @@ WORLDS.fable = {
       c.hint({ b: 'The knots are deep and tiny. Which friend is small enough to squeeze inside?', l: 'Who is the smallest?' });
     },
     (c) => {
-      c.art('tangle', 'The tiny mouse climbs into the tangled vines to gnaw them, one at a time.');
+      c.art('gnaw', 'The tiny mouse climbs into the tangled vines to gnaw them, one at a time.');
       const sets = {
         little: [{ id: 'gold', n: 'Golden vine', top: true, under: [] }, { id: 'green', n: 'Green vine', under: ['gold'] }, { id: 'red', n: 'Berry vine', under: ['green'] }],
         young: [{ id: 'red', n: 'Berry vine', under: ['blue'] }, { id: 'gold', n: 'Golden vine', under: [] }, { id: 'blue', n: 'Blue vine', under: ['green'] }, { id: 'green', n: 'Green vine', under: ['gold'] }],
@@ -1042,7 +1075,7 @@ WORLDS.fable = {
                 { id: 'share', ico: '🍀', label: 'Share the sweetest clover patch', sub: 'Side by side' },
                 { id: 'promise', ico: '👂', label: 'Promise to always listen to small voices', sub: 'Even the tiniest' }
               ], (o) => { c.choose('thanks', o.id); c.art('free'); c.good({ ride: 'Thimble rides high on Orla’s mane as the first stars blink awake.', share: 'They munch clover together until the moon comes up.', promise: 'Orla bends her great head low. “From now on, I’ll listen to every small voice.”' }[o.id]); c.cont('Finish the story'); });
-            } else { c.good(`Nibble, nibble—the ${v.n.toLowerCase()} is gone!`); draw(); keepFocus(list); }
+            } else { draw(); c.note(`Nibble, nibble—the ${v.n.toLowerCase()} is gone!`, { after: list }); keepFocus(list); }
           });
           list.append(b);
         });
@@ -1086,7 +1119,7 @@ WORLDS.fairy = {
       c.hint('Any of these will help Wren. Choose the one you like.');
     },
     (c) => {
-      c.art('bridge', 'Wren stands on the bridge. Some planks are firm and some wobble.');
+      c.art('bridge-0', 'Wren stands at the start of the bridge. Some planks are firm and some wobble.');
       const P = {
         little: { rows: [['plain', 'star', 'plain'], ['star', 'plain', 'plain'], ['plain', 'plain', 'star']], seq: ['star', 'star', 'star'], sign: 'Step on the ⭐ star planks. They glow!' },
         young: { rows: [['moon', 'star', 'leaf'], ['leaf', 'moon', 'star'], ['star', 'leaf', 'moon'], ['moon', 'leaf', 'star']], seq: ['star', 'moon', 'star', 'moon'], sign: 'The sign says: ⭐ star, then 🌙 moon, then ⭐ star, then 🌙 moon.' },
@@ -1110,13 +1143,14 @@ WORLDS.fairy = {
               re.querySelectorAll('button').forEach(x => x.disabled = true);
               row++;
               if (row >= cfg.rows.length) {
+                c.art('bridge-100', 'Wren has crossed the bridge to the far bank.');
                 c.good({ b: 'Thump, thump, thump—Wren hops onto the far bank! “We did it! My knees wobbled the whole way, and we still did it!”', l: 'Hooray! Wren crossed the bridge!' });
                 c.cont('Climb Thistlecrag Hill');
               } else {
                 rowsEl[row].classList.remove('locked');
                 rowsEl[row].querySelectorAll('button').forEach(x => x.disabled = false);
                 rowsEl[row].querySelector('button').focus();
-                c.good(`Firm! Wren steps forward. Step ${row + 1} of ${cfg.rows.length} next.`);
+                c.note(`Firm! Wren steps forward. Step ${row + 1} of ${cfg.rows.length} next.`); c.art('bridge-' + Math.round(100 * row / cfg.rows.length));
               }
             } else {
               b.classList.add('wob');
@@ -1168,7 +1202,7 @@ const FOLK_CARDS = {
   share: 'Everyone ate together, and it was the best soup the village had ever tasted.'
 };
 const FOLK_ORDER = { little: ['arrive', 'add', 'share'], young: ['arrive', 'stone', 'add', 'share'], curious: ['arrive', 'shut', 'stone', 'add', 'share'] };
-const FOLK_WHO = { arrive: ['🦡', 'Bess the badger baker'], shut: ['🐦‍⬛', 'Old Cobble the crow'], stone: ['🪿', 'Gwen the goose'], add: ['🐇', 'Hob the hare'], share: ['🐹', 'Marta the mole'] };
+const FOLK_WHO = { arrive: ['🦡', 'Bess the badger baker'], shut: ['🐦‍⬛', 'Old Cobble the crow'], stone: ['🪿', 'Gwen the goose'], add: ['🐇', 'Hob the hare'], share: ['🐹', 'Marta the hamster'] };
 WORLDS.folk = {
   coll: 'Folklortals', collSub: 'Folklore Around the World', page: 'The Page of Heritage', virtue: 'Heritage',
   place: 'Hearthstone Village', blurb: 'A storyteller tortoise, a cooling fire and a story told across many lands.',
@@ -1187,8 +1221,8 @@ WORLDS.folk = {
         if (got.has(it.id)) return;
         got.add(it.id); btn.disabled = true; btn.classList.add('right'); Sound.fx('tap');
         book.append(h('li', {}, FOLK_CARDS[it.id]));
-        c.good(`${FOLK_WHO[it.id][1]} remembers: “${FOLK_CARDS[it.id]}”`);
-        if (got.size === need.length) { c.p({ b: `You found all ${need.length} pieces! But they’re all jumbled up.`, l: 'You found them all!' }); c.cont('Help Tova put them in order'); }
+        c.note(`${FOLK_WHO[it.id][1]} remembers: “${FOLK_CARDS[it.id]}”`);
+        if (got.size === need.length) { c.p({ b: `You found all ${need.length} pieces! Next, put them in story order.`, l: 'You found them all!' }); c.cont('Help Tova put them in order'); }
       });
       c.stage.append(h('h3', {}, 'Story pieces'), book);
       c.fam('Family moment: Grown-ups, is there a story someone told you when you were little? Share a bit of it.');
@@ -1205,8 +1239,8 @@ WORLDS.folk = {
           if (it.id === need[idx]) {
             btn.disabled = true; btn.classList.add('right'); told.append(h('li', { class: 'card okpos' }, h('span', { class: 'cn' }, String(idx + 1)), h('span', {}, FOLK_CARDS[it.id]), h('span')));
             idx++; Sound.fx('tap');
-            if (idx === need.length) { c.good('Yes! Tova claps her flippers. “That’s exactly how it goes!”'); c.cont(); }
-            else c.good(idx === 1 ? 'Yes! That’s the start. What comes next?' : 'Yes! What comes next?');
+            if (idx === need.length) { c.good('Yes! Tova claps her front feet. “That’s exactly how it goes!”'); c.cont(); }
+            else c.note(idx === 1 ? 'Yes! That’s the start. What comes next?' : 'Yes! What comes next?');
           } else c.gentle(idx === 0 ? 'Hmm. The traveler needs to arrive first! Who comes to the village?' : 'Not yet. Did the neighbors add food before everyone ate?');
         });
         c.stage.append(told);
@@ -1240,14 +1274,14 @@ WORLDS.folk = {
         } else {
           marks = true; draw();
           const n = order.filter((id, i) => id === need[i]).length;
-          c.gentle(`${n} of ${need.length} pieces are in the right place (marked ✓). Tova asks: “Which part has to happen before the soup can be shared?”`);
+          c.gentle(`${n} of ${need.length} pieces are in the right place${n ? ' (marked ✓)' : ''}. Tova asks: “Which part has to happen before the soup can be shared?”`);
         }
       });
       c.stage.append(ol, check);
       c.hint({ b: 'The traveler arrives first. Everyone eating together is the ending.', c: 'Start: the traveler arrives. The doors shut before the stone goes in. The neighbors add food before anyone eats.' });
     },
     (c) => {
-      c.art('dim', 'The soup pot bubbles. Everyone waits to see what you will add.');
+      c.art('warm', 'The fire burns brightly again and the soup pot bubbles. Everyone waits to see what you will add.');
       c.p({ b: 'The fire crackles back to life. The pot bubbles. Every neighbor has added something. Grandmother Tova turns to you.', l: 'The soup is bubbling. Now it’s your turn!' });
       c.say('Grandmother Tova', { b: '“In every telling of this story, the soup only becomes wonderful when everyone adds a little. What will you bring?”', l: '“What will you add?”' });
       c.opts([
@@ -1273,10 +1307,10 @@ WORLDS.folk = {
 
 /* ======================= IV. RHYMORTALS ======================= */
 const VERSE = [
-  { a: 'The bluebells are ringing all over the hill,', b: 'the brook keeps on bubbling, it never stays', ans: 'still', opts: { little: ['still', 'blue'], young: ['still', 'quiet', 'stop'], curious: ['still', 'chill', 'quiet'] }, pic: { still: '🫧', blue: '💙', quiet: '🤫', stop: '🛑', chill: '🧊' } },
-  { a: 'The sparrow sings sweetly to welcome the day,', b: 'and lambs in the meadow come skipping to', ans: 'play', opts: { little: ['play', 'sleep'], young: ['play', 'run', 'eat'], curious: ['play', 'hay', 'run'] }, pic: { play: '🤸', sleep: '😴', run: '🏃', eat: '🍽️', hay: '🌾' } },
-  { a: 'When the moon climbs up high and the stars start to peep,', b: 'the whole little valley drifts softly to', ans: 'sleep', opts: { young: ['sleep', 'bed', 'dream'], curious: ['sleep', 'sheep', 'steep'] }, pic: { sleep: '😴', bed: '🛏️', dream: '💭', sheep: '🐑', steep: '⛰️' } },
-  { a: 'So hum it, and drum it, and sing it along,', b: 'for every small voice is a part of the', ans: 'song', opts: { curious: ['song', 'strong', 'tune'] }, pic: { song: '🎶', strong: '💪', tune: '🎼' } }
+  { a: 'The bluebells are ringing all over the hill,', b: 'the brook keeps on bubbling, it never stays', ans: 'still', opts: { little: ['still', 'blue'], young: ['quiet', 'still', 'stop'], curious: ['chill', 'quiet', 'still'] }, pic: { still: '🫧', blue: '💙', quiet: '🤫', stop: '🛑', chill: '🧊' } },
+  { a: 'The sparrow sings sweetly to welcome the day,', b: 'and lambs in the meadow come skipping to', ans: 'play', opts: { little: ['sleep', 'play'], young: ['run', 'eat', 'play'], curious: ['hay', 'play', 'run'] }, pic: { play: '🤸', sleep: '😴', run: '🏃', eat: '🍽️', hay: '🌾' } },
+  { a: 'When the moon climbs up high and the stars start to peep,', b: 'the whole little valley drifts softly to', ans: 'sleep', opts: { young: ['bed', 'sleep', 'dream'], curious: ['sheep', 'steep', 'sleep'] }, pic: { sleep: '😴', bed: '🛏️', dream: '💭', sheep: '🐑', steep: '⛰️' } },
+  { a: 'So hum it, and drum it, and sing it along,', b: 'for every small voice is a part of the', ans: 'song', opts: { curious: ['strong', 'tune', 'song'] }, pic: { song: '🎶', strong: '💪', tune: '🎼' } }
 ];
 const RHYTHMS = { little: [['B', 't', 'B'], ['t', 't', 'B']], young: [['B', 't', 't', 'B'], ['B', 'B', 't', 'B'], ['t', 'B', 't', 't']], curious: [['B', 't', 'B', 't', 't'], ['t', 't', 'B', 'B', 't'], ['B', 't', 't', 'B', 't', 'B']] };
 const BEAT = { B: { n: 'BOOM', i: '🥁', s: 'boom' }, t: { n: 'ting', i: '🔔', s: 'ting' } };
@@ -1312,7 +1346,7 @@ WORLDS.rhyme = {
         opts.forEach(w => {
           const b = h('button', { type: 'button', class: 'opt', dataset: { id: w } }, h('span', { class: 'ico', 'aria-hidden': 'true' }, v.pic[w] || '🎵'), h('span', { class: 'ot' }, h('strong', {}, w)));
           b.addEventListener('click', () => {
-            if (w === v.ans) { Sound.fx('bell', at); at++; c.good(`“${v.ans}”! A bluebell rings.`); ask(); }
+            if (w === v.ans) { Sound.fx('bell', at); at++; ask(); if (at < lines.length) c.note(`“${v.ans}”! A bluebell rings.`, { before: area }); }
             else if (c.mode === 'curious' && ['chill', 'hay', 'sheep', 'steep', 'strong'].includes(w)) { b.disabled = true; keepFocus(g); c.gentle(`“${w}” does rhyme! But does it make sense in the line? Read it aloud with “${w}” in it.`); }
             else { b.disabled = true; keepFocus(g); c.gentle(`Say them aloud: “${v.a.replace(/[,.]/g, '').split(' ').pop()}… ${w}.” Do they sound the same at the end? Try another bell.`); }
           });
@@ -1362,10 +1396,10 @@ WORLDS.rhyme = {
         if (input.length === pat.length) {
           r++; input = [];
           if (r >= rounds.length) {
-            [bBtn, tBtn, undo, listen].forEach(x => x.disabled = true); if (cover) cover.disabled = true;
+            [bBtn, tBtn, undo, listen].forEach(x => { x.disabled = true; x.hidden = true; }); if (cover) { cover.disabled = true; cover.hidden = true; }
             c.good('BOOM-ting-BOOM! Pennywhistle flutters in a happy circle. “My rhythm is back!”'); c.cont('Write the last verse'); draw(); return;
           }
-          c.good('Perfect echo! Here comes the next beat.');
+          c.note(`Perfect echo! Here comes beat ${r + 1} of ${rounds.length}.`);
         }
         draw();
       };
@@ -1413,7 +1447,8 @@ const CRIT = {
   ferris: { ico: '🐸', name: 'Old Ferris the toad', notice: 'Ferris’s mossy bed by the pond has dried out and cracked.', need: 'soft moss for his bed' },
   bodkin: { ico: '🦫', name: 'Bodkin the beaver', notice: 'Bodkin sits alone beside a big pile of sticks. Nobody ever asks him to join in.', need: 'a friend—and someone to ask for help' }
 };
-const ITEM = { leaves: ['🍂', 'dry leaves'], twigs: ['🪵', 'twigs'], moss: ['🌿', 'moss'] };
+const ITEM = { leaves: ['🍂', 'dry leaves', 'dry leaf', 'dry leaves'], twigs: ['🪵', 'twigs', 'twig', 'twigs'], moss: ['🌿', 'moss', 'clump of moss', 'clumps of moss'] };
+const qty = (k, n) => `${n} ${n === 1 ? ITEM[k][2] : ITEM[k][3]}`;   // GBDQ-K001-006
 WORLDS.critter = {
   coll: 'Critterortals', collSub: 'Animal Adventures', page: 'The Page of Compassion', virtue: 'Compassion',
   place: 'Bramblewood Hollow', blurb: 'Woodland friends getting ready for the first snow—if everyone helps.',
@@ -1431,7 +1466,7 @@ WORLDS.critter = {
         if (seen.has(it.id)) return;
         seen.add(it.id); btn.disabled = true; btn.classList.add('right');
         notes.append(h('li', {}, `${CRIT[it.id].notice} They need ${CRIT[it.id].need}.`));
-        c.good(CRIT[it.id].notice);
+        c.note(CRIT[it.id].notice);
         if (seen.size === ids.length) { c.p({ b: 'Now you understand what everyone needs. That’s the first step of helping.', l: 'Now you know what they need!' }); c.cont('Open the sharing basket'); }
       });
       c.stage.append(h('h3', {}, 'What you noticed'), notes);
@@ -1455,16 +1490,16 @@ WORLDS.critter = {
       const remaining = (id) => Object.values(needs[id]).reduce((a, b) => a + b, 0);
       const allDone = () => Object.keys(needs).every(id => remaining(id) === 0);
       const draw = () => {
-        bEl.replaceChildren(h('strong', {}, 'Basket: '), ...Object.keys(ITEM).map(k => h('span', { class: 'badge' }, `${ITEM[k][0]} ${ITEM[k][1]}: ${basket[k]}`)));
+        bEl.replaceChildren(h('strong', {}, 'Basket: '), ...Object.keys(ITEM).map(k => h('span', { class: 'badge' }, `${ITEM[k][0]} ${qty(k, basket[k])}`)));
         grid.replaceChildren(...Object.keys(needs).map(id => {
           const r = remaining(id);
-          const needTxt = r ? 'Still needs: ' + Object.entries(needs[id]).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${ITEM[k][1]}`).join(', ') : 'All set! 💛';
+          const needTxt = r ? 'Still needs: ' + Object.entries(needs[id]).filter(([, n]) => n > 0).map(([k, n]) => qty(k, n)).join(', ') : 'All set! 💛';
           const box = h('div', { class: 'critter' + (r ? '' : ' full'), dataset: { id } }, h('h4', {}, CRIT[id].ico + ' ' + CRIT[id].name), h('p', { class: 'small' }, needTxt));
           if (r) {
             const g = h('div', { class: 'gives' });
             Object.keys(ITEM).forEach(k => {
               if (!basket[k]) return;
-              const b = h('button', { type: 'button', dataset: { give: k, to: id } }, `Give ${ITEM[k][0]} ${ITEM[k][1]}`);
+              const b = h('button', { type: 'button', dataset: { give: k, to: id } }, `Give ${ITEM[k][0]} 1 ${ITEM[k][2]}`);
               b.addEventListener('click', () => give(id, k));
               g.append(b);
             });
@@ -1482,16 +1517,17 @@ WORLDS.critter = {
         let msg = `${CRIT[id].name} says thank you!`;
         if (remaining(id) === 0) {
           msg = { hazel: 'Hazel burrows into her dry leaves. “So cozy!”', plum: 'Plum’s nest is back on its branch. “Home again!”', ferris: 'Ferris settles onto the soft moss. “Ahhh.”' }[id];
-          if (id === 'hazel' && C.hazelGift && !hazelGave) { hazelGave = true; basket.moss++; msg += ' Then she finds a clump of moss in her old nest. “Here—someone else might need this!” (+1 moss)'; }
+          if (id === 'hazel' && C.hazelGift && !hazelGave) { hazelGave = true; basket.moss++; msg += ' Then she finds a clump of moss in her old nest. “Here—someone else might need this!” (+1 clump of moss)'; }
         }
-        c.good(msg);
-        draw(); keepFocus(grid); checkStuck();
+        draw(); keepFocus(grid);
+        if (!checkStuck()) c.note(msg);
         if (allDone()) finish();
       };
       let stuckShown = false;
       const checkStuck = () => {
-        if (allDone() || asked) return;
-        if (basket.twigs === 0 && needs.plum && needs.plum.twigs > 0) { stuckShown = true; c.gentle({ b: 'Hmm, the basket is out of twigs, but Plum still needs some. Who in the Hollow has lots of sticks?', l: 'No more twigs! Who has lots of sticks?' }); }
+        if (allDone() || asked) return false;
+        if (basket.twigs === 0 && needs.plum && needs.plum.twigs > 0) { stuckShown = true; c.gentle({ b: 'Hmm, the basket is out of twigs, but Plum still needs some. Who in the Hollow has lots of sticks?', l: 'No more twigs! Who has lots of sticks?' }); return true; }
+        return false;
       };
       askBtn.addEventListener('click', () => {
         if (asked) return; asked = true;
@@ -1540,7 +1576,7 @@ WORLDS.critter = {
         who.forEach(id => {
           const b = h('button', { type: 'button', class: 'opt', dataset: { id } }, h('span', { class: 'ico', 'aria-hidden': 'true' }, CRIT[id].ico), h('span', { class: 'ot' }, h('strong', {}, CRIT[id].name)));
           b.addEventListener('click', () => {
-            if (id === j.who) { Sound.fx('tap'); c.good(`${CRIT[id].name} is perfect for that!`); i++; ask(); }
+            if (id === j.who) { Sound.fx('tap'); i++; ask(); if (i < jobs.length) c.note(`${CRIT[id].name} is perfect for that! Next job:`, { before: area }); }
             else { b.disabled = true; keepFocus(g); c.gentle(`${CRIT[id].name} gives it a try—but this job suits someone else better. ${j.miss}`); }
           });
           g.append(b);
@@ -1564,7 +1600,7 @@ const CLUES = {
   feather: { ico: '🪶', spot: 'Look on the tower stairs', t: 'A soft brown feather and bits of woven reed on the stairs.' },
   window: { ico: '🪟', spot: 'Look at the tower window', t: 'The tower window is open. Its latch is broken.' },
   weather: { ico: '📋', spot: 'Read the weather board', t: 'The weather board: music on windy Monday, music on windy Wednesday, silence on calm Tuesday.' },
-  dust: { ico: '👣', spot: 'Look closely at the dusty floor', t: 'Thick dust on the stairs—and not a single footprint.' },
+  dust: { ico: '👣', spot: 'Look closely at the dusty stairs', t: 'Thick dust on the stairs—and not a single footprint.' },
   musicbox: { ico: '🎁', spot: 'Visit the toy shop', t: 'The toy shop’s old music box is broken and has no winding key.' },
   changes: { ico: '🥐', spot: 'Ask the baker', t: 'The baker says the tune is different every single night.' }
 };
@@ -1586,7 +1622,7 @@ WORLDS.wonder = {
       c.opts(ids.map(id => ({ id, ico: CLUES[id].ico, label: CLUES[id].spot })), (it, btn) => {
         if (got.has(it.id)) return;
         got.add(it.id); btn.disabled = true; btn.classList.add('right'); Sound.fx('tap');
-        nb.append(h('li', {}, CLUES[it.id].t)); c.good('Clue found! ' + CLUES[it.id].t);
+        nb.append(h('li', {}, CLUES[it.id].t)); c.note('Clue found! ' + CLUES[it.id].t);
         if (got.size === ids.length) { c.p({ b: `${ids.length} clues in the notebook. Time to think!`, l: 'You found all the clues!' }); c.cont('Solve the mystery'); }
       });
       c.stage.append(h('h3', {}, 'Detective notebook'), nb);
@@ -1686,7 +1722,7 @@ WORLDS.imagine = {
             c.choose(p.k, col); chips.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', String(x === b))); Sound.fx('tap');
             const all = parts.every(q => c.ch[q.k]);
             c.art(all ? 'color' : 'colorpart', `A world with a ${COLORNAME.sky[c.ch.sky] || 'gray'} sky, ${COLORNAME.land[c.ch.land] || 'gray'} hills and a ${COLORNAME.water[c.ch.water] || 'gray'} sea.`);
-            c.good(`The ${p.k === 'land' ? 'hills turn' : p.k + ' turns'} ${COLORNAME[p.k][col]}!`);
+            c.note(`The ${{ sky: 'sky turns', land: 'hills turn', water: 'sea turns' }[p.k]} ${COLORNAME[p.k][col]}!`);
             if (all && !area.dataset.done) { area.dataset.done = '1'; c.say('Scribble', { b: '“Wonderful! Now… I need to get to Cloud Isle, but I can’t fly far—paper wings get soggy. Will you invent something to take us?”', l: '“Hooray! Now help me get to Cloud Isle!”' }); c.cont('Invent a vessel'); }
           });
           chips.append(b);
@@ -1699,7 +1735,11 @@ WORLDS.imagine = {
       c.art('color', 'Scribble waits by the colorful sea, ready for an adventure.');
       c.p({ b: 'Build a vessel to cross the Sea of Swirls. Pick one of each part—every combination works, and each one makes a different journey.', l: 'Build something to cross the sea! Pick one of each.' });
       const prev = h('div', { class: 'art', style: 'max-width:320px' });
-      const drawPrev = () => prev.replaceChildren(svgNode(ART.vessel(c.ch.base || 'boat', c.ch.mover || 'sails', c.ch.light || 'lantern'), `Your vessel: ${PART.base[c.ch.base || 'boat'][1]} with ${PART.mover[c.ch.mover || 'sails'][1]} and ${PART.light[c.ch.light || 'lantern'][1]}`));
+      // GBDQ-K001-013: preview shows only parts actually chosen (dashed outline = not chosen yet)
+      const drawPrev = () => {
+        const parts = ['base', 'mover', 'light'].filter(k => c.ch[k]).map(k => PART[k][c.ch[k]][1]);
+        prev.replaceChildren(svgNode(ART.vessel(c.ch.base, c.ch.mover, c.ch.light), parts.length ? `Your vessel so far: ${parts.join(', ')}.` : 'Your vessel: nothing chosen yet.'));
+      };
       const area = h('div', { class: 'builder' });
       const LBL = { base: 'Something to ride in', mover: 'Something to make it go', light: 'Something to light the way' };
       ['base', 'mover', 'light'].forEach(k => {
@@ -1722,10 +1762,15 @@ WORLDS.imagine = {
         nameArea.append(h('fieldset', {}, h('legend', {}, 'Give it a name: pick a describing word and a naming word'), mk('adj', ADJ, 'Describing word'), h('div', { style: 'height:.4rem' }), mk('noun', NOUN, 'Naming word')));
       }
       const go = h('button', { type: 'button', class: 'btn gold', dataset: { act: 'launch' } }, 'Launch!');
-      const nameOut = h('p', { class: 'pg-moment', 'aria-live': 'polite' });
+      const nameOut = h('p', { class: 'pg-moment' });
+      const missingEl = h('p', { class: 'small', id: 'launch-missing', dataset: { role: 'launch-missing' } });
+      go.setAttribute('aria-describedby', 'launch-missing');
+      const NEEDS = { base: 'something to ride in', mover: 'something to make it go', light: 'something to light the way', adj: 'a describing word for the name', noun: 'a naming word for the name' };
       const refresh = () => {
-        const ready = ['base', 'mover', 'light', 'adj', 'noun'].every(k => c.ch[k]);
-        go.disabled = !ready;
+        const miss = ['base', 'mover', 'light', 'adj', 'noun'].filter(k => !c.ch[k]);
+        const show = c.mode === 'little' ? miss.filter(k => k !== 'noun').map(k => k === 'adj' ? 'a name' : NEEDS[k]) : miss.map(k => NEEDS[k]);
+        go.disabled = miss.length > 0;
+        missingEl.textContent = miss.length ? `Launch is waiting for: ${show.join(', ')}.` : 'Everything is chosen. Press Launch!';
         nameOut.textContent = c.ch.adj && c.ch.noun ? `Your vessel: The ${c.ch.adj} ${c.ch.noun}` : '';
       };
       go.addEventListener('click', () => {
@@ -1738,7 +1783,7 @@ WORLDS.imagine = {
         c.good(`${how}, and ${ride}. When fog rolls in, ${lit} lights the way. The ${c.ch.adj} ${c.ch.noun} reaches Cloud Isle!`);
         c.cont('Find the door in the cloud');
       });
-      c.stage.append(prev, area, nameArea, nameOut, go); drawPrev(); refresh();
+      c.stage.append(prev, area, nameArea, nameOut, missingEl, go); drawPrev(); refresh();
       c.fam('Family moment: Take turns choosing one part each.');
       c.hint('Choose one thing in each row, and a name. Then press Launch!');
     },
@@ -1837,7 +1882,7 @@ WORLDS.heart = {
         { id: 'shadow', ico: '🎭', label: 'A shadow-puppet show', sub: 'Make shapes on the wall' }
       ], (o) => {
         c.choose('game', o.id); c.art('page', 'Juniper smiles and plays happily with her new friends.');
-        c.good({ leafboats: 'Juniper’s leaf boat wins the second race! Her quills stand up happily.', bubbles: 'Juniper blows the wobbliest bubble anyone has ever seen. Everyone cheers.', shadow: 'Juniper’s quills make the best shadow-puppet hedgehog EVER.' }[o.id]);
+        c.good({ leafboats: 'Juniper’s leaf boat wins the second race! Her quills stand up happily.', bubbles: 'Juniper blows the wobbliest bubble anyone has ever seen. Everyone cheers.', shadow: 'Juniper’s quills make the best shadow-puppet porcupine EVER.' }[o.id]);
         c.say('Juniper', { b: '“I thought nobody wanted me here. But you noticed me.”', l: '“Thank you for noticing me!”' });
         c.cont('Finish the story');
       });
@@ -1855,15 +1900,15 @@ WORLDS.heart = {
 
 /* ======================= IX. TWISTORTALS ======================= */
 const TPANELS = [
-  { pig: 'Someone pounded on the straw house door and shouted, “Let me in!”', wolf: 'Wendell the wolf saw dark storm clouds racing over the hills. He ran to the straw house shouting, “Let me in—a storm is coming!”', q: 'What did the pigs not see?', opts: [['clouds', '⛈️', 'Storm clouds behind the hill'], ['kite', '🪁', 'A kite in a tree'], ['squirrel', '🐿️', 'A squirrel on the roof']], ans: 'clouds' },
-  { pig: 'The wolf huffed and puffed—and the stick house blew away!', wolf: 'Wendell was huffing and puffing because he had run all the way up the hill. Then a huge gust of storm wind blew the stick house down.', q: 'Why was Wendell huffing and puffing?', opts: [['ran', '🏃', 'He was out of breath from running'], ['blow', '💨', 'He was trying to blow the house down'], ['sing', '🎵', 'He was practicing a song']], ans: 'ran' },
-  { pig: 'Then the wolf climbed onto the brick house roof!', wolf: 'Wendell climbed up to put a cap on the brick house chimney, so the storm rain wouldn’t pour inside.', q: 'Why did Wendell climb the roof?', opts: [['cap', '🎩', 'To cover the chimney from the rain'], ['peek', '👀', 'To peek inside'], ['stars', '⭐', 'To look at the stars']], ans: 'cap' }
+  { pig: 'Someone pounded on the straw house door and shouted, “Let me in!”', wolf: 'Wendell the wolf saw dark storm clouds racing over the hills. He ran to the straw house shouting, “Let me in—a storm is coming!”', q: 'What did the pigs not see?', opts: [['kite', '🪁', 'A kite in a tree'], ['clouds', '⛈️', 'Storm clouds behind the hill'], ['squirrel', '🐿️', 'A squirrel on the roof']], ans: 'clouds' },
+  { pig: 'The wolf huffed and puffed—and the stick house blew away!', wolf: 'Wendell was huffing and puffing because he had run all the way up the hill. Then a huge gust of storm wind blew the stick house down.', q: 'Why was Wendell huffing and puffing?', opts: [['blow', '💨', 'He was trying to blow the house down'], ['sing', '🎵', 'He was practicing a song'], ['ran', '🏃', 'He was out of breath from running']], ans: 'ran' },
+  { pig: 'Then the wolf climbed onto the brick house roof!', wolf: 'Wendell climbed up to put a cap on the brick house chimney, so the storm rain wouldn’t pour inside.', q: 'Why did Wendell climb the roof?', opts: [['peek', '👀', 'To peek inside'], ['cap', '🎩', 'To cover the chimney from the rain'], ['stars', '⭐', 'To look at the stars']], ans: 'cap' }
 ];
 WORLDS.twist = {
   coll: 'Twistortals', collSub: 'Classic Stories Reimagined', page: 'The Page of Perspective', virtue: 'Perspective',
   place: 'Puddleby Pass', blurb: 'You know the story of the three little pigs. But have you heard the wolf’s side?',
   doors: ['Two Sides of the Story', 'Both Sides Speak', 'Building Together'],
-  choices: { ask: ['pigs', 'wolf', 'both'], fair: ['storm'], plan: ['build', 'signal', 'picnic'] },
+  choices: { cap: ['seen'], ask: ['pigs', 'wolf', 'both'], fair: ['storm'], plan: ['build', 'signal', 'picnic'] },
   source: 'Reimagines the traditional English folktale “The Three Little Pigs” (public domain; printed in 19th-century collections). The storm-warning wolf, Wendell, and all wording are original—not based on any modern retelling.',
   moments: [
     (c) => {
@@ -1882,8 +1927,10 @@ WORLDS.twist = {
         const bw = h('button', { type: 'button', 'aria-pressed': 'false', dataset: { act: 'wolfview' } }, '🐺 Wendell’s side');
         tg.append(bp, bw);
         const qArea = h('div');
+        const instr = h('p', { class: 'small', dataset: { role: 'view-instruction' } });
         const set = (v) => {
           view = v; bp.setAttribute('aria-pressed', String(v === 'pig')); bw.setAttribute('aria-pressed', String(v === 'wolf'));
+          instr.textContent = v === 'pig' ? (seenWolf ? 'You’re reading the pigs’ side. Switch to Wendell’s side to compare.' : 'Switch to Wendell’s side to see more.') : 'You’re reading Wendell’s side. You can switch back to the pigs’ side to compare.';
           txt.textContent = v === 'pig' ? P.pig : P.wolf;
           c.art(v === 'pig' ? 'pig' : 'wolf', v === 'pig' ? 'The pigs’ view: a sunny hill, three houses and a wolf at the door.' : 'Wendell’s view: dark storm clouds roll over the hill as he runs with a red warning flag.');
           if (v === 'wolf' && !seenWolf) { seenWolf = true; ask(); }
@@ -1894,7 +1941,7 @@ WORLDS.twist = {
           P.opts.forEach(([id, ico, lab]) => {
             const b = h('button', { type: 'button', class: 'opt', dataset: { id } }, h('span', { class: 'ico', 'aria-hidden': 'true' }, ico), h('span', { class: 'ot' }, h('strong', {}, lab)));
             b.addEventListener('click', () => {
-              if (id === P.ans) { Sound.fx('tap'); c.good('Yes! Seeing Wendell’s side changes the story.'); i++; show(); }
+              if (id === P.ans) { Sound.fx('tap'); i++; if (P.ans === 'cap') c.choose('cap', 'seen'); show(); if (i < panels.length) c.note('Yes! Seeing Wendell’s side changes the story. Here is the next part.', { before: area }); }
               else { b.disabled = true; keepFocus(g); c.gentle('Read Wendell’s side again. What does it say?'); }
             });
             g.append(b);
@@ -1902,7 +1949,7 @@ WORLDS.twist = {
           qArea.append(g);
         };
         bp.addEventListener('click', () => set('pig')); bw.addEventListener('click', () => set('wolf'));
-        area.append(h('div', { class: 'tpanel' }, h('p', { class: 'kicker' }, `Part ${i + 1} of ${panels.length}`), tg, txt, h('p', { class: 'small' }, 'Switch to Wendell’s side to see more.'), qArea));
+        area.append(h('div', { class: 'tpanel' }, h('p', { class: 'kicker' }, `Part ${i + 1} of ${panels.length}`), tg, txt, instr, qArea));
         set('pig'); keepFocus(area);
       };
       show();
@@ -1955,7 +2002,8 @@ WORLDS.twist = {
     const ask = pickText({ pigs: 'You asked the pigs how it felt, and Wendell said sorry for frightening them.', wolf: 'You asked Wendell why he was shouting, and he realized how scary it had seemed.', both: 'You let each side tell the whole story without interrupting.', x: 'You helped both sides listen.' }, ch.ask, 'x');
     const fair = ch.fair === 'storm' ? ' You helped write the fair version: a storm blew down the houses, and the wolf was trying to warn the pigs.' : '';
     const plan = pickText({ build: 'Now pigs and wolf share one big, sturdy house.', signal: 'Now a storm bell rings out a friendly warning.', picnic: 'Now Wendell waits out storms with the pigs, over soup.', x: '' }, ch.plan, 'x');
-    return { moment: 'The “big bad wolf” turned out to be a storm-watcher racing to warn his neighbors.', story: `In the old story, the wolf huffs and puffs. But when you switched to Wendell’s side, you saw storm clouds, a wolf out of breath from running and a chimney cap against the rain. ${ask}${fair} ${plan} Things aren’t always what they first appear.`.replace(/\s+/g, ' ').trim() };
+    const saw = ch.cap === 'seen' ? 'storm clouds, a wolf out of breath from running and a chimney cap against the rain' : 'storm clouds and a wolf out of breath from running';
+    return { moment: 'The “big bad wolf” turned out to be a storm-watcher racing to warn his neighbors.', story: `In the old story, the wolf huffs and puffs. But when you switched to Wendell’s side, you saw ${saw}. ${ask}${fair} ${plan} Things aren’t always what they first appear.`.replace(/\s+/g, ' ').trim() };
   }
 };
 
@@ -1996,6 +2044,7 @@ WORLDS.play = {
         g.append(b);
       });
       c.stage.append(g);
+      c.fam('Family moment: Before anyone taps, everyone points to the piece they think will fit.');
       c.hint({ b: 'The slot is a star with five points.', l: 'Find the star!' });
     },
     (c) => {
@@ -2018,6 +2067,19 @@ WORLDS.play = {
         }
         return { path, ok: false };
       };
+      const solOrder = (() => { // travel order of the designed route
+        let r = 0, col = 0, entry = 3; const out = [];
+        for (let g = 0; g < 20; g++) {
+          if (r < 0 || r >= cfg.rows || col < 0 || col >= cfg.cols) break;
+          const idx = r * cfg.cols + col, tl = tiles[idx]; if (tl.s == null) break;
+          const cn = CONN[tl.t](tl.s); if (!cn.includes(entry)) break;
+          out.push(idx); const exit = cn[0] === entry ? cn[1] : cn[0];
+          if (exit === 1 && col === cfg.cols - 1) break;
+          if (exit === 0) r--; else if (exit === 2) r++; else if (exit === 1) col++; else col--;
+          entry = (exit + 2) % 4;
+        }
+        return out;
+      })();
       let solved = false;
       const status = h('p', { class: 'small', dataset: { role: 'track-status' } });
       const draw = (focus) => {
@@ -2046,10 +2108,12 @@ WORLDS.play = {
       };
       c.stage.append(h('p', { class: 'small' }, `🚂 Start: left of row 1 · 🎠 Carousel: right of row ${cfg.exitRow + 1}`), h('div', { class: 'track-wrap' }, grid), status);
       draw();
-      c.hint({ b: 'The glowing green pieces are already connected. Turn the next piece after them.', l: 'Turn the piece that isn’t green yet.' });
+      c.fam('Family moment: Take turns turning one track piece each. Before each turn, say where you think the track will go next.');
+      c.hint({ b: 'Pieces with a ✓ are already connected. Turn the next piece after them.', l: 'Turn the piece that has no ✓ yet.' });
       c.onHint(() => {
-        const tr = trace(); const sol = tiles.map((t, i) => i).filter(i => tiles[i].s != null);
-        const wrong = sol.find(i => !tr.path.includes(i)) ?? sol.find(i => CONN[tiles[i].t](tiles[i].r).join() !== CONN[tiles[i].t](tiles[i].s).join());
+        // GBDQ-K001-027: walk the designed route in travel order and point to the first
+        // piece whose connection differs from the route, so the hint always helps.
+        const wrong = solOrder.find(i => CONN[tiles[i].t](tiles[i].r).join() !== CONN[tiles[i].t](tiles[i].s).join());
         grid.querySelectorAll('.tile').forEach(x => x.classList.remove('lead'));
         if (wrong != null) { const el = grid.querySelector(`[data-i="${wrong}"]`); el && el.classList.add('lead'); return `Try turning the piece in row ${Math.floor(wrong / cfg.cols) + 1}, column ${wrong % cfg.cols + 1} (now outlined in purple).`; }
         return null;
@@ -2076,6 +2140,7 @@ WORLDS.play = {
         { id: 'old', ico: '💂', label: 'The old tin soldier', sub: 'His knees creak, so he’d love a sit' },
         { id: 'all', ico: '🎠', label: 'Everyone at once', sub: 'Nib adds extra seats' }
       ], (it) => { o.lock(); c.choose('rider', it.id); c.good({ shy: 'Rags giggles all the way around. “Wheee! I’ve never been first before!”', old: 'The tin soldier sighs happily. “Ahh. Riding is much better than marching.”', all: 'Nib hitches on extra seats, and everyone rides together, round and round.' }[it.id]); pickGame(); });
+      c.fam('Family moment: Grown-ups, what games did you play when you were little? Could Toybox Town play one?');
       c.hint('Every choice is a good one.');
     }
   ],
@@ -2104,7 +2169,7 @@ const DOOR_REQ = {
   twist: [[], ['ask'], ['plan']],
   play: [[], [], ['rider', 'game']]
 };
-const DOOR_OPT = { wonder: { predict: 2 }, twist: { fair: 1 } };
+const DOOR_OPT = { wonder: { predict: 2 }, twist: { cap: 0, fair: 1 } };   // twist.cap (R2): chimney-cap clue seen (3-part modes only)
 const DOOR_OF = Object.fromEntries(WORLD_IDS.map(id => {
   const m = {}; DOOR_REQ[id].forEach((keys, d) => keys.forEach(k => { m[k] = d; }));
   Object.assign(m, DOOR_OPT[id] || {}); return [id, m];
@@ -2120,7 +2185,8 @@ App = (() => {
   let cur = { screen: 'title', p: {} };
   let replay = null;           // session-only replay run {id, step, ch, replay:true}
   let firstRender = true;     // CG-K001-005: leave focus at the top on first page load so Tab reaches the skip link
-  let lastNav = 0;            // guards against accidental double-taps on navigation buttons
+  let lastNav = 0;
+  let flash = '';             // GBDQ-K001-020: one-time visible confirmation on the next screen            // guards against accidental double-taps on navigation buttons
 
   const doneCount = () => WORLD_IDS.filter(id => S.worlds[id].done).length;
   const doorsOpened = () => WORLD_IDS.reduce((a, id) => a + (S.worlds[id].done ? 3 : S.worlds[id].step), 0) + (S.finale.done ? 1 : 0);
@@ -2148,6 +2214,7 @@ App = (() => {
     if (screen !== 'world' && replay && !(screen === 'reveal' && p.replayDone)) replay = null;
     cur = { screen, p };
     main.replaceChildren();
+    if (flash) { const f = h('p', { class: 'flash', dataset: { role: 'flash' } }, flash); main.append(f); announce(flash); flash = ''; }
     document.body.style.removeProperty('--wc');
     const inGame = !['title', 'intro'].includes(screen);
     $('#btn-library').hidden = !inGame || screen === 'library';
@@ -2198,8 +2265,10 @@ App = (() => {
   SCREENS.title = () => {
     const hero = h('div', { class: 'hero' });
     const img = h('img', { src: '/assets/kidortals-hero.png', alt: 'Kidortals: a sunny sky full of clouds and little magical doors.' });
-    img.addEventListener('error', () => { img.remove(); hero.append(h('div', { class: 'hero-fallback' }, svgNode(ART.library(0, Array(10).fill(false)), 'A library beyond the clouds with a great storybook in the middle.'))); });
+    const fallback = () => { if (!img.isConnected && hero.querySelector('.hero-fallback')) return; img.remove(); if (!hero.querySelector('.hero-fallback')) hero.append(h('div', { class: 'hero-fallback' }, svgNode(ART.library(0, Array(10).fill(false)), 'A library beyond the clouds with a great storybook in the middle.'))); };
+    img.addEventListener('error', fallback);
     hero.append(img);
+    if (img.complete && img.naturalWidth === 0) fallback();   // GBDQ-K001-017: cached failure
     const started = S.introSeen || doorsOpened() > 0;
     const wrap = h('section', { class: 'title-wrap' },
       hero,
@@ -2213,7 +2282,7 @@ App = (() => {
         h('p', { class: 'small' }, 'Choose what feels right. You can change it any time in Settings, and your progress stays safe. We never ask for names or ages.'),
         modePicker(),
         h('div', { class: 'row-btns' },
-          started ? btn('Continue the adventure', () => go(S.introSeen ? 'library' : 'intro'), 'btn gold', { act: 'continue' }) : btn('Begin the adventure', () => go('intro'), 'btn gold', { act: 'begin' }),
+          started ? btn(doorsOpened() > 0 ? 'Continue the adventure' : 'Go to the library', () => go(S.introSeen ? 'library' : 'intro'), 'btn gold', { act: 'continue' }) : btn('Begin the adventure', () => go('intro'), 'btn gold', { act: 'begin' }),
           started ? btn('Read my storybook', () => go('book', { page: 0 }), 'btn ghost') : null,
           started ? btn('Hear the beginning again', () => go('intro'), 'btn ghost') : null)
       ));
@@ -2251,7 +2320,9 @@ App = (() => {
     if (just) {
       const W = WORLDS[just];
       if (n === 10) return `“The ${W.page.replace('The ', '')} is home—and that makes all ten! Can you feel it? The whole library is glowing. The Last Door has woken up. Whenever you’re ready, it’s waiting.”`;
-      return `“The ${W.page.replace('The ', '')}! Look—${['the first lamp is glowing', 'the colors are coming back', 'the shelves are shining', 'I can hear the pages humming', 'the sunbeam is getting warmer'][(n - 1) % 5]}. That’s ${n} of 10 pages home. Rest if you like, or choose another door.”`;
+      // GBDQ-K001-011: one authored line per page count, so each milestone is accurate
+      const MILESTONE = ['', 'the first lamp is glowing', 'a second lamp has lit up, and the colors are coming back', 'three lamps now—the shelves are starting to shine', 'four lamps! I can hear the pages humming', 'that’s half the lamps—the sunbeam is getting warmer', 'six lamps glowing—the books are bright again', 'seven lamps—the whole room feels cozier', 'eight lamps shining—only two pages still to come home', 'nine lamps—just one page left, whenever you’re ready'];
+      return `“The ${W.page.replace('The ', '')}! Look—${MILESTONE[n]}. That’s ${n} of 10 pages home. Rest if you like, or choose another door.”`;
     }
     if (n === 0) return S.mode === 'little' ? '“Pick any door! Fablortals is a good first door.”' : '“Each door leads to a different world. You can visit them in any order. If you’d like a suggestion, Fablortals is a lovely place to begin.”';
     if (n === 10 && !S.finale.done) return '“All ten pages are home! The Last Door is ready whenever you are.”';
@@ -2276,7 +2347,7 @@ App = (() => {
     const list = h('ul', { class: 'doors', 'aria-label': 'The ten world doors' });
     WORLD_IDS.forEach((id, i) => {
       const W = WORLDS[id], w = S.worlds[id];
-      const status = w.done ? h('span', { class: 'badge ok' }, '✓ Page restored') : w.step > 0 ? h('span', { class: 'badge go' }, `In progress · door ${w.step + 1} of 3`) : (n === 0 && id === 'fable') ? h('span', { class: 'badge go' }, '★ Suggested first') : h('span', { class: 'badge' }, 'Not visited yet');
+      const status = w.done ? h('span', { class: 'badge ok' }, '✓ Page restored') : w.step > 0 ? h('span', { class: 'badge go' }, `In progress · door ${w.step + 1} of 3`) : (n === 0 && id === 'fable') ? h('span', { class: 'badge go' }, '★ Suggested first') : h('span', { class: 'badge' }, 'Ready to explore');
       const b = h('button', { type: 'button', class: 'door ' + (w.done ? 'lit' : 'dim') + (n === 0 && id === 'fable' ? ' rec' : ''), style: `--dc:${W.accent}`, dataset: { world: id } },
         h('span', { class: 'dglyph', 'aria-hidden': 'true' }, svgNode(ART.doorGlyph(i))),
         h('span', { class: 'dn' }, `${W.num} · ${W.coll}`), h('span', { class: 'dplace' }, W.place), h('span', { class: 'dplace' }, W.page), h('span', { class: 'dstat' }, status));
@@ -2284,7 +2355,8 @@ App = (() => {
       list.append(h('li', {}, b));
     });
     const fin = h('div', { class: 'panel final-door' });
-    if (!allDone()) fin.append(h('div', {}, h('h2', {}, 'The Last Door'), h('p', {}, `This golden door is still asleep. It will wake when all ten pages are home (${n} of 10).`)));
+    if (!allDone()) fin.append(h('div', {}, h('h2', {}, 'The Last Door'), h('p', {}, `😴 This golden door is still asleep. It will wake when all ten pages are home (${n} of 10).`),
+      h('ol', { class: 'lanterns', role: 'img', 'aria-label': `Pages home: ${n} of 10. The Last Door wakes when all 10 lanterns are lit.` }, WORLD_IDS.map((id, i) => h('li', { class: 'lantern' + (S.worlds[id].done ? ' lit' : ''), 'aria-hidden': 'true' }, ROMAN[i])))));
     else if (!S.finale.done) fin.append(h('div', {}, h('h2', {}, 'The Last Door is awake!'), h('p', {}, 'All ten pages are home. Bring their memories to the Last Door.')), btn('✨ Open the Last Door', () => go('finale'), 'btn gold', { act: 'finale' }));
     else fin.append(h('div', {}, h('h2', {}, 'The Last Door'), h('p', {}, 'You are a Storybook Keeper. Your storybook is complete.')), btn('Read the final page', () => go('book', { page: 11 }), 'btn gold'), btn('Open the Last Door again', () => go('finale'), 'btn ghost'));
     main.append(head, h('h2', { class: 'sr-only' }, 'World doors'), list, fin);
@@ -2327,15 +2399,31 @@ App = (() => {
     const steps = h('ol', { class: 'steps', 'aria-label': 'Story doors in this world' }, W.doors.map((d, i) => h('li', { class: i < step ? 'did' : i === step ? 'now' : '', 'aria-current': i === step ? 'step' : null }, (i < step ? '✓ ' : i === step ? '• ' : '') + d)));
     const artBox = h('div', { class: 'art' });
     const flow = h('div', { class: 'panel story', id: 'flow' });
-    const gentleEl = h('p', { class: 'feedback gentle', role: 'status' });
+    // GBDQ-K001-001/002/003: one transient feedback element per door. It is placed
+    // next to the control just used (scrolling only if it is still off-screen) and is
+    // replaced, never stacked. Lasting story consequences use good() instead.
+    const gentleEl = h('p', { class: 'feedback gentle', dataset: { role: 'feedback' } });
     const hintEl = h('p', { class: 'hint', hidden: true });
+    let lastCtl = null;
+    flow.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) lastCtl = b; }, true);
+    const GROUPS = ['.creatures', '.planks', '.cards', '.track-wrap', '.builder', '.opts', '.row-btns'];
+    const place = (el, where) => {
+      if (where && where.after && where.after.isConnected) { where.after.after(el); return; }
+      if (where && where.before && where.before.isConnected) { where.before.before(el); return; }
+      const c = lastCtl && lastCtl.isConnected && flow.contains(lastCtl) ? lastCtl : null;
+      let grp = null;
+      if (c) for (const sel of GROUPS) { grp = c.closest(sel); if (grp && flow.contains(grp)) break; grp = null; }
+      if (grp) grp.after(el); else flow.append(el);
+    };
     const tools = h('div', { class: 'tools' });
     let hintText = null, hintFn = null, lastLabel = W.place;
     const famEls = [];
     const showHint = () => {
       let t = hintFn ? hintFn() : null;
       if (!t) t = T(hintText) || 'Take your time. Every choice can be tried again.';
-      hintEl.textContent = '💡 ' + t; hintEl.hidden = false; flow.append(hintEl); announce('Hint: ' + t);
+      hintEl.textContent = '💡 ' + t; hintEl.hidden = false;
+      if (gentleEl.isConnected) gentleEl.after(hintEl); else place(hintEl);
+      showNear(hintEl); announce('Hint: ' + t);
     };
     const ctx = {
       id, W, mode: S.mode === 'family' ? 'young' : S.mode, ch: draft, stage: null,
@@ -2343,8 +2431,10 @@ App = (() => {
       p(t) { const e = h('p', {}, T(t)); flow.append(e); return e; },
       say(who, t) { const e = h('p', { class: 'say' }, h('span', { class: 'who' }, who + ': '), T(t)); flow.append(e); return e; },
       fam(t) { if (S.mode === 'family') { const e = h('div', { class: 'family' }, h('strong', {}, 'Family moment: '), t.replace(/^Family moment:\s*/, '')); famEls.push(e); flow.append(e); } },
-      good(t, phase) { gentleEl.remove(); hintEl.hidden = true; const msg = T(t); flow.append(h('p', { class: 'feedback good' }, msg)); Sound.fx('good'); announce(msg); if (phase) ctx.art(phase); },
-      gentle(t) { const msg = T(t); gentleEl.textContent = msg; flow.append(gentleEl); Sound.fx('gentle'); announce(msg); if (S.mode === 'little') showHint(); },
+      good(t, phase) { gentleEl.remove(); hintEl.remove(); hintEl.hidden = true; const msg = T(t); flow.append(h('p', { class: 'feedback good' }, msg)); Sound.fx('good'); announce(msg); if (phase) ctx.art(phase); },
+      note(t, where) { const msg = T(t); hintEl.remove(); hintEl.hidden = true; gentleEl.className = 'feedback good'; gentleEl.textContent = msg; place(gentleEl, where); showNear(gentleEl); Sound.fx('tap'); announce(msg); },
+      gentle(t, where) { const msg = T(t); hintEl.remove(); hintEl.hidden = true; gentleEl.className = 'feedback gentle'; gentleEl.textContent = msg; place(gentleEl, where); showNear(gentleEl); Sound.fx('gentle'); announce(msg); if (S.mode === 'little') showHint(); },
+      clearNote() { gentleEl.remove(); hintEl.remove(); hintEl.hidden = true; },
       hint(t) { hintText = t; }, onHint(fn) { hintFn = fn; },
       opts(list, cb) {
         const g = h('div', { class: 'opts' });
@@ -2358,7 +2448,7 @@ App = (() => {
             b.classList.add('picked');
             cb(it, b);
             if (cb.length < 2) api.lock();   // single-answer choices lock; multi-try callbacks manage themselves
-            setTimeout(() => { const a = document.activeElement; if (!a || a === document.body || a.disabled) (main.querySelector('[data-act="continue"]:not([disabled])') || g.querySelector('button:not([disabled])') || main.querySelector('.opts:last-of-type button:not([disabled])'))?.focus(); }, 40);
+            setTimeout(() => { const a = document.activeElement; if (!a || a === document.body || a.disabled) { const t = main.querySelector('[data-act="continue"]:not([disabled])') || g.querySelector('button:not([disabled])') || main.querySelector('.opts:last-of-type button:not([disabled])'); if (t) focusSoft(t); } }, 40);
           });
           g.append(b);
         });
@@ -2454,8 +2544,8 @@ App = (() => {
       h('div', {}, h('p', { class: 'kicker' }, `World ${W.num} · ${W.coll}`), h('h2', { class: 'pg-title' }, W.page), h('p', {}, h('span', { class: 'pg-virtue' }, 'Discovered: ' + W.virtue)), h('p', { class: 'pg-moment' }, r.moment), h('p', {}, r.story)));
     const tools = h('div', { class: 'tools' });
     if (isReplay) {
-      tools.append(btn('Write this new adventure onto my page', () => { S.worlds[id].ch = { ...replay.ch }; save(); replay = null; announce('Your page now tells your newest adventure.'); go('book', { page: W.i + 1 }); }, 'btn gold', { act: 'keep-new' }),
-        btn('Keep my first page', () => { replay = null; go('library'); }, 'btn ghost', { act: 'keep-old' }));
+      tools.append(btn('Write this new adventure onto my page', () => { S.worlds[id].ch = { ...replay.ch }; save(); replay = null; flash = `✓ ${W.page} now tells your newest adventure.`; go('book', { page: W.i + 1 }); }, 'btn gold', { act: 'keep-new' }),
+        btn('Keep my first page', () => { replay = null; flash = `✓ Your first version of ${W.page} is kept, just as it was.`; go('library'); }, 'btn ghost', { act: 'keep-old' }));
     } else {
       tools.append(btn('Back to the glowing library', () => go('library', { just: id }), 'btn gold', { act: 'to-library' }), btn('Open my storybook', () => go('book', { page: W.i + 1 }), 'btn ghost'));
     }
@@ -2485,6 +2575,7 @@ App = (() => {
       renderPage(i),
       h('div', { class: 'book-nav' }, prev, next),
       h('div', { class: 'tools' }, readAloudBtn(pageText), btn('🖨 Print a family keepsake', printBook, 'btn ghost', { act: 'print' }), btn('Back to the library', () => go('library'), 'btn ghost')),
+      h('p', { class: 'small', dataset: { role: 'print-tip' } }, 'Tip for grown-ups: in the print window, you can turn off “Headers and footers” so the web address and date are not printed. Choose “Save as PDF” to keep a copy. Nothing is uploaded.'),
       h('details', { class: 'panel', open: i === 0 ? true : null }, h('summary', {}, 'All pages'), toc)));
   };
 
@@ -2513,15 +2604,15 @@ App = (() => {
           else {
             misses++; b.disabled = true;
             const t = `“That’s ${CW.page}—a lovely page, but this memory comes from somewhere else. Think about ${misses > 1 || S.mode === 'little' ? W.place : 'who was in this story'}.”`;
-            fbEl.textContent = t; area.append(fbEl); announce(t); Sound.fx('gentle');
+            fbEl.textContent = t; g.after(fbEl); showNear(fbEl); announce(t); Sound.fx('gentle');
             if (misses > 1 || S.mode === 'little') g.querySelector(`[data-id="${id}"]`).classList.add('glow');
           }
         });
         g.append(b);
       });
-      area.append(g, h('div', { class: 'tools' }, readAloudBtn(() => readable(area)), btn('💡 Hint', () => { const t = `This memory comes from ${W.place}, in ${W.coll}.`; fbEl.textContent = '💡 ' + t; area.append(fbEl); announce(t); g.querySelector(`[data-id="${id}"]`)?.classList.add('glow'); }, 'btn ghost', { act: 'hint' }), btn('Back to the library', () => go('library'), 'btn ghost')));
+      area.append(g, h('div', { class: 'tools' }, readAloudBtn(() => readable(area)), btn('💡 Hint', () => { const t = `This memory comes from ${W.place}, in ${W.coll}.`; fbEl.textContent = '💡 ' + t; g.after(fbEl); showNear(fbEl); announce(t); g.querySelector(`[data-id="${id}"]`)?.classList.add('glow'); }, 'btn ghost', { act: 'hint' }), btn('Back to the library', () => go('library'), 'btn ghost')));
     };
-    const fbEl = h('p', { class: 'feedback gentle', role: 'status' });
+    const fbEl = h('p', { class: 'feedback gentle', dataset: { role: 'feedback' } });
     const open = () => {
       const first = !S.finale.done;
       S.finale.done = true; S.keeper = true; save();
@@ -2596,6 +2687,7 @@ App = (() => {
     const note = $('#set-voice-note');
     note.textContent = Voice.available() ? 'Read aloud is available: look for the 🔊 Read aloud button. It uses a voice on this device and only starts when you press it.' : 'Read aloud isn’t available in this browser (no on-device voice was found). Grown-ups can read the story aloud instead.';
   }
+  function volOut() { const pct = Math.round(S.vol * 100); const o = $('#set-vol-out'); if (o) o.textContent = pct + '%'; $('#set-vol').setAttribute('aria-valuetext', pct === 0 ? '0 percent, silent' : pct + ' percent'); }
   function openSettings() {
     const box = $('#set-modes'); box.replaceChildren();
     MODES.forEach(m => {
@@ -2604,7 +2696,7 @@ App = (() => {
       inp.addEventListener('change', () => { if (!inp.checked) return; S.mode = m; save(); applySettings(); announce(MODE_INFO[m].name + ' chosen. Your progress is safe.'); });
       box.append(h('label', { class: 'mode-card' }, inp, h('span', {}, h('strong', {}, MODE_INFO[m].name), h('br'), h('span', { class: 'small' }, MODE_INFO[m].hint + '. ' + MODE_INFO[m].desc))));
     });
-    $('#set-sound').checked = S.sound; $('#set-vol').value = Math.round(S.vol * 100); $('#set-calm').checked = S.calm; $('#set-big').checked = S.big;
+    $('#set-sound').checked = S.sound; $('#set-vol').value = Math.round(S.vol * 100); volOut(); $('#set-calm').checked = S.calm; $('#set-big').checked = S.big;
     refreshVoiceUI();
     const d = $('#dlg-settings'); d.dataset.mode = S.mode;
     if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
@@ -2613,8 +2705,8 @@ App = (() => {
     $('#btn-settings').addEventListener('click', openSettings);
     $('#btn-library').addEventListener('click', () => go('library'));
     $('#btn-book').addEventListener('click', () => go('book', { page: 0 }));
-    $('#set-sound').addEventListener('change', e => { S.sound = e.target.checked; save(); if (S.sound) { Sound.unlock(); Sound.fx('good'); } });
-    $('#set-vol').addEventListener('input', e => { const v = Number(e.target.value); S.vol = Number.isFinite(v) ? Math.max(0, Math.min(1, v / 100)) : 0.5; save(); if (!(S.vol > 0)) Voice.stop(); });
+    $('#set-sound').addEventListener('change', e => { S.sound = e.target.checked; save(); Sound.setLevel(); if (S.sound) { Sound.unlock(); Sound.fx('good'); } });
+    $('#set-vol').addEventListener('input', e => { const v = Number(e.target.value); S.vol = Number.isFinite(v) ? Math.max(0, Math.min(1, v / 100)) : 0.5; save(); volOut(); Sound.setLevel(); if (!(S.vol > 0)) Voice.stop(); });
     $('#set-vol').addEventListener('change', () => Sound.fx('tap'));
     $('#set-calm').addEventListener('change', e => { S.calm = e.target.checked; save(); applySettings(); });
     $('#set-big').addEventListener('change', e => { S.big = e.target.checked; save(); applySettings(); });
@@ -2628,13 +2720,37 @@ App = (() => {
     $('#set-reset').addEventListener('click', () => { const r = $('#dlg-reset'); if (typeof r.showModal === 'function') r.showModal(); else r.setAttribute('open', ''); $('#reset-keep').focus(); });
     $('#dlg-reset').addEventListener('close', () => {
       const r = $('#dlg-reset');
-      if (r.returnValue === 'reset') { Voice.stop(); resetAll(); replay = null; applySettings(); d.close(); go('title'); announce('The storybook has been reset.'); }
+      if (r.returnValue === 'reset') { Voice.stop(); resetAll(); replay = null; applySettings(); d.dataset.mode = S.mode; d.close(); flash = '✓ The storybook has been reset. A fresh adventure is ready to begin.'; go('title'); }
       r.returnValue = '';
     });
   }
 
+  /* ---------- Another tab saved (GBDQ-K001-025) ----------
+     Each tab re-reads the shared record when another tab writes it, so a stale
+     tab never overwrites newer progress. An unfinished door in this tab restarts
+     (same rule as leaving a door). */
+  function onOtherTab(e) {
+    if (e.key !== KEY && e.key !== null) return;
+    if (e.storageArea && e.storageArea !== window.localStorage) return;
+    const wasMode = S.mode;
+    if (e.newValue == null) { S = freshState(); replay = null; flash = 'This storybook was reset in another tab, so this tab has started fresh too.'; applySettings(); go('title'); return; }
+    let raw = null; try { raw = JSON.parse(e.newValue); } catch (err) { return; }
+    const r = sanitize(raw, CHOICE_SPEC, DOOR_OF, DOOR_REQ);
+    if (!r.ok) return;
+    const wasStarted = S.introSeen || WORLD_IDS.some(id => S.worlds[id].step > 0);
+    const isFresh = !r.s.introSeen && WORLD_IDS.every(id => r.s.worlds[id].step === 0);
+    S = r.s; applySettings();
+    if (wasStarted && isFresh) { replay = null; flash = 'This storybook was reset in another tab, so this tab has started fresh too.'; go('title'); return; }
+    const scr = cur.screen;
+    if (scr === 'world' || scr === 'reveal' || scr === 'finale' || scr === 'library' || scr === 'book' || scr === 'door' || scr === 'ending') {
+      flash = 'Your storybook was updated in another tab, so this tab has caught up.' + (scr === 'world' ? ' This story door starts fresh.' : '');
+      go(scr, cur.p);
+    } else if (wasMode !== S.mode) go(scr, cur.p);
+  }
+
   /* ---------- Init ---------- */
   function init() {
+    try { window.addEventListener('storage', onOtherTab); } catch (e) { }
     loadState(CHOICE_SPEC);
     applySettings(); showNotice(); wireSettings();
     go('title');
