@@ -74,9 +74,10 @@ body.mode-little .btn{min-height:58px;font-size:1.15rem}
 
 /* Title */
 .title-wrap{display:grid;gap:1.2rem}
-.hero{position:relative;border-radius:var(--radius);overflow:hidden;min-height:120px;background:#cfe8ff}
-.hero img{display:block;width:100%;max-height:340px;object-fit:cover}
-.hero-fallback{padding:1rem}
+.hero{position:relative;border-radius:var(--radius);overflow:hidden;height:clamp(160px,30vw,340px);background:#cfe8ff}  /* GBDQ-K001-029: fixed box, no layout shift */
+.hero img{display:block;width:100%;height:100%;object-fit:cover}
+.hero-fallback{height:100%;display:flex;align-items:center;justify-content:center}
+.hero-fallback svg{height:100%;width:auto;max-width:100%}
 .title-wrap .tagline{font-family:var(--serif);font-size:1.2rem;font-style:italic}
 .mode-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.7rem}
 .mode-card{display:flex;flex-direction:column;align-items:flex-start;gap:.2rem;text-align:left;min-height:96px;padding:.8rem 1rem;border-radius:16px;border:3px solid var(--line);background:#fff;color:var(--navy);font:inherit;cursor:pointer}
@@ -226,7 +227,7 @@ body.calm *{animation:none!important;transition:none!important}
 .book-nav{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
 .spread{display:grid;gap:1rem;background:#fffdf6;border-radius:12px 22px 22px 12px;border:2px solid #e3d3a8;box-shadow:0 10px 30px rgba(60,40,0,.12), inset 10px 0 18px rgba(160,120,40,.08);padding:clamp(.8rem,2.4vw,1.5rem)}
 @media(min-width:860px){.spread{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
-.spread .pg-art{border-radius:12px;overflow:hidden;border:6px double #d9b55a;background:#fff}
+.spread .pg-art{border-radius:12px;overflow:hidden;border:6px double #d9b55a;background:#fff;align-self:start}  /* GBDQ-K001-010: do not stretch to the text column */
 .spread .pg-art svg{display:block;width:100%;height:auto}
 .pg-title{font-family:var(--serif)}
 .pg-virtue{display:inline-block;padding:.15rem .7rem;border-radius:999px;background:#fff1c9;border:2px solid #d6a93a;font-weight:700}
@@ -2084,13 +2085,23 @@ WORLDS.play = {
       const status = h('p', { class: 'small', dataset: { role: 'track-status' } });
       const draw = (focus) => {
         const tr = trace();
-        status.textContent = tr.ok ? '✓ The track is connected all the way to the carousel!' : `✓ marks connected pieces. The track reaches ${tr.path.length} piece${tr.path.length === 1 ? '' : 's'} from the start, but not the carousel yet.`;
+        // GBDQ-K001-030: ✓ marks pieces connected AND set the right way, counting from the
+        // start. (Each layout has exactly one route, so when the train arrives every route
+        // piece is ✓; a piece that lets the train in but steers it off course is not ✓.)
+        const okSet = new Set();
+        if (tr.ok) tr.path.forEach(i => okSet.add(i));
+        else for (let k = 0; k < tr.path.length; k++) {
+          const i = tr.path[k];
+          if (i !== solOrder[k] || CONN[tiles[i].t](tiles[i].r).join() !== CONN[tiles[i].t](tiles[i].s).join()) break;
+          okSet.add(i);
+        }
+        status.textContent = tr.ok ? '✓ The track is connected all the way to the carousel!' : `✓ marks pieces that are connected and pointing the right way. ${okSet.size} piece${okSet.size === 1 ? ' is' : 's are'} ready from the start, but the track doesn’t reach the carousel yet.`;
         const startM = h('span', { class: 'track-mark', style: 'grid-row:1;grid-column:1', 'aria-hidden': 'true', title: 'Start' }, '🚂');
         const goalM = h('span', { class: 'track-mark', style: `grid-row:${cfg.exitRow + 1};grid-column:${cfg.cols + 2}`, 'aria-hidden': 'true', title: 'Carousel' }, '🎠');
         grid.replaceChildren(startM, goalM, ...tiles.map((tl, i) => {
           const cn = CONN[tl.t](tl.r);
-          const b = h('button', { type: 'button', class: 'tile' + (tr.path.includes(i) ? ' on' : ''), dataset: { i }, style: `grid-row:${Math.floor(i / cfg.cols) + 1};grid-column:${i % cfg.cols + 2}`, 'aria-label': `Row ${Math.floor(i / cfg.cols) + 1}, column ${i % cfg.cols + 1}: ${tl.t === 'S' ? 'straight track' : 'curved track'} joining ${SIDE[cn[0]]} and ${SIDE[cn[1]]}${tr.path.includes(i) ? ', connected' : ''}. Press to turn.` });
-          b.append(svgNode(ART.tile(tl.t, tl.r, tr.path.includes(i))));
+          const b = h('button', { type: 'button', class: 'tile' + (okSet.has(i) ? ' on' : ''), dataset: { i }, style: `grid-row:${Math.floor(i / cfg.cols) + 1};grid-column:${i % cfg.cols + 2}`, 'aria-label': `Row ${Math.floor(i / cfg.cols) + 1}, column ${i % cfg.cols + 1}: ${tl.t === 'S' ? 'straight track' : 'curved track'} joining ${SIDE[cn[0]]} and ${SIDE[cn[1]]}${okSet.has(i) ? ', connected and pointing the right way' : ''}. Press to turn.` });
+          b.append(svgNode(ART.tile(tl.t, tl.r, okSet.has(i))));
           b.addEventListener('click', () => {
             if (solved) return;
             tl.r = (tl.r + 1) % 4; Sound.fx('tap'); draw(i);
@@ -2100,22 +2111,29 @@ WORLDS.play = {
               c.art('go', 'The carousel lights up and begins to turn.');
               c.good('Toot toot! Nib chugs from START all the way to the carousel. The key turns—click, click, click—and the carousel lights up!');
               c.cont('Reopen the fair');
-            } else announce(`Turned. ${t2.path.length} piece${t2.path.length === 1 ? '' : 's'} connected from the start.`);
+            } else announce('Turned. ' + status.textContent.replace(/^✓ marks pieces that are connected and pointing the right way\. /, ''));
           });
           return b;
         }));
         if (focus != null) grid.querySelector(`[data-i="${focus}"]`)?.focus();
+        c.refreshHint();   // GBDQ-K001-030
       };
       c.stage.append(h('p', { class: 'small' }, `🚂 Start: left of row 1 · 🎠 Carousel: right of row ${cfg.exitRow + 1}`), h('div', { class: 'track-wrap' }, grid), status);
       draw();
       c.fam('Family moment: Take turns turning one track piece each. Before each turn, say where you think the track will go next.');
       c.hint({ b: 'Pieces with a ✓ are already connected. Turn the next piece after them.', l: 'Turn the piece that has no ✓ yet.' });
-      c.onHint(() => {
+      let hinted = null;
+      c.onHint((auto) => {
         // GBDQ-K001-027: walk the designed route in travel order and point to the first
         // piece whose connection differs from the route, so the hint always helps.
         const wrong = solOrder.find(i => CONN[tiles[i].t](tiles[i].r).join() !== CONN[tiles[i].t](tiles[i].s).join());
         grid.querySelectorAll('.tile').forEach(x => x.classList.remove('lead'));
-        if (wrong != null) { const el = grid.querySelector(`[data-i="${wrong}"]`); el && el.classList.add('lead'); return `Try turning the piece in row ${Math.floor(wrong / cfg.cols) + 1}, column ${wrong % cfg.cols + 1} (now outlined in purple).`; }
+        const prev = hinted; hinted = wrong == null ? null : wrong;
+        if (wrong != null) {
+          const el = grid.querySelector(`[data-i="${wrong}"]`); el && el.classList.add('lead');
+          const base = `Try turning the piece in row ${Math.floor(wrong / cfg.cols) + 1}, column ${wrong % cfg.cols + 1} (now outlined in purple).`;
+          return auto && prev != null && prev !== wrong ? `✓ That piece is right now. Next: ${base}` : base;
+        }
         return null;
       });
     },
@@ -2248,8 +2266,21 @@ App = (() => {
     if (choices.length) parts.push('You can choose: ' + choices.join('; ') + '.');
     return parts.join(' ');
   }
-  const tapOK = () => Date.now() - lastNav > 300;
-  const btn = (label, fn, cls = 'btn', data) => { const b = h('button', { type: 'button', class: cls, dataset: data }, label); b.addEventListener('click', (e) => { if (tapOK()) fn(e); }); return b; };
+  /* GBDQ-K001-029: a first activation of a newly rendered button is never dropped.
+     Only the trailing clicks of a double/triple click (detail ≥ 2) and the second
+     tap of a quick double-tap at the same spot are ignored right after a screen
+     change; held-down Enter auto-repeat is blocked separately (keydown below). */
+  let navPt = { x: -999, y: -999 };
+  const tapOK = (e) => {
+    const since = Date.now() - lastNav;
+    if (!e) return true;
+    if (e.detail >= 2 && since < 700) return false;
+    if ((e.pointerType === 'touch' || e.pointerType === 'pen') && since < 350 && Math.hypot((e.clientX || 0) - navPt.x, (e.clientY || 0) - navPt.y) < 24) return false;
+    return true;
+  };
+  const markPt = (e) => { if (e && e.detail >= 1) navPt = { x: e.clientX || 0, y: e.clientY || 0 }; };
+  document.addEventListener('keydown', (e) => { if (e.repeat && e.key === 'Enter' && e.target && e.target.closest && e.target.closest('button')) e.preventDefault(); }, true);
+  const btn = (label, fn, cls = 'btn', data) => { const b = h('button', { type: 'button', class: cls, dataset: data }, label); b.addEventListener('click', (e) => { if (tapOK(e)) { markPt(e); fn(e); } }); return b; };
 
   /* ---------- Title ---------- */
   function modePicker(onPick) {
@@ -2351,7 +2382,7 @@ App = (() => {
       const b = h('button', { type: 'button', class: 'door ' + (w.done ? 'lit' : 'dim') + (n === 0 && id === 'fable' ? ' rec' : ''), style: `--dc:${W.accent}`, dataset: { world: id } },
         h('span', { class: 'dglyph', 'aria-hidden': 'true' }, svgNode(ART.doorGlyph(i))),
         h('span', { class: 'dn' }, `${W.num} · ${W.coll}`), h('span', { class: 'dplace' }, W.place), h('span', { class: 'dplace' }, W.page), h('span', { class: 'dstat' }, status));
-      b.addEventListener('click', () => { if (tapOK()) go('door', { id }); });
+      b.addEventListener('click', (e) => { if (tapOK(e)) { markPt(e); go('door', { id }); } });
       list.append(h('li', {}, b));
     });
     const fin = h('div', { class: 'panel final-door' });
@@ -2419,7 +2450,7 @@ App = (() => {
     let hintText = null, hintFn = null, lastLabel = W.place;
     const famEls = [];
     const showHint = () => {
-      let t = hintFn ? hintFn() : null;
+      let t = hintFn ? hintFn(false) : null;
       if (!t) t = T(hintText) || 'Take your time. Every choice can be tried again.';
       hintEl.textContent = '💡 ' + t; hintEl.hidden = false;
       if (gentleEl.isConnected) gentleEl.after(hintEl); else place(hintEl);
@@ -2436,6 +2467,15 @@ App = (() => {
       gentle(t, where) { const msg = T(t); hintEl.remove(); hintEl.hidden = true; gentleEl.className = 'feedback gentle'; gentleEl.textContent = msg; place(gentleEl, where); showNear(gentleEl); Sound.fx('gentle'); announce(msg); if (S.mode === 'little') showHint(); },
       clearNote() { gentleEl.remove(); hintEl.remove(); hintEl.hidden = true; },
       hint(t) { hintText = t; }, onHint(fn) { hintFn = fn; },
+      // GBDQ-K001-030: if a hint is showing, recompute it after the puzzle changes so it
+      // never names a piece that is already right. No scrolling or focus change.
+      refreshHint() {
+        if (hintEl.hidden || !hintEl.isConnected || !hintFn) return;
+        const t = hintFn(true);
+        if (!t) { hintEl.remove(); hintEl.hidden = true; return; }
+        const nt = '💡 ' + t;
+        if (hintEl.textContent !== nt) { hintEl.textContent = nt; announce('Hint updated: ' + t); }
+      },
       opts(list, cb) {
         const g = h('div', { class: 'opts' });
         let locked = false;
@@ -2458,7 +2498,7 @@ App = (() => {
       },
       cont(label = 'Continue', fn) {
         const b = h('button', { type: 'button', class: 'btn gold', dataset: { act: 'continue' } }, label + ' ▶');
-        b.addEventListener('click', () => { if (b.disabled || !tapOK()) return; b.disabled = true; (fn || ctx.next)(); });
+        b.addEventListener('click', (e) => { if (b.disabled || !tapOK(e)) return; markPt(e); b.disabled = true; (fn || ctx.next)(); });
         flow.append(h('div', { class: 'row-btns', style: 'margin-top:.8rem' }, b));
         setTimeout(() => b.focus(), 30);
       },
