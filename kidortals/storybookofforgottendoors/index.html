@@ -2081,7 +2081,7 @@ WORLDS.play = {
         }
         return out;
       })();
-      let solved = false;
+      let solved = false, okNow = new Set(), ready = 0, lastTurned = null;
       const status = h('p', { class: 'small', dataset: { role: 'track-status' } });
       const draw = (focus) => {
         const tr = trace();
@@ -2095,6 +2095,7 @@ WORLDS.play = {
           if (i !== solOrder[k] || CONN[tiles[i].t](tiles[i].r).join() !== CONN[tiles[i].t](tiles[i].s).join()) break;
           okSet.add(i);
         }
+        okNow = okSet; ready = okSet.size;   // GBDQ-K001-032: remembered for hint wording
         status.textContent = tr.ok ? '✓ The track is connected all the way to the carousel!' : `✓ marks pieces that are connected and pointing the right way. ${okSet.size} piece${okSet.size === 1 ? ' is' : 's are'} ready from the start, but the track doesn’t reach the carousel yet.`;
         const startM = h('span', { class: 'track-mark', style: 'grid-row:1;grid-column:1', 'aria-hidden': 'true', title: 'Start' }, '🚂');
         const goalM = h('span', { class: 'track-mark', style: `grid-row:${cfg.exitRow + 1};grid-column:${cfg.cols + 2}`, 'aria-hidden': 'true', title: 'Carousel' }, '🎠');
@@ -2104,7 +2105,7 @@ WORLDS.play = {
           b.append(svgNode(ART.tile(tl.t, tl.r, okSet.has(i))));
           b.addEventListener('click', () => {
             if (solved) return;
-            tl.r = (tl.r + 1) % 4; Sound.fx('tap'); draw(i);
+            tl.r = (tl.r + 1) % 4; Sound.fx('tap'); lastTurned = i; draw(i);
             const t2 = trace();
             if (t2.ok) {
               solved = true; grid.querySelectorAll('button').forEach(x => x.disabled = true);
@@ -2122,17 +2123,23 @@ WORLDS.play = {
       draw();
       c.fam('Family moment: Take turns turning one track piece each. Before each turn, say where you think the track will go next.');
       c.hint({ b: 'Pieces with a ✓ are already connected. Turn the next piece after them.', l: 'Turn the piece that has no ✓ yet.' });
-      let hinted = null;
+      let hinted = null, hintReady = null;
       c.onHint((auto) => {
         // GBDQ-K001-027: walk the designed route in travel order and point to the first
         // piece whose connection differs from the route, so the hint always helps.
         const wrong = solOrder.find(i => CONN[tiles[i].t](tiles[i].r).join() !== CONN[tiles[i].t](tiles[i].s).join());
         grid.querySelectorAll('.tile').forEach(x => x.classList.remove('lead'));
-        const prev = hinted; hinted = wrong == null ? null : wrong;
+        const prev = hinted, prevReady = hintReady; hinted = wrong == null ? null : wrong; hintReady = ready;
         if (wrong != null) {
           const el = grid.querySelector(`[data-i="${wrong}"]`); el && el.classList.add('lead');
           const base = `Try turning the piece in row ${Math.floor(wrong / cfg.cols) + 1}, column ${wrong % cfg.cols + 1} (now outlined in purple).`;
-          return auto && prev != null && prev !== wrong ? `✓ That piece is right now. Next: ${base}` : base;
+          // GBDQ-K001-032: praise only when the piece just turned is now right AND the
+          // ready count went up; if a ready piece was knocked out of place, say so gently.
+          if (auto && prev != null && prev !== wrong && prevReady != null) {
+            if (ready > prevReady && lastTurned != null && okNow.has(lastTurned)) return `✓ That piece is right now. Next: ${base}`;
+            if (ready < prevReady) return `That turn moved a piece out of place, so the hint has changed. ${base}`;
+          }
+          return base;
         }
         return null;
       });
