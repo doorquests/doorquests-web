@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-qwjKQocT6avrAY+TH41LBWnszUf1R336AUbRwvKua4s='; style-src 'sha256-3H7lKIAEgWpWWSesLCDpi07/oBFQcl5i9BEH4xRBEb8='; img-src data: blob:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5y5n295C5fF85EuFbHY9VNRqMJRnMWma2TM4jfeupwM='; style-src 'sha256-ZceUwoxagrVpCubyOW9SzI64rxoykmH7kgdm8LjtawQ='; img-src data: blob:; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="A DoorQuests Fortals adventure: regroup across empty drawers, check a granary ledger, and decide when an estimate is not enough.">
-<meta name="doorquests-build" content="FMM-001-R0 review-build 2026-11-22">
-<title>The Empty Drawers of Tally Hollow — DoorQuests [R0 REVIEW BUILD]</title>
+<meta name="doorquests-build" content="FMM-001-R1 review-build 2026-11-22.1">
+<title>The Empty Drawers of Tally Hollow — DoorQuests [R1 REVIEW BUILD]</title>
 <style>
 :root {
   --navy: #0d1626; --navy2: #16233b; --navy3: #22314f;
@@ -21,6 +21,11 @@
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
+/* R1 (F3): long words wrap only when they cannot fit (very large text / text-spacing overrides). */
+body { overflow-wrap: break-word; }
+.drawer > span, .d-plate > span, .totals p, .ledger-doc li, .ledger-doc p, .student-text, .cab-head > div, .choice > span, .tag-body, .dock-tag figcaption, .slip p { min-width: 0; overflow-wrap: anywhere; }
+.tag-body { max-width: 100%; }
+.slip { min-width: min(210px, 100%) !important; max-width: 100%; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; font-family: var(--sans); font-size: 1.0625rem; line-height: 1.55; color: var(--parch);
@@ -53,7 +58,8 @@ a { color: var(--brass-lt); }
 
 main { padding: 18px 0 30px; }
 main:focus { outline: none; }
-.story-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.story-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.story-grid > *, .chapter-stage, .chapter, .card, .cabinet, .cab-slot, .ledger-doc, .history, .q, .practice-case { min-width: 0; }
 @media (min-width: 1000px) {
   .story-grid { grid-template-columns: minmax(0, 1fr) 270px; grid-template-areas: "nav nav" "stage ledger"; align-items: start; }
   .chapters { grid-area: nav; } .old-ledger { grid-area: ledger; } .chapter-stage { grid-area: stage; }
@@ -95,14 +101,18 @@ main:focus { outline: none; }
 .fact-list div { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px dotted #b89a5a; padding-bottom: 4px; }
 .fact-list dd { margin: 0; font-weight: 700; font-family: var(--serif); }
 
-.place-table { border-collapse: collapse; margin: 0 0 14px; background: var(--parch); color: var(--ink); border-radius: 8px; overflow: hidden; min-width: 260px; }
+.place-table { border-collapse: collapse; margin: 0 0 14px; background: var(--parch); color: var(--ink); border-radius: 8px; }
+.table-scroll .place-table { min-width: 0; margin: 0; }
+.table-scroll:has(.place-table) { margin: 0 0 14px; }
 .place-table caption { text-align: left; font-weight: 700; padding: 6px 2px; color: inherit; }
-.chapter > .place-table caption, #ch1-inside > .place-table caption { color: var(--parch); }
+#ch1-inside .place-table caption { color: var(--parch); }
 .place-table th, .place-table td { border: 1px solid #b89a5a; padding: 6px 12px; text-align: right; font-variant-numeric: tabular-nums; }
 .place-table thead th { background: var(--parch2); font-size: .85rem; }
 .place-table tbody td { font-family: var(--serif); font-size: 1.3rem; font-weight: 700; }
 .place-table tbody th { text-align: left; font-weight: 600; font-size: .9rem; }
-.table-scroll { overflow-x: auto; }
+.table-scroll { overflow-x: auto; max-width: 100%; }
+.table-scroll:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; box-shadow: 0 0 0 6px var(--focus-halo); }
+.table-scroll table:not(.place-table) { min-width: 520px; }
 
 .next-row { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
 .next-row.left { justify-content: flex-start; margin: 0 0 14px; }
@@ -152,9 +162,10 @@ main:focus { outline: none; }
 .drawers legend { font-weight: 700; margin-bottom: 6px; color: var(--brass-lt); }
 .drawer-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 @media (max-width: 640px) { .drawer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.drawer-wrap { position: relative; }
+.drawer-wrap { position: relative; display: flex; }
+.drawer-wrap > .drawer { flex: 1 1 auto; min-width: 0; }
 .drawer-radio { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.drawer { display: flex; flex-direction: column; gap: 2px; min-height: 196px; padding: 10px; border-radius: 10px; cursor: pointer;
+.drawer { display: flex; flex-direction: column; gap: 2px; min-height: 206px; padding: 10px; border-radius: 10px; cursor: pointer;
   background: linear-gradient(#9a6c3f, #7a5330 60%, #6e4a2a); border: 3px solid #2a1a0c; box-shadow: inset 0 -6px 0 rgba(0,0,0,.25); position: relative; }
 .drawer::before { content: ""; position: absolute; top: 8px; left: 50%; width: 34px; height: 6px; margin-left: -17px; background: linear-gradient(#f0d58c, #8a6a24); border-radius: 3px; }
 .drawer-radio:checked + .drawer { border-color: var(--lantern); border-width: 5px; padding: 8px; box-shadow: 0 0 0 3px #2a1a0c, 0 0 22px rgba(243,199,112,.55); }
@@ -166,13 +177,13 @@ main:focus { outline: none; }
 .d-value { display: block; font-size: .95rem; font-weight: 600; }
 .d-tag { align-self: flex-start; margin-top: auto; font-size: .75rem; font-weight: 700; background: var(--lantern); color: var(--ink); padding: 1px 8px; border-radius: 8px; visibility: hidden; }
 .drawer-radio:checked + .drawer .d-tag { visibility: visible; }
-.pips { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; margin-top: 6px; min-height: 30px; align-content: start; }
+.pips { display: grid; grid-template-columns: repeat(10, minmax(0, 12px)); gap: 2px; margin-top: 6px; height: 50px; overflow: hidden; align-content: start; }
 .pip { display: block; aspect-ratio: 1; background: #f3d9a0; border: 1px solid #2a1a0c; }
 .pips-0 .pip { background: #f0c860; border-width: 2px; }
 .pips-1 .pip { background: #f3d9a0; }
 .pips-2 .pip { aspect-ratio: auto; height: 12px; width: 50%; justify-self: center; background: #e8c98a; }
 .pips-3 .pip { border-radius: 50%; width: 70%; justify-self: center; background: #fff1cc; }
-.pip-more { grid-column: 1 / -1; font-size: .75rem; color: #fff3d6; }
+.pip-more { grid-column: 1 / -1; font-size: .7rem; line-height: 1; color: #fff3d6; }
 .drawer.arrive { animation: arrive .7s ease-out; }
 @keyframes arrive { 0% { box-shadow: 0 0 0 0 rgba(243,199,112,.9); } 100% { box-shadow: 0 0 0 14px rgba(243,199,112,0); } }
 
@@ -182,7 +193,7 @@ main:focus { outline: none; }
 .totals .k { display: block; font-size: .8rem; color: #e2d4b0; }
 .totals .v { font-family: var(--serif); font-size: 1.3rem; font-weight: 700; color: #fff3d6; font-variant-numeric: tabular-nums; }
 
-.proposal { height: 9.5rem; overflow-y: auto; border: 2px dashed var(--brass); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; background: rgba(0,0,0,.2); }
+.proposal { min-height: 7.5rem; border: 2px dashed var(--brass); border-radius: 10px; padding: 8px 12px; margin: 10px 0 0; background: rgba(0,0,0,.2); }
 .proposal p { margin: 0 0 6px; }
 .proposal .p-main { font-weight: 700; color: #fff3d6; }
 .ten-row { display: flex; gap: 4px; flex-wrap: wrap; margin: 4px 0; }
@@ -196,11 +207,11 @@ main:focus { outline: none; }
 .cabinet .btn-quiet { color: var(--parch); border-color: #c9bc9c; background: transparent; }
 .take-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin: 0; }
 .take-row label { display: block; font-size: .9rem; color: #f3e6c6; width: 100%; }
-.num-input { font: inherit; font-size: 1.2rem; font-family: var(--serif); width: 8.5em; min-height: 44px; padding: 6px 10px; border-radius: 8px; border: 2px solid var(--ink-soft); background: #fffaf0; color: var(--ink); font-variant-numeric: tabular-nums; }
+.num-input { font: inherit; font-size: 1.2rem; font-family: var(--serif); width: 8.5em; max-width: 100%; min-height: 44px; padding: 6px 10px; border-radius: 8px; border: 2px solid var(--ink-soft); background: #fffaf0; color: var(--ink); font-variant-numeric: tabular-nums; }
 .num-input.small { width: 5em; }
 .num-input[readonly] { background: #e9f2e2; border-color: var(--ok); }
 .explain { font-size: .85rem; color: #e2d4b0; margin: 0; }
-.feedback { height: 8.5rem; overflow-y: auto; margin-top: 10px; background: var(--parch); color: var(--ink); border-radius: 8px; padding: 8px 12px; border-left: 6px solid var(--brass-dk); }
+.feedback { min-height: 6.5rem; margin-top: 10px; background: var(--parch); color: var(--ink); border-radius: 8px; padding: 8px 12px; border-left: 6px solid var(--brass-dk); }
 .feedback[data-tone="ok"] { border-left-color: var(--ok); }
 .feedback[data-tone="blocked"], .feedback[data-tone="wrong"] { border-left-color: var(--bad); border-left-style: double; border-left-width: 8px; }
 .feedback p { margin: 0; }
@@ -208,7 +219,7 @@ main:focus { outline: none; }
 .locked-note { margin: 6px 0 0; font-weight: 700; color: var(--lantern); }
 .history { margin-top: 10px; background: rgba(0,0,0,.2); border-radius: 8px; padding: 6px 10px; }
 .history summary { cursor: pointer; font-weight: 700; min-height: 32px; padding-top: 4px; }
-.history table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-top: 6px; background: var(--parch); color: var(--ink); }
+.history table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: .85rem; margin-top: 6px; background: var(--parch); color: var(--ink); }
 .history th, .history td { border: 1px solid #b89a5a; padding: 4px 6px; text-align: left; vertical-align: top; }
 .history .obs td { font-style: italic; background: #f0e6ee; }
 .history caption { text-align: left; color: #f3e6c6; padding: 4px 0; }
@@ -268,7 +279,7 @@ textarea { font: inherit; width: 100%; padding: 8px 10px; border-radius: 8px; bo
 
 .review-panel { margin-top: 18px; background: #2a0f0f; border: 2px dashed #f0d58c; border-radius: 10px; padding: 10px 14px; color: #fff; }
 .review-panel summary { cursor: pointer; font-weight: 700; min-height: 32px; }
-.review-panel pre { max-height: 320px; overflow: auto; background: #120707; padding: 8px; white-space: pre-wrap; font-size: .8rem; }
+.review-panel pre { max-width: 100%; max-height: 320px; overflow: auto; background: #120707; padding: 8px; white-space: pre-wrap; font-size: .8rem; }
 
 .site-footer { border-top: 1px solid rgba(201,162,74,.35); padding: 16px 0 28px; text-align: center; color: #d9c79e; }
 .site-footer p { margin: 2px 0; }
@@ -284,7 +295,6 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 @media (max-width: 480px) {
-  .proposal { height: 12rem; }
   .chapter { padding: 12px; } .cabinet { padding: 10px; } .drawer { min-height: 180px; }
   .d-count { font-size: 2rem; }
 }
@@ -298,14 +308,34 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
   .credit { color: #000; }
 }
 
+/* R1 additions */
+.progress-panel { margin-top: 8px; max-width: 640px; }
+.progress-panel summary { cursor: pointer; font-weight: 700; color: var(--brass-lt); min-height: 44px; display: flex; align-items: center; }
+.pp-body { background: var(--navy2); border: 1px solid rgba(201,162,74,.5); border-radius: 10px; padding: 10px 12px; margin-top: 6px; }
+.pp-body p { margin: 4px 0; }
+.pp-help { font-size: .85rem; color: #c9bc9c; }
+.pp-import { margin: 8px 0; }
+.pp-import label { display: block; font-weight: 600; margin-bottom: 4px; }
+.pp-import input[type=file] { font: inherit; color: var(--parch); max-width: 100%; min-height: 44px; }
+.pp-msg { min-height: 1.5em; font-weight: 600; }
+.save-note[data-state="full"], .save-note[data-state="unavailable"], .save-note[data-state="suspended"], .save-note[data-state="toolarge"], .save-note[data-state="othertab"] { color: #ffd9c9; font-weight: 700; }
+.save-note[data-state="full"]::before, .save-note[data-state="unavailable"]::before, .save-note[data-state="suspended"]::before, .save-note[data-state="toolarge"]::before, .save-note[data-state="othertab"]::before { content: "⚠ "; }
+.resume { border: 3px solid var(--brass); margin-bottom: 14px; }
+.resume h2 { margin: 0 0 6px; color: var(--oak-dk); font-size: 1.3rem; }
+.done-note { border-left: 6px solid var(--ok); }
+.q-fb .tone-neutral { display: none; }
+.feedback[data-tone="neutral"], .q-fb[data-tone="neutral"] { border-left-color: var(--brass-dk); }
+dialog .help { margin: 4px 0 0; }
+@media (max-width: 640px) { .q-fb { min-height: 6.4em; } }
+
 </style>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to the adventure</a>
 <!--REVIEW-START-->
 <div class="review-banner" role="note">
-  <strong>R0 — REVIEW BUILD · NOT FOR PUBLIC RELEASE</strong>
-  <span>FMM-001 · The Empty Drawers of Tally Hollow · build FMM-001-R0 · 2026-11-22 · not independently reviewed</span>
+  <strong>R1 — REVIEW BUILD · NOT FOR PUBLIC RELEASE</strong>
+  <span>FMM-001 · The Empty Drawers of Tally Hollow · build FMM-001-R1 · 2026-11-22.1 · targeted repair candidate · not independently reviewed</span>
 </div>
 <!--REVIEW-END-->
 <header class="site-header">
@@ -317,12 +347,37 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
       <button type="button" id="view-story" class="tab" aria-pressed="true">The Story</button>
       <button type="button" id="view-practice" class="tab" aria-pressed="false">Practice Drawers</button>
     </div>
-    <p class="save-note">Your work stays only in this open page. Nothing is sent anywhere. Download your ledger to keep it.</p>
+    <p class="save-note" id="save-status" data-state="idle">Your progress will be saved in this browser as you play.</p>
+    <details class="progress-panel" id="progress-panel">
+      <summary>Progress &amp; backups</summary>
+      <div class="pp-body">
+        <p id="pp-status"></p>
+        <p class="pp-help">Progress is kept only in this browser on this device. Nothing is sent anywhere. A backup file lets you keep a copy or continue somewhere else.</p>
+        <div class="btn-row">
+          <button type="button" class="btn" id="pp-download">Download a backup (.json)</button>
+          <button type="button" class="btn btn-quiet" id="pp-new">Start a new adventure…</button>
+        </div>
+        <div class="pp-import">
+          <label for="pp-import">Import a backup file (.json)</label>
+          <input type="file" id="pp-import" accept=".json,application/json">
+        </div>
+        <p id="pp-msg" class="pp-msg"></p>
+      </div>
+    </details>
   </div>
 </header>
 
 <main id="main" tabindex="-1">
 <div class="wrap">
+<div id="resume-banner" class="resume card" role="region" aria-labelledby="resume-h" hidden>
+  <h2 id="resume-h" tabindex="-1">Welcome back</h2>
+  <p id="resume-text"></p>
+  <div class="btn-row">
+    <button type="button" class="btn btn-primary" id="resume-continue">Continue where you left off</button>
+    <button type="button" class="btn" id="resume-new">Start a new adventure…</button>
+    <button type="button" class="btn" id="resume-bad-dl" hidden>Download the unreadable save</button>
+  </div>
+</div>
 <div id="story-view" class="story-grid">
   <nav class="chapters no-print" aria-label="Chapters"><ol id="chapter-list"></ol></nav>
 
@@ -370,11 +425,13 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
         <h3>The granary rule</h3>
         <p class="rule">“You can never take from an empty drawer; you can only open a bundle from the next drawer up, and all ten pieces must arrive.”</p>
       </div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="The cabinet tonight (table)">
       <table class="place-table">
         <caption>The cabinet tonight, before anyone checks the ledger</caption>
         <thead><tr><th scope="col">Thousands</th><th scope="col">Hundreds</th><th scope="col">Tens</th><th scope="col">Ones</th></tr></thead>
         <tbody><tr><td>4</td><td>0</td><td>0</td><td>3</td></tr></tbody>
       </table>
+      </div>
       <div class="next-row">
         <button type="button" class="btn btn-primary" id="to-ch2">Investigate the ledger →</button>
       </div>
@@ -389,7 +446,7 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
       <p>Every drawer holds one kind of piece. A thousand-bundle holds ten hundred-bundles. A hundred-bundle holds ten ten-bundles. A ten-bundle holds ten single sacks.</p>
       <p>The shipment slip asks for 8 single sacks — but look: the ones drawer has only 3. Let's see what the drawers allow.</p>
     </div>
-    <div class="card goal">
+    <div class="card goal" id="ch2-goal">
       <h3>Your task</h3>
       <p>Get <strong>at least 8 sacks into the ones drawer</strong> without losing a single sack. Try anything: the drawers will tell you when a move breaks the rule.</p>
       <ol class="how">
@@ -397,6 +454,10 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
         <li><strong>Open Bundle</strong> unties one bundle so you can see the ten pieces inside. Nothing moves yet.</li>
         <li><strong>Move Ten</strong> carries all ten pieces into the next drawer down, together.</li>
       </ol>
+    </div>
+    <div class="card done-note" id="ch2-done" hidden>
+      <h3>Chapter complete</h3>
+      <p>You opened bundles until the ones drawer had enough sacks, and counted the cabinet without losing a single sack: 4,003. The cabinet below shows how it looks now, after the shipment you took out in Chapter III.</p>
     </div>
     <div id="ch2-slot" class="cab-slot"></div>
     <div class="card" id="ch2-count-card">
@@ -420,6 +481,7 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
     <div id="ch3-clerk" class="card" hidden>
       <h3 id="ch3-clerk-h" tabindex="-1">What did the old clerk do?</h3>
       <p>Your cabinet says <strong>2,745</strong> sacks remain. The old ledger says <strong>3,255</strong>. Both can't be right. Look at the columns side by side.</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Column-by-column comparison (table)">
       <table class="place-table compare">
         <caption>Column by column</caption>
         <thead><tr><th scope="col">Row</th><th scope="col">Thousands</th><th scope="col">Hundreds</th><th scope="col">Tens</th><th scope="col">Ones</th></tr></thead>
@@ -430,6 +492,7 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
           <tr><th scope="row">Your cabinet's answer</th><td>2</td><td>7</td><td>4</td><td>5</td></tr>
         </tbody>
       </table>
+      </div>
       <div id="clerk-q1"></div>
       <div id="clerk-q2"></div>
       <div id="clerk-q3"></div>
@@ -514,6 +577,7 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
       </div>
       <div class="card" id="decision-card" hidden>
         <h3 id="decision-h" tabindex="-1">Your decision as acting clerk</h3>
+        <p>Odalys explains one more thing before you decide: “The lowland mill shares its grain with three other valleys this winter. If we need sacks, we ask for what our count proves we need — enough for us, without taking what others need.”</p>
         <div id="decision-slot"></div>
       </div>
     </div>
@@ -543,10 +607,10 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
     <div class="ledger-doc" id="ledger-doc" aria-labelledby="ledger-title"></div>
     <div class="card no-print">
       <h3>Keep your ledger</h3>
-      <p>This page does not save your work. Download a copy before you close it.</p>
+      <p>Your progress is saved in this browser when it allows it. A download gives you a copy you control: the text file is the readable ledger, and the backup file can be imported later to continue.</p>
       <div class="btn-row">
         <button type="button" class="btn" id="dl-md">Download ledger (.md text)</button>
-        <button type="button" class="btn" id="dl-json">Download backup (.json)</button>
+        <button type="button" class="btn" id="dl-json">Download progress backup (.json)</button>
         <button type="button" class="btn" id="print-ledger">Print the ledger</button>
         <button type="button" class="btn btn-quiet" id="show-text" aria-expanded="false" aria-controls="plain-wrap">Show ledger as plain text</button>
       </div>
@@ -590,6 +654,7 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
   <div class="btn-row">
     <button type="button" class="btn" id="rv-state">Show engine state</button>
     <button type="button" class="btn" id="rv-selftest">Run engine self-test (1,000 random cases)</button>
+    <button type="button" class="btn" id="rv-replay">Check current save by replay</button>
   </div>
   <pre id="rv-out" tabindex="0" aria-label="Reviewer output"></pre>
 </details>
@@ -608,12 +673,14 @@ dialog h2 { margin: 0 0 8px; font-size: 1.3rem; }
 <div id="sr-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <dialog id="confirm-dialog" aria-labelledby="cd-title" aria-describedby="cd-msg">
-  <h2 id="cd-title">Reset this cabinet?</h2>
+  <h2 id="cd-title">Are you sure?</h2>
   <p id="cd-msg"></p>
   <div class="btn-row">
-    <button type="button" class="btn btn-primary" id="cd-yes">Yes, reset</button>
-    <button type="button" class="btn" id="cd-no">Keep working</button>
+    <button type="button" class="btn btn-primary" id="cd-yes">Yes</button>
+    <button type="button" class="btn" id="cd-no">Cancel</button>
   </div>
+  <div class="btn-row"><button type="button" class="btn btn-quiet" id="cd-extra" hidden></button></div>
+  <p id="cd-extra-msg" class="help"></p>
 </dialog>
 
 <script>
@@ -831,6 +898,8 @@ var TallyEngine = (function () {
       propose: propose, commit: commit, cancel: cancel, take: take, undo: undo, reset: reset, lock: lock,
       state: state,
       value: function () { return cabinetValue(s.drawers); },
+      drawers: function () { return s.drawers.slice(); },
+      proposal: function () { return s.proposal ? { from: s.proposal.from, to: s.proposal.to } : null; },
       stillToRemove: function () { return s.subtract - s.removed; },
       isComplete: function () { return s.complete; },
       isLocked: function () { return s.locked; },
@@ -874,9 +943,11 @@ var TallyEngine = (function () {
 
   /* ---------- Pure arithmetic helpers ---------- */
 
+  /* R1 (F13): whole numbers only. Leading/trailing spaces are ignored; commas are accepted only as
+     correct thousands separators; any internal space (e.g. "8 8") is rejected as ambiguous. */
   function parseWhole(raw) {
     if (typeof raw !== 'string') return null;
-    var t = raw.trim().replace(/\s+/g, '');
+    var t = raw.trim();
     if (!/^(\d{1,3}(,\d{3})+|\d+)$/.test(t)) return null;
     t = t.replace(/,/g, '');
     if (t.length > 9) return null;
@@ -946,20 +1017,316 @@ var TallyEngine = (function () {
 if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngine;
 /*ENGINE-END*/
 
-/* Interface + narrative layer. All arithmetic state lives in TallyEngine calculations. */
+/* FMM-001 R1 — interface, narrative and persistence layers.
+ * Architecture (R1): every student action becomes a small, validated "action" that is applied to a
+ * DOM-free story model. The model owns all state (engine calculations, answers, decisions). The
+ * interface renders from the model. Saving stores the action log plus a ledger snapshot; restoring
+ * replays the student's own recorded actions through the same rules and checks that the result
+ * matches the snapshot. Nothing is auto-solved or invented during restoration. */
 (function () {
   'use strict';
   var E = TallyEngine;
   var REVIEW_BUILD = true; /*BUILD-FLAG*/
-  var BUILD = { id: 'FMM-001-R0', date: '2026-11-22', kind: REVIEW_BUILD ? 'review build' : 'production candidate' };
+  var BUILD = { id: 'FMM-001-R1', date: '2026-11-22.1', kind: REVIEW_BUILD ? 'review build' : 'production candidate' };
+  var STORE_KEY = 'doorquests.fmm001.progress.v1';
+  var UNREADABLE_KEY = 'doorquests.fmm001.progress.v1.unreadable';
+  var SCHEMA = 'doorquests.fmm001.progress', SCHEMA_VERSION = 1;
+  var LIMITS = { fileBytes: 2000000, actions: 20000, text: 2000, raw: 24, explanations: 50 };
   var START = 4003, SHIP_OLD = 1258, SHIP_NEW = 1528, NEED = 2500, CLAIM = 3255;
   var CAP = ['Thousands', 'Hundreds', 'Tens', 'Ones'];
   var NAMES = E.PLACE_NAMES, SING = E.PLACE_SINGULAR, PV = E.PLACE_VALUES;
-  var COLNAMES = ['ones', 'tens', 'hundreds', 'thousands', 'ten-thousands'];
+  var COL = ['ones', 'tens', 'hundreds', 'thousands', 'ten-thousands'];
+  var COL1 = ['one', 'ten', 'hundred', 'thousand', 'ten-thousand'];
+  var PRACTICE = {
+    A: { start: 6020, subtract: 3475, title: 'Replay A — Millrace Barn', sub: 'Keeper Tobin Ash · 6,020 sacks · the river barge takes 3,475',
+      intro: 'Millrace Barn holds 6,020 sacks: six thousands and two tens, but no hundreds and no ones. The river barge takes 3,475. Two empty drawers — choose a drawer to begin.' },
+    B: { start: 5000, subtract: 2386, title: 'Replay B — Old Hollin Store', sub: 'Storekeeper Ma Reddle · 5,000 sacks · the spring market takes 2,386',
+      intro: 'The Old Hollin Store holds exactly 5,000 sacks — every drawer below thousands is empty. The spring market takes 2,386. Choose a drawer to begin.' }
+  };
 
-  /* ---------- small DOM helpers (text only, never innerHTML for content) ---------- */
-  function $(id) { return document.getElementById(id); }
   function fmt(n) { return Number(n).toLocaleString('en-US'); }
+  function plural(n, one, many) { return n === 1 ? one : many; }
+
+  /* =================================================================
+     STORY MODEL — no DOM. All rules that decide whether an action is
+     allowed live here, so live play and restoration follow one rulebook.
+     ================================================================= */
+  var NUMQ = {
+    'q-count': { gate: function (m) { return m.calcs.main.drawers()[3] >= 8; }, expected: function (m) { return m.calcs.main.value(); } },
+    'q-clerk3': { gate: function (m) { return m.calcs.main.isLocked(); }, expected: function (m) { return CLAIM - m.calcs.main.value(); } },
+    'q-inv1': { gate: function (m) { return m.max >= 4; }, expected: function (m) { return m.calcs.main.value() + SHIP_OLD; } },
+    'q-cutotal': { gate: function (m) { return m.max >= 4 && m.line.done(); }, expected: function (m) { return m.line.jumps().reduce(function (a, b) { return a + b; }, 0); } },
+    'q-comp': { gate: function (m) { return m.max >= 4 && m.comp.shift !== 0; }, expected: function (m) { return (START + m.comp.shift) - (SHIP_OLD + m.comp.shift); } },
+    'q-pred2': { gate: function (m) { return m.revised; }, expected: function () { return SHIP_NEW - SHIP_OLD; } },
+    'q-inv2': { gate: function (m) { return m.calcs.rev.isLocked(); }, expected: function (m) { return m.calcs.rev.value() + SHIP_NEW; } },
+    'q-r1': { gate: function (m) { return m.q['q-inv2'].solved; }, expected: function () { return E.roundHalfUp(START, 100); } },
+    'q-r2': { gate: function (m) { return m.q['q-inv2'].solved; }, expected: function () { return E.roundHalfUp(SHIP_NEW, 100); } },
+    'q-rd': { gate: function (m) { return m.q['q-r1'].solved && m.q['q-r2'].solved; }, expected: function () { return E.roundHalfUp(START, 100) - E.roundHalfUp(SHIP_NEW, 100); } },
+    'q-short': { gate: function (m) { return m.q['q-cert'].solved; }, expected: function (m) { return NEED - m.calcs.rev.value(); } },
+    'q-rpA': { gate: function (m) { return m.calcs.A.isLocked(); }, expected: function (m) { return m.calcs.A.value() + PRACTICE.A.subtract; } },
+    'q-rpB': { gate: function (m) { return m.calcs.B.isLocked(); }, expected: function (m) { return m.calcs.B.value() + PRACTICE.B.subtract; } }
+  };
+  var CHOICEQ = {
+    'q-clerk1': { gate: function (m) { return m.calcs.main.isLocked(); }, correct: 2, n: 3 },
+    'q-pred': { gate: function (m) { return m.revised; }, correct: 1, n: 3 },
+    /* R1 (F9): the certification question opens only after both roundings and the estimate are done. */
+    'q-cert': { gate: function (m) { return m.q['q-r1'].solved && m.q['q-r2'].solved && m.q['q-rd'].solved; }, correct: 1, n: 2 }
+  };
+  var CABS = ['main', 'rev', 'A', 'B'];
+
+  function createModel() {
+    var m = {
+      view: 'story', chapter: 1, max: 1, doorOpen: false, revised: false, activeCase: 'A',
+      calcs: {
+        main: E.createCalculation({ id: 'CALC-1', label: 'First calculation (ledger shipment)', start: START, subtract: SHIP_OLD }),
+        rev: E.createCalculation({ id: 'CALC-2', label: 'Revised calculation (dock tag shipment)', start: START, subtract: SHIP_NEW }),
+        A: E.createCalculation({ id: 'REPLAY-A', label: PRACTICE.A.title, start: PRACTICE.A.start, subtract: PRACTICE.A.subtract }),
+        B: E.createCalculation({ id: 'REPLAY-B', label: PRACTICE.B.title, start: PRACTICE.B.start, subtract: PRACTICE.B.subtract })
+      },
+      q: {}, cols: { log: [], solved: false },
+      line: E.createNumberLine(SHIP_OLD, START), jumpLog: [],
+      comp: { shift: 0, shiftLog: [], solvedPair: null },
+      decisions: [], decided: false, explanations: [],
+      actions: [], draft: '', exportedAtCount: null
+    };
+    Object.keys(NUMQ).concat(Object.keys(CHOICEQ)).forEach(function (id) { m.q[id] = { log: [], solved: false }; });
+    return m;
+  }
+
+  function chapterDone(m, n) {
+    switch (n) {
+      case 1: return m.doorOpen;
+      /* R1 (B2): durable milestone — the accepted cabinet count, not the current ones drawer. */
+      case 2: return m.q['q-count'].solved;
+      case 3: return m.calcs.main.isLocked() && m.q['q-clerk1'].solved && m.cols.solved && m.q['q-clerk3'].solved;
+      case 4: return m.q['q-inv1'].solved;
+      case 5: return m.decided;
+      default: return false;
+    }
+  }
+
+  function cabAllowed(m, key, cmd) {
+    if (key === 'A' || key === 'B') return m.view === 'practice' && m.activeCase === key;
+    if (m.view !== 'story') return false;
+    if (key === 'main') {
+      if (m.chapter === 3) return true;
+      if (m.chapter === 2 && m.max < 3) return cmd !== 'take' && cmd !== 'record';
+      return false;
+    }
+    if (key === 'rev') return m.chapter === 5 && m.revised;
+    return false;
+  }
+
+  function no(code, extra) { var r = { effective: false, code: code }; if (extra) for (var k in extra) r[k] = extra[k]; return r; }
+  function yes(code, extra) { var r = { effective: true, code: code || 'OK' }; if (extra) for (var k in extra) r[k] = extra[k]; return r; }
+
+  function decide(m, pick, raw) {
+    var exact = m.calcs.rev.value(), short = NEED - exact, rec = { choice: pick };
+    if (pick === 'certify') { rec.kind = 'declined'; rec.outcome = 'not signed: ' + fmt(exact) + ' is less than ' + fmt(NEED); }
+    else if (pick === 'review') { rec.kind = 'review'; rec.outcome = 'reviewed the evidence'; }
+    else {
+      var n = E.parseWhole(raw);
+      rec.amount = n !== null && n >= 1 ? n : null;
+      if (rec.amount === null) { rec.kind = 'noamount'; rec.outcome = 'no amount was given'; }
+      else if (n < short) { rec.kind = 'short'; rec.outcome = 'not enough: still ' + (short - n) + ' short'; }
+      else if (n > short) { rec.kind = 'surplus'; rec.outcome = 'enough for winter, but ' + (n - short) + ' more than the ' + short + ' needed; the shared mill also serves other valleys'; }
+      else { rec.kind = 'exact'; rec.outcome = 'request filed'; rec.final = true; }
+    }
+    return rec;
+  }
+
+  function apply(m, a) {
+    var calc, r, spec, st, n, ok, i;
+    switch (a.t) {
+      case 'door':
+        if (m.view !== 'story' || m.doorOpen) return no('ALREADY');
+        m.doorOpen = true; if (m.max < 2) m.max = 2; return yes();
+      case 'next':
+        if (m.view !== 'story' || m.chapter >= 6 || !chapterDone(m, m.chapter)) return no('NOT_READY');
+        m.chapter++; if (m.chapter > m.max) m.max = m.chapter; return yes();
+      case 'nav':
+        if (m.view !== 'story' || a.ch > m.max || a.ch === m.chapter) return no('NAV');
+        m.chapter = a.ch; return yes();
+      case 'view':
+        if (a.v === m.view) return no('SAME');
+        m.view = a.v; return yes();
+      case 'case':
+        if (m.view !== 'practice' || a.k === m.activeCase) return no('SAME');
+        m.activeCase = a.k; return yes();
+      case 'cab':
+        calc = m.calcs[a.c];
+        if (!cabAllowed(m, a.c, a.cmd)) return no('MODE');
+        if (a.cmd === 'open') { r = calc.propose(a.p); return { effective: r.ok || !!r.event, code: r.code, r: r }; }
+        if (a.cmd === 'move') { r = calc.commit(); return { effective: r.ok || !!r.event, code: r.code, r: r }; }
+        if (a.cmd === 'cancel') { r = calc.cancel(); return { effective: r.code === 'CANCELLED', code: r.code, r: r }; }
+        if (a.cmd === 'take') { r = calc.take(a.p, a.n); return { effective: r.ok || !!r.event, code: r.code, r: r }; }
+        if (a.cmd === 'undo') { r = calc.undo(); return { effective: r.ok, code: r.code, r: r }; }
+        if (a.cmd === 'reset') { r = calc.reset(); return { effective: r.code === 'RESET', code: r.code, r: r }; }
+        if (a.cmd === 'record') { r = calc.lock(); return { effective: r.ok, code: r.code, r: r }; }
+        return no('UNKNOWN');
+      case 'ans':
+        spec = NUMQ[a.id]; st = m.q[a.id];
+        if (st.solved) return no('ALREADY');
+        if (!spec.gate(m)) return no('GATE');
+        n = E.parseWhole(a.raw);
+        if (n === null) return no('BAD');
+        var exp = spec.expected(m); ok = n === exp;
+        st.log.push({ entered: a.raw, value: n, correct: ok });
+        if (ok) { st.solved = true; if (a.id === 'q-comp') m.comp.solvedPair = [START + m.comp.shift, SHIP_OLD + m.comp.shift]; }
+        return yes(ok ? 'CORRECT' : 'WRONG', { value: n, expected: exp, tries: st.log.filter(function (x) { return !x.correct; }).length });
+      case 'pick':
+        spec = CHOICEQ[a.id]; st = m.q[a.id];
+        if (st.solved) return no('ALREADY');
+        if (!spec.gate(m)) return no('GATE');
+        if (a.i >= spec.n) return no('BAD');
+        ok = a.i === spec.correct;
+        st.log.push({ choice: a.i, correct: ok });
+        if (ok) st.solved = true;
+        return yes(ok ? 'CORRECT' : 'WRONG', { i: a.i });
+      case 'cols':
+        if (m.cols.solved) return no('ALREADY');
+        if (!m.calcs.main.isLocked()) return no('GATE');
+        var vals = a.v.map(function (x) { return E.parseWhole(x); });
+        if (vals.some(function (v) { return v === null; })) return no('BAD');
+        var cd = E.clerkDigits(START, SHIP_OLD), wrong = [];
+        for (i = 0; i < 4; i++) if (vals[i] !== cd[i]) wrong.push(i);
+        m.cols.log.push({ entered: a.v.slice(), correct: !wrong.length });
+        if (!wrong.length) m.cols.solved = true;
+        return yes(wrong.length ? 'WRONG' : 'CORRECT', { wrong: wrong, vals: vals });
+      case 'jump':
+        if (m.max < 4 || m.q['q-cutotal'].solved) return no('CLOSED');
+        n = E.parseWhole(a.raw);
+        if (n === null) return no('BAD');
+        r = m.line.jump(n);
+        if (r.ok) { m.jumpLog.push({ jump: n, from: r.from, to: r.landing }); return yes(r.code, { r: r, k: n }); }
+        if (r.code === 'OVERSHOOT') { m.jumpLog.push({ jump: n, from: r.from, overshoot: true }); return yes(r.code, { r: r, k: n }); }
+        return no(r.code, { r: r });
+      case 'jumpUndo':
+        if (m.max < 4 || m.q['q-cutotal'].solved) return no('CLOSED');
+        r = m.line.undo();
+        if (!r.ok) return no(r.code);
+        m.jumpLog.push({ undo: r.jump }); return yes('UNDONE', { r: r });
+      case 'comp':
+        if (m.max < 4 || m.q['q-comp'].solved) return no('CLOSED');
+        if (Math.abs(m.comp.shift + a.d) > 20) return no('LIMIT');
+        m.comp.shift += a.d; m.comp.shiftLog.push(m.comp.shift); return yes();
+      case 'revise':
+        if (m.view !== 'story' || m.chapter !== 5 || m.revised) return no('ALREADY');
+        m.revised = true; return yes();
+      case 'dec':
+        if (m.decided) return no('ALREADY');
+        if (!m.q['q-short'].solved) return no('GATE');
+        var rec = decide(m, a.pick, a.raw);
+        m.decisions.push(rec);
+        if (rec.final) m.decided = true;
+        return yes(rec.kind, { rec: rec });
+      case 'explain':
+        if (m.max < 6) return no('GATE');
+        if (!a.text.trim()) return no('EMPTY');
+        if (m.explanations.length >= LIMITS.explanations) return no('LIMIT');
+        m.explanations.push(a.text); return yes();
+      default: return no('UNKNOWN');
+    }
+  }
+
+  function cloneAction(a) { var c = {}; for (var k in a) c[k] = Array.isArray(a[k]) ? a[k].slice() : a[k]; return c; }
+  function dispatch(m, a) {
+    var r = apply(m, a);
+    if (r.effective) m.actions.push(cloneAction(a));
+    return r;
+  }
+
+  /* ---------- action shape validation (trust boundary for imports and saved data) ---------- */
+  function isObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
+  function keysExactly(o, keys) {
+    var k = Object.keys(o);
+    if (k.length !== keys.length) return false;
+    for (var i = 0; i < keys.length; i++) if (!Object.prototype.hasOwnProperty.call(o, keys[i])) return false;
+    return true;
+  }
+  function isInt(x, lo, hi) { return typeof x === 'number' && Number.isInteger(x) && x >= lo && x <= hi; }
+  function isStr(x, max) { return typeof x === 'string' && x.length <= max; }
+  function validAction(a) {
+    if (!isObj(a) || typeof a.t !== 'string') return false;
+    switch (a.t) {
+      case 'door': case 'next': case 'revise': case 'jumpUndo': return keysExactly(a, ['t']);
+      case 'nav': return keysExactly(a, ['t', 'ch']) && isInt(a.ch, 1, 6);
+      case 'view': return keysExactly(a, ['t', 'v']) && (a.v === 'story' || a.v === 'practice');
+      case 'case': return keysExactly(a, ['t', 'k']) && (a.k === 'A' || a.k === 'B');
+      case 'cab':
+        if (CABS.indexOf(a.c) < 0) return false;
+        if (a.cmd === 'open') return keysExactly(a, ['t', 'c', 'cmd', 'p']) && isInt(a.p, 0, 3);
+        if (a.cmd === 'take') return keysExactly(a, ['t', 'c', 'cmd', 'p', 'n']) && isInt(a.p, 0, 3) && isInt(a.n, 1, 9999);
+        return ['move', 'cancel', 'undo', 'reset', 'record'].indexOf(a.cmd) >= 0 && keysExactly(a, ['t', 'c', 'cmd']);
+      case 'ans': return keysExactly(a, ['t', 'id', 'raw']) && Object.prototype.hasOwnProperty.call(NUMQ, a.id) && isStr(a.raw, LIMITS.raw);
+      case 'pick': return keysExactly(a, ['t', 'id', 'i']) && Object.prototype.hasOwnProperty.call(CHOICEQ, a.id) && isInt(a.i, 0, 9);
+      case 'cols': return keysExactly(a, ['t', 'v']) && Array.isArray(a.v) && a.v.length === 4 && a.v.every(function (x) { return isStr(x, 8); });
+      case 'jump': return keysExactly(a, ['t', 'raw']) && isStr(a.raw, LIMITS.raw);
+      case 'comp': return keysExactly(a, ['t', 'd']) && (a.d === 1 || a.d === -1);
+      case 'dec': return keysExactly(a, ['t', 'pick', 'raw']) && ['certify', 'request', 'review'].indexOf(a.pick) >= 0 && isStr(a.raw, LIMITS.raw);
+      case 'explain': return keysExactly(a, ['t', 'text']) && isStr(a.text, LIMITS.text);
+      default: return false;
+    }
+  }
+
+  function calcSnapshot(c) { var st = c.state(); delete st.undoStack; return st; }
+  function stable(x) {
+    if (Array.isArray(x)) return '[' + x.map(stable).join(',') + ']';
+    if (x && typeof x === 'object') return '{' + Object.keys(x).sort().map(function (k) { return JSON.stringify(k) + ':' + stable(x[k]); }).join(',') + '}';
+    return JSON.stringify(x);
+  }
+  function buildSave(m) {
+    return {
+      schema: SCHEMA, version: SCHEMA_VERSION, build: BUILD.id,
+      actions: m.actions, draft: m.draft, exportedAtCount: m.exportedAtCount,
+      summary: { chapter: m.chapter, max: m.max, view: m.view, actionCount: m.actions.length },
+      ledger: { calculations: CABS.map(function (k) { return calcSnapshot(m.calcs[k]); }) }
+    };
+  }
+  var TOP_KEYS = ['schema', 'version', 'build', 'actions', 'draft', 'exportedAtCount', 'summary', 'ledger', 'exportedAt'];
+
+  /* Validates a saved object without touching the current session. Returns {ok, model} or {ok:false, error}. */
+  function validateSave(obj) {
+    function bad(msg) { return { ok: false, error: msg }; }
+    if (!isObj(obj)) return bad('The file is not a Tally Hollow backup.');
+    if (obj.schema === 'doorquests.fmm001.ledger.v1') return bad('This is a ledger exported by the R0 review build. It records results, not the individual steps needed to restore a game safely, so it cannot be imported.');
+    if (obj.schema !== SCHEMA) return bad('The file is not a Tally Hollow progress backup.');
+    if (obj.version !== SCHEMA_VERSION) return bad('The backup was made by an unsupported version (' + String(obj.version).slice(0, 20) + ').');
+    var k = Object.keys(obj);
+    for (var i = 0; i < k.length; i++) if (TOP_KEYS.indexOf(k[i]) < 0) return bad('The backup contains an unexpected field.');
+    if (!Array.isArray(obj.actions)) return bad('The backup has no list of steps.');
+    if (obj.actions.length > LIMITS.actions) return bad('The backup has too many steps (limit ' + fmt(LIMITS.actions) + ').');
+    if (!isStr(obj.draft, LIMITS.text)) return bad('The unsaved draft in the backup is missing or too long.');
+    if (!(obj.exportedAtCount === null || isInt(obj.exportedAtCount, 0, obj.actions.length))) return bad('The backup\'s download marker is invalid.');
+    if (!isObj(obj.summary) || !keysExactly(obj.summary, ['chapter', 'max', 'view', 'actionCount'])) return bad('The backup summary is missing or malformed.');
+    if (!isObj(obj.ledger) || !keysExactly(obj.ledger, ['calculations']) || !Array.isArray(obj.ledger.calculations) || obj.ledger.calculations.length !== 4) return bad('The backup\'s ledger section is missing or malformed.');
+    var m = createModel();
+    for (i = 0; i < obj.actions.length; i++) {
+      var a = obj.actions[i];
+      if (!validAction(a)) return bad('Step ' + (i + 1) + ' is not a recognised action.');
+      var r;
+      try { r = dispatch(m, a); } catch (e) { return bad('Step ' + (i + 1) + ' breaks a drawer rule.'); }
+      if (!r.effective) return bad('Step ' + (i + 1) + ' could not have happened at that point in the adventure.');
+    }
+    var s = obj.summary;
+    if (s.actionCount !== m.actions.length || s.chapter !== m.chapter || s.max !== m.max || s.view !== m.view) return bad('The backup summary does not match its own steps.');
+    for (i = 0; i < 4; i++) {
+      var snap = calcSnapshot(m.calcs[CABS[i]]);
+      if (stable(snap) !== stable(obj.ledger.calculations[i])) return bad('The transaction history for ' + snap.label + ' does not match the recorded steps.');
+      if (E.checkInvariants(m.calcs[CABS[i]].state()).length) return bad('A calculation breaks the base-ten rules.');
+    }
+    m.draft = obj.draft;
+    m.exportedAtCount = obj.exportedAtCount;
+    return { ok: true, model: m };
+  }
+
+  /* =================================================================
+     INTERFACE
+     ================================================================= */
+  var S = createModel();
+  var replaying = false;
+
+  function $(id) { return document.getElementById(id); }
   function units(i, k) { return fmt(k) + ' ' + (k === 1 ? SING[i] : NAMES[i]); }
   function dText(d) { return d.join(' · '); }
   function dSpoken(d) { return CAP.map(function (c, i) { return c.toLowerCase() + ' ' + d[i]; }).join(', '); }
@@ -977,60 +1344,80 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     return n;
   }
   function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
-  var TONE = { ok: 'Done.', blocked: 'Blocked —', info: 'Note:', hint: 'Hint:', wrong: 'Not yet:', check: 'Checked.' };
+  /* R1 (F11): one introductory word per message; message bodies never repeat it. */
+  var TONE = { ok: 'Done.', blocked: 'Blocked —', info: 'Note:', hint: 'Hint:', wrong: 'Not yet:', neutral: '' };
   function setFb(box, tone, text) {
     clear(box);
-    if (tone) box.appendChild(el('strong', { class: 'tone tone-' + tone, text: TONE[tone] }));
-    box.appendChild(document.createTextNode((tone ? ' ' : '') + text));
+    if (tone && TONE[tone]) box.appendChild(el('strong', { class: 'tone tone-' + tone, text: TONE[tone] }));
+    box.appendChild(document.createTextNode((tone && TONE[tone] ? ' ' : '') + text));
     box.setAttribute('data-tone', tone || '');
+    holdHeight(box);
   }
+  /* R1 (C8): a feedback line may grow, but it never shrinks back while the student plays, so a shorter
+     message can never pull a later control up under the student's finger. Hydration releases the hold. */
+  function holdHeight(box) {
+    if (replaying || !box.offsetParent) return;
+    var h = box.offsetHeight, held = parseFloat(box.getAttribute('data-held') || '0');
+    if (h > held) { box.setAttribute('data-held', String(h)); box.style.minHeight = h + 'px'; }
+  }
+  function releaseHeights() { Array.prototype.forEach.call(document.querySelectorAll('[data-held]'), function (b) { b.removeAttribute('data-held'); b.style.minHeight = ''; }); }
   var liveEl, liveFlip = false;
-  function announce(t) { liveFlip = !liveFlip; liveEl.textContent = t + (liveFlip ? ' ' : ''); }
-  function focusEl(n) { if (n) { n.focus({ preventScroll: false }); } }
+  function announce(t) { if (replaying || !liveEl) return; liveFlip = !liveFlip; liveEl.textContent = t + (liveFlip ? ' ' : ''); }
+  function focusEl(n) { if (n && !replaying) n.focus(); }
 
-  /* ---------- confirmation dialog ---------- */
-  function confirmAction(msg, onYes, returnTo) {
+  /* act(): the only way the interface changes the story. Saves after every effective action. */
+  function act(a) {
+    var r = dispatch(S, a);
+    if (r.effective) persist();
+    return r;
+  }
+
+  /* ---------- dialog (Reset, Start over, Import) ---------- */
+  function openDialog(o) {
     var d = $('confirm-dialog');
-    if (!d || typeof d.showModal !== 'function') { if (window.confirm(msg)) onYes(); return; }
-    $('cd-msg').textContent = msg;
-    var yes = $('cd-yes'), no = $('cd-no'), settled = false;
+    if (!d || typeof d.showModal !== 'function') { if (window.confirm(o.msg)) o.onYes(); return; }
+    $('cd-title').textContent = o.title; $('cd-msg').textContent = o.msg;
+    var yesB = $('cd-yes'), noB = $('cd-no'), ex = $('cd-extra'), exMsg = $('cd-extra-msg'), settled = false;
+    yesB.textContent = o.yes; noB.textContent = o.no;
+    ex.hidden = !o.extra; exMsg.textContent = '';
+    if (o.extra) ex.textContent = o.extra.label;
     function finish(ok) {
       if (settled) return;
       settled = true;
       if (d.open) d.close();
-      if (ok) onYes();
-      if (returnTo) returnTo.focus();
+      if (ok) o.onYes();
+      if (o.returnTo && document.body.contains(o.returnTo) && o.returnTo.offsetParent !== null && (!ok || !o.focusAfterYes)) o.returnTo.focus();
     }
-    yes.onclick = function () { finish(true); };
-    no.onclick = function () { finish(false); };
-    /* A close event from an earlier, already-settled dialog can arrive after reopening; ignore it while open. */
+    yesB.onclick = function () { finish(true); };
+    noB.onclick = function () { finish(false); };
+    ex.onclick = function () { if (o.extra) { var t = o.extra.fn(); exMsg.textContent = t || ''; } };
+    /* A late close event from an earlier dialog can arrive after reopening; ignore it while open. */
     d.onclose = function () { if (d.open) return; finish(false); };
     d.showModal();
-    no.focus();
+    noB.focus();
   }
 
   /* =================================================================
-     Cabinet component: renders one engine calculation and sends the
-     student's commands to it. It never changes numbers itself.
+     Cabinet component (renders one engine calculation by key).
      ================================================================= */
+  var cabinets = {};
   function Cabinet(cfg) {
     var self = this, p = cfg.prefix, i;
-    this.cfg = cfg; this.calc = cfg.calc; this.selected = null;
-    this.hintLevel = 0; this.hintKey = '';
+    this.cfg = cfg; this.key = cfg.key; this.selected = null;
+    this.hintLevel = 0; this.hintKey = ''; this.lastCode = null;
+    this.record = cfg.recordName;
+    var st0 = this.calc().state(), sd = E.toDrawers(st0.subtract);
     this.mode = { take: cfg.take !== false, showTotals: cfg.showTotals !== false, readOnly: false };
-    var st = this.calc.state(), sd = E.toDrawers(st.subtract);
 
     this.root = el('div', { class: 'cabinet', id: p + '-cabinet', role: 'group', 'aria-labelledby': p + '-title' });
-    this.slip = el('div', { class: 'slip', role: 'group', 'aria-label': 'Shipment slip' }, [
-      el('p', { class: 'slip-title', text: cfg.slipTitle || 'Shipment slip' }),
-      el('p', { class: 'slip-amount', text: fmt(st.subtract) + ' sacks' }),
-      el('p', { class: 'slip-break', text: sd.map(function (k, j) { return units(j, k); }).join(' · ') })
-    ]);
     this.root.appendChild(el('div', { class: 'cab-head' }, [
       el('div', null, [el('h3', { class: 'cab-title', id: p + '-title', text: cfg.title }), el('p', { class: 'cab-sub', text: cfg.subtitle || '' })]),
-      this.slip
+      el('div', { class: 'slip', role: 'group', 'aria-label': 'Shipment slip' }, [
+        el('p', { class: 'slip-title', text: cfg.slipTitle || 'Shipment slip' }),
+        el('p', { class: 'slip-amount', text: fmt(st0.subtract) + ' sacks' }),
+        el('p', { class: 'slip-break', text: sd.map(function (k, j) { return units(j, k); }).join(' · ') })
+      ])
     ]));
-
     var fs = el('fieldset', { class: 'drawers' }, [el('legend', { text: 'Cabinet drawers — choose one' })]);
     var grid = el('div', { class: 'drawer-grid' });
     this.dr = [];
@@ -1039,12 +1426,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
       var count = el('span', { class: 'd-count' }), unit = el('span', { class: 'd-unit' }), val = el('span', { class: 'd-value' });
       var pips = el('span', { class: 'pips pips-' + i, 'aria-hidden': 'true' });
       var label = el('label', { class: 'drawer drawer-' + i, for: p + '-d' + i }, [
-        el('span', { class: 'd-name', text: CAP[i] + ' drawer' }),
-        el('span', { class: 'd-plate' }, [count, unit, val]),
-        pips,
+        el('span', { class: 'd-name', text: CAP[i] + ' drawer' }), el('span', { class: 'd-plate' }, [count, unit, val]), pips,
         el('span', { class: 'd-tag', 'aria-hidden': 'true', text: 'Selected' })
       ]);
-      input.addEventListener('change', function () { self.selected = i; self.render(); });
+      input.addEventListener('change', function () { self.select(i); });
       label.addEventListener('animationend', function () { label.classList.remove('arrive'); });
       grid.appendChild(el('div', { class: 'drawer-wrap' }, [input, label]));
       self.dr.push({ input: input, label: label, count: count, unit: unit, val: val, pips: pips, last: null });
@@ -1053,16 +1438,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     this.root.appendChild(fs);
 
     this.tCab = el('span', { class: 'v' }); this.tTaken = el('span', { class: 'v' }); this.tStill = el('span', { class: 'v' });
-    this.tCabK = el('span', { class: 'k', text: 'In the cabinet now' });
     this.pTaken = el('p', null, [el('span', { class: 'k', text: 'Taken away so far' }), this.tTaken]);
     this.pStill = el('p', null, [el('span', { class: 'k', text: 'Still to take' }), this.tStill]);
-    this.root.appendChild(el('div', { class: 'totals' }, [el('p', null, [this.tCabK, this.tCab]), this.pTaken, this.pStill]));
-
-    this.prop = el('div', { class: 'proposal', id: p + '-proposal' });
-    this.propMain = el('p', { class: 'p-main' }); this.propRow = el('div', { class: 'ten-row', 'aria-hidden': 'true' }); this.propSub = el('p');
-    this.recordBtn = el('button', { type: 'button', class: 'btn btn-primary', hidden: true });
-    this.prop.appendChild(this.propMain); this.prop.appendChild(this.propRow); this.prop.appendChild(this.propSub); this.prop.appendChild(this.recordBtn);
-    this.root.appendChild(this.prop);
+    this.root.appendChild(el('div', { class: 'totals' }, [el('p', null, [el('span', { class: 'k', text: 'In the cabinet now' }), this.tCab]), this.pTaken, this.pStill]));
 
     var explainId = p + '-explain';
     this.bOpen = el('button', { type: 'button', class: 'btn', 'aria-describedby': explainId, text: 'Open Bundle' });
@@ -1070,9 +1448,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     this.bCancel = el('button', { type: 'button', class: 'btn btn-quiet', text: 'Close bundle' });
     this.amt = el('input', { type: 'text', inputmode: 'numeric', autocomplete: 'off', spellcheck: 'false', maxlength: '4', class: 'num-input small', id: p + '-amt' });
     this.bTake = el('button', { type: 'submit', class: 'btn', text: 'Take Away' });
-    this.takeForm = el('form', { class: 'take-row', novalidate: true }, [
-      el('label', { for: p + '-amt', text: 'How many pieces to take from the chosen drawer?' }), this.amt, this.bTake
-    ]);
+    this.takeForm = el('form', { class: 'take-row', novalidate: true }, [el('label', { for: p + '-amt', text: 'How many pieces to take from the chosen drawer?' }), this.amt, this.bTake]);
     this.bUndo = el('button', { type: 'button', class: 'btn', text: 'Undo' });
     this.bReset = el('button', { type: 'button', class: 'btn', text: 'Reset' });
     this.bHint = el('button', { type: 'button', class: 'btn btn-quiet', text: 'Hint' });
@@ -1083,23 +1459,27 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
       el('div', { class: 'act-row' }, [this.bUndo, this.bReset, this.bHint])
     ]);
     this.root.appendChild(this.actions);
-    this.lockNote = el('p', { class: 'locked-note', hidden: true, text: 'This calculation is recorded in the Mended Ledger and can no longer change.' });
+    /* R1 (F4): the proposal panel now sits below the controls and grows with its content,
+       so a long description can never push the buttons the student is about to press. */
+    this.prop = el('div', { class: 'proposal', id: p + '-proposal' });
+    this.propMain = el('p', { class: 'p-main' }); this.propRow = el('div', { class: 'ten-row', 'aria-hidden': 'true' }); this.propSub = el('p');
+    this.recordBtn = el('button', { type: 'button', class: 'btn btn-primary', hidden: true });
+    [this.propMain, this.propRow, this.propSub, this.recordBtn].forEach(function (x) { self.prop.appendChild(x); });
+    this.root.appendChild(this.prop);
+    this.lockNote = el('p', { class: 'locked-note', hidden: true, text: 'This calculation is saved in ' + this.record + ' and can no longer change.' });
     this.root.appendChild(this.lockNote);
     this.fb = el('div', { class: 'feedback', id: p + '-fb', tabindex: '0', role: 'region', 'aria-label': 'Granary notes' });
     this.root.appendChild(this.fb);
-    setFb(this.fb, null, cfg.intro || 'Choose a drawer to begin. You can use the arrow keys to move between drawers.');
 
-    this.histCount = el('span');
-    this.histBody = el('tbody');
-    this.hist = el('details', { class: 'history' }, [
+    this.histCount = el('span'); this.histBody = el('tbody');
+    this.root.appendChild(el('details', { class: 'history' }, [
       el('summary', null, ['Transaction history ', this.histCount]),
-      el('div', { class: 'table-scroll' }, [el('table', null, [
+      el('div', { class: 'table-scroll', tabindex: '0', role: 'region', 'aria-label': cfg.title + ' transaction history (scrolls sideways on small screens)' }, [el('table', null, [
         el('caption', { text: 'Every change to the drawers, in order. Drawers are listed as thousands · hundreds · tens · ones.' }),
         el('thead', null, [el('tr', null, ['Step', 'What happened', 'Before', 'After', 'In cabinet', 'Taken so far'].map(function (h) { return el('th', { scope: 'col', text: h }); }))]),
         this.histBody
       ])])
-    ]);
-    this.root.appendChild(this.hist);
+    ]));
 
     this.bOpen.addEventListener('click', function () { self.cmd('open'); });
     this.bMove.addEventListener('click', function () { self.cmd('move'); });
@@ -1108,50 +1488,68 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     this.bUndo.addEventListener('click', function () { self.cmd('undo'); });
     this.bReset.addEventListener('click', function () {
       if (self.blocked()) return;
-      confirmAction('Reset the cabinet to ' + fmt(self.calc.start) + ' sacks? Your earlier steps stay in the history, and Undo can bring them back.', function () { self.cmd('reset'); }, self.bReset);
+      openDialog({ title: 'Reset this cabinet?', msg: 'Reset the cabinet to ' + fmt(self.calc().start) + ' sacks? Your earlier steps stay in the history, and Undo can bring them back.',
+        yes: 'Yes, reset', no: 'Keep working', onYes: function () { self.cmd('reset'); }, returnTo: self.bReset });
     });
     this.bHint.addEventListener('click', function () { self.hint(); });
     this.recordBtn.addEventListener('click', function () {
-      var r = self.calc.lock();
-      if (!r.ok) return;
+      var res = act({ t: 'cab', c: self.key, cmd: 'record' });
+      if (!res.effective) return;
       self.render();
       if (cfg.onRecord) cfg.onRecord();
     });
-    this.render();
+    this.welcome(cfg.intro);
+    cabinets[this.key] = this;
   }
-
-  Cabinet.prototype.setMode = function (m) { for (var k in m) this.mode[k] = m[k]; this.render(); };
+  Cabinet.prototype.calc = function () { return S.calcs[this.key]; };
+  Cabinet.prototype.welcome = function (text) {
+    this.selected = null; this.hintKey = ''; this.lastCode = null; this.amt.value = '';
+    setFb(this.fb, null, text || this.cfg.intro || 'Choose a drawer to begin. Use Tab to reach the drawers, then the arrow keys to move between them.');
+    this.render();
+  };
+  Cabinet.prototype.setMode = function (m) { var ch = false; for (var k in m) { if (this.mode[k] !== m[k]) ch = true; this.mode[k] = m[k]; } if (ch) this.render(); };
   Cabinet.prototype.blocked = function () {
-    if (this.calc.isLocked() || this.mode.readOnly) {
-      var t = this.calc.isLocked() ? 'This calculation is recorded in the Mended Ledger and can no longer change.' : 'This cabinet is for looking only here. Continue in the current chapter to work with it.';
+    if (this.calc().isLocked() || this.mode.readOnly) {
+      var t = this.calc().isLocked() ? 'This calculation is saved in ' + this.record + ' and can no longer change.' : 'This cabinet is for looking only here.';
       setFb(this.fb, 'info', t); announce(t); return true;
     }
     return false;
   };
-
+  /* R1 (F7): choosing a different drawer closes an open, uncommitted bundle. Nothing moves. */
+  Cabinet.prototype.select = function (i) {
+    var prop = this.calc().proposal();
+    this.selected = i;
+    if (prop && prop.from !== i && !this.calc().isLocked() && !this.mode.readOnly) {
+      var res = act({ t: 'cab', c: this.key, cmd: 'cancel' });
+      if (res.effective) {
+        var t = 'You chose the ' + NAMES[i] + ' drawer, so the open ' + SING[prop.from] + ' bundle was tied back up. Nothing moved.';
+        setFb(this.fb, 'info', t); announce('Bundle closed. Nothing moved. ' + CAP[i] + ' drawer selected.');
+        this.lastCode = 'CANCELLED';
+      }
+    }
+    this.render();
+  };
   Cabinet.prototype.cmd = function (what) {
     if (this.blocked()) return;
-    var c = this.calc, r, sel = this.selected;
+    var sel = this.selected, a = { t: 'cab', c: this.key, cmd: what };
     if ((what === 'open' || what === 'take') && sel === null) {
       var t = 'Choose a drawer first. Click a drawer, or use Tab to reach the drawers and the arrow keys to pick one.';
       setFb(this.fb, 'info', t); announce(t); return;
     }
-    if (what === 'open') r = c.propose(sel);
-    else if (what === 'move') r = c.commit();
-    else if (what === 'cancel') r = c.cancel();
-    else if (what === 'undo') r = c.undo();
-    else if (what === 'reset') r = c.reset();
-    else if (what === 'take') {
+    if (what === 'open') a.p = sel;
+    if (what === 'take') {
       if (!this.mode.take) return;
       var n = E.parseWhole(this.amt.value);
-      r = n === null ? { ok: false, code: 'BAD_AMOUNT' } : c.take(sel, n);
-      if (r.ok) this.amt.value = '';
+      if (n === null || n < 1 || n > 9999) { this.handle({ ok: false, code: 'BAD_AMOUNT' }); return; }
+      a.p = sel; a.n = n;
     }
-    this.handle(r);
+    var res = act(a);
+    if (res.code === 'MODE') { this.blocked(); return; }
+    if (what === 'take' && res.r && res.r.ok) this.amt.value = '';
+    this.handle(res.r || { ok: false, code: res.code });
   };
-
   Cabinet.prototype.describe = function (r) {
-    var st = this.calc.state(), b, a, msg;
+    var st = this.calc().state(), b, a, msg, c = this.calc();
     switch (r.code) {
       case 'PROPOSED':
         return ['info', 'You untied 1 ' + SING[r.from] + ' bundle. Inside are 10 ' + NAMES[r.to] + ', because 1 ' + SING[r.from] + ' is worth the same as 10 ' + NAMES[r.to] + '. Nothing has moved yet. Press Move Ten to carry all ten into the ' + NAMES[r.to] + ' drawer.',
@@ -1166,10 +1564,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
         else if (r.nearestAbove >= 0) msg += ' The drawer just above is empty too — keep looking upward.';
         else msg += ' No drawer above it has a bundle.';
         return ['blocked', msg + ' Nothing moved.', 'Blocked. The ' + NAMES[r.place] + ' drawer is empty. Nothing moved.'];
-      case 'NO_LOWER_PLACE':
-        return ['blocked', 'Ones are single sacks. There is no smaller drawer to open them into. Nothing moved.', 'Blocked. Ones cannot be opened.'];
-      case 'NO_PROPOSAL':
-        return ['info', 'No bundle is open, so there is nothing to move. Choose a drawer, press Open Bundle, then Move Ten.', 'No bundle is open.'];
+      case 'NO_LOWER_PLACE': return ['blocked', 'Ones are single sacks. There is no smaller drawer to open them into. Nothing moved.', 'Blocked. Ones cannot be opened.'];
+      case 'NO_PROPOSAL': return ['info', 'No bundle is open, so there is nothing to move. Choose a drawer, press Open Bundle, then Move Ten.', 'No bundle is open.'];
       case 'CANCELLED': return ['info', 'You tied the bundle back up. Nothing moved.', 'Bundle closed. Nothing moved.'];
       case 'NOTHING_OPEN': return ['info', 'No bundle is open.', 'No bundle is open.'];
       case 'BAD_AMOUNT': return ['info', 'Type how many pieces to take as a whole number, like 8, then press Take Away.', 'Type a whole number to take.'];
@@ -1179,40 +1575,43 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
         msg += r.place === 0 ? ' There is no drawer above thousands.' : ' To get more ' + NAMES[r.place] + ', open a bundle from the drawer above.';
         return ['blocked', msg + ' Nothing moved.', 'Blocked. The ' + NAMES[r.place] + ' drawer holds only ' + r.have + '.'];
       case 'OVER_SHIPMENT':
-        return ['blocked', 'Taking ' + units(r.place, r.amount) + ' would remove ' + fmt(r.value) + ' sacks, but the shipment needs only ' + fmt(r.stillToRemove) + ' more. Nothing moved.',
-          'Blocked. That is more than the shipment needs.'];
+        return ['blocked', 'Taking ' + units(r.place, r.amount) + ' would remove ' + fmt(r.value) + ' sacks, but the shipment needs only ' + fmt(r.stillToRemove) + ' more. Nothing moved.', 'Blocked. That is more than the shipment needs.'];
       case 'TAKEN':
-        if (r.complete) return ['ok', 'Took ' + units(r.place, r.amount) + '. The whole shipment of ' + fmt(st.subtract) + ' sacks is out. ' + fmt(this.calc.value()) + ' sacks remain in the cabinet.',
-          'Shipment complete. ' + fmt(this.calc.value()) + ' sacks remain.'];
-        return ['ok', 'Took ' + units(r.place, r.amount) + ' (' + fmt(r.value) + ' sacks). Still to take: ' + fmt(r.stillToRemove) + '.',
-          'Took ' + units(r.place, r.amount) + '. ' + fmt(this.calc.value()) + ' in the cabinet, ' + fmt(r.stillToRemove) + ' still to take.'];
+        if (r.complete) return ['ok', 'Took ' + units(r.place, r.amount) + '. The whole shipment of ' + fmt(st.subtract) + ' sacks is out. ' + fmt(c.value()) + ' sacks remain in the cabinet.', 'Shipment complete. ' + fmt(c.value()) + ' sacks remain.'];
+        return ['ok', 'Took ' + units(r.place, r.amount) + ' (' + fmt(r.value) + ' sacks). Still to take: ' + fmt(r.stillToRemove) + '.', 'Took ' + units(r.place, r.amount) + '. ' + fmt(c.value()) + ' in the cabinet, ' + fmt(r.stillToRemove) + ' still to take.'];
       case 'UNDONE': return ['info', 'Undid step ' + r.undoneTx + '. The drawers are back to ' + dText(st.drawers) + ' (thousands · hundreds · tens · ones). The undo is written in the history.', 'Undid step ' + r.undoneTx + '. Now ' + dSpoken(st.drawers) + '.'];
       case 'NOTHING_TO_UNDO': return ['info', 'There is nothing to undo yet.', 'Nothing to undo.'];
       case 'RESET': return ['info', 'The cabinet is back to ' + fmt(st.start) + ' sacks. Your earlier steps stay in the history.', 'Cabinet reset to ' + fmt(st.start) + ' sacks.'];
       case 'ALREADY_RESET': return ['info', 'The cabinet is already at its starting state.', 'Already at the start.'];
-      case 'LOCKED': return ['info', 'This calculation is recorded in the Mended Ledger and can no longer change.', 'This calculation is recorded.'];
+      case 'LOCKED': return ['info', 'This calculation is saved in ' + this.record + ' and can no longer change.', 'This calculation is already saved.'];
       default: return ['info', String(r.code), String(r.code)];
     }
   };
-
+  /* R1 (F8): a harmless duplicate activation keeps the success message on screen. */
+  var DUPLICATE_OF = { NO_PROPOSAL: ['EXCHANGED'], BAD_AMOUNT: ['TAKEN'], COMPLETE: ['TAKEN'] };
   Cabinet.prototype.handle = function (r) {
+    var dupOf = DUPLICATE_OF[r.code];
+    if (dupOf && dupOf.indexOf(this.lastCode) >= 0 && (r.code !== 'BAD_AMOUNT' || this.amt.value.trim() === '')) {
+      announce(r.code === 'NO_PROPOSAL' ? 'Already moved. Nothing else changed.' : 'Already taken. Nothing else changed.');
+      this.render(); refreshAll(); return;
+    }
     var d = this.describe(r);
     setFb(this.fb, d[0], d[1]);
     announce(d[2]);
+    this.lastCode = r.code;
     if (r.code === 'EXCHANGED') this.dr[r.to].label.classList.add('arrive');
     this.render();
-    if (this.cfg.onChange) this.cfg.onChange(r);
+    refreshAll();
   };
-
   Cabinet.prototype.hint = function () {
     if (this.blocked()) return;
-    var st = this.calc.state(), h = E.suggestNext(st), t;
+    var st = this.calc().state(), h = E.suggestNext(st), t;
     var key = JSON.stringify(h) + '|' + st.txCount + '|' + this.mode.take;
     if (key !== this.hintKey) { this.hintKey = key; this.hintLevel = 0; }
     this.hintLevel = Math.min(this.hintLevel + 1, 3);
     var L = this.hintLevel;
     if (st.proposal) t = 'A bundle is open. Press Move Ten to carry its ten pieces down, or Close bundle to change your mind.';
-    else if (h.type === 'done') t = 'The shipment is complete. Use the Record button to write the result in the ledger.';
+    else if (h.type === 'done') t = 'The shipment is complete. Use the Record button to save the result.';
     else if (!this.mode.take && st.drawers[3] >= 8) t = 'The ones drawer has enough sacks now. Count the whole cabinet in the box below.';
     else if (L === 1) t = this.mode.take ? 'Work one column at a time, starting with the ones. Compare what the slip needs with what each drawer holds.' : 'The ones drawer needs more sacks. Which drawer could give the ones drawer a bundle of ten?';
     else if (h.type === 'open' && h.reason === 'column') {
@@ -1226,31 +1625,28 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     } else t = 'Try Undo, or Reset to start the cabinet again.';
     setFb(this.fb, 'hint', t + (L < 3 && h.type !== 'done' ? ' (Press Hint again for more help.)' : ''));
     announce('Hint: ' + t);
+    this.lastCode = 'HINT';
   };
-
   Cabinet.prototype.render = function () {
-    var st = this.calc.state(), i, self = this, locked = st.locked, ro = this.mode.readOnly;
+    var st = this.calc().state(), i, self = this, locked = st.locked, ro = this.mode.readOnly;
     for (i = 0; i < 4; i++) {
       var d = this.dr[i], k = st.drawers[i];
       d.input.checked = this.selected === i;
       d.count.textContent = String(k);
-      d.unit.textContent = i === 3 ? (k === 1 ? 'single sack' : 'single sacks') : (k === 1 ? 'bundle of ' + fmt(PV[i]) : 'bundles of ' + fmt(PV[i]));
+      d.unit.textContent = i === 3 ? plural(k, 'single sack', 'single sacks') : plural(k, 'bundle of ', 'bundles of ') + fmt(PV[i]);
       d.val.textContent = '= ' + fmt(k * PV[i]) + ' sacks';
       if (d.last !== k) {
         clear(d.pips);
-        var show = Math.min(k, 40);
+        var show = Math.min(k, 30);
         for (var j = 0; j < show; j++) d.pips.appendChild(el('span', { class: 'pip' }));
-        if (k > 40) d.pips.appendChild(el('span', { class: 'pip-more', text: '+' + (k - 40) + ' more' }));
+        if (k > 30) d.pips.appendChild(el('span', { class: 'pip-more', text: '+' + (k - 30) + ' more' }));
         d.last = k;
       }
     }
-    var showT = this.mode.showTotals;
-    this.tCabK.textContent = showT ? 'In the cabinet now' : 'In the cabinet now';
-    this.tCab.textContent = showT ? fmt(E.cabinetValue(st.drawers)) + ' sacks' : 'Count it yourself below';
+    this.tCab.textContent = this.mode.showTotals ? fmt(E.cabinetValue(st.drawers)) + ' sacks' : 'Count it yourself below';
     this.pTaken.hidden = !this.mode.take; this.pStill.hidden = !this.mode.take;
     this.tTaken.textContent = fmt(st.removed) + ' sacks';
     this.tStill.textContent = fmt(st.subtract - st.removed) + ' sacks';
-
     clear(this.propRow); this.recordBtn.hidden = true;
     if (st.proposal) {
       this.propMain.textContent = 'Bundle open: 1 ' + SING[st.proposal.from] + ' → 10 ' + NAMES[st.proposal.to];
@@ -1259,38 +1655,29 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
       this.propSub.textContent = 'These ten ' + NAMES[st.proposal.to] + ' are still inside the open bundle. The drawers have not changed. Press Move Ten to move all ten at once.';
     } else if (locked) {
       this.propMain.textContent = 'Recorded: ' + fmt(st.start) + ' − ' + fmt(st.subtract) + ' leaves ' + fmt(E.cabinetValue(st.drawers)) + ' sacks.';
-      this.propSub.textContent = 'This calculation is safe in the Mended Ledger.';
+      this.propSub.textContent = 'This calculation is saved in ' + this.record + '.';
     } else if (st.complete && this.mode.take) {
       this.propMain.textContent = 'The whole shipment is out. ' + fmt(E.cabinetValue(st.drawers)) + ' sacks remain.';
-      this.propSub.textContent = this.cfg.onRecord ? 'Happy with your steps? Record the result. (Undo still works until you record.)' : '';
-      if (this.cfg.onRecord) { this.recordBtn.textContent = 'Record ' + fmt(E.cabinetValue(st.drawers)) + ' sacks in the ledger'; this.recordBtn.hidden = false; }
+      this.propSub.textContent = 'Happy with your steps? Record the result. (Undo still works until you record.)';
+      this.recordBtn.textContent = 'Record ' + fmt(E.cabinetValue(st.drawers)) + ' sacks in ' + this.record; this.recordBtn.hidden = false;
     } else {
       this.propMain.textContent = 'No bundle is open.';
       this.propSub.textContent = this.mode.take ? 'Choose a drawer, then Open Bundle or Take Away.' : 'Choose a drawer, then Open Bundle.';
     }
-    var inactive = locked || ro;
-    this.actions.hidden = inactive;
+    this.actions.hidden = locked || ro;
     this.takeForm.hidden = !this.mode.take;
     this.lockNote.hidden = !locked;
     this.bMove.setAttribute('aria-disabled', st.proposal ? 'false' : 'true');
     this.bCancel.setAttribute('aria-disabled', st.proposal ? 'false' : 'true');
-
-    var rows = st.events;
-    this.histCount.textContent = '(' + st.txCount + ' step' + (st.txCount === 1 ? '' : 's') + ', ' + rows.filter(function (e) { return e.kind === 'observation'; }).length + ' notes)';
+    var rows = st.events, notes = rows.filter(function (e) { return e.kind === 'observation'; }).length;
+    this.histCount.textContent = '(' + st.txCount + ' ' + plural(st.txCount, 'step', 'steps') + ', ' + notes + ' ' + plural(notes, 'note', 'notes') + ')';
     clear(this.histBody);
     if (!rows.length) this.histBody.appendChild(el('tr', null, [el('td', { colspan: '6', text: 'Nothing has happened yet.' })]));
     rows.forEach(function (e) {
-      if (e.kind === 'transaction') {
-        self.histBody.appendChild(el('tr', null, [
-          el('td', { text: String(e.tx) }), el('td', { text: txText(e) }), el('td', { text: dText(e.before) }), el('td', { text: dText(e.after) }),
-          el('td', { text: fmt(e.valueAfter) }), el('td', { text: fmt(e.removedAfter) })
-        ]));
-      } else {
-        self.histBody.appendChild(el('tr', { class: 'obs' }, [el('td', { text: 'note' }), el('td', { colspan: '5', text: obsText(e) + ' Nothing moved.' })]));
-      }
+      if (e.kind === 'transaction') self.histBody.appendChild(el('tr', null, [el('td', { text: String(e.tx) }), el('td', { text: txText(e) }), el('td', { text: dText(e.before) }), el('td', { text: dText(e.after) }), el('td', { text: fmt(e.valueAfter) }), el('td', { text: fmt(e.removedAfter) })]));
+      else self.histBody.appendChild(el('tr', { class: 'obs' }, [el('td', { text: 'note' }), el('td', { colspan: '5', text: obsText(e) + ' Nothing moved.' })]));
     });
   };
-
   function txText(e) {
     if (e.type === 'EXCHANGE') return 'Opened 1 ' + SING[e.place] + ' into 10 ' + NAMES[e.place + 1];
     if (e.type === 'TAKE') return 'Took ' + units(e.place, e.amount) + ' (' + fmt(e.amount * PV[e.place]) + ' sacks)';
@@ -1307,46 +1694,53 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
   }
 
   /* =================================================================
-     Question helpers (number answer, multiple choice)
+     Question components (render from the model; submit through act()).
      ================================================================= */
+  var UIQ = {};
   function numberQ(o) {
-    var id = o.id, wrong = 0;
+    var id = o.id;
     var input = el('input', { id: id + '-in', type: 'text', inputmode: 'numeric', autocomplete: 'off', spellcheck: 'false', maxlength: '9', class: 'num-input', 'aria-describedby': id + '-fb' });
     var fb = el('p', { class: 'q-fb', id: id + '-fb' });
-    var labelKids = o.eq ? [el('span', { class: 'q-eq', text: o.eq }), ' '] : [];
+    var label = el('label', { for: id + '-in', class: 'q-label', text: o.label });
     var form = el('form', { class: 'q', id: id, novalidate: true }, [
-      el('label', { for: id + '-in', class: 'q-label', text: o.label }),
-      el('div', { class: 'q-row' }, labelKids.concat([input, el('button', { type: 'submit', class: 'btn', text: o.button || 'Check' })])),
-      fb
+      label, el('div', { class: 'q-row' }, (o.eq ? [el('span', { class: 'q-eq', text: o.eq }), ' '] : []).concat([input, el('button', { type: 'submit', class: 'btn', text: o.button || 'Check' })])), fb
     ]);
-    var q = { root: form, input: input, fb: fb, solved: false };
+    function correctMsg(n) { return typeof o.correct === 'function' ? o.correct(n) : o.correct; }
+    var q = {
+      root: form, input: input, fb: fb, label: label,
+      sync: function () {
+        var st = S.q[id], last = st.log.length ? st.log[st.log.length - 1] : null;
+        input.removeAttribute('aria-invalid');
+        if (st.solved) { input.value = last.entered; input.readOnly = true; setFb(fb, 'ok', correctMsg(last.value)); }
+        else { input.value = ''; input.readOnly = false; clear(fb); fb.removeAttribute('data-tone'); }
+      }
+    };
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (q.solved) { setFb(fb, 'ok', o.again || 'Already checked and recorded.'); announce('Already checked.'); return; }
-      if (o.gate) { var g = o.gate(); if (g) { setFb(fb, 'info', g); announce(g); return; } }
-      var raw = input.value, n = E.parseWhole(raw);
-      if (n === null) { var t = 'Type a whole number, like 1,234.'; setFb(fb, 'info', t); announce(t); return; }
-      var expected = o.expected(), ok = n === expected;
-      o.log.push({ entered: raw, value: n, correct: ok });
-      if (ok) {
-        q.solved = true; input.readOnly = true; input.setAttribute('aria-invalid', 'false');
-        var msg = typeof o.correct === 'function' ? o.correct(n) : o.correct;
-        setFb(fb, 'ok', msg); announce('Correct. ' + msg);
-        if (o.onCorrect) o.onCorrect(n);
-      } else {
-        wrong++; input.setAttribute('aria-invalid', 'true');
-        var w = o.wrong ? o.wrong(n, wrong, expected) : 'Not quite. Check your work and try again.';
-        setFb(fb, 'wrong', w); announce('Not yet. ' + w);
+      var raw = input.value;
+      if (raw.length > LIMITS.raw) raw = raw.slice(0, LIMITS.raw);
+      var res = act({ t: 'ans', id: id, raw: raw }), t;
+      /* R1 (F8): a repeated Check on a solved question keeps its success message. */
+      if (res.code === 'ALREADY') { announce('Already checked and recorded.'); return; }
+      if (res.code === 'GATE') { t = o.gateMsg || 'Finish the step before this one first.'; setFb(fb, 'info', t); announce(t); return; }
+      if (res.code === 'BAD') { t = 'Type a whole number, like 1,234. Use a comma or no separator — no spaces inside the number.'; setFb(fb, 'info', t); announce(t); return; }
+      if (res.code === 'CORRECT') {
+        input.readOnly = true; input.setAttribute('aria-invalid', 'false');
+        t = correctMsg(res.value); setFb(fb, 'ok', t); announce('Correct. ' + t);
+        refreshAll(); if (o.after) o.after(); return;
       }
+      input.setAttribute('aria-invalid', 'true');
+      t = o.wrong ? o.wrong(res.value, res.tries, res.expected) : 'Check your work and try again.';
+      setFb(fb, 'wrong', t); announce('Not yet. ' + t);
       refreshAll();
     });
+    UIQ[id] = q;
     return q;
   }
-
+  var CHOICE_TEXT = {};
   function choiceQ(o) {
-    var id = o.id;
-    var fb = el('p', { class: 'q-fb', id: id + '-fb' });
-    var fsKids = [el('legend', { text: o.legend })];
+    var id = o.id, fb = el('p', { class: 'q-fb', id: id + '-fb' }), fsKids = [el('legend', { text: o.legend })];
+    CHOICE_TEXT[id] = o.options.map(function (x) { return x.text; });
     var inputs = o.options.map(function (opt, i) {
       var inp = el('input', { type: 'radio', name: id + '-opt', id: id + '-o' + i, value: String(i) });
       fsKids.push(el('label', { class: 'choice', for: id + '-o' + i }, [inp, el('span', { text: opt.text })]));
@@ -1354,472 +1748,396 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     });
     var form = el('form', { class: 'q', id: id, novalidate: true }, [el('fieldset', { 'aria-describedby': id + '-fb' }, fsKids),
       el('div', { class: 'btn-row' }, [el('button', { type: 'submit', class: 'btn', text: o.button || 'Check my choice' })]), fb]);
-    var q = { root: form, fb: fb, solved: false };
+    var q = {
+      root: form, fb: fb,
+      sync: function () {
+        var st = S.q[id], c = CHOICEQ[id].correct;
+        inputs.forEach(function (inp, i) { inp.checked = st.solved && i === c; inp.disabled = st.solved && i !== c; });
+        if (st.solved) setFb(fb, 'ok', o.options[c].response); else { clear(fb); fb.removeAttribute('data-tone'); }
+      }
+    };
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (q.solved) { setFb(fb, 'ok', 'Already checked and recorded.'); announce('Already checked.'); return; }
       var pick = -1; inputs.forEach(function (inp, i) { if (inp.checked) pick = i; });
+      if (S.q[id].solved) { announce('Already checked and recorded.'); return; }
       if (pick < 0) { setFb(fb, 'info', 'Choose one answer first.'); announce('Choose one answer first.'); return; }
+      var res = act({ t: 'pick', id: id, i: pick });
+      if (res.code === 'GATE') { var g = o.gateMsg || 'Finish the step before this one first.'; setFb(fb, 'info', g); announce(g); return; }
       var opt = o.options[pick];
-      o.log.push({ choice: opt.text, correct: !!opt.correct });
-      if (opt.correct) {
-        q.solved = true; inputs.forEach(function (inp) { inp.disabled = inp !== inputs[pick]; });
-        setFb(fb, 'ok', opt.response); announce('Correct. ' + opt.response);
-        if (o.onCorrect) o.onCorrect();
-      } else { setFb(fb, 'wrong', opt.response); announce('Not yet. ' + opt.response); }
-      refreshAll();
+      if (res.code === 'CORRECT') {
+        inputs.forEach(function (inp) { inp.disabled = inp !== inputs[pick]; });
+        setFb(fb, 'ok', opt.response); announce('Correct. ' + opt.response); refreshAll(); if (o.after) o.after(); return;
+      }
+      setFb(fb, 'wrong', opt.response); announce('Not yet. ' + opt.response); refreshAll();
     });
+    UIQ[id] = q;
     return q;
   }
 
-  /* Column-aware feedback for an addition check. */
+  /* R1 (F2): the carried unit comes from the column it leaves: ones → 1 ten, tens → 1 hundred, hundreds → 1 thousand. */
   function additionWrong(a, b) {
     return function (n, tries, expected) {
       var mm = E.columnMismatches(expected, n);
       if (!mm.length) return 'Check your number again.';
-      var pos = mm[0], col = COLNAMES[pos] || 'leftmost';
+      var pos = mm[0], col = COL[pos] || 'leftmost';
       if (tries === 1) return fmt(n) + ' doesn\'t match. Start at the ones and work left: the ' + col + ' column is the first one that needs another look.';
       var c = E.additionColumn(a, b, pos);
-      return 'Look at the ' + col + ' column: ' + c.da + ' + ' + c.db + (c.carryIn ? ' + ' + c.carryIn + ' carried' : '') + ' = ' + c.sum + '.' + (c.carryOut ? ' Write ' + c.write + ' and carry 1 ten to the next column.' : ' Write ' + c.write + '.') + ' Then keep going left.';
+      var t = 'Look at the ' + col + ' column: ' + c.da + ' + ' + c.db + (c.carryIn ? ' + 1 carried ' + COL1[pos] : '') + ' = ' + c.sum + ' ' + plural(c.sum, COL1[pos], COL[pos]) + '.';
+      if (c.carryOut) t += ' Ten ' + COL[pos] + ' make 1 ' + COL1[pos + 1] + ', so write ' + c.write + ' in the ' + col + ' column and carry 1 ' + COL1[pos + 1] + ' to the ' + COL[pos + 1] + ' column.';
+      else t += ' Write ' + c.write + ' in the ' + col + ' column.';
+      return t + (pos >= String(expected).length - 1 ? ' That is the last column.' : ' Then keep going left.');
     };
   }
 
   /* =================================================================
-     STORY STATE (narrative layer). Numbers come from engine objects.
+     Chapter flow and shared rendering
      ================================================================= */
-  var story = {
-    chapter: 1, max: 1, doorOpen: false,
-    main: E.createCalculation({ id: 'CALC-1', label: 'First calculation (ledger shipment)', start: START, subtract: SHIP_OLD }),
-    mainRecorded: false,
-    count: { log: [], solved: false },
-    clerk: { choiceLog: [], identified: false, colLog: [], reproduced: false, overLog: [], overSolved: false },
-    inverse1: { log: [], solved: false },
-    countUp: { line: E.createNumberLine(SHIP_OLD, START), jumpLog: [], totalLog: [], solved: false, used: false },
-    comp: { shift: 0, shiftLog: [], log: [], solved: false, used: false },
-    revised: false,
-    prediction: { dirLog: [], dirSolved: false, log: [], solved: false },
-    rev: E.createCalculation({ id: 'CALC-2', label: 'Revised calculation (dock tag shipment)', start: START, subtract: SHIP_NEW }),
-    revRecorded: false,
-    inverse2: { log: [], solved: false },
-    est: { r1Log: [], r1: false, r2Log: [], r2: false, diffLog: [], diff: false, certLog: [], cert: false },
-    shortage: { log: [], solved: false },
-    decisions: [], decided: false,
-    explanations: []
-  };
   var CHAPTERS = ['The Oak Door', 'The Drawers That Cannot Lie', 'The First Subtraction', 'Check the Ledger', 'The Torn Dock Tag', 'The Mended Ledger'];
   var ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
-  var cabMain, cabRev, Q = {};
-
-  function chapterDone(n) {
-    switch (n) {
-      case 1: return story.doorOpen;
-      case 2: return story.main.state().drawers[3] >= 8 && story.count.solved;
-      case 3: return story.mainRecorded && story.clerk.identified && story.clerk.reproduced && story.clerk.overSolved;
-      case 4: return story.inverse1.solved;
-      case 5: return story.decided;
-      default: return false;
-    }
-  }
 
   function buildNav() {
-    var ol = $('chapter-list'); clear(ol);
+    var ol = $('chapter-list'), had = document.activeElement && ol.contains(document.activeElement) ? document.activeElement.getAttribute('data-ch') : null;
+    clear(ol);
     CHAPTERS.forEach(function (t, i) {
-      var n = i + 1, status = n === story.chapter ? 'you are here' : (n <= story.max ? (chapterDone(n) ? 'done' : 'open') : 'locked');
-      var b = el('button', { type: 'button', 'aria-current': n === story.chapter ? 'step' : null, disabled: n > story.max }, [
-        'Chapter ' + ROMAN[i] + ': ' + t, el('span', { class: 'st', text: '(' + status + ')' })
-      ]);
-      b.addEventListener('click', function () { goChapter(n); });
+      var n = i + 1, status = n === S.chapter ? 'you are here' : (n <= S.max ? (chapterDone(S, n) ? 'done' : 'open') : 'locked');
+      var b = el('button', { type: 'button', 'data-ch': String(n), 'aria-current': n === S.chapter ? 'step' : null, disabled: n > S.max }, ['Chapter ' + ROMAN[i] + ': ' + t, el('span', { class: 'st', text: '(' + status + ')' })]);
+      b.addEventListener('click', function () { var r = act({ t: 'nav', ch: n }); if (r.effective) { refreshAll(); focusEl($('ch' + n + '-h')); } });
       ol.appendChild(el('li', null, [b]));
+      if (had === String(n)) b.focus();
     });
   }
 
-  function goChapter(n) {
-    if (n > story.max) return;
-    story.chapter = n;
-    for (var i = 1; i <= 6; i++) $('ch' + i).hidden = i !== n;
-    if (n === 2) { $('ch2-slot').appendChild(cabMain.root); }
-    if (n === 3) { $('ch3-slot').appendChild(cabMain.root); }
-    if (n === 6) renderLedger();
-    applyModes();
-    buildNav();
-    refreshAll();
-    var h = $('ch' + n + '-h');
-    focusEl(h);
-  }
-  function unlock(n) { if (n > story.max) story.max = n; }
+  function placeCabinet(cab, slotId) { var slot = $(slotId); if (cab.root.parentNode !== slot) slot.appendChild(cab.root); }
 
-  function applyModes() {
-    if (story.chapter === 2) cabMain.setMode({ take: false, showTotals: story.count.solved, readOnly: story.max >= 3 });
-    else if (story.chapter === 3) cabMain.setMode({ take: true, showTotals: true, readOnly: false });
+  function showDom() {
+    var storyView = S.view === 'story';
+    $('story-view').hidden = !storyView; $('practice-view').hidden = storyView;
+    $('view-story').setAttribute('aria-pressed', String(storyView)); $('view-practice').setAttribute('aria-pressed', String(!storyView));
+    for (var i = 1; i <= 6; i++) $('ch' + i).hidden = i !== S.chapter;
+    placeCabinet(cabinets.main, S.chapter === 2 ? 'ch2-slot' : 'ch3-slot');
+    if (S.chapter === 2) cabinets.main.setMode({ take: false, showTotals: S.q['q-count'].solved, readOnly: S.max >= 3 });
+    else if (S.chapter === 3) cabinets.main.setMode({ take: true, showTotals: true, readOnly: false });
+    $('practice-A').hidden = S.activeCase !== 'A'; $('practice-B').hidden = S.activeCase !== 'B';
+    $('case-A').checked = S.activeCase === 'A'; $('case-B').checked = S.activeCase === 'B';
   }
-
-  function nextGate(statusId, ready, msg) { $(statusId).textContent = ready ? 'Ready. ' + msg[0] : 'Next step: ' + msg[1]; }
 
   function refreshAll() {
-    nextGate('ch2-next-status', chapterDone(2), ['The cabinet is ready for the shipment.', story.main.state().drawers[3] < 8 ? 'get at least 8 sacks into the ones drawer.' : 'count the whole cabinet.']);
-    nextGate('ch3-next-status', chapterDone(3), ['The old clerk\'s mistake is found.', !story.mainRecorded ? 'take away all 1,258 sacks and record the result.' : 'answer the three questions about the old clerk.']);
-    nextGate('ch4-next-status', chapterDone(4), ['Your answer is checked. The other two ways are optional.', 'finish the inverse check.']);
-    var c5 = !story.revised ? 'press Revise the shipment record.' : !story.revRecorded ? 'take away the corrected 1,528 sacks and record the result.' : !story.inverse2.solved ? 'check the revised count.' : !(story.est.r1 && story.est.r2 && story.est.diff && story.est.cert) ? 'work through Odalys\'s estimate.' : !story.shortage.solved ? 'find the exact shortage.' : 'make your decision.';
-    nextGate('ch5-next-status', chapterDone(5), ['The registrar has your decision.', c5]);
+    showDom();
+    var main = S.calcs.main, rev = S.calcs.rev, Q = S.q;
+    // Chapter I
+    $('ch1-inside').hidden = !S.doorOpen; $('open-door').hidden = S.doorOpen; $('door').classList.toggle('open', S.doorOpen);
+    // Chapter II (R1 B2): once complete and the story has moved on, show a truthful completion note instead of the task.
+    var ch2Closed = chapterDone(S, 2) && S.max >= 3;
+    $('ch2-goal').hidden = ch2Closed; $('ch2-done').hidden = !ch2Closed;
+    // Revealed sections derive from the model, so restored and live sessions look the same.
+    $('ch3-clerk').hidden = !main.isLocked();
+    $('ch5-revised').hidden = !S.revised;
+    if (S.revised) placeCabinet(cabinets.rev, 'ch5-slot');
+    $('inverse2-card').hidden = !rev.isLocked();
+    $('estimate-card').hidden = !Q['q-inv2'].solved;
+    $('shortage-card').hidden = !Q['q-cert'].solved;
+    $('decision-card').hidden = !Q['q-short'].solved;
+    ['A', 'B'].forEach(function (k) { practiceUI[k].inv.hidden = !S.calcs[k].isLocked(); practiceUI[k].done.hidden = !Q['q-rp' + k].solved; });
+    gate('ch2-next-status', chapterDone(S, 2), ['The cabinet is ready for the shipment.', main.drawers()[3] < 8 && !Q['q-count'].solved ? 'get at least 8 sacks into the ones drawer.' : 'count the whole cabinet.']);
+    gate('ch3-next-status', chapterDone(S, 3), ['The old clerk\'s mistake is found.', !main.isLocked() ? 'take away all 1,258 sacks and record the result.' : 'answer the three questions about the old clerk.']);
+    gate('ch4-next-status', chapterDone(S, 4), ['Your answer is checked. The other two ways are optional.', 'finish the inverse check.']);
+    var c5 = !S.revised ? 'press Revise the shipment record.' : !rev.isLocked() ? 'take away the corrected 1,528 sacks and record the result.' : !Q['q-inv2'].solved ? 'check the revised count.'
+      : !(Q['q-r1'].solved && Q['q-r2'].solved && Q['q-rd'].solved) ? 'round both numbers and work out the estimate.' : !Q['q-cert'].solved ? 'decide whether the estimate can certify the granary.' : !Q['q-short'].solved ? 'find the exact shortage.' : 'make your decision.';
+    gate('ch5-next-status', chapterDone(S, 5), ['The registrar has your decision.', c5]);
     updateOldLedger();
     buildNav();
+    renderExportNotice();
+    if (S.chapter === 6 && S.view === 'story') renderLedger();
   }
+  function gate(id, ready, msg) { $(id).textContent = ready ? 'Ready. ' + msg[0] : 'Next step: ' + msg[1]; }
 
-  /* Old ledger: becomes clearer as errors are corrected. */
   function delWith(text) { return el('del', null, [el('span', { class: 'sr-only', text: 'crossed out: ' }), text]); }
   function updateOldLedger() {
     var s = $('ol-shipped'), r = $('ol-remaining'), c = $('ol-cert');
     clear(s); clear(r); clear(c);
-    if (story.revised) { s.appendChild(delWith('1,258')); s.appendChild(el('span', { class: 'fix', text: '1,528 — dock tag' })); }
+    if (S.revised) { s.appendChild(delWith('1,258')); s.appendChild(el('span', { class: 'fix', text: '1,528 — dock tag' })); }
     else s.appendChild(document.createTextNode('1,258'));
-    if (!story.clerk.overSolved) { r.appendChild(el('span', { class: 'smudge', text: '3,255' })); r.appendChild(el('span', { class: 'fix', text: 'not yet checked' })); }
-    else if (!story.revRecorded) { r.appendChild(delWith('3,255')); r.appendChild(el('span', { class: 'fix', text: '2,745 — checked by you' })); }
+    if (!S.q['q-clerk3'].solved) { r.appendChild(el('span', { class: 'smudge', text: '3,255' })); r.appendChild(el('span', { class: 'fix', text: 'not yet checked' })); }
+    else if (!S.calcs.rev.isLocked()) { r.appendChild(delWith('3,255')); r.appendChild(el('span', { class: 'fix', text: '2,745 — checked by you' })); }
     else { r.appendChild(delWith('3,255')); r.appendChild(document.createTextNode(' ')); r.appendChild(delWith('2,745')); r.appendChild(el('span', { class: 'fix', text: '2,475 — corrected shipment' })); }
-    c.appendChild(document.createTextNode(story.decided ? 'Unsigned — 25 sacks requested' : 'Unsigned'));
+    c.appendChild(document.createTextNode(S.decided ? 'Unsigned — 25 sacks requested' : 'Unsigned'));
+  }
+
+  function next(n) {
+    return function () {
+      var r = act({ t: 'next' });
+      if (!r.effective) { announce($('ch' + n + '-next-status').textContent); focusEl($('ch' + n + '-next-status')); return; }
+      refreshAll(); focusEl($('ch' + S.chapter + '-h'));
+    };
   }
 
   /* ---------- Chapter I ---------- */
   function initCh1() {
     $('open-door').addEventListener('click', function () {
-      if (story.doorOpen) return;
-      story.doorOpen = true;
-      $('door').classList.add('open');
-      $('ch1-inside').hidden = false;
-      unlock(2);
+      var r = act({ t: 'door' });
+      if (!r.effective) return;
       announce('The door swings open. Registrar Odalys Penn is waiting inside.');
-      refreshAll();
-      focusEl($('ch1-inside-h'));
-      $('open-door').hidden = true;
+      refreshAll(); focusEl($('ch1-inside-h'));
     });
-    $('to-ch2').addEventListener('click', function () { goChapter(2); });
+    $('to-ch2').addEventListener('click', next(1));
   }
 
-  /* ---------- Chapters II and III: one calculation, two stages ---------- */
+  /* ---------- Chapters II and III ---------- */
   function initCh2and3() {
-    cabMain = new Cabinet({
-      prefix: 'main', calc: story.main, title: 'The Tally Hollow cabinet', subtitle: 'First calculation · shipment written in the ledger',
+    new Cabinet({
+      key: 'main', prefix: 'main', title: 'The Tally Hollow cabinet', subtitle: 'First calculation · shipment written in the ledger', recordName: 'the Mended Ledger',
       slipTitle: 'Shipment slip (from the ledger)', take: false, showTotals: false,
       intro: 'Choose a drawer to begin. Use Tab to reach the drawers, then the arrow keys to move between them.',
-      onChange: function () { refreshAll(); },
-      onRecord: function () {
-        story.mainRecorded = true;
-        $('ch3-clerk').hidden = false;
-        announce('Recorded. 2,745 sacks remain. Now compare with the old ledger.');
-        refreshAll();
-        focusEl($('ch3-clerk-h'));
-      }
+      onRecord: function () { announce('Recorded. 2,745 sacks remain. Now compare with the old ledger.'); refreshAll(); focusEl($('ch3-clerk-h')); }
     });
-    Q.count = numberQ({
-      id: 'q-count', label: 'Add up what every drawer is worth. How many sacks are in the cabinet now?', log: story.count.log,
-      gate: function () { return story.main.state().drawers[3] >= 8 ? '' : 'First get at least 8 sacks into the ones drawer, then count.'; },
-      expected: function () { return story.main.value(); },
+    $('ch2-count-slot').appendChild(numberQ({
+      id: 'q-count', label: 'Add up what every drawer is worth. How many sacks are in the cabinet now?',
+      gateMsg: 'First get at least 8 sacks into the ones drawer, then count.',
       correct: function (n) { return fmt(n) + ' — exactly what we started with. Opening bundles changed how the sacks are arranged, not how many there are.'; },
       wrong: function (n, tries) {
-        var d = story.main.state().drawers;
+        var d = S.calcs.main.drawers();
         return tries === 1 ? 'Count again. Each drawer card shows what its pieces are worth.' : 'Add the drawer values: ' + d.map(function (k, i) { return fmt(k * PV[i]); }).join(' + ') + '.';
-      },
-      onCorrect: function () { story.count.solved = true; applyModes(); }
-    });
-    $('ch2-count-slot').appendChild(Q.count.root);
-    $('to-ch3').addEventListener('click', function () {
-      if (!chapterDone(2)) { announce($('ch2-next-status').textContent); focusEl($('ch2-next-status')); return; }
-      unlock(3); goChapter(3);
-    });
+      }
+    }).root);
+    $('to-ch3').addEventListener('click', next(2));
 
-    Q.clerk1 = choiceQ({
-      id: 'q-clerk1', log: story.clerk.choiceLog,
-      legend: 'Look at the tens column. The cabinet had 0 tens and the shipment took 5 tens. The old ledger shows 5 tens. How did the clerk get 5?',
+    $('clerk-q1').appendChild(choiceQ({
+      id: 'q-clerk1', legend: 'Look at the tens column. The cabinet had 0 tens and the shipment took 5 tens. The old ledger shows 5 tens. How did the clerk get 5?',
       options: [
         { text: '9 − 5: the clerk opened a hundred first, then took 5 tens.', response: '9 − 5 is 4, and 4 is what your cabinet shows in the tens. The ledger says 5, so the clerk did something else.' },
         { text: '0 − 5: the clerk took 5 tens out of the empty tens drawer.', response: 'An empty drawer can\'t give 5 tens — that breaks the granary rule. The 5 didn\'t come from there.' },
-        { text: '5 − 0: the clerk took the cabinet\'s 0 away from the shipment\'s 5 — the subtraction turned backwards.', correct: true, response: 'Yes. The clerk subtracted the wrong way round: the shipment\'s 5 minus the cabinet\'s 0. No bundle was ever opened.' }
-      ],
-      onCorrect: function () { story.clerk.identified = true; refreshAll(); }
-    });
-    $('clerk-q1').appendChild(Q.clerk1.root);
+        { text: '5 − 0: the clerk took the cabinet\'s 0 away from the shipment\'s 5 — the subtraction turned backwards.', response: 'Yes. The clerk subtracted the wrong way round: the shipment\'s 5 minus the cabinet\'s 0. No bundle was ever opened.' }
+      ]
+    }).root);
+    $('clerk-q2').appendChild(colsQ().root);
+    $('clerk-q3').appendChild(numberQ({
+      id: 'q-clerk3', label: 'How many sacks did the old ledger invent?', eq: '3,255 − 2,745 =',
+      correct: '510 sacks that were never in the granary. If I had signed, the valley would have planned its winter around 510 sacks that don\'t exist.',
+      wrong: function (n, tries) { return tries === 1 ? 'Subtract carefully — you may need to open bundles here too.' : 'Try counting up from 2,745: 5 more makes 2,750, then 500 more makes 3,250, then 5 more makes 3,255. What do those jumps add to?'; }
+    }).root);
+    $('to-ch4').addEventListener('click', next(3));
+  }
 
-    // Reproduce the clerk's method, column by column.
+  function colsQ() {
     var cd = E.clerkDigits(START, SHIP_OLD), sd = E.toDrawers(START), hd = E.toDrawers(SHIP_OLD);
-    var colInputs = [], fb2 = el('p', { class: 'q-fb', id: 'q-clerk2-fb' }), grid = el('div', { class: 'cols-grid' });
+    var inputs = [], fb = el('p', { class: 'q-fb', id: 'q-clerk2-fb' }), grid = el('div', { class: 'cols-grid' });
     CAP.forEach(function (c, i) {
       var inp = el('input', { id: 'q-clerk2-' + i, type: 'text', inputmode: 'numeric', autocomplete: 'off', maxlength: '2', class: 'num-input', 'aria-describedby': 'q-clerk2-fb' });
-      colInputs.push(inp);
+      inputs.push(inp);
       grid.appendChild(el('div', null, [el('label', { for: 'q-clerk2-' + i, text: c + ': digits ' + sd[i] + ' and ' + hd[i] }), inp]));
     });
-    var form2 = el('form', { class: 'q', id: 'q-clerk2', novalidate: true }, [
+    var form = el('form', { class: 'q', id: 'q-clerk2', novalidate: true }, [
       el('p', { class: 'q-label', text: 'Test the clerk\'s method on every column: in each column, take the smaller digit away from the larger one, no matter which row it is in. What does the method write?' }),
-      grid, el('div', { class: 'btn-row' }, [el('button', { type: 'submit', class: 'btn', text: 'Test the clerk\'s method' })]), fb2
+      grid, el('div', { class: 'btn-row' }, [el('button', { type: 'submit', class: 'btn', text: 'Test the clerk\'s method' })]), fb
     ]);
-    var solved2 = false;
-    form2.addEventListener('submit', function (e) {
+    var okMsg = cd.join(' · ') + ' — that spells ' + fmt(CLAIM) + ', the old ledger\'s number. The method never opens a bundle, so wherever the shipment\'s digit is bigger, it gets flipped around.';
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (solved2) { setFb(fb2, 'ok', 'Already checked and recorded.'); return; }
-      var vals = colInputs.map(function (inp) { return E.parseWhole(inp.value); });
-      if (vals.some(function (v) { return v === null; })) { setFb(fb2, 'info', 'Fill in all four columns with a digit.'); announce('Fill in all four columns.'); return; }
-      var wrongCols = []; vals.forEach(function (v, i) { if (v !== cd[i]) wrongCols.push(CAP[i].toLowerCase()); });
-      story.clerk.colLog.push({ entered: colInputs.map(function (x) { return x.value; }), correct: !wrongCols.length });
-      if (!wrongCols.length) {
-        solved2 = true; story.clerk.reproduced = true; colInputs.forEach(function (x) { x.readOnly = true; });
-        var t = vals.join(' · ') + ' — that spells ' + fmt(CLAIM) + ', the old ledger\'s number. The method never opens a bundle, so wherever the shipment\'s digit is bigger, it gets flipped around.';
-        setFb(fb2, 'ok', t); announce('Correct. ' + t);
-      } else {
-        var w = 'Check the ' + wrongCols.join(' and ') + ' column' + (wrongCols.length > 1 ? 's' : '') + ': write the larger digit minus the smaller digit.';
-        setFb(fb2, 'wrong', w); announce('Not yet. ' + w);
-      }
-      refreshAll();
+      var res = act({ t: 'cols', v: inputs.map(function (x) { return x.value.slice(0, 8); }) }), t;
+      if (res.code === 'ALREADY') { announce('Already checked and recorded.'); return; }
+      if (res.code === 'GATE') { t = 'Record your own result first.'; setFb(fb, 'info', t); announce(t); return; }
+      if (res.code === 'BAD') { t = 'Fill in all four columns with a digit.'; setFb(fb, 'info', t); announce(t); return; }
+      if (res.code === 'CORRECT') { inputs.forEach(function (x) { x.readOnly = true; }); setFb(fb, 'ok', okMsg); announce('Correct. ' + okMsg); refreshAll(); return; }
+      var names = res.wrong.map(function (i) { return CAP[i].toLowerCase(); });
+      t = 'Check the ' + names.join(' and ') + ' ' + plural(names.length, 'column', 'columns') + ': write the larger digit minus the smaller digit.';
+      setFb(fb, 'wrong', t); announce('Not yet. ' + t); refreshAll();
     });
-    $('clerk-q2').appendChild(form2);
-
-    Q.clerk3 = numberQ({
-      id: 'q-clerk3', label: 'How many sacks did the old ledger invent?', eq: '3,255 − 2,745 =', log: story.clerk.overLog,
-      expected: function () { return CLAIM - story.main.value(); },
-      correct: '510 sacks that were never in the granary. If I had signed, the valley would have planned its winter around 510 sacks that don\'t exist.',
-      wrong: function (n, tries) { return tries === 1 ? 'Not quite. Subtract carefully — you may need to open bundles here too.' : 'Try counting up from 2,745: 5 more makes 2,750, then 500 more makes 3,250, then 5 more makes 3,255. What do those jumps add to?'; },
-      onCorrect: function () { story.clerk.overSolved = true; refreshAll(); }
-    });
-    $('clerk-q3').appendChild(Q.clerk3.root);
-
-    $('to-ch4').addEventListener('click', function () {
-      if (!chapterDone(3)) { announce($('ch3-next-status').textContent); focusEl($('ch3-next-status')); return; }
-      unlock(4); goChapter(4);
-    });
+    var q = { root: form, sync: function () {
+      var st = S.cols, last = st.log.length ? st.log[st.log.length - 1] : null;
+      inputs.forEach(function (x, i) { x.value = st.solved ? last.entered[i] : ''; x.readOnly = st.solved; });
+      if (st.solved) setFb(fb, 'ok', okMsg); else { clear(fb); fb.removeAttribute('data-tone'); }
+    } };
+    UIQ['q-clerk2'] = q;
+    return q;
   }
 
   /* ---------- Chapter IV ---------- */
+  var cuUI, compUI;
   function initCh4() {
-    Q.inv1 = numberQ({
-      id: 'q-inv1', label: 'Put the shipment back. What do you get?', eq: '2,745 + 1,258 =', log: story.inverse1.log,
-      expected: function () { return story.main.value() + SHIP_OLD; },
+    $('inverse1-slot').appendChild(numberQ({
+      id: 'q-inv1', label: 'Put the shipment back. What do you get?', eq: '2,745 + 1,258 =',
       correct: '4,003 — the shipment fits back exactly. Subtraction and addition undo each other, so 2,745 is right for a shipment of 1,258.',
-      wrong: additionWrong(START - SHIP_OLD, SHIP_OLD),
-      onCorrect: function () { story.inverse1.solved = true; refreshAll(); }
-    });
-    $('inverse1-slot').appendChild(Q.inv1.root);
-    initCountUp();
-    initComp();
-    $('to-ch5').addEventListener('click', function () {
-      if (!chapterDone(4)) { announce($('ch4-next-status').textContent); focusEl($('ch4-next-status')); return; }
-      unlock(5); goChapter(5);
-    });
+      wrong: additionWrong(START - SHIP_OLD, SHIP_OLD)
+    }).root);
+    cuUI = initCountUp(); compUI = initComp();
+    $('to-ch5').addEventListener('click', next(4));
   }
-
   var SVGNS = 'http://www.w3.org/2000/svg';
   function svgEl(tag, attrs, text) { var n = document.createElementNS(SVGNS, tag); for (var k in attrs) n.setAttribute(k, String(attrs[k])); if (text !== undefined) n.textContent = text; return n; }
-
   function initCountUp() {
-    var cu = story.countUp, L = cu.line, slot = $('countup-slot');
+    var slot = $('countup-slot');
     var svg = svgEl('svg', { viewBox: '0 0 640 170', class: 'nl-svg', 'aria-hidden': 'true', focusable: 'false' });
     var summary = el('p', { class: 'nl-summary' }), list = el('ol', { class: 'nl-list', 'aria-label': 'Your jumps on the number line' });
     var fb = el('p', { class: 'q-fb', id: 'cu-fb' });
     var inp = el('input', { id: 'cu-in', type: 'text', inputmode: 'numeric', autocomplete: 'off', maxlength: '5', class: 'num-input', 'aria-describedby': 'cu-fb' });
-    var form = el('form', { class: 'q', novalidate: true }, [
-      el('label', { for: 'cu-in', class: 'q-label', text: 'How big is your next jump?' }),
-      el('div', { class: 'q-row' }, [inp, el('button', { type: 'submit', class: 'btn', text: 'Place on Number Line' })])
-    ]);
-    var bUndo = el('button', { type: 'button', class: 'btn', text: 'Undo jump' });
-    var bHint = el('button', { type: 'button', class: 'btn btn-quiet', text: 'Hint' });
+    var form = el('form', { class: 'q', novalidate: true }, [el('label', { for: 'cu-in', class: 'q-label', text: 'How big is your next jump?' }), el('div', { class: 'q-row' }, [inp, el('button', { type: 'submit', class: 'btn', text: 'Place on Number Line' })])]);
+    var bUndo = el('button', { type: 'button', class: 'btn', text: 'Undo jump' }), bHint = el('button', { type: 'button', class: 'btn btn-quiet', text: 'Hint' });
     var totalWrap = el('div', { hidden: true });
-    slot.appendChild(svg); slot.appendChild(summary); slot.appendChild(list); slot.appendChild(form);
-    slot.appendChild(el('div', { class: 'btn-row' }, [bUndo, bHint])); slot.appendChild(fb); slot.appendChild(totalWrap);
-    Q.cuTotal = numberQ({
-      id: 'q-cutotal', label: 'You landed on 4,003. Add up all your jumps: how far did you travel?', log: cu.totalLog,
-      expected: function () { return L.jumps().reduce(function (a, b) { return a + b; }, 0); },
+    [svg, summary, list, form, el('div', { class: 'btn-row' }, [bUndo, bHint]), fb, totalWrap].forEach(function (x) { slot.appendChild(x); });
+    totalWrap.appendChild(numberQ({
+      id: 'q-cutotal', label: 'You landed on 4,003. Add up all your jumps: how far did you travel?',
       correct: function (n) { return fmt(n) + ' — the same as the cabinet. Counting up measures the gap between 1,258 and 4,003, and that gap is the difference.'; },
       wrong: function () { return 'Add the jumps in your list again. Try adding the biggest ones first.'; },
-      onCorrect: function () { cu.solved = true; render(); refreshAll(); }
-    });
-    totalWrap.appendChild(Q.cuTotal.root);
-
-    function x(v) { return 30 + (v - L.start) * (580 / (L.end - L.start)); }
+      after: function () { render(); }
+    }).root);
+    function L() { return S.line; }
+    function x(v) { return 30 + (v - SHIP_OLD) * (580 / (START - SHIP_OLD)); }
     function render() {
+      var line = L(), jumps = line.jumps(), solvedT = S.q['q-cutotal'].solved;
       while (svg.firstChild) svg.removeChild(svg.firstChild);
       svg.appendChild(svgEl('line', { x1: 30, y1: 110, x2: 610, y2: 110, stroke: '#2b1d10', 'stroke-width': 2 }));
-      [L.start, L.end].forEach(function (v, i) {
+      [SHIP_OLD, START].forEach(function (v, i) {
         svg.appendChild(svgEl('line', { x1: x(v), y1: 102, x2: x(v), y2: 118, stroke: '#2b1d10', 'stroke-width': 2 }));
         svg.appendChild(svgEl('text', { x: x(v), y: 160, 'text-anchor': i ? 'end' : 'start', 'font-size': 13, fill: '#2b1d10', 'font-weight': 700 }, (i ? 'end ' : 'start ') + fmt(v)));
       });
-      var pos = L.start;
-      L.jumps().forEach(function (k, i) {
+      var pos = SHIP_OLD;
+      jumps.forEach(function (k, i) {
         var x1 = x(pos), x2 = Math.max(x(pos + k), x1 + 6), mid = (x1 + x2) / 2, hgt = 26 + (i % 3) * 18;
         svg.appendChild(svgEl('path', { d: 'M' + x1 + ' 110 Q ' + mid + ' ' + (110 - hgt * 2) + ' ' + x2 + ' 110', fill: 'none', stroke: '#6e4a2a', 'stroke-width': 2.5 }));
         svg.appendChild(svgEl('text', { x: mid, y: 104 - hgt, 'text-anchor': 'middle', 'font-size': 12, fill: '#2b1d10' }, '+' + fmt(k)));
         pos += k;
         svg.appendChild(svgEl('circle', { cx: x(pos), cy: 110, r: 4, fill: '#1f5e2a' }));
-        if (pos !== L.end) svg.appendChild(svgEl('text', { x: x(pos), y: 128 + (i % 2) * 14, 'text-anchor': 'middle', 'font-size': 11, fill: '#5a4630' }, fmt(pos)));
+        if (pos !== START) svg.appendChild(svgEl('text', { x: x(pos), y: 128 + (i % 2) * 14, 'text-anchor': 'middle', 'font-size': 11, fill: '#5a4630' }, fmt(pos)));
       });
-      clear(list);
-      pos = L.start;
-      L.jumps().forEach(function (k, i) { list.appendChild(el('li', { text: 'Jump ' + (i + 1) + ': +' + fmt(k) + ', from ' + fmt(pos) + ' to ' + fmt(pos + k) })); pos += k; });
-      if (!L.jumps().length) list.appendChild(el('li', { text: 'No jumps yet. You are standing on 1,258.' }));
-      summary.textContent = 'Start: 1,258. End: 4,003. You are now on ' + fmt(L.position()) + '.' + (cu.solved ? ' Total distance: ' + fmt(L.distance()) + '.' : '');
-      totalWrap.hidden = !L.done();
-      inp.disabled = false;
+      clear(list); pos = SHIP_OLD;
+      jumps.forEach(function (k, i) { list.appendChild(el('li', { text: 'Jump ' + (i + 1) + ': +' + fmt(k) + ', from ' + fmt(pos) + ' to ' + fmt(pos + k) })); pos += k; });
+      if (!jumps.length) list.appendChild(el('li', { text: 'No jumps yet. You are standing on 1,258.' }));
+      summary.textContent = 'Start: 1,258. End: 4,003. You are now on ' + fmt(line.position()) + '.' + (solvedT ? ' Total distance: ' + fmt(line.distance()) + '.' : '');
+      totalWrap.hidden = !line.done();
     }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (cu.solved) { setFb(fb, 'ok', 'Counting up is complete and recorded.'); return; }
-      var k = E.parseWhole(inp.value), r = k === null ? { ok: false, code: 'BAD_JUMP' } : L.jump(k), t, tone = 'ok';
-      cu.used = true;
-      if (r.ok) { cu.jumpLog.push({ jump: k, from: r.from, to: r.landing }); inp.value = ''; }
-      if (r.code === 'BAD_JUMP') { t = 'Type a jump size as a whole number, like 2.'; tone = 'info'; }
-      else if (r.code === 'OVERSHOOT') { t = 'A jump of ' + fmt(k) + ' from ' + fmt(r.from) + ' lands on ' + fmt(r.landing) + ', past 4,003. Try a smaller jump.'; tone = 'blocked'; cu.jumpLog.push({ jump: k, from: r.from, overshoot: true }); }
-      else if (r.code === 'ALREADY_THERE') { t = 'You are already on 4,003. Add up your jumps below.'; tone = 'info'; }
-      else if (r.code === 'ARRIVED') t = 'Jumped +' + fmt(k) + ' and landed exactly on 4,003. Now add up your jumps.';
-      else t = 'Jumped +' + fmt(k) + ' from ' + fmt(r.from) + ' to ' + fmt(r.landing) + '.' + (r.landing % 1000 === 0 ? ' A whole thousand — a very friendly number.' : r.landing % 100 === 0 ? ' A friendly hundred.' : r.landing % 10 === 0 ? ' A friendly ten.' : '');
+      var raw = inp.value.slice(0, LIMITS.raw), res = act({ t: 'jump', raw: raw }), t, tone = 'ok', r = res.r;
+      if (res.code === 'CLOSED') { t = S.q['q-cutotal'].solved ? 'Counting up is complete and recorded.' : 'Reach this step in the story first.'; setFb(fb, 'info', t); announce(t); return; }
+      if (res.code === 'BAD') { t = 'Type a jump size as a whole number, like 2.'; tone = 'info'; }
+      else if (res.code === 'OVERSHOOT') { t = 'A jump of ' + fmt(res.k) + ' from ' + fmt(r.from) + ' lands on ' + fmt(r.landing) + ', past 4,003. Try a smaller jump.'; tone = 'blocked'; }
+      else if (res.code === 'ALREADY_THERE') { t = 'You are already on 4,003. Add up your jumps below.'; tone = 'info'; }
+      else if (res.code === 'BAD_JUMP') { t = 'A jump must be at least 1.'; tone = 'info'; }
+      else if (res.code === 'ARRIVED') t = 'Jumped +' + fmt(res.k) + ' and landed exactly on 4,003. Now add up your jumps.';
+      else t = 'Jumped +' + fmt(res.k) + ' from ' + fmt(r.from) + ' to ' + fmt(r.landing) + '.' + (r.landing % 1000 === 0 ? ' A whole thousand — a very friendly number.' : r.landing % 100 === 0 ? ' A friendly hundred.' : r.landing % 10 === 0 ? ' A friendly ten.' : '');
+      if (res.effective && (res.code === 'JUMPED' || res.code === 'ARRIVED')) inp.value = '';
       setFb(fb, tone, t); announce(t); render(); refreshAll();
     });
     bUndo.addEventListener('click', function () {
-      if (cu.solved) { setFb(fb, 'info', 'Counting up is already recorded.'); return; }
-      var r = L.undo(), t = r.ok ? 'Removed the last jump of +' + fmt(r.jump) + '. You are back on ' + fmt(r.position) + '.' : 'There are no jumps to undo.';
-      if (r.ok) cu.jumpLog.push({ undo: r.jump });
-      setFb(fb, 'info', t); announce(t); render();
+      var res = act({ t: 'jumpUndo' }), t;
+      if (res.code === 'CLOSED') t = 'Counting up is already recorded.';
+      else t = res.effective ? 'Removed the last jump of +' + fmt(res.r.jump) + '. You are back on ' + fmt(res.r.position) + '.' : 'There are no jumps to undo.';
+      setFb(fb, 'info', t); announce(t); render(); refreshAll();
     });
     bHint.addEventListener('click', function () {
-      var p = L.position(), t;
-      if (p === L.end) t = 'You are on 4,003. Add your jumps together.';
+      var p = L().position(), t;
+      if (p === START) t = 'You are on 4,003. Add your jumps together.';
       else if (p % 10) t = 'From ' + fmt(p) + ', what jump reaches the next ten, ' + fmt(Math.ceil(p / 10) * 10) + '?';
       else if (p % 100) t = 'From ' + fmt(p) + ', what jump reaches the next hundred, ' + fmt(Math.ceil(p / 100) * 100) + '?';
       else if (p % 1000) t = 'From ' + fmt(p) + ', what jump reaches the next thousand, ' + fmt(Math.ceil(p / 1000) * 1000) + '?';
       else t = 'From ' + fmt(p) + ', how far is it to 4,003?';
       setFb(fb, 'hint', t); announce('Hint: ' + t);
     });
-    render();
+    return { render: render, reset: function () { inp.value = ''; clear(fb); fb.removeAttribute('data-tone'); render(); } };
   }
-
   function initComp() {
-    var cp = story.comp, slot = $('comp-slot');
-    var pair = el('p', { class: 'comp-pair', 'aria-live': 'off' }), shiftTxt = el('p', { class: 'help' });
-    var bAdd = el('button', { type: 'button', class: 'btn', text: 'Add 1 to both numbers' });
-    var bSub = el('button', { type: 'button', class: 'btn', text: 'Take 1 from both numbers' });
-    var fb = el('p', { class: 'q-fb' });
-    slot.appendChild(pair); slot.appendChild(shiftTxt); slot.appendChild(el('div', { class: 'btn-row' }, [bAdd, bSub])); slot.appendChild(fb);
-    var qWrap = el('div'); slot.appendChild(qWrap);
-    function a() { return START + cp.shift; } function b() { return SHIP_OLD + cp.shift; }
-    Q.comp = numberQ({
-      id: 'q-comp', label: 'Now subtract the new pair of numbers:', log: cp.log,
-      gate: function () { return cp.shift === 0 ? 'First move both numbers. Can you make the number you take away end in a zero?' : ''; },
-      expected: function () { return a() - b(); },
-      correct: function (n) { return fmt(n) + ' — the same difference. Moving both numbers by ' + (cp.shift > 0 ? '+' : '') + cp.shift + ' slid the whole problem along the number line without changing the gap. The granary still holds exactly the same sacks.'; },
+    var slot = $('comp-slot'), pair = el('p', { class: 'comp-pair' }), shiftTxt = el('p', { class: 'help' });
+    var bAdd = el('button', { type: 'button', class: 'btn', text: 'Add 1 to both numbers' }), bSub = el('button', { type: 'button', class: 'btn', text: 'Take 1 from both numbers' });
+    var fb = el('p', { class: 'q-fb' }), qWrap = el('div');
+    [pair, shiftTxt, el('div', { class: 'btn-row' }, [bAdd, bSub]), fb, qWrap].forEach(function (x) { slot.appendChild(x); });
+    function a() { return START + S.comp.shift; } function b() { return SHIP_OLD + S.comp.shift; }
+    var q = numberQ({
+      id: 'q-comp', label: 'Now subtract the new pair of numbers:',
+      gateMsg: 'First move both numbers. Can you make the number you take away end in a zero?',
+      correct: function (n) { var sp = S.comp.solvedPair, sh = sp ? sp[0] - START : S.comp.shift; return fmt(n) + ' — the same difference. Moving both numbers by ' + (sh > 0 ? '+' : '') + sh + ' slid the whole problem along the number line without changing the gap. The granary still holds exactly the same sacks.'; },
       wrong: function () { return 'Check the subtraction of the new pair. A number ending in zero is easier to take away.'; },
-      onCorrect: function () { cp.solved = true; cp.solvedPair = [a(), b()]; render(); refreshAll(); }
+      after: function () { render(); }
     });
-    qWrap.appendChild(Q.comp.root);
+    qWrap.appendChild(q.root);
     function render() {
       pair.textContent = fmt(a()) + ' − ' + fmt(b());
-      shiftTxt.textContent = cp.shift === 0 ? 'This is the original problem.' : 'Both numbers moved by ' + (cp.shift > 0 ? '+' : '') + cp.shift + '. The gap between them has not changed.';
-      var lab = Q.comp.root.querySelector('label');
-      lab.textContent = 'Now subtract the new pair: ' + fmt(a()) + ' − ' + fmt(b()) + ' =';
+      shiftTxt.textContent = S.comp.shift === 0 ? 'This is the original problem.' : 'Both numbers moved by ' + (S.comp.shift > 0 ? '+' : '') + S.comp.shift + '. The gap between them has not changed.';
+      q.label.textContent = 'Now subtract the new pair: ' + fmt(a()) + ' − ' + fmt(b()) + ' =';
     }
     function move(d) {
-      if (cp.solved) { setFb(fb, 'info', 'Compensation is already recorded.'); return; }
-      if (Math.abs(cp.shift + d) > 20) { setFb(fb, 'info', 'That is far enough — try subtracting the pair you have.'); return; }
-      cp.shift += d; cp.used = true; cp.shiftLog.push(cp.shift);
-      var t = 'Now ' + fmt(a()) + ' − ' + fmt(b()) + '.' + (b() % 10 === 0 ? ' The number you take away ends in zero — easier to subtract.' : '');
-      setFb(fb, 'info', t); announce(t); render();
+      var res = act({ t: 'comp', d: d }), t;
+      if (res.code === 'CLOSED') t = S.q['q-comp'].solved ? 'Compensation is already recorded.' : 'Reach this step in the story first.';
+      else if (res.code === 'LIMIT') t = 'That is far enough — try subtracting the pair you have.';
+      else t = 'Now ' + fmt(a()) + ' − ' + fmt(b()) + '.' + (b() % 10 === 0 ? ' The number you take away ends in zero — easier to subtract.' : '');
+      setFb(fb, 'info', t); announce(t); render(); refreshAll();
     }
     bAdd.addEventListener('click', function () { move(1); });
     bSub.addEventListener('click', function () { move(-1); });
-    render();
+    return { render: render, reset: function () { clear(fb); fb.removeAttribute('data-tone'); render(); } };
   }
 
   /* ---------- Chapter V ---------- */
+  var decUI;
   function initCh5() {
     $('revise-btn').addEventListener('click', function () {
-      if (!story.revised) {
-        story.revised = true;
-        $('ch5-revised').hidden = false;
-        $('ch5-slot').appendChild(cabRev.root);
-        announce('Shipment record revised to 1,528. Your first calculation stays in the ledger. A new cabinet is ready below.');
-        refreshAll();
-      }
-      focusEl($('ch5-revised-h'));
+      var r = act({ t: 'revise' });
+      if (r.effective) announce('Shipment record revised to 1,528. Your first calculation stays in the ledger. A new cabinet is ready below.');
+      refreshAll(); focusEl($('ch5-revised-h'));
     });
-    cabRev = new Cabinet({
-      prefix: 'rev', calc: story.rev, title: 'Revised calculation', subtitle: 'A fresh cabinet of 4,003 sacks · shipment from the dock tag',
+    new Cabinet({
+      key: 'rev', prefix: 'rev', title: 'Revised calculation', subtitle: 'A fresh cabinet of 4,003 sacks · shipment from the dock tag', recordName: 'the Mended Ledger',
       slipTitle: 'Corrected slip (dock tag)', take: true, showTotals: true,
       intro: 'A fresh cabinet holding 4,003 sacks. Your first calculation is kept separately in the ledger. Take away the corrected shipment of 1,528.',
-      onChange: function () { refreshAll(); },
-      onRecord: function () {
-        story.revRecorded = true; $('inverse2-card').hidden = false;
-        announce('Recorded. ' + fmt(story.rev.value()) + ' sacks remain. Check it next.');
-        refreshAll(); focusEl($('inverse2-h'));
-      }
+      onRecord: function () { announce('Recorded. ' + fmt(S.calcs.rev.value()) + ' sacks remain. Check it next.'); refreshAll(); focusEl($('inverse2-h')); }
     });
-    Q.predDir = choiceQ({
-      id: 'q-pred', log: story.prediction.dirLog,
-      legend: 'More sacks left on the barge than the ledger said. Before you count: will the granary hold more or fewer than 2,745 sacks?',
+    $('predict-slot').appendChild(choiceQ({
+      id: 'q-pred', legend: 'More sacks left on the barge than the ledger said. Before you count: will the granary hold more or fewer than 2,745 sacks?',
       options: [
         { text: 'More than 2,745', response: 'Think about it: if more sacks left, can more stay behind?' },
-        { text: 'Fewer than 2,745', correct: true, response: 'Yes. A bigger shipment leaves fewer sacks behind.' },
+        { text: 'Fewer than 2,745', response: 'Yes. A bigger shipment leaves fewer sacks behind.' },
         { text: 'Exactly 2,745', response: 'The shipment changed, so what is left over must change too.' }
-      ],
-      onCorrect: function () { story.prediction.dirSolved = true; }
-    });
-    Q.predAmt = numberQ({
-      id: 'q-pred2', label: 'How many more sacks left than the ledger said?', eq: '1,528 − 1,258 =', log: story.prediction.log,
-      expected: function () { return SHIP_NEW - SHIP_OLD; },
+      ]
+    }).root);
+    $('predict-slot').appendChild(numberQ({
+      id: 'q-pred2', label: 'How many more sacks left than the ledger said?', eq: '1,528 − 1,258 =',
       correct: '270. So you can predict the granary will hold 270 fewer sacks than before. Let\'s see if the drawers agree.',
-      wrong: function (n, t) { return t === 1 ? 'Not quite. Compare the two shipments column by column.' : 'Count up from 1,258: 2 more is 1,260, 40 more is 1,300, 200 more is 1,500, 28 more is 1,528.'; },
-      onCorrect: function () { story.prediction.solved = true; }
-    });
-    $('predict-slot').appendChild(Q.predDir.root); $('predict-slot').appendChild(Q.predAmt.root);
-
-    Q.inv2 = numberQ({
-      id: 'q-inv2', label: 'Put the corrected shipment back:', eq: '2,475 + 1,528 =', log: story.inverse2.log,
-      gate: function () { return story.revRecorded ? '' : 'Record the revised calculation first.'; },
-      expected: function () { return story.rev.value() + SHIP_NEW; },
-      correct: function () {
-        return '4,003 again. The revised count is right: 2,475 sacks remain.' + (story.prediction.solved ? ' Your prediction held, too: 2,745 − 2,475 = 270 fewer.' : '');
-      },
+      wrong: function (n, t) { return t === 1 ? 'Compare the two shipments column by column.' : 'Count up from 1,258: 2 more is 1,260, 40 more is 1,300, 200 more is 1,500, 28 more is 1,528.'; }
+    }).root);
+    $('inverse2-slot').appendChild(numberQ({
+      id: 'q-inv2', label: 'Put the corrected shipment back:', eq: '2,475 + 1,528 =', gateMsg: 'Record the revised calculation first.',
+      correct: function () { return '4,003 again. The revised count is right: 2,475 sacks remain.' + (S.q['q-pred2'].solved ? ' Your prediction held, too: 2,745 − 2,475 = 270 fewer.' : ''); },
       wrong: additionWrong(START - SHIP_NEW, SHIP_NEW),
-      onCorrect: function () { story.inverse2.solved = true; $('estimate-card').hidden = false; announce('Checked. Odalys\'s estimate is next, below.'); refreshAll(); }
-    });
-    $('inverse2-slot').appendChild(Q.inv2.root);
-
-    Q.r1 = numberQ({ id: 'q-r1', label: 'Round 4,003 to the nearest hundred:', log: story.est.r1Log, expected: function () { return E.roundHalfUp(START, 100); },
-      correct: '4,000. 4,003 is only 3 past 4,000 and much farther from 4,100.', wrong: function () { return 'Which hundred is 4,003 closest to: 4,000 or 4,100?'; },
-      onCorrect: function () { story.est.r1 = true; } });
-    Q.r2 = numberQ({ id: 'q-r2', label: 'Round 1,528 to the nearest hundred:', log: story.est.r2Log, expected: function () { return E.roundHalfUp(SHIP_NEW, 100); },
-      correct: '1,500. 1,528 is 28 past 1,500 and 72 short of 1,600.', wrong: function () { return 'Is 1,528 closer to 1,500 or to 1,600? The halfway point is 1,550.'; },
-      onCorrect: function () { story.est.r2 = true; } });
-    Q.rd = numberQ({ id: 'q-rd', label: 'Subtract the rounded numbers:', eq: '4,000 − 1,500 ≈', log: story.est.diffLog,
-      gate: function () { return story.est.r1 && story.est.r2 ? '' : 'Round both numbers first.'; },
-      expected: function () { return E.roundHalfUp(START, 100) - E.roundHalfUp(SHIP_NEW, 100); },
-      correct: 'About 2,500. That is the estimate — and it is exactly the winter requirement.', wrong: function () { return '40 hundreds take away 15 hundreds leaves how many hundreds?'; },
-      onCorrect: function () { story.est.diff = true; } });
-    Q.cert = choiceQ({
-      id: 'q-cert', log: story.est.certLog,
-      legend: 'The estimate says about 2,500, and the valley needs at least 2,500. Can the estimate certify the granary?',
+      after: function () { announce('Checked. Odalys\'s estimate is next, below.'); }
+    }).root);
+    $('est-r1').appendChild(numberQ({ id: 'q-r1', label: 'Step 1. Round 4,003 to the nearest hundred:', correct: '4,000. 4,003 is only 3 past 4,000 and much farther from 4,100.', wrong: function () { return 'Which hundred is 4,003 closest to: 4,000 or 4,100?'; } }).root);
+    $('est-r2').appendChild(numberQ({ id: 'q-r2', label: 'Step 2. Round 1,528 to the nearest hundred:', correct: '1,500. 1,528 is 28 past 1,500 and 72 short of 1,600.', wrong: function () { return 'Is 1,528 closer to 1,500 or to 1,600? The halfway point is 1,550.'; } }).root);
+    $('est-diff').appendChild(numberQ({ id: 'q-rd', label: 'Step 3. Subtract the rounded numbers:', eq: '4,000 − 1,500 ≈', gateMsg: 'Round both numbers first (steps 1 and 2).',
+      correct: 'About 2,500. That is the estimate — and it is exactly the winter requirement.', wrong: function () { return '40 hundreds take away 15 hundreds leaves how many hundreds?'; } }).root);
+    $('est-cert').appendChild(choiceQ({
+      id: 'q-cert', legend: 'Step 4. The estimate says about 2,500, and the valley needs at least 2,500. Can the estimate certify the granary?',
+      gateMsg: 'Work out the estimate first: finish steps 1, 2 and 3.',
       options: [
         { text: 'Yes — the estimate equals the requirement, so the granary is ready.', response: 'An estimate rounds the numbers first, so the true answer can be a little above or below it. You already have the exact count — what does it say?' },
-        { text: 'No — rounding moved both numbers, so the exact amount could be a little more or a little less than 2,500. Only the exact count can certify.', correct: true, response: 'Right. Rounding 1,528 down to 1,500 hid 28 sacks, and rounding 4,003 down hid 3. The estimate is useful for a quick look, but a certificate needs the exact count.' }
+        { text: 'No — rounding moved both numbers, so the exact amount could be a little more or a little less than 2,500. Only the exact count can certify.', response: 'Right. The estimate reaches the requirement, but it cannot tell us the exact inventory: rounding 1,528 down to 1,500 hid 28 sacks, and rounding 4,003 down hid 3. A certificate needs the exact count.' }
       ],
-      onCorrect: function () { story.est.cert = true; $('shortage-card').hidden = false; announce('Next: the exact comparison, below.'); refreshAll(); }
-    });
-    $('est-r1').appendChild(Q.r1.root); $('est-r2').appendChild(Q.r2.root); $('est-diff').appendChild(Q.rd.root); $('est-cert').appendChild(Q.cert.root);
-
-    Q.short = numberQ({
-      id: 'q-short', label: 'Your exact count is 2,475 sacks. The valley needs at least 2,500. How many sacks short is the granary?', eq: '2,500 − 2,475 =', log: story.shortage.log,
-      expected: function () { return NEED - story.rev.value(); },
+      after: function () { announce('Next: the exact comparison, below.'); }
+    }).root);
+    $('shortage-slot').appendChild(numberQ({
+      id: 'q-short', label: 'Your exact count is 2,475 sacks. The valley needs at least 2,500. How many sacks short is the granary?', eq: '2,500 − 2,475 =',
       correct: '25 sacks short. The estimate said “about right”; the exact count says “not quite.”',
-      wrong: function (n, t) { return t === 1 ? 'Not quite. How far is it from 2,475 up to 2,500?' : 'Count up: 5 more makes 2,480, then 20 more makes 2,500.'; },
-      onCorrect: function () { story.shortage.solved = true; $('decision-card').hidden = false; announce('Next: your decision, below.'); refreshAll(); }
-    });
-    $('shortage-slot').appendChild(Q.short.root);
-    initDecision();
-    $('to-ch6').addEventListener('click', function () {
-      if (!chapterDone(5)) { announce($('ch5-next-status').textContent); focusEl($('ch5-next-status')); return; }
-      unlock(6); goChapter(6);
-    });
+      wrong: function (n, t) { return t === 1 ? 'How far is it from 2,475 up to 2,500?' : 'Count up: 5 more makes 2,480, then 20 more makes 2,500.'; },
+      after: function () { announce('Next: your decision, below.'); }
+    }).root);
+    decUI = initDecision();
+    $('to-ch6').addEventListener('click', next(5));
   }
 
+  function decisionMessage(rec) {
+    var exact = S.calcs.rev.value(), short = NEED - exact;
+    switch (rec.kind) {
+      case 'declined': return ['wrong', 'Odalys sets down her pen. “I can\'t sign that. Your exact count is ' + fmt(exact) + ' sacks, and the valley needs ' + fmt(NEED) + '. Signing would promise ' + short + ' sacks we don\'t have.”'];
+      case 'review': return ['info', 'Odalys spreads out the papers. “Take your time. Here is everything you found.”'];
+      case 'noamount': return ['info', 'Type how many sacks to request in the box, then give your decision again.'];
+      case 'short': return ['wrong', 'Odalys works it through with you. “With ' + fmt(rec.amount) + ' more we would have ' + fmt(exact + rec.amount) + ' — still ' + (short - rec.amount) + ' short of ' + fmt(NEED) + '. The certificate would still be wrong.”'];
+      /* R1 (F5): a larger request is mathematically sufficient; the response is neutral, not an error. */
+      case 'surplus': return ['neutral', 'Odalys nods. “Yes — ' + fmt(rec.amount) + ' more would bring us to ' + fmt(exact + rec.amount) + ', so the valley would have enough for winter. Your arithmetic works. Remember, though, the mill shares its grain with the other valleys. Your exact count shows the smallest request that is enough is ' + short + '. Would you like to ask for just that?”'];
+      case 'exact': return ['ok', 'Odalys writes it down and reads it back. “' + fmt(exact) + ' and ' + rec.amount + ' more makes exactly ' + fmt(NEED) + '. I\'ll send the request for ' + rec.amount + ' sacks to the lowland mill tonight. The certificate stays unsigned until those sacks are counted into these drawers.”'];
+      default: return ['info', ''];
+    }
+  }
   function initDecision() {
     var slot = $('decision-slot'), fb = el('p', { class: 'q-fb', id: 'dec-fb' }), evidence = el('div', { class: 'help', hidden: true });
-    var opts = [
-      { v: 'certify', t: 'Certify the granary now.' },
-      { v: 'request', t: 'Request more sacks before certifying.' },
-      { v: 'review', t: 'Review the evidence again first.' }
-    ];
+    var opts = [{ v: 'certify', t: 'Certify the granary now.' }, { v: 'request', t: 'Request more sacks before certifying.' }, { v: 'review', t: 'Review the evidence again first.' }];
     var kids = [el('legend', { text: 'What should the registrar do tonight?' })];
     var radios = opts.map(function (o) { var r = el('input', { type: 'radio', name: 'decision', id: 'dec-' + o.v, value: o.v }); kids.push(el('label', { class: 'choice', for: 'dec-' + o.v }, [r, el('span', { text: o.t })])); return r; });
     var amt = el('input', { id: 'dec-amt', type: 'text', inputmode: 'numeric', autocomplete: 'off', maxlength: '5', class: 'num-input small' });
@@ -1827,42 +2145,37 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     var form = el('form', { class: 'q', id: 'q-decision', novalidate: true }, [el('fieldset', { 'aria-describedby': 'dec-fb' }, kids),
       el('div', { class: 'btn-row' }, [el('button', { type: 'submit', class: 'btn btn-primary', text: 'Give my decision to Odalys' })]), fb, evidence]);
     slot.appendChild(form);
+    function showEvidence() {
+      clear(evidence); evidence.hidden = false;
+      var exact = S.calcs.rev.value();
+      evidence.appendChild(el('ul', null, ['Cabinet before shipping: 4,003 sacks.', 'Corrected shipment (dock tag): 1,528 sacks.', 'Your revised count: ' + fmt(exact) + ' sacks remain (checked by adding back).',
+        'Your estimate: about 2,500 — useful, but rounded.', 'Your exact shortage: ' + (S.q['q-short'].solved ? (NEED - exact) + ' sacks.' : 'not worked out yet.'), 'Winter requirement: at least 2,500 sacks.', 'The lowland mill shares its grain with other valleys.'
+      ].map(function (s) { return el('li', { text: s }); })));
+    }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      if (story.decided) { setFb(fb, 'ok', 'Your request is already filed.'); announce('Already filed.'); return; }
+      if (S.decided) { announce('Your request is already filed.'); return; }
       var pick = null; radios.forEach(function (r) { if (r.checked) pick = r.value; });
-      var exact = story.rev.value(), short = NEED - exact, t, tone = 'wrong', rec = { choice: pick };
       if (!pick) { setFb(fb, 'info', 'Choose one of the three decisions.'); announce('Choose a decision.'); return; }
-      if (pick === 'certify') { t = 'Odalys sets down her pen. “I can\'t sign that. Your exact count is ' + fmt(exact) + ' sacks, and the valley needs ' + fmt(NEED) + '. Signing would promise ' + short + ' sacks we don\'t have.”'; rec.outcome = 'not signed: ' + fmt(exact) + ' is less than ' + fmt(NEED); }
-      else if (pick === 'review') {
-        tone = 'info'; t = 'Odalys spreads out the papers. “Take your time. Here is everything you found.”'; rec.outcome = 'reviewed the evidence';
-        clear(evidence); evidence.hidden = false;
-        evidence.appendChild(el('ul', null, [
-          'Cabinet before shipping: 4,003 sacks.', 'Corrected shipment (dock tag): 1,528 sacks.', 'Your revised count: ' + fmt(exact) + ' sacks remain (checked by adding back).',
-          'Your estimate: about 2,500 — useful, but rounded.', 'Your exact shortage: ' + (story.shortage.solved ? short + ' sacks.' : 'not worked out yet.'), 'Winter requirement: at least 2,500 sacks.'
-        ].map(function (s) { return el('li', { text: s }); })));
-      } else {
-        var n = E.parseWhole(amt.value);
-        rec.amount = n;
-        if (n === null || n < 1) { tone = 'info'; t = 'Type how many sacks to request in the box, then give your decision again.'; rec.outcome = 'no amount given'; }
-        else if (n < short) { t = 'Odalys works it through with you. “With ' + fmt(n) + ' more we would have ' + fmt(exact + n) + ' — still ' + (short - n) + ' short of ' + fmt(NEED) + '. The certificate would still be wrong.”'; rec.outcome = 'too few: still ' + (short - n) + ' short'; }
-        else if (n > short) { t = 'Odalys taps the ledger. “' + fmt(n) + ' would bring us to ' + fmt(exact + n) + '. That covers us, but the mill is feeding other valleys too. Your exact count shows we need ' + short + '. Shall we ask for just what the evidence proves?”'; rec.outcome = 'more than the shortage of ' + short; }
-        else {
-          tone = 'ok'; rec.outcome = 'request filed';
-          t = 'Odalys writes it down and reads it back. “' + fmt(exact) + ' and ' + n + ' more makes exactly ' + fmt(NEED) + '. I\'ll send the request for ' + n + ' sacks to the lowland mill tonight. The certificate stays unsigned until those sacks are counted into these drawers.”';
-          story.decided = true;
-        }
-      }
-      story.decisions.push(rec);
-      setFb(fb, tone, t); announce(t); refreshAll();
+      var res = act({ t: 'dec', pick: pick, raw: amt.value.slice(0, LIMITS.raw) });
+      if (res.code === 'GATE') { setFb(fb, 'info', 'Find the exact shortage first.'); return; }
+      var m = decisionMessage(res.rec);
+      if (res.rec.kind === 'review') showEvidence(); else evidence.hidden = true;
+      setFb(fb, m[0], m[1]); announce(m[1]); refreshAll();
     });
+    return { sync: function () {
+      var last = S.decisions.length ? S.decisions[S.decisions.length - 1] : null;
+      radios.forEach(function (r) { r.checked = !!last && r.value === last.choice; });
+      amt.value = last && last.amount !== null && last.amount !== undefined ? String(last.amount) : '';
+      evidence.hidden = true;
+      if (last) { var m = decisionMessage(last); setFb(fb, m[0], m[1]); if (last.kind === 'review') showEvidence(); } else { clear(fb); fb.removeAttribute('data-tone'); }
+    } };
   }
 
   /* ---------- Chapter VI: ledger model rendered to DOM and Markdown ---------- */
-  function calcBlocks(calc) {
-    var st = calc.state(), tx = st.events.filter(function (e) { return e.kind === 'transaction'; }), obs = st.events.filter(function (e) { return e.kind === 'observation'; });
-    var blocks = [];
-    blocks.push({ p: 'Problem: ' + fmt(st.start) + ' − ' + fmt(st.subtract) + '. Starting drawers (thousands · hundreds · tens · ones): ' + dText(E.toDrawers(st.start)) + '.' });
+  function calcBlocks(c) {
+    var st = c.state(), tx = st.events.filter(function (e) { return e.kind === 'transaction'; }), obs = st.events.filter(function (e) { return e.kind === 'observation'; });
+    var blocks = [{ p: 'Problem: ' + fmt(st.start) + ' − ' + fmt(st.subtract) + '. Starting drawers (thousands · hundreds · tens · ones): ' + dText(E.toDrawers(st.start)) + '.' }];
     if (tx.length) blocks.push({ table: { caption: 'Transactions', cols: ['Step', 'What happened', 'Drawers before', 'Drawers after', 'In cabinet', 'Taken so far'],
       rows: tx.map(function (e) { return [String(e.tx), txText(e), dText(e.before), dText(e.after), fmt(e.valueAfter), fmt(e.removedAfter)]; }) } });
     else blocks.push({ p: 'No transactions yet.', empty: true });
@@ -1871,59 +2184,62 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     blocks.push({ p: st.complete ? 'Result: ' + fmt(E.cabinetValue(st.drawers)) + ' sacks remain (final drawers ' + dText(st.drawers) + ').' + (st.locked ? ' Recorded.' : ' Not yet recorded.') : 'Not finished: ' + fmt(st.subtract - st.removed) + ' sacks still to take.' });
     return blocks;
   }
-  function attemptsLine(label, log) {
+  function attemptsLine(label, log, id) {
     if (!log.length) return label + ': not attempted.';
-    return label + ': ' + log.map(function (a, i) { return (i + 1) + ') ' + (a.entered !== undefined ? (Array.isArray(a.entered) ? a.entered.join(' · ') : a.entered) : a.choice) + (a.correct ? ' ✓' : ' ✗'); }).join('; ') + '.';
+    return label + ': ' + log.map(function (a, i) {
+      var shown = a.entered !== undefined ? (Array.isArray(a.entered) ? a.entered.join(' · ') : a.entered) : (CHOICE_TEXT[id] ? CHOICE_TEXT[id][a.choice] : String(a.choice));
+      return (i + 1) + ') ' + shown + (a.correct ? ' ✓' : ' ✗');
+    }).join('; ') + '.';
   }
-
   function ledgerModel() {
-    var S = [], s = story;
-    S.push({ h: '1. Inventory and requirement', blocks: [{ list: ['Sacks in the granary before shipping: 4,003 (4 thousands, 0 hundreds, 0 tens, 3 ones).', 'Winter requirement: at least 2,500 sacks.', 'Shipment written in the old ledger: 1,258 sacks.', 'Old ledger\'s claim: 3,255 sacks remain.'] }] });
-    S.push({ h: '2. Getting the drawers ready', blocks: [{ p: attemptsLine('Cabinet count after regrouping', s.count.log) }] });
-    S.push({ h: '3. First calculation — ledger shipment (4,003 − 1,258)', blocks: calcBlocks(s.main) });
-    S.push({ h: '4. The old clerk\'s error', blocks: [
-      { p: 'Clerk\'s result: 3,255. ' + (s.clerk.identified ? 'Identified: in the tens column the clerk took the cabinet\'s 0 from the shipment\'s 5 — subtraction turned backwards, no bundle opened.' : 'Error not yet identified.') },
-      { p: attemptsLine('How the clerk got 5 tens', s.clerk.choiceLog) },
-      { p: attemptsLine('Clerk\'s method reproduced (thousands · hundreds · tens · ones)', s.clerk.colLog) },
-      { p: attemptsLine('Sacks the ledger invented, 3,255 − 2,745', s.clerk.overLog) }
-    ] });
-    var vb = [{ p: attemptsLine('Inverse check, 2,745 + 1,258', s.inverse1.log) }];
-    if (s.countUp.used) {
+    var Sx = [], s = S, Q = S.q;
+    Sx.push({ h: '1. Inventory and requirement', blocks: [{ list: ['Sacks in the granary before shipping: 4,003 (4 thousands, 0 hundreds, 0 tens, 3 ones).', 'Winter requirement: at least 2,500 sacks.', 'Shipment written in the old ledger: 1,258 sacks.', 'Old ledger\'s claim: 3,255 sacks remain.'] }] });
+    Sx.push({ h: '2. Getting the drawers ready', blocks: [{ p: attemptsLine('Cabinet count after regrouping', Q['q-count'].log) }] });
+    Sx.push({ h: '3. First calculation — ledger shipment (4,003 − 1,258)', blocks: calcBlocks(s.calcs.main) });
+    Sx.push({ h: '4. The old clerk\'s error', blocks: [
+      { p: 'Clerk\'s result: 3,255. ' + (Q['q-clerk1'].solved ? 'Identified: in the tens column the clerk took the cabinet\'s 0 from the shipment\'s 5 — subtraction turned backwards, no bundle opened.' : 'Error not yet identified.') },
+      { p: attemptsLine('How the clerk got 5 tens', Q['q-clerk1'].log, 'q-clerk1') },
+      { p: attemptsLine('Clerk\'s method reproduced (thousands · hundreds · tens · ones)', s.cols.log) },
+      { p: attemptsLine('Sacks the ledger invented, 3,255 − 2,745', Q['q-clerk3'].log) }] });
+    var vb = [{ p: attemptsLine('Inverse check, 2,745 + 1,258', Q['q-inv1'].log) }];
+    if (s.jumpLog.length) {
       var pos = SHIP_OLD;
-      vb.push({ p: 'Counting up on the number line from 1,258 to 4,003' + (s.countUp.solved ? '' : ' (not finished)') + ':' });
-      vb.push({ list: s.countUp.line.jumps().map(function (k) { var t = '+' + fmt(k) + ' (' + fmt(pos) + ' → ' + fmt(pos + k) + ')'; pos += k; return t; }) });
-      var over = s.countUp.jumpLog.filter(function (j) { return j.overshoot; }).length, und = s.countUp.jumpLog.filter(function (j) { return j.undo; }).length;
-      if (over || und) vb.push({ p: 'Along the way: ' + over + ' jump(s) that would have gone past 4,003, ' + und + ' jump(s) undone.' });
-      vb.push({ p: attemptsLine('Total of jumps', s.countUp.totalLog) });
+      vb.push({ p: 'Counting up on the number line from 1,258 to 4,003' + (Q['q-cutotal'].solved ? '' : ' (not finished)') + ':' });
+      var js = s.line.jumps();
+      if (js.length) vb.push({ list: js.map(function (k) { var t = '+' + fmt(k) + ' (' + fmt(pos) + ' → ' + fmt(pos + k) + ')'; pos += k; return t; }) });
+      var over = s.jumpLog.filter(function (j) { return j.overshoot; }).length, und = s.jumpLog.filter(function (j) { return j.undo; }).length;
+      if (over || und) vb.push({ p: 'Along the way: ' + over + ' ' + plural(over, 'jump', 'jumps') + ' that would have gone past 4,003, and ' + und + ' ' + plural(und, 'jump', 'jumps') + ' undone.' });
+      vb.push({ p: attemptsLine('Total of jumps', Q['q-cutotal'].log) });
     } else vb.push({ p: 'Counting up: not used.' });
-    if (s.comp.used) vb.push({ p: 'Compensation: moved both numbers by ' + (s.comp.shift > 0 ? '+' : '') + s.comp.shift + ' to ' + fmt(START + s.comp.shift) + ' − ' + fmt(SHIP_OLD + s.comp.shift) + '. ' + attemptsLine('Answer', s.comp.log) });
+    if (s.comp.shiftLog.length) { var sh = s.comp.solvedPair ? s.comp.solvedPair[0] - START : s.comp.shift; vb.push({ p: 'Compensation: moved both numbers by ' + (sh > 0 ? '+' : '') + sh + ' to ' + fmt(START + sh) + ' − ' + fmt(SHIP_OLD + sh) + '. ' + attemptsLine('Answer', Q['q-comp'].log) }); }
     else vb.push({ p: 'Compensation: not used.' });
-    S.push({ h: '5. Checking the first result', blocks: vb });
+    Sx.push({ h: '5. Checking the first result', blocks: vb });
     var tb = [{ p: s.revised ? 'Torn dock tag found: the shipment was 1,528 sacks, not 1,258. The first calculation above is kept unchanged.' : 'Dock tag not yet examined.' }];
-    if (s.prediction.dirLog.length || s.prediction.log.length) { tb.push({ p: attemptsLine('Prediction: more or fewer than 2,745', s.prediction.dirLog) }); tb.push({ p: attemptsLine('Prediction: 1,528 − 1,258', s.prediction.log) }); }
-    S.push({ h: '6. The torn dock tag', blocks: tb });
-    S.push({ h: '7. Revised calculation — dock tag shipment (4,003 − 1,528)', blocks: s.revised ? calcBlocks(s.rev).concat([{ p: attemptsLine('Inverse check, 2,475 + 1,528', s.inverse2.log) }]) : [{ p: 'Not started.', empty: true }] });
-    S.push({ h: '8. Estimate and its limits', blocks: [
-      { p: attemptsLine('4,003 rounded to the nearest hundred', s.est.r1Log) }, { p: attemptsLine('1,528 rounded to the nearest hundred', s.est.r2Log) },
-      { p: attemptsLine('Estimate, 4,000 − 1,500', s.est.diffLog) }, { p: attemptsLine('Can the estimate certify the granary?', s.est.certLog) },
-      { p: s.est.cert ? 'Limit recorded: the estimate of about 2,500 is rounded and cannot certify; only the exact count can.' : 'Limit not yet discussed.' }
-    ] });
-    S.push({ h: '9. Exact shortage', blocks: [{ p: attemptsLine('2,500 − 2,475', s.shortage.log) }, { p: s.shortage.solved ? 'Exact shortage: 25 sacks.' : 'Shortage not yet found.' }] });
-    S.push({ h: '10. Supply decision', blocks: s.decisions.length ? [{ list: s.decisions.map(function (d, i) { return (i + 1) + ') ' + ({ certify: 'Certify now', request: 'Request ' + (d.amount === null || d.amount === undefined ? '(no amount)' : fmt(d.amount)) + ' sacks', review: 'Review the evidence' }[d.choice]) + ' — ' + d.outcome; }) },
-      { p: s.decided ? 'Final decision: request 25 additional sacks before certification. The request has been sent; the sacks have not yet arrived, and the certificate is unsigned.' : 'No final decision yet.' }] : [{ p: 'No decision yet.', empty: true }] });
-    S.push({ h: '11. In the student\'s own words', blocks: s.explanations.length ? s.explanations.map(function (t, i) { return { quote: t, label: s.explanations.length > 1 ? 'Version ' + (i + 1) + (i === s.explanations.length - 1 ? ' (latest)' : '') : '' }; }) : [{ p: 'No explanation written yet.', empty: true }] });
-    return S;
+    if (Q['q-pred'].log.length || Q['q-pred2'].log.length) { tb.push({ p: attemptsLine('Prediction: more or fewer than 2,745', Q['q-pred'].log, 'q-pred') }); tb.push({ p: attemptsLine('Prediction: 1,528 − 1,258', Q['q-pred2'].log) }); }
+    Sx.push({ h: '6. The torn dock tag', blocks: tb });
+    Sx.push({ h: '7. Revised calculation — dock tag shipment (4,003 − 1,528)', blocks: s.revised ? calcBlocks(s.calcs.rev).concat([{ p: attemptsLine('Inverse check, 2,475 + 1,528', Q['q-inv2'].log) }]) : [{ p: 'Not started.', empty: true }] });
+    Sx.push({ h: '8. Estimate and its limits', blocks: [
+      { p: attemptsLine('4,003 rounded to the nearest hundred', Q['q-r1'].log) }, { p: attemptsLine('1,528 rounded to the nearest hundred', Q['q-r2'].log) },
+      { p: attemptsLine('Estimate, 4,000 − 1,500', Q['q-rd'].log) }, { p: attemptsLine('Can the estimate certify the granary?', Q['q-cert'].log, 'q-cert') },
+      { p: Q['q-cert'].solved ? 'Limit recorded: the estimate of about 2,500 reaches the requirement but is rounded, so it cannot establish the exact inventory; only the exact count can certify.' : 'Limit not yet discussed.' }] });
+    Sx.push({ h: '9. Exact shortage', blocks: [{ p: attemptsLine('2,500 − 2,475', Q['q-short'].log) }, { p: Q['q-short'].solved ? 'Exact shortage: 25 sacks.' : 'Shortage not yet found.' }] });
+    Sx.push({ h: '10. Supply decision', blocks: s.decisions.length ? [{ list: s.decisions.map(function (d, i) {
+      /* R1 (F12): natural wording for a request made without an amount. */
+      var what = d.choice === 'certify' ? 'Certify now' : d.choice === 'review' ? 'Review the evidence' : (d.amount === null || d.amount === undefined ? 'Request attempted without an amount' : 'Request ' + fmt(d.amount) + ' sacks');
+      return (i + 1) + ') ' + what + (d.kind === 'noamount' ? '' : ' — ' + d.outcome);
+    }) }, { p: s.decided ? 'Final decision: request 25 additional sacks before certification. The request has been sent; the sacks have not yet arrived, and the certificate is unsigned.' : 'No final decision yet.' }] : [{ p: 'No decision yet.', empty: true }] });
+    Sx.push({ h: '11. In the student\'s own words', blocks: s.explanations.length ? s.explanations.map(function (t, i) { return { quote: t, label: s.explanations.length > 1 ? 'Version ' + (i + 1) + (i === s.explanations.length - 1 ? ' (latest)' : '') : '' }; }) : [{ p: 'No explanation written yet.', empty: true }] });
+    return Sx;
   }
-
   function renderLedger() {
     var doc = $('ledger-doc'); clear(doc);
     doc.appendChild(el('h3', { id: 'ledger-title', text: 'The Mended Ledger of Tally Hollow' }));
     doc.appendChild(el('p', { text: 'FMM-001 · The Empty Drawers of Tally Hollow · ' + BUILD.id + ' ' + BUILD.kind }));
-    ledgerModel().forEach(function (sec) {
+    ledgerModel().forEach(function (sec, si) {
       doc.appendChild(el('h4', { text: sec.h }));
       sec.blocks.forEach(function (b) {
         if (b.table) {
-          doc.appendChild(el('div', { class: 'table-scroll' }, [el('table', null, [el('caption', { class: 'sr-only', text: b.table.caption }),
+          doc.appendChild(el('div', { class: 'table-scroll', tabindex: '0', role: 'region', 'aria-label': sec.h + ' — transactions (scrolls sideways on small screens)' }, [el('table', null, [el('caption', { class: 'sr-only', text: b.table.caption }),
             el('thead', null, [el('tr', null, b.table.cols.map(function (c) { return el('th', { scope: 'col', text: c }); }))]),
             el('tbody', null, b.table.rows.map(function (r) { return el('tr', null, r.map(function (c) { return el('td', { text: c }); })); }))])]));
         } else if (b.list) doc.appendChild(el('ul', null, b.list.map(function (t) { return el('li', { text: t }); })));
@@ -1932,45 +2248,35 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
       });
     });
     doc.appendChild(el('p', { text: 'Created by The Axiom Continuum' }));
-    $('finale-text').textContent = story.decided
+    $('finale-text').textContent = S.decided
       ? 'The Mended Ledger is accurate: 2,475 sacks counted exactly, and a request for 25 more is on its way to the lowland mill. The certificate waits, unsigned, until those sacks are counted into the drawers.'
       : 'The ledger is still being mended. Finish Chapter V to file your decision.';
   }
-
   function fence(t) { var f = '```'; while (t.indexOf(f) !== -1) f += '`'; return f + 'text\n' + t + '\n' + f; }
+  function mdBlocks(out, blocks) {
+    blocks.forEach(function (b) {
+      if (b.table) { out.push('| ' + b.table.cols.join(' | ') + ' |', '| ' + b.table.cols.map(function () { return '---'; }).join(' | ') + ' |'); b.table.rows.forEach(function (r) { out.push('| ' + r.join(' | ') + ' |'); }); out.push(''); }
+      else if (b.list) { b.list.forEach(function (t) { out.push('- ' + t); }); out.push(''); }
+      else if (b.quote !== undefined) { if (b.label) out.push(b.label + ':', ''); out.push(fence(b.quote), ''); }
+      else out.push(b.p, '');
+    });
+  }
   function ledgerMarkdown() {
     var out = ['# The Mended Ledger of Tally Hollow', '', 'FMM-001 · The Empty Drawers of Tally Hollow · ' + BUILD.id + ' ' + BUILD.kind, 'Drawers are written as thousands · hundreds · tens · ones.', ''];
-    ledgerModel().forEach(function (sec) {
-      out.push('## ' + sec.h, '');
-      sec.blocks.forEach(function (b) {
-        if (b.table) {
-          out.push('| ' + b.table.cols.join(' | ') + ' |', '| ' + b.table.cols.map(function () { return '---'; }).join(' | ') + ' |');
-          b.table.rows.forEach(function (r) { out.push('| ' + r.join(' | ') + ' |'); }); out.push('');
-        } else if (b.list) { b.list.forEach(function (t) { out.push('- ' + t); }); out.push(''); }
-        else if (b.quote !== undefined) { if (b.label) out.push(b.label + ':', ''); out.push(fence(b.quote), ''); }
-        else out.push(b.p, '');
+    ledgerModel().forEach(function (sec) { out.push('## ' + sec.h, ''); mdBlocks(out, sec.blocks); });
+    var any = ['A', 'B'].some(function (k) { return S.calcs[k].state().txCount > 0; });
+    if (any) {
+      out.push('## Practice Records (separate from the Tally Hollow story ledger)', '');
+      ['A', 'B'].forEach(function (k) {
+        var c = S.calcs[k]; if (!c.state().txCount) return;
+        out.push('### ' + PRACTICE[k].title + ' (' + fmt(PRACTICE[k].start) + ' − ' + fmt(PRACTICE[k].subtract) + ')', '');
+        mdBlocks(out, calcBlocks(c));
+        out.push(attemptsLine('Inverse check', S.q['q-rp' + k].log), '');
       });
-    });
-    var pr = practiceMarkdown();
-    if (pr) out.push(pr);
+    }
     out.push('---', 'Created by The Axiom Continuum');
     return out.join('\n');
   }
-  function ledgerJSON() {
-    return JSON.stringify({
-      schema: 'doorquests.fmm001.ledger.v1', build: BUILD, exportedAt: new Date().toISOString(),
-      story: {
-        chaptersUnlocked: story.max, calculations: [story.main.state(), story.rev.state()].map(stripUndo),
-        cabinetCount: story.count.log, clerk: story.clerk, inverse1: story.inverse1,
-        countUp: { jumps: story.countUp.line.jumps(), log: story.countUp.jumpLog, totalLog: story.countUp.totalLog, solved: story.countUp.solved },
-        compensation: { shift: story.comp.shift, shiftLog: story.comp.shiftLog, log: story.comp.log, solved: story.comp.solved },
-        doctagRevised: story.revised, prediction: story.prediction, inverse2: story.inverse2, estimate: story.est, shortage: story.shortage,
-        decisions: story.decisions, finalDecision: story.decided ? 'request 25 sacks before certification' : null, explanations: story.explanations.slice()
-      },
-      practice: ['A', 'B'].map(function (k) { var c = practice.cases[k]; return { id: k, recorded: c.recorded, calculation: stripUndo(c.calc.state()), inverse: c.inverse }; })
-    }, null, 2);
-  }
-  function stripUndo(st) { delete st.undoStack; return st; }
 
   function download(name, text, type) {
     try {
@@ -1980,19 +2286,49 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
       return true;
     } catch (e) { return false; }
   }
+  function backupText() { var o = buildSave(S); o.exportedAt = new Date().toISOString(); return JSON.stringify(o, null, 1); }
+  function downloadBackup() {
+    var ok = download('tally-hollow-progress-backup.json', backupText(), 'application/json');
+    if (ok) markExported();
+    return ok ? 'Backup download started. It includes all your work so far.' : 'This browser blocked the download.';
+  }
+  /* R1 (F10): the export notice reflects whether the last download still matches the current work. */
+  var exportJustNow = null;
+  function markExported() { S.exportedAtCount = S.actions.length; exportJustNow = S.actions.length; persist(); renderExportNotice(); }
+  function renderExportNotice() {
+    var fb = $('export-fb'); if (!fb) return;
+    if (S.exportedAtCount === null) { clear(fb); fb.removeAttribute('data-tone'); return; }
+    var extra = S.actions.length - S.exportedAtCount;
+    if (extra <= 0) setFb(fb, 'ok', exportJustNow === S.actions.length ? 'Download started. It includes all your work so far. If nothing appears, use “Show ledger as plain text” and copy it.' : 'Your last download includes all your work so far.');
+    else setFb(fb, 'info', 'You have made ' + extra + ' ' + plural(extra, 'change', 'changes') + ' since your last download, so that file does not include them. Download again to keep your latest work.' + (saveState === 'saved' ? ' Your latest work is saved in this browser.' : ''));
+  }
 
   function initCh6() {
+    var ta = $('explain-text'), draftTimer = null;
+    ta.addEventListener('input', function () {
+      S.draft = ta.value.slice(0, LIMITS.text);
+      if (draftTimer) clearTimeout(draftTimer);
+      draftTimer = setTimeout(function () { draftTimer = null; persist(); }, 400);
+    });
+    window.addEventListener('pagehide', function () { if (draftTimer) { clearTimeout(draftTimer); persist(); } });
     $('explain-form').addEventListener('submit', function (e) {
       e.preventDefault();
-      var t = $('explain-text').value, fb = $('explain-fb');
-      if (!t.trim()) { setFb(fb, 'info', 'Write a sentence or two first. There is no single right wording.'); announce('Write your explanation first.'); return; }
-      story.explanations.push(t);
-      renderLedger();
-      var m = 'Saved to the ledger exactly as you wrote it' + (story.explanations.length > 1 ? ' (version ' + story.explanations.length + ').' : '.');
+      var t = ta.value, fb = $('explain-fb');
+      var res = act({ t: 'explain', text: t.slice(0, LIMITS.text) });
+      if (res.code === 'EMPTY') { setFb(fb, 'info', 'Write a sentence or two first. There is no single right wording.'); announce('Write your explanation first.'); return; }
+      if (res.code === 'LIMIT') { setFb(fb, 'info', 'The ledger already holds the maximum number of saved versions.'); return; }
+      if (!res.effective) return;
+      S.draft = ''; ta.value = t; persist();
+      refreshAll();
+      var m = 'Added to the ledger exactly as you wrote it' + (S.explanations.length > 1 ? ' (version ' + S.explanations.length + ').' : '.') + saveSuffix();
       setFb(fb, 'ok', m); announce(m);
     });
-    $('dl-md').addEventListener('click', function () { var ok = download('tally-hollow-mended-ledger.md', ledgerMarkdown(), 'text/markdown;charset=utf-8'); exportMsg(ok, 'ledger text file'); });
-    $('dl-json').addEventListener('click', function () { var ok = download('tally-hollow-ledger-backup.json', ledgerJSON(), 'application/json'); exportMsg(ok, 'JSON backup'); });
+    $('dl-md').addEventListener('click', function () {
+      var ok = download('tally-hollow-mended-ledger.md', ledgerMarkdown(), 'text/markdown;charset=utf-8');
+      if (ok) markExported(); else setFb($('export-fb'), 'info', 'This browser blocked the download. Use “Show ledger as plain text” and copy it instead.');
+      announce($('export-fb').textContent);
+    });
+    $('dl-json').addEventListener('click', function () { var t = downloadBackup(); if (!/started/.test(t)) setFb($('export-fb'), 'info', t); announce($('export-fb').textContent); });
     $('print-ledger').addEventListener('click', function () { renderLedger(); window.print(); });
     $('show-text').addEventListener('click', function () {
       var w = $('plain-wrap'), open = w.hidden;
@@ -2001,75 +2337,183 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     });
     $('finale-practice').addEventListener('click', function () { setView('practice'); });
   }
-  function exportMsg(ok, what) {
-    var m = ok ? 'Your ' + what + ' download has started. If nothing appears, use “Show ledger as plain text” and copy it.' : 'This browser blocked the download. Use “Show ledger as plain text” and copy it instead.';
-    setFb($('export-fb'), ok ? 'ok' : 'info', m); announce(m);
-  }
 
-  /* ---------- Practice drawers (same engine, separate records) ---------- */
-  var practice = { active: 'A', cases: {
-    A: { start: 6020, subtract: 3475, title: 'Replay A — Millrace Barn', sub: 'Keeper Tobin Ash · 6,020 sacks · the river barge takes 3,475',
-      intro: 'Millrace Barn holds 6,020 sacks: six thousands and two tens, but no hundreds and no ones. The river barge takes 3,475. Two empty drawers — choose a drawer to begin.' },
-    B: { start: 5000, subtract: 2386, title: 'Replay B — Old Hollin Store', sub: 'Storekeeper Ma Reddle · 5,000 sacks · the spring market takes 2,386',
-      intro: 'The Old Hollin Store holds exactly 5,000 sacks — every drawer below thousands is empty. The spring market takes 2,386. Choose a drawer to begin.' }
-  } };
-  function practiceMarkdown() {
-    var any = ['A', 'B'].some(function (k) { return practice.cases[k].calc.state().txCount > 0; });
-    if (!any) return '';
-    var out = ['## Practice records (separate from the Tally Hollow ledger)', ''];
-    ['A', 'B'].forEach(function (k) {
-      var c = practice.cases[k], st = c.calc.state();
-      if (!st.txCount) return;
-      out.push('### ' + c.title + ' (' + fmt(c.start) + ' − ' + fmt(c.subtract) + ')', '');
-      calcBlocks(c.calc).forEach(function (b) {
-        if (b.table) { out.push('| ' + b.table.cols.join(' | ') + ' |', '| ' + b.table.cols.map(function () { return '---'; }).join(' | ') + ' |'); b.table.rows.forEach(function (r) { out.push('| ' + r.join(' | ') + ' |'); }); out.push(''); }
-        else if (b.list) { b.list.forEach(function (t) { out.push('- ' + t); }); out.push(''); }
-        else out.push(b.p, '');
-      });
-      out.push(attemptsLine('Inverse check', c.inverse.log), '');
-    });
-    return out.join('\n');
-  }
+  /* ---------- Practice drawers ---------- */
+  var practiceUI = {};
   function initPractice() {
     ['A', 'B'].forEach(function (k) {
-      var c = practice.cases[k], host = $('practice-' + k);
-      c.calc = E.createCalculation({ id: 'REPLAY-' + k, label: c.title, start: c.start, subtract: c.subtract });
-      c.recorded = false; c.inverse = { log: [], solved: false };
+      var c = PRACTICE[k], host = $('practice-' + k);
       var invWrap = el('div', { class: 'card', hidden: true }), done = el('div', { class: 'card', hidden: true });
       var invH = el('h3', { tabindex: '-1', text: 'Check it by adding back' });
-      c.cabinet = new Cabinet({
-        prefix: 'rp' + k, calc: c.calc, title: c.title, subtitle: c.sub, take: true, showTotals: true, intro: c.intro,
-        onRecord: function () { c.recorded = true; invWrap.hidden = false; announce('Recorded. Check it by adding back, below.'); focusEl(invH); }
+      new Cabinet({
+        key: k, prefix: 'rp' + k, title: c.title, subtitle: c.sub, take: true, showTotals: true, intro: c.intro,
+        recordName: 'your separate Practice Record',
+        onRecord: function () { announce('Recorded in your Practice Record. Check it by adding back, below.'); refreshAll(); focusEl(invH); }
       });
       var q = numberQ({
-        id: 'q-rp' + k, label: 'What stayed plus what left:', eq: fmt(c.start - c.subtract) + ' + ' + fmt(c.subtract) + ' =', log: c.inverse.log,
-        expected: function () { return c.calc.value() + c.subtract; },
+        id: 'q-rp' + k, label: 'What stayed plus what left:', eq: fmt(c.start - c.subtract) + ' + ' + fmt(c.subtract) + ' =',
         correct: function (n) { return fmt(n) + ' — back to the start. Practice complete.'; },
-        wrong: additionWrong(c.start - c.subtract, c.subtract),
-        onCorrect: function () {
-          c.inverse.solved = true; done.hidden = false;
-          clear(done);
-          done.appendChild(el('h3', { text: 'Practice complete' }));
-          done.appendChild(el('p', { text: fmt(c.start) + ' − ' + fmt(c.subtract) + ' = ' + fmt(c.calc.value()) + ', checked by ' + fmt(c.calc.value()) + ' + ' + fmt(c.subtract) + ' = ' + fmt(c.start) + '. Your steps are in the transaction history above and in the ledger download.' }));
-        }
+        wrong: additionWrong(c.start - c.subtract, c.subtract)
       });
       invWrap.appendChild(invH); invWrap.appendChild(q.root);
-      host.appendChild(el('div', { class: 'cab-slot' }, [c.cabinet.root])); host.appendChild(invWrap); host.appendChild(done);
-    });
-    ['A', 'B'].forEach(function (k) {
+      done.appendChild(el('h3', { text: 'Practice complete' }));
+      done.appendChild(el('p', { text: fmt(c.start) + ' − ' + fmt(c.subtract) + ' = ' + fmt(c.start - c.subtract) + ', checked by ' + fmt(c.start - c.subtract) + ' + ' + fmt(c.subtract) + ' = ' + fmt(c.start) + '. Your steps are saved in your separate Practice Record (the history above) and in the practice section of the ledger download. They do not change your Tally Hollow ledger.' }));
+      host.appendChild(el('div', { class: 'cab-slot' }, [cabinets[k].root])); host.appendChild(invWrap); host.appendChild(done);
+      practiceUI[k] = { inv: invWrap, done: done };
       $('case-' + k).addEventListener('change', function () {
-        practice.active = k; $('practice-A').hidden = k !== 'A'; $('practice-B').hidden = k !== 'B';
-        announce('Showing ' + practice.cases[k].title + '.');
+        var r = act({ t: 'case', k: k });
+        if (r.effective) { refreshAll(); announce('Showing ' + c.title + '.'); }
       });
     });
     $('back-story').addEventListener('click', function () { setView('story'); });
   }
-
   function setView(v) {
-    var story_ = v === 'story';
-    $('story-view').hidden = !story_; $('practice-view').hidden = story_;
-    $('view-story').setAttribute('aria-pressed', String(story_)); $('view-practice').setAttribute('aria-pressed', String(!story_));
-    if (story_) focusEl($('ch' + story.chapter + '-h')); else focusEl($('practice-h'));
+    var r = act({ t: 'view', v: v });
+    refreshAll();
+    focusEl(v === 'story' ? $('ch' + S.chapter + '-h') : $('practice-h'));
+  }
+
+  /* =================================================================
+     PERSISTENCE (R1 F1)
+     ================================================================= */
+  var saveState = 'idle', saveSuspended = false, unreadableRaw = null;
+  function storageGet(key) { try { return { ok: true, value: window.localStorage.getItem(key) }; } catch (e) { return { ok: false }; } }
+  function storageSet(key, val) { try { window.localStorage.setItem(key, val); return { ok: true }; } catch (e) { return { ok: false, full: !!(e && (e.name === 'QuotaExceededError' || e.code === 22)) }; } }
+  function storageRemove(key) { try { window.localStorage.removeItem(key); return true; } catch (e) { return false; } }
+  function persist() {
+    if (replaying) return;
+    if (saveSuspended) { setSaveState(saveState === 'othertab' ? 'othertab' : 'suspended'); return; }
+    var txt;
+    try { txt = JSON.stringify(buildSave(S)); } catch (e) { setSaveState('unavailable'); return; }
+    if (txt.length > LIMITS.fileBytes || S.actions.length > LIMITS.actions) { setSaveState('toolarge'); return; }
+    var r = storageSet(STORE_KEY, txt);
+    setSaveState(r.ok ? 'saved' : (r.full ? 'full' : 'unavailable'));
+  }
+  var SAVE_TEXT = {
+    idle: 'Your progress will be saved in this browser as you play.',
+    saved: 'Progress saved in this browser.',
+    unavailable: 'This browser is not letting the page save, so your work is kept only while this page stays open. Download a backup to keep it.',
+    full: 'Browser storage is full, so your latest steps are NOT saved. Download a backup to keep your work.',
+    toolarge: 'Your adventure is too large to save in this browser. Download a backup to keep your work.',
+    suspended: 'Automatic saving is paused because an earlier save could not be read. See the message at the top of the page.',
+    othertab: 'This adventure was changed in another tab or window, so this page has stopped saving to avoid overwriting it. Reload the page to continue with the latest saved work.'
+  };
+  function setSaveState(st) {
+    saveState = st;
+    var t = SAVE_TEXT[st];
+    $('save-status').textContent = t; $('pp-status').textContent = t;
+    $('save-status').setAttribute('data-state', st);
+    renderExportNotice();
+  }
+  function saveSuffix() { return saveState === 'saved' ? ' Saved in this browser.' : (saveState === 'idle' ? '' : ' Not saved in this browser — download a backup to keep it.'); }
+
+  /* Rebuild every view from the current model (after restore, import or start-over). */
+  function hydrate(message) {
+    replaying = true;
+    try {
+      CABS.forEach(function (k) { cabinets[k].welcome(message && k !== 'A' && k !== 'B' ? message : null); });
+      Object.keys(UIQ).forEach(function (id) { UIQ[id].sync(); });
+      cuUI.reset(); compUI.reset(); decUI.sync();
+      $('explain-text').value = S.draft || (S.explanations.length ? S.explanations[S.explanations.length - 1] : '');
+      ['explain-fb'].forEach(function (id) { clear($(id)); });
+      $('plain-wrap').hidden = true; $('show-text').setAttribute('aria-expanded', 'false');
+      exportJustNow = null;
+      releaseHeights();
+    } finally { replaying = false; }
+    refreshAll();
+  }
+
+  function startOver(returnTo) {
+    openDialog({
+      title: 'Start a new adventure?',
+      msg: 'This clears the saved adventure in this browser and starts again at the oak door. If you might want your work later, download a backup first.',
+      yes: 'Yes, start over', no: 'Keep my adventure',
+      extra: { label: 'Download a backup first', fn: downloadBackup },
+      returnTo: returnTo, focusAfterYes: true,
+      onYes: function () {
+        S = createModel(); saveSuspended = false;
+        if (unreadableRaw !== null) { unreadableRaw = null; $('resume-bad-dl').hidden = true; }
+        storageRemove(STORE_KEY);
+        $('resume-banner').hidden = true;
+        hydrate(null); persist();
+        announce('A new adventure has begun at the oak door.');
+        $('ch1-h').focus();
+      }
+    });
+  }
+
+  function importFile(file, returnTo) {
+    var msg = $('pp-msg');
+    function say(t) { msg.textContent = t; announce(t); }
+    if (!file) return;
+    if (file.size > LIMITS.fileBytes) { say('Import refused: the file is too large to be a Tally Hollow backup. Your current adventure has not been changed.'); return; }
+    var reader = new FileReader();
+    reader.onerror = function () { say('Import refused: the file could not be read. Your current adventure has not been changed.'); };
+    reader.onload = function () {
+      var obj;
+      try { obj = JSON.parse(String(reader.result)); } catch (e) { say('Import refused: the file is not valid JSON. Your current adventure has not been changed.'); return; }
+      var v = validateSave(obj);
+      if (!v.ok) { say('Import refused: ' + v.error + ' Your current adventure has not been changed.'); return; }
+      function applyIt() {
+        S = v.model; saveSuspended = false; unreadableRaw = null; $('resume-bad-dl').hidden = true; $('resume-banner').hidden = true;
+        hydrate('Welcome back — this cabinet was restored from your backup.'); persist();
+        say('Backup imported: Chapter ' + ROMAN[S.chapter - 1] + ', ' + S.actions.length + ' ' + plural(S.actions.length, 'step', 'steps') + ' restored.' + saveSuffix());
+      }
+      if (S.actions.length || S.draft) {
+        openDialog({
+          title: 'Replace your current adventure?',
+          msg: 'The backup is valid (Chapter ' + ROMAN[v.model.chapter - 1] + ', ' + v.model.actions.length + ' steps). Importing it replaces the adventure you have open now. Download your current work first if you might want it.',
+          yes: 'Yes, import the backup', no: 'Cancel', extra: { label: 'Download my current work first', fn: downloadBackup },
+          returnTo: returnTo, onYes: applyIt
+        });
+      } else applyIt();
+    };
+    reader.readAsText(file);
+  }
+
+  function initPersistence() {
+    $('pp-download').addEventListener('click', function () { var t = downloadBackup(); $('pp-msg').textContent = t; announce(t); });
+    $('pp-import').addEventListener('change', function () { var f = this.files && this.files[0]; importFile(f, this); this.value = ''; });
+    $('pp-new').addEventListener('click', function () { startOver(this); });
+    $('resume-continue').addEventListener('click', function () { $('resume-banner').hidden = true; focusEl($(S.view === 'story' ? 'ch' + S.chapter + '-h' : 'practice-h')); });
+    $('resume-new').addEventListener('click', function () { startOver(this); });
+    $('resume-bad-dl').addEventListener('click', function () {
+      if (unreadableRaw === null) return;
+      var ok = download('tally-hollow-unreadable-save.json', unreadableRaw, 'application/json');
+      announce(ok ? 'Download of the unreadable save started.' : 'This browser blocked the download.');
+    });
+
+    /* R1: two open tabs must not silently overwrite each other's saves (last-writer-wins). */
+    window.addEventListener('storage', function (e) {
+      if (e.key !== STORE_KEY || e.newValue === null) return;
+      saveSuspended = true; setSaveState('othertab');
+      announce('This adventure was changed in another tab. This page has stopped saving. Reload to continue with the latest work.');
+    });
+        var got = storageGet(STORE_KEY);
+    if (!got.ok) { setSaveState('unavailable'); return; }
+    if (got.value === null) { setSaveState(storageSet('doorquests.fmm001.probe', '1').ok && storageRemove('doorquests.fmm001.probe') ? 'idle' : 'unavailable'); return; }
+    var raw = got.value, err = null, obj = null;
+    if (raw.length > LIMITS.fileBytes) err = 'it is too large';
+    else { try { obj = JSON.parse(raw); } catch (e) { err = 'it is damaged'; } }
+    var v = err ? null : validateSave(obj);
+    if (v && v.ok) {
+      if (!v.model.actions.length && !v.model.draft) { S = v.model; hydrate(null); setSaveState('saved'); return; }
+      S = v.model; hydrate('Welcome back — this cabinet is just as you left it.');
+      setSaveState('saved');
+      $('resume-text').textContent = 'Your adventure was restored from this browser: Chapter ' + ROMAN[S.chapter - 1] + ' (' + CHAPTERS[S.chapter - 1] + '), with ' + S.actions.length + ' ' + plural(S.actions.length, 'step', 'steps') + ' recorded' + (S.draft ? ' and an unsaved draft of your explanation' : '') + '. Keep going, or start a new adventure.';
+      $('resume-banner').hidden = false;
+      return;
+    }
+    /* Unreadable save: never delete it silently. Keep a copy, and pause saving if that copy cannot be made. */
+    unreadableRaw = raw;
+    var reason = err || v.error;
+    var copied = storageSet(UNREADABLE_KEY, raw).ok;
+    saveSuspended = !copied;
+    $('resume-text').textContent = 'Saved progress was found in this browser, but it could not be restored safely: ' + reason + ' ' + (copied ? 'A copy has been kept, and you can download it. A fresh adventure has started; it will be saved normally.' : 'It has been left untouched, and automatic saving is paused so it is not overwritten. Download it, or choose Start a new adventure to replace it.');
+    $('resume-bad-dl').hidden = false;
+    $('resume-banner').hidden = false;
+    hydrate(null);
+    setSaveState(saveSuspended ? 'suspended' : 'idle');
   }
 
   /*REVIEW-START*/
@@ -2077,10 +2521,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     var out = $('rv-out');
     if (!out) return;
     $('rv-state').addEventListener('click', function () {
-      var calcs = [story.main, story.rev, practice.cases.A.calc, practice.cases.B.calc].map(function (c) {
-        var st = c.state(); return { id: st.id, start: st.start, subtract: st.subtract, drawers: st.drawers, removed: st.removed, complete: st.complete, locked: st.locked, proposal: st.proposal, transactions: st.txCount, invariantErrors: E.checkInvariants(st) };
-      });
-      out.textContent = JSON.stringify({ build: BUILD, chapter: story.chapter, unlocked: story.max, calculations: calcs }, null, 2);
+      var calcs = CABS.map(function (k) { var st = S.calcs[k].state(); return { id: st.id, start: st.start, subtract: st.subtract, drawers: st.drawers, removed: st.removed, complete: st.complete, locked: st.locked, proposal: st.proposal, transactions: st.txCount, invariantErrors: E.checkInvariants(st) }; });
+      out.textContent = JSON.stringify({ build: BUILD, view: S.view, chapter: S.chapter, unlocked: S.max, actions: S.actions.length, saveState: saveState, calculations: calcs }, null, 2);
     });
     $('rv-selftest').addEventListener('click', function () {
       var seed = 7, bad = 0, n = 1000, t0 = Date.now();
@@ -2092,6 +2534,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
       }
       out.textContent = 'Self-test on separate throwaway calculations (game state untouched): ' + n + ' random subtractions, ' + (n - bad) + ' correct, ' + bad + ' failed. ' + (Date.now() - t0) + ' ms.';
     });
+    $('rv-replay').addEventListener('click', function () {
+      var t0 = Date.now(), v = validateSave(JSON.parse(JSON.stringify(buildSave(S))));
+      out.textContent = v.ok ? 'Replay check passed: ' + S.actions.length + ' recorded steps replayed on a separate copy and matched the ledger exactly (' + (Date.now() - t0) + ' ms). Game state untouched.' : 'Replay check FAILED: ' + v.error;
+    });
   }
   /*REVIEW-END*/
 
@@ -2102,12 +2548,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     $('view-practice').addEventListener('click', function () { setView('practice'); });
     initCh1(); initCh2and3(); initCh4(); initCh5(); initCh6(); initPractice();
     /*REVIEW-START*/ initReview(); /*REVIEW-END*/
-    buildNav(); refreshAll();
+    refreshAll();
+    initPersistence();
     window.addEventListener('error', function (ev) {
-      if (ev && ev.error && ev.error.name === 'InvariantError') {
-        var t = 'Something went wrong inside the drawers, and the last action was cancelled to keep the count safe. Please report this.';
-        announce(t);
-      }
+      if (ev && ev.error && ev.error.name === 'InvariantError') announce('Something went wrong inside the drawers, and the last action was cancelled to keep the count safe. Please report this.');
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
