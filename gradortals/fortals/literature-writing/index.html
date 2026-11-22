@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-O3Uub8UcchJFAKcCaS2x1Mt90o7csiMYmRG/YqZdbCc='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-8IKk7NbDw9gha0biQBcMxF/TKuO9MY9nJWGVi6eX3ho='; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; font-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="A DoorQuests reading adventure: a character who can't read her own book asks you to read her the lines, and to explain why she did what she did.">
 <meta name="doorquests:wing" content="Gradortals">
 <meta name="doorquests:grade" content="Fourth Grade (Fortals)">
 <meta name="doorquests:collection" content="Literature &amp; Writing">
 <meta name="doorquests:experience" content="001">
-<meta name="doorquests:build" content="FLW-001 build 2026-11-21.5 (review)">
+<meta name="doorquests:build" content="FLW-001 build 2026-11-21.6 (review)">
 <meta name="doorquests:release-channel" content="review">
 <title>She Can't Read Her Own Book · DoorQuests</title>
 <style>
@@ -97,6 +97,9 @@ li.sentence p.print{margin:0 0 8px;font-size:1.22rem;line-height:1.5}
 .speech{background:var(--paper);border:2px solid var(--gold);border-radius:14px;padding:12px 14px;margin-top:10px}
 .speech .heard{color:var(--muted);font-size:.95rem;margin:0 0 6px}
 .speech .says{margin:0;font-size:1.1rem}
+.speech-stack{display:grid}
+.speech-stack > .speech-variant{grid-area:1 / 1;min-width:0;overflow-wrap:anywhere}
+.inline-slot{display:contents}
 .ledger-entry{background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--sea);border-radius:8px;padding:12px;margin:10px 0}
 .ledger-entry.later{border-left-color:var(--gold)}
 .ledger-entry h4{margin:0 0 4px;font-size:1.05rem}
@@ -191,7 +194,7 @@ dialog::backdrop{background:rgba(10,16,30,.65)}
 
   /* ================= CONFIG ================= */
   var CONFIG = {
-    BUILD: 'FLW-001 build 2026-11-21.5 (review)',
+    BUILD: 'FLW-001 build 2026-11-21.6 (review)',
     CHANNEL: 'review', // @@CHANNEL
     STORAGE_KEY: 'doorquests:gradortals:fortals:literature-writing:001:v1',
     FORMAT: 'doorquests-fortals-literature-writing-001',
@@ -328,15 +331,15 @@ dialog::backdrop{background:rgba(10,16,30,.65)}
           reply: 'I looked at my boots. People look at their boots for lots of reasons.',
           after: 'Looking at my boots. Does that look the same to you as it did before?' },
         { n: 5, text: 'He hid the copy under a loose floorboard.',
-          reply: 'Under a loose floorboard. That\u2019s where I put the copy. What does that tell you about me?',
+          reply: 'Under a loose floorboard. That\u2019s where I put the copy.',
           after: 'The copy under the floorboard. What do you think it means now?' },
         { n: 6, text: 'At sunrise, he left the old map on Juno’s front step without a note.',
           reply: 'No note at all. Just the map, back on the step. Hmm.',
-          after: 'Back on the step, with no note. I’m still wondering about the no-note part. Are you?' },
+          after: 'Back on the step, with no note. That’s how the story tells it.' },
         { n: 7, text: 'The map’s ink faded a little more each time it got wet.',
-          reply: 'The ink fades when it gets wet? I never knew it was that delicate.' },
+          reply: 'The ink fades when it gets wet? I hadn’t known that.' },
         { n: 8, text: 'Juno’s grandmother drew the map before she moved across the sea.',
-          reply: 'Juno\u2019s grandmother drew it herself. I can almost picture her at work on it.' },
+          reply: 'Juno\u2019s grandmother drew it herself. I hadn\u2019t heard that part before.' },
         { n: 9, text: 'Rain had soaked the hollow oak for three days.',
           reply: 'Three days of rain, right into the hollow oak.' }
       ],
@@ -385,7 +388,7 @@ dialog::backdrop{background:rgba(10,16,30,.65)}
   }
 
   var state = freshState();
-  var ui = { heard: {}, status: null, errors: {}, nudge: null, nudged: {}, view: 'home', lastReply: null, justRevealed: false, conflict: null, notice: null, showPreview: false, rewriting: false };
+  var ui = { heard: {}, status: null, pinned: {}, errors: {}, nudge: null, nudged: {}, view: 'home', lastReply: null, justRevealed: false, conflict: null, notice: null, showPreview: false, rewriting: false };
   var pendingFocus = null;
   var storageOK = true;
   var lastWritten = null;
@@ -712,8 +715,15 @@ dialog::backdrop{background:rgba(10,16,30,.65)}
     srTimer = setTimeout(function () { if (sr.textContent === msg) sr.textContent = ''; }, 6000);
   }
   // A confirmation or status line shown inside the named page area (falls back to the top of the view).
+  // R4.1 (GBDQ2-026): messages for the areas above the sentence buttons ('global' at the top of the view, 'page'
+  // above sentences 1-6, 'reveal' above 7-9) stay in place until the child leaves the view (or opens the book), instead of
+  // vanishing when a message appears somewhere else. A vanishing line would pull the sentence buttons up under the
+  // child's finger. All other areas keep the one-message-at-a-time behavior. Every message is still announced once.
+  var PINNED = { global: 1, page: 1, reveal: 1 };
   function say(msg, area) {
-    ui.status = { area: area || 'global', text: msg };
+    area = area || 'global';
+    if (PINNED[area]) { ui.pinned[area] = msg; ui.status = null; }
+    else ui.status = { area: area, text: msg };
     announce(msg);
     render();
   }
@@ -736,7 +746,7 @@ dialog::backdrop{background:rgba(10,16,30,.65)}
     var el = document.getElementById(id);
     if (el && el.scrollIntoView) { try { el.scrollIntoView({ block: 'nearest' }); } catch (e) { el.scrollIntoView(); } }
   }
-  function clearFeedback() { ui.status = null; ui.errors = {}; ui.nudge = null; ui.nudged = {}; }
+  function clearFeedback() { ui.status = null; ui.pinned = {}; ui.errors = {}; ui.nudge = null; ui.nudged = {}; }
   // Field attributes: required state, and links to any error or nudge shown for it.
   function fa(key, attrs) {
     var a = attrs || {}, ids = [];
@@ -765,6 +775,7 @@ dialog::backdrop{background:rgba(10,16,30,.65)}
     return out;
   }
   function statusLine(area) {
+    if (PINNED[area]) return ui.pinned[area] ? h('p', { class: 'status-msg', 'data-status': area, id: 'status-' + area }, ui.pinned[area]) : null;
     if (!ui.status || ui.status.area !== area) return null;
     return h('p', { class: 'status-msg', 'data-status': area, id: 'status-' + area }, ui.status.text);
   }
@@ -849,7 +860,7 @@ dialog::backdrop{background:rgba(10,16,30,.65)}
     save(); pendingFocus = 'story-heading'; render();
   }
   function goHome() { flushSave(); ui.view = 'home'; clearFeedback(); pendingFocus = 'home-heading'; save(); render(); }
-  function startStory() { var st = cur(); st.started = true; save(); pendingFocus = 'printed-heading'; render(); say('The book is open. Choose a sentence to read to ' + curStory().short + '.', 'page'); }
+  function startStory() { var st = cur(); st.started = true; delete ui.pinned.global; save(); pendingFocus = 'printed-heading'; render(); say('The book is open. Choose a sentence to read to ' + curStory().short + '.', 'page'); }
 
   function readToHer(n) {
     var story = curStory(), st = cur(), line = lineOf(story, n);
@@ -1421,20 +1432,36 @@ dialog::backdrop{background:rgba(10,16,30,.65)}
         h('p', { class: 'hint' }, 'New lines. The sentences above did not change.'),
         statusLine('reveal'),
         sentenceItems(story, st, 7, 9),
-        h('p', { class: 'next-step' }, 'Next: read the new lines to ' + story.short + ', then think again in Reconsider.'),
-        h('button', { type: 'button', class: 'secondary small', 'data-key': 'goto-recon', onclick: function () { pendingFocus = 'recon-heading'; render(); } }, 'Go to Reconsider')));
+        // R4.1 (GBDQ2-020 residual): only while Reconsider is not yet saved; it sits below every sentence button
+        st.reconsider.savedAt ? null : h('p', { class: 'next-step', 'data-key': 'reveal-next' }, 'Next: read the new lines to ' + story.short + ', then think again in Reconsider.'),
+        st.reconsider.savedAt ? null : h('button', { type: 'button', class: 'secondary small', 'data-key': 'goto-recon', onclick: function () { pendingFocus = 'recon-heading'; render(); } }, 'Go to Reconsider')));
     }
     return sec;
   }
 
+  // R4.1 (GBDQ2-028): every text the bubble can show at this stage is stacked in one grid cell and only the current one
+  // is visible (the same technique as the R4 reply slots). The bubble is always as tall as its longest text at the
+  // current width and text size, so a new reply never moves the My Interpretation card below it. Nothing is clipped.
+  // The after-reveal texts join the stack at the reveal, an intended stage change.
   function characterPanel(story, st) {
-    var speech;
-    if (ui.lastReply) {
-      var heard = ui.lastReply.n ? h('p', { class: 'heard' }, 'You read sentence ' + ui.lastReply.n + ': ' + lineOf(story, ui.lastReply.n).text) : null;
-      speech = h('div', { class: 'speech' }, heard, h('p', { class: 'says' }, h('strong', null, story.short + ': '), '“' + ui.lastReply.text + '”'));
-    } else {
-      speech = h('div', { class: 'speech' }, h('p', { class: 'says' }, h('strong', null, story.short + ': '), '“' + story.waiting + '”'));
+    function says(text, n) {
+      return [n ? h('p', { class: 'heard' }, 'You read sentence ' + n + ': ' + lineOf(story, n).text) : null,
+        h('p', { class: 'says' }, h('strong', null, story.short + ': '), '“' + text + '”')];
     }
+    var variants = [['waiting', says(story.waiting, 0)]];
+    story.lines.forEach(function (l) {
+      if (l.n > 6 && !st.revealed) return;
+      variants.push(['reply-' + l.n, says(l.reply, l.n)]);
+      if (l.after && st.revealed) variants.push(['after-' + l.n, says(l.after, l.n)]);
+    });
+    if (st.revealed) variants.push(['reveal', says(story.revealSays, 0)]);
+    var lr = ui.lastReply, shown = 'waiting';
+    if (lr) shown = lr.n === 0 ? 'reveal' : ((lineOf(story, lr.n).after === lr.text && st.revealed ? 'after-' : 'reply-') + lr.n);
+    if (!variants.some(function (v) { return v[0] === shown; })) variants.push([shown, says(lr.text, lr.n)]);
+    var speech = h('div', { class: 'speech speech-stack' }, variants.map(function (v) {
+      var on = v[0] === shown;
+      return h('div', { class: 'speech-variant' + (on ? '' : ' slot-hidden'), 'aria-hidden': on ? null : 'true', 'data-speech': v[0] }, v[1]);
+    }));
     return h('section', { class: 'card', 'aria-labelledby': 'char-h' },
       h('div', { class: 'portrait' }, svg(ART[story.icon]),
         h('div', null, h('h2', { id: 'char-h', style: 'margin:0' }, story.character),
@@ -1591,6 +1618,23 @@ dialog::backdrop{background:rgba(10,16,30,.65)}
     return sec;
   }
 
+  // R4.1 (GBDQ2-027): the unsaved notice and the discard button are drawn by these helpers, both on a full redraw
+  // and on every keystroke (updateReconDirty), which replaces only these two small areas: the text boxes, the caret
+  // and the typing are never touched.
+  function reconUnsavedNotice(st) {
+    return (reconDirty(st) && st.reconsider.savedAt) ? h('p', { class: 'unsaved', 'data-key': 'recon-unsaved' }, 'Unsaved changes to your later thinking. They are kept as a draft in this browser. Press \u201cUpdate\u201d to use them, or throw them away.') : null;
+  }
+  function reconDiscardButton(st) {
+    var r = st.reconsider, d = st.drafts.recon;
+    if (r.savedAt) return reconDirty(st) ? h('button', { type: 'button', class: 'secondary', 'data-key': 'recon-discard', onclick: discardRecon }, 'Throw away changes') : null;
+    return (d && (d.text.trim() || d.why.trim() || d.path)) ? h('button', { type: 'button', class: 'secondary', 'data-key': 'recon-discard', onclick: discardRecon }, 'Clear this draft') : null;
+  }
+  function updateReconDirty(st) {
+    var a = document.getElementById('recon-unsaved-slot'), b = document.getElementById('recon-discard-slot');
+    if (a) { var n = reconUnsavedNotice(st); if (!!a.firstChild !== !!n) a.replaceChildren.apply(a, n ? [n] : []); }
+    if (b) { var m = reconDiscardButton(st); var have = b.firstChild ? b.firstChild.textContent : ''; if (have !== (m ? m.textContent : '')) b.replaceChildren.apply(b, m ? [m] : []); }
+  }
+
   function reconsiderSection(story, st) {
     var sec = h('section', { class: 'card' + (st.revealed ? '' : ' locked'), 'aria-labelledby': 'recon-h' }, h('h2', { id: 'recon-h', 'data-key': 'recon-heading', tabindex: '-1' }, 'Reconsider'),
       h('p', { class: 'hint' }, h('strong', null, 'Reconsider: '), 'think again after finding new information.'));
@@ -1611,16 +1655,14 @@ dialog::backdrop{background:rgba(10,16,30,.65)}
       NUDGE_ACTIONS['recon-why'] = saveReconsider;
       sec.appendChild(h('label', { for: 'recon-text' }, PATHS[d.path].field + ' (needed)'));
       fieldMsgs('recon-text').forEach(function (m) { sec.appendChild(m); });
-      sec.appendChild(h('textarea', fa('recon-text', { id: 'recon-text', 'data-key': 'recon-text', 'aria-required': 'true', maxlength: String(CONFIG.MAX_TEXT), value: d.text, oninput: function (ev) { ensureReconDraft(st).text = ev.target.value; fieldTyped('recon-text', ev.target); saveSoon(); } })));
+      sec.appendChild(h('textarea', fa('recon-text', { id: 'recon-text', 'data-key': 'recon-text', 'aria-required': 'true', maxlength: String(CONFIG.MAX_TEXT), value: d.text, oninput: function (ev) { ensureReconDraft(st).text = ev.target.value; fieldTyped('recon-text', ev.target); saveSoon(); updateReconDirty(st); } })));
       sec.appendChild(h('label', { for: 'recon-why' }, 'How did the evidence affect your thinking? Did it change, stay, or grow? You can name sentence numbers, old or new. (needed)'));
       fieldMsgs('recon-why').forEach(function (m) { sec.appendChild(m); });
-      sec.appendChild(h('textarea', fa('recon-why', { id: 'recon-why', 'data-key': 'recon-why', 'aria-required': 'true', maxlength: String(CONFIG.MAX_TEXT), value: d.why, oninput: function (ev) { ensureReconDraft(st).why = ev.target.value; fieldTyped('recon-why', ev.target); saveSoon(); } })));
-      if (dirty && r.savedAt) sec.appendChild(h('p', { class: 'unsaved' }, 'Unsaved changes to your later thinking. They are kept as a draft in this browser. Press \u201cUpdate\u201d to use them, or throw them away.'));
-      var draftHasText = !r.savedAt && st.drafts.recon && (st.drafts.recon.text.trim() || st.drafts.recon.why.trim() || st.drafts.recon.path);
+      sec.appendChild(h('textarea', fa('recon-why', { id: 'recon-why', 'data-key': 'recon-why', 'aria-required': 'true', maxlength: String(CONFIG.MAX_TEXT), value: d.why, oninput: function (ev) { ensureReconDraft(st).why = ev.target.value; fieldTyped('recon-why', ev.target); saveSoon(); updateReconDirty(st); } })));
+      sec.appendChild(h('div', { id: 'recon-unsaved-slot' }, reconUnsavedNotice(st)));
       sec.appendChild(h('div', { class: 'row', style: 'margin-top:8px' },
         h('button', { type: 'button', 'data-key': 'recon-save', onclick: saveReconsider }, r.savedAt ? 'Update my later thinking' : 'Save my later thinking'),
-        (dirty && r.savedAt) ? h('button', { type: 'button', class: 'secondary', 'data-key': 'recon-discard', onclick: discardRecon }, 'Throw away changes') : null,
-        draftHasText ? h('button', { type: 'button', class: 'secondary', 'data-key': 'recon-discard', onclick: discardRecon }, 'Clear this draft') : null,
+        h('span', { id: 'recon-discard-slot', class: 'inline-slot' }, reconDiscardButton(st)),
         r.savedAt ? h('span', { class: 'hint' }, 'Saved ' + fmt(r.savedAt)) : null));
       append(sec, statusLine('recon'));
       var laterDone = laterEntries(st).some(hasReason);
