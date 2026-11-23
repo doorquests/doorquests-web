@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-OR875WM6iZ4UmHwGTi6WJD7HOtmluwKQLISh1IHJnqM='; style-src 'sha256-4yV61cQJw13u7qxFrzQP8DQ/1SM4ziqi1YudE6C1VlQ='; img-src data: blob:; base-uri 'none'; form-action 'none'; object-src 'none'">
-<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-TjkgIuuYaxxc56RnPh6aUQ6B+p/fau7e4fk4HHW+Kuk='; style-src 'sha256-4yV61cQJw13u7qxFrzQP8DQ/1SM4ziqi1YudE6C1VlQ='; img-src data: blob:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="robots" content="index, follow">
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="A DoorQuests Fortals adventure: regroup across empty drawers, check a granary ledger, and decide when an estimate is not enough.">
-<meta name="doorquests-build" content="FMM-001-R1.1 review-build 2026-11-23">
-<title>The Empty Drawers of Tally Hollow — DoorQuests [R1.1 REVIEW BUILD]</title>
+<meta name="doorquests-build" content="FMM-001-R1.1 production-candidate 2026-11-23">
+<title>The Empty Drawers of Tally Hollow — DoorQuests</title>
 <style>
 :root {
   --navy: #0d1626; --navy2: #16233b; --navy3: #22314f;
@@ -335,12 +335,6 @@ dialog .help { margin: 4px 0 0; }
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to the adventure</a>
-<!--REVIEW-START-->
-<div class="review-banner" role="note">
-  <strong>R1.1 — REVIEW BUILD · NOT FOR PUBLIC RELEASE</strong>
-  <span>FMM-001 · The Empty Drawers of Tally Hollow · build FMM-001-R1.1 · 2026-11-23 · final stabilization candidate · not independently reviewed</span>
-</div>
-<!--REVIEW-END-->
 <header class="site-header">
   <div class="wrap">
     <p class="wing">DoorQuests · Gradortals · Fortals · Multi-Digit Mathematics · #001</p>
@@ -650,18 +644,6 @@ dialog .help { margin: 4px 0 0; }
   </section>
 </div>
 
-<!--REVIEW-START-->
-<details class="review-panel no-print">
-  <summary>Reviewer tools (review build only)</summary>
-  <p>Read-only inspection. These tools never change the game state.</p>
-  <div class="btn-row">
-    <button type="button" class="btn" id="rv-state">Show engine state</button>
-    <button type="button" class="btn" id="rv-selftest">Run engine self-test (1,000 random cases)</button>
-    <button type="button" class="btn" id="rv-replay">Check current save by replay</button>
-  </div>
-  <pre id="rv-out" tabindex="0" aria-label="Reviewer output"></pre>
-</details>
-<!--REVIEW-END-->
 </div>
 </main>
 
@@ -1029,7 +1011,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
 (function () {
   'use strict';
   var E = TallyEngine;
-  var REVIEW_BUILD = true; /*BUILD-FLAG*/
+  var REVIEW_BUILD = false; /*BUILD-FLAG*/
   var BUILD = { id: 'FMM-001-R1.1', date: '2026-11-23', kind: REVIEW_BUILD ? 'review build' : 'production candidate' };
   var STORE_KEY = 'doorquests.fmm001.progress.v1';
   var UNREADABLE_KEY = 'doorquests.fmm001.progress.v1.unreadable';
@@ -2595,30 +2577,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     setSaveState(saveSuspended ? 'suspended' : 'idle');
   }
 
-  /*REVIEW-START*/
-  function initReview() {
-    var out = $('rv-out');
-    if (!out) return;
-    $('rv-state').addEventListener('click', function () {
-      var calcs = CABS.map(function (k) { var st = S.calcs[k].state(); return { id: st.id, start: st.start, subtract: st.subtract, drawers: st.drawers, removed: st.removed, complete: st.complete, locked: st.locked, proposal: st.proposal, transactions: st.txCount, invariantErrors: E.checkInvariants(st) }; });
-      out.textContent = JSON.stringify({ build: BUILD, view: S.view, chapter: S.chapter, unlocked: S.max, actions: S.actions.length, saveState: saveState, calculations: calcs }, null, 2);
-    });
-    $('rv-selftest').addEventListener('click', function () {
-      var seed = 7, bad = 0, n = 1000, t0 = Date.now();
-      function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
-      for (var i = 0; i < n; i++) {
-        var a = 1 + Math.floor(rnd() * 9999), b = 1 + Math.floor(rnd() * a);
-        var c = E.createCalculation({ id: 'S' + i, start: a, subtract: b }), r = E.autoSolve(c, 400);
-        if (!r.ok || c.value() !== a - b || E.checkInvariants(c.state()).length) bad++;
-      }
-      out.textContent = 'Self-test on separate throwaway calculations (game state untouched): ' + n + ' random subtractions, ' + (n - bad) + ' correct, ' + bad + ' failed. ' + (Date.now() - t0) + ' ms.';
-    });
-    $('rv-replay').addEventListener('click', function () {
-      var t0 = Date.now(), v = validateSave(JSON.parse(JSON.stringify(buildSave(S))));
-      out.textContent = v.ok ? 'Replay check passed: ' + S.actions.length + ' recorded steps replayed on a separate copy and matched the ledger exactly (' + (Date.now() - t0) + ' ms). Game state untouched.' : 'Replay check FAILED: ' + v.error;
-    });
-  }
-  /*REVIEW-END*/
+  
 
   function init() {
     liveEl = $('sr-status');
@@ -2626,7 +2585,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = TallyEngin
     $('view-story').addEventListener('click', function () { setView('story'); });
     $('view-practice').addEventListener('click', function () { setView('practice'); });
     initCh1(); initCh2and3(); initCh4(); initCh5(); initCh6(); initPractice();
-    /*REVIEW-START*/ initReview(); /*REVIEW-END*/
+    
     refreshAll();
     initPersistence();
     window.addEventListener('error', function (ev) {
