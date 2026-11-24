@@ -144,6 +144,11 @@ textarea{width:100%;min-height:9rem;font:.85rem/1.4 ui-monospace,Menlo,Consolas,
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 @media (forced-colors:active){.choice,.notice,button,.span{border:1px solid CanvasText}}
+h1.scene-head{font-weight:normal;line-height:1.3}
+.save-status{margin:0 auto;max-width:46rem;padding:.3rem 1rem 0;font-family:var(--sans);font-size:.82rem;min-height:1.4em;text-align:right;opacity:.92}
+.save-status.bad{font-weight:700;opacity:1;text-decoration:underline;text-underline-offset:3px}
+.replay-note{margin:.2rem 0 1rem;padding:.6rem .8rem;border:2px dashed currentColor;border-radius:10px;font-family:var(--sans);font-size:.92rem}
+.export-note{font-size:.85rem;margin:.4rem 0}
 </style>
 </head>
 <body data-mood="title" data-theme="light">
@@ -156,6 +161,7 @@ textarea{width:100%;min-height:9rem;font:.85rem/1.4 ui-monospace,Menlo,Consolas,
     <button type="button" id="btnMenu">Options</button>
   </nav>
 </header>
+<p id="saveStatus" class="save-status" role="status" aria-live="polite"></p>
 <main id="story" tabindex="-1">
   <section id="screen"></section>
   <noscript><p>This adventure needs JavaScript to play.</p></noscript>
@@ -316,7 +322,291 @@ function recomputeTotals(K){
     if(d.tendencies) TENDS.forEach(function(x){ ten[x] = clamp(ten[x] + (d.tendencies[x]||0), 0, 999); }); });
   K.reputation = rep; K.tendencies = ten;
 }
+/* ===== MQ-R1 shared Keyring block (byte-identical in Doors #001-#005; checked by tests/r1-sync-check.cjs) =====
+   A data-consistency safeguard for a single-player, local save. It is not encryption and not anti-cheat. */
+var MQ_VERSION = 'mq-r1.1';
+var MQ_PROGRESS = {'002':'doorquests:magiortals:progress:002:v1', '003':'doorquests:magiortals:progress:003:v1', '004':'doorquests:magiortals:progress:004:v1', '005':'doorquests:magiortals:progress:005:v1'};
+var MQ_REPLAY001 = 'doorquests:magiortals:replay:001:v1';
+var MQ_KNOWN = ['001','002','003','004','005'];
+/* Canonical registry: every fact Doors #001-#005 can create, with its owning door. */
+var MQ_REG = {
+  inventory:{'hinge-pin':'001','sunthread-charm':'001','briarseed':'001','gorse-end-flame':'002','whisper-scroll':'003','tide-glass':'003','emberglass-shard':'004','firstwitness-sprig':'005'},
+  abilities:{'waymending':'001','rootlistening':'001','truthlight':'002'},
+  conditions:{'unlit-chill':'001','turned-ankle':'001','briar-scored':'001','given-memory':'003','ash-scorched':'004'},
+  obligations:{'plant-briarseed':'001','carry-fennicks-ember':'001','relight-fennicks-lantern':'001','pin-to-the-wardens':'001','seek-the-whisper-scroll':'002','reclaim-hinge-pin':'002','return-gorse-end-flame':'002','seek-the-bridge-at-ashfall':'003','return-whisper-scroll':'003','owe-rook-a-share':'003','follow-the-fifth-way':'004','relight-ashfall-safely':'004','unbank-the-kilnbacks':'004','answer-the-oathstone-summons':'005'},
+  discoveries:{
+    'briars-hide-road':'001','broken-frame':'001','ford-seen':'001','grey-rings':'001','lane-stone':'001','restless-maps':'001','road-grooves':'001','unlit-follows-roads':'001','unlit-mark':'001','waystone-glyphs':'001','wight-warning':'001',
+    'chill-echo':'002','drawn-east':'002','first-roads-scroll':'002','iron-answers':'002','it-seeks-the-sea':'002','lending-of-light':'002','lights-draw-it':'002','mark-in-the-hall':'002','roads-bend-to-light':'002','thorn-turns-it':'002',
+    'echo-floats':'003','it-goes-deeper':'003','memory-water':'003','murmurants':'003','old-name':'003','road-under-the-sea':'003','scroll-fragment':'003','scroll-location':'003','scroll-words':'003',
+    'datum-five-ways':'004','datum-inscription':'004','fifth-way-grove':'004','jar-memory':'004','kilnback-ways':'004','kilnbacks-shy-from-cold':'004','kilnbacks-waking':'004','lamps-relit':'004','nest-at-center':'004','north-pier-breaking':'004','salt-reading':'004',
+    'grey-trees-loop':'005','last-stone-mark':'005','long-watch-warmth':'005','loss-kept':'005','memory-planted':'005','oathstone-summons':'005','road-ends':'005','road-waking':'005','rooted-light':'005','roots-carried-word':'005','seed-song':'005','waking-song':'005','witness-trees':'005'},
+  bonds:{'briarwight-elder':['001'],'fennick-ashlow':['001','002'],'warden-lisle':['002'],'keeper-hester-quail':['002'],'davin-roe':['002'],'nell-corrow':['002'],'sunwren-fledgling':['002'],
+    'thessaly-marr':['003'],'tamsin-gale':['003'],'ewan-gale':['003'],'rook-hallan':['003'],'the-turnstone':['003'],'isra-vell':['004'],'ottilie-kern':['004'],'dace-harrow':['004'],'kilnback-matriarch':['004'],
+    'yarrow-fell':['005'],'bryn-copsewood':['005'],'ring-briarwight':['005'],'the-firstwitness':['005']},
+  states:{'whisper-scroll':['lent','taken','jar-cracked','dry']},
+  /* Resolution logs each door may write (key "rNNN.<kind>.<target>" inside doors[NNN].choices). */
+  logs:{
+    '002':{'inv.briarseed':['planted'],'inv.hinge-pin':['entrusted'],'cond.briar-scored':['healed'],'cond.turned-ankle':['healed'],'obl.carry-fennicks-ember':['fulfilled'],'obl.pin-to-the-wardens':['fulfilled'],'obl.plant-briarseed':['fulfilled'],'obl.relight-fennicks-lantern':['fulfilled'],'bondprev.fennick-ashlow':'num'},
+    '003':{'inv.hinge-pin':['traded-to-rook'],'cond.turned-ankle':['healed'],'obl.seek-the-whisper-scroll':['fulfilled','scroll-lost']},
+    '004':{'obl.seek-the-bridge-at-ashfall':['fulfilled'],'state.whisper-scroll':['jar-cracked','dry'],'stateprev.whisper-scroll':['lent','taken','jar-cracked','none']},
+    '005':{'inv.briarseed':['returned'],'cond.turned-ankle':['healed'],'cond.ash-scorched':['healed'],'obl.follow-the-fifth-way':['fulfilled'],'obl.plant-briarseed':['released']}
+  },
+  /* Necessary evidence in the owning door's own record (derived from genuine play, confirmed in source). */
+  evidence:{
+    'inventory:briarseed':['001','@ending',['kindled-road','thorn-and-mark']], 'obligations:plant-briarseed':['001','@ending',['kindled-road','thorn-and-mark']],
+    'inventory:hinge-pin':['001','d001.pin_fate',['kept']], 'obligations:pin-to-the-wardens':['001','d001.pin_fate',['traded']],
+    'abilities:rootlistening':['001','d001.wight',['trusted','observed-then-trusted']], 'abilities:waymending':['001','d001.waystone',['solved']],
+    'conditions:briar-scored':['001','d001.briar_first',['pulled']], 'conditions:turned-ankle':['001','d001.crossing',['climbed']],
+    'obligations:relight-fennicks-lantern':['001','d001.lantern',['watched']], 'obligations:carry-fennicks-ember':['001','d001.lantern',['shielded']],
+    'inventory:gorse-end-flame':['002','d002.gorse',['lending']], 'obligations:return-gorse-end-flame':['002','d002.gorse',['lending']],
+    'abilities:truthlight':['002','d002.truth',['honest']], 'obligations:reclaim-hinge-pin':['002','d002.pin',['entrusted']],
+    'bonds:sunwren-fledgling':['002','d002.eggs',['hatched']], 'bonds:nell-corrow':['002','d002.day',['rescue']],
+    'inventory:tide-glass':['003','d003.ewan',['saved']], 'bonds:ewan-gale':['003','d003.ewan',['saved']],
+    'inventory:whisper-scroll':['003','d003.scroll',['lent','taken','pried']], 'obligations:return-whisper-scroll':['003','d003.scroll',['lent']],
+    'obligations:owe-rook-a-share':['003','d003.rook',['promise']], 'conditions:given-memory':['003','@crossing',['memory']],
+    'inventory:emberglass-shard':['004','d004.choice',['guide','dim']], 'obligations:relight-ashfall-safely':['004','d004.choice',['dim']],
+    'obligations:unbank-the-kilnbacks':['004','d004.choice',['quench']], 'conditions:ash-scorched':['004','d004.look',['leaned']],
+    'bonds:kilnback-matriarch':['004','d004.choice',['guide','dim','quench']], 'inventory:firstwitness-sprig':['005','d005.choice',['weave']]
+  },
+  /* R1.1: canonical endings of the known doors (4/4/4/4/3) and the recorded choice each ending depends on. */
+  endings:{
+    '001':{'kindled-road':'The Kindled Road','ember-bearer':'The Ember Bearer','thorn-and-mark':'The Thorn and the Mark','watcher-at-the-ravine':'The Watcher at the Ravine'},
+    '002':{'ring-held':'The Ring Held','night-without-lanterns':'The Night Without Lanterns','false-dawn':'The False Dawn','thorn-across-the-road':'The Thorn Across the Road'},
+    '003':{'tide-jar':'The Scroll in the Tide-Jar','what-the-water-kept':'What the Water Kept','broken-shell':'The Broken Shell','last-ebb':'The Last Ebb'},
+    '004':{'the-bridge-sings':'The Bridge Sings','the-dark-span':'The Dark Span','the-fallen-arm':'The Fallen Arm','the-quenched-gorge':'The Quenched Gorge'},
+    '005':{'the-living-road':'The Living Road','the-bound-road':'The Bound Road','the-waking-road':'The Waking Road'}
+  },
+  endingDeps:{
+    '001':['@lantern', {'kept':['kindled-road','ember-bearer'], 'out':['thorn-and-mark','watcher-at-the-ravine']}],
+    '002':['d002.night', {'ring':['ring-held'], 'douse':['night-without-lanterns'], 'decoy':['false-dawn'], 'decoy-grass':['false-dawn'], 'thorn':['thorn-across-the-road']}],
+    '003':['d003.scroll', {'lent':['tide-jar'], 'taken':['tide-jar'], 'heard':['what-the-water-kept'], 'pried':['broken-shell'], 'lost':['last-ebb']}],
+    '004':['d004.choice', {'guide':['the-bridge-sings'], 'dim':['the-dark-span'], 'quench':['the-quenched-gorge'], 'drop':['the-fallen-arm']}],
+    '005':['d005.choice', {'weave':['the-living-road'], 'bind':['the-bound-road'], 'wake':['the-waking-road']}]
+  },
+  /* R1.1: causal evidence each resolution log needs in the resolving door's own record (from the engines' actual code). [] = no
+     distinguishing choice is recorded; only ownership, order and the target's own evidence can be checked. */
+  causal:{
+    '002':{'inv.briarseed=planted':[['d002.night',['thorn']]], 'obl.plant-briarseed=fulfilled':[['d002.night',['thorn']]],
+           'inv.hinge-pin=entrusted':[['d002.pin',['entrusted']]], 'obl.pin-to-the-wardens=fulfilled':[['d002.pin',['delivered']]],
+           'obl.relight-fennicks-lantern=fulfilled':[['d002.flame',['relit']]], 'obl.carry-fennicks-ember=fulfilled':[],
+           'cond.briar-scored=healed':[], 'cond.turned-ankle=healed':[['d002.mending',['accepted']]]},
+    '003':{'inv.hinge-pin=traded-to-rook':[['d003.rook',['pin']]], 'cond.turned-ankle=healed':[['d003.healer',['healed']]],
+           'obl.seek-the-whisper-scroll=fulfilled':[['d003.scroll',['lent','taken','heard','pried']]], 'obl.seek-the-whisper-scroll=scroll-lost':[['d003.scroll',['lost']]]},
+    '004':{'obl.seek-the-bridge-at-ashfall=fulfilled':[]},
+    '005':{'inv.briarseed=returned':[['d005.seed',['returned']]], 'obl.plant-briarseed=released':[['d005.seed',['returned']]],
+           'cond.turned-ankle=healed':[['d005.balm',['yes']]], 'cond.ash-scorched=healed':[['d005.balm',['yes']]], 'obl.follow-the-fifth-way=fulfilled':[]}
+  },
+  /* R1.1: legal item-state changes. #004's disc can heat an unprotected jar once: lent|taken -> jar-cracked, jar-cracked -> dry. */
+  stateRules:{'004:whisper-scroll':{legal:{'lent':'jar-cracked','taken':'jar-cracked','jar-cracked':'dry'}, heldKey:'d004.jarheld', protectKey:'d004.jar', protect:['cloth','cellar']}}
+};
+var MQ_OBL_STATUS = {'fulfilled':'fulfilled', 'scroll-lost':'released', 'released':'released', 'broken':'broken'};
+var MQ_LABEL = {inventory:'relic', abilities:'ability', conditions:'condition', discoveries:'discovery', obligations:'promise'};
+function mqOwn(o, k){ return (o && Object.prototype.hasOwnProperty.call(o, k)) ? o[k] : undefined; }
+function mqKnown(d){ return MQ_KNOWN.indexOf(d) !== -1; }
+function mqLaterDone(K, door){ return Object.keys(K.doors || {}).some(function(id){ return /^\d{3}$/.test(id) && parseInt(id, 10) > parseInt(door, 10) && K.doors[id] && K.doors[id].status === 'completed'; }); }
+function mqEvidence(K, ev){
+  var d = K.doors[ev[0]]; if(!d) return false;
+  var v = ev[1].charAt(0) === '@' ? d[ev[1].slice(1)] : (d.choices || {})[ev[1]];
+  return ev[2].indexOf(String(v)) !== -1;
+}
+function mqInitialState(K, id){
+  if(id === 'whisper-scroll'){ var d = K.doors['003'], sc = d && d.choices ? d.choices['d003.scroll'] : null; return sc === 'pried' ? 'jar-cracked' : (sc === 'lent' || sc === 'taken') ? sc : null; }
+  return null;
+}
+/* Integrity pass: run after a door's own structural validation. Mutates K; pushes plain-language notes into W.
+   Rules: facts for Doors #001-#005 must be registered to their owning door, that door must be completed, and
+   necessary evidence in its record must agree; resolution logs must be ones that door can write; a promise may be
+   closed only by a recorded later-door resolution; item states are rebuilt from the owning record plus logged changes;
+   facts and records of unknown later doors (#006+) are kept as written, unverified. */
+function mqIntegrity(K, W){
+  var notes = {}, changed = false;
+  function note(t){ changed = true; if(!notes[t]){ notes[t] = 1; W.push(t); } }
+  function done(d){ return !!(K.doors[d] && K.doors[d].status === 'completed'); }
+  var doorIds = Object.keys(K.doors).filter(function(id){ return /^\d{3}$/.test(id); }).sort();
+  doorIds.forEach(function(d){ if(!mqKnown(d) && parseInt(d, 10) > 5) note('Door #' + d + ' is from a newer Magiortals door; its record was kept as written, without checking.'); });
+  mqValidateLogs(K, note, doorIds);
+  ['inventory','abilities','conditions','discoveries','obligations'].forEach(function(list){
+    K[list] = K[list].filter(function(x){
+      var nm = '“' + String(x.name || x.id) + '”';
+      if(!mqKnown(x.from)){ if(parseInt(x.from, 10) > 5 && done(x.from)) return true; note('Unsupported ' + mqOwn(MQ_LABEL, list) + ' ' + nm + ' (claimed from Door #' + x.from + ') was ignored.'); return false; }
+      if(mqOwn(MQ_REG[list], x.id) !== x.from){ note('Unsupported ' + mqOwn(MQ_LABEL, list) + ' ' + nm + ' was ignored: no Magiortals door gives it that way.'); return false; }
+      if(!done(x.from)){ note('The ' + MQ_LABEL[list] + ' ' + nm + ' was ignored: Door #' + x.from + ' is not recorded as completed.'); return false; }
+      var ev = mqOwn(MQ_REG.evidence, list + ':' + x.id);
+      if(ev && !mqEvidence(K, ev)){ note('The ' + MQ_LABEL[list] + ' ' + nm + ' was ignored: the Door #' + x.from + ' record does not show how it was earned.'); return false; }
+      return true;
+    });
+  });
+  Object.keys(K.bonds).forEach(function(id){
+    var x = K.bonds[id], owners = mqOwn(MQ_REG.bonds, id);
+    if(!mqKnown(x.from)){ if(!(parseInt(x.from, 10) > 5 && done(x.from))){ delete K.bonds[id]; note('An unsupported bond (' + id + ') was ignored.'); } return; }
+    var ev = mqOwn(MQ_REG.evidence, 'bonds:' + id);
+    if(!owners || owners.indexOf(x.from) === -1 || !done(x.from) || (ev && !mqEvidence(K, ev))){ delete K.bonds[id]; note('An unsupported bond (' + (x.name || id) + ') was ignored.'); }
+  });
+  /* Apply logged removals and closures in door order (older-owned facts only), as every later door's reconcile does. */
+  doorIds.forEach(function(d){
+    var ch = K.doors[d].choices || {}, n = parseInt(d, 10);
+    function older(x){ return /^\d{3}$/.test(x.from) && parseInt(x.from, 10) < n; }
+    Object.keys(ch).forEach(function(k){
+      var m = /^r(\d{3})\.(inv|cond|obl)\.(.+)$/.exec(k); if(!m || m[1] !== d) return;
+      if(m[2] === 'inv') K.inventory = K.inventory.filter(function(x){ if(x.id === m[3] && older(x)){ changed = true; return false; } return true; });
+      if(m[2] === 'cond') K.conditions = K.conditions.filter(function(x){ if(x.id === m[3] && older(x)){ changed = true; return false; } return true; });
+      if(m[2] === 'obl') K.obligations.forEach(function(o){ if(o.id === m[3] && older(o) && o.status === 'open'){ o.status = mqOwn(MQ_OBL_STATUS, ch[k]) || 'fulfilled'; changed = true; } });
+    });
+  });
+  K.obligations.forEach(function(o){
+    if(!mqKnown(o.from) || o.status === 'open') return;
+    var cause = doorIds.some(function(d){ if(parseInt(d, 10) <= parseInt(o.from, 10)) return false; var v = (K.doors[d].choices || {})['r' + d + '.obl.' + o.id]; return v !== undefined && (mqOwn(MQ_OBL_STATUS, v) || (parseInt(d, 10) > 5 ? o.status : 'fulfilled')) === o.status; });
+    if(!cause){ note('The promise “' + String(o.text || o.id).slice(0, 60) + (String(o.text || o.id).length > 60 ? '…' : '') + '” was marked ' + o.status + ', but no recorded door did that, so it is open again.'); o.status = 'open'; }
+  });
+  K.inventory.forEach(function(x){
+    if(!mqKnown(x.from)) return;
+    var S = mqOwn(MQ_REG.states, x.id);
+    if(!S){ if(x.state){ x.state = null; note('An unexpected state on ' + (x.name || x.id) + ' was cleared.'); } return; }
+    var exp = mqInitialState(K, x.id);
+    doorIds.forEach(function(d){
+      if(parseInt(d, 10) <= parseInt(x.from, 10)) return;
+      var ch = K.doors[d].choices || {}, nv = ch['r' + d + '.state.' + x.id]; if(nv === undefined) return;
+      var pv = ch['r' + d + '.stateprev.' + x.id]; if(pv === 'none') pv = null;
+      if(pv === undefined || pv === exp) exp = nv;
+    });
+    if((x.state || null) !== exp){ note('The state of ' + (x.name || x.id) + ' did not match its recorded history and was corrected to “' + exp + '”.'); x.state = exp; }
+  });
+  if(changed) recomputeTotals(K);
+  return changed;
+}
+function mqOpaque(v, depth){
+  if(depth > 6) return null;
+  if(typeof v === 'string') return v.replace(/[\u0000-\u001f\u007f]/g, ' ').slice(0, 400);
+  if(typeof v === 'number') return isFinite(v) ? v : null;
+  if(typeof v === 'boolean' || v === null) return v;
+  if(Array.isArray(v)) return v.slice(0, 300).map(function(x){ return mqOpaque(x, depth + 1); });
+  if(isObj(v)){ var o = {}; Object.keys(v).slice(0, 150).forEach(function(k){ if(/^[A-Za-z0-9_.:\-]{1,80}$/.test(k) && k !== '__proto__' && k !== 'constructor' && k !== 'prototype') o[k] = mqOpaque(v[k], depth + 1); }); return o; }
+  return null;
+}
+function mqOpaqueRun(r, door){ if(!isObj(r) || r.door !== door) return null; var o = mqOpaque(r, 0); return (o && JSON.stringify(o).length <= 120000) ? o : null; }
+/* R1.1 causal log validation. Walks the known doors in order; a resolution log is kept only if (1) the resolving door can write it,
+   (2) that door's own record shows the causing choice, (3) its target was really created by an older completed door (owner evidence
+   holds), (4) no earlier door already removed or closed that target, and (5) for state changes, the transition is physically legal
+   from the state the item actually had on entering the door. Anything else is removed, with a note, before it can affect reconciliation. */
+function mqFnv(str){ var h = 0x811c9dc5; for(var i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return ('0000000' + h.toString(16)).slice(-8); }
+/* Same fingerprint the doors store as dep.dNNN when they complete (verified identical on genuine histories). */
+function mqFp(K, id){ var d = K.doors[id]; if(!d) return 'none'; var pre = 'd' + id + '.'; var keys = Object.keys(d.choices || {}).filter(function(k){ return id === '001' ? true : k.indexOf(pre) === 0; }).sort(); return 'h' + mqFnv(keys.map(function(k){ return k + '=' + d.choices[k]; }).join('|') + '|' + (d.ending || '')); }
+function mqValidateLogs(K, note, doorIds){
+  var LIST = {inv:'inventory', cond:'conditions', obl:'obligations'}, consumed = {}, stateNow = {};
+  function done(d){ return !!(K.doors[d] && K.doors[d].status === 'completed'); }
+  function ownerOk(list, target, d){ var owner = mqOwn(MQ_REG[list], target); if(!owner || !done(owner) || parseInt(owner, 10) >= parseInt(d, 10)) return false; var ev = mqOwn(MQ_REG.evidence, list + ':' + target); return !ev || mqEvidence(K, ev); }
+  /* Absence vs contradiction: if the earlier door's record has changed since door d recorded it (an older replay rewrote it), a log
+     whose target that record no longer gives is kept as inert history and explained once; it is not treated as a forgery. */
+  function changedSince(d, list, target){ var owner = mqOwn(MQ_REG[list], target), dep = owner ? (K.doors[d].choices || {})['dep.d' + owner] : undefined; return !!(owner && dep && K.doors[owner] && dep !== mqFp(K, owner)) ? owner : null; }
+  function inert(d, owner){ note('Door #' + owner + '’s record changed after Door #' + d + ' was completed (most likely an earlier replay). Door #' + d + '’s recorded changes to things Door #' + owner + ' no longer gives were kept as history but have no effect.'); }
+  function evAll(d, need){ return need.every(function(n){ return mqEvidence(K, [d, n[0], n[1]]); }); }
+  doorIds.forEach(function(d){
+    if(!mqKnown(d)) return;
+    var ch = K.doors[d].choices || {};
+    function drop(k, why){ delete ch[k]; note('A recorded change (' + k + ') was ignored: ' + why); }
+    Object.keys(ch).forEach(function(k){
+      if(!(k in ch)) return;
+      var m = /^r(\d{3})\.([a-z]+)\.(.+)$/.exec(k), b = /^bond\.(.+)$/.exec(k);
+      if(b){
+        if(!(d === '002' && b[1] === 'fennick-ashlow' && typeof ch[k] === 'number' && ch[k] >= -3 && ch[k] <= 5)){ drop(k, 'it is not a bond change Door #' + d + ' can record.'); return; }
+        var fb = mqOwn(K.bonds, 'fennick-ashlow');
+        if(fb && fb.from === '002' && fb.level !== ch[k]) drop(k, 'it contradicts the Fennick bond Door #002 itself recorded (level ' + fb.level + '). The recorded bond was kept.');
+        return;
+      }
+      if(!m) return;
+      if(m[1] !== d){ drop(k, 'it is filed under Door #' + d + ' but claims Door #' + m[1] + '.'); return; }
+      var kind = m[2], target = m[3], v = ch[k];
+      if(kind === 'bondprev'){
+        if(!(d === '002' && target === 'fennick-ashlow' && typeof v === 'number' && v >= -3 && v <= 5 && done('001'))) drop(k, 'there is no earlier Fennick bond for it to restore.');
+        return;
+      }
+      if(kind === 'stateprev'){ if(!(('r' + d + '.state.' + target) in ch)) drop(k, 'it has no matching state change.'); return; }
+      if(kind === 'state'){
+        var rule = mqOwn(MQ_REG.stateRules, d + ':' + target), pk = 'r' + d + '.stateprev.' + target;
+        var why = null, prev = ch[pk] === 'none' ? null : ch[pk];
+        if(!rule) why = 'Door #' + d + ' cannot change that item’s state.';
+        else if(!ownerOk('inventory', target, d)){ var ch0 = changedSince(d, 'inventory', target); if(ch0){ inert(d, ch0); return; } why = 'the item was not carried into Door #' + d + '.'; }
+        else if(!(pk in ch)) why = 'it does not record the state it changed from.';
+        else {
+          if(!(target in stateNow)) stateNow[target] = mqInitialState(K, target);
+          var prot = (K.doors[d].choices || {})[rule.protectKey];
+          if(rule.protect.indexOf(String(prot)) !== -1) why = 'the Door #' + d + ' record shows the jar was protected (' + prot + '), so it could not be damaged.';
+          else if(mqOwn(rule.legal, String(prev)) !== v) why = 'a change from “' + prev + '” to “' + v + '” is not possible there.';
+          else if(prev !== stateNow[target]) why = 'the item was “' + stateNow[target] + '” on arriving, not “' + prev + '”.';
+          else if(String((K.doors[d].choices || {})[rule.heldKey]) !== String(v)) why = 'the Door #' + d + ' record does not show the jar being damaged that way.';
+        }
+        if(why){ delete ch[pk]; drop(k, why + ' The item keeps its recorded state.'); return; }
+        stateNow[target] = v; return;
+      }
+      var list = mqOwn(LIST, kind), need = mqOwn(mqOwn(MQ_REG.causal, d), kind + '.' + target + '=' + v);
+      if(!list || !need){ drop(k, 'it is not something Door #' + d + ' can do.'); return; }
+      if(!evAll(d, need)){ drop(k, 'the Door #' + d + ' record does not show the choice that causes it. Nothing was removed or closed.'); return; }
+      if(!ownerOk(list, target, d)){ var ch1 = changedSince(d, list, target); if(ch1){ inert(d, ch1); return; } drop(k, 'its target was never earned by an earlier completed door. Nothing was removed or closed.'); return; }
+      if(consumed[kind + ':' + target]){ drop(k, 'an earlier door (#' + consumed[kind + ':' + target] + ') had already resolved it.'); return; }
+      consumed[kind + ':' + target] = d;
+    });
+  });
+}
+/* R1.1 known-door ending check. Returns a refusal message (the Keyring is not used and storage is not changed) for a completed
+   Door #001-#005 record whose ending is missing, belongs to no door or to another door, or contradicts the choice it depends on.
+   A wrong display title for a valid ending is corrected from the registry, with a note. Doors #006+ are not checked. */
+function mqCheckEndings(K, W){
+  var bad = null;
+  Object.keys(K.doors).filter(function(id){ return mqKnown(id); }).sort().forEach(function(d){
+    if(bad) return;
+    var rec = K.doors[d], reg = mqOwn(MQ_REG.endings, d), e = rec.ending;
+    if(!e){ bad = 'Door #' + d + ' is marked completed but its record has no valid ending.'; return; }
+    if(!mqOwn(reg, e)){
+      var other = MQ_KNOWN.filter(function(x){ return mqOwn(MQ_REG.endings[x], e); })[0];
+      bad = 'Door #' + d + '’s completed record names the ending “' + String(e).slice(0, 40) + '”, ' + (other ? 'which belongs to Door #' + other + ', not Door #' + d : 'which no Magiortals door has') + '.'; return;
+    }
+    var dep = mqOwn(MQ_REG.endingDeps, d), v = dep[0].charAt(0) === '@' ? rec[dep[0].slice(1)] : (rec.choices || {})[dep[0]];
+    var allowed = v === undefined || v === null ? null : mqOwn(dep[1], String(v));
+    if(allowed && allowed.indexOf(e) === -1){ bad = 'Door #' + d + '’s completed record says “' + reg[e] + '”, but its own recorded choice (' + dep[0] + ' = ' + v + ') leads to a different ending.'; return; }
+    if(rec.endingTitle !== reg[e]){ W.push('Door #' + d + '’s ending title was corrected to “' + reg[e] + '” to match its recorded ending.'); rec.endingTitle = reg[e]; }
+  });
+  return bad ? bad + ' This history cannot be trusted, so it was not used and nothing in this browser was changed.' : null;
+}
 function validateKeyring(input){
+  var v = validateKeyringBase(input);
+  if(v.ok){
+    var refuse = mqCheckEndings(v.keyring, v.warnings);
+    if(refuse) return {ok:false, error:refuse};
+    mqIntegrity(v.keyring, v.warnings);
+    var obj = input; if(typeof input === 'string'){ try { obj = JSON.parse(input); } catch(e){ obj = null; } }
+    v.allProgress = mqTakeProgress(obj);
+  }
+  return v;
+}
+/* Unfinished-journey helpers shared by every door (#001 keeps its own run in K.inProgress, for compatibility). */
+function mqParseProgress(raw, door){ try { var p = JSON.parse(raw); if(isObj(p) && p.format === 'magiortals-progress' && p.door === door && mqOpaqueRun(p.run, door)) return p; } catch(e){} return null; }
+function mqCollectProgress(st, keyringId){
+  var out = {}; if(!st.ok) return out;
+  Object.keys(MQ_PROGRESS).forEach(function(d){ var raw = st.get(MQ_PROGRESS[d]); if(!raw) return; var p = mqParseProgress(raw, d); if(p && (!p.keyringId || p.keyringId === keyringId)) out[d] = mqOpaqueRun(p.run, d); });
+  return out;
+}
+function mqTakeProgress(obj){
+  var out = {}; if(!isObj(obj) || !isObj(obj.progress)) return out;
+  Object.keys(MQ_PROGRESS).forEach(function(d){ var o = mqOpaqueRun(obj.progress[d], d); if(o && typeof o.scene === 'string') out[d] = o; });
+  return out;
+}
+/* Write imported progress; set aside (with a backup) any stored run that belongs to a different Keyring. */
+function mqRestoreProgress(st, map, keyringId){
+  if(!st.ok) return false; var ok = true;
+  Object.keys(MQ_PROGRESS).forEach(function(d){
+    var k = MQ_PROGRESS[d], old = st.get(k), p = old ? mqParseProgress(old, d) : null;
+    if(map[d]){ if(old) st.set(k + ':backup', old); ok = st.set(k, JSON.stringify({format:'magiortals-progress', door:d, keyringId:keyringId, savedAt:nowISO(), run:map[d]})) && ok; }
+    else if(old && (!p || (p.keyringId && p.keyringId !== keyringId))){ st.set(k + ':backup', old); st.del(k); }
+  });
+  return ok;
+}
+function mqClearProgress(st){
+  if(!st.ok) return;
+  Object.keys(MQ_PROGRESS).map(function(d){ return MQ_PROGRESS[d]; }).concat([MQ_REPLAY001]).forEach(function(k){ var old = st.get(k); if(old){ st.set(k + ':backup', old); st.del(k); } });
+}
+/* ===== end MQ-R1 shared block ===== */
+
+function validateKeyringBase(input){
   var warnings = [], obj = input;
   if(typeof input === 'string'){
     if(input.length > MAX_IMPORT) return {ok:false, error:'That data is far too large to be a Hero’s Keyring.'};
@@ -435,9 +725,9 @@ function S(def){ SCENES[def.id] = def; }
 
 S({id:'arrival', mood:'cinder', head:'The Cinder Way', title:'Where the Ash Begins',
   text:function(s){ var e = s.entry, t = [];
-    if(!e.has001 && !e.has002 && !e.has003) t.push({cls:'recall', t:'You remember a door in a briar wall where no door should be, thorns closing behind you, and a long road with a young surveyor named Fennick Ashlow, who has walked beside you ever since.'});
+    if(!e.has001 && !e.has002 && !e.has003) t.push({cls:'recall', t:'You have been walking south for days with a young surveyor named Fennick Ashlow, along roads that do not always stay where the maps put them.'});
     if(!e.has003){
-      t.push('“An archivist on the coast told me the old roads were measured from a bridge in Embercrag,” Fennick says, for the third time today, as if repeating it makes it more sensible. “A bridge called Ashfall. So that’s where we’re going. Apparently.”');
+      t.push('“Lamp-traders on the coast say the old roads were all measured from one bridge in Embercrag,” Fennick says, for the third time today, as if repeating it makes it more sensible. “A bridge called Ashfall. So that’s where we’re going. Apparently.”');
     } else {
       t.push('South from Brinewick, the Cinder Way climbs onto the cliffs and stays there for four days, a narrow road of dark stone with the grey sea on one side and, on the other, land that gets barer and blacker with every mile.');
       var sc = e.scroll;
@@ -499,7 +789,7 @@ S({id:'toll_house', mood:'forge', theme:'dark', bridge:true, head:'The Toll-Hous
     {cls:'speech', t:'“Three times a day we strike the gong and listen to each pier answer. Long, the pier is sound. Short, there’s a crack. And a hum means something warm and living is pressed against the stone. We’ve written every answer down for three hundred years.”'},
     'She explains the lamps too. They have been dark all her life. Two weeks ago they lit themselves, every one, and the stone beneath them has been warming ever since.'
   ];
-  if(knows(s,'north-pier-breaking')) t.push('You know which pier is breaking. Isra is already sending tenders with timber.');
+  if(knows(s,'north-pier-breaking')) t.push('It is the north pier that is breaking: the bridge’s own answers say so. Isra is already sending tenders with timber.');
   if(nestKnown(s)) t.push('You know where the matriarch lies: against the central pier, under the hottest lamps.');
   if(f(s,'plumb')) t.push('Fennick’s plumb-line survey is pinned to the ledger: the north arm sags at its pier, a hand’s breadth since yesterday.');
   return t; },
@@ -574,7 +864,7 @@ S({id:'rim', mood:'gorge', theme:'dark', bridge:true, head:'The Gorge Rim', titl
 S({id:'crossing_out', mood:'bridge', theme:'dark', bridge:true, head:'The North Arm', title:'Over the Fire',
   text:function(s){ var t = [
     'The tenders have strung a rope-line along the north arm’s parapet. You clip on and step out. The stone underfoot is warm through your boots. The amber lamps along the parapet are hot enough to feel on your face as you pass.',
-    'Fennick clips on behind you, white to the lips. “I hate heights,” Fennick says conversationally. “I’d like that on the record. I’m coming anyway.”',
+    f(s,'plumb') ? 'Fennick clips on behind you, white to the lips. “Second time on a rope today,” Fennick says conversationally. “I still hate heights. I’d like that on the record.”' : 'Fennick clips on behind you, white to the lips. “I hate heights,” Fennick says conversationally. “I’d like that on the record. I’m coming anyway.”',
     'Halfway out, a crack runs right across the deck, a finger wide, and through it you can see the glow.'
   ];
   if(s.entry.ankle) t.push('Your ankle makes you slow, and you are glad of the rope.');
@@ -724,7 +1014,7 @@ S({id:'aftermath', mood:'dawn', head:'Cindermoot', title:'The Fifth Way',
       else if(s.choices['d004.jarheld'] === 'jar-cracked') t.push('The tide-jar has a crack across it now. The water inside is lower, but the scroll can still be read through it.' + (s.entry.returnScroll ? ' You will have to tell Thessaly.' : ''));
     }
     if(f(s,'scorched')) t.push('Your face still stings from the gorge.');
-    t.push({cls:'speech', t:'Isra, or a tender with her gong-hammer, finds you and Fennick looking out at the broken fifth arm. “My grandmother told it,” she says. “The builders of Ashfall came by the fifth way, out of the forests to the north-west, in grey and green, singing. When the bridge was done, they took the fifth way home. And the fifth way led to a grove that remembers everything that was ever said beneath its trees. Then the arm fell, and nobody went that way again.”'});
+    t.push({cls:'speech', t:'Isra Vell finds you and Fennick looking out at the broken fifth arm, her gong-hammer still in her hand. “My grandmother told it,” she says. “The builders of Ashfall came by the fifth way, out of the forests to the north-west, in grey and green, singing. When the bridge was done, they took the fifth way home. And the fifth way led to a grove that remembers everything that was ever said beneath its trees. Then the arm fell, and nobody went that way again.”'});
     if(s.entry.givenMemory) t.push('A grove that remembers everything. You think of the evening you gave away in the deep scriptorium. You do not let yourself hope too much.');
     t.push('Fennick has the map out again. The fifth line from the disc runs north-west, over the ash ridges, to where the grey begins to turn green, and ends at the small mark like the rings of a cut tree. “The roads were measured from here,” Fennick says. “But the people who measured them came from there.”');
     return t; },
@@ -928,12 +1218,58 @@ function handoff005(K){
   };
 }
 
-G.MagiCore004 = {SCENES:SCENES, ITEMS:ITEMS, DISCOVERIES:DISCOVERIES, CONDITIONS:CONDITIONS, ENDINGS:ENDINGS, LEDGER:LEDGER, blankKeyring:blankKeyring, newRun:newRun, choose:choose,
+G.MagiCore004 = {MQ_VERSION:MQ_VERSION, MQ_REG:MQ_REG, mqIntegrity:mqIntegrity, mqLaterDone:mqLaterDone, mqTakeProgress:mqTakeProgress, mqCollectProgress:mqCollectProgress, SCENES:SCENES, ITEMS:ITEMS, DISCOVERIES:DISCOVERIES, CONDITIONS:CONDITIONS, ENDINGS:ENDINGS, LEDGER:LEDGER, blankKeyring:blankKeyring, newRun:newRun, choose:choose,
   availableChoices:availableChoices, commitDoor:commitDoor, revert004:revert004, reconcileAll:reconcileAll, depNotes:depNotes, validateKeyring:validateKeyring,
   sanitizeRun:sanitizeRun, entryOf:entryOf, computeEnding:computeEnding, endingText:endingText, summaryLines:summaryLines, handoff005:handoff005,
   fpDoor:fpDoor, laterDoorCompleted:laterDoorCompleted, STORE_KEY:STORE_KEY, PROGRESS_KEY:PROGRESS_KEY, FORMAT:FORMAT, SCHEMA:SCHEMA};
 
 if(typeof document === 'undefined') return;
+/* ===== MQ-R1 shared UI helpers (byte-identical in Doors #001-#005) ===== */
+var mqSame = false, mqScrollY = 0, mqSlot = null, mqRunRef = null;
+function mqStatus(kind, text){ var el = document.getElementById('saveStatus'); if(!el) return; el.className = 'save-status' + (kind === 'bad' ? ' bad' : ''); el.textContent = (kind === 'bad' ? '⚠ ' : '') + text; }
+function mqClock(){ return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
+/* Same-scene (◇) actions keep the reader where they were and move focus to what changed; real scene changes focus the heading. */
+function mqFocusAfterRender(){
+  var same = mqSame; mqSame = false;
+  if(same){
+    window.scrollTo(0, mqScrollY);
+    var n = screenEl.querySelector('.notices');
+    if(n){ n.setAttribute('tabindex', '-1'); n.focus({preventScroll:true}); if(n.scrollIntoView) n.scrollIntoView({block:'nearest'}); }
+    else { var c = screenEl.querySelector('.choice'); if(c) c.focus({preventScroll:true}); }
+    return;
+  }
+  var h = screenEl.querySelector('h1:not(.scene-head)') || screenEl.querySelector('h2') || screenEl.querySelector('h1');
+  if(h){ h.setAttribute('tabindex', '-1'); h.focus({preventScroll:true}); }
+  window.scrollTo(0, 0);
+}
+function mqBeforeChoose(){ mqScrollY = window.scrollY || window.pageYOffset || 0; return run ? run.scene : null; }
+function mqAfterChoose(prev){ mqSame = !!run && run.scene === prev && !SCENES[run.scene].ending; }
+function mqTrack(readSlot){ if(mqRunRef !== run){ mqRunRef = run; mqSlot = readSlot(); } }
+function mqReplayBanner(){ return (run && run.flags && run.flags.unrecorded) ? '<p class="replay-note" role="note"><strong>Unrecorded replay.</strong> A later door is already recorded, so this journey will not change your Keyring.</p>' : ''; }
+/* Exports always start from the latest stored Keyring (another tab may have recorded a door) and carry every saved unfinished journey. */
+function mqLatestKeyring(){ var st = readStored(); return (st.state === 'ok' && st.keyring.keyringId === K.keyringId) ? st.keyring : K; }
+function mqExportCopy(){ var copy = clone(mqLatestKeyring()); var p = mqCollectProgress(store, copy.keyringId); if(Object.keys(p).length) copy.progress = p; else delete copy.progress; copy.exportedAt = nowISO(); return copy; }
+function mqProgressLines(v){ var L = []; if(v.keyring.inProgress) L.push('Includes a saved place in Door #001.'); ['002','003','004','005'].forEach(function(d){ if(v.allProgress && v.allProgress[d]) L.push('Includes a saved place in Door #' + d + '.'); }); return L; }
+/* Autosave for a per-door progress key (#002-#005). Never claims success unless the write reads back. */
+function mqAutoSaveKey(key, door){
+  if(!run || SCENES[run.scene].ending) return false;
+  if(!store.ok){ mqStatus('bad', 'Not saved: this browser is blocking storage. Use Options → Export to keep your place.'); return false; }
+  var st = readStored();
+  if(st.state === 'invalid'){ mqStatus('bad', 'Not saved automatically: the Keyring stored in this browser is damaged. Press Save to replace it (a backup is kept).'); return false; }
+  if(st.state === 'ok' && st.keyring.keyringId !== K.keyringId){ mqStatus('bad', 'Not saved automatically: a different Keyring was opened in another tab. Press Save to decide what to keep.'); return false; }
+  var cur = store.get(key);
+  if(cur !== null && cur !== mqSlot){ mqStatus('bad', 'Not saved automatically: another tab saved a journey in this door. Press Save to choose which to keep.'); return false; }
+  if(st.state === 'empty' && !store.set(STORE_KEY, JSON.stringify(K))){ mqStatus('bad', 'Not saved: this browser may be out of space or blocking storage. Use Options → Export to keep your place.'); return false; }
+  if(cur !== null){ var p = mqParseProgress(cur, door); if(!p || !p.run || p.run.runId !== run.runId) store.set(key + ':backup', cur); }
+  var raw = JSON.stringify({format:'magiortals-progress', door:door, keyringId:K.keyringId, savedAt:nowISO(), run:run});
+  if(store.set(key, raw)){ mqSlot = raw; dirty = false; mqStatus('ok', 'Saved automatically at ' + mqClock() + '.'); return true; }
+  mqStatus('bad', 'Not saved: this browser may be out of space or blocking storage. Use Options → Export to keep your place.');
+  return false;
+}
+function mqExportNote(){ var a = $('exportArea'), n = $('exportNote'); if(!a) return; if(!n){ n = document.createElement('p'); n.id = 'exportNote'; n.className = 'export-note'; a.insertBefore(n, a.firstChild); }
+  n.textContent = 'This export holds your whole Keyring and every unfinished Magiortals journey that has been saved in this browser (journeys save automatically after each choice). A place that could not be saved is not included.'; }
+/* ===== end MQ-R1 shared UI helpers ===== */
+
 
 /* =====================================================================
    UI
@@ -963,7 +1299,9 @@ function readProgress(){
     return {keyringId:(typeof p.keyringId === 'string' && ID_RE.test(p.keyringId)) ? p.keyringId : null, savedAt:cleanDate(p.savedAt), run:s};
   } catch(e){ store.set(PROGRESS_BACKUP_KEY, raw); store.del(PROGRESS_KEY); loadNotes.push('Your unfinished Door #004 journey could not be read; a backup copy was kept.'); return null; }
 }
-function writeProgress(s){ return store.set(PROGRESS_KEY, JSON.stringify({format:'magiortals-progress', door:DOOR, keyringId:K.keyringId, savedAt:nowISO(), run:s})); }
+function writeProgress(s){ var raw = JSON.stringify({format:'magiortals-progress', door:DOOR, keyringId:K.keyringId, savedAt:nowISO(), run:s}); var ok = store.set(PROGRESS_KEY, raw); if(ok && s === run) mqSlot = raw; return ok; }
+function autoSave(){ mqAutoSaveKey(PROGRESS_KEY, DOOR); }
+function mqSlotReader(){ return store.ok ? store.get(PROGRESS_KEY) : null; }
 function readOtherProgress(door){
   if(!store.ok) return null; var raw = store.get(OTHER_PROGRESS[door]); if(!raw) return null;
   try { var p = JSON.parse(raw); if(isObj(p) && p.door === door && (!p.keyringId || p.keyringId === K.keyringId)) return opaqueRun(p.run, door); } catch(e){}
@@ -1007,16 +1345,16 @@ function noticeText(n){
 }
 var EMBER_SVG = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 1c2 3 5 5 5 9a5 5 0 0 1-10 0c0-3 2-4 3-6 1 2 2 3 2 3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 function setMood(sc){ document.body.setAttribute('data-mood', sc ? sc.mood : 'title'); var dark = !!(sc && sc.theme === 'dark'); document.body.setAttribute('data-theme', dark ? 'dark' : 'light'); var m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content', dark ? '#120c0a' : '#e7e2dc'); }
-function retrigger(){ screenEl.style.animation = 'none'; void screenEl.offsetWidth; screenEl.style.animation = ''; }
-function focusHeading(){ var h = screenEl.querySelector('h1,h2'); if(h){ h.setAttribute('tabindex','-1'); h.focus({preventScroll:true}); } window.scrollTo(0,0); }
+function retrigger(){ if(mqSame) return; screenEl.style.animation = 'none'; void screenEl.offsetWidth; screenEl.style.animation = ''; }
+function focusHeading(){ mqFocusAfterRender(); }
 function carrySummary(){
   var base = revert004(clone(K)); reconcileAll(base);
   var e = entryOf(base), L = [];
   if(!e.has001 && !e.has002 && !e.has003){ L.push('No earlier Magiortals journey is recorded in this Keyring. You can still begin here; you will arrive with Fennick and nothing else.'); return L; }
   ['001','002','003'].forEach(function(id){ if(K.doors[id]) L.push('Door #' + id + ': “' + (K.doors[id].endingTitle || 'completed') + '”'); });
-  if(!e.has003) L.push('No Door #003 journey is recorded. You will arrive on an archivist’s word, with no scroll and no Tidehollows belongings.');
+  if(!e.has003) L.push('No Door #003 journey is recorded. You will arrive on lamp-traders’ talk, with no scroll and no Tidehollows belongings.');
   var sc = {lent:'the whisper-scroll, lent to you', taken:'the whisper-scroll, taken without leave', 'jar-cracked':'the whisper-scroll, its jar cracked', dry:'the whisper-scroll, dry'}[e.scrollState] || null;
-  var items = []; if(sc) items.push(sc); if(e.pin === 'held') items.push('the hinge-pin'); if(e.seed === 'held') items.push('a briarseed'); if(e.flame === 'carried') items.push('the Gorse End flame'); if(e.tideGlass) items.push('a tide-glass');
+  var items = base.inventory.map(function(x){ return x.id === 'whisper-scroll' ? (sc || 'the whisper-scroll') : (x.name || x.id); });
   L.push('Carrying: ' + (items.length ? items.join(', ') : 'nothing from earlier doors'));
   if(e.has003 && !e.carryingScroll) L.push(e.scroll === 'heard' ? 'You carry the whisper-scroll’s words, not the scroll.' : e.scroll === 'lost' ? 'Only fragments of the whisper-scroll survive.' : '');
   var ab = []; if(e.waymending) ab.push('Waymending'); if(e.rootlistening) ab.push('Rootlistening'); if(e.truthlight) ab.push('Truth-light'); if(ab.length) L.push('Abilities: ' + ab.join(', '));
@@ -1043,7 +1381,7 @@ function renderTitle(){
     '<div class="carry" role="group" aria-labelledby="carryH"><strong id="carryH">From your Keyring</strong><ul id="carryList"></ul></div>' +
     '<div class="namebox"><label for="nameIn">What should the world call you? <span class="kr-sub" style="display:inline">(optional)</span></label><input id="nameIn" maxlength="40" autocomplete="off" value="' + esc(K.visitor.name || '') + '"><small>Kept only in your Keyring, and shared with every Magiortals door.</small></div>' +
     '<div class="title-actions" id="titleActions"></div><div id="titleNotes"></div>' +
-    '<p class="fine">Use <strong>Save</strong> to keep your place. Your Keyring is shared with Doors #001 to #003 in this browser; use <strong>Options → Export</strong> to carry it anywhere. No account needed.</p></div>';
+    '<p class="fine">Your place is saved automatically in this browser after each choice (<strong>Save</strong> works too). Your Keyring is shared with the other Magiortals doors in this browser; use <strong>Options → Export</strong> to carry it anywhere. No account needed.</p></div>';
   var cl = $('carryList'); carrySummary().forEach(function(t){ var li = document.createElement('li'); li.textContent = t; cl.appendChild(li); });
   var acts = $('titleActions'), notes = $('titleNotes');
   function add(label, cls, fn){ var b = document.createElement('button'); b.type = 'button'; b.textContent = label; if(cls) b.className = cls; b.addEventListener('click', fn); acts.appendChild(b); }
@@ -1072,9 +1410,10 @@ function spanBar(s){
   return '<div class="span' + (n <= 2 ? ' weak' : '') + '" role="note" aria-label="Bridge span: ' + n + ' of 5, ' + esc(SPAN_TEXT[n]) + '"><span class="pips" aria-hidden="true">' + pips + '</span><span>Span ' + n + ' of 5: ' + esc(SPAN_TEXT[n]) + '</span></div>';
 }
 function renderScene(){
+  mqTrack(mqSlotReader);
   var sc = SCENES[run.scene]; setMood(sc); retrigger();
   if(sc.ending){ renderEnding(); return; }
-  var c = ctx(), parts = ['<div class="scene-head">' + EMBER_SVG + '<span>' + esc(sc.head) + '</span></div>', '<h2 class="scene-title">' + esc(sc.title) + '</h2>'];
+  var c = ctx(), parts = ['<h1 class="scene-head">' + EMBER_SVG + '<span>' + esc(sc.head) + '</span></h1>', '<h2 class="scene-title">' + esc(sc.title) + '</h2>'];
   if(sc.bridge && f(run,'span_on')) parts.push(spanBar(run));
   parts.push('<div class="story">');
   sc.text(run, c).forEach(function(p){
@@ -1096,27 +1435,30 @@ function renderScene(){
   });
   parts.push('</ul>');
   screenEl.innerHTML = parts.join('');
+  if(run.flags && run.flags.unrecorded) screenEl.insertAdjacentHTML('afterbegin', mqReplayBanner());
   screenEl.querySelectorAll('.choice').forEach(function(b){ b.addEventListener('click', function(){ onChoose(parseInt(b.getAttribute('data-i'), 10)); }); });
   focusHeading();
 }
 function onChoose(i){
+  var mqPrev = mqBeforeChoose();
   try { choose(run, i, ctx()); } catch(e){ toast('Something went wrong with that choice. Your story has not changed.', true); return; }
-  dirty = true;
-  if(SCENES[run.scene].ending) completeDoor();
+  dirty = true; mqAfterChoose(mqPrev);
+  if(SCENES[run.scene].ending) completeDoor(); else autoSave();
   renderScene();
 }
 function completeDoor(){
   if(run.flags.committed) return;
   run.flags.committed = true;
-  if(run.flags.unrecorded){ run.flags.savedAtEnd = 'unrecorded'; store.del(PROGRESS_KEY); dirty = false; return; }
+  if(run.flags.unrecorded){ run.flags.savedAtEnd = 'unrecorded'; if(store.ok && store.get(PROGRESS_KEY) === mqSlot) store.del(PROGRESS_KEY); mqSlot = null; dirty = false; mqStatus('ok', 'Replay finished. Your Keyring was not changed.'); return; }
   var r = updateKeyring(function(k){ commitDoor(k, run); });
-  if(r.saved) store.del(PROGRESS_KEY);
+  if(r.saved && store.get(PROGRESS_KEY) === mqSlot) store.del(PROGRESS_KEY);
+  if(r.saved){ mqSlot = null; mqStatus('ok', 'Door #' + DOOR + ' recorded in your Keyring at ' + mqClock() + '.'); } else mqStatus('bad', 'This ending could not be saved in this browser. Use Export now so it is not lost.');
   run.flags.savedAtEnd = r.saved ? 'saved' : 'unsaved';
   dirty = !r.saved;
 }
 function renderEnding(){
   var s = run, h = [];
-  h.push('<div class="scene-head">' + EMBER_SVG + '<span>Door #004 · Ashfall Crossing</span></div><span class="complete">Chapter complete</span>');
+  h.push('<h1 class="scene-head">' + EMBER_SVG + '<span>Door #004 · Ashfall Crossing</span></h1><span class="complete">Chapter complete</span>');
   h.push('<h2 class="ending-title">' + esc(ENDINGS[s.ending]) + '</h2><div class="story">');
   endingText(s).forEach(function(p){ h.push('<p>' + p + '</p>'); });
   h.push('</div><section class="panel" aria-labelledby="sumH"><h3 id="sumH">The choices that shaped you</h3><ul>');
@@ -1154,15 +1496,16 @@ function doSave(){
   if(!store.ok){ toast('This browser is not letting the page save. Use Options → Export Keyring to keep your progress.', true); return; }
   if(!run || SCENES[run.scene].ending){ var r0 = updateKeyring(function(){}); toast(r0.saved ? 'Saved. Your Keyring is stored in this browser.' : 'Saving failed. Use Export instead.', !r0.saved); return; }
   var prog = readProgress(), p = Promise.resolve(true);
-  if(prog && prog.run.runId !== run.runId){
+  var mqForeign = prog && (prog.run.runId !== run.runId || (mqSlot !== null && store.get(PROGRESS_KEY) !== mqSlot) || (mqSlot === null && prog.run.runId === run.runId && false));
+  if(mqForeign){
     var at = SCENES[prog.run.scene];
     p = confirmBox('There is another saved place in Door #004' + (at && at.title ? ' (“' + at.title + '”)' : '') + (prog.keyringId && prog.keyringId !== K.keyringId ? ', from a different Keyring' : '') + '. Replace it with where you are now?', 'Replace saved place');
   }
   p.then(function(ok){
     if(!ok){ toast('Not saved.'); return; }
-    if(prog && prog.run.runId !== run.runId) store.set(PROGRESS_BACKUP_KEY, store.get(PROGRESS_KEY) || '');
+    if(mqForeign) store.set(PROGRESS_BACKUP_KEY, store.get(PROGRESS_KEY) || '');
     var r = updateKeyring(function(){}), okp = writeProgress(run);
-    if(okp && r.saved){ dirty = false; toast('Saved. Your place in Door #004 is stored in this browser (' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + ').'); }
+    if(okp && r.saved){ dirty = false; mqStatus('ok', 'Saved at ' + mqClock() + '.'); toast('Saved. Your place in Door #004 is stored in this browser (' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + ').'); }
     else toast('Saving failed. This browser may be out of space or blocking storage. Use Export instead.', true);
   });
 }
@@ -1212,7 +1555,8 @@ function openKeyring(){
   $('krBody').innerHTML = b.join('');
   $('dlgKeyring').showModal();
 }
-function exportData(){
+function exportData(){ return JSON.stringify(mqExportCopy(), null, 2); }
+function exportDataR0(){
   var copy = clone(K); copy.progress = {};
   if(run && !SCENES[run.scene].ending) copy.progress[DOOR] = clone(run);
   else { var p = readProgress(); if(p && (!p.keyringId || p.keyringId === K.keyringId)) copy.progress[DOOR] = p.run; }
@@ -1224,7 +1568,7 @@ function exportData(){
 function doExport(){
   captureName();
   var text = exportData();
-  $('importArea').hidden = true; $('exportArea').hidden = false; $('exportText').value = text;
+  $('importArea').hidden = true; $('exportArea').hidden = false; $('exportText').value = text; mqExportNote();
   var fname = 'magiortals-keyring-' + (K.visitor.name ? K.visitor.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' : '') + new Date().toISOString().slice(0,10) + '.json';
   try { var blob = new Blob([text], {type:'application/json'}); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500); toast('Keyring exported as ' + fname + '. If no download appeared, copy the text shown instead.'); }
   catch(e){ toast('Your browser blocked the download. Copy the Keyring text shown instead.', true); }
@@ -1235,10 +1579,7 @@ function summarizeKeyring(v){
   L.push('Visitor: ' + (k.visitor.name || 'unnamed'));
   var d = Object.keys(k.doors).sort(); L.push('Doors completed: ' + (d.length ? d.map(function(x){ return '#' + x; }).join(', ') : 'none'));
   L.push('Carrying: ' + (k.inventory.length ? k.inventory.map(function(x){ return x.name || x.id; }).join(', ') : 'nothing'));
-  if(v.progress) L.push('Includes a saved place in Door #004.');
-  if(v.other['003']) L.push('Includes a saved place in Door #003.');
-  if(v.other['002']) L.push('Includes a saved place in Door #002.');
-  if(k.inProgress) L.push('Includes a saved place in Door #001.');
+  mqProgressLines(v).forEach(function(x){ L.push(x); });
   return L.join('\n');
 }
 function checkImport(text){
@@ -1251,24 +1592,22 @@ function checkImport(text){
 }
 function applyImport(){
   if(!pendingImport) return;
-  var anyOther = store.ok && (store.get(OTHER_PROGRESS['002']) || store.get(OTHER_PROGRESS['003']));
-  var hasProgress = Object.keys(K.doors).length || K.inProgress || run || readProgress() || anyOther;
+  var anyProgress = Object.keys(mqCollectProgress(store, K.keyringId)).length || (store.ok && Object.keys(MQ_PROGRESS).some(function(x){ return store.get(MQ_PROGRESS[x]); }));
+  var hasProgress = Object.keys(K.doors).length || K.inProgress || run || anyProgress;
   var p = hasProgress ? confirmBox('Replace your current Keyring with the imported one? This affects every Magiortals door in this browser. A backup copy of your current Keyring and unfinished journeys is kept.', 'Replace my Keyring') : Promise.resolve(true);
   p.then(function(ok){
     if(!ok){ toast('Import cancelled. Nothing was changed.'); return; }
-    if(store.ok && hasProgress){ store.set(BACKUP_KEY, JSON.stringify(K)); [PROGRESS_KEY, OTHER_PROGRESS['002'], OTHER_PROGRESS['003']].forEach(function(k){ var o = store.get(k); if(o) store.set(k + ':backup', o); }); }
+    if(store.ok && hasProgress){ var cur = store.get(STORE_KEY); store.set(BACKUP_KEY, cur || JSON.stringify(K)); }
     var v = pendingImport; pendingImport = null;
     K = v.keyring;
     if(reconcileAll(K)) loadNotes.push('Earlier doors’ recorded outcomes were re-applied to the imported Keyring.');
     depNotes(K).forEach(function(n){ loadNotes.push(n); });
     var saved = store.ok && store.set(STORE_KEY, JSON.stringify(K));
-    if(store.ok){
-      if(v.progress) writeProgress(v.progress); else store.del(PROGRESS_KEY);
-      ['002','003'].forEach(function(d){ if(v.other[d]) store.set(OTHER_PROGRESS[d], JSON.stringify({format:'magiortals-progress', door:d, keyringId:K.keyringId, savedAt:nowISO(), run:v.other[d]})); });
-    }
-    run = null;
+    var map = clone(v.allProgress || {}); if(v.progress) map[DOOR] = v.progress; else delete map[DOOR];
+    var savedP = mqRestoreProgress(store, map, K.keyringId);
+    run = null; mqSlot = null; mqRunRef = null;
     $('dlgMenu').close();
-    toast(saved ? 'Keyring imported and saved in this browser.' : 'Keyring imported for this visit, but this browser could not save it. Export again before leaving.', !saved);
+    toast(saved && savedP ? 'Keyring imported and saved in this browser.' : 'Keyring imported for this visit, but this browser could not save all of it. Export again before leaving.', !(saved && savedP));
     renderTitle();
   });
 }
@@ -1286,14 +1625,14 @@ $('btnImportOpen').addEventListener('click', function(){ $('exportArea').hidden 
 $('importFile').addEventListener('change', function(){ var file = this.files && this.files[0]; if(!file) return; if(file.size > MAX_IMPORT){ checkImport('x'.repeat(MAX_IMPORT + 1)); return; } var rd = new FileReader(); rd.onload = function(){ $('importText').value = String(rd.result); checkImport(String(rd.result)); }; rd.onerror = function(){ toast('That file could not be read.', true); }; rd.readAsText(file); });
 $('btnImportCheck').addEventListener('click', function(){ checkImport($('importText').value); });
 $('btnImportApply').addEventListener('click', applyImport);
-$('btnTitle').addEventListener('click', function(){ var p = (run && dirty && !SCENES[run.scene].ending) ? confirmBox('Return to the beginning? Anything since your last Save will be lost.', 'Return') : Promise.resolve(true); p.then(function(ok){ if(ok){ $('dlgMenu').close(); renderTitle(); } }); });
+$('btnTitle').addEventListener('click', function(){ var p = (run && dirty && !SCENES[run.scene].ending) ? confirmBox('Return to the beginning? Your latest choice could not be saved automatically, so it will be lost.', 'Return') : Promise.resolve(true); p.then(function(ok){ if(ok){ $('dlgMenu').close(); renderTitle(); } }); });
 $('btnFresh').addEventListener('click', function(){
   confirmBox('Start a brand-new Keyring? This forgets every door, relic and bond recorded in this browser, for all Magiortals doors. A backup copy of the old Keyring is kept, and any Keyring you exported is unaffected.', 'Start new Keyring').then(function(ok){
     if(!ok) return;
-    if(store.ok){ store.set(BACKUP_KEY, JSON.stringify(K)); [PROGRESS_KEY, OTHER_PROGRESS['002'], OTHER_PROGRESS['003']].forEach(function(k){ var o = store.get(k); if(o){ store.set(k + ':backup', o); store.del(k); } }); }
-    K = blankKeyring(); run = null;
+    if(store.ok){ var cur = store.get(STORE_KEY); store.set(BACKUP_KEY, cur || JSON.stringify(K)); mqClearProgress(store); }
+    K = blankKeyring(); run = null; mqSlot = null; mqRunRef = null;
     var saved = store.ok && store.set(STORE_KEY, JSON.stringify(K));
-    $('dlgMenu').close(); toast(saved ? 'A new, empty Keyring is ready.' : 'A new Keyring is ready for this visit (this browser cannot save it).', !saved); renderTitle();
+    $('dlgMenu').close(); mqStatus(saved ? 'ok' : 'bad', saved ? 'A new Keyring is saved in this browser.' : 'Not saved: this browser cannot store the new Keyring.'); toast(saved ? 'A new, empty Keyring is ready. Backups of the old Keyring and every unfinished journey are kept in this browser.' : 'A new Keyring is ready for this visit (this browser cannot save it).', !saved); renderTitle();
   });
 });
 window.addEventListener('beforeunload', function(e){ if(dirty && run && !SCENES[run.scene].ending){ e.preventDefault(); e.returnValue = ''; } });
