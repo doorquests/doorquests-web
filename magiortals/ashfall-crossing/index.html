@@ -195,7 +195,7 @@ h1.scene-head{font-weight:normal;line-height:1.3}
     </div>
     <h3>Start again</h3>
     <div class="row"><button type="button" id="btnTitle">Return to the beginning</button><button type="button" id="btnFresh" class="danger">Start a brand-new Keyring</button></div>
-    <p class="kr-sub">A brand-new Keyring forgets every door recorded in this browser, including Doors #001 to #003. A backup copy of the old one is kept.</p>
+    <p class="kr-sub">A brand-new Keyring forgets every door recorded in this browser and sets aside every unfinished Magiortals journey saved here. Backup copies of the old Keyring and of those journeys are kept.</p>
   </div>
 </dialog>
 <dialog id="dlgConfirm" aria-labelledby="cfTitle" aria-describedby="cfText">
@@ -324,7 +324,7 @@ function recomputeTotals(K){
 }
 /* ===== MQ-R1 shared Keyring block (byte-identical in Doors #001-#005; checked by tests/r1-sync-check.cjs) =====
    A data-consistency safeguard for a single-player, local save. It is not encryption and not anti-cheat. */
-var MQ_VERSION = 'mq-r1.1';
+var MQ_VERSION = 'mq-r1.2.1';
 var MQ_PROGRESS = {'002':'doorquests:magiortals:progress:002:v1', '003':'doorquests:magiortals:progress:003:v1', '004':'doorquests:magiortals:progress:004:v1', '005':'doorquests:magiortals:progress:005:v1'};
 var MQ_REPLAY001 = 'doorquests:magiortals:replay:001:v1';
 var MQ_KNOWN = ['001','002','003','004','005'];
@@ -774,7 +774,7 @@ S({id:'cindermoot', mood:'town', head:'Cindermoot', title:'The Town on the Rim',
       c.push({label:'Leave the tide-jar in the tenders’ cool-cellar until you come back', side:true, to:'cindermoot', fx:function(s){ setf(s,'jar','cellar'); pick(s,'d004.jar','cellar'); tend(s,'warden'); }});
       c.push({label:'Wrap the tide-jar in salt-cloth soaked from the cistern, and keep it with you', side:true, to:'cindermoot', fx:function(s){ setf(s,'jar','cloth'); pick(s,'d004.jar','cloth'); }});
     }
-    if(e.truthlight && !f(s,'ottilie_tested')) c.push({label:'Hold a living flame between you while Ottilie says the cistern would refill by spring', tag:'Truth-light', side:true, to:'cindermoot', fx:function(s){ setf(s,'ottilie_tested'); pick(s,'d004.ottilietest','tested'); hint(s,'The flame gutters. Ottilie looks at it, then at you, and her jaw sets. “Fine. Two years. Maybe three. And we’d be buying water from the salt-traders at their prices the whole time. Better thirsty than burned.”'); tend(s,'seer'); }});
+    if(e.truthlight && !f(s,'ottilie_tested')) c.push({label:'Hold Fennick’s waylantern between you while Ottilie says the cistern would refill by spring', tag:'Truth-light · dims Fennick’s waylantern a little', side:true, to:'cindermoot', fx:function(s){ setf(s,'ottilie_tested'); pick(s,'d004.ottilietest','tested'); hint(s,'Fennick holds up their waylantern, and it dims a little as the truth-light draws on it. The flame gutters. Ottilie looks at it, then at you, and her jaw sets. “Fine. Two years. Maybe three. And we’d be buying water from the salt-traders at their prices the whole time. Better thirsty than burned.”'); tend(s,'seer'); }});
     c.push({label:'Go to the Toll-House and hear what the bridge sounds like', to:'toll_house'});
     c.push({label:'Go to the edge of the gorge and look at what is under the bridge', to:'rim'});
     c.push({label:'Go straight out along the north arm to the stranded caravan', to:'crossing_out'});
@@ -1224,7 +1224,7 @@ G.MagiCore004 = {MQ_VERSION:MQ_VERSION, MQ_REG:MQ_REG, mqIntegrity:mqIntegrity, 
   fpDoor:fpDoor, laterDoorCompleted:laterDoorCompleted, STORE_KEY:STORE_KEY, PROGRESS_KEY:PROGRESS_KEY, FORMAT:FORMAT, SCHEMA:SCHEMA};
 
 if(typeof document === 'undefined') return;
-/* ===== MQ-R1 shared UI helpers (byte-identical in Doors #001-#005) ===== */
+/* ===== MQ-R1 shared UI helpers (byte-identical in Doors #001-#005; R1.2 adds the completion guard; R1.2.1 the write guard) ===== */
 var mqSame = false, mqScrollY = 0, mqSlot = null, mqRunRef = null;
 function mqStatus(kind, text){ var el = document.getElementById('saveStatus'); if(!el) return; el.className = 'save-status' + (kind === 'bad' ? ' bad' : ''); el.textContent = (kind === 'bad' ? '⚠ ' : '') + text; }
 function mqClock(){ return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
@@ -1244,10 +1244,10 @@ function mqFocusAfterRender(){
 }
 function mqBeforeChoose(){ mqScrollY = window.scrollY || window.pageYOffset || 0; return run ? run.scene : null; }
 function mqAfterChoose(prev){ mqSame = !!run && run.scene === prev && !SCENES[run.scene].ending; }
-function mqTrack(readSlot){ if(mqRunRef !== run){ mqRunRef = run; mqSlot = readSlot(); } }
+function mqTrack(readSlot){ if(mqRunRef !== run){ mqRunRef = run; mqSlot = readSlot(); mqCtx = mqResumeBase || mqHistOf(K, store.ok ? readStored().state : 'unavailable'); mqResumeBase = null; } }
 function mqReplayBanner(){ return (run && run.flags && run.flags.unrecorded) ? '<p class="replay-note" role="note"><strong>Unrecorded replay.</strong> A later door is already recorded, so this journey will not change your Keyring.</p>' : ''; }
 /* Exports always start from the latest stored Keyring (another tab may have recorded a door) and carry every saved unfinished journey. */
-function mqLatestKeyring(){ var st = readStored(); return (st.state === 'ok' && st.keyring.keyringId === K.keyringId) ? st.keyring : K; }
+function mqLatestKeyring(){ if(run && run.flags && SCENES[run.scene] && SCENES[run.scene].ending && (run.flags.savedAtEnd === 'unsaved' || run.flags.savedAtEnd === false)) return K; var st = readStored(); return (st.state === 'ok' && st.keyring.keyringId === K.keyringId) ? st.keyring : K; }
 function mqExportCopy(){ var copy = clone(mqLatestKeyring()); var p = mqCollectProgress(store, copy.keyringId); if(Object.keys(p).length) copy.progress = p; else delete copy.progress; copy.exportedAt = nowISO(); return copy; }
 function mqProgressLines(v){ var L = []; if(v.keyring.inProgress) L.push('Includes a saved place in Door #001.'); ['002','003','004','005'].forEach(function(d){ if(v.allProgress && v.allProgress[d]) L.push('Includes a saved place in Door #' + d + '.'); }); return L; }
 /* Autosave for a per-door progress key (#002-#005). Never claims success unless the write reads back. */
@@ -1259,15 +1259,110 @@ function mqAutoSaveKey(key, door){
   if(st.state === 'ok' && st.keyring.keyringId !== K.keyringId){ mqStatus('bad', 'Not saved automatically: a different Keyring was opened in another tab. Press Save to decide what to keep.'); return false; }
   var cur = store.get(key);
   if(cur !== null && cur !== mqSlot){ mqStatus('bad', 'Not saved automatically: another tab saved a journey in this door. Press Save to choose which to keep.'); return false; }
-  if(st.state === 'empty' && !store.set(STORE_KEY, JSON.stringify(K))){ mqStatus('bad', 'Not saved: this browser may be out of space or blocking storage. Use Options → Export to keep your place.'); return false; }
+  if(st.state === 'empty' && mqDurable){ mqStatus('bad', 'Not saved automatically: ' + mqStaleWhy('cleared') + ' Nothing was written. You can keep playing, but this journey will not be recorded. Reload this page to start from what is stored now, or use Options → Export to keep this page’s copy of your Keyring.'); return false; }
+  if(st.state === 'empty'){ if(!store.set(STORE_KEY, JSON.stringify(K))){ mqStatus('bad', 'Not saved: this browser may be out of space or blocking storage. Use Options → Export to keep your place.'); return false; } mqDurable = true; }
   if(cur !== null){ var p = mqParseProgress(cur, door); if(!p || !p.run || p.run.runId !== run.runId) store.set(key + ':backup', cur); }
-  var raw = JSON.stringify({format:'magiortals-progress', door:door, keyringId:K.keyringId, savedAt:nowISO(), run:run});
-  if(store.set(key, raw)){ mqSlot = raw; dirty = false; mqStatus('ok', 'Saved automatically at ' + mqClock() + '.'); return true; }
+  var raw = JSON.stringify({format:'magiortals-progress', door:door, keyringId:K.keyringId, savedAt:nowISO(), run:run, mqBase:mqBaseOut()});
+  if(store.set(key, raw)){ mqSlot = raw; dirty = false; var g = (run.flags && run.flags.unrecorded) ? null : mqCheckCommit();
+    if(g && !g.ok) mqStatus('bad', 'Place saved at ' + mqClock() + ', but ' + mqWhy(g)); else mqStatus('ok', 'Saved automatically at ' + mqClock() + '.'); return true; }
   mqStatus('bad', 'Not saved: this browser may be out of space or blocking storage. Use Options → Export to keep your place.');
   return false;
 }
 function mqExportNote(){ var a = $('exportArea'), n = $('exportNote'); if(!a) return; if(!n){ n = document.createElement('p'); n.id = 'exportNote'; n.className = 'export-note'; a.insertBefore(n, a.firstChild); }
   n.textContent = 'This export holds your whole Keyring and every unfinished Magiortals journey that has been saved in this browser (journeys save automatically after each choice). A place that could not be saved is not included.'; }
+/* ----- R1.2 completion guard -----
+   A journey remembers the history it was built from (this tab's Keyring when the journey began, or the history recorded with its
+   saved place): the Keyring's identity and a fingerprint of every door record. Just before an ending is written, the stored Keyring is read again and compared. If any door
+   record or the Keyring itself has changed since the journey began, the ending is not written: the stored Keyring, its backup
+   and every other saved place keep their exact bytes. Endings are written inside a browser-local lock where Web Locks exist. */
+var mqCtx = null, mqResumeBase = null, mqBusy = false;
+function mqHash(s){ var h = 0x811c9dc5; for(var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return ('0000000' + h.toString(16)).slice(-8); }
+function mqCanon(v){ if(Array.isArray(v)) return '[' + v.map(mqCanon).join(',') + ']'; if(v && typeof v === 'object') return '{' + Object.keys(v).sort().map(function(k){ return JSON.stringify(k) + ':' + mqCanon(v[k]); }).join(',') + '}'; return JSON.stringify(v === undefined ? null : v); }
+function mqHistOf(k, state){ var d = {}; Object.keys(k.doors || {}).forEach(function(id){ d[id] = mqHash(mqCanon(k.doors[id])); }); return {state:state, id:k.keyringId, doors:d}; }
+function mqHistNow(){ if(!store.ok) return {state:'unavailable'}; var st = readStored(); if(st.state === 'ok'){ var h = mqHistOf(st.keyring, 'ok'); h.keyring = st.keyring; return h; } return mqHistOf(K, st.state); }
+function mqBaseOut(){ return (mqCtx && mqCtx.id) ? {id:mqCtx.id, doors:mqCtx.doors} : undefined; }
+function mqBaseIn(b){ if(!b || typeof b !== 'object' || Array.isArray(b) || typeof b.id !== 'string' || !b.doors || typeof b.doors !== 'object' || Array.isArray(b.doors)) return null; var d = {}, bad = false;
+  Object.keys(b.doors).forEach(function(id){ if(/^\d{3}$/.test(id) && typeof b.doors[id] === 'string' && /^[0-9a-f]{8}$/.test(b.doors[id])) d[id] = b.doors[id]; else bad = true; }); return bad ? null : {state:'ok', id:b.id, doors:d}; }
+/* {ok:true} or {ok:false, kind:'later'|'same'|'earlier'|'replaced'|'damaged', door, keyring} */
+function mqCheckCommit(){
+  var now = mqHistNow(), c = mqCtx || now;
+  if(now.state === 'unavailable') return {ok:true};
+  if(now.state === 'invalid') return {ok:false, kind:'damaged'};
+  var K2 = now.keyring || null;
+  if(c.state === 'unavailable' || c.id !== now.id || (now.state === 'empty' && (c.state !== 'empty' || mqDurable))) return {ok:false, kind:'replaced', keyring:K2};
+  var ids = {}, later = null, same = false, earlier = false, me = parseInt(DOOR, 10);
+  Object.keys(c.doors).concat(Object.keys(now.doors)).forEach(function(id){ ids[id] = 1; });
+  Object.keys(ids).sort().forEach(function(id){ if(c.doors[id] === now.doors[id]) return; var n = parseInt(id, 10); if(n > me){ if(!later) later = id; } else if(n === me) same = true; else earlier = true; });
+  if(later) return {ok:false, kind:'later', door:later, keyring:K2};
+  if(same) return {ok:false, kind:'same', door:DOOR, keyring:K2};
+  if(earlier) return {ok:false, kind:'earlier', keyring:K2};
+  return {ok:true};
+}
+function mqWhy(g){ return {later:'a later door was recorded in another tab after this journey began, so finishing it will not change your Keyring.',
+  same:'this door was recorded in another tab after this journey began, so finishing it will not change your Keyring.',
+  earlier:'an earlier door’s record changed in another tab after this journey began, so finishing it will not change your Keyring.',
+  replaced:'the Keyring in this browser was replaced or cleared after this journey began, so finishing it will not change it.',
+  damaged:'the Keyring stored in this browser cannot be read.'}[g.kind] || ''; }
+/* Only a saved place that this very journey wrote (same text as this tab last saw, same journey id) may be removed. */
+function mqOwnsSlot(key){ if(!store.ok || !run) return false; var cur = store.get(key); if(cur === null || cur !== mqSlot) return false; try { var p = JSON.parse(cur); return !!(p && p.run && p.run.runId === run.runId); } catch(e){ return false; } }
+/* An ending that is not written. The stored Keyring and backup are never touched; only this journey's own saved place is removed. */
+function mqEndBlocked(g, slotKey){
+  if(g.keyring) K = g.keyring;
+  if(slotKey && mqOwnsSlot(slotKey)) store.del(slotKey);
+  mqSlot = null; run.flags.mqBlock = g.kind;
+  if(g.kind === 'replay' || g.kind === 'later'){
+    run.flags.unrecorded = true; run.flags.savedAtEnd = 'unrecorded'; dirty = false;
+    if(g.kind === 'later') mqStatus('bad', 'Replay finished. A later door was recorded in another tab while you played, so your Keyring was not changed.');
+    else mqStatus('ok', 'Replay finished. Your Keyring was not changed.');
+    return;
+  }
+  run.flags.savedAtEnd = 'blocked'; dirty = g.kind === 'damaged';
+  mqStatus('bad', g.kind === 'damaged' ? 'Not recorded: the Keyring stored in this browser cannot be read. Nothing was changed. Press Save to replace it with one that records this ending (a copy is kept).' : 'Not recorded: ' + mqWhy(g).replace(/, so finishing it will not change (your Keyring|it)\.$/, '.') + ' Your Keyring was not changed.');
+}
+function mqEndNote(){
+  var b = run && run.flags ? run.flags.mqBlock : null, d = K.doors && K.doors[DOOR], t = d ? ' (“' + esc(d.endingTitle || d.ending || 'an ending') + '”)' : '';
+  if(b === 'same') return '<p class="replay-note" role="note"><strong>Not recorded.</strong> Door #' + DOOR + t + ' was recorded in another tab after this journey began, so this ending was not written. Your Keyring keeps that record, exactly as it was. To replace it, return to the beginning and play this door again.</p>';
+  if(b === 'earlier') return '<p class="replay-note" role="note"><strong>Not recorded.</strong> An earlier door’s record changed in another tab after this journey began, so this ending could not be added to your Keyring safely. Your Keyring was not changed. You can play this door again from the beginning with your current Keyring.</p>';
+  if(b === 'replaced') return '<p class="replay-note" role="note"><strong>Not recorded.</strong> The Keyring in this browser was replaced or cleared (a new Keyring or an import) after this journey began. This ending belonged to the earlier Keyring, so nothing was written.</p>';
+  if(b === 'damaged') return '<p class="replay-note" role="note"><strong>Not recorded yet.</strong> The Keyring stored in this browser cannot be read (it may be damaged), so this ending was not written and the stored data was left exactly as it is. Press <strong>Save</strong> to replace it with a new Keyring that records this ending (a copy of the unreadable data is kept), or import an exported Keyring from Options.</p>';
+  return '';
+}
+/* Runs fn while holding a lock shared by every Magiortals tab of this site (Web Locks), or at once where Web Locks are missing. */
+function mqLocked(fn){
+  var done = false, L = null, t = null; function go(){ if(done) return; done = true; if(t) clearTimeout(t); fn(); }
+  try { L = (typeof navigator !== 'undefined' && navigator.locks && typeof navigator.locks.request === 'function') ? navigator.locks : null; } catch(e){ L = null; }
+  if(!L){ go(); return; }
+  t = setTimeout(go, 3000);
+  try { var pr = L.request('doorquests:magiortals:keyring', {mode:'exclusive'}, function(){ go(); }); if(pr && pr.catch) pr.catch(function(){ go(); }); } catch(e){ go(); }
+}
+/* Ending commit: lock, write (or refuse), then show the ending. Choices are disabled meanwhile so a double click cannot commit twice. */
+function mqFinish(commit, after){
+  mqBusy = true; screenEl.querySelectorAll('button.choice').forEach(function(x){ x.disabled = true; });
+  mqLocked(function(){ try { commit(); } finally { mqBusy = false; after(); } });
+}
+function mqStoreState(){ if(!store.ok) return 'blocked'; return readStored().state === 'invalid' ? 'damaged' : 'ok'; }
+/* Title copy that only promises saving when saving can happen. */
+function mqFine(orig){
+  var s = mqStoreState(); if(s === 'ok') return orig;
+  if(s === 'blocked'){ mqStatus('bad', 'Not saving: this browser is blocking storage.'); return '<p class="fine" role="note"><strong>This browser is blocking storage, so nothing can be saved here</strong>: not your place, and not your Keyring. You can still play; use <strong>Options → Export</strong> before you leave to keep your Keyring.</p>'; }
+  mqStatus('bad', 'The Keyring stored in this browser could not be read. Nothing has been changed.');
+  return '<p class="fine" role="note"><strong>The Keyring stored in this browser could not be read</strong> (it may be damaged, or made by a newer Magiortals door). It has been left exactly as it is, and nothing will be saved automatically. To go on, import an exported Keyring from <strong>Options</strong>, or press <strong>Save</strong> to replace the stored one (a copy of it is kept).</p>';
+}
+/* ----- R1.2.1 write guard -----
+   mqDurable: this page has read or written a stored Keyring (set by readStored when anything is stored, and by every successful
+   Keyring write). Once true, an empty store means the record was removed; nothing may silently recreate it from this page's copy.
+   A page whose stored Keyring now has a different identity, or has gone, may not Begin, Continue, Save or rename: it is told to
+   reload, or to use the explicit Import / New Keyring operations. Confirmed replacements re-check exactly what was confirmed. */
+var mqDurable = false, mqBadSlotNoted = false;
+function mqKeyringConflict(){ if(!store.ok) return null; var st = readStored(); if(st.state === 'ok' && st.keyring.keyringId !== K.keyringId) return 'other'; if(st.state === 'empty' && mqDurable) return 'cleared'; return null; }
+function mqStaleWhy(kind){ return kind === 'other' ? 'another tab opened or started a different Hero’s Keyring in this browser after this page loaded.' : 'the Keyring this page loaded is no longer stored in this browser (another tab, or the browser, removed it).'; }
+function mqStaleNotice(kind, what){ var w = mqStaleWhy(kind); var msg = w.charAt(0).toUpperCase() + w.slice(1) + ' ' + what + ' Reload this page to continue with what is stored now, or use Options → Import or New Keyring.'; mqStatus('bad', msg); toast(msg, true); return true; }
+function mqGateStale(what){ var c = mqKeyringConflict(); return c ? mqStaleNotice(c, what) : false; }
+/* Everything a confirmed replacement may touch, as raw text, so it can be compared after the visitor confirms. */
+function mqSnapshot(){ if(!store.ok) return ''; var o = {k:store.get(STORE_KEY), r:store.get('doorquests:magiortals:replay:001:v1')}; Object.keys(MQ_PROGRESS).forEach(function(d){ o[d] = store.get(MQ_PROGRESS[d]); }); return JSON.stringify(o); }
+/* Like mqLocked, but a destructive operation is refused (not run unlocked) if the lock is not granted in time. */
+function mqLockedOrRefuse(fn){ var timedOut = false, ran = false; var t = setTimeout(function(){ if(!ran){ timedOut = true; toast('Another Magiortals tab is busy saving, so nothing was changed. Please try again.', true); } }, 2900);
+  mqLocked(function(){ ran = true; clearTimeout(t); if(!timedOut) fn(); }); }
 /* ===== end MQ-R1 shared UI helpers ===== */
 
 
@@ -1287,7 +1382,7 @@ function toast(msg, bad){ var t = $('toast'); t.textContent = msg; t.className =
 function ctx(){ return {name: K.visitor.name ? esc(K.visitor.name) : null}; }
 function readStored(){
   if(!store.ok) return {state:'unavailable'};
-  var raw = store.get(STORE_KEY); if(raw === null) return {state:'empty'};
+  var raw = store.get(STORE_KEY); if(raw === null) return {state:'empty'}; mqDurable = true;
   var v = validateKeyring(raw); if(!v.ok) return {state:'invalid', raw:raw, error:v.error};
   return {state:'ok', keyring:v.keyring, warnings:v.warnings};
 }
@@ -1296,10 +1391,10 @@ function readProgress(){
   var raw = store.get(PROGRESS_KEY); if(raw === null) return null;
   try { var p = JSON.parse(raw); if(!isObj(p) || p.format !== 'magiortals-progress' || p.door !== DOOR) throw 0;
     var w = []; var s = sanitizeRun(p.run, w); if(!s) throw 0;
-    return {keyringId:(typeof p.keyringId === 'string' && ID_RE.test(p.keyringId)) ? p.keyringId : null, savedAt:cleanDate(p.savedAt), run:s};
-  } catch(e){ store.set(PROGRESS_BACKUP_KEY, raw); store.del(PROGRESS_KEY); loadNotes.push('Your unfinished Door #004 journey could not be read; a backup copy was kept.'); return null; }
+    return {keyringId:(typeof p.keyringId === 'string' && ID_RE.test(p.keyringId)) ? p.keyringId : null, savedAt:cleanDate(p.savedAt), run:s, base:mqBaseIn(p.mqBase)};
+  } catch(e){ if(!mqBadSlotNoted){ mqBadSlotNoted = true; loadNotes.push('An unfinished Door #' + DOOR + ' journey saved in this browser could not be read (it may come from another version of this page). It has been left exactly as it is; if you save a new place here, a backup copy of it is kept first.'); } return null; }
 }
-function writeProgress(s){ var raw = JSON.stringify({format:'magiortals-progress', door:DOOR, keyringId:K.keyringId, savedAt:nowISO(), run:s}); var ok = store.set(PROGRESS_KEY, raw); if(ok && s === run) mqSlot = raw; return ok; }
+function writeProgress(s){ var raw = JSON.stringify({format:'magiortals-progress', door:DOOR, keyringId:K.keyringId, savedAt:nowISO(), run:s, mqBase:mqBaseOut()}); var ok = store.set(PROGRESS_KEY, raw); if(ok && s === run) mqSlot = raw; return ok; }
 function autoSave(){ mqAutoSaveKey(PROGRESS_KEY, DOOR); }
 function mqSlotReader(){ return store.ok ? store.get(PROGRESS_KEY) : null; }
 function readOtherProgress(door){
@@ -1307,14 +1402,21 @@ function readOtherProgress(door){
   try { var p = JSON.parse(raw); if(isObj(p) && p.door === door && (!p.keyringId || p.keyringId === K.keyringId)) return opaqueRun(p.run, door); } catch(e){}
   return null;
 }
-function updateKeyring(mutator){
+/* R1.2.1: the single Keyring write path. It writes onto the latest stored record of this same Keyring; it initialises only a
+   never-stored session; it replaces unreadable bytes only when the visitor confirmed exactly those bytes. Anything else is refused
+   with nothing written: a different stored Keyring, a record that has gone, unreadable bytes not confirmed. */
+function updateKeyring(mutator, opts){
+  opts = opts || {};
   if(!store.ok){ mutator(K); return {saved:false}; }
   var st = readStored(), base;
   if(st.state === 'ok' && st.keyring.keyringId === K.keyringId) base = st.keyring;
-  else { if(st.state === 'ok') store.set(BACKUP_KEY, JSON.stringify(st.keyring)); if(st.state === 'invalid') store.set(BACKUP_KEY, st.raw); base = K; }
+  else if(st.state === 'empty' && !mqDurable) base = K;
+  else if(st.state === 'invalid' && typeof opts.replaceRaw === 'string' && st.raw === opts.replaceRaw){ store.set(BACKUP_KEY, st.raw); base = K; }
+  else return {saved:false, refused: st.state === 'ok' ? 'other' : (st.state === 'empty' ? 'cleared' : 'damaged')};
   mutator(base);
   base.updatedAt = nowISO();
   var ok = store.set(STORE_KEY, JSON.stringify(base));
+  if(ok) mqDurable = true;
   K = base;
   return {saved:ok};
 }
@@ -1381,26 +1483,35 @@ function renderTitle(){
     '<div class="carry" role="group" aria-labelledby="carryH"><strong id="carryH">From your Keyring</strong><ul id="carryList"></ul></div>' +
     '<div class="namebox"><label for="nameIn">What should the world call you? <span class="kr-sub" style="display:inline">(optional)</span></label><input id="nameIn" maxlength="40" autocomplete="off" value="' + esc(K.visitor.name || '') + '"><small>Kept only in your Keyring, and shared with every Magiortals door.</small></div>' +
     '<div class="title-actions" id="titleActions"></div><div id="titleNotes"></div>' +
-    '<p class="fine">Your place is saved automatically in this browser after each choice (<strong>Save</strong> works too). Your Keyring is shared with the other Magiortals doors in this browser; use <strong>Options → Export</strong> to carry it anywhere. No account needed.</p></div>';
+    mqFine('<p class="fine">Your place is saved automatically in this browser after each choice (<strong>Save</strong> works too). Your Keyring is shared with the other Magiortals doors in this browser; use <strong>Options → Export</strong> to carry it anywhere. No account needed.</p>') + '</div>';
   var cl = $('carryList'); carrySummary().forEach(function(t){ var li = document.createElement('li'); li.textContent = t; cl.appendChild(li); });
   var acts = $('titleActions'), notes = $('titleNotes');
   function add(label, cls, fn){ var b = document.createElement('button'); b.type = 'button'; b.textContent = label; if(cls) b.className = cls; b.addEventListener('click', fn); acts.appendChild(b); }
   function note(text){ var p = document.createElement('p'); p.className = 'fine'; p.textContent = text; notes.appendChild(p); }
-  if(mine){ add('Continue your journey', 'primary', function(){ captureName(); run = mine.run; dirty = false; renderScene(); }); add('Begin Door #004 again', '', function(){ beginNew(true); }); }
+  if(mine){ add('Continue your journey', 'primary', function(){ if(mqGateStale('Nothing was resumed, and nothing in this browser was changed.')) return; captureName(); run = mine.run; mqResumeBase = mine.base || null; if(K.doors[DOOR] && laterDoorCompleted(K)) run.flags.unrecorded = true; dirty = false; renderScene(); }); add('Begin Door #004 again', '', function(){ beginNew(true); }); }
   else add(done ? 'Walk the Cinder Way again' : 'Take the Cinder Way south', 'primary', function(){ beginNew(false); });
   if(orphan){
     note('There is an unfinished Door #004 journey in this browser that belongs to a different Keyring. It cannot be continued with this one.');
-    add('Set the other unfinished journey aside', '', function(){ confirmBox('Set aside the unfinished Door #004 journey from the other Keyring? A backup copy is kept in this browser.', 'Set aside').then(function(ok){ if(!ok) return; store.set(PROGRESS_BACKUP_KEY, store.get(PROGRESS_KEY) || ''); store.del(PROGRESS_KEY); toast('The other journey was set aside. A backup copy was kept.'); renderTitle(); }); });
+    add('Set the other unfinished journey aside', '', function(){ var slot0 = store.get(PROGRESS_KEY); confirmBox('Set aside the unfinished Door #004 journey from the other Keyring? A backup copy is kept in this browser.', 'Set aside').then(function(ok){ if(!ok) return; if(store.get(PROGRESS_KEY) !== slot0){ toast('That saved journey changed in another tab, so nothing was set aside.', true); renderTitle(); return; } if(slot0 !== null){ store.set(PROGRESS_BACKUP_KEY, slot0); store.del(PROGRESS_KEY); } toast('The other journey was set aside. A backup copy was kept.'); renderTitle(); }); });
   }
   if(done) note('You have completed this door: “' + (done.endingTitle || 'an ending') + '.”' + (laterDoorCompleted(K) ? ' Because a later door is recorded, playing it again will not change your Keyring.' : ' Playing it again will replace that record when you finish, without disturbing Doors #001 to #003.'));
   loadNotes.forEach(note);
   $('nameIn').addEventListener('change', captureName);
   focusHeading();
 }
-function captureName(){ var el = $('nameIn'); if(!el) return; var n = cleanName(el.value); if(n !== K.visitor.name) updateKeyring(function(k){ k.visitor.name = n; }); }
+function captureName(){ var el = $('nameIn'); if(!el) return; var n = cleanName(el.value); if(n === K.visitor.name) return;
+  /* R1.2.1 (R1.2-IA-01): a name is metadata. It is written onto the latest record of this same Keyring only, inside the shared lock. */
+  var c = mqKeyringConflict(); if(c){ mqStaleNotice(c, 'Your name change was not saved, and nothing in this browser was changed.'); return; }
+  var ss = mqStoreState(); K.visitor.name = n;
+  if(ss !== 'ok'){ mqStatus('bad', 'Name kept for this visit only: ' + (ss === 'blocked' ? 'this browser is blocking storage.' : 'the Keyring stored in this browser cannot be read, so it was not changed.')); return; }
+  mqLocked(function(){ var r = updateKeyring(function(k){ k.visitor.name = n; });
+    if(r.refused) mqStaleNotice(r.refused === 'damaged' ? 'cleared' : r.refused, 'Your name change was not saved, and nothing in this browser was changed.');
+    else if(!r.saved) mqStatus('bad', 'Name kept for this visit only: this browser could not save it.'); });
+}
 function beginNew(hasSaved){
+  if(mqGateStale('Nothing was started, and nothing in this browser was changed.')) return;
   captureName();
-  var go = function(){ run = newRun(K); if(K.doors[DOOR] && laterDoorCompleted(K)) run.flags.unrecorded = true; dirty = true; renderScene(); };
+  var go = function(){ if(mqGateStale('Nothing was started, and nothing in this browser was changed.')) return; run = newRun(K); if(K.doors[DOOR] && laterDoorCompleted(K)) run.flags.unrecorded = true; dirty = true; renderScene(); };
   if(hasSaved) confirmBox('Begin Door #004 again? Your saved place stays saved until you choose Save again.', 'Begin again').then(function(ok){ if(ok) go(); });
   else go();
 }
@@ -1440,18 +1551,23 @@ function renderScene(){
   focusHeading();
 }
 function onChoose(i){
+  if(mqBusy) return;
   var mqPrev = mqBeforeChoose();
   try { choose(run, i, ctx()); } catch(e){ toast('Something went wrong with that choice. Your story has not changed.', true); return; }
   dirty = true; mqAfterChoose(mqPrev);
-  if(SCENES[run.scene].ending) completeDoor(); else autoSave();
+  if(SCENES[run.scene].ending){ mqFinish(completeDoor, renderScene); return; }
+  autoSave();
   renderScene();
 }
 function completeDoor(){
   if(run.flags.committed) return;
   run.flags.committed = true;
-  if(run.flags.unrecorded){ run.flags.savedAtEnd = 'unrecorded'; if(store.ok && store.get(PROGRESS_KEY) === mqSlot) store.del(PROGRESS_KEY); mqSlot = null; dirty = false; mqStatus('ok', 'Replay finished. Your Keyring was not changed.'); return; }
+  /* R1.2 (NEW-01): re-read the stored Keyring and write only into the history this journey began from. */
+  var g = run.flags.unrecorded ? {ok:false, kind:'replay'} : mqCheckCommit();
+  if(!g.ok){ if(g.kind === 'replay'){ var lk = mqHistNow(); if(lk.keyring && lk.id === K.keyringId) g.keyring = lk.keyring; } mqEndBlocked(g, PROGRESS_KEY); return; }
   var r = updateKeyring(function(k){ commitDoor(k, run); });
-  if(r.saved && store.get(PROGRESS_KEY) === mqSlot) store.del(PROGRESS_KEY);
+  if(r.refused){ mqEndBlocked({ok:false, kind:r.refused === 'damaged' ? 'damaged' : 'replaced'}, PROGRESS_KEY); return; }
+  if(r.saved && mqOwnsSlot(PROGRESS_KEY)) store.del(PROGRESS_KEY);
   if(r.saved){ mqSlot = null; mqStatus('ok', 'Door #' + DOOR + ' recorded in your Keyring at ' + mqClock() + '.'); } else mqStatus('bad', 'This ending could not be saved in this browser. Use Export now so it is not lost.');
   run.flags.savedAtEnd = r.saved ? 'saved' : 'unsaved';
   dirty = !r.saved;
@@ -1470,7 +1586,7 @@ function renderEnding(){
   h.push('<section class="panel" aria-labelledby="krH"><h3 id="krH">Your Hero’s Keyring</h3><ul>');
   h.push('<li><strong>Ashfall:</strong> ' + esc(bridge) + '</li><li><strong>The Kilnbacks:</strong> ' + esc(beasts) + '</li>');
   var d4 = K.doors[DOOR];
-  if(s.flags.savedAtEnd !== 'unrecorded' && d4){
+  if((s.flags.savedAtEnd === 'saved' || s.flags.savedAtEnd === 'unsaved') && d4){
     if(d4.choices['r004.obl.seek-the-bridge-at-ashfall']) h.push('<li>Promise kept: you found the bridge at Ashfall.</li>');
     if(d4.choices['r004.state.whisper-scroll']) h.push('<li>The whisper-scroll’s jar: ' + esc(d4.choices['r004.stateprev.whisper-scroll']) + ' → ' + esc(d4.choices['r004.state.whisper-scroll']) + '.</li>');
   }
@@ -1481,6 +1597,7 @@ function renderEnding(){
   h.push('</ul>');
   if(s.flags.savedAtEnd === 'saved') h.push('<p>Your Keyring has been saved in this browser with every door so far recorded. Export it to keep a copy you can carry anywhere.</p>');
   else if(s.flags.savedAtEnd === 'unrecorded') h.push('<p>This was a replay after a later door, so your Keyring was not changed.</p>');
+  else if(s.flags.savedAtEnd === 'blocked') h.push(mqEndNote());
   else h.push('<p><strong>Your Keyring could not be saved in this browser.</strong> Export it now so this journey is not lost.</p>');
   h.push('<div class="row"><button type="button" id="endExport">Export Keyring</button><button type="button" id="endView">View full Keyring</button></div></section>');
   h.push('<section class="panel next" aria-labelledby="nextH"><h3 id="nextH">The next door</h3><p><strong>Door #005 · The Grove That Remembers.</strong> North-west along the fifth way, where the ash gives way to green, the people who measured the roads came from somewhere. Something there may remember why.</p></section>');
@@ -1491,22 +1608,69 @@ function renderEnding(){
   $('endAgain').addEventListener('click', renderTitle);
   focusHeading();
 }
+/* R1.2: Save rewrites the stored Keyring only when it has to (nothing stored, unreadable, or a different Keyring after confirmation). */
+function mqTouchKeyring(rawD){ var st = store.ok ? readStored() : null; if(st && st.state === 'ok' && st.keyring.keyringId === K.keyringId){ K = st.keyring; return {saved:true}; } return updateKeyring(function(){}, {replaceRaw:rawD}); }
+function mqSaveDamagedEnding(){
+  var st0 = readStored(); if(st0.state !== 'invalid'){ toast('The Keyring in this browser is no longer the unreadable one, so this ending was not recorded. Return to the beginning to play from what is stored now.', true); return; }
+  var raw0 = st0.raw;
+  confirmBox('Replace the unreadable Keyring stored in this browser with a new one that records this ending? A copy of the unreadable data is kept.', 'Replace and record').then(function(ok){
+    if(!ok){ toast('Not saved.'); return; }
+    mqLockedOrRefuse(function(){
+      var st = readStored(); if(st.state !== 'invalid' || st.raw !== raw0){ toast('The Keyring stored in this browser changed while you were deciding, so this ending was not recorded and nothing was replaced. Press Save again to see what to do.', true); return; }
+      var r = updateKeyring(function(k){ commitDoor(k, run); }, {replaceRaw:raw0});
+      if(r.saved){ run.flags.mqBlock = null; run.flags.savedAtEnd = 'saved'; dirty = false; mqStatus('ok', 'Door #' + DOOR + ' recorded in a new Keyring at ' + mqClock() + '. A copy of the unreadable data was kept.'); renderScene(); toast('Saved. A copy of the unreadable data was kept.'); }
+      else toast('Saving failed. This browser may be out of space or blocking storage. Use Export instead.', true);
+    });
+  });
+}
+function mqRetryEnding(){
+  mqLocked(function(){
+    var g = mqCheckCommit();
+    if(!g.ok){ mqEndBlocked(g, PROGRESS_KEY); renderScene(); toast('Not recorded: ' + mqWhy(g), true); return; }
+    var r = updateKeyring(function(k){ commitDoor(k, run); });
+    if(r.refused){ mqEndBlocked({ok:false, kind:r.refused === 'damaged' ? 'damaged' : 'replaced'}, PROGRESS_KEY); renderScene(); toast('Not recorded: the Keyring in this browser changed. Nothing was written.', true); return; }
+    if(r.saved){ if(mqOwnsSlot(PROGRESS_KEY)) store.del(PROGRESS_KEY); mqSlot = null; run.flags.savedAtEnd = 'saved'; dirty = false; mqStatus('ok', 'Door #' + DOOR + ' recorded in your Keyring at ' + mqClock() + '.'); renderScene(); toast('Saved. Door #' + DOOR + ' is recorded in your Keyring.'); }
+    else { mqStatus('bad', 'This ending still could not be saved in this browser. Use Export now so it is not lost.'); toast('Saving failed. This browser may be out of space or blocking storage. Use Export instead.', true); }
+  });
+}
 function doSave(){
+  if(!store.ok){ captureName(); toast('This browser is not letting the page save. Use Options → Export Keyring to keep your progress.', true); return; }
+  if(mqGateStale('Nothing was saved, and nothing in this browser was changed.')) return;
   captureName();
-  if(!store.ok){ toast('This browser is not letting the page save. Use Options → Export Keyring to keep your progress.', true); return; }
-  if(!run || SCENES[run.scene].ending){ var r0 = updateKeyring(function(){}); toast(r0.saved ? 'Saved. Your Keyring is stored in this browser.' : 'Saving failed. Use Export instead.', !r0.saved); return; }
-  var prog = readProgress(), p = Promise.resolve(true);
-  var mqForeign = prog && (prog.run.runId !== run.runId || (mqSlot !== null && store.get(PROGRESS_KEY) !== mqSlot) || (mqSlot === null && prog.run.runId === run.runId && false));
+  if(run && SCENES[run.scene].ending && run.flags.mqBlock === 'damaged'){ mqSaveDamagedEnding(); return; }
+  if(run && SCENES[run.scene].ending && run.flags.savedAtEnd === 'unsaved'){ mqRetryEnding(); return; }
+  /* R1.2.1: Save never installs this page's Keyring over a different or removed one (refused above); unreadable bytes are replaced
+     only after a confirmation naming them, and only if they are still exactly those bytes when the write happens. */
+  var st0 = readStored(), rawD = st0.state === 'invalid' ? st0.raw : undefined;
+  var p = rawD !== undefined ? confirmBox('The Keyring stored in this browser cannot be read. Saving will replace it with the Keyring this page is using (a copy of the unreadable data is kept). Continue?', 'Replace and save') : Promise.resolve(true);
+  if(!run || SCENES[run.scene].ending){
+    p.then(function(ok){ if(!ok){ toast('Not saved.'); return; }
+      mqLocked(function(){
+        if(mqGateStale('Nothing was saved.')) return;
+        var r0 = mqTouchKeyring(rawD);
+        if(r0.refused) toast(r0.refused === 'damaged' ? 'The stored Keyring changed while you were deciding, so nothing was saved. Press Save again.' : 'Not saved: ' + mqStaleWhy(r0.refused), true);
+        else toast(r0.saved ? 'Saved. Your Keyring is stored in this browser.' : 'Saving failed. Use Export instead.', !r0.saved);
+      }); });
+    return;
+  }
+  var slot0 = store.get(PROGRESS_KEY), prog = readProgress();
+  var mqForeign = (prog && (prog.run.runId !== run.runId || (mqSlot !== null && slot0 !== mqSlot))) || (!prog && slot0 !== null && slot0 !== mqSlot);
   if(mqForeign){
-    var at = SCENES[prog.run.scene];
-    p = confirmBox('There is another saved place in Door #004' + (at && at.title ? ' (“' + at.title + '”)' : '') + (prog.keyringId && prog.keyringId !== K.keyringId ? ', from a different Keyring' : '') + '. Replace it with where you are now?', 'Replace saved place');
+    var at = prog ? SCENES[prog.run.scene] : null;
+    p = p.then(function(ok){ return ok ? confirmBox('There is another saved place in Door #' + DOOR + (at && at.title ? ' (“' + at.title + '”)' : '') + (prog && prog.keyringId && prog.keyringId !== K.keyringId ? ', from a different Keyring' : '') + (prog ? '' : ' that this page cannot read') + '. Replace it with where you are now? A backup copy of it is kept.', 'Replace saved place') : false; });
   }
   p.then(function(ok){
     if(!ok){ toast('Not saved.'); return; }
-    if(mqForeign) store.set(PROGRESS_BACKUP_KEY, store.get(PROGRESS_KEY) || '');
-    var r = updateKeyring(function(){}), okp = writeProgress(run);
-    if(okp && r.saved){ dirty = false; mqStatus('ok', 'Saved at ' + mqClock() + '.'); toast('Saved. Your place in Door #004 is stored in this browser (' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + ').'); }
-    else toast('Saving failed. This browser may be out of space or blocking storage. Use Export instead.', true);
+    mqLocked(function(){
+      if(mqGateStale('Nothing was saved.')) return;
+      if(store.get(PROGRESS_KEY) !== slot0){ mqStatus('bad', 'Not saved: the saved place in this door changed in another tab.'); toast('The saved place in this door changed in another tab while you were deciding, so nothing was saved. Press Save again to choose.', true); return; }
+      var r = mqTouchKeyring(rawD);
+      if(r.refused){ mqStatus('bad', 'Not saved.'); toast(r.refused === 'damaged' ? 'The stored Keyring changed while you were deciding, so nothing was saved. Press Save again.' : 'Not saved: ' + mqStaleWhy(r.refused), true); return; }
+      if(mqForeign && slot0 !== null) store.set(PROGRESS_BACKUP_KEY, slot0);
+      var okp = r.saved && writeProgress(run);
+      if(okp){ dirty = false; mqStatus('ok', 'Saved at ' + mqClock() + '.'); toast('Saved. Your place in Door #' + DOOR + ' is stored in this browser (' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + ').'); }
+      else toast('Saving failed. This browser may be out of space or blocking storage. Use Export instead.', true);
+    });
   });
 }
 function li(t){ return '<li>' + t + '</li>'; }
@@ -1593,23 +1757,25 @@ function checkImport(text){
 function applyImport(){
   if(!pendingImport) return;
   var anyProgress = Object.keys(mqCollectProgress(store, K.keyringId)).length || (store.ok && Object.keys(MQ_PROGRESS).some(function(x){ return store.get(MQ_PROGRESS[x]); }));
-  var hasProgress = Object.keys(K.doors).length || K.inProgress || run || anyProgress;
+  var mqSnap0 = mqSnapshot(); var hasProgress = Object.keys(K.doors).length || K.inProgress || run || anyProgress || (store.ok && store.get(STORE_KEY) !== null);
   var p = hasProgress ? confirmBox('Replace your current Keyring with the imported one? This affects every Magiortals door in this browser. A backup copy of your current Keyring and unfinished journeys is kept.', 'Replace my Keyring') : Promise.resolve(true);
   p.then(function(ok){
     if(!ok){ toast('Import cancelled. Nothing was changed.'); return; }
-    if(store.ok && hasProgress){ var cur = store.get(STORE_KEY); store.set(BACKUP_KEY, cur || JSON.stringify(K)); }
+    mqLockedOrRefuse(function(){
+    if(mqSnapshot() !== mqSnap0){ toast('Your Keyring or a saved journey changed in another tab while you were deciding, so nothing was imported. Check the import again.', true); return; }
+    if(store.ok && hasProgress){ var cur = store.get(STORE_KEY); if(cur !== null) store.set(BACKUP_KEY, cur); }
     var v = pendingImport; pendingImport = null;
     K = v.keyring;
     if(reconcileAll(K)) loadNotes.push('Earlier doors’ recorded outcomes were re-applied to the imported Keyring.');
     depNotes(K).forEach(function(n){ loadNotes.push(n); });
-    var saved = store.ok && store.set(STORE_KEY, JSON.stringify(K));
+    var saved = store.ok && store.set(STORE_KEY, JSON.stringify(K)); if(saved) mqDurable = true;
     var map = clone(v.allProgress || {}); if(v.progress) map[DOOR] = v.progress; else delete map[DOOR];
     var savedP = mqRestoreProgress(store, map, K.keyringId);
     run = null; mqSlot = null; mqRunRef = null;
     $('dlgMenu').close();
     toast(saved && savedP ? 'Keyring imported and saved in this browser.' : 'Keyring imported for this visit, but this browser could not save all of it. Export again before leaving.', !(saved && savedP));
     renderTitle();
-  });
+  }); });
 }
 function openMenu(){ $('exportArea').hidden = true; $('importArea').hidden = true; $('importResult').hidden = true; $('btnImportApply').hidden = true; $('dlgMenu').showModal(); }
 
@@ -1627,13 +1793,16 @@ $('btnImportCheck').addEventListener('click', function(){ checkImport($('importT
 $('btnImportApply').addEventListener('click', applyImport);
 $('btnTitle').addEventListener('click', function(){ var p = (run && dirty && !SCENES[run.scene].ending) ? confirmBox('Return to the beginning? Your latest choice could not be saved automatically, so it will be lost.', 'Return') : Promise.resolve(true); p.then(function(ok){ if(ok){ $('dlgMenu').close(); renderTitle(); } }); });
 $('btnFresh').addEventListener('click', function(){
-  confirmBox('Start a brand-new Keyring? This forgets every door, relic and bond recorded in this browser, for all Magiortals doors. A backup copy of the old Keyring is kept, and any Keyring you exported is unaffected.', 'Start new Keyring').then(function(ok){
+  var mqSnap0 = mqSnapshot();
+  confirmBox('Start a brand-new Keyring? This forgets every door, relic and bond recorded in this browser, for all Magiortals doors, and sets aside every unfinished journey saved here. Backup copies of the old Keyring and those journeys are kept, and any Keyring you exported is unaffected.', 'Start new Keyring').then(function(ok){
     if(!ok) return;
-    if(store.ok){ var cur = store.get(STORE_KEY); store.set(BACKUP_KEY, cur || JSON.stringify(K)); mqClearProgress(store); }
+    mqLockedOrRefuse(function(){
+    if(mqSnapshot() !== mqSnap0){ toast('Your Keyring or a saved journey changed in another tab while you were deciding, so nothing was changed. Choose New Keyring again if you still want it.', true); return; }
+    if(store.ok){ var cur = store.get(STORE_KEY); if(cur !== null) store.set(BACKUP_KEY, cur); mqClearProgress(store); }
     K = blankKeyring(); run = null; mqSlot = null; mqRunRef = null;
-    var saved = store.ok && store.set(STORE_KEY, JSON.stringify(K));
+    var saved = store.ok && store.set(STORE_KEY, JSON.stringify(K)); if(saved) mqDurable = true;
     $('dlgMenu').close(); mqStatus(saved ? 'ok' : 'bad', saved ? 'A new Keyring is saved in this browser.' : 'Not saved: this browser cannot store the new Keyring.'); toast(saved ? 'A new, empty Keyring is ready. Backups of the old Keyring and every unfinished journey are kept in this browser.' : 'A new Keyring is ready for this visit (this browser cannot save it).', !saved); renderTitle();
-  });
+  }); });
 });
 window.addEventListener('beforeunload', function(e){ if(dirty && run && !SCENES[run.scene].ending){ e.preventDefault(); e.returnValue = ''; } });
 
@@ -1644,7 +1813,7 @@ window.addEventListener('beforeunload', function(e){ if(dirty && run && !SCENES[
     if(st.warnings.length) loadNotes.push('Your Keyring was loaded with notes: ' + st.warnings.join(' '));
     if(reconcileAll(K)){ store.set(BACKUP_KEY, JSON.stringify(st.keyring)); store.set(STORE_KEY, JSON.stringify(K)); loadNotes.push('Earlier doors’ recorded outcomes were re-applied to your Keyring.'); }
     depNotes(K).forEach(function(n){ loadNotes.push(n); });
-  } else if(st.state === 'invalid'){ store.set(BACKUP_KEY, st.raw); toast('Your saved Keyring could not be read, so a backup copy was kept and a fresh one started. You can import an exported Keyring from Options.', true); }
+  } else if(st.state === 'invalid'){ /* R1.2 (NEW-12): the unreadable bytes are left exactly as they are until the visitor chooses Save or Import; the title explains this on arrival. */ }
   else if(st.state === 'unavailable'){ setTimeout(function(){ toast('This browser is not allowing saves. You can still play, and use Options → Export to keep your Keyring.', true); }, 400); }
   renderTitle();
 })();
