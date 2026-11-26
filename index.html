@@ -471,6 +471,7 @@ footer .legal-details{font-size:.84rem}
 .dq-site-topbar .dq-top-mobile nav{position:absolute;right:0;top:calc(100% + 12px);display:flex;flex-direction:column;align-items:stretch;background:#0b1424;border:1px solid #d5ac6a;border-radius:12px;padding:10px;width:min(250px,82vw);max-height:70vh;overflow:auto;box-shadow:0 12px 30px #0008}.dq-site-topbar .dq-top-mobile nav a{padding:8px 10px}
 @media(max-width:760px){.dq-site-topbar .dq-top-links{display:none}.dq-site-topbar .dq-top-mobile{display:block}.dq-site-topbar .dq-top-inner{padding-inline:16px;gap:12px}}
 </style>
+<style id="dq-anchor-offset">/* D041 CR-03: keep sticky-header nav targets visible (scroll-margin only; normal browser scroll anchoring preserved) */#stories,#cluortals,#challenges,#games{scroll-margin-top:calc(4.5rem + 8px)}</style>
 <link rel="stylesheet" href="/assets/door-link-policy.css?v=20261121"><header class="dq-site-topbar"><div class="dq-top-inner"><a class="dq-top-brand" href="/" aria-label="DoorQuests home">DoorQuests</a><nav class="dq-top-links" aria-label="Main navigation"><a href="/starthere/">Start Here</a><a href="/#stories">Doortals</a><a href="/#cluortals">Cluortals</a><a href="/#challenges">Chaortals</a><a href="/#games">Gamortals</a><a href="/universortals/">Universortals</a></nav><details class="dq-top-mobile"><summary>Explore ▾</summary><nav aria-label="Mobile exploration"><a href="/starthere/">Start Here</a><a href="/#stories">Doortals</a><a href="/#cluortals">Cluortals</a><a href="/#challenges">Chaortals</a><a href="/#games">Gamortals</a><a href="/universortals/">Universortals</a></nav></details></div></header>
 
 <main id="top">
@@ -676,6 +677,194 @@ footer .legal-details{font-size:.84rem}
       <ul class="cluortals-wall" id="cluortals-wall"></ul>
     </div>
   </section>
+<script src="assets/daily-door-registry.js"></script>
+<script>
+/* D041 R2: build the Doortal and Cluortal walls right after their markup (moved unchanged from the end of the page). */
+(function(){
+  "use strict";
+  const doors=window.TAC_DAILY_DOORS;
+  const wall=document.getElementById("wall"),filters=document.getElementById("filters"),empty=document.getElementById("empty");
+  const cluortals=[
+    {"no":1,"word":"UNMASK","title":"The Nightingale Sleeper","genre":"Railway noir","difficulty":"Hard","url":"/cases/the-nightingale-sleeper/","color":"mahogany","description":"Unmask a killer before the night train reaches its final stop."},
+    {"no":2,"word":"DECIPHER","title":"The Saint Who Never Existed","genre":"Religious conspiracy","difficulty":"Medium","url":"/cases/the-saint-who-never-existed/","color":"abbey","description":"Decipher a medieval forgery and the purpose behind a fabricated saint."},
+    {"no":3,"word":"TRACE","title":"The Oxygen Ledger","genre":"Sci-fi sabotage","difficulty":"Medium","url":"/cases/the-oxygen-ledger/","color":"mars","description":"Trace an oxygen outage through the records of a Martian habitat."},
+    {"no":4,"word":"QUESTION","title":"Murder Before Breakfast","genre":"Cozy mystery","difficulty":"Easy","url":"/cases/murder-before-breakfast/","color":"gold","description":"Question the residents of an English village before breakfast is over."},
+    {"no":5,"word":"UNVEIL","title":"The Masquerade of Four Faces","genre":"Identity deception","difficulty":"Medium","url":"/cases/the-masquerade-of-four-faces/","color":"violet","description":"Unveil the identities hidden behind a Venetian masquerade."},
+    {"no":6,"word":"SHADOW","title":"Rain on Sunset","genre":"Hard-boiled noir","difficulty":"Hard","url":"/cases/rain-on-sunset/","color":"mahogany","description":"Shadow the lies beneath the rain-soaked streets of Los Angeles."},
+    {"no":7,"word":"UNTANGLE","title":"The Knots of the Silent Messenger","genre":"Inca mystery","difficulty":"Medium","url":"/cases/the-knots-of-the-silent-messenger/","color":"amber","description":"Untangle a message concealed in knots high in the Andes."},
+    {"no":8,"word":"RECONSTRUCT","title":"The Eighth Bell","genre":"Impossible crime","difficulty":"Medium","url":"/cases/the-eighth-bell/","color":"abbey","description":"Reconstruct an impossible crime in Victorian London."},
+    {"no":9,"word":"FOLLOW","title":"The Vanishing Jackpot","genre":"Casino heist","difficulty":"Medium","url":"/cases/the-vanishing-jackpot/","color":"gold","description":"Follow the missing money through a Las Vegas casino."},
+    {"no":10,"word":"INSPECT","title":"The Merchant's Empty Chest","genre":"Commercial theft","difficulty":"Easy","url":"/cases/the-merchants-empty-chest/","color":"amber","description":"Inspect the clues behind a missing merchant fortune in Edo."},
+    {"no":11,"word":"VERIFY","title":"The Seventh Crew Member","genre":"AI mystery","difficulty":"Hard","url":"/cases/the-seventh-crew-member/","color":"cyan","description":"Verify who—or what—belongs aboard an orbital station."},
+    {"no":12,"word":"TRACK","title":"The Tracks at Coyote Wells","genre":"Western mystery","difficulty":"Easy","url":"/cases/the-tracks-at-coyote-wells/","color":"amber","description":"Track the truth across the dusty trails of Nevada Territory."},
+    {"no":13,"word":"DECODE","title":"The Pharaoh's Second Shadow","genre":"Royal intrigue","difficulty":"Medium","url":"/cases/the-pharaohs-second-shadow/","color":"gold","description":"Decode a secret in the shadow of an Egyptian pharaoh."},
+    {"no":14,"word":"EXPOSE","title":"Death in the Second Act","genre":"Theatrical murder","difficulty":"Medium","url":"/cases/death-in-the-second-act/","color":"red","description":"Expose a murderer behind the Broadway curtain."},
+    {"no":15,"word":"CHALLENGE","title":"Objection at Accra","genre":"Courtroom mystery","difficulty":"Hard","url":"/cases/objection-at-accra/","color":"sea","description":"Challenge the testimony in a Ghanaian courtroom."},
+    {"no":16,"word":"SEARCH","title":"Container 409","genre":"Maritime crime","difficulty":"Easy","url":"/cases/container-409/","color":"sea","description":"Search the Rotterdam docks for the truth behind a container."},
+    {"no":17,"word":"AUTHENTICATE","title":"The Forgery That Was Real","genre":"Art crime","difficulty":"Medium","url":"/cases/the-forgery-that-was-real/","color":"violet","description":"Authenticate a Parisian artwork that defies its own history."},
+    {"no":18,"word":"INTERCEPT","title":"The Message That Arrived Twice","genre":"Wartime espionage","difficulty":"Hard","url":"/cases/the-message-that-arrived-twice/","color":"mahogany","description":"Intercept the clues hidden inside a duplicated wartime message."},
+    {"no":19,"word":"DISPEL","title":"The Ghost of Chandra Niwas","genre":"Haunting explained","difficulty":"Medium","url":"/cases/the-ghost-of-chandra-niwas/","color":"violet","description":"Dispel a haunting with evidence from a Rajasthani household."},
+    {"no":20,"word":"UNCOVER","title":"The Senator's Last Banquet","genre":"Roman poisoning","difficulty":"Medium","url":"/cases/the-senators-last-banquet/","color":"red","description":"Uncover the poisoner behind a senator’s final Roman feast."},
+    {"no":21,"word":"CHECK","title":"Room Twelve Was Never Rented","genre":"Motel mystery","difficulty":"Easy","url":"/cases/room-twelve-was-never-rented/","color":"gold","description":"Check the guest register at a motel with an impossible room."},
+    {"no":22,"word":"REPLAY","title":"Last Lap at Mount Panorama","genre":"Motorsport sabotage","difficulty":"Medium","url":"/cases/last-lap-at-mount-panorama/","color":"red","description":"Replay the final lap to reveal a racing sabotage."},
+    {"no":23,"word":"NAVIGATE","title":"The Caravan of False Stars","genre":"Cartographic deception","difficulty":"Hard","url":"/cases/the-caravan-of-false-stars/","color":"amber","description":"Navigate a Silk Road deception written in the stars."},
+    {"no":24,"word":"LISTEN","title":"The Missing Blue Note","genre":"Musical theft","difficulty":"Medium","url":"/cases/the-missing-blue-note/","color":"violet","description":"Listen closely for the missing note in a Harlem recording."},
+    {"no":25,"word":"SURVIVE","title":"Whiteout Protocol","genre":"Isolation thriller","difficulty":"Hard","url":"/cases/whiteout-protocol/","color":"cyan","description":"Survive the Antarctic whiteout and expose what happened at the station."},
+    {"no":26,"word":"RESTORE","title":"The King's Missing Winter","genre":"Royal records","difficulty":"Medium","url":"/cases/the-kings-missing-winter/","color":"abbey","description":"Restore a lost winter to the Norwegian royal records."},
+    {"no":27,"word":"SPLICE","title":"The Voice on Channel Zero","genre":"Broadcast blackmail","difficulty":"Medium","url":"/cases/the-voice-on-channel-zero/","color":"mahogany","description":"Splice broadcast tapes to uncover a deadly fabrication."},
+    {"no":28,"word":"CROSS","title":"The Lighthouse Keeper's Last Entry","genre":"Maritime murder","difficulty":"Easy","url":"/cases/the-lighthouse-keepers-last-entry/","color":"sea","description":"Cross the tidal causeway to solve a lighthouse death."},
+    {"no":29,"word":"EXTRACT","title":"The Memory Broker","genre":"Cybercrime","difficulty":"Hard","url":"/cases/the-memory-broker/","color":"cyan","description":"Extract the false segments from a tampered memory."},
+    {"no":30,"word":"DATE","title":"The Guest in the Wrong Century","genre":"Inheritance fraud","difficulty":"Medium","url":"/cases/the-guest-in-the-wrong-century/","color":"gold","description":"Date the documents that claim to have arrived from the future."},
+    {"no":31,"word":"RECONNECT","title":"The Island That Sent No Signal","genre":"Scientific disappearance","difficulty":"Hard","url":"/cases/the-island-that-sent-no-signal/","color":"sea","description":"Reconnect the signals to find five missing scientists."}
+  ];
+  const cluWall=document.getElementById("cluortals-wall");
+  const cluCategoryFilters=document.getElementById("clu-category-filters");
+  const cluDifficultyFilters=document.getElementById("clu-difficulty-filters");
+  const cluEmpty=document.getElementById("clu-filter-empty");
+  const CLU_CATEGORIES=[["all","All"],["mystery","Mystery"],["crime","Crime"],["intrigue","Intrigue"],["scifi","Sci-fi"],["historical","Historical"],["thriller","Thriller"]];
+  const CLU_DIFFICULTIES=[["all","All"],["easy","Easy"],["medium","Medium"],["hard","Hard"]];
+  const CLU_CATEGORY_BY_NO={
+    1:"mystery",2:"intrigue",3:"scifi",4:"mystery",5:"intrigue",6:"crime",7:"intrigue",8:"mystery",
+    9:"crime",10:"crime",11:"scifi",12:"historical",13:"historical",14:"crime",15:"intrigue",16:"crime",
+    17:"crime",18:"intrigue",19:"mystery",20:"crime",21:"mystery",22:"crime",23:"intrigue",24:"crime",
+    25:"thriller",26:"historical",27:"crime",28:"mystery",29:"crime",30:"historical",31:"mystery"
+  };
+  let cluCategory="all",cluDifficulty="all";
+  try{
+    const savedCategory=localStorage.getItem("dq-clu-category"),savedDifficulty=localStorage.getItem("dq-clu-difficulty");
+    if(CLU_CATEGORIES.some(x=>x[0]===savedCategory))cluCategory=savedCategory;
+    if(CLU_DIFFICULTIES.some(x=>x[0]===savedDifficulty))cluDifficulty=savedDifficulty;
+  }catch(e){}
+  function applyCluFilters(){
+    let shown=0;
+    cluWall.querySelectorAll("li").forEach(li=>{
+      const visible=(cluCategory==="all"||li.dataset.category===cluCategory)&&(cluDifficulty==="all"||li.dataset.difficulty===cluDifficulty);
+      li.hidden=!visible;if(visible)shown++;
+    });
+    cluCategoryFilters.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.category===cluCategory)));
+    cluDifficultyFilters.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.difficulty===cluDifficulty)));
+    cluEmpty.hidden=shown>0;
+  }
+  cluCategoryFilters.innerHTML='<span class="clu-filter-label">Category</span>'+CLU_CATEGORIES.map(([k,l])=>`<button class="chip" type="button" data-category="${k}" aria-pressed="false">${l}</button>`).join("");
+  cluDifficultyFilters.innerHTML='<span class="clu-filter-label">Difficulty</span>'+CLU_DIFFICULTIES.map(([k,l])=>`<button class="chip" type="button" data-difficulty="${k}" aria-pressed="false">${l}</button>`).join("");
+  cluCategoryFilters.addEventListener("click",e=>{const b=e.target.closest("button[data-category]");if(!b)return;cluCategory=b.dataset.category;try{localStorage.setItem("dq-clu-category",cluCategory)}catch(e){}applyCluFilters();});
+  cluDifficultyFilters.addEventListener("click",e=>{const b=e.target.closest("button[data-difficulty]");if(!b)return;cluDifficulty=b.dataset.difficulty;try{localStorage.setItem("dq-clu-difficulty",cluDifficulty)}catch(e){}applyCluFilters();});
+  const KINDS=[["all","All"],["mystery","Mystery"],["fantasy","Fantasy"],["scifi","Sci-fi"],["history","History"],["comedy","Comedy"],["romance","Heart"]];
+  function categories(genre){
+    const g=(genre||"").toLowerCase();
+    const out=[];
+    if(/mystery|thriller|espionage|suspense|investigat|noir/.test(g))out.push("mystery");
+    if(/fantasy|magical|fairy|myth|dragon|speculative/.test(g))out.push("fantasy");
+    if(/science|sci.fi|space|future|post.apocalyp|first.contact/.test(g))out.push("scifi");
+    if(/histor|medieval|archaeolog|war|court|palace/.test(g))out.push("history");
+    if(/comed|satir|humor|whimsical/.test(g))out.push("comedy");
+    if(/roman|love|heart/.test(g))out.push("romance");
+    return out.length?out:["fantasy"];
+  }
+  function color(d){const cats=categories(d.genre);return cats.includes("scifi")?"cyan":cats.includes("history")?"amber":cats.includes("comedy")?"red":cats.includes("romance")?"sea":cats.includes("mystery")?"violet":"gold";}
+  function escapeHTML(str){return String(str).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");}
+  if(!Array.isArray(doors)||doors.length!==31){
+    document.getElementById("today-description").textContent="Our story collection is temporarily unavailable.";
+    empty.hidden=false; empty.textContent="The Doortals could not be loaded.";
+  } else {
+    wall.innerHTML=doors.map(d=>`<li data-kinds="${categories(d.genre).join(" ")}"><a class="card" href="${escapeHTML(d.url)}" target="_blank" rel="noopener noreferrer" aria-label="Doortal ${d.day}: ${escapeHTML(d.title)} (opens in a new tab)">
+      <div class="portal g-${color(d)}" aria-hidden="true"><span class="halo"></span><span class="frame"></span><span class="light"></span><span class="leaf"><span class="num">${d.day}</span></span></div>
+      <span class="cap"><span class="t">${escapeHTML(d.title)}</span><span class="g">${escapeHTML(d.genre)}</span></span></a></li>`).join("");
+    filters.innerHTML=KINDS.map(([k,l])=>`<button class="chip" type="button" data-kind="${k}" aria-pressed="false">${l}</button>`).join("");
+    function apply(kind){
+      let shown=0;
+      wall.querySelectorAll("li").forEach(li=>{const on=kind==="all"||li.dataset.kinds.split(" ").includes(kind);li.hidden=!on;if(on)shown++;});
+      filters.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===kind)));
+      empty.hidden=shown>0;
+      try{localStorage.setItem("dq-kind",kind)}catch(e){}
+    }
+    filters.addEventListener("click",e=>{const b=e.target.closest(".chip");if(b)apply(b.dataset.kind)});
+    let start="all";try{start=localStorage.getItem("dq-kind")||"all"}catch(e){}
+    if(!KINDS.some(k=>k[0]===start))start="all";
+    apply(start);
+    function showToday(){
+      const day=new Date().getDate(), d=doors.find(item=>item.day===day);
+      if(!d)return;
+      document.getElementById("today-number").textContent=String(d.day);
+      document.getElementById("today-title").textContent=d.title;
+      document.getElementById("today-eyebrow").textContent="Today's Doortal · No. "+d.day;
+      document.getElementById("today-description").textContent="One of 31 original interactive adventures. Today's door opens to "+d.title+".";
+      document.getElementById("today-genre").textContent=d.genre;
+      const t=document.getElementById("today-link"); t.href=d.url; t.target="_blank"; t.rel="noopener noreferrer";
+      const visual=document.getElementById("today-portal"); visual.className="portal g-"+color(d); visual.href=t.href; visual.target=t.target; visual.rel=t.rel; visual.setAttribute("aria-label","Open Doortal "+d.day+": "+d.title+" (opens in a new tab)");
+    }
+    showToday();
+    window.setInterval(showToday,60000);
+  }
+
+  function renderCluortals(){
+    cluWall.innerHTML=cluortals.map(c=>`<li data-category="${CLU_CATEGORY_BY_NO[c.no]}" data-difficulty="${c.difficulty.toLowerCase()}"><a class="clue-card" href="${escapeHTML(c.url)}" target="_blank" rel="noopener noreferrer" aria-label="Cluortal ${c.no}: ${escapeHTML(c.title)} (opens in a new tab)">
+      <div class="clue-door g-${escapeHTML(c.color)}" aria-hidden="true"><span class="halo"></span><span class="frame"></span><span class="light"></span><span class="leaf"><span class="word">${escapeHTML(c.word)}</span><span class="num">${String(c.no)}</span><span class="knob"></span></span></div>
+      <span class="cap"><span class="t">${escapeHTML(c.title)}</span><span class="g">${escapeHTML(c.genre)} · ${escapeHTML(c.difficulty)}</span></span>
+      </a></li>`).join("");
+    applyCluFilters();
+
+    const todayClu=cluortals.find(c=>c.no===new Date().getDate());
+    if(!todayClu)return;
+    document.getElementById("today-cluortal-number").textContent=String(todayClu.no);
+    document.getElementById("today-cluortal-word").textContent=todayClu.word;
+    document.getElementById("today-cluortal-eyebrow").textContent="Today's Cluortal · No. "+String(todayClu.no);
+    document.getElementById("today-cluortal-title").textContent=todayClu.title;
+    document.getElementById("today-cluortal-description").textContent=todayClu.description;
+    document.getElementById("today-cluortal-genre").textContent=todayClu.genre;
+    document.getElementById("today-cluortal-link").href=todayClu.url;
+    document.getElementById("today-cluortal-link").firstChild.textContent=todayClu.word.charAt(0)+todayClu.word.slice(1).toLowerCase()+" Today’s Cluortal ";
+    const visual=document.getElementById("today-cluortal-door"); visual.className="clue-door g-"+todayClu.color; visual.href=todayClu.url; visual.setAttribute("aria-label","Open Cluortal "+todayClu.no+": "+todayClu.title+" (opens in a new tab)");
+  }
+  renderCluortals();
+  window.setInterval(renderCluortals,60000);
+
+})();
+/* Keep six matching doors visible by default; filters still operate on all 31 items. */
+(function(){
+  'use strict';
+  var groups=[
+    {section:'stories',list:'#wall',name:'Doortals'},
+    {section:'cluortals',list:'#cluortals-wall',name:'Cluortals'},
+    {section:'chaortals',list:'.chaortals-wall',name:'Chaortals'},
+    {section:'games',list:'.gamortals-wall',name:'Gamortals'}
+  ];
+  function init(g){
+    var section=document.getElementById(g.section),list=section&&section.querySelector(g.list);
+    if(!list)return;
+    var open=false,button=document.createElement('button');
+    button.type='button';button.className='gallery-toggle';
+    if(!list.id)list.id='gallery-'+g.section+'-list';
+    button.setAttribute('aria-controls',list.id);
+    list.insertAdjacentElement('afterend',button);
+    function refresh(){
+      var matches=Array.prototype.filter.call(list.children,function(li){return li.tagName==='LI'&&!li.hidden;});
+      matches.forEach(function(li,i){li.classList.toggle('gallery-folded',!open&&i>=6);});
+      Array.prototype.forEach.call(list.children,function(li){if(li.hidden)li.classList.remove('gallery-folded');});
+      button.hidden=matches.length<=6;
+      button.setAttribute('aria-expanded',String(open));
+      button.textContent=open?'Show Fewer '+g.name:'View All '+matches.length+' '+g.name;
+    }
+    button.addEventListener('click',function(){open=!open;refresh();});
+    g.refresh=refresh;
+    refresh();
+  }
+  function finish(){
+    // Original Doortal and Cluortal filters can change which six doors match.
+    ['filters','clu-category-filters','clu-difficulty-filters'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.addEventListener('click',function(){setTimeout(function(){groups.forEach(function(g){if(g.refresh)g.refresh();});},0);});
+    });
+    window.DQGalleryRefresh=function(){groups.forEach(function(g){if(g.refresh)g.refresh();});};
+  }
+  /* D041 R2: initialise each gallery immediately after its markup (same code; the parsed layout then matches the settled layout). */
+  window.DQGalleryInit=function(name){
+    groups.forEach(function(g){if(g.section===name)init(g);});
+    if(name==='games'){finish();try{delete window.DQGalleryInit}catch(e){window.DQGalleryInit=undefined}}
+  };
+  init(groups[0]);init(groups[1]);
+})();
+</script>
   <section class="band" id="chaortals" aria-labelledby="chaortals-title" style="padding-top:0">
     <div class="wrap" id="challenges">
       <div class="sec-head">
@@ -873,6 +1062,45 @@ footer .legal-details{font-size:.84rem}
       </ul>
     </div>
   </section>
+<script>
+/* D041 R2: Daily Chaortal and Chaortals gallery fold, right after the gallery they read (moved unchanged). */
+(function(){
+  "use strict";
+  /* Daily Chaortal: reuse the published gallery as the authoritative roster.
+     A day beyond available releases features the latest official door instead of linking to an unbuilt challenge. */
+  function renderTodayChaortal(){
+    const entries=Array.from(document.querySelectorAll(".chaortals-wall a.card")).map(a=>{
+      const number=Number((a.querySelector(".num")||{}).textContent);
+      const portal=a.querySelector(".chaortal-door");
+      const title=a.querySelector(".cap .t");
+      const verb=a.querySelector(".cap .g");
+      return {number,href:a.getAttribute("href"),title:title&&title.textContent,verb:verb&&verb.textContent,classes:portal&&portal.className};
+    }).filter(x=>Number.isInteger(x.number)&&x.number>=1&&x.number<=31&&x.href&&x.title&&x.verb&&x.classes);
+    if(!entries.length)return;
+    const day=new Date().getDate();
+    const current=entries.find(x=>x.number===day);
+    const selected=current||entries.reduce((latest,x)=>x.number>latest.number?x:latest);
+    const fallback=!current;
+    const door=document.getElementById("today-chaortal-door");
+    door.className=selected.classes;
+    door.href=selected.href;
+    door.setAttribute("aria-label","Open Chaortal "+String(selected.number).padStart(2,"0")+": "+selected.title+" (opens in a new tab)");
+    document.getElementById("today-chaortal-number").textContent=String(selected.number).padStart(2,"0");
+    document.getElementById("today-chaortal-eyebrow").textContent=(fallback?"Featured Chaortal":"Today's Chaortal")+" · No. "+selected.number;
+    document.getElementById("today-chaortal-title").textContent=selected.title;
+    document.getElementById("today-chaortal-verb").textContent=selected.verb;
+    document.getElementById("today-chaortal-description").textContent=fallback
+      ? "Door "+String(day).padStart(2,"0")+" is not yet published. Until then, explore "+selected.title+"—one of our official interactive challenges with Bronze, Silver and Gold tiers."
+      : "Today, unlock "+selected.title+". Explore its Bronze, Silver and Gold challenges, exercise your reasoning, and collect seals for your shared Keyring.";
+    const link=document.getElementById("today-chaortal-link");
+    link.href=selected.href;
+    link.firstChild.textContent=fallback?"Unlock Featured Chaortal ":"Unlock Today's Chaortal ";
+  }
+  renderTodayChaortal();
+  window.setInterval(renderTodayChaortal,60000);
+})();
+DQGalleryInit('chaortals');
+</script>
   <section class="band" id="games" aria-labelledby="gamortals-title" style="padding-top:0">
     <div class="wrap">
       <div class="sec-head">
@@ -1070,6 +1298,7 @@ footer .legal-details{font-size:.84rem}
 </ul>
     </div>
   </section>
+<script>DQGalleryInit('games');</script>
   <div id="abortal" style="scroll-margin-top:95px;text-align:center;padding:24px 16px"><a class="btn btn-ghost" href="/starthere/">Start Here — Discover the Ortal Way</a></div>
 </main>
 
@@ -1085,221 +1314,6 @@ footer .legal-details{font-size:.84rem}
   </div>
 </footer>
 
-<script src="assets/daily-door-registry.js"></script>
-<script>
-(function(){
-  "use strict";
-  const doors=window.TAC_DAILY_DOORS;
-  const wall=document.getElementById("wall"),filters=document.getElementById("filters"),empty=document.getElementById("empty");
-  const cluortals=[
-    {"no":1,"word":"UNMASK","title":"The Nightingale Sleeper","genre":"Railway noir","difficulty":"Hard","url":"/cases/the-nightingale-sleeper/","color":"mahogany","description":"Unmask a killer before the night train reaches its final stop."},
-    {"no":2,"word":"DECIPHER","title":"The Saint Who Never Existed","genre":"Religious conspiracy","difficulty":"Medium","url":"/cases/the-saint-who-never-existed/","color":"abbey","description":"Decipher a medieval forgery and the purpose behind a fabricated saint."},
-    {"no":3,"word":"TRACE","title":"The Oxygen Ledger","genre":"Sci-fi sabotage","difficulty":"Medium","url":"/cases/the-oxygen-ledger/","color":"mars","description":"Trace an oxygen outage through the records of a Martian habitat."},
-    {"no":4,"word":"QUESTION","title":"Murder Before Breakfast","genre":"Cozy mystery","difficulty":"Easy","url":"/cases/murder-before-breakfast/","color":"gold","description":"Question the residents of an English village before breakfast is over."},
-    {"no":5,"word":"UNVEIL","title":"The Masquerade of Four Faces","genre":"Identity deception","difficulty":"Medium","url":"/cases/the-masquerade-of-four-faces/","color":"violet","description":"Unveil the identities hidden behind a Venetian masquerade."},
-    {"no":6,"word":"SHADOW","title":"Rain on Sunset","genre":"Hard-boiled noir","difficulty":"Hard","url":"/cases/rain-on-sunset/","color":"mahogany","description":"Shadow the lies beneath the rain-soaked streets of Los Angeles."},
-    {"no":7,"word":"UNTANGLE","title":"The Knots of the Silent Messenger","genre":"Inca mystery","difficulty":"Medium","url":"/cases/the-knots-of-the-silent-messenger/","color":"amber","description":"Untangle a message concealed in knots high in the Andes."},
-    {"no":8,"word":"RECONSTRUCT","title":"The Eighth Bell","genre":"Impossible crime","difficulty":"Medium","url":"/cases/the-eighth-bell/","color":"abbey","description":"Reconstruct an impossible crime in Victorian London."},
-    {"no":9,"word":"FOLLOW","title":"The Vanishing Jackpot","genre":"Casino heist","difficulty":"Medium","url":"/cases/the-vanishing-jackpot/","color":"gold","description":"Follow the missing money through a Las Vegas casino."},
-    {"no":10,"word":"INSPECT","title":"The Merchant's Empty Chest","genre":"Commercial theft","difficulty":"Easy","url":"/cases/the-merchants-empty-chest/","color":"amber","description":"Inspect the clues behind a missing merchant fortune in Edo."},
-    {"no":11,"word":"VERIFY","title":"The Seventh Crew Member","genre":"AI mystery","difficulty":"Hard","url":"/cases/the-seventh-crew-member/","color":"cyan","description":"Verify who—or what—belongs aboard an orbital station."},
-    {"no":12,"word":"TRACK","title":"The Tracks at Coyote Wells","genre":"Western mystery","difficulty":"Easy","url":"/cases/the-tracks-at-coyote-wells/","color":"amber","description":"Track the truth across the dusty trails of Nevada Territory."},
-    {"no":13,"word":"DECODE","title":"The Pharaoh's Second Shadow","genre":"Royal intrigue","difficulty":"Medium","url":"/cases/the-pharaohs-second-shadow/","color":"gold","description":"Decode a secret in the shadow of an Egyptian pharaoh."},
-    {"no":14,"word":"EXPOSE","title":"Death in the Second Act","genre":"Theatrical murder","difficulty":"Medium","url":"/cases/death-in-the-second-act/","color":"red","description":"Expose a murderer behind the Broadway curtain."},
-    {"no":15,"word":"CHALLENGE","title":"Objection at Accra","genre":"Courtroom mystery","difficulty":"Hard","url":"/cases/objection-at-accra/","color":"sea","description":"Challenge the testimony in a Ghanaian courtroom."},
-    {"no":16,"word":"SEARCH","title":"Container 409","genre":"Maritime crime","difficulty":"Easy","url":"/cases/container-409/","color":"sea","description":"Search the Rotterdam docks for the truth behind a container."},
-    {"no":17,"word":"AUTHENTICATE","title":"The Forgery That Was Real","genre":"Art crime","difficulty":"Medium","url":"/cases/the-forgery-that-was-real/","color":"violet","description":"Authenticate a Parisian artwork that defies its own history."},
-    {"no":18,"word":"INTERCEPT","title":"The Message That Arrived Twice","genre":"Wartime espionage","difficulty":"Hard","url":"/cases/the-message-that-arrived-twice/","color":"mahogany","description":"Intercept the clues hidden inside a duplicated wartime message."},
-    {"no":19,"word":"DISPEL","title":"The Ghost of Chandra Niwas","genre":"Haunting explained","difficulty":"Medium","url":"/cases/the-ghost-of-chandra-niwas/","color":"violet","description":"Dispel a haunting with evidence from a Rajasthani household."},
-    {"no":20,"word":"UNCOVER","title":"The Senator's Last Banquet","genre":"Roman poisoning","difficulty":"Medium","url":"/cases/the-senators-last-banquet/","color":"red","description":"Uncover the poisoner behind a senator’s final Roman feast."},
-    {"no":21,"word":"CHECK","title":"Room Twelve Was Never Rented","genre":"Motel mystery","difficulty":"Easy","url":"/cases/room-twelve-was-never-rented/","color":"gold","description":"Check the guest register at a motel with an impossible room."},
-    {"no":22,"word":"REPLAY","title":"Last Lap at Mount Panorama","genre":"Motorsport sabotage","difficulty":"Medium","url":"/cases/last-lap-at-mount-panorama/","color":"red","description":"Replay the final lap to reveal a racing sabotage."},
-    {"no":23,"word":"NAVIGATE","title":"The Caravan of False Stars","genre":"Cartographic deception","difficulty":"Hard","url":"/cases/the-caravan-of-false-stars/","color":"amber","description":"Navigate a Silk Road deception written in the stars."},
-    {"no":24,"word":"LISTEN","title":"The Missing Blue Note","genre":"Musical theft","difficulty":"Medium","url":"/cases/the-missing-blue-note/","color":"violet","description":"Listen closely for the missing note in a Harlem recording."},
-    {"no":25,"word":"SURVIVE","title":"Whiteout Protocol","genre":"Isolation thriller","difficulty":"Hard","url":"/cases/whiteout-protocol/","color":"cyan","description":"Survive the Antarctic whiteout and expose what happened at the station."},
-    {"no":26,"word":"RESTORE","title":"The King's Missing Winter","genre":"Royal records","difficulty":"Medium","url":"/cases/the-kings-missing-winter/","color":"abbey","description":"Restore a lost winter to the Norwegian royal records."},
-    {"no":27,"word":"SPLICE","title":"The Voice on Channel Zero","genre":"Broadcast blackmail","difficulty":"Medium","url":"/cases/the-voice-on-channel-zero/","color":"mahogany","description":"Splice broadcast tapes to uncover a deadly fabrication."},
-    {"no":28,"word":"CROSS","title":"The Lighthouse Keeper's Last Entry","genre":"Maritime murder","difficulty":"Easy","url":"/cases/the-lighthouse-keepers-last-entry/","color":"sea","description":"Cross the tidal causeway to solve a lighthouse death."},
-    {"no":29,"word":"EXTRACT","title":"The Memory Broker","genre":"Cybercrime","difficulty":"Hard","url":"/cases/the-memory-broker/","color":"cyan","description":"Extract the false segments from a tampered memory."},
-    {"no":30,"word":"DATE","title":"The Guest in the Wrong Century","genre":"Inheritance fraud","difficulty":"Medium","url":"/cases/the-guest-in-the-wrong-century/","color":"gold","description":"Date the documents that claim to have arrived from the future."},
-    {"no":31,"word":"RECONNECT","title":"The Island That Sent No Signal","genre":"Scientific disappearance","difficulty":"Hard","url":"/cases/the-island-that-sent-no-signal/","color":"sea","description":"Reconnect the signals to find five missing scientists."}
-  ];
-  const cluWall=document.getElementById("cluortals-wall");
-  const cluCategoryFilters=document.getElementById("clu-category-filters");
-  const cluDifficultyFilters=document.getElementById("clu-difficulty-filters");
-  const cluEmpty=document.getElementById("clu-filter-empty");
-  const CLU_CATEGORIES=[["all","All"],["mystery","Mystery"],["crime","Crime"],["intrigue","Intrigue"],["scifi","Sci-fi"],["historical","Historical"],["thriller","Thriller"]];
-  const CLU_DIFFICULTIES=[["all","All"],["easy","Easy"],["medium","Medium"],["hard","Hard"]];
-  const CLU_CATEGORY_BY_NO={
-    1:"mystery",2:"intrigue",3:"scifi",4:"mystery",5:"intrigue",6:"crime",7:"intrigue",8:"mystery",
-    9:"crime",10:"crime",11:"scifi",12:"historical",13:"historical",14:"crime",15:"intrigue",16:"crime",
-    17:"crime",18:"intrigue",19:"mystery",20:"crime",21:"mystery",22:"crime",23:"intrigue",24:"crime",
-    25:"thriller",26:"historical",27:"crime",28:"mystery",29:"crime",30:"historical",31:"mystery"
-  };
-  let cluCategory="all",cluDifficulty="all";
-  try{
-    const savedCategory=localStorage.getItem("dq-clu-category"),savedDifficulty=localStorage.getItem("dq-clu-difficulty");
-    if(CLU_CATEGORIES.some(x=>x[0]===savedCategory))cluCategory=savedCategory;
-    if(CLU_DIFFICULTIES.some(x=>x[0]===savedDifficulty))cluDifficulty=savedDifficulty;
-  }catch(e){}
-  function applyCluFilters(){
-    let shown=0;
-    cluWall.querySelectorAll("li").forEach(li=>{
-      const visible=(cluCategory==="all"||li.dataset.category===cluCategory)&&(cluDifficulty==="all"||li.dataset.difficulty===cluDifficulty);
-      li.hidden=!visible;if(visible)shown++;
-    });
-    cluCategoryFilters.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.category===cluCategory)));
-    cluDifficultyFilters.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.difficulty===cluDifficulty)));
-    cluEmpty.hidden=shown>0;
-  }
-  cluCategoryFilters.innerHTML='<span class="clu-filter-label">Category</span>'+CLU_CATEGORIES.map(([k,l])=>`<button class="chip" type="button" data-category="${k}" aria-pressed="false">${l}</button>`).join("");
-  cluDifficultyFilters.innerHTML='<span class="clu-filter-label">Difficulty</span>'+CLU_DIFFICULTIES.map(([k,l])=>`<button class="chip" type="button" data-difficulty="${k}" aria-pressed="false">${l}</button>`).join("");
-  cluCategoryFilters.addEventListener("click",e=>{const b=e.target.closest("button[data-category]");if(!b)return;cluCategory=b.dataset.category;try{localStorage.setItem("dq-clu-category",cluCategory)}catch(e){}applyCluFilters();});
-  cluDifficultyFilters.addEventListener("click",e=>{const b=e.target.closest("button[data-difficulty]");if(!b)return;cluDifficulty=b.dataset.difficulty;try{localStorage.setItem("dq-clu-difficulty",cluDifficulty)}catch(e){}applyCluFilters();});
-  const KINDS=[["all","All"],["mystery","Mystery"],["fantasy","Fantasy"],["scifi","Sci-fi"],["history","History"],["comedy","Comedy"],["romance","Heart"]];
-  function categories(genre){
-    const g=(genre||"").toLowerCase();
-    const out=[];
-    if(/mystery|thriller|espionage|suspense|investigat|noir/.test(g))out.push("mystery");
-    if(/fantasy|magical|fairy|myth|dragon|speculative/.test(g))out.push("fantasy");
-    if(/science|sci.fi|space|future|post.apocalyp|first.contact/.test(g))out.push("scifi");
-    if(/histor|medieval|archaeolog|war|court|palace/.test(g))out.push("history");
-    if(/comed|satir|humor|whimsical/.test(g))out.push("comedy");
-    if(/roman|love|heart/.test(g))out.push("romance");
-    return out.length?out:["fantasy"];
-  }
-  function color(d){const cats=categories(d.genre);return cats.includes("scifi")?"cyan":cats.includes("history")?"amber":cats.includes("comedy")?"red":cats.includes("romance")?"sea":cats.includes("mystery")?"violet":"gold";}
-  function escapeHTML(str){return String(str).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");}
-  if(!Array.isArray(doors)||doors.length!==31){
-    document.getElementById("today-description").textContent="Our story collection is temporarily unavailable.";
-    empty.hidden=false; empty.textContent="The Doortals could not be loaded.";
-  } else {
-    wall.innerHTML=doors.map(d=>`<li data-kinds="${categories(d.genre).join(" ")}"><a class="card" href="${escapeHTML(d.url)}" target="_blank" rel="noopener noreferrer" aria-label="Doortal ${d.day}: ${escapeHTML(d.title)} (opens in a new tab)">
-      <div class="portal g-${color(d)}" aria-hidden="true"><span class="halo"></span><span class="frame"></span><span class="light"></span><span class="leaf"><span class="num">${d.day}</span></span></div>
-      <span class="cap"><span class="t">${escapeHTML(d.title)}</span><span class="g">${escapeHTML(d.genre)}</span></span></a></li>`).join("");
-    filters.innerHTML=KINDS.map(([k,l])=>`<button class="chip" type="button" data-kind="${k}" aria-pressed="false">${l}</button>`).join("");
-    function apply(kind){
-      let shown=0;
-      wall.querySelectorAll("li").forEach(li=>{const on=kind==="all"||li.dataset.kinds.split(" ").includes(kind);li.hidden=!on;if(on)shown++;});
-      filters.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===kind)));
-      empty.hidden=shown>0;
-      try{localStorage.setItem("dq-kind",kind)}catch(e){}
-    }
-    filters.addEventListener("click",e=>{const b=e.target.closest(".chip");if(b)apply(b.dataset.kind)});
-    let start="all";try{start=localStorage.getItem("dq-kind")||"all"}catch(e){}
-    if(!KINDS.some(k=>k[0]===start))start="all";
-    apply(start);
-    function showToday(){
-      const day=new Date().getDate(), d=doors.find(item=>item.day===day);
-      if(!d)return;
-      document.getElementById("today-number").textContent=String(d.day);
-      document.getElementById("today-title").textContent=d.title;
-      document.getElementById("today-eyebrow").textContent="Today's Doortal · No. "+d.day;
-      document.getElementById("today-description").textContent="One of 31 original interactive adventures. Today's door opens to "+d.title+".";
-      document.getElementById("today-genre").textContent=d.genre;
-      const t=document.getElementById("today-link"); t.href=d.url; t.target="_blank"; t.rel="noopener noreferrer";
-      const visual=document.getElementById("today-portal"); visual.className="portal g-"+color(d); visual.href=t.href; visual.target=t.target; visual.rel=t.rel; visual.setAttribute("aria-label","Open Doortal "+d.day+": "+d.title+" (opens in a new tab)");
-    }
-    showToday();
-    window.setInterval(showToday,60000);
-  }
-
-  function renderCluortals(){
-    cluWall.innerHTML=cluortals.map(c=>`<li data-category="${CLU_CATEGORY_BY_NO[c.no]}" data-difficulty="${c.difficulty.toLowerCase()}"><a class="clue-card" href="${escapeHTML(c.url)}" target="_blank" rel="noopener noreferrer" aria-label="Cluortal ${c.no}: ${escapeHTML(c.title)} (opens in a new tab)">
-      <div class="clue-door g-${escapeHTML(c.color)}" aria-hidden="true"><span class="halo"></span><span class="frame"></span><span class="light"></span><span class="leaf"><span class="word">${escapeHTML(c.word)}</span><span class="num">${String(c.no)}</span><span class="knob"></span></span></div>
-      <span class="cap"><span class="t">${escapeHTML(c.title)}</span><span class="g">${escapeHTML(c.genre)} · ${escapeHTML(c.difficulty)}</span></span>
-      </a></li>`).join("");
-    applyCluFilters();
-
-    const todayClu=cluortals.find(c=>c.no===new Date().getDate());
-    if(!todayClu)return;
-    document.getElementById("today-cluortal-number").textContent=String(todayClu.no);
-    document.getElementById("today-cluortal-word").textContent=todayClu.word;
-    document.getElementById("today-cluortal-eyebrow").textContent="Today's Cluortal · No. "+String(todayClu.no);
-    document.getElementById("today-cluortal-title").textContent=todayClu.title;
-    document.getElementById("today-cluortal-description").textContent=todayClu.description;
-    document.getElementById("today-cluortal-genre").textContent=todayClu.genre;
-    document.getElementById("today-cluortal-link").href=todayClu.url;
-    document.getElementById("today-cluortal-link").firstChild.textContent=todayClu.word.charAt(0)+todayClu.word.slice(1).toLowerCase()+" Today’s Cluortal ";
-    const visual=document.getElementById("today-cluortal-door"); visual.className="clue-door g-"+todayClu.color; visual.href=todayClu.url; visual.setAttribute("aria-label","Open Cluortal "+todayClu.no+": "+todayClu.title+" (opens in a new tab)");
-  }
-  renderCluortals();
-  window.setInterval(renderCluortals,60000);
-  /* Daily Chaortal: reuse the published gallery as the authoritative roster.
-     A day beyond available releases features the latest official door instead of linking to an unbuilt challenge. */
-  function renderTodayChaortal(){
-    const entries=Array.from(document.querySelectorAll(".chaortals-wall a.card")).map(a=>{
-      const number=Number((a.querySelector(".num")||{}).textContent);
-      const portal=a.querySelector(".chaortal-door");
-      const title=a.querySelector(".cap .t");
-      const verb=a.querySelector(".cap .g");
-      return {number,href:a.getAttribute("href"),title:title&&title.textContent,verb:verb&&verb.textContent,classes:portal&&portal.className};
-    }).filter(x=>Number.isInteger(x.number)&&x.number>=1&&x.number<=31&&x.href&&x.title&&x.verb&&x.classes);
-    if(!entries.length)return;
-    const day=new Date().getDate();
-    const current=entries.find(x=>x.number===day);
-    const selected=current||entries.reduce((latest,x)=>x.number>latest.number?x:latest);
-    const fallback=!current;
-    const door=document.getElementById("today-chaortal-door");
-    door.className=selected.classes;
-    door.href=selected.href;
-    door.setAttribute("aria-label","Open Chaortal "+String(selected.number).padStart(2,"0")+": "+selected.title+" (opens in a new tab)");
-    document.getElementById("today-chaortal-number").textContent=String(selected.number).padStart(2,"0");
-    document.getElementById("today-chaortal-eyebrow").textContent=(fallback?"Featured Chaortal":"Today's Chaortal")+" · No. "+selected.number;
-    document.getElementById("today-chaortal-title").textContent=selected.title;
-    document.getElementById("today-chaortal-verb").textContent=selected.verb;
-    document.getElementById("today-chaortal-description").textContent=fallback
-      ? "Door "+String(day).padStart(2,"0")+" is not yet published. Until then, explore "+selected.title+"—one of our official interactive challenges with Bronze, Silver and Gold tiers."
-      : "Today, unlock "+selected.title+". Explore its Bronze, Silver and Gold challenges, exercise your reasoning, and collect seals for your shared Keyring.";
-    const link=document.getElementById("today-chaortal-link");
-    link.href=selected.href;
-    link.firstChild.textContent=fallback?"Unlock Featured Chaortal ":"Unlock Today's Chaortal ";
-  }
-  renderTodayChaortal();
-  window.setInterval(renderTodayChaortal,60000);
-
-})();
-</script>
-
-
-<script>
-/* Keep six matching doors visible by default; filters still operate on all 31 items. */
-(function(){
-  'use strict';
-  var groups=[
-    {section:'stories',list:'#wall',name:'Doortals'},
-    {section:'cluortals',list:'#cluortals-wall',name:'Cluortals'},
-    {section:'chaortals',list:'.chaortals-wall',name:'Chaortals'},
-    {section:'games',list:'.gamortals-wall',name:'Gamortals'}
-  ];
-  groups.forEach(function(g){
-    var section=document.getElementById(g.section),list=section&&section.querySelector(g.list);
-    if(!list)return;
-    var open=false,button=document.createElement('button');
-    button.type='button';button.className='gallery-toggle';
-    if(!list.id)list.id='gallery-'+g.section+'-list';
-    button.setAttribute('aria-controls',list.id);
-    list.insertAdjacentElement('afterend',button);
-    function refresh(){
-      var matches=Array.prototype.filter.call(list.children,function(li){return li.tagName==='LI'&&!li.hidden;});
-      matches.forEach(function(li,i){li.classList.toggle('gallery-folded',!open&&i>=6);});
-      Array.prototype.forEach.call(list.children,function(li){if(li.hidden)li.classList.remove('gallery-folded');});
-      button.hidden=matches.length<=6;
-      button.setAttribute('aria-expanded',String(open));
-      button.textContent=open?'Show Fewer '+g.name:'View All '+matches.length+' '+g.name;
-    }
-    button.addEventListener('click',function(){open=!open;refresh();});
-    g.refresh=refresh;
-    refresh();
-  });
-  // Original Doortal and Cluortal filters can change which six doors match.
-  ['filters','clu-category-filters','clu-difficulty-filters'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el)el.addEventListener('click',function(){setTimeout(function(){groups.forEach(function(g){if(g.refresh)g.refresh();});},0);});
-  });
-  window.DQGalleryRefresh=function(){groups.forEach(function(g){if(g.refresh)g.refresh();});};
-})();
-</script>
 <!-- Cloudflare Web Analytics -->
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"3f72232588414cf087bd7c4ed5e4ddaa"}'></script>
 <!-- End Cloudflare Web Analytics -->
