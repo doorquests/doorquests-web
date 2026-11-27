@@ -45,6 +45,9 @@ legend{font-weight:700;padding:0 .35rem}
 .choice{display:flex;gap:.6rem;align-items:flex-start;padding:.45rem .3rem;border-radius:8px}
 .choice input{width:22px;height:22px;margin:.15rem 0 0;flex:none;accent-color:var(--amber)}
 .choice:hover{background:#1b3760}
+/* Arrow-key focus on native radios: WebKit may not match :focus-visible there, so use :focus */
+.choice input[type="radio"]:focus{outline:3px solid var(--focus);outline-offset:2px;box-shadow:0 0 0 6px rgba(246,184,75,.55)}
+.choice:focus-within{background:#1b3760;box-shadow:inset 0 0 0 2px var(--amber)}
 .feedback{margin:.5rem 0 0;padding:.6rem .8rem;border-radius:10px;background:#0f2442;border:1px solid var(--line)}
 .feedback.good{border-color:var(--ok)}
 .feedback.try{border-color:var(--warn)}
@@ -119,7 +122,10 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .flowval{font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums}
 .stamp{display:inline-block;border:3px double var(--amber);color:var(--amber);font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:.4rem .8rem;border-radius:8px;transform:rotate(-2deg);margin:.25rem 0 .75rem}
 details{margin:.5rem 0}
-summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";flex:none;width:.55em;height:.55em;margin:-.3em 0 0 .7rem;border-right:3px solid currentColor;border-bottom:3px solid currentColor;transform:rotate(45deg);transition:transform .2s}
+details[open] > summary::after{transform:rotate(-135deg);margin-top:.3em}
 dialog{background:var(--panel);color:var(--ink);border:2px solid var(--amber);border-radius:14px;max-width:min(92vw,440px)}
 dialog::backdrop{background:rgba(0,0,0,.6)}
 .errors{color:var(--warn)}
@@ -394,6 +400,7 @@ ul.clean{padding-left:1.2rem;margin:.3rem 0}
             <button id="btnCompare" type="button" class="secondary" hidden>Compare</button>
             <span id="compareHint" class="note"></span>
           </div>
+          <p id="recGuide" class="note" hidden></p>
           <div id="compareBox" hidden></div>
         </section>
 
@@ -544,6 +551,7 @@ function freshState(){
     compared:false,
     compareRunIds:null,  /* run IDs the last valid Compare was based on */
     compareStale:false,
+    compareWasEligible:false,
     preRec:null,         /* {key, light, warmth} recorded before the winter record */
     winter:false,
     winterEvidence:null, /* run IDs fixed when the winter record was legitimately opened */
@@ -598,6 +606,18 @@ function winterEntryProblems(){
   if (!compareValid()) p.push("Press Compare so the comparison matches your current evidence.");
   if (!preRecValid()) p.push("Record a recommendation from a setup in your comparison.");
   return p;
+}
+function compareIntact(){
+  return !!(S.compareRunIds && S.compareRunIds.every(function(id){ const r = runById(id); return r && isComplete(r); }));
+}
+/* What is still missing before a pre-winter recommendation can be made (no unmeasured values disclosed) */
+function recGuidance(){
+  if (S.stage !== 4 || S.preRec || compareValid()) return "";
+  const n = nonBaseCompleteCount();
+  if (n < 2) return "To make a recommendation, you need the baseline plus at least two changed setups with all six stations read, then a Compare. You have " + n + " changed setup" + (n === 1 ? "" : "s") + " so far. You don't need all four.";
+  if (S.compareStale) return "Your evidence changed since you compared. Press Compare again before recommending.";
+  if (S.compared) return "Press Compare again so the comparison includes all your measured setups. Then you can recommend one.";
+  return "You have enough setups. Press Compare, then you can recommend one.";
 }
 function nonBaseCompleteCount(){ return completeKeys().filter(function(k){ return k !== "base"; }).length; }
 function labLocked(){ return S.stage < 2 || S.stage >= 7; }
@@ -742,9 +762,11 @@ function doCompare(){
   S.compared = true;
   S.compareStale = false;
   S.compareRunIds = keys.map(function(k){ return latestComplete(k).id; });
+  S.compareWasEligible = compareValid();
   render();
   const lights = keys.map(function(k){ return CONFIGS[k].short + " light " + latestComplete(k).readings[5]; }).join(", ");
-  announce("Comparing " + keys.length + " setups. Every total is 100. " + lights + ".");
+  const guide = recGuidance();
+  announce("Comparing " + keys.length + " setups. Every total is 100. " + lights + "." + (guide ? " " + guide : ""));
 }
 
 function doPreRec(){
@@ -788,7 +810,7 @@ function doWaste(){
     S.wasteAnswer = v; S.stage = 6; milestone();
     render();
     $("ledgerHeading").focus();
-    announce("Yes. Waste is a judgment about the job, not a kind of energy. Time to sign the ledger.");
+    announce("Right. Waste is a judgment about the job, not a kind of energy. Time to sign the ledger.");
   } else if (v === "always"){
     fb.className = "feedback try";
     fb.textContent = "Look at the winter checks again. Without enough lamp warmth, frost covers the glass. Is the warmth useless in winter?";
@@ -826,6 +848,20 @@ function onFinalRecChange(){
   S.final.rec = v;
   showFinalRecFeedback();
 }
+/* Ranking text for a measured, winter-safe choice, using only fully measured setups */
+function safeChoiceText(v){
+  const lv = latestComplete(v).readings[5];
+  const safe = completeKeys().filter(function(k){ return winterClear(latestComplete(k).readings[4]); });
+  const brighter = safe.filter(function(k){ return k !== v && latestComplete(k).readings[5] > lv; })
+                       .sort(function(a,b){ return latestComplete(b).readings[5] - latestComplete(a).readings[5]; });
+  if (brighter.length){
+    const k = brighter[0], rk = latestComplete(k);
+    return "That is a safe choice. Your measurements show " + CONFIGS[k].short + " gave more light (" + rk.readings[5] + " units) and also kept the glass clear.";
+  }
+  const unmeasured = ORDER.filter(function(k){ return !latestComplete(k); });
+  if (unmeasured.length) return "Of the setups you measured, it gives the most light while keeping the glass clear. You have not measured every setup, so you could investigate more before signing.";
+  return "You measured all four setups, and none that keeps the glass clear gives more light.";
+}
 function showFinalRecFeedback(){
   const fb = $("finalRecFeedback");
   const v = S.final.rec;
@@ -837,12 +873,9 @@ function showFinalRecFeedback(){
   if (!winterClear(w)){
     fb.className = "feedback try";
     fb.textContent = CONFIGS[v].short + " gives " + l + " units of light, but its lamp warmth is " + w + ", below 36. The glass would frost in winter. Choose a setup that keeps the glass clear.";
-  } else if (v === "both"){
-    fb.className = "feedback good";
-    fb.textContent = "Both changes: " + l + " units of light and " + w + " units of lamp warmth. The glass stays clear, and it is the most light of the four modeled setups that pass winter.";
   } else {
     fb.className = "feedback good";
-    fb.textContent = CONFIGS[v].short + " keeps the glass clear (lamp warmth " + w + "). That is a safe choice. Another setup in this model gives more light and still passes winter. You can sign with this one or keep looking.";
+    fb.textContent = CONFIGS[v].short + " keeps the glass clear (lamp warmth " + w + ") and gives " + l + " units of light. " + safeChoiceText(v);
   }
 }
 
@@ -863,8 +896,8 @@ function doSign(){
   if (!latestComplete("cool")) errs.push("Read all six stations for the Cool Lamp setup.");
   if (S.wasteAnswer !== "purpose") errs.push("Answer the question about waste.");
   if (!S.final.explanation) errs.push("Choose a revised explanation.");
-  else if (S.final.explanation === "ate") errs.push("Your explanation: the Flow Count was 5 before and 5 after the lamp. Did the lamp eat the current?");
-  else if (S.final.explanation === "destroyed") errs.push("Your explanation: the six readings signed all 100 units. Was any energy destroyed?");
+  else if (S.final.explanation === "ate") errs.push("Check your explanation against the Flow Count: it was 5 before and 5 after the lamp. Did the lamp eat the current?");
+  else if (S.final.explanation === "destroyed") errs.push("Check your explanation against the ledger: the six readings signed all 100 units. Was any energy destroyed?");
   if (!S.final.reasons.length) errs.push("Choose at least one piece of evidence.");
   if (!S.final.rec) errs.push("Choose a recommendation for the harbor.");
   else {
@@ -897,7 +930,7 @@ function afterLabChange(){
     }
   }
   if (S.stage === 4){
-    if (S.compared && !compareValid()){
+    if (S.compared && (!compareIntact() || (S.compareWasEligible && !compareValid()))){
       S.compared = false; S.compareRunIds = null; S.compareStale = true;
       note += (note ? " " : "") + "Your comparison no longer matches your evidence. Press Compare again.";
     }
@@ -1077,6 +1110,9 @@ function render(){
   $("btnCompare").disabled = S.stage >= 7;
   const ck = completeKeys();
   $("compareHint").textContent = S.stage >= 4 && S.stage < 7 ? ("Setups with all six readings: " + ck.length + (ck.length ? " (" + ck.map(function(k){ return CONFIGS[k].short; }).join(", ") + ")" : "") + ".") : "";
+  const rg = recGuidance();
+  $("recGuide").hidden = !rg;
+  $("recGuide").textContent = rg;
   renderCompare();
 
   /* Stage 3 question */
@@ -1223,7 +1259,7 @@ function renderSigned(){
   h += '<p><strong>Why my thinking changed:</strong> ' + why + '</p>';
   const fk = S.final.rec;
   h += '<h3>8. Final recommendation</h3><p><strong>' + CONFIGS[fk].short + '</strong>, Run ' + fr.id + ': light ' + fr.readings[5] + ', lamp warmth ' + fr.readings[4] + ', glass clear in winter. ';
-  h += fk === "both" ? 'The most light of the four modeled setups that pass winter.' : 'A safe choice. In this model, Both changes gives more light and still passes winter.';
+  h += safeChoiceText(fk);
   if (S.preRec.key !== fk) h += ' I changed from ' + CONFIGS[S.preRec.key].short + ' after checking the winter record.';
   h += '</p>';
   h += '<p class="model-note">All numbers are illustrative units from this story\'s model, not real measurements.</p>';
